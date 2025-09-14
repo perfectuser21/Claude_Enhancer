@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🤖 VibePilot AI Butler - 本地版</title>
+    <meta charset="utf-8">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        .connection-info {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 14px;
+        }
+        .server-select {
+            margin-bottom: 15px;
+        }
+        select {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 12px;
+            margin: 0 5px;
+        }
+        option {
+            background: #333;
+            color: white;
+        }
+        .chat-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+        }
+        .message {
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 10px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+        .user-message {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            margin-left: auto;
+            text-align: right;
+        }
+        .butler-message {
+            background: rgba(255, 255, 255, 0.2);
+            margin-right: auto;
+        }
+        .system-message {
+            background: rgba(255, 193, 7, 0.3);
+            margin: 0 auto;
+            text-align: center;
+            font-size: 12px;
+            max-width: 90%;
+        }
+        .input-container {
+            display: flex;
+            gap: 10px;
+        }
+        input {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 16px;
+        }
+        input::placeholder { color: rgba(255, 255, 255, 0.7); }
+        button {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 25px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover { transform: translateY(-2px); }
+        button:disabled {
+            opacity: 0.5;
+            transform: none;
+            cursor: not-allowed;
+        }
+        .status {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .loading {
+            background: rgba(255, 193, 7, 0.3);
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        .connection-status {
+            font-size: 12px;
+        }
+        .connected { color: #4CAF50; }
+        .disconnected { color: #f44336; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 VibePilot AI Butler - 本地版</h1>
+
+        <div class="connection-info">
+            <div class="server-select">
+                🌐 服务器地址:
+                <select id="serverSelect" onchange="updateServer()">
+                    <option value="http://146.190.52.84:8001">146.190.52.84:8001 (外网)</option>
+                    <option value="http://localhost:8001">localhost:8001 (本地)</option>
+                    <option value="http://127.0.0.1:8001">127.0.0.1:8001 (本地)</option>
+                </select>
+                <button onclick="testConnection()">测试连接</button>
+            </div>
+            <div class="connection-status" id="connectionStatus">
+                🔵 等待连接测试...
+            </div>
+        </div>
+
+        <div class="chat-container">
+            <div class="messages" id="messages">
+                <div class="butler-message message">
+                    👋 你好！我是VibePilot的AI管家。我可以自动调用Claude Code来帮你处理各种编程任务，无需手动确认权限。
+                    <br><br>
+                    直接告诉我你需要做什么就行！
+                </div>
+                <div class="system-message message">
+                    💡 本地版本可以连接到远程VibePilot服务器，请先测试连接
+                </div>
+            </div>
+            <div class="input-container">
+                <input type="text" id="messageInput" placeholder="告诉我你需要做什么..." onkeypress="handleKeyPress(event)" disabled>
+                <button id="sendButton" onclick="sendMessage()" disabled>发送</button>
+            </div>
+        </div>
+
+        <div class="status">
+            <span id="status">🔴 未连接 - 请先测试服务器连接</span>
+            <span id="connectionIndicator" class="disconnected">● 离线</span>
+        </div>
+    </div>
+
+    <script>
+        let currentServer = 'http://146.190.52.84:8001';
+        let isConnected = false;
+
+        function updateServer() {
+            const select = document.getElementById('serverSelect');
+            currentServer = select.value;
+            isConnected = false;
+            updateUIState();
+            addSystemMessage(`🔄 服务器地址已更改为: ${currentServer}`);
+        }
+
+        async function testConnection() {
+            const statusEl = document.getElementById('connectionStatus');
+            const indicatorEl = document.getElementById('connectionIndicator');
+
+            statusEl.innerHTML = '🔄 测试连接中...';
+            statusEl.className = 'connection-status';
+
+            try {
+                const response = await fetch(`${currentServer}/health`, {
+                    method: 'GET',
+                    mode: 'cors',
+                    headers: {
+                        'Accept': 'application/json',
+                    },
+                    signal: AbortSignal.timeout(5000)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    statusEl.innerHTML = `🟢 连接成功！服务器状态: ${data.status}`;
+                    statusEl.className = 'connection-status connected';
+                    indicatorEl.textContent = '● 在线';
+                    indicatorEl.className = 'connected';
+                    isConnected = true;
+                    addSystemMessage(`✅ 成功连接到 ${currentServer}`);
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                statusEl.innerHTML = `🔴 连接失败: ${error.message}`;
+                statusEl.className = 'connection-status disconnected';
+                indicatorEl.textContent = '● 离线';
+                indicatorEl.className = 'disconnected';
+                isConnected = false;
+                addSystemMessage(`❌ 连接失败: ${error.message}`);
+
+                // 提供建议
+                if (currentServer.includes('146.190.52.84')) {
+                    addSystemMessage('💡 建议: 尝试切换到 localhost:8001 如果你在同一台机器上');
+                }
+            }
+
+            updateUIState();
+        }
+
+        function updateUIState() {
+            const input = document.getElementById('messageInput');
+            const button = document.getElementById('sendButton');
+            const status = document.getElementById('status');
+
+            if (isConnected) {
+                input.disabled = false;
+                button.disabled = false;
+                status.textContent = '🟢 AI管家就绪，等待指令...';
+            } else {
+                input.disabled = true;
+                button.disabled = true;
+                status.textContent = '🔴 未连接 - 请先测试服务器连接';
+            }
+        }
+
+        async function sendMessage() {
+            if (!isConnected) {
+                addSystemMessage('❌ 请先建立服务器连接');
+                return;
+            }
+
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            addMessage(message, 'user');
+            input.value = '';
+
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'loading';
+            loadingDiv.textContent = '🤖 管家正在处理...';
+            document.getElementById('messages').appendChild(loadingDiv);
+
+            try {
+                const response = await fetch(`${currentServer}/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({message: message}),
+                    signal: AbortSignal.timeout(60000) // 1分钟超时
+                });
+
+                const data = await response.json();
+                loadingDiv.remove();
+
+                if (data.success) {
+                    addMessage(data.response, 'butler');
+                    updateStatus(data.status || '✅ 任务完成');
+                } else {
+                    addMessage('❌ 处理失败: ' + (data.error || '未知错误'), 'butler');
+                    updateStatus('❌ 处理失败');
+                }
+            } catch (error) {
+                loadingDiv.remove();
+                addMessage('❌ 连接错误: ' + error.message, 'butler');
+                updateStatus('❌ 连接错误');
+
+                // 连接失败后重新测试
+                if (error.name === 'AbortError') {
+                    addSystemMessage('⏰ 请求超时，任务可能需要更长时间');
+                } else {
+                    isConnected = false;
+                    updateUIState();
+                    addSystemMessage('🔄 连接中断，请重新测试连接');
+                }
+            }
+        }
+
+        function addMessage(text, type) {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}-message`;
+            messageDiv.innerHTML = text.replace(/\n/g, '<br>');
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function addSystemMessage(text) {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message system-message';
+            messageDiv.innerHTML = text;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function updateStatus(status) {
+            document.getElementById('status').textContent = status;
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // 页面加载时自动测试默认连接
+        window.addEventListener('load', () => {
+            addSystemMessage('🚀 VibePilot 本地界面已加载，正在测试默认连接...');
+            setTimeout(testConnection, 1000);
+        });
+    </script>
+</body>
+</html>

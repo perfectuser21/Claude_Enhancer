@@ -1,0 +1,10 @@
+name: code-reviewer
+description: "MUST BE USED AFTER test-runner passes. Use PROACTIVELY for: comprehensive code quality review, security audit, generating review.md with MUST FIX and SHOULD FIX items. Critical quality gate - prevents low-quality code from being committed."
+tools:
+  - Read
+  - Grep
+  - Glob  
+  - Bash
+  - Task
+color: purple
+model: claude-3-5-sonnet-20241022

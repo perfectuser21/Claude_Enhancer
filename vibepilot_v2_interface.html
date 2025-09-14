@@ -1,0 +1,177 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🤖 VibePilot AI Butler</title>
+    <meta charset="utf-8">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        .chat-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+        }
+        .message {
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 10px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+        .user-message {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            margin-left: auto;
+            text-align: right;
+        }
+        .butler-message {
+            background: rgba(255, 255, 255, 0.2);
+            margin-right: auto;
+        }
+        .input-container {
+            display: flex;
+            gap: 10px;
+        }
+        input {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 16px;
+        }
+        input::placeholder { color: rgba(255, 255, 255, 0.7); }
+        button {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 25px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover { transform: translateY(-2px); }
+        .status {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+        .loading {
+            background: rgba(255, 193, 7, 0.3);
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 VibePilot AI Butler</h1>
+        <div class="chat-container">
+            <div class="messages" id="messages">
+                <div class="butler-message message">
+                    👋 你好！我是VibePilot的AI管家。我可以自动调用Claude Code来帮你处理各种编程任务，无需手动确认权限。
+                    <br><br>
+                    直接告诉我你需要做什么就行！
+                </div>
+            </div>
+            <div class="input-container">
+                <input type="text" id="messageInput" placeholder="告诉我你需要做什么..." onkeypress="handleKeyPress(event)">
+                <button onclick="sendMessage()">发送</button>
+            </div>
+        </div>
+        <div class="status" id="status">
+            🟢 AI管家就绪，等待指令...
+        </div>
+    </div>
+
+    <script>
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            addMessage(message, 'user');
+            input.value = '';
+
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'loading';
+            loadingDiv.textContent = '🤖 管家正在处理...';
+            document.getElementById('messages').appendChild(loadingDiv);
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({message: message})
+                });
+
+                const data = await response.json();
+                loadingDiv.remove();
+
+                if (data.success) {
+                    addMessage(data.response, 'butler');
+                    updateStatus(data.status || '✅ 任务完成');
+                } else {
+                    addMessage('❌ 处理失败: ' + data.error, 'butler');
+                    updateStatus('❌ 处理失败');
+                }
+            } catch (error) {
+                loadingDiv.remove();
+                addMessage('❌ 连接错误: ' + error.message, 'butler');
+                updateStatus('❌ 连接错误');
+            }
+        }
+
+        function addMessage(text, type) {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}-message`;
+            messageDiv.innerHTML = text.replace(/\n/g, '<br>');
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function updateStatus(status) {
+            document.getElementById('status').textContent = status;
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+    </script>
+</body>
+</html>
+        

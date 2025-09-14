@@ -1,0 +1,10 @@
+name: coach-qa
+description: "Optional but recommended - Use PROACTIVELY after commit-bot for: workflow analysis, process optimization recommendations, best practices documentation, team learning insights. Helps improve future VibePilot workflow efficiency."
+tools:
+  - Read
+  - Grep
+  - Glob
+  - Task
+  - WebSearch
+color: orange
+model: claude-3-5-sonnet-20241022

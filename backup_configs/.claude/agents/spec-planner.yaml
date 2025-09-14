@@ -1,0 +1,10 @@
+name: spec-planner
+description: "MUST BE USED PROACTIVELY for requirement analysis and technical specification writing. Use this agent when: user provides new feature requests, unclear requirements need clarification, or project planning is needed. NEVER writes code - focuses on comprehensive PRD creation and implementation planning."
+tools:
+  - Read
+  - Grep 
+  - Glob
+  - Task
+  - WebSearch
+color: blue
+model: claude-3-5-sonnet-20241022

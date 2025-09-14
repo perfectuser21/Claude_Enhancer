@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>VibePilot V2 测试页面</title>
+    <meta charset="utf-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 50px;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .test-link {
+            display: inline-block;
+            background: #4CAF50;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 25px;
+            margin: 10px;
+        }
+        .test-link:hover {
+            background: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚁 VibePilot V2 连接测试</h1>
+        <p>如果您能看到这个页面，说明网络连接正常！</p>
+
+        <h3>测试不同的访问方式：</h3>
+        <a href="http://localhost:8001" class="test-link">localhost:8001</a>
+        <a href="http://127.0.0.1:8001" class="test-link">127.0.0.1:8001</a>
+        <a href="http://146.190.52.84:8001" class="test-link">146.190.52.84:8001</a>
+
+        <h3>检查列表：</h3>
+        <ul style="text-align: left; max-width: 400px; margin: 20px auto;">
+            <li>✅ 服务器运行正常</li>
+            <li>✅ 端口8001已开放</li>
+            <li>✅ HTML响应正确</li>
+            <li>❓ 浏览器访问测试</li>
+        </ul>
+
+        <p><strong>如果上面的链接都打不开，请检查：</strong></p>
+        <ol style="text-align: left; max-width: 400px; margin: 20px auto;">
+            <li>浏览器是否阻止了非HTTPS连接</li>
+            <li>是否有代理服务器设置</li>
+            <li>防火墙或安全软件是否阻止</li>
+            <li>尝试无痕/隐私模式</li>
+        </ol>
+
+        <div style="margin-top: 30px; font-size: 12px; opacity: 0.8;">
+            测试时间: <span id="time"></span>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('time').textContent = new Date().toLocaleString();
+    </script>
+</body>
+</html>

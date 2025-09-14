@@ -1,0 +1,18 @@
+{
+  "name": "agent-interaction-tracker",
+  "description": "跟踪和分析sub-agent交互，记录性能和问题",
+  "version": "1.0.0",
+  "triggers": ["agent_invocation", "agent_response"],
+  "action": "python3 scripts/dev_session_tracker.py --track-interaction",
+  "config": {
+    "track_performance": true,
+    "analyze_quality": true,
+    "detect_issues": true,
+    "generate_insights": true
+  },
+  "output": {
+    "log_file": "eval/logs/agent_interactions.log",
+    "analysis_file": "eval/sessions/current_session_analysis.json"
+  },
+  "enabled": true
+}

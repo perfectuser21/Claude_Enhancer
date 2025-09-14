@@ -1,0 +1,139 @@
+{
+  "version": "2.1.0",
+  "project_name": "VibePilot Resilient",
+  "description": "抗掉线·持续协作 - AI多代理工作流自动化系统",
+  "default_model": "claude-opus-4-1-20250805",
+  "edition": "resilient",
+  
+  "agents": {
+    "enabled": true,
+    "sequence": ["spec-planner", "developer-coder", "test-runner", "code-reviewer", "commit-bot", "coach-qa"],
+    "mandatory": ["spec-planner", "developer-coder", "test-runner", "code-reviewer"],
+    "optional": ["coach-qa"],
+    "config": {
+      "timeout_minutes": 60,
+      "retry_attempts": 3,
+      "parallel_execution": false,
+      "quality_first": true,
+      "skip_optional": false,
+      "anti_fallback": true,
+      "proactive_triggering": true,
+      "strict_role_separation": true
+    }
+  },
+  
+  "hooks": {
+    "notification": {
+      "enabled": true,
+      "auto_approve_safe": true,
+      "auto_approve_subagent_ops": true,
+      "defer_risky": true,
+      "log_all": true
+    },
+    "pre_tool_use": {
+      "enabled": true,
+      "log_level": "warn",
+      "deny_patterns": ["rm -rf", "sudo", "chmod 777", ">/dev/null 2>&1"],
+      "protect_paths": [".env", "keys/", "deploy/", ".git/"],
+      "allow_subagent_bypass": true
+    },
+    "post_tool_use": {
+      "enabled": true,
+      "auto_format": true,
+      "smoke_test": true,
+      "formatters": {
+        "python": ["black", "isort"],
+        "javascript": ["prettier", "eslint --fix"],
+        "json": ["jq"],
+        "markdown": ["prettier"]
+      }
+    },
+    "subagent_stop": {
+      "enabled": true,
+      "auto_continue_workflow": true,
+      "provide_next_step_guidance": true,
+      "log_workflow_state": true
+    },
+    "session_management": {
+      "pre_compact_save": true,
+      "session_start_restore": true,
+      "memory_persistence": true,
+      "workflow_context_retention": true
+    },
+    "stop_session": {
+      "enabled": true,
+      "auto_commit": false,
+      "generate_report": true,
+      "check_thresholds": true
+    }
+  },
+  
+  "evaluation": {
+    "standards": "maximum",
+    "weights": {
+      "tests": 0.35,
+      "review": 0.35,
+      "security": 0.30
+    },
+    "thresholds": {
+      "pass_score": 85,
+      "must_fix_limit": 0,
+      "should_fix_limit": 3,
+      "test_coverage_min": 75,
+      "test_failure_max": 0
+    },
+    "evidence_required": ["tests.json", "review.md"],
+    "self_eval_required": true,
+    "quality_gates": {
+      "mandatory_deep_review": true,
+      "mandatory_security_audit": true,
+      "block_on_must_fix": true
+    }
+  },
+  
+  "anti_fallback": {
+    "enabled": true,
+    "strategies": [
+      "notification_auto_approve",
+      "subagent_continuity_enforcement", 
+      "memory_persistence",
+      "session_context_restoration",
+      "proactive_subagent_triggering"
+    ],
+    "memory_retention": {
+      "workflow_state": true,
+      "subagent_sequence": true,
+      "quality_constraints": true,
+      "role_separation_rules": true
+    },
+    "fallback_detection": {
+      "monitor_main_thread_code_edits": true,
+      "alert_on_sequence_skip": true,
+      "track_subagent_usage_ratio": true
+    }
+  },
+  
+  "cost_control": {
+    "enabled": false,
+    "quality_priority": true,
+    "track_for_analytics": true,
+    "optimization": {
+      "cache_responses": true,
+      "use_premium_models": true,
+      "prefer_continuity_over_cost": true
+    }
+  },
+  
+  "logging": {
+    "level": "DEBUG",
+    "file": "eval/logs/vibepilot.log",
+    "rotation": "daily",
+    "retention_days": 30,
+    "special_logs": {
+      "workflow_state": "eval/logs/workflow.log",
+      "memory_operations": "eval/logs/memory.log", 
+      "hook_actions": "eval/logs/hooks.log",
+      "anti_fallback": "eval/logs/anti_fallback.log"
+    }
+  }
+}

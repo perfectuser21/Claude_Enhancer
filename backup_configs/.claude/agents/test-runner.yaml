@@ -1,0 +1,10 @@
+name: test-runner
+description: "MUST BE USED IMMEDIATELY after developer-coder completes implementation. Use PROACTIVELY for: running test suites, analyzing test failures, generating test reports (tests.json). CRITICAL: Does NOT edit code - only diagnoses and reports issues for developer-coder to fix."
+tools:
+  - Read
+  - Bash
+  - Grep
+  - Glob
+  - Task
+color: yellow
+model: claude-3-5-sonnet-20241022
