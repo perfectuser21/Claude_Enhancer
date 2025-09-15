@@ -8,11 +8,13 @@ import asyncio
 import logging
 from typing import Dict, List, Any, Optional
 
-from core.ai_pool import AIPool, AIInstanceType
-from core.router import IntelligentRouter
-from core.workspace_manager import WorkspaceManager
-from modules.claude_bridge.executor import ClaudeExecutor
-from features.ai_butler.butler import AIButler
+# 添加项目路径
+import os
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
+from main.vp import Perfect21
+from features.git_workflow import GitHooks, WorkflowManager, BranchManager
 
 logger = logging.getLogger("Perfect21")
 
