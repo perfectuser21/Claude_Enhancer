@@ -106,6 +106,7 @@ class PluginManager:
                     sys.path[:] = original_path
             else:
                 # 从模块路径加载
+                import importlib
                 try:
                     module_path = f"features.git_workflow.plugins.built_in.{plugin_name}"
                     module = importlib.import_module(module_path)
@@ -218,9 +219,26 @@ class PluginManager:
             # 设置执行上下文
             plugin.execution_context = context
 
+            # 执行插件前的验证
+            if not plugin.validate_environment():
+                return PluginResult(
+                    status=PluginStatus.ERROR,
+                    message="插件环境验证失败",
+                    execution_time=time.time() - start_time
+                )
+
             # 执行插件
             result = plugin.execute(context)
             result.execution_time = time.time() - start_time
+
+            # 验证返回结果
+            if not isinstance(result, PluginResult):
+                self.logger.warning(f"插件 {plugin_name} 返回了无效的结果类型")
+                result = PluginResult(
+                    status=PluginStatus.ERROR,
+                    message="插件返回了无效的结果类型",
+                    execution_time=time.time() - start_time
+                )
 
             # 更新统计信息
             self.execution_stats["total_executions"] += 1
@@ -234,19 +252,52 @@ class PluginManager:
             self.logger.info(f"插件 {plugin_name} 执行完成: {result.status.value} ({result.execution_time:.2f}s)")
             return result
 
+        except KeyboardInterrupt:
+            # 处理用户中断
+            execution_time = time.time() - start_time
+            self.execution_stats["total_executions"] += 1
+            self.execution_stats["failed_executions"] += 1
+            self.execution_stats["total_execution_time"] += execution_time
+
+            self.logger.warning(f"插件 {plugin_name} 被用户中断")
+            return PluginResult(
+                status=PluginStatus.ERROR,
+                message="插件执行被用户中断",
+                execution_time=execution_time
+            )
+
+        except TimeoutError:
+            # 处理超时
+            execution_time = time.time() - start_time
+            self.execution_stats["total_executions"] += 1
+            self.execution_stats["failed_executions"] += 1
+            self.execution_stats["total_execution_time"] += execution_time
+
+            self.logger.error(f"插件 {plugin_name} 执行超时")
+            return PluginResult(
+                status=PluginStatus.ERROR,
+                message=f"插件执行超时 ({plugin.metadata.timeout}秒)",
+                execution_time=execution_time
+            )
+
         except Exception as e:
             execution_time = time.time() - start_time
             self.execution_stats["total_executions"] += 1
             self.execution_stats["failed_executions"] += 1
             self.execution_stats["total_execution_time"] += execution_time
 
+            # 记录详细的错误信息
+            import traceback
+            error_details = traceback.format_exc()
+            self.logger.error(f"插件 {plugin_name} 执行异常: {e}\n{error_details}")
+
             error_result = PluginResult(
                 status=PluginStatus.ERROR,
                 message=f"插件执行异常: {str(e)}",
-                execution_time=execution_time
+                execution_time=execution_time,
+                error=error_details
             )
 
-            self.logger.error(f"插件 {plugin_name} 执行异常: {e}")
             return error_result
 
     def execute_plugins(self, plugin_names: List[str], context: Dict[str, Any],
@@ -280,11 +331,27 @@ class PluginManager:
                 for future in concurrent.futures.as_completed(future_to_plugin):
                     plugin_name = future_to_plugin[future]
                     try:
-                        results[plugin_name] = future.result()
-                    except Exception as e:
+                        results[plugin_name] = future.result(timeout=120)  # 2分钟超时
+                    except concurrent.futures.TimeoutError:
+                        self.logger.error(f"插件 {plugin_name} 并行执行超时")
                         results[plugin_name] = PluginResult(
                             status=PluginStatus.ERROR,
-                            message=f"并行执行异常: {str(e)}"
+                            message="并行执行超时"
+                        )
+                    except KeyboardInterrupt:
+                        self.logger.warning(f"插件 {plugin_name} 并行执行被中断")
+                        results[plugin_name] = PluginResult(
+                            status=PluginStatus.ERROR,
+                            message="并行执行被用户中断"
+                        )
+                    except Exception as e:
+                        import traceback
+                        error_details = traceback.format_exc()
+                        self.logger.error(f"插件 {plugin_name} 并行执行异常: {e}\n{error_details}")
+                        results[plugin_name] = PluginResult(
+                            status=PluginStatus.ERROR,
+                            message=f"并行执行异常: {str(e)}",
+                            error=error_details
                         )
 
         return results
@@ -338,10 +405,19 @@ class PluginManager:
             except Exception as e:
                 self.logger.warning(f"插件 {plugin_name} 清理失败: {e}")
 
+            # 清理插件内部引用
+            if hasattr(plugin, 'execution_context'):
+                plugin.execution_context.clear()
+            if hasattr(plugin, 'config'):
+                plugin.config.clear()
+
             # 从注册表中移除
             del self.plugins[plugin_name]
             if plugin_name in self.plugin_classes:
                 del self.plugin_classes[plugin_name]
+
+            # 清理对象引用
+            del plugin
 
             self.logger.info(f"插件 {plugin_name} 已卸载")
             return True
@@ -403,10 +479,52 @@ class PluginManager:
 
     def cleanup(self) -> None:
         """清理所有插件"""
-        for plugin_name in list(self.plugins.keys()):
+        plugin_names = list(self.plugins.keys())
+        for plugin_name in plugin_names:
             self.unload_plugin(plugin_name)
 
-        self.logger.info("所有插件已清理")
+        # 强制清理引用
+        self.plugins.clear()
+        self.plugin_classes.clear()
+
+        # 清理执行统计
+        self.execution_stats.clear()
+        self.execution_stats = {
+            "total_executions": 0,
+            "successful_executions": 0,
+            "failed_executions": 0,
+            "total_execution_time": 0.0
+        }
+
+        # 清理配置引用
+        if hasattr(self, 'config') and self.config:
+            self.config.clear()
+
+        # 清理sys.modules中的插件模块（谨慎操作）
+        try:
+            import sys
+            modules_to_remove = []
+            for module_name in list(sys.modules.keys()):
+                if ('features.git_workflow.plugins.built_in' in module_name and
+                    module_name != 'features.git_workflow.plugins.built_in'):
+                    modules_to_remove.append(module_name)
+
+            for module_name in modules_to_remove:
+                try:
+                    if module_name in sys.modules:
+                        del sys.modules[module_name]
+                except (KeyError, AttributeError):
+                    pass
+        except Exception as e:
+            # 如果sys模块清理失败，记录警告但不影响其他清理
+            self.logger.warning(f"清理sys.modules失败，忽略: {e}")
+
+        # 强制垃圾回收 (多次执行以确保完全清理)
+        import gc
+        for _ in range(3):
+            gc.collect()
+
+        self.logger.info("所有插件及内存已清理")
 
     def __del__(self):
         """析构函数，确保插件被清理"""

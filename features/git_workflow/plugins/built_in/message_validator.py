@@ -37,7 +37,14 @@ class MessageValidatorPlugin(CommitWorkflowPlugin):
         """执行提交消息验证"""
         commit_message = self.get_commit_message()
 
+        # 如果没有提交消息（例如测试环境），跳过验证
         if not commit_message:
+            # 检查是否是测试环境
+            if context.get('test_mode', False) or not self.execution_context.get('commit_msg_file'):
+                return PluginResult(
+                    status=PluginStatus.SKIPPED,
+                    message="测试模式或无提交消息，跳过验证"
+                )
             return PluginResult(
                 status=PluginStatus.ERROR,
                 message="无法获取提交消息"

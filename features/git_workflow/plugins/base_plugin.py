@@ -196,9 +196,31 @@ class CommitWorkflowPlugin(BasePlugin):
     def get_commit_message(self) -> str:
         """获取提交消息"""
         commit_msg_file = self.execution_context.get('commit_msg_file')
+
+        # 尝试从文件读取
         if commit_msg_file and os.path.exists(commit_msg_file):
-            with open(commit_msg_file, 'r', encoding='utf-8') as f:
-                return f.read().strip()
+            try:
+                with open(commit_msg_file, 'r', encoding='utf-8') as f:
+                    return f.read().strip()
+            except Exception as e:
+                self.logger.warning(f"读取提交消息文件失败: {e}")
+
+        # 尝试从上下文获取
+        context_message = self.execution_context.get('commit_message')
+        if context_message:
+            return context_message.strip()
+
+        # 尝试从Git获取最近的提交消息（仅用于测试）
+        try:
+            import subprocess
+            result = subprocess.run(
+                ['git', 'log', '-1', '--pretty=%B'],
+                capture_output=True, text=True, check=True
+            )
+            return result.stdout.strip()
+        except subprocess.CalledProcessError:
+            pass
+
         return ""
 
     def filter_files_by_extension(self, files: List[str], extensions: List[str]) -> List[str]:

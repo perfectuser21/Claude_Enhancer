@@ -239,3 +239,29 @@ class GitHooks:
             'core_path': os.path.join(self.project_root, 'core/claude-code-unified-agents/.claude/agents'),
             'hooks_active': True
         }
+
+    def cleanup(self) -> None:
+        """清理GitHooks实例，释放内存"""
+        try:
+            # 清理映射配置
+            if hasattr(self, 'subagent_mapping'):
+                self.subagent_mapping.clear()
+
+            # 清理项目根路径引用
+            self.project_root = None
+
+            # 强制垃圾回收
+            import gc
+            gc.collect()
+
+            logger.info("GitHooks清理完成")
+
+        except Exception as e:
+            logger.error(f"GitHooks清理失败: {e}")
+
+    def __del__(self):
+        """析构函数，确保资源被清理"""
+        try:
+            self.cleanup()
+        except:
+            pass

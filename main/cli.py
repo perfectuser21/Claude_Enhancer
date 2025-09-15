@@ -203,6 +203,52 @@ def handle_workflow(p21: Perfect21, args: argparse.Namespace) -> None:
         print(f"❌ {workflow_commands[args.workflow_action]}失败")
         print(f"错误: {result.get('message', '未知错误')}")
 
+def handle_branch(p21: Perfect21, args: argparse.Namespace) -> None:
+    """处理分支命令"""
+    if args.branch_action == 'status':
+        # 显示当前分支状态
+        result = p21.status()
+        if result['success']:
+            status = result['status']
+
+            print("🌿 分支状态")
+            print("=" * 50)
+
+            project = status['project']
+            print(f"Git仓库: {'✅ 是' if project['is_git_repo'] else '❌ 否'}")
+            print(f"当前分支: {project.get('current_branch', '未知')}")
+
+            if 'branches' in status and status['branches'].get('current_branch'):
+                branch_info = status['branches']['current_branch']
+                print(f"分支类型: {branch_info['info']['type']}")
+                print(f"保护级别: {branch_info['info']['protection_level']}")
+
+                if branch_info['info'].get('subagent'):
+                    print(f"建议Agent: {branch_info['info']['subagent']}")
+        else:
+            print(f"❌ 获取分支状态失败: {result.get('message', '未知错误')}")
+
+    elif args.branch_action == 'list':
+        # 列出所有分支
+        print("🌿 分支列表")
+        print("=" * 50)
+        try:
+            import subprocess
+            result = subprocess.run(['git', 'branch', '-v'],
+                                  capture_output=True, text=True, check=True)
+            print(result.stdout)
+        except subprocess.CalledProcessError:
+            print("❌ 无法获取分支列表")
+
+    elif args.branch_action == 'info':
+        # 显示详细分支信息
+        result = p21.workflow('branch-info')
+        if result['success']:
+            print("✅ 分支信息分析完成")
+            print(result.get('message', ''))
+        else:
+            print(f"❌ 分支信息分析失败: {result.get('message', '未知错误')}")
+
 def main():
     """CLI主函数"""
     parser = argparse.ArgumentParser(description='Perfect21 CLI - Git工作流管理工具')
@@ -237,6 +283,12 @@ def main():
     execute_parser.add_argument('--old-ref', help='旧引用(post-checkout)')
     execute_parser.add_argument('--new-ref', help='新引用(post-checkout)')
     execute_parser.add_argument('--file', help='提交消息文件(commit-msg)')
+
+    # branch命令
+    branch_parser = subparsers.add_parser('branch', help='分支管理')
+    branch_parser.add_argument('branch_action',
+                              choices=['status', 'list', 'info'],
+                              help='分支操作')
 
     # workflow命令
     workflow_parser = subparsers.add_parser('workflow', help='工作流管理')
@@ -273,6 +325,8 @@ def main():
             print_status(p21)
         elif args.command == 'hooks':
             handle_git_hooks(p21, args)
+        elif args.command == 'branch':
+            handle_branch(p21, args)
         elif args.command == 'workflow':
             handle_workflow(p21, args)
         else:

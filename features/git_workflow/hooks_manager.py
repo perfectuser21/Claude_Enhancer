@@ -578,3 +578,42 @@ echo "✅ Perfect21 {hook_name}处理完成"
 
             if len(plugin_status['enabled_plugins']) > 10:
                 print(f"    ... 还有 {len(plugin_status['enabled_plugins']) - 10} 个插件")
+
+    def cleanup(self) -> None:
+        """清理GitHooksManager实例，释放内存"""
+        try:
+            # 清理插件管理器
+            if hasattr(self, 'plugin_manager') and self.plugin_manager:
+                self.plugin_manager.cleanup()
+
+            # 清理配置加载器
+            if hasattr(self, 'config_loader') and self.config_loader:
+                if hasattr(self.config_loader, 'cleanup'):
+                    self.config_loader.cleanup()
+
+            # 清理GitHooks实例
+            if hasattr(self, 'git_hooks') and self.git_hooks:
+                if hasattr(self.git_hooks, 'cleanup'):
+                    self.git_hooks.cleanup()
+
+            # 清理配置缓存
+            if hasattr(self, 'hooks_config'):
+                self.hooks_config.clear()
+            if hasattr(self, 'hook_groups'):
+                self.hook_groups.clear()
+
+            # 强制垃圾回收
+            import gc
+            gc.collect()
+
+            logger.info("GitHooksManager清理完成")
+
+        except Exception as e:
+            logger.error(f"GitHooksManager清理失败: {e}")
+
+    def __del__(self):
+        """析构函数，确保资源被清理"""
+        try:
+            self.cleanup()
+        except:
+            pass

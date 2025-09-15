@@ -181,6 +181,44 @@ class Perfect21:
                 'message': f"命令{command}执行失败"
             }
 
+    def cleanup(self) -> None:
+        """清理Perfect21实例，释放内存"""
+        try:
+            # 清理Git Hooks系统
+            if hasattr(self, 'git_hooks') and self.git_hooks:
+                if hasattr(self.git_hooks, 'cleanup'):
+                    self.git_hooks.cleanup()
+
+            # 清理工作流管理器
+            if hasattr(self, 'workflow_manager') and self.workflow_manager:
+                if hasattr(self.workflow_manager, 'cleanup'):
+                    self.workflow_manager.cleanup()
+
+            # 清理分支管理器
+            if hasattr(self, 'branch_manager') and self.branch_manager:
+                if hasattr(self.branch_manager, 'cleanup'):
+                    self.branch_manager.cleanup()
+
+            # 清理配置引用
+            if hasattr(self, 'config'):
+                self.config = None
+
+            # 强制垃圾回收
+            import gc
+            gc.collect()
+
+            log_info("Perfect21清理完成")
+
+        except Exception as e:
+            log_error("Perfect21清理失败", e)
+
+    def __del__(self):
+        """析构函数，确保资源被清理"""
+        try:
+            self.cleanup()
+        except:
+            pass
+
 def main():
     """主函数"""
     parser = argparse.ArgumentParser(description='Perfect21 - 基于claude-code-unified-agents的Git工作流管理')
