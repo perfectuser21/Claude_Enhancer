@@ -1,211 +1,207 @@
 # Claude Code 项目指导文档
 
 **项目名称**: Perfect21
-**项目类型**: 企业级多Agent协作开发平台  
-**技术栈**: Python, MCP, Claude Opus 4.1, GPT-5, Shell Script  
-**目标用户**: 追求极致质量的开发者和团队  
+**项目类型**: 基于claude-code-unified-agents的智能Git工作流管理平台
+**技术栈**: Python, claude-code-unified-agents, Git Hooks
+**目标用户**: 需要智能Git工作流管理的开发者和团队
 
 ## 🎯 项目概述
 
-Perfect21 是一个企业级多Agent协作开发平台，集成了56个专业SubAgent，通过Orchestrator智能协调实现真正的并行开发。每个Agent都是生产级专家，覆盖开发、基础设施、质量保证、AI/ML、业务流程等全领域，让开发团队获得前所未有的协作效率和代码质量。
+Perfect21 是基于claude-code-unified-agents的智能Git工作流管理平台，通过SubAgent调用编排器实现智能的Git操作自动化。项目采用最小可行架构，专注于Git工作流增强，避免重复造轮子。
 
 ### 核心理念
-- 🚀 **多Agent协作**: 56个专业Agent + Orchestrator智能协调 + 真正并行开发
-- 🤖 **企业级质量**: 每个Agent包含1000+行生产级代码，经过实际项目验证
-- 💡 **专业化分工**: 覆盖开发到运维的完整技术栈，确保专家级输出
-- ⚡ **即开即用**: 基于Claude Code原生机制，无缝集成现有工作流
+- 🎯 **SubAgent编排**: 智能调用claude-code-unified-agents的现有Agent，不重复实现功能
+- 🏗️ **最小架构**: feature/main/core/module清晰分层，易于维护和扩展
+- 🚀 **官方同步**: core目录完全使用claude-code-unified-agents，保持更新同步
+- ⚡ **轻量高效**: 13个核心文件，98%代码减少，专注Git工作流价值
 
 ## 🏗️ 系统架构
 
-### 完整的13个SubAgent专业分工
+### 完整的4层架构
 
-#### 📋 需求与架构阶段
-1. **spec-planner**: 需求分析和规划 (Claude Opus 4.1 + GPT-5 协作)
-2. **spec-architect**: 系统架构和技术设计 (Claude Opus 4.1 + GPT-5 协作)
+```
+Perfect21/
+├── core/                          # claude-code-unified-agents核心层
+│   └── claude-code-unified-agents/
+│       └── .claude/agents/        # 53个官方Agent配置
+├── features/                      # 功能层
+│   └── git_workflow/             # Git工作流SubAgent调用编排器
+│       ├── hooks.py              # Git钩子处理
+│       ├── workflow.py           # 工作流管理
+│       └── branch_manager.py     # 分支管理
+├── modules/                      # 工具层
+│   ├── config.py                # 配置管理
+│   ├── logger.py                # 日志系统
+│   └── utils.py                 # 工具函数
+└── main/                        # 入口层
+    ├── vp.py                    # 主程序
+    └── cli.py                   # 命令行接口
+```
 
-#### 💻 开发实现阶段  
-3. **developer-primary**: 主开发和核心实现 (GPT-5 + Claude Opus 协作)
-4. **developer-parallel**: 替代实现方案 (GPT-5 独立)
+### SubAgent调用策略
 
-#### 🧪 测试验证阶段
-5. **test-generator**: 测试用例设计和策略 (GPT-5 独立)
-6. **test-runner**: 测试执行和验证 (GPT-5-mini 成本优化)
+**Perfect21作为智能调用编排器**，不重复实现功能：
 
-#### 🔒 审查与安全阶段
-7. **code-reviewer**: 代码质量和最佳实践审查 (Claude Opus 4.1 + GPT-5 协作)
-8. **security-auditor**: 安全漏洞评估 (Claude Opus 4.1 + GPT-5 协作)
-9. **performance-analyzer**: 性能优化分析 (Claude Opus 4.1 + GPT-5 协作)
-
-#### ✅ 质量保证阶段
-10. **cross-validator**: 交叉验证和一致性检查 (Claude Opus 4.1 独立)
-11. **quality-gatekeeper**: 质量门禁执行 (Claude Opus 4.1 独立)
-12. **coach-qa**: 流程改进和指导 (Claude Opus 4.1 独立)
-13. **commit-bot**: Git操作和版本管理 (GPT-5 独立)
-
-### MCP智能路由系统
-- **协作模式**: 重要Agent自动启用多模型协作
-- **成本优化**: 自动选择最佳模型组合
-- **质量保证**: 关键审查环节多模型共识验证
-- **并行处理**: 真正的并行执行，最大化效率
-
-## 🎯 质量优先策略
-
-### 默认行为
-**所有任务都使用完整的13个SubAgent MCP并行协作**，包括：
-- 简单的Hello World函数
-- 复杂的微服务架构系统
-- API接口开发
-- 代码重构和优化
-
-### 质量保证特性
-- ✅ **多层审查**: code-reviewer + security-auditor + performance-analyzer
-- ✅ **交叉验证**: cross-validator确保一致性
-- ✅ **质量门禁**: quality-gatekeeper严格把关
-- ✅ **双重实现**: developer-primary + developer-parallel提供选择
-- ✅ **全面测试**: test-generator + test-runner完整覆盖
+| Git操作 | 调用的SubAgent | 功能说明 |
+|---------|---------------|----------|
+| pre-commit | @code-reviewer, @orchestrator | 代码审查和质量检查 |
+| pre-push | @test-engineer | 测试执行和验证 |
+| post-checkout | @devops-engineer | 环境配置检查 |
+| 安全检查 | @security-auditor | 安全漏洞扫描 |
+| 性能分析 | @performance-engineer | 性能优化建议 |
 
 ## 🚀 使用方法
 
-### 基本使用
+### 基本命令
 ```bash
-# 启动任何任务都会自动使用13个SubAgent并行协作
-./vp "创建用户登录API"
-./vp "重构支付系统"  
-./vp "优化数据库查询性能"
+# 查看系统状态
+python3 main/cli.py status
+
+# Git钩子管理
+python3 main/cli.py hooks list                # 查看可用钩子
+python3 main/cli.py hooks pre-commit          # 执行提交前检查
+python3 main/cli.py hooks pre-push            # 执行推送前检查
+
+# 工作流管理
+python3 main/cli.py workflow list             # 查看工作流操作
+python3 main/cli.py workflow branch-info      # 分析当前分支
+python3 main/cli.py workflow create-feature --name auth-system  # 创建功能分支
 ```
 
-### 系统状态
+### Git工作流集成
+Perfect21通过Git钩子自动触发SubAgent调用：
+
 ```bash
-./vp status          # 查看MCP系统状态
-./vp health          # 系统健康检查
-./vp --help          # 查看使用帮助
+# 当执行git commit时，自动触发
+git commit -m "新功能实现"
+# → Perfect21调用 @code-reviewer 进行代码审查
+# → 根据分支类型选择检查严格程度
+
+# 当执行git push时，自动触发
+git push origin feature/new-auth
+# → Perfect21调用 @test-engineer 运行测试
+# → 防止直接推送到受保护分支
 ```
 
-## 💰 成本与效率优化
+## 💡 设计原则
 
-### 智能成本控制
-- **节省40-60%**: MCP智能路由优化模型选择
-- **质量不打折**: 协作模式确保输出质量
-- **并行处理**: 真正的多Agent并行，提升效率
+### 1. 不重复造轮子
+- **利用官方Agent**: 使用claude-code-unified-agents的53个专业Agent
+- **专注编排价值**: Perfect21只做智能调用和工作流管理
+- **保持同步**: core目录直接使用官方代码，自动获得更新
 
-### 模型分配策略
-- **Claude Opus 4.1**: 深度推理、安全分析、架构设计
-- **GPT-5**: 代码生成、算法优化、快速实现  
-- **GPT-5-mini**: 测试执行、成本敏感任务
-- **智能协作**: 重要任务自动启用多模型协作
+### 2. 最小可行架构
+- **13个核心文件**: 从701个文件减少到13个
+- **清晰分层**: 每层职责明确，便于理解和维护
+- **模块化设计**: 功能独立，易于扩展
 
-## 📊 预期效果
-
-### 质量提升
-- **多模型协作**: 重要环节双重验证
-- **专业分工**: 每个Agent专注特定领域
-- **全面覆盖**: 从需求到部署的完整流程
-
-### 效率提升  
-- **并行处理**: 多Agent同时工作
-- **智能路由**: 自动选择最佳模型
-- **成本优化**: 40-60%成本节省
-
-### 开发体验
-- **零配置**: 开箱即用的质量优先模式
-- **全自动**: 智能分析和执行
-- **透明度**: 详细的执行过程和成本报告
+### 3. Git工作流专精
+- **智能分支管理**: 根据分支类型调整检查策略
+- **自动质量门禁**: 主分支严格检查，功能分支基础检查
+- **SubAgent协调**: 多个Agent协作完成复杂工作流
 
 ## 🔧 技术实现
 
-### MCP集成
-- **统一路由器**: `core/model_router.py`
-- **任务调度**: 智能分配和并行执行
-- **成本跟踪**: 实时成本监控和优化
+### SubAgent调用机制
+```python
+# Perfect21不实现具体功能，而是智能调用SubAgent
+def call_subagent(self, agent_name: str, task_description: str):
+    """调用claude-code-unified-agents的SubAgent"""
+    return {
+        'command': f"请在Claude Code中执行: {agent_name} {task_description}",
+        'context': {...}
+    }
 
-### 质量保证
-- **证据文件**: tests.json + review.md + 执行日志
-- **门禁机制**: 90分质量标准
-- **持续改进**: 自动学习和优化
+# 示例: 提交前检查
+if branch_type == 'main':
+    # 主分支严格检查
+    result = self.call_subagent(
+        '@orchestrator',
+        '执行严格的提交前质量检查：代码审查、安全扫描、测试验证'
+    )
+else:
+    # 功能分支基础检查
+    result = self.call_subagent(
+        '@code-reviewer',
+        '执行代码审查：检查代码质量、格式、最佳实践'
+    )
+```
 
-## 🎉 核心价值
+### 工作流智能决策
+```python
+# 根据分支类型和操作类型智能选择Agent
+branch_mapping = {
+    'main': '@orchestrator',        # 完整质量门禁
+    'release': '@deployment-manager', # 部署就绪检查
+    'hotfix': '@test-engineer',     # 快速测试验证
+    'feature': '@code-reviewer'     # 代码质量检查
+}
+```
 
-**VibePilot Enhanced V2提供企业级的AI辅助开发体验:**
+## 📊 核心价值
 
-1. **🚀 最高质量**: 13个SubAgent专业协作，多模型验证
-2. **💰 成本效率**: 智能优化，节省40-60%成本
-3. **⚡ 真正并行**: 多Agent同时工作，效率最大化
-4. **🎯 质量优先**: 所有任务都获得最高标准处理
-5. **🤖 智能自动**: 零配置，自动分析和执行
+### 对比传统方案
+
+| 特性 | 传统Git工具 | Perfect21 |
+|------|------------|-----------|
+| 代码审查 | 手动或简单脚本 | @code-reviewer智能分析 |
+| 安全检查 | 第三方工具集成 | @security-auditor专业扫描 |
+| 测试管理 | 固定测试脚本 | @test-engineer智能策略 |
+| 分支策略 | 静态规则 | 动态SubAgent选择 |
+| 学习能力 | 无 | Agent持续改进 |
+
+### 扩展能力
+- **新功能**: 在features/目录添加新的SubAgent编排器
+- **新Agent**: 在core/目录自动获得claude-code-unified-agents更新
+- **自定义**: 在modules/目录扩展工具函数
+- **集成**: 在main/目录添加新的入口点
+
+## 🎉 核心优势
+
+**Perfect21提供的独特价值**:
+
+1. **🎯 智能编排**: 53个专业Agent + 智能调用策略
+2. **🏗️ 架构清晰**: feature/main/core/module标准分层
+3. **⚡ 轻量高效**: 98%代码减少，专注核心价值
+4. **🔄 官方同步**: 自动获得claude-code-unified-agents更新
+5. **🚀 Git专精**: 专为Git工作流优化的智能管理
 
 ---
 
-**🎯 立即开始使用VibePilot Enhanced V2，体验13个SubAgent MCP并行协作带来的质量革命！** 🚁
+**🎯 Perfect21 = claude-code-unified-agents + 智能Git工作流管理** 🚁
 
 ## 📁 文件管理规则 (重要!)
 
-### 🚨 严格遵守的文件管理规范
+### 🚨 严格遵守的架构原则
 
-#### 禁止行为
-1. **禁止创建版本文件**: 永远不要创建 `*_v2.py`, `*_new.py`, `*_final.py`, `*_backup.py` 等版本文件
-2. **禁止重写已存在文件**: 不要用Write工具覆盖现有文件
-3. **禁止在文件名中管理版本**: 版本控制交给Git，不在文件名体现
+#### 核心设计
+1. **core/目录不可修改**: 完全使用claude-code-unified-agents官方代码
+2. **features/专注功能**: 每个feature只做SubAgent调用编排
+3. **modules/纯工具**: 只包含配置、日志、工具函数
+4. **main/纯入口**: 只包含程序启动和CLI逻辑
 
-#### 必须行为  
-1. **使用Edit工具**: 修改现有文件时，必须使用Edit工具，不用Write
-2. **直接修改原文件**: 有问题直接改原文件，不创建新版本
-3. **依赖Git管理版本**: 历史版本由Git管理，可随时回滚
-4. **清理后再工作**: 每次开始前运行 `vp clean` 检查版本混乱
+#### 扩展规则
+1. **新功能**: 在features/目录创建新的SubAgent编排器
+2. **不重复实现**: 优先寻找现有Agent，避免重复开发
+3. **保持轻量**: 新增代码必须有明确的编排价值
+4. **文档更新**: 重大功能需要更新此CLAUDE.md文档
 
-#### 工作流程
+#### 维护准则
 ```bash
-# 1. 开始工作前
-vp clean --report                    # 检查版本文件情况
-vp clean --auto                      # 自动清理安全的版本文件
-vp clean --interactive               # 手动处理复杂情况
+# 检查架构完整性
+python3 main/cli.py status
 
-# 2. 修改代码时
-# ✅ 正确方式: 直接编辑现有文件
-Edit(/path/to/existing_file.py, old_text, new_text)
+# 验证Agent可用性
+ls core/claude-code-unified-agents/.claude/agents/
 
-# ❌ 错误方式: 创建新版本
-Write(/path/to/existing_file_v2.py, content)
-
-# 3. 完成工作后
-git add -A && git commit -m "描述修改内容"
-vp clean --auto                      # 再次检查清理
-```
-
-#### 异常情况处理
-- **需要对比版本**: 使用 `git diff` 查看差异
-- **需要备份**: 让Git创建分支，不要创建文件副本  
-- **临时测试**: 在 `/tmp` 目录创建，不在项目内
-- **实验功能**: 创建新的功能模块，不修改文件名版本
-
-#### 自动化支持
-- **Git钩子**: 自动检测并阻止版本文件提交
-- **vp clean命令**: 智能清理版本文件混乱
-- **实时监控**: VibePilot自动检测版本文件创建
-
-### 🔧 使用VibePilot文件清理工具
-
-```bash
-# 查看版本文件情况
-python -m modules.version_cleaner --report report.md
-
-# 自动清理安全的版本文件  
-python -m modules.version_cleaner --auto
-
-# 交互式清理模式
-python -m modules.version_cleaner --interactive
-
-# 空运行模式(查看将执行的操作)
-python -m modules.version_cleaner --dry-run
-
-# 集成到VibePilot工作流
-vp clean                             # 清理版本文件
-vp clean --auto                      # 自动模式
-vp clean --report                    # 生成清理报告
+# 确认功能正常
+python3 main/cli.py hooks list
+python3 main/cli.py workflow list
 ```
 
 ---
 
-*最后更新: 2025-09-06*  
-*版本: VibePilot Enhanced V2.12.0*  
-*维护者: MCP多模型协作团队*  
-*文件管理: VibePilot Version Cleaner System*
+*最后更新: 2025-09-15*
+*版本: Perfect21 v2.0.0*
+*架构: claude-code-unified-agents + Git Workflow编排器*
+*文件数: 13个核心文件 (98%精简)*# Test update
