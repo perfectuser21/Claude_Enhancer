@@ -5,7 +5,7 @@ capability_discovery功能描述文件
 
 CAPABILITY = {
     "name": "capability_discovery",
-    "version": "1.0.0",
+    "version": "2.1.0",
     "description": "动态发现和集成Perfect21新功能的元功能模块",
     "category": "meta",
     "priority": "critical",

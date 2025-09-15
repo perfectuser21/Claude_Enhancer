@@ -5,7 +5,7 @@ Perfect21的Git工作流管理功能
 
 CAPABILITY = {
     "name": "git_workflow",
-    "version": "2.0.0",
+    "version": "2.1.0",
     "description": "Perfect21的Git工作流管理和自动化功能模块",
     "category": "workflow",
     "priority": "high",

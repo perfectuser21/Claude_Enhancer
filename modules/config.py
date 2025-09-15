@@ -24,7 +24,7 @@ class ConfigManager:
         """加载默认配置"""
         return {
             'perfect21': {
-                'version': '2.0.0',
+                'version': '2.1.0',
                 'mode': 'minimal',
                 'core_path': 'core/claude-code-unified-agents/.claude/agents'
             },

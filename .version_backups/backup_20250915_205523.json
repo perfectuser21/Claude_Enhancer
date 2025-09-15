@@ -1,0 +1,166 @@
+{
+  "timestamp": "20250915_205523",
+  "current_version": "2.0.0",
+  "version_sources": [
+    {
+      "file": "/home/xx/dev/Perfect21/__init__.py",
+      "relative_path": "__init__.py",
+      "type": "python_version",
+      "version": "2.0.0",
+      "regex": "__version__\\s*=\\s*[\"\\']([^\"\\']+)[\"\\']",
+      "valid": true
+    },
+    {
+      "file": "/home/xx/dev/Perfect21/features/capability_discovery/__init__.py",
+      "relative_path": "features/capability_discovery/__init__.py",
+      "type": "python_version",
+      "version": "1.0.0",
+      "regex": "__version__\\s*=\\s*[\"\\']([^\"\\']+)[\"\\']",
+      "valid": true
+    },
+    {
+      "file": "/home/xx/dev/Perfect21/features/version_manager/__init__.py",
+      "relative_path": "features/version_manager/__init__.py",
+      "type": "python_version",
+      "version": "2.1.0",
+      "regex": "__version__\\s*=\\s*[\"\\']([^\"\\']+)[\"\\']",
+      "valid": true
+    },
+    {
+      "file": "/home/xx/dev/Perfect21/venv/lib/python3.10/site-packages/setuptools/_vendor/more_itertools/__init__.py",
+      "relative_path": "venv/lib/python3.10/site-packages/setuptools/_vendor/more_itertools/__init__.py",
+      "type": "python_version",
+      "version": "8.8.0",
+      "regex": "__version__\\s*=\\s*[\"\\']([^\"\\']+)[\"\\']",
+      "valid": true
+    },
+    {
+      "file": "/home/xx/dev/Perfect21/venv/lib/python3.10/site-packages/pip/__init__.py",
+      "relative_path": "venv/lib/python3.10/site-packages/pip/__init__.py",
+      "type": "python_version",
+      "version": "22.0.2",
+      "regex": "__version__\\s*=\\s*[\"\\']([^\"\\']+)[\"\\']",
+      "valid": true
+    },
+    {
+      "file": "/home/xx/dev/Perfect21/venv/lib/python3.10/site-packages/pip/_vendor/tomli/__init__.py",
+      "relative_path": "venv/lib/python3.10/site-packages/pip/_vendor/tomli/__init__.py",
+      "type": "python_version",
+      "version": "1.0.3",
+      "regex": "__version__\\s*=\\s*[\"\\']([^\"\\']+)[\"\\']",
+      "valid": true
+    },
+    {
+      "file": "/home/xx/dev/Perfect21/venv/lib/python3.10/site-packages/pip/_vendor/pygments/__init__.py",
+      "relative_path": "venv/lib/python3.10/site-packages/pip/_vendor/pygments/__init__.py",
+      "type": "python_version",
+      "version": "2.11.2",
+      "regex": "__version__\\s*=\\s*[\"\\']([^\"\\']+)[\"\\']",
+      "valid": true
+    },
+    {
+      "file": "/home/xx/dev/Perfect21/venv/lib/python3.10/site-packages/pip/_vendor/html5lib/__init__.py",
+      "relative_path": "venv/lib/python3.10/site-packages/pip/_vendor/html5lib/__init__.py",
+      "type": "python_version",
+      "version": "1.1",
+      "regex": "__version__\\s*=\\s*[\"\\']([^\"\\']+)[\"\\']",
+      "valid": false
+    },
+    {
+      "file": "/home/xx/dev/Perfect21/venv/lib/python3.10/site-packages/pip/_vendor/progress/__init__.py",
+      "relative_path": "venv/lib/python3.10/site-packages/pip/_vendor/progress/__init__.py",
+      "type": "python_version",
+      "version": "1.6",
+      "regex": "__version__\\s*=\\s*[\"\\']([^\"\\']+)[\"\\']",
+      "valid": false
+    },
+    {
+      "file": "/home/xx/dev/Perfect21/venv/lib/python3.10/site-packages/pip/_vendor/pep517/__init__.py",
+      "relative_path": "venv/lib/python3.10/site-packages/pip/_vendor/pep517/__init__.py",
+      "type": "python_version",
+      "version": "0.12.0",
+      "regex": "__version__\\s*=\\s*[\"\\']([^\"\\']+)[\"\\']",
+      "valid": true
+    },
+    {
+      "file": "/home/xx/dev/Perfect21/venv/lib/python3.10/site-packages/pip/_vendor/distlib/__init__.py",
+      "relative_path": "venv/lib/python3.10/site-packages/pip/_vendor/distlib/__init__.py",
+      "type": "python_version",
+      "version": "0.3.4",
+      "regex": "__version__\\s*=\\s*[\"\\']([^\"\\']+)[\"\\']",
+      "valid": true
+    },
+    {
+      "file": "/home/xx/dev/Perfect21/venv/lib/python3.10/site-packages/pip/_vendor/resolvelib/__init__.py",
+      "relative_path": "venv/lib/python3.10/site-packages/pip/_vendor/resolvelib/__init__.py",
+      "type": "python_version",
+      "version": "0.8.1",
+      "regex": "__version__\\s*=\\s*[\"\\']([^\"\\']+)[\"\\']",
+      "valid": true
+    },
+    {
+      "file": "/home/xx/dev/Perfect21/venv/lib/python3.10/site-packages/pip/_vendor/colorama/__init__.py",
+      "relative_path": "venv/lib/python3.10/site-packages/pip/_vendor/colorama/__init__.py",
+      "type": "python_version",
+      "version": "0.4.4",
+      "regex": "__version__\\s*=\\s*[\"\\']([^\"\\']+)[\"\\']",
+      "valid": true
+    },
+    {
+      "file": "/home/xx/dev/Perfect21/venv/lib/python3.10/site-packages/pip/_vendor/certifi/__init__.py",
+      "relative_path": "venv/lib/python3.10/site-packages/pip/_vendor/certifi/__init__.py",
+      "type": "python_version",
+      "version": "2021.10.08",
+      "regex": "__version__\\s*=\\s*[\"\\']([^\"\\']+)[\"\\']",
+      "valid": false
+    },
+    {
+      "file": "/home/xx/dev/Perfect21/venv/lib/python3.10/site-packages/pip/_vendor/cachecontrol/__init__.py",
+      "relative_path": "venv/lib/python3.10/site-packages/pip/_vendor/cachecontrol/__init__.py",
+      "type": "python_version",
+      "version": "0.12.10",
+      "regex": "__version__\\s*=\\s*[\"\\']([^\"\\']+)[\"\\']",
+      "valid": true
+    },
+    {
+      "file": "/home/xx/dev/Perfect21/modules/config.py",
+      "relative_path": "modules/config.py",
+      "type": "config_version",
+      "version": "2.0.0",
+      "regex": "[\"\\']version[\"\\']\\s*:\\s*[\"\\']([^\"\\']+)[\"\\']",
+      "valid": true
+    },
+    {
+      "file": "/home/xx/dev/Perfect21/features/capability_discovery/capability.py",
+      "relative_path": "features/capability_discovery/capability.py",
+      "type": "capability_version",
+      "version": "1.0.0",
+      "regex": "[\"\\']version[\"\\']\\s*:\\s*[\"\\']([^\"\\']+)[\"\\']",
+      "valid": true
+    },
+    {
+      "file": "/home/xx/dev/Perfect21/features/version_manager/capability.py",
+      "relative_path": "features/version_manager/capability.py",
+      "type": "capability_version",
+      "version": "2.1.0",
+      "regex": "[\"\\']version[\"\\']\\s*:\\s*[\"\\']([^\"\\']+)[\"\\']",
+      "valid": true
+    },
+    {
+      "file": "/home/xx/dev/Perfect21/features/git_workflow/capability.py",
+      "relative_path": "features/git_workflow/capability.py",
+      "type": "capability_version",
+      "version": "2.0.0",
+      "regex": "[\"\\']version[\"\\']\\s*:\\s*[\"\\']([^\"\\']+)[\"\\']",
+      "valid": true
+    },
+    {
+      "file": "/home/xx/dev/Perfect21/api/rest_server.py",
+      "relative_path": "api/rest_server.py",
+      "type": "api_version",
+      "version": "2.0.0",
+      "regex": "version\\s*=\\s*[\"\\']([^\"\\']+)[\"\\']",
+      "valid": true
+    }
+  ]
+}
