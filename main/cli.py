@@ -158,13 +158,13 @@ def handle_workflow(p21: Perfect21, args: argparse.Namespace) -> None:
         if not args.name:
             print("❌ 请提供功能名称: --name <feature-name>")
             return
-        workflow_args = [args.name, args.from_branch or 'develop']
+        workflow_args = [args.name, args.from_branch]
 
     elif args.workflow_action == 'create-release':
         if not args.version:
             print("❌ 请提供版本号: --version <version>")
             return
-        workflow_args = [args.version, args.from_branch or 'develop']
+        workflow_args = [args.version, args.from_branch]
 
     elif args.workflow_action == 'merge-to-main':
         if not args.source:

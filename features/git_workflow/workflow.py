@@ -38,14 +38,64 @@ class WorkflowManager:
 
         logger.info("Git工作流管理器初始化完成")
 
-    def create_feature_branch(self, feature_name: str, from_branch: str = 'develop') -> Dict[str, Any]:
+    def _get_default_base_branch(self) -> str:
+        """智能选择默认基础分支"""
+        try:
+            # 获取所有分支
+            result = subprocess.run(
+                ['git', 'branch', '-a'],
+                cwd=self.project_root,
+                capture_output=True,
+                text=True,
+                check=True
+            )
+
+            branches = [
+                line.strip().replace('* ', '').replace('remotes/origin/', '')
+                for line in result.stdout.split('\n')
+                if line.strip() and not line.strip().startswith('HEAD ->')
+            ]
+
+            # 按优先级选择基础分支
+            for preferred_branch in ['develop', 'main', 'master']:
+                if preferred_branch in branches:
+                    logger.info(f"选择基础分支: {preferred_branch}")
+                    return preferred_branch
+
+            # 如果没有找到标准分支，返回当前分支
+            current_result = subprocess.run(
+                ['git', 'rev-parse', '--abbrev-ref', 'HEAD'],
+                cwd=self.project_root,
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            current_branch = current_result.stdout.strip()
+            logger.warning(f"未找到标准分支，使用当前分支: {current_branch}")
+            return current_branch
+
+        except subprocess.CalledProcessError as e:
+            logger.error(f"获取分支信息失败: {e}")
+            return 'main'  # 默认回退到main
+
+    def create_feature_branch(self, feature_name: str, from_branch: str = None) -> Dict[str, Any]:
         """创建功能分支"""
         try:
             branch_name = f"feature/{feature_name}"
 
+            # 智能选择源分支
+            if from_branch is None:
+                from_branch = self._get_default_base_branch()
+
             # 切换到源分支并更新
             subprocess.run(['git', 'checkout', from_branch], cwd=self.project_root, check=True)
-            subprocess.run(['git', 'pull'], cwd=self.project_root, check=True)
+
+            # 尝试拉取更新，但如果没有remote tracking分支则跳过
+            try:
+                subprocess.run(['git', 'pull'], cwd=self.project_root, check=True)
+                logger.info(f"更新分支{from_branch}成功")
+            except subprocess.CalledProcessError:
+                logger.warning(f"无法拉取{from_branch}分支更新，可能是本地仓库或无upstream配置")
 
             # 创建新分支
             subprocess.run(['git', 'checkout', '-b', branch_name], cwd=self.project_root, check=True)
@@ -79,14 +129,24 @@ class WorkflowManager:
                 'message': f"创建功能分支{feature_name}失败"
             }
 
-    def create_release_branch(self, version: str, from_branch: str = 'develop') -> Dict[str, Any]:
+    def create_release_branch(self, version: str, from_branch: str = None) -> Dict[str, Any]:
         """创建发布分支"""
         try:
             branch_name = f"release/{version}"
 
+            # 智能选择源分支
+            if from_branch is None:
+                from_branch = self._get_default_base_branch()
+
             # 切换到源分支并更新
             subprocess.run(['git', 'checkout', from_branch], cwd=self.project_root, check=True)
-            subprocess.run(['git', 'pull'], cwd=self.project_root, check=True)
+
+            # 尝试拉取更新，但如果没有remote tracking分支则跳过
+            try:
+                subprocess.run(['git', 'pull'], cwd=self.project_root, check=True)
+                logger.info(f"更新分支{from_branch}成功")
+            except subprocess.CalledProcessError:
+                logger.warning(f"无法拉取{from_branch}分支更新，可能是本地仓库或无upstream配置")
 
             # 创建发布分支
             subprocess.run(['git', 'checkout', '-b', branch_name], cwd=self.project_root, check=True)
