@@ -136,36 +136,82 @@ class VersionAdvisor:
         commits = changes_data.get('commits', [])
         file_changes = changes_data.get('file_changes', [])
 
-        # 分析提交消息
+        # 分析提交消息 - 优先检测Conventional Commits格式
         breaking_indicators = 0
         feature_indicators = 0
         patch_indicators = 0
 
+        # Conventional Commits类型计数
+        conventional_types = {
+            'feat': 0,
+            'fix': 0,
+            'docs': 0,
+            'style': 0,
+            'refactor': 0,
+            'test': 0,
+            'chore': 0,
+            'build': 0,
+            'ci': 0,
+            'perf': 0
+        }
+
         for commit in commits:
             commit_msg = commit.lower()
 
-            # 检查breaking changes
-            for pattern in self.breaking_changes_patterns:
-                if re.search(pattern, commit_msg, re.IGNORECASE):
-                    breaking_indicators += 1
+            # 提取提交消息部分（去掉hash）
+            if ' ' in commit_msg:
+                commit_content = commit_msg.split(' ', 1)[1]  # 去掉commit hash部分
+            else:
+                commit_content = commit_msg
+
+            # 首先检查Conventional Commits格式
+            conventional_detected = False
+            for commit_type in conventional_types.keys():
+                if commit_content.startswith(f'{commit_type}:') or commit_content.startswith(f'{commit_type}('):
+                    conventional_types[commit_type] += 1
+                    conventional_detected = True
+
+                    # 根据Conventional Commits类型分类
+                    if commit_type in ['feat']:
+                        feature_indicators += 1
+                    elif commit_type in ['fix', 'perf']:
+                        patch_indicators += 1
+                    elif commit_type in ['docs', 'style', 'refactor', 'test', 'chore', 'build', 'ci']:
+                        patch_indicators += 1  # 维护性变更
+
+                    # 检查是否包含BREAKING CHANGE
+                    if 'breaking' in commit_content or 'breaking change' in commit_content:
+                        breaking_indicators += 1
+
                     break
 
-            # 检查feature changes
-            for pattern in self.feature_changes_patterns:
-                if re.search(pattern, commit_msg, re.IGNORECASE):
-                    feature_indicators += 1
-                    break
+            # 如果不是Conventional Commits格式，使用传统模式匹配
+            if not conventional_detected:
+                # 检查breaking changes
+                for pattern in self.breaking_changes_patterns:
+                    if re.search(pattern, commit_content, re.IGNORECASE):
+                        breaking_indicators += 1
+                        break
 
-            # 检查patch changes
-            for pattern in self.patch_changes_patterns:
-                if re.search(pattern, commit_msg, re.IGNORECASE):
-                    patch_indicators += 1
-                    break
+                # 检查feature changes
+                for pattern in self.feature_changes_patterns:
+                    if re.search(pattern, commit_content, re.IGNORECASE):
+                        feature_indicators += 1
+                        break
 
-        # 分析文件变更
+                # 检查patch changes
+                for pattern in self.patch_changes_patterns:
+                    if re.search(pattern, commit_content, re.IGNORECASE):
+                        patch_indicators += 1
+                        break
+
+        # 分析文件变更 - 只有在提交消息模糊时才参考文件路径
         api_changes = 0
         new_features = 0
         config_changes = 0
+
+        # 如果已经有明确的Conventional Commits类型，降低文件路径权重
+        has_conventional_commits = sum(conventional_types.values()) > 0
 
         for change in file_changes:
             if not change.strip():
@@ -173,17 +219,20 @@ class VersionAdvisor:
 
             status, filepath = change.split('\t', 1)
 
-            # API相关变更
+            # API相关变更 - 仅在没有明确提交类型时参考
             if any(api_file in filepath for api_file in ['api/', '__init__.py', 'cli.py']):
-                if status == 'D':  # 删除
+                if status == 'D':  # 删除API通常是breaking
                     breaking_indicators += 1
-                elif status == 'A':  # 新增
+                elif status == 'A' and not has_conventional_commits:  # 新增API
                     feature_indicators += 1
                 else:  # 修改
                     api_changes += 1
 
-            # 新功能模块
-            if 'features/' in filepath and status == 'A':
+            # 新功能模块 - 更严格的判断
+            # 只有在没有Conventional Commits且路径明确是新功能时才计算
+            if ('features/' in filepath and status == 'A' and
+                not has_conventional_commits and
+                not any(fix_pattern in filepath.lower() for fix_pattern in ['fix', 'bug', 'patch', 'repair'])):
                 new_features += 1
                 feature_indicators += 1
 
@@ -199,7 +248,9 @@ class VersionAdvisor:
             'new_features': new_features,
             'config_changes': config_changes,
             'total_commits': len(commits),
-            'total_file_changes': len(file_changes)
+            'total_file_changes': len(file_changes),
+            'conventional_types': conventional_types,
+            'has_conventional_commits': has_conventional_commits
         }
 
     def suggest_version_bump(self, current_version: str) -> Dict[str, Any]:
@@ -244,6 +295,8 @@ class VersionAdvisor:
         features = classification['feature_indicators']
         patches = classification['patch_indicators']
         new_features = classification['new_features']
+        conventional_types = classification.get('conventional_types', {})
+        has_conventional = classification.get('has_conventional_commits', False)
 
         # Major版本判断
         if breaking > 0:
@@ -253,11 +306,35 @@ class VersionAdvisor:
                 'reasoning': f'检测到{breaking}个breaking changes指标，建议Major版本升级'
             }
 
-        # 新功能模块判断（特殊情况）
-        if new_features > 0:
+        # Conventional Commits优先判断
+        if has_conventional:
+            fix_count = conventional_types.get('fix', 0)
+            feat_count = conventional_types.get('feat', 0)
+            maintenance_count = sum(conventional_types.get(t, 0) for t in ['docs', 'style', 'refactor', 'test', 'chore', 'build', 'ci', 'perf'])
+
+            # 如果只有fix、perf、维护性变更，建议Patch版本
+            if fix_count > 0 or maintenance_count > 0:
+                if feat_count == 0:  # 没有新功能
+                    return {
+                        'bump_type': 'patch',
+                        'confidence': 'high',
+                        'reasoning': f'基于Conventional Commits分析：{fix_count}个fix + {maintenance_count}个维护性变更，建议Patch版本升级'
+                    }
+
+            # 如果有feat类型，建议Minor版本
+            if feat_count > 0:
+                return {
+                    'bump_type': 'minor',
+                    'confidence': 'high',
+                    'reasoning': f'基于Conventional Commits分析：{feat_count}个新功能，建议Minor版本升级'
+                }
+
+        # 传统分析逻辑（向后兼容）
+        # 新功能模块判断（仅在没有Conventional Commits时使用）
+        if new_features > 0 and not has_conventional:
             return {
                 'bump_type': 'minor',
-                'confidence': 'high',
+                'confidence': 'medium',
                 'reasoning': f'检测到{new_features}个新功能模块，建议Minor版本升级'
             }
 
