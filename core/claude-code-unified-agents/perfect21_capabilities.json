@@ -25,7 +25,7 @@
       "runtime_update",
       "before_task_routing"
     ],
-    "registered_at": "2025-09-15T21:07:31.029137"
+    "registered_at": "2025-09-16T00:45:44.082558"
   },
   "git_workflow": {
     "name": "git_workflow",
@@ -63,7 +63,7 @@
       "project_initialization",
       "branch_operations"
     ],
-    "registered_at": "2025-09-15T21:07:31.034776"
+    "registered_at": "2025-09-16T00:45:44.087602"
   },
   "version_manager": {
     "name": "version_manager",
@@ -88,7 +88,11 @@
       "get_version_info",
       "check_version_consistency",
       "generate_changelog",
-      "create_version_tag"
+      "create_version_tag",
+      "suggest_version_bump",
+      "generate_upgrade_report",
+      "validate_version_history",
+      "analyze_breaking_changes"
     ],
     "integration_points": [
       "project_initialization",
@@ -98,6 +102,6 @@
       "version_update",
       "deployment"
     ],
-    "registered_at": "2025-09-15T21:07:31.031969"
+    "registered_at": "2025-09-16T00:45:44.085021"
   }
 }

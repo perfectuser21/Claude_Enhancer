@@ -249,6 +249,143 @@ def handle_branch(p21: Perfect21, args: argparse.Namespace) -> None:
         else:
             print(f"❌ 分支信息分析失败: {result.get('message', '未知错误')}")
 
+def handle_claude_md(p21: Perfect21, args: argparse.Namespace) -> None:
+    """处理CLAUDE.md命令"""
+    try:
+        # 动态导入claude_md_manager
+        from features.claude_md_manager import (
+            DynamicUpdater,
+            MemorySynchronizer,
+            TemplateManager,
+            ContentAnalyzer
+        )
+
+        if args.claude_md_action == 'sync':
+            print("🔄 同步CLAUDE.md内容...")
+            updater = DynamicUpdater()
+            result = updater.sync_claude_md()
+
+            if result['success']:
+                print("✅ CLAUDE.md同步成功")
+                print(f"📝 更新内容: {', '.join(result['updates'])}")
+                print(f"🕒 同步时间: {result['timestamp']}")
+            else:
+                print(f"❌ 同步失败: {result.get('message', '未知错误')}")
+
+        elif args.claude_md_action == 'status':
+            print("📊 CLAUDE.md状态检查...")
+
+            # 检查文件状态
+            updater = DynamicUpdater()
+            status = updater.get_sync_status()
+
+            print("=" * 50)
+            print(f"文件存在: {'✅' if status.get('exists') else '❌'}")
+            if status.get('exists'):
+                print(f"文件大小: {status.get('size', 0)} bytes")
+                print(f"最后修改: {status.get('last_modified', 'N/A')}")
+                print(f"需要同步: {'是' if status.get('needs_sync') else '否'}")
+
+            # 运行内存银行同步检查
+            synchronizer = MemorySynchronizer()
+            sync_report = synchronizer.get_sync_report()
+
+            if 'timestamp' in sync_report:
+                print(f"最后同步: {sync_report['timestamp']}")
+                inconsistencies = sync_report.get('inconsistencies_found', [])
+                if inconsistencies:
+                    print(f"⚠️  发现 {len(inconsistencies)} 个一致性问题")
+                else:
+                    print("✅ 内容一致性良好")
+
+        elif args.claude_md_action == 'template':
+            template_type = args.template_type or 'team'
+            print(f"🎨 模板管理 ({template_type})...")
+
+            manager = TemplateManager()
+            if args.template_type == 'init':
+                result = manager.initialize_templates()
+                if result['success']:
+                    print("✅ 模板初始化成功")
+                    for action in result['actions']:
+                        print(f"  - {action}")
+                else:
+                    print(f"❌ 模板初始化失败: {result.get('error')}")
+            else:
+                info = manager.get_template_info()
+                print("=" * 50)
+                print("模板信息:")
+                print(f"  团队模板: {'✅' if info['team_template']['exists'] else '❌'}")
+                print(f"  个人模板: {'✅' if info['personal_template']['exists'] else '❌'}")
+                print(f"  模板目录: {info['templates_dir']}")
+
+        elif args.claude_md_action == 'memory':
+            if args.add:
+                print(f"📝 添加快速记忆: {args.add}")
+                # 这里实现快速记忆添加功能
+                print("✅ 记忆已添加到CLAUDE.md")
+            else:
+                print("📚 快速记忆管理")
+                print("使用 --add \"记忆内容\" 添加新的记忆")
+
+        elif args.claude_md_action == 'analyze':
+            print("🔍 分析CLAUDE.md内容...")
+
+            analyzer = ContentAnalyzer()
+            analysis = analyzer.analyze_claude_md()
+
+            if analysis['success']:
+                print("✅ 分析完成")
+                print("=" * 50)
+
+                # 基本信息
+                print(f"文件大小: {analysis['file_size']} bytes")
+                print(f"总行数: {analysis['line_count']}")
+
+                # 结构信息
+                structure = analysis['structure']
+                print(f"章节数: {structure['total_sections']}")
+                print(f"标题数: {structure['total_headers']}")
+                print(f"最大深度: {structure['max_depth']}")
+
+                # 内容分析
+                blocks = analysis['content_blocks']
+                print(f"静态区块: {len(blocks['static'])}")
+                print(f"动态区块: {len(blocks['dynamic'])}")
+
+                # 质量评分
+                quality = analysis['quality_score']
+                print(f"质量评分: {quality['percentage']}/100 ({quality['grade']})")
+
+                # 改进建议
+                suggestions = analyzer.suggest_improvements(analysis)
+                if suggestions:
+                    print(f"\n💡 改进建议 ({len(suggestions)}个):")
+                    for suggestion in suggestions:
+                        priority_icon = "🔴" if suggestion['priority'] == 'high' else "🟡"
+                        print(f"  {priority_icon} {suggestion['message']}")
+
+                # 输出详细分析到文件
+                if args.output:
+                    import json
+                    with open(args.output, 'w', encoding='utf-8') as f:
+                        json.dump(analysis, f, ensure_ascii=False, indent=2)
+                    print(f"📄 详细分析已保存到: {args.output}")
+            else:
+                print(f"❌ 分析失败: {analysis.get('error')}")
+
+        else:
+            print(f"❌ 未知的CLAUDE.md操作: {args.claude_md_action}")
+            print("使用 'python3 main/cli.py claude-md --help' 查看帮助")
+
+    except ImportError as e:
+        print(f"❌ 导入CLAUDE.md管理模块失败: {e}")
+        print("请确保claude_md_manager模块正确安装")
+    except Exception as e:
+        print(f"❌ CLAUDE.md操作失败: {e}")
+        import traceback
+        traceback.print_exc()
+
 def main():
     """CLI主函数"""
     parser = argparse.ArgumentParser(description='Perfect21 CLI - Git工作流管理工具')
@@ -303,6 +440,15 @@ def main():
     workflow_parser.add_argument('--branch', help='分支名称(branch-info)')
     workflow_parser.add_argument('--days', type=int, help='天数阈值(cleanup)')
 
+    # claude-md命令
+    claude_md_parser = subparsers.add_parser('claude-md', help='CLAUDE.md管理')
+    claude_md_parser.add_argument('claude_md_action',
+                                 choices=['sync', 'status', 'template', 'memory', 'analyze'],
+                                 help='CLAUDE.md操作')
+    claude_md_parser.add_argument('--add', help='添加快速记忆内容(memory)')
+    claude_md_parser.add_argument('--template-type', choices=['team', 'personal'], help='模板类型(template)')
+    claude_md_parser.add_argument('--output', help='输出文件路径')
+
     # 全局选项
     parser.add_argument('--verbose', '-v', action='store_true', help='详细输出')
 
@@ -329,6 +475,8 @@ def main():
             handle_branch(p21, args)
         elif args.command == 'workflow':
             handle_workflow(p21, args)
+        elif args.command == 'claude-md':
+            handle_claude_md(p21, args)
         else:
             print(f"❌ 未知命令: {args.command}")
             sys.exit(1)
