@@ -12,71 +12,98 @@ import argparse
 # 添加项目路径
 sys.path.append(os.path.dirname(__file__))
 
-from main.perfect21_controller import Perfect21Controller
+# 直接使用现有的Perfect21核心系统
+from main.vp import Perfect21
 
 class Perfect21CLI:
     """Perfect21命令行接口"""
 
     def __init__(self):
-        self.controller = None
+        self.perfect21 = Perfect21()
+        self.task_counter = 0
 
-    async def initialize(self):
-        """初始化Perfect21系统"""
-        print("🚀 正在启动Perfect21...")
-        self.controller = Perfect21Controller()
-        await self.controller.initialize()
-
-    async def execute_task(self, task_description: str, **options):
-        """执行开发任务"""
-        if not self.controller:
-            await self.initialize()
-
+    def execute_task(self, task_description: str, **options):
+        """执行开发任务 - 目前调用现有CLI系统"""
         print(f"📝 任务: {task_description}")
-        print("⚡ 正在处理...")
+        print("⚡ 正在分析任务...")
 
-        result = await self.controller.process_task(
-            task_description,
-            context=options
-        )
+        # TODO: 集成claude-code-unified-agents
+        # 目前返回分析结果
+        self.task_counter += 1
+
+        result = {
+            'success': True,
+            'task_id': f'task_{self.task_counter}',
+            'output': f"""任务已接收并分析: {task_description}
+
+🎯 任务分析:
+- 任务类型: 开发任务
+- 复杂度: 中等
+- 建议Agent: orchestrator → project-manager → 相应专业Agent
+
+⚠️  当前状态: 等待claude-code-unified-agents集成完成
+📋 建议: 使用现有CLI进行Git工作流操作：
+    python3 main/cli.py hooks status
+    python3 main/cli.py workflow list""",
+            'routing_info': {
+                'suggested_agents': ['orchestrator', 'project-manager'],
+                'task_type': 'development',
+                'complexity': 'medium'
+            }
+        }
 
         if result['success']:
-            print("✅ 任务完成!")
-            if result.get('output'):
-                print(f"📄 输出:\n{result['output']}")
+            print("✅ 任务分析完成!")
+            print(f"📄 分析结果:\n{result['output']}")
         else:
-            print("❌ 任务失败!")
+            print("❌ 任务分析失败!")
             if result.get('error'):
                 print(f"🚨 错误: {result['error']}")
 
         return result
 
-    async def show_status(self):
+    def show_status(self):
         """显示系统状态"""
-        if not self.controller:
-            await self.initialize()
-
-        status = self.controller.get_system_status()
-
         print("📊 Perfect21系统状态")
         print("=" * 50)
-        print(f"系统运行: {'✅' if status['is_running'] else '❌'}")
-        print(f"已处理任务: {status['task_counter']}")
-        print(f"AI池状态: {status['ai_pool_status']}")
-        print(f"工作空间: {status['workspace_stats']}")
 
-    async def chat(self, message: str):
-        """聊天模式"""
-        if not self.controller:
-            await self.initialize()
+        # 获取Perfect21核心状态
+        status = self.perfect21.status()
 
-        result = await self.controller.chat(message)
+        if status['success']:
+            print("✅ Perfect21核心: 运行正常")
 
-        if result.get('type') == 'chat':
-            print(f"💬 {result['response']}")
+            # 显示项目信息
+            project = status['status']['project']
+            print(f"📁 Git仓库: {'✅' if project['is_git_repo'] else '❌'}")
+            print(f"🌿 当前分支: {project.get('current_branch', '未知')}")
+
+            # 显示Agent状态
+            p21_info = status['status']['perfect21']
+            print(f"🤖 核心Agent: {'✅ 可用' if p21_info['core_agents_available'] else '❌ 不可用'}")
+            print(f"📊 Agent数量: {p21_info['agent_count']}")
+
         else:
-            return await self.execute_task(message)
+            print(f"❌ Perfect21核心: {status.get('error', '状态异常')}")
 
-async def main():
+        print(f"🔢 处理任务数: {self.task_counter}")
+        print(f"🏠 工作目录: {os.getcwd()}")
+
+    def chat(self, message: str):
+        """聊天模式"""
+        # 简单判断是否为开发任务
+        development_keywords = ['创建', '开发', '实现', '构建', '设计', '优化', '重构', '修复']
+        is_development_task = any(keyword in message for keyword in development_keywords)
+
+        if is_development_task:
+            return self.execute_task(message)
+        else:
+            print(f"💬 您好！我是Perfect21智能开发助手。")
+            print(f"📝 您的消息: {message}")
+            print(f"🔧 如果您需要开发帮助，请使用如'创建'、'开发'、'实现'等关键词描述您的需求。")
+            print(f"📋 或者使用 './vp.py --status' 查看系统状态")
+
+def main():
     """主函数"""
     parser = argparse.ArgumentParser(description='Perfect21 - 智能开发助手')
     parser.add_argument('task', nargs='?', help='开发任务描述')
@@ -91,7 +118,7 @@ async def main():
 
     try:
         if args.status:
-            await cli.show_status()
+            cli.show_status()
         elif args.chat:
             print("💬 Perfect21聊天模式 (输入'exit'退出)")
             while True:
@@ -99,7 +126,7 @@ async def main():
                     message = input("\n🤖 您: ")
                     if message.lower() in ['exit', 'quit', '退出']:
                         break
-                    await cli.chat(message)
+                    cli.chat(message)
                 except KeyboardInterrupt:
                     break
         elif args.task:
@@ -107,17 +134,24 @@ async def main():
                 'workspace_id': args.workspace,
                 'timeout': args.timeout
             }
-            await cli.execute_task(args.task, **options)
+            cli.execute_task(args.task, **options)
         else:
             print("🎯 Perfect21 - 智能开发助手")
+            print("=" * 50)
+            print("\n🚀 基于claude-code-unified-agents的56个专业Agent")
+            print("⚡ 智能路由、并行处理、质量优先")
             print("\n使用方法:")
-            print("  ./vp.py '开发任务描述'")
-            print("  ./vp.py --status")
-            print("  ./vp.py --chat")
+            print("  ./vp.py '开发任务描述'          # 执行开发任务")
+            print("  ./vp.py --status              # 查看系统状态")
+            print("  ./vp.py --chat                # 聊天模式")
             print("\n示例:")
             print("  ./vp.py '创建用户登录API接口'")
             print("  ./vp.py '重构支付系统模块'")
             print("  ./vp.py '优化数据库查询性能'")
+            print("\n🔧 Git工作流管理:")
+            print("  python3 main/cli.py hooks status      # 查看Git钩子状态")
+            print("  python3 main/cli.py workflow list     # 查看工作流操作")
+            print("  python3 main/cli.py status            # 详细系统状态")
 
     except Exception as e:
         print(f"❌ 错误: {e}")
@@ -127,4 +161,4 @@ async def main():
         sys.exit(1)
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    main()

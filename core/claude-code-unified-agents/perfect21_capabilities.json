@@ -1,0 +1,68 @@
+{
+  "capability_discovery": {
+    "name": "capability_discovery",
+    "description": "动态发现和集成Perfect21新功能的元功能模块",
+    "category": "meta",
+    "priority": "critical",
+    "is_core": true,
+    "agents_can_use": [
+      "orchestrator",
+      "project-manager",
+      "backend-architect",
+      "devops-engineer"
+    ],
+    "functions": [
+      "scan_features",
+      "load_capability",
+      "register_to_agents",
+      "hot_reload",
+      "validate_capability",
+      "get_capability_catalog"
+    ],
+    "integration_points": [
+      "system_startup",
+      "feature_added",
+      "runtime_update",
+      "before_task_routing"
+    ],
+    "registered_at": "2025-09-15T20:42:58.844920"
+  },
+  "git_workflow": {
+    "name": "git_workflow",
+    "description": "Perfect21的Git工作流管理和自动化功能模块",
+    "category": "workflow",
+    "priority": "high",
+    "is_core": true,
+    "agents_can_use": [
+      "orchestrator",
+      "devops-engineer",
+      "backend-architect",
+      "code-reviewer",
+      "test-engineer",
+      "deployment-manager"
+    ],
+    "functions": [
+      "install_hooks",
+      "uninstall_hooks",
+      "create_feature_branch",
+      "create_release_branch",
+      "merge_to_main",
+      "branch_analysis",
+      "cleanup_branches",
+      "validate_commit",
+      "pre_commit_check",
+      "pre_push_validation",
+      "post_merge_integration"
+    ],
+    "integration_points": [
+      "pre_commit",
+      "commit_msg",
+      "pre_push",
+      "post_checkout",
+      "post_merge",
+      "project_initialization",
+      "branch_operations"
+    ],
+    "registered_at": "2025-09-15T20:42:58.848488"
+  }
+}
