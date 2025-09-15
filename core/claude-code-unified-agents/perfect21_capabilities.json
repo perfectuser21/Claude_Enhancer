@@ -25,7 +25,7 @@
       "runtime_update",
       "before_task_routing"
     ],
-    "registered_at": "2025-09-15T20:42:58.844920"
+    "registered_at": "2025-09-15T21:07:31.029137"
   },
   "git_workflow": {
     "name": "git_workflow",
@@ -63,6 +63,41 @@
       "project_initialization",
       "branch_operations"
     ],
-    "registered_at": "2025-09-15T20:42:58.848488"
+    "registered_at": "2025-09-15T21:07:31.034776"
+  },
+  "version_manager": {
+    "name": "version_manager",
+    "description": "Perfect21的统一版本管理和发布系统",
+    "category": "management",
+    "priority": "high",
+    "is_core": true,
+    "agents_can_use": [
+      "orchestrator",
+      "project-manager",
+      "deployment-manager",
+      "devops-engineer",
+      "backend-architect"
+    ],
+    "functions": [
+      "get_current_version",
+      "set_version",
+      "bump_version",
+      "sync_all_versions",
+      "validate_version",
+      "create_release",
+      "get_version_info",
+      "check_version_consistency",
+      "generate_changelog",
+      "create_version_tag"
+    ],
+    "integration_points": [
+      "project_initialization",
+      "pre_commit",
+      "pre_release",
+      "post_release",
+      "version_update",
+      "deployment"
+    ],
+    "registered_at": "2025-09-15T21:07:31.031969"
   }
 }

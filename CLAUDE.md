@@ -1,41 +1,57 @@
 # Claude Code 项目指导文档
 
 **项目名称**: Perfect21
-**项目类型**: 基于claude-code-unified-agents的智能Git工作流管理平台
-**技术栈**: Python, claude-code-unified-agents, Git Hooks
-**目标用户**: 需要智能Git工作流管理的开发者和团队
+**项目类型**: 企业级多Agent协作开发平台
+**技术栈**: Python, claude-code-unified-agents, Git Hooks, 语义化版本管理
+**目标用户**: 追求极致质量的开发者和团队
 
 ## 🎯 项目概述
 
-Perfect21 是基于claude-code-unified-agents的智能Git工作流管理平台，通过SubAgent调用编排器实现智能的Git操作自动化。项目采用最小可行架构，专注于Git工作流增强，避免重复造轮子。
+Perfect21 是一个企业级多Agent协作开发平台，基于claude-code-unified-agents核心，集成了智能Git工作流、统一版本管理、动态功能发现等企业级开发特性。通过SubAgent调用编排器实现智能的开发流程自动化，采用模块化架构，专注于提升开发效率和代码质量。
 
 ### 核心理念
-- 🎯 **SubAgent编排**: 智能调用claude-code-unified-agents的现有Agent，不重复实现功能
-- 🏗️ **最小架构**: feature/main/core/module清晰分层，易于维护和扩展
-- 🚀 **官方同步**: core目录完全使用claude-code-unified-agents，保持更新同步
-- ⚡ **轻量高效**: 13个核心文件，98%代码减少，专注Git工作流价值
+- 🎯 **智能协作**: 基于claude-code-unified-agents的56个专业Agent，提供企业级开发能力
+- 🏗️ **模块化架构**: capability_discovery动态功能发现，支持热插拔式功能扩展
+- 🔧 **统一管理**: version_manager语义化版本控制，确保项目版本一致性
+- 🚀 **工作流优化**: git_workflow智能Git操作，标准化开发流程
+- ⚡ **动态扩展**: 自动发现和集成新功能，无需手动配置
 
 ## 🏗️ 系统架构
 
-### 完整的4层架构
+### 完整的企业级架构
 
 ```
 Perfect21/
-├── core/                          # claude-code-unified-agents核心层
+├── core/                                    # claude-code-unified-agents核心层
 │   └── claude-code-unified-agents/
-│       └── .claude/agents/        # 53个官方Agent配置
-├── features/                      # 功能层
-│   └── git_workflow/             # Git工作流SubAgent调用编排器
-│       ├── hooks.py              # Git钩子处理
-│       ├── workflow.py           # 工作流管理
-│       └── branch_manager.py     # 分支管理
-├── modules/                      # 工具层
-│   ├── config.py                # 配置管理
-│   ├── logger.py                # 日志系统
-│   └── utils.py                 # 工具函数
-└── main/                        # 入口层
-    ├── vp.py                    # 主程序
-    └── cli.py                   # 命令行接口
+│       ├── .claude/agents/                  # 56个官方Agent配置
+│       ├── integrations/                    # Perfect21功能集成
+│       └── perfect21_capabilities.json     # 功能注册表
+├── features/                               # 功能层(可动态扩展)
+│   ├── capability_discovery/              # 元功能：动态功能发现
+│   │   ├── scanner.py                     # 功能扫描器
+│   │   ├── registry.py                    # 功能注册器
+│   │   └── loader.py                      # 动态加载器
+│   ├── version_manager/                   # 统一版本管理
+│   │   ├── semantic_version.py           # 语义化版本处理
+│   │   ├── version_manager.py            # 版本管理核心
+│   │   └── capability.py                 # 功能描述
+│   └── git_workflow/                     # Git工作流管理
+│       ├── hooks_manager.py              # Git钩子管理
+│       ├── workflow_manager.py           # 工作流编排
+│       └── branch_manager.py             # 分支管理
+├── modules/                              # 工具层
+│   ├── config.py                        # 配置管理
+│   ├── perfect21_logger.py             # 日志系统
+│   └── utils.py                         # 工具函数
+├── main/                                # 入口层
+│   ├── perfect21.py                     # 主程序类
+│   ├── cli.py                          # 命令行接口
+│   └── perfect21_controller.py         # 控制器
+├── api/                                 # API层
+│   ├── sdk.py                          # Python SDK
+│   └── rest_server.py                  # REST API服务
+└── vp.py                               # 程序入口点
 ```
 
 ### SubAgent调用策略
@@ -52,20 +68,48 @@ Perfect21/
 
 ## 🚀 使用方法
 
-### 基本命令
+### 快速开始
 ```bash
 # 查看系统状态
-python3 main/cli.py status
+./vp.py status                                 # 或 python3 main/cli.py status
 
+# 版本管理
+./vp.py version                               # 查看当前版本
+python3 -c "from features.version_manager import get_global_version_manager; vm = get_global_version_manager(); print(vm.generate_version_report())"
+
+# 功能发现
+python3 -c "from features.capability_discovery import bootstrap_capability_discovery; print(bootstrap_capability_discovery())"
+```
+
+### Git工作流管理
+```bash
 # Git钩子管理
 python3 main/cli.py hooks list                # 查看可用钩子
-python3 main/cli.py hooks pre-commit          # 执行提交前检查
-python3 main/cli.py hooks pre-push            # 执行推送前检查
+python3 main/cli.py hooks install             # 安装Git钩子
+python3 main/cli.py hooks uninstall           # 卸载Git钩子
 
-# 工作流管理
+# 工作流操作
 python3 main/cli.py workflow list             # 查看工作流操作
 python3 main/cli.py workflow branch-info      # 分析当前分支
 python3 main/cli.py workflow create-feature --name auth-system  # 创建功能分支
+python3 main/cli.py workflow merge-to-main --source feature/auth-system  # 合并到主分支
+
+# 版本管理
+python3 -c "from features.version_manager import get_global_version_manager; vm = get_global_version_manager(); result = vm.bump_version('minor'); print(f'新版本: {result}')"
+```
+
+### API集成
+```python
+# 使用Python SDK
+from api.sdk import Perfect21SDK
+
+sdk = Perfect21SDK()
+result = sdk.execute_task("实现用户登录功能")
+print(result.output)
+
+# 检查系统状态
+status = sdk.get_status()
+print(f"Perfect21版本: {status.version}")
 ```
 
 ### Git工作流集成
@@ -199,9 +243,27 @@ python3 main/cli.py hooks list
 python3 main/cli.py workflow list
 ```
 
+## 🎉 v2.1.0 重大更新
+
+### ✨ 新增功能
+- **🤖 capability_discovery**: 动态功能发现和集成系统，支持热插拔式功能扩展
+- **📊 version_manager**: 统一版本管理系统，SemVer 2.0.0语义化版本控制
+- **🔄 工作流标准化**: 企业级Git工作流，支持分支保护和自动合并
+
+### 🎯 系统升级
+- **模块化架构**: 从单一Git工作流扩展为完整的开发平台
+- **自动化管理**: 版本同步、功能发现、集成注册全自动化
+- **企业级特性**: 完整的API、SDK、CLI三重接口支持
+
+### 📊 技术指标
+- **功能模块**: 3个核心模块（capability_discovery, version_manager, git_workflow）
+- **Agent集成**: 56个claude-code-unified-agents深度集成
+- **版本控制**: 统一版本管理，消除版本混乱
+- **扩展能力**: 支持动态功能发现和热加载
+
 ---
 
 *最后更新: 2025-09-15*
-*版本: Perfect21 v2.0.0*
-*架构: claude-code-unified-agents + Git Workflow编排器*
-*文件数: 13个核心文件 (98%精简)*# Test update
+*版本: Perfect21 v2.1.0*
+*架构: claude-code-unified-agents + 企业级开发平台*
+*核心模块: 3个 | Agent集成: 56个 | 系统状态: 生产就绪*

@@ -1,11 +1,12 @@
 [
   {
-    "timestamp": "2025-09-15T20:42:58.850294",
-    "total_capabilities": 2,
-    "successful": 2,
+    "timestamp": "2025-09-15T21:07:31.035942",
+    "total_capabilities": 3,
+    "successful": 3,
     "failed": 0,
     "details": {
       "capability_discovery": true,
+      "version_manager": true,
       "git_workflow": true
     }
   }
