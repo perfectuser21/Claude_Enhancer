@@ -1,10 +1,10 @@
-# VibePilot双发动机系统配置
-# Perfect21 (前端) + vibepolite (内核) + Claude/Codex (双发动机)
-# 版本: 1.0
+# Perfect21双发动机系统配置
+# Perfect21 (前端) + claude-code-unified-agents (内核) + Claude/Codex (双发动机)
+# 版本: 1.0.0 - Git工作流集成完成
 # 创建时间: 2025-09-06
 
-version: "1.0"
-system_name: "VibePilot Dual Engine System"
+version: "1.0.0"
+system_name: "Perfect21 Dual Engine System"
 
 # 系统组件配置
 components:
@@ -19,7 +19,7 @@ components:
       - "one_click_routing"
     
   kernel:
-    name: "vibepolite"
+    name: "claude-code-unified-agents"
     type: "task_orchestrator"
     mode: "resident_process"
     features:
@@ -135,8 +135,9 @@ routing_rules:
 security_constraints:
   allowlist:
     directories:
-      - "/home/xx/dev/Vibepilot_Kit/**"
-      - "/tmp/vibepilot_workspace/**"
+      - "/home/xx/dev/Perfect21/**"
+      - "/home/xx/dev/Perfect21/**"
+      - "/tmp/perfect21_workspace/**"
     file_patterns:
       - "*.py"
       - "*.js"
@@ -404,7 +405,7 @@ compatibility:
     
 # 配置文件元数据
 metadata:
-  created_by: "VibePilot Enhanced V2"
+  created_by: "Perfect21 Enhanced V2"
   config_schema_version: "1.0"
   last_validated: "2025-09-06"
   checksum: "auto_generated"

@@ -1,9 +1,0 @@
-name: commit-bot
-description: "MUST BE USED when code-reviewer approves (0 MUST FIX issues). Use PROACTIVELY for: creating meaningful git commits, managing branches, tagging releases. Follows Conventional Commits standard and includes VibePilot signature."
-tools:
-  - Read
-  - Bash
-  - Grep
-  - Glob
-color: cyan
-model: claude-3-5-sonnet-20241022

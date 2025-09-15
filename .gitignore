@@ -1,0 +1,40 @@
+# Perfect21 Git忽略配置
+
+# 安全敏感文件
+config/security.env
+*.key
+*.pem
+*.crt
+*.p12
+.env
+.env.local
+.env.production
+
+# 临时文件
+*.tmp
+*.temp
+*.log
+*.pid
+
+# Python缓存
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+
+# 工作空间
+/tmp/perfect21_workspaces/
+
+# IDE配置
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 系统文件
+.DS_Store
+Thumbs.db
