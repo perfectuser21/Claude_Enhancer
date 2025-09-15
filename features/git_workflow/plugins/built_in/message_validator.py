@@ -23,7 +23,7 @@ class MessageValidatorPlugin(CommitWorkflowPlugin):
     def _get_metadata(self) -> PluginMetadata:
         return PluginMetadata(
             name="message_validator",
-            version="2.1.0",
+            version="2.2.0",
             description="Git提交消息格式验证，支持Conventional Commits规范",
             author="Perfect21 Team",
             category="commit_workflow",

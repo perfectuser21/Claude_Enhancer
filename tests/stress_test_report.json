@@ -1,10 +1,10 @@
 {
-  "start_time": 1757950208.2508235,
+  "start_time": 1757952129.5727253,
   "tests": {
     "perfect21_commands": {
       "Perfect21帮助信息": {
         "success": true,
-        "execution_time": 0.1981050968170166,
+        "execution_time": 0.16488337516784668,
         "returncode": 0,
         "stdout": "usage: perfect21 [-h] [--status] [--chat] [--workspace WORKSPACE]\n                 [--timeout TIMEOUT]\n                 [task]\n\nPerfect21 - 智能开发助手\n\npositional arguments:\n  task                  开发任务描述\n\noptions:\n  -h, --help            show this help message and exit\n  --status              显示系统状态\n  --chat                聊天模式\n  --workspace WORKSPACE\n                        指定工作空间\n  --timeout TIMEOUT     任务超时时间(秒)\n",
         "stderr": "",
@@ -12,40 +12,40 @@
       },
       "Perfect21系统状态": {
         "success": true,
-        "execution_time": 0.25522327423095703,
+        "execution_time": 0.2005457878112793,
         "returncode": 0,
-        "stdout": "2025-09-15 23:30:08,583 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-15 23:30:08,583 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-15 23:30:08,583 - WorkflowManager - INFO - Git工作流管理器初始化完成\n2025-09-15 23:30:08,583 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-15 23:30:08,583 - BranchManager - INFO - 分支管理器初始化完成\n2025-09-15 23:30:08,583 - Perfect21 - INFO - Perfect21初始化完成\n📊 Perfect21系统状态\n============================",
-        "stderr": "2025-09-15 23:30:08 - Perfect21 - INFO - Perfect21初始化完成\n",
+        "stdout": "2025-09-16 00:02:09,839 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-16 00:02:09,839 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-16 00:02:09,840 - WorkflowManager - INFO - Git工作流管理器初始化完成\n2025-09-16 00:02:09,840 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-16 00:02:09,840 - BranchManager - INFO - 分支管理器初始化完成\n2025-09-16 00:02:09,840 - Perfect21 - INFO - Perfect21初始化完成\n📊 Perfect21系统状态\n============================",
+        "stderr": "2025-09-16 00:02:09 - Perfect21 - INFO - Perfect21初始化完成\n2025-09-16 00:02:09 - Perfect21 - INFO - Perfect21清理完成\n",
         "timeout": 30
       },
       "Git Hooks状态": {
         "success": true,
-        "execution_time": 0.24038076400756836,
+        "execution_time": 0.2627861499786377,
         "returncode": 0,
-        "stdout": "2025-09-15 23:30:08,815 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-15 23:30:08,815 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-15 23:30:08,815 - WorkflowManager - INFO - Git工作流管理器初始化完成\n2025-09-15 23:30:08,815 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-15 23:30:08,815 - BranchManager - INFO - 分支管理器初始化完成\n2025-09-15 23:30:08,815 - Perfect21 - INFO - Perfect21初始化完成\n2025-09-15 23:30:08,862 - GitHooks - INFO - ",
-        "stderr": "2025-09-15 23:30:08 - Perfect21 - INFO - Perfect21初始化完成\n2025-09-15 23:30:08 - Perfect21.HooksConfig - INFO - 成功加载hooks配置: /home/xx/dev/Perfect21/features/git_workflow/hooks_config.yaml\n2025-09-15 23:30:08 - Perfect21.HooksManager - INFO - 初始化Git Hooks插件系统...\n2025-09-15 23:30:08 - Perfect21.PluginManager - INFO - 发现 4 个插件: ['security_scan', 'message_validator', 'test_runner', 'commit_quality']\n2025-09-15 23:30:08 - Perfect21.PluginManager - INFO - 成功加载插件: security_scan\n2025-09-15 23:30:08 - Perfe",
+        "stdout": "2025-09-16 00:02:10,047 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-16 00:02:10,047 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-16 00:02:10,048 - WorkflowManager - INFO - Git工作流管理器初始化完成\n2025-09-16 00:02:10,048 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-16 00:02:10,048 - BranchManager - INFO - 分支管理器初始化完成\n2025-09-16 00:02:10,048 - Perfect21 - INFO - Perfect21初始化完成\n2025-09-16 00:02:10,083 - GitHooks - INFO - ",
+        "stderr": "2025-09-16 00:02:10 - Perfect21 - INFO - Perfect21初始化完成\n2025-09-16 00:02:10 - Perfect21.HooksConfig - INFO - 成功加载hooks配置: /home/xx/dev/Perfect21/features/git_workflow/hooks_config.yaml\n2025-09-16 00:02:10 - Perfect21.HooksManager - INFO - 初始化Git Hooks插件系统...\n2025-09-16 00:02:10 - Perfect21.PluginManager - INFO - 发现 4 个插件: ['security_scan', 'message_validator', 'test_runner', 'commit_quality']\n2025-09-16 00:02:10 - Perfect21.PluginManager - INFO - 成功加载插件: security_scan\n2025-09-16 00:02:10 - Perfe",
         "timeout": 30
       },
       "工作流状态": {
         "success": true,
-        "execution_time": 0.13312268257141113,
+        "execution_time": 0.15437531471252441,
         "returncode": 0,
-        "stdout": "2025-09-15 23:30:09,052 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-15 23:30:09,052 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-15 23:30:09,052 - WorkflowManager - INFO - Git工作流管理器初始化完成\n2025-09-15 23:30:09,058 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-15 23:30:09,059 - BranchManager - INFO - 分支管理器初始化完成\n2025-09-15 23:30:09,059 - Perfect21 - INFO - Perfect21初始化完成\n📋 可用的工作流操作:\n  create-feature: 创建功能分支\n  creat",
-        "stderr": "2025-09-15 23:30:09 - Perfect21 - INFO - Perfect21初始化完成\n",
+        "stdout": "2025-09-16 00:02:10,307 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-16 00:02:10,308 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-16 00:02:10,308 - WorkflowManager - INFO - Git工作流管理器初始化完成\n2025-09-16 00:02:10,308 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-16 00:02:10,309 - BranchManager - INFO - 分支管理器初始化完成\n2025-09-16 00:02:10,309 - Perfect21 - INFO - Perfect21初始化完成\n📋 可用的工作流操作:\n  create-feature: 创建功能分支\n  creat",
+        "stderr": "2025-09-16 00:02:10 - Perfect21 - INFO - Perfect21初始化完成\n2025-09-16 00:02:10 - Perfect21 - INFO - Perfect21清理完成\n",
         "timeout": 30
       },
       "分支状态": {
         "success": true,
-        "execution_time": 0.18686485290527344,
+        "execution_time": 0.18476510047912598,
         "returncode": 0,
-        "stdout": "2025-09-15 23:30:09,197 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-15 23:30:09,197 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-15 23:30:09,197 - WorkflowManager - INFO - Git工作流管理器初始化完成\n2025-09-15 23:30:09,197 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-15 23:30:09,198 - BranchManager - INFO - 分支管理器初始化完成\n2025-09-15 23:30:09,198 - Perfect21 - INFO - Perfect21初始化完成\n🌿 分支状态\n=====================================",
-        "stderr": "2025-09-15 23:30:09 - Perfect21 - INFO - Perfect21初始化完成\n",
+        "stdout": "2025-09-16 00:02:10,452 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-16 00:02:10,453 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-16 00:02:10,453 - WorkflowManager - INFO - Git工作流管理器初始化完成\n2025-09-16 00:02:10,459 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-16 00:02:10,459 - BranchManager - INFO - 分支管理器初始化完成\n2025-09-16 00:02:10,459 - Perfect21 - INFO - Perfect21初始化完成\n🌿 分支状态\n=====================================",
+        "stderr": "2025-09-16 00:02:10 - Perfect21 - INFO - Perfect21初始化完成\n2025-09-16 00:02:10 - Perfect21 - INFO - Perfect21清理完成\n",
         "timeout": 30
       }
     },
     "hooks_system": {
       "success": true,
-      "init_time": 0.050962209701538086,
+      "init_time": 0.051871538162231445,
       "total_plugins": 4,
       "enabled_plugins": 4,
       "total_hooks": 13,
@@ -54,7 +54,7 @@
     },
     "version_manager": {
       "success": true,
-      "init_time": 0.04434633255004883,
+      "init_time": 0.03279399871826172,
       "current_version": "2.1.0",
       "version_info_size": 3834,
       "suggestion": {
@@ -70,17 +70,19 @@
           "api_changes": 4,
           "new_features": 13,
           "config_changes": 4,
-          "total_commits": 1,
-          "total_file_changes": 21
+          "total_commits": 2,
+          "total_file_changes": 24
         },
         "changes_summary": {
           "last_tag": "v2.1.0",
           "commits": [
+            "d1a0bbe fix: 修复message_validator插件错误和内存优化",
             "16b4da4 feat: 完成Perfect21系统重大升级和VibePilot重命名"
           ],
           "file_changes": [
             "M\tapi/perfect21_sdk.py",
             "A\tfeatures/git_workflow/config_loader.py",
+            "M\tfeatures/git_workflow/hooks.py",
             "A\tfeatures/git_workflow/hooks_config.yaml",
             "A\tfeatures/git_workflow/hooks_config.yaml.backup",
             "M\tfeatures/git_workflow/hooks_manager.py",
@@ -98,45 +100,47 @@
             "A\tfeatures/version_manager/version_advisor.py",
             "M\tmain/__init__.py",
             "M\tmain/cli.py",
-            "R098\tmain/vp.py\tmain/perfect21.py",
-            "R099\tvp.py\tperfect21"
+            "R085\tmain/vp.py\tmain/perfect21.py",
+            "R099\tvp.py\tperfect21",
+            "A\ttests/stress_test_perfect21.py",
+            "A\ttests/stress_test_report.json"
           ],
-          "commit_count": 1
+          "commit_count": 2
         }
       }
     },
     "plugin_performance": {
       "success": true,
       "load_times": {
-        "average": 0.003367185592651367,
-        "min": 0.002089262008666992,
-        "max": 0.007627248764038086,
+        "average": 0.0017064571380615234,
+        "min": 0.0015070438385009766,
+        "max": 0.001956939697265625,
         "all_times": [
-          0.007627248764038086,
-          0.0024945735931396484,
-          0.0024068355560302734,
-          0.002089262008666992,
-          0.002218008041381836
+          0.001956939697265625,
+          0.0016970634460449219,
+          0.0015070438385009766,
+          0.0016613006591796875,
+          0.0017099380493164062
         ]
       },
       "execution_times": {
         "security_scan": {
-          "time": 0.0035696029663085938,
+          "time": 0.004880189895629883,
           "status": "skipped",
           "success": true
         },
         "message_validator": {
-          "time": 2.765655517578125e-05,
-          "status": "error",
+          "time": 0.00479578971862793,
+          "status": "warning",
           "success": false
         },
         "test_runner": {
-          "time": 0.021335840225219727,
+          "time": 0.017267704010009766,
           "status": "skipped",
           "success": true
         },
         "commit_quality": {
-          "time": 0.008190393447875977,
+          "time": 0.005364894866943359,
           "status": "skipped",
           "success": true
         }
@@ -144,73 +148,73 @@
     },
     "concurrent_operations": {
       "success": true,
-      "total_time": 0.3250575065612793,
+      "total_time": 0.2935469150543213,
       "success_count": 4,
       "total_count": 4,
       "success_rate": 100.0,
       "individual_results": [
         {
           "success": true,
-          "execution_time": 0.17695164680480957,
+          "execution_time": 0.13410305976867676,
           "returncode": 0,
-          "stdout": "2025-09-15 23:30:09,679 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-15 23:30:09,680 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-15 23:30:09,680 - WorkflowManager - INFO - Git工作流管理器初始化完成\n2025-09-15 23:30:09,680 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-15 23:30:09,680 - BranchManager - INFO - 分支管理器初始化完成\n2025-09-15 23:30:09,680 - Perfect21 - INFO - Perfect21初始化完成\n📋 可用的工作流操作:\n  create-feature: 创建功能分支\n  creat",
-          "stderr": "2025-09-15 23:30:09 - Perfect21 - INFO - Perfect21初始化完成\n",
+          "stdout": "2025-09-16 00:02:10,933 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-16 00:02:10,933 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-16 00:02:10,933 - WorkflowManager - INFO - Git工作流管理器初始化完成\n2025-09-16 00:02:10,934 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-16 00:02:10,934 - BranchManager - INFO - 分支管理器初始化完成\n2025-09-16 00:02:10,934 - Perfect21 - INFO - Perfect21初始化完成\n📋 可用的工作流操作:\n  create-feature: 创建功能分支\n  creat",
+          "stderr": "2025-09-16 00:02:10 - Perfect21 - INFO - Perfect21初始化完成\n2025-09-16 00:02:10 - Perfect21 - INFO - Perfect21清理完成\n",
           "timeout": 30
         },
         {
           "success": true,
-          "execution_time": 0.20112919807434082,
+          "execution_time": 0.24059653282165527,
           "returncode": 0,
-          "stdout": "2025-09-15 23:30:09,656 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-15 23:30:09,657 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-15 23:30:09,657 - WorkflowManager - INFO - Git工作流管理器初始化完成\n2025-09-15 23:30:09,657 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-15 23:30:09,657 - BranchManager - INFO - 分支管理器初始化完成\n2025-09-15 23:30:09,657 - Perfect21 - INFO - Perfect21初始化完成\n📊 Perfect21系统状态\n============================",
-          "stderr": "2025-09-15 23:30:09 - Perfect21 - INFO - Perfect21初始化完成\n",
+          "stdout": "2025-09-16 00:02:10,908 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-16 00:02:10,908 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-16 00:02:10,908 - WorkflowManager - INFO - Git工作流管理器初始化完成\n2025-09-16 00:02:10,908 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-16 00:02:10,908 - BranchManager - INFO - 分支管理器初始化完成\n2025-09-16 00:02:10,909 - Perfect21 - INFO - Perfect21初始化完成\n2025-09-16 00:02:10,941 - GitHooks - INFO - ",
+          "stderr": "2025-09-16 00:02:10 - Perfect21 - INFO - Perfect21初始化完成\n2025-09-16 00:02:10 - Perfect21.HooksConfig - INFO - 成功加载hooks配置: /home/xx/dev/Perfect21/features/git_workflow/hooks_config.yaml\n2025-09-16 00:02:10 - Perfect21.HooksManager - INFO - 初始化Git Hooks插件系统...\n2025-09-16 00:02:10 - Perfect21.PluginManager - INFO - 发现 4 个插件: ['security_scan', 'message_validator', 'test_runner', 'commit_quality']\n2025-09-16 00:02:10 - Perfect21.PluginManager - INFO - 成功加载插件: security_scan\n2025-09-16 00:02:10 - Perfe",
           "timeout": 30
         },
         {
           "success": true,
-          "execution_time": 0.2171642780303955,
+          "execution_time": 0.2762644290924072,
           "returncode": 0,
-          "stdout": "2025-09-15 23:30:09,662 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-15 23:30:09,662 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-15 23:30:09,662 - WorkflowManager - INFO - Git工作流管理器初始化完成\n2025-09-15 23:30:09,662 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-15 23:30:09,662 - BranchManager - INFO - 分支管理器初始化完成\n2025-09-15 23:30:09,662 - Perfect21 - INFO - Perfect21初始化完成\n🌿 分支状态\n=====================================",
-          "stderr": "2025-09-15 23:30:09 - Perfect21 - INFO - Perfect21初始化完成\n",
+          "stdout": "2025-09-16 00:02:10,966 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-16 00:02:10,967 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-16 00:02:10,967 - WorkflowManager - INFO - Git工作流管理器初始化完成\n2025-09-16 00:02:10,968 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-16 00:02:10,968 - BranchManager - INFO - 分支管理器初始化完成\n2025-09-16 00:02:10,968 - Perfect21 - INFO - Perfect21初始化完成\n📊 Perfect21系统状态\n============================",
+          "stderr": "2025-09-16 00:02:10 - Perfect21 - INFO - Perfect21初始化完成\n2025-09-16 00:02:11 - Perfect21 - INFO - Perfect21清理完成\n",
           "timeout": 30
         },
         {
           "success": true,
-          "execution_time": 0.3221871852874756,
+          "execution_time": 0.2784600257873535,
           "returncode": 0,
-          "stdout": "2025-09-15 23:30:09,736 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-15 23:30:09,736 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-15 23:30:09,737 - WorkflowManager - INFO - Git工作流管理器初始化完成\n2025-09-15 23:30:09,737 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-15 23:30:09,737 - BranchManager - INFO - 分支管理器初始化完成\n2025-09-15 23:30:09,737 - Perfect21 - INFO - Perfect21初始化完成\n2025-09-15 23:30:09,784 - GitHooks - INFO - ",
-          "stderr": "2025-09-15 23:30:09 - Perfect21 - INFO - Perfect21初始化完成\n2025-09-15 23:30:09 - Perfect21.HooksConfig - INFO - 成功加载hooks配置: /home/xx/dev/Perfect21/features/git_workflow/hooks_config.yaml\n2025-09-15 23:30:09 - Perfect21.HooksManager - INFO - 初始化Git Hooks插件系统...\n2025-09-15 23:30:09 - Perfect21.PluginManager - INFO - 发现 4 个插件: ['security_scan', 'message_validator', 'test_runner', 'commit_quality']\n2025-09-15 23:30:09 - Perfect21.PluginManager - INFO - 成功加载插件: security_scan\n2025-09-15 23:30:09 - Perfe",
+          "stdout": "2025-09-16 00:02:11,012 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-16 00:02:11,013 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-16 00:02:11,013 - WorkflowManager - INFO - Git工作流管理器初始化完成\n2025-09-16 00:02:11,014 - GitHooks - INFO - Git Hooks初始化完成 - 基于claude-code-unified-agents\n2025-09-16 00:02:11,014 - BranchManager - INFO - 分支管理器初始化完成\n2025-09-16 00:02:11,014 - Perfect21 - INFO - Perfect21初始化完成\n🌿 分支状态\n=====================================",
+          "stderr": "2025-09-16 00:02:11 - Perfect21 - INFO - Perfect21初始化完成\n2025-09-16 00:02:11 - Perfect21 - INFO - Perfect21清理完成\n",
           "timeout": 30
         }
       ]
     },
     "memory_usage": {
       "success": true,
-      "initial_memory_mb": 20.26171875,
-      "peak_memory_mb": 22.58203125,
-      "final_memory_mb": 22.58203125,
+      "initial_memory_mb": 20.23828125,
+      "peak_memory_mb": 22.55859375,
+      "final_memory_mb": 22.55859375,
       "memory_freed_mb": 0.0,
       "memory_snapshots": [
-        20.26171875,
-        20.77734375,
-        21.03515625,
-        21.29296875,
-        21.29296875,
-        21.55078125,
-        21.80859375,
-        22.06640625,
-        22.06640625,
-        22.32421875,
-        22.58203125
+        20.23828125,
+        20.75390625,
+        21.01171875,
+        21.26953125,
+        21.26953125,
+        21.52734375,
+        21.78515625,
+        22.04296875,
+        22.04296875,
+        22.30078125,
+        22.55859375
       ]
     }
   },
   "summary": {
-    "total_time": 2.036511182785034,
+    "total_time": 2.231429100036621,
     "total_tests": 6,
     "successful_tests": 5,
     "failed_tests": 1,
     "success_rate": 83.33333333333334,
-    "end_time": 1757950210.2873347
+    "end_time": 1757952131.8041544
   },
   "errors": []
 }

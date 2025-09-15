@@ -25,7 +25,7 @@ class TestRunnerPlugin(TestPlugin):
     def _get_metadata(self) -> PluginMetadata:
         return PluginMetadata(
             name="test_runner",
-            version="2.1.0",
+            version="2.2.0",
             description="多测试框架支持的测试运行器",
             author="Perfect21 Team",
             category="testing",

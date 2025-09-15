@@ -7,7 +7,7 @@ from .scanner import CapabilityScanner
 from .registry import CapabilityRegistry
 from .loader import CapabilityLoader
 
-__version__ = "2.1.0"
+__version__ = "2.2.0"
 __author__ = "Perfect21 Team"
 
 # 导出主要类

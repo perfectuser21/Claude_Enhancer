@@ -46,7 +46,7 @@ class HooksConfigLoader:
         return {
             "global": {
                 "project_name": "Perfect21",
-                "version": "2.1.0",
+                "version": "2.2.0",
                 "parallel_execution": True,
                 "max_workers": 4,
                 "timeout": 300,

@@ -26,7 +26,7 @@ class CommitQualityPlugin(QualityCheckPlugin):
     def _get_metadata(self) -> PluginMetadata:
         return PluginMetadata(
             name="commit_quality",
-            version="2.1.0",
+            version="2.2.0",
             description="代码提交质量检查，包括语法、格式、文档等",
             author="Perfect21 Team",
             category="commit_workflow",

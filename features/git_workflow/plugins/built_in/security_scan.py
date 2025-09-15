@@ -27,7 +27,7 @@ class SecurityScanPlugin(SecurityPlugin):
     def _get_metadata(self) -> PluginMetadata:
         return PluginMetadata(
             name="security_scan",
-            version="2.1.0",
+            version="2.2.0",
             description="安全扫描插件，检测敏感信息泄露、依赖漏洞等",
             author="Perfect21 Team",
             category="security",
