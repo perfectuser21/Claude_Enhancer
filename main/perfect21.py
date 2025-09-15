@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Perfect21 - 简化版主程序
-基于claude-code-unified-agents的智能Git工作流管理
+Perfect21 - 企业级多Agent协作开发平台
+基于claude-code-unified-agents的智能开发助手
 """
 
 import os

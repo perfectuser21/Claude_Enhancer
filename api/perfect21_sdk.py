@@ -36,7 +36,7 @@ class Perfect21SDK:
         try:
             # 检查核心文件
             required_files = [
-                'vp.py',
+                'perfect21',
                 'main/cli.py',
                 'core/claude-code-unified-agents'
             ]
@@ -64,7 +64,7 @@ class Perfect21SDK:
             # 构建命令
             cmd = [
                 'python3',
-                os.path.join(self.project_root, 'vp.py'),
+                os.path.join(self.project_root, 'perfect21'),
                 'task',
                 description
             ]

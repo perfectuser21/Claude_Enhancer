@@ -7,10 +7,16 @@ Perfect21 Git Hooks Manager
 import os
 import stat
 import json
+import logging
 from typing import Dict, Any, List, Optional
 from pathlib import Path
 
 from .hooks import GitHooks
+from .config_loader import HooksConfigLoader
+from .plugins.plugin_manager import PluginManager
+from .plugins.base_plugin import PluginResult, PluginStatus
+
+logger = logging.getLogger("Perfect21.HooksManager")
 
 class GitHooksManager:
     """完整的Git钩子管理器"""
@@ -20,131 +26,171 @@ class GitHooksManager:
         self.git_hooks_dir = os.path.join(self.project_root, '.git', 'hooks')
         self.git_hooks = GitHooks(project_root)
 
-        # Git hooks配置映射
-        self.hooks_config = {
-            # 提交工作流钩子 (核心)
-            'pre-commit': {
-                'category': 'commit_workflow',
-                'priority': 'high',
-                'subagent': 'auto',  # 自动根据分支选择
-                'description': '提交前代码质量检查',
-                'triggers': ['linting', 'testing', 'security_scan'],
-                'required': True
-            },
-            'commit-msg': {
-                'category': 'commit_workflow',
-                'priority': 'medium',
-                'subagent': '@business-analyst',
-                'description': '提交消息格式验证',
-                'triggers': ['message_format', 'issue_linking'],
-                'required': True
-            },
-            'post-commit': {
-                'category': 'commit_workflow',
-                'priority': 'low',
-                'subagent': '@devops-engineer',
-                'description': '提交后通知和统计',
-                'triggers': ['notifications', 'metrics'],
-                'required': False
-            },
-            'prepare-commit-msg': {
-                'category': 'commit_workflow',
-                'priority': 'low',
-                'subagent': '@business-analyst',
-                'description': '自动生成提交消息模板',
-                'triggers': ['message_template', 'branch_context'],
-                'required': False
-            },
+        # 加载配置
+        self.config_loader = HooksConfigLoader(project_root)
 
-            # 推送工作流钩子 (重要)
-            'pre-push': {
-                'category': 'push_workflow',
-                'priority': 'high',
-                'subagent': 'auto',  # 根据分支和目标选择
-                'description': '推送前完整验证',
-                'triggers': ['full_testing', 'security_audit', 'build_check'],
-                'required': True
-            },
+        # 验证配置
+        validation = self.config_loader.validate_config()
+        if not validation['valid']:
+            logger.warning("Hooks配置验证失败，使用默认配置")
+            for error in validation['errors']:
+                logger.error(f"配置错误: {error}")
 
-            # 分支工作流钩子 (必要)
-            'post-checkout': {
-                'category': 'branch_workflow',
-                'priority': 'medium',
-                'subagent': '@devops-engineer',
-                'description': '分支切换后环境配置',
-                'triggers': ['environment_setup', 'dependency_check'],
-                'required': True
-            },
-            'post-merge': {
-                'category': 'branch_workflow',
-                'priority': 'medium',
-                'subagent': '@test-engineer',
-                'description': '合并后集成测试',
-                'triggers': ['integration_testing', 'conflict_resolution'],
-                'required': True
-            },
-            'post-rewrite': {
-                'category': 'branch_workflow',
-                'priority': 'low',
-                'subagent': '@devops-engineer',
-                'description': '重写操作后清理',
-                'triggers': ['cleanup', 'cache_invalidation'],
-                'required': False
-            },
+        # Git hooks配置映射（从YAML配置构建）
+        self.hooks_config = self._build_hooks_config_from_yaml()
 
-            # 高级钩子 (可选)
-            'pre-rebase': {
-                'category': 'advanced',
-                'priority': 'medium',
-                'subagent': '@code-reviewer',
-                'description': '变基前冲突预检查',
-                'triggers': ['conflict_detection', 'history_validation'],
-                'required': False
-            },
-            'pre-auto-gc': {
-                'category': 'maintenance',
-                'priority': 'low',
-                'subagent': '@devops-engineer',
-                'description': '垃圾回收前备份',
-                'triggers': ['backup', 'cleanup_validation'],
-                'required': False
-            },
+        # 钩子分组（从配置加载器获取）
+        self.hook_groups = self._build_hook_groups_from_yaml()
 
-            # 补丁工作流钩子 (邮件工作流)
-            'applypatch-msg': {
-                'category': 'patch_workflow',
-                'priority': 'low',
-                'subagent': '@business-analyst',
-                'description': '补丁消息验证',
-                'triggers': ['patch_message_validation'],
-                'required': False
-            },
-            'pre-applypatch': {
-                'category': 'patch_workflow',
-                'priority': 'low',
-                'subagent': '@code-reviewer',
-                'description': '应用补丁前检查',
-                'triggers': ['patch_validation'],
-                'required': False
-            },
-            'post-applypatch': {
-                'category': 'patch_workflow',
-                'priority': 'low',
-                'subagent': '@test-engineer',
-                'description': '应用补丁后测试',
-                'triggers': ['patch_testing'],
-                'required': False
+        # 初始化插件管理器
+        plugins_dir = os.path.join(os.path.dirname(__file__), 'plugins')
+        self.plugin_manager = PluginManager(
+            plugins_dir=plugins_dir,
+            config=self.config_loader._config
+        )
+
+        # 加载所有插件
+        self._initialize_plugins()
+
+    def _build_hooks_config_from_yaml(self) -> Dict[str, Any]:
+        """从YAML配置构建hooks配置映射"""
+        hooks_config = {}
+        yaml_hooks = self.config_loader._config.get('hooks', {})
+
+        for hook_name, yaml_config in yaml_hooks.items():
+            hooks_config[hook_name] = {
+                'category': yaml_config.get('category', 'unknown'),
+                'priority': yaml_config.get('priority', 'medium'),
+                'subagent': yaml_config.get('agent', '@orchestrator'),
+                'description': yaml_config.get('description', f'{hook_name}钩子'),
+                'triggers': yaml_config.get('triggers', []),
+                'required': yaml_config.get('enabled', False),
+                'timeout': yaml_config.get('timeout', 120),
+                'parallel': yaml_config.get('parallel', False),
+                'plugins': yaml_config.get('plugins', [])
             }
+
+        return hooks_config
+
+    def _build_hook_groups_from_yaml(self) -> Dict[str, List[str]]:
+        """从YAML配置构建钩子分组"""
+        yaml_groups = self.config_loader._config.get('hook_groups', {})
+        hook_groups = {}
+
+        for group_name, group_config in yaml_groups.items():
+            hook_groups[group_name] = group_config.get('hooks', [])
+
+        return hook_groups
+
+    def get_hook_agent_for_branch(self, hook_name: str, branch: str = None) -> str:
+        """根据分支获取hook对应的Agent"""
+        return self.config_loader.get_hook_agent(hook_name, branch)
+
+    def is_hook_enabled(self, hook_name: str) -> bool:
+        """检查hook是否启用"""
+        return self.config_loader.is_hook_enabled(hook_name)
+
+    def get_enabled_hooks(self, group_name: str = None) -> List[str]:
+        """获取启用的hooks列表"""
+        return self.config_loader.get_enabled_hooks(group_name)
+
+    def get_hook_timeout(self, hook_name: str) -> int:
+        """获取hook超时时间"""
+        return self.config_loader.get_hook_timeout(hook_name)
+
+    def is_parallel_enabled(self, hook_name: str = None) -> bool:
+        """检查是否启用并行执行"""
+        return self.config_loader.is_parallel_enabled(hook_name)
+
+    def get_hook_plugins(self, hook_name: str) -> List[str]:
+        """获取hook的插件列表"""
+        return self.config_loader.get_enabled_plugins(hook_name)
+
+    def _initialize_plugins(self) -> None:
+        """初始化插件系统"""
+        try:
+            logger.info("初始化Git Hooks插件系统...")
+
+            # 加载所有插件
+            load_results = self.plugin_manager.load_all_plugins()
+
+            loaded_count = sum(1 for success in load_results.values() if success)
+            total_count = len(load_results)
+
+            logger.info(f"插件加载完成: {loaded_count}/{total_count}")
+
+            if loaded_count < total_count:
+                failed_plugins = [name for name, success in load_results.items() if not success]
+                logger.warning(f"插件加载失败: {', '.join(failed_plugins)}")
+
+        except Exception as e:
+            logger.error(f"插件系统初始化失败: {e}")
+
+    def execute_hook_plugins(self, hook_name: str, context: Dict[str, Any]) -> Dict[str, PluginResult]:
+        """执行Hook的所有插件"""
+        plugins = self.get_hook_plugins(hook_name)
+
+        if not plugins:
+            logger.info(f"Hook {hook_name} 没有配置插件")
+            return {}
+
+        # 检查并行执行设置
+        parallel = self.is_parallel_enabled(hook_name)
+        max_workers = self.config_loader.get_max_workers()
+
+        logger.info(f"执行Hook {hook_name} 的 {len(plugins)} 个插件 (并行: {parallel})")
+
+        # 执行插件
+        results = self.plugin_manager.execute_plugins(
+            plugin_names=plugins,
+            context=context,
+            parallel=parallel,
+            max_workers=max_workers
+        )
+
+        return results
+
+    def get_plugin_manager(self) -> PluginManager:
+        """获取插件管理器实例"""
+        return self.plugin_manager
+
+    def get_plugin_status(self) -> Dict[str, Any]:
+        """获取插件状态信息"""
+        return {
+            "plugins": self.plugin_manager.get_all_plugins_info(),
+            "stats": self.plugin_manager.get_execution_stats(),
+            "enabled_plugins": list(self.plugin_manager.get_enabled_plugins().keys()),
+            "total_plugins": len(self.plugin_manager.plugins)
         }
 
-        # 钩子分组
-        self.hook_groups = {
-            'essential': ['pre-commit', 'pre-push', 'post-checkout'],
-            'standard': ['pre-commit', 'commit-msg', 'pre-push', 'post-checkout', 'post-merge'],
-            'advanced': ['pre-commit', 'commit-msg', 'post-commit', 'pre-push', 'post-checkout',
-                        'post-merge', 'pre-rebase', 'post-rewrite'],
-            'complete': list(self.hooks_config.keys())
-        }
+    def enable_hook(self, hook_name: str) -> bool:
+        """启用hook"""
+        success = self.config_loader.enable_hook(hook_name)
+        if success:
+            # 重新构建配置
+            self.hooks_config = self._build_hooks_config_from_yaml()
+        return success
+
+    def disable_hook(self, hook_name: str) -> bool:
+        """禁用hook"""
+        success = self.config_loader.disable_hook(hook_name)
+        if success:
+            # 重新构建配置
+            self.hooks_config = self._build_hooks_config_from_yaml()
+        return success
+
+    def reload_config(self) -> bool:
+        """重新加载配置"""
+        success = self.config_loader.reload_config()
+        if success:
+            # 重新构建配置
+            self.hooks_config = self._build_hooks_config_from_yaml()
+            self.hook_groups = self._build_hook_groups_from_yaml()
+        return success
+
+    def get_config_summary(self) -> str:
+        """获取配置摘要"""
+        return self.config_loader.get_config_summary()
 
     def create_hook_script(self, hook_name: str) -> str:
         """生成Git钩子脚本"""
@@ -499,7 +545,36 @@ echo "✅ Perfect21 {hook_name}处理完成"
             config = self.hooks_config[hook_name]
             required_icon = "🔴" if config['required'] else "🟡"
 
+            # 显示插件信息
+            plugins = self.get_hook_plugins(hook_name)
+            plugin_info = f" [{len(plugins)}个插件]" if plugins else ""
+
             print(f"  {hook_name}: {status_icon} {status_text} "
-                  f"{required_icon} ({config['priority']}) - {config['description']}")
+                  f"{required_icon} ({config['priority']}){plugin_info} - {config['description']}")
 
         print(f"\n🔴=必需 🟡=可选")
+
+        # 插件系统状态
+        plugin_status = self.get_plugin_status()
+        print(f"\n🔌 插件系统状态:")
+        print(f"  总插件: {plugin_status['total_plugins']}")
+        print(f"  启用插件: {len(plugin_status['enabled_plugins'])}")
+
+        # 插件执行统计
+        stats = plugin_status['stats']
+        if stats['total_executions'] > 0:
+            print(f"  执行统计: {stats['successful_executions']}/{stats['total_executions']} "
+                  f"({stats['success_rate']:.1f}% 成功率)")
+            print(f"  平均耗时: {stats['average_execution_time']:.2f}s")
+
+        # 显示启用的插件
+        if plugin_status['enabled_plugins']:
+            print(f"\n  启用插件:")
+            for plugin_name in plugin_status['enabled_plugins'][:10]:  # 最多显示10个
+                plugin_info = plugin_status['plugins'][plugin_name]
+                if plugin_info:
+                    print(f"    - {plugin_name} ({plugin_info['metadata']['version']}) "
+                          f"- {plugin_info['metadata']['description']}")
+
+            if len(plugin_status['enabled_plugins']) > 10:
+                print(f"    ... 还有 {len(plugin_status['enabled_plugins']) - 10} 个插件")

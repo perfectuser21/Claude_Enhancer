@@ -13,7 +13,7 @@ import argparse
 sys.path.append(os.path.dirname(__file__))
 
 # 直接使用现有的Perfect21核心系统
-from main.vp import Perfect21
+from main.perfect21 import Perfect21
 
 class Perfect21CLI:
     """Perfect21命令行接口"""

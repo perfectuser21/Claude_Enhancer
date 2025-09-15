@@ -29,7 +29,11 @@ CAPABILITY = {
         "get_version_info": "获取详细的版本信息",
         "check_version_consistency": "检查版本一致性",
         "generate_changelog": "生成版本更新日志",
-        "create_version_tag": "创建Git版本标签"
+        "create_version_tag": "创建Git版本标签",
+        "suggest_version_bump": "基于变更分析建议版本升级类型",
+        "generate_upgrade_report": "生成详细的版本升级建议报告",
+        "validate_version_history": "验证版本历史的合理性和一致性",
+        "analyze_breaking_changes": "自动检测可能的破坏性变更"
     },
 
     "integration_points": [

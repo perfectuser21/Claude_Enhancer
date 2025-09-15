@@ -14,9 +14,9 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 # 导入Perfect21类
 if __name__ == '__main__':
-    from vp import Perfect21
+    from perfect21 import Perfect21
 else:
-    from .vp import Perfect21
+    from .perfect21 import Perfect21
 from modules.utils import format_execution_result
 from modules.logger import log_info
 

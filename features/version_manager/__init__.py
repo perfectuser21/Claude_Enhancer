@@ -5,6 +5,7 @@ Perfect21 Version Manager - 统一版本管理系统
 
 from .version_manager import VersionManager
 from .semantic_version import SemanticVersion, Version
+from .version_advisor import VersionAdvisor
 
 __version__ = "2.1.0"
 __author__ = "Perfect21 Team"
@@ -14,12 +15,15 @@ __all__ = [
     'VersionManager',
     'SemanticVersion',
     'Version',
+    'VersionAdvisor',
     'initialize',
-    'get_global_version_manager'
+    'get_global_version_manager',
+    'get_global_version_advisor'
 ]
 
 # 全局版本管理器实例
 _global_version_manager = None
+_global_version_advisor = None
 
 def get_global_version_manager() -> VersionManager:
     """获取全局版本管理器实例"""
@@ -27,6 +31,13 @@ def get_global_version_manager() -> VersionManager:
     if _global_version_manager is None:
         _global_version_manager = VersionManager()
     return _global_version_manager
+
+def get_global_version_advisor() -> VersionAdvisor:
+    """获取全局版本决策顾问实例"""
+    global _global_version_advisor
+    if _global_version_advisor is None:
+        _global_version_advisor = VersionAdvisor()
+    return _global_version_advisor
 
 def initialize() -> bool:
     """
