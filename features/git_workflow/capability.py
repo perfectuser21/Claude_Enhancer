@@ -5,7 +5,7 @@ Perfect21的Git工作流管理功能
 
 CAPABILITY = {
     "name": "git_workflow",
-    "version": "2.2.0",
+    "version": "2.3.0",
     "description": "Perfect21的Git工作流管理和自动化功能模块",
     "category": "workflow",
     "priority": "high",
@@ -83,3 +83,7 @@ CAPABILITY = {
         "commit_message_format": "conventional"
     }
 }
+
+def get_capability_info():
+    """获取功能模块能力信息"""
+    return CAPABILITY

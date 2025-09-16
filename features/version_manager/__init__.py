@@ -7,7 +7,7 @@ from .version_manager import VersionManager
 from .semantic_version import SemanticVersion, Version
 from .version_advisor import VersionAdvisor
 
-__version__ = "2.2.0"
+__version__ = "2.3.0"
 __author__ = "Perfect21 Team"
 
 # 导出主要类

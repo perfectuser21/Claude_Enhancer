@@ -19,7 +19,7 @@ Perfect21 - 基于claude-code-unified-agents的智能Git工作流管理平台
     python3 main/cli.py workflow list # 查看工作流操作
 """
 
-__version__ = "2.2.0"
+__version__ = "2.3.0"
 __title__ = "Perfect21"
 __description__ = "基于claude-code-unified-agents的智能Git工作流管理平台"
 __author__ = "Perfect21 Team"

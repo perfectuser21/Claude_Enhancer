@@ -53,7 +53,7 @@ class StatusResponse(BaseModel):
 app = FastAPI(
     title="Perfect21 API",
     description="Perfect21智能开发平台REST API接口",
-    version="2.2.0"
+    version="2.3.0"
 )
 
 # 全局SDK实例

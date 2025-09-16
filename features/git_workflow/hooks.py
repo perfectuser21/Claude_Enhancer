@@ -265,3 +265,23 @@ class GitHooks:
             self.cleanup()
         except:
             pass
+    def get_installed_hooks(self):
+        """获取已安装的Git钩子列表"""
+        installed = []
+        git_hooks_dir = os.path.join(self.project_root, '.git', 'hooks')
+
+        if not os.path.exists(git_hooks_dir):
+            return installed
+
+        # 检查支持的钩子类型
+        supported_hooks = [
+            'pre-commit', 'commit-msg', 'pre-push',
+            'post-checkout', 'post-merge', 'post-commit'
+        ]
+
+        for hook_name in supported_hooks:
+            hook_path = os.path.join(git_hooks_dir, hook_name)
+            if os.path.exists(hook_path) and os.path.isfile(hook_path):
+                installed.append(hook_name)
+
+        return installed

@@ -5,7 +5,7 @@ Perfect21的统一版本管理和发布系统
 
 CAPABILITY = {
     "name": "version_manager",
-    "version": "2.2.0",
+    "version": "2.3.0",
     "description": "Perfect21的统一版本管理和发布系统",
     "category": "management",
     "priority": "high",

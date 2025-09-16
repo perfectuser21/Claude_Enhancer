@@ -9,7 +9,7 @@ from .memory_synchronizer import MemorySynchronizer
 from .template_manager import TemplateManager
 from .content_analyzer import ContentAnalyzer
 
-__version__ = "1.0.0"
+__version__ = "2.3.0"
 __author__ = "Perfect21 Team"
 
 # 模块导出

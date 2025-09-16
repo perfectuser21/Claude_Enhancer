@@ -221,3 +221,857 @@ result = manager.function_name()
 
 ---
 *此功能由Perfect21 capability_discovery自动注册*
+
+
+## Perfect21功能: git_workflow
+
+**描述**: Perfect21的Git工作流管理和自动化功能模块
+**分类**: workflow
+**优先级**: high
+
+### 可用函数:
+- `install_hooks`: 安装Perfect21 Git钩子到项目
+- `uninstall_hooks`: 卸载Perfect21 Git钩子
+- `create_feature_branch`: 创建符合规范的功能分支
+- `create_release_branch`: 创建发布分支
+- `merge_to_main`: 安全地合并分支到主分支
+- `branch_analysis`: 分析分支状态和保护规则
+- `cleanup_branches`: 清理过期分支
+- `validate_commit`: 验证提交消息格式
+- `pre_commit_check`: 执行提交前检查
+- `pre_push_validation`: 执行推送前验证
+- `post_merge_integration`: 执行合并后集成测试
+
+### 集成时机:
+- pre_commit
+- commit_msg
+- pre_push
+- post_checkout
+- post_merge
+- project_initialization
+- branch_operations
+
+### 使用方式:
+```python
+# 调用Perfect21功能
+from features.git_workflow import Git_WorkflowManager
+manager = Git_WorkflowManager()
+result = manager.function_name()
+```
+
+---
+*此功能由Perfect21 capability_discovery自动注册*
+
+
+## Perfect21功能: git_workflow
+
+**描述**: Perfect21的Git工作流管理和自动化功能模块
+**分类**: workflow
+**优先级**: high
+
+### 可用函数:
+- `install_hooks`: 安装Perfect21 Git钩子到项目
+- `uninstall_hooks`: 卸载Perfect21 Git钩子
+- `create_feature_branch`: 创建符合规范的功能分支
+- `create_release_branch`: 创建发布分支
+- `merge_to_main`: 安全地合并分支到主分支
+- `branch_analysis`: 分析分支状态和保护规则
+- `cleanup_branches`: 清理过期分支
+- `validate_commit`: 验证提交消息格式
+- `pre_commit_check`: 执行提交前检查
+- `pre_push_validation`: 执行推送前验证
+- `post_merge_integration`: 执行合并后集成测试
+
+### 集成时机:
+- pre_commit
+- commit_msg
+- pre_push
+- post_checkout
+- post_merge
+- project_initialization
+- branch_operations
+
+### 使用方式:
+```python
+# 调用Perfect21功能
+from features.git_workflow import Git_WorkflowManager
+manager = Git_WorkflowManager()
+result = manager.function_name()
+```
+
+---
+*此功能由Perfect21 capability_discovery自动注册*
+
+
+## Perfect21功能: claude_md_manager
+
+**描述**: Perfect21的CLAUDE.md自动管理和内存同步系统
+**分类**: unknown
+**优先级**: low
+
+### 可用函数:
+- `sync_claude_md`: 同步CLAUDE.md内容与项目状态
+- `update_memory_bank`: 更新内存银行信息
+- `template_management`: 管理CLAUDE.md模板
+- `content_analysis`: 分析和优化文档内容
+- `auto_update`: 自动更新项目状态信息
+- `memory_sync`: 内存与代码状态同步
+- `git_integration`: 与Git工作流集成
+
+### 集成时机:
+- pre_commit
+- post_merge
+- post_checkout
+- version_update
+- project_status_change
+
+### 使用方式:
+```python
+# 调用Perfect21功能
+from features.claude_md_manager import Claude_Md_ManagerManager
+manager = Claude_Md_ManagerManager()
+result = manager.function_name()
+```
+
+---
+*此功能由Perfect21 capability_discovery自动注册*
+
+
+## Perfect21功能: git_workflow
+
+**描述**: Perfect21的Git工作流管理和自动化功能模块
+**分类**: workflow
+**优先级**: high
+
+### 可用函数:
+- `install_hooks`: 安装Perfect21 Git钩子到项目
+- `uninstall_hooks`: 卸载Perfect21 Git钩子
+- `create_feature_branch`: 创建符合规范的功能分支
+- `create_release_branch`: 创建发布分支
+- `merge_to_main`: 安全地合并分支到主分支
+- `branch_analysis`: 分析分支状态和保护规则
+- `cleanup_branches`: 清理过期分支
+- `validate_commit`: 验证提交消息格式
+- `pre_commit_check`: 执行提交前检查
+- `pre_push_validation`: 执行推送前验证
+- `post_merge_integration`: 执行合并后集成测试
+
+### 集成时机:
+- pre_commit
+- commit_msg
+- pre_push
+- post_checkout
+- post_merge
+- project_initialization
+- branch_operations
+
+### 使用方式:
+```python
+# 调用Perfect21功能
+from features.git_workflow import Git_WorkflowManager
+manager = Git_WorkflowManager()
+result = manager.function_name()
+```
+
+---
+*此功能由Perfect21 capability_discovery自动注册*
+
+
+## Perfect21功能: claude_md_manager
+
+**描述**: Perfect21的CLAUDE.md自动管理和内存同步系统
+**分类**: unknown
+**优先级**: low
+
+### 可用函数:
+- `sync_claude_md`: 同步CLAUDE.md内容与项目状态
+- `update_memory_bank`: 更新内存银行信息
+- `template_management`: 管理CLAUDE.md模板
+- `content_analysis`: 分析和优化文档内容
+- `auto_update`: 自动更新项目状态信息
+- `memory_sync`: 内存与代码状态同步
+- `git_integration`: 与Git工作流集成
+
+### 集成时机:
+- pre_commit
+- post_merge
+- post_checkout
+- version_update
+- project_status_change
+
+### 使用方式:
+```python
+# 调用Perfect21功能
+from features.claude_md_manager import Claude_Md_ManagerManager
+manager = Claude_Md_ManagerManager()
+result = manager.function_name()
+```
+
+---
+*此功能由Perfect21 capability_discovery自动注册*
+
+
+## Perfect21功能: git_workflow
+
+**描述**: Perfect21的Git工作流管理和自动化功能模块
+**分类**: workflow
+**优先级**: high
+
+### 可用函数:
+- `install_hooks`: 安装Perfect21 Git钩子到项目
+- `uninstall_hooks`: 卸载Perfect21 Git钩子
+- `create_feature_branch`: 创建符合规范的功能分支
+- `create_release_branch`: 创建发布分支
+- `merge_to_main`: 安全地合并分支到主分支
+- `branch_analysis`: 分析分支状态和保护规则
+- `cleanup_branches`: 清理过期分支
+- `validate_commit`: 验证提交消息格式
+- `pre_commit_check`: 执行提交前检查
+- `pre_push_validation`: 执行推送前验证
+- `post_merge_integration`: 执行合并后集成测试
+
+### 集成时机:
+- pre_commit
+- commit_msg
+- pre_push
+- post_checkout
+- post_merge
+- project_initialization
+- branch_operations
+
+### 使用方式:
+```python
+# 调用Perfect21功能
+from features.git_workflow import Git_WorkflowManager
+manager = Git_WorkflowManager()
+result = manager.function_name()
+```
+
+---
+*此功能由Perfect21 capability_discovery自动注册*
+
+
+## Perfect21功能: claude_md_manager
+
+**描述**: Perfect21的CLAUDE.md自动管理和内存同步系统
+**分类**: unknown
+**优先级**: low
+
+### 可用函数:
+- `sync_claude_md`: 同步CLAUDE.md内容与项目状态
+- `update_memory_bank`: 更新内存银行信息
+- `template_management`: 管理CLAUDE.md模板
+- `content_analysis`: 分析和优化文档内容
+- `auto_update`: 自动更新项目状态信息
+- `memory_sync`: 内存与代码状态同步
+- `git_integration`: 与Git工作流集成
+
+### 集成时机:
+- pre_commit
+- post_merge
+- post_checkout
+- version_update
+- project_status_change
+
+### 使用方式:
+```python
+# 调用Perfect21功能
+from features.claude_md_manager import Claude_Md_ManagerManager
+manager = Claude_Md_ManagerManager()
+result = manager.function_name()
+```
+
+---
+*此功能由Perfect21 capability_discovery自动注册*
+
+
+## Perfect21功能: git_workflow
+
+**描述**: Perfect21的Git工作流管理和自动化功能模块
+**分类**: workflow
+**优先级**: high
+
+### 可用函数:
+- `install_hooks`: 安装Perfect21 Git钩子到项目
+- `uninstall_hooks`: 卸载Perfect21 Git钩子
+- `create_feature_branch`: 创建符合规范的功能分支
+- `create_release_branch`: 创建发布分支
+- `merge_to_main`: 安全地合并分支到主分支
+- `branch_analysis`: 分析分支状态和保护规则
+- `cleanup_branches`: 清理过期分支
+- `validate_commit`: 验证提交消息格式
+- `pre_commit_check`: 执行提交前检查
+- `pre_push_validation`: 执行推送前验证
+- `post_merge_integration`: 执行合并后集成测试
+
+### 集成时机:
+- pre_commit
+- commit_msg
+- pre_push
+- post_checkout
+- post_merge
+- project_initialization
+- branch_operations
+
+### 使用方式:
+```python
+# 调用Perfect21功能
+from features.git_workflow import Git_WorkflowManager
+manager = Git_WorkflowManager()
+result = manager.function_name()
+```
+
+---
+*此功能由Perfect21 capability_discovery自动注册*
+
+
+## Perfect21功能: claude_md_manager
+
+**描述**: Perfect21的CLAUDE.md自动管理和内存同步系统
+**分类**: unknown
+**优先级**: low
+
+### 可用函数:
+- `sync_claude_md`: 同步CLAUDE.md内容与项目状态
+- `update_memory_bank`: 更新内存银行信息
+- `template_management`: 管理CLAUDE.md模板
+- `content_analysis`: 分析和优化文档内容
+- `auto_update`: 自动更新项目状态信息
+- `memory_sync`: 内存与代码状态同步
+- `git_integration`: 与Git工作流集成
+
+### 集成时机:
+- pre_commit
+- post_merge
+- post_checkout
+- version_update
+- project_status_change
+
+### 使用方式:
+```python
+# 调用Perfect21功能
+from features.claude_md_manager import Claude_Md_ManagerManager
+manager = Claude_Md_ManagerManager()
+result = manager.function_name()
+```
+
+---
+*此功能由Perfect21 capability_discovery自动注册*
+
+
+## Perfect21功能: git_workflow
+
+**描述**: Perfect21的Git工作流管理和自动化功能模块
+**分类**: workflow
+**优先级**: high
+
+### 可用函数:
+- `install_hooks`: 安装Perfect21 Git钩子到项目
+- `uninstall_hooks`: 卸载Perfect21 Git钩子
+- `create_feature_branch`: 创建符合规范的功能分支
+- `create_release_branch`: 创建发布分支
+- `merge_to_main`: 安全地合并分支到主分支
+- `branch_analysis`: 分析分支状态和保护规则
+- `cleanup_branches`: 清理过期分支
+- `validate_commit`: 验证提交消息格式
+- `pre_commit_check`: 执行提交前检查
+- `pre_push_validation`: 执行推送前验证
+- `post_merge_integration`: 执行合并后集成测试
+
+### 集成时机:
+- pre_commit
+- commit_msg
+- pre_push
+- post_checkout
+- post_merge
+- project_initialization
+- branch_operations
+
+### 使用方式:
+```python
+# 调用Perfect21功能
+from features.git_workflow import Git_WorkflowManager
+manager = Git_WorkflowManager()
+result = manager.function_name()
+```
+
+---
+*此功能由Perfect21 capability_discovery自动注册*
+
+
+## Perfect21功能: claude_md_manager
+
+**描述**: Perfect21的CLAUDE.md自动管理和内存同步系统
+**分类**: unknown
+**优先级**: low
+
+### 可用函数:
+- `sync_claude_md`: 同步CLAUDE.md内容与项目状态
+- `update_memory_bank`: 更新内存银行信息
+- `template_management`: 管理CLAUDE.md模板
+- `content_analysis`: 分析和优化文档内容
+- `auto_update`: 自动更新项目状态信息
+- `memory_sync`: 内存与代码状态同步
+- `git_integration`: 与Git工作流集成
+
+### 集成时机:
+- pre_commit
+- post_merge
+- post_checkout
+- version_update
+- project_status_change
+
+### 使用方式:
+```python
+# 调用Perfect21功能
+from features.claude_md_manager import Claude_Md_ManagerManager
+manager = Claude_Md_ManagerManager()
+result = manager.function_name()
+```
+
+---
+*此功能由Perfect21 capability_discovery自动注册*
+
+
+## Perfect21功能: git_workflow
+
+**描述**: Perfect21的Git工作流管理和自动化功能模块
+**分类**: workflow
+**优先级**: high
+
+### 可用函数:
+- `install_hooks`: 安装Perfect21 Git钩子到项目
+- `uninstall_hooks`: 卸载Perfect21 Git钩子
+- `create_feature_branch`: 创建符合规范的功能分支
+- `create_release_branch`: 创建发布分支
+- `merge_to_main`: 安全地合并分支到主分支
+- `branch_analysis`: 分析分支状态和保护规则
+- `cleanup_branches`: 清理过期分支
+- `validate_commit`: 验证提交消息格式
+- `pre_commit_check`: 执行提交前检查
+- `pre_push_validation`: 执行推送前验证
+- `post_merge_integration`: 执行合并后集成测试
+
+### 集成时机:
+- pre_commit
+- commit_msg
+- pre_push
+- post_checkout
+- post_merge
+- project_initialization
+- branch_operations
+
+### 使用方式:
+```python
+# 调用Perfect21功能
+from features.git_workflow import Git_WorkflowManager
+manager = Git_WorkflowManager()
+result = manager.function_name()
+```
+
+---
+*此功能由Perfect21 capability_discovery自动注册*
+
+
+## Perfect21功能: claude_md_manager
+
+**描述**: Perfect21的CLAUDE.md自动管理和内存同步系统
+**分类**: unknown
+**优先级**: low
+
+### 可用函数:
+- `sync_claude_md`: 同步CLAUDE.md内容与项目状态
+- `update_memory_bank`: 更新内存银行信息
+- `template_management`: 管理CLAUDE.md模板
+- `content_analysis`: 分析和优化文档内容
+- `auto_update`: 自动更新项目状态信息
+- `memory_sync`: 内存与代码状态同步
+- `git_integration`: 与Git工作流集成
+
+### 集成时机:
+- pre_commit
+- post_merge
+- post_checkout
+- version_update
+- project_status_change
+
+### 使用方式:
+```python
+# 调用Perfect21功能
+from features.claude_md_manager import Claude_Md_ManagerManager
+manager = Claude_Md_ManagerManager()
+result = manager.function_name()
+```
+
+---
+*此功能由Perfect21 capability_discovery自动注册*
+
+
+## Perfect21功能: git_workflow
+
+**描述**: Perfect21的Git工作流管理和自动化功能模块
+**分类**: workflow
+**优先级**: high
+
+### 可用函数:
+- `install_hooks`: 安装Perfect21 Git钩子到项目
+- `uninstall_hooks`: 卸载Perfect21 Git钩子
+- `create_feature_branch`: 创建符合规范的功能分支
+- `create_release_branch`: 创建发布分支
+- `merge_to_main`: 安全地合并分支到主分支
+- `branch_analysis`: 分析分支状态和保护规则
+- `cleanup_branches`: 清理过期分支
+- `validate_commit`: 验证提交消息格式
+- `pre_commit_check`: 执行提交前检查
+- `pre_push_validation`: 执行推送前验证
+- `post_merge_integration`: 执行合并后集成测试
+
+### 集成时机:
+- pre_commit
+- commit_msg
+- pre_push
+- post_checkout
+- post_merge
+- project_initialization
+- branch_operations
+
+### 使用方式:
+```python
+# 调用Perfect21功能
+from features.git_workflow import Git_WorkflowManager
+manager = Git_WorkflowManager()
+result = manager.function_name()
+```
+
+---
+*此功能由Perfect21 capability_discovery自动注册*
+
+
+## Perfect21功能: claude_md_manager
+
+**描述**: Perfect21的CLAUDE.md自动管理和内存同步系统
+**分类**: unknown
+**优先级**: low
+
+### 可用函数:
+- `sync_claude_md`: 同步CLAUDE.md内容与项目状态
+- `update_memory_bank`: 更新内存银行信息
+- `template_management`: 管理CLAUDE.md模板
+- `content_analysis`: 分析和优化文档内容
+- `auto_update`: 自动更新项目状态信息
+- `memory_sync`: 内存与代码状态同步
+- `git_integration`: 与Git工作流集成
+
+### 集成时机:
+- pre_commit
+- post_merge
+- post_checkout
+- version_update
+- project_status_change
+
+### 使用方式:
+```python
+# 调用Perfect21功能
+from features.claude_md_manager import Claude_Md_ManagerManager
+manager = Claude_Md_ManagerManager()
+result = manager.function_name()
+```
+
+---
+*此功能由Perfect21 capability_discovery自动注册*
+
+
+## Perfect21功能: git_workflow
+
+**描述**: Perfect21的Git工作流管理和自动化功能模块
+**分类**: workflow
+**优先级**: high
+
+### 可用函数:
+- `install_hooks`: 安装Perfect21 Git钩子到项目
+- `uninstall_hooks`: 卸载Perfect21 Git钩子
+- `create_feature_branch`: 创建符合规范的功能分支
+- `create_release_branch`: 创建发布分支
+- `merge_to_main`: 安全地合并分支到主分支
+- `branch_analysis`: 分析分支状态和保护规则
+- `cleanup_branches`: 清理过期分支
+- `validate_commit`: 验证提交消息格式
+- `pre_commit_check`: 执行提交前检查
+- `pre_push_validation`: 执行推送前验证
+- `post_merge_integration`: 执行合并后集成测试
+
+### 集成时机:
+- pre_commit
+- commit_msg
+- pre_push
+- post_checkout
+- post_merge
+- project_initialization
+- branch_operations
+
+### 使用方式:
+```python
+# 调用Perfect21功能
+from features.git_workflow import Git_WorkflowManager
+manager = Git_WorkflowManager()
+result = manager.function_name()
+```
+
+---
+*此功能由Perfect21 capability_discovery自动注册*
+
+
+## Perfect21功能: claude_md_manager
+
+**描述**: Perfect21的CLAUDE.md自动管理和内存同步系统
+**分类**: unknown
+**优先级**: low
+
+### 可用函数:
+- `sync_claude_md`: 同步CLAUDE.md内容与项目状态
+- `update_memory_bank`: 更新内存银行信息
+- `template_management`: 管理CLAUDE.md模板
+- `content_analysis`: 分析和优化文档内容
+- `auto_update`: 自动更新项目状态信息
+- `memory_sync`: 内存与代码状态同步
+- `git_integration`: 与Git工作流集成
+
+### 集成时机:
+- pre_commit
+- post_merge
+- post_checkout
+- version_update
+- project_status_change
+
+### 使用方式:
+```python
+# 调用Perfect21功能
+from features.claude_md_manager import Claude_Md_ManagerManager
+manager = Claude_Md_ManagerManager()
+result = manager.function_name()
+```
+
+---
+*此功能由Perfect21 capability_discovery自动注册*
+
+
+## Perfect21功能: git_workflow
+
+**描述**: Perfect21的Git工作流管理和自动化功能模块
+**分类**: workflow
+**优先级**: high
+
+### 可用函数:
+- `install_hooks`: 安装Perfect21 Git钩子到项目
+- `uninstall_hooks`: 卸载Perfect21 Git钩子
+- `create_feature_branch`: 创建符合规范的功能分支
+- `create_release_branch`: 创建发布分支
+- `merge_to_main`: 安全地合并分支到主分支
+- `branch_analysis`: 分析分支状态和保护规则
+- `cleanup_branches`: 清理过期分支
+- `validate_commit`: 验证提交消息格式
+- `pre_commit_check`: 执行提交前检查
+- `pre_push_validation`: 执行推送前验证
+- `post_merge_integration`: 执行合并后集成测试
+
+### 集成时机:
+- pre_commit
+- commit_msg
+- pre_push
+- post_checkout
+- post_merge
+- project_initialization
+- branch_operations
+
+### 使用方式:
+```python
+# 调用Perfect21功能
+from features.git_workflow import Git_WorkflowManager
+manager = Git_WorkflowManager()
+result = manager.function_name()
+```
+
+---
+*此功能由Perfect21 capability_discovery自动注册*
+
+
+## Perfect21功能: claude_md_manager
+
+**描述**: Perfect21的CLAUDE.md自动管理和内存同步系统
+**分类**: unknown
+**优先级**: low
+
+### 可用函数:
+- `sync_claude_md`: 同步CLAUDE.md内容与项目状态
+- `update_memory_bank`: 更新内存银行信息
+- `template_management`: 管理CLAUDE.md模板
+- `content_analysis`: 分析和优化文档内容
+- `auto_update`: 自动更新项目状态信息
+- `memory_sync`: 内存与代码状态同步
+- `git_integration`: 与Git工作流集成
+
+### 集成时机:
+- pre_commit
+- post_merge
+- post_checkout
+- version_update
+- project_status_change
+
+### 使用方式:
+```python
+# 调用Perfect21功能
+from features.claude_md_manager import Claude_Md_ManagerManager
+manager = Claude_Md_ManagerManager()
+result = manager.function_name()
+```
+
+---
+*此功能由Perfect21 capability_discovery自动注册*
+
+
+## Perfect21功能: git_workflow
+
+**描述**: Perfect21的Git工作流管理和自动化功能模块
+**分类**: workflow
+**优先级**: high
+
+### 可用函数:
+- `install_hooks`: 安装Perfect21 Git钩子到项目
+- `uninstall_hooks`: 卸载Perfect21 Git钩子
+- `create_feature_branch`: 创建符合规范的功能分支
+- `create_release_branch`: 创建发布分支
+- `merge_to_main`: 安全地合并分支到主分支
+- `branch_analysis`: 分析分支状态和保护规则
+- `cleanup_branches`: 清理过期分支
+- `validate_commit`: 验证提交消息格式
+- `pre_commit_check`: 执行提交前检查
+- `pre_push_validation`: 执行推送前验证
+- `post_merge_integration`: 执行合并后集成测试
+
+### 集成时机:
+- pre_commit
+- commit_msg
+- pre_push
+- post_checkout
+- post_merge
+- project_initialization
+- branch_operations
+
+### 使用方式:
+```python
+# 调用Perfect21功能
+from features.git_workflow import Git_WorkflowManager
+manager = Git_WorkflowManager()
+result = manager.function_name()
+```
+
+---
+*此功能由Perfect21 capability_discovery自动注册*
+
+
+## Perfect21功能: claude_md_manager
+
+**描述**: Perfect21的CLAUDE.md自动管理和内存同步系统
+**分类**: unknown
+**优先级**: low
+
+### 可用函数:
+- `sync_claude_md`: 同步CLAUDE.md内容与项目状态
+- `update_memory_bank`: 更新内存银行信息
+- `template_management`: 管理CLAUDE.md模板
+- `content_analysis`: 分析和优化文档内容
+- `auto_update`: 自动更新项目状态信息
+- `memory_sync`: 内存与代码状态同步
+- `git_integration`: 与Git工作流集成
+
+### 集成时机:
+- pre_commit
+- post_merge
+- post_checkout
+- version_update
+- project_status_change
+
+### 使用方式:
+```python
+# 调用Perfect21功能
+from features.claude_md_manager import Claude_Md_ManagerManager
+manager = Claude_Md_ManagerManager()
+result = manager.function_name()
+```
+
+---
+*此功能由Perfect21 capability_discovery自动注册*
+
+
+## Perfect21功能: git_workflow
+
+**描述**: Perfect21的Git工作流管理和自动化功能模块
+**分类**: workflow
+**优先级**: high
+
+### 可用函数:
+- `install_hooks`: 安装Perfect21 Git钩子到项目
+- `uninstall_hooks`: 卸载Perfect21 Git钩子
+- `create_feature_branch`: 创建符合规范的功能分支
+- `create_release_branch`: 创建发布分支
+- `merge_to_main`: 安全地合并分支到主分支
+- `branch_analysis`: 分析分支状态和保护规则
+- `cleanup_branches`: 清理过期分支
+- `validate_commit`: 验证提交消息格式
+- `pre_commit_check`: 执行提交前检查
+- `pre_push_validation`: 执行推送前验证
+- `post_merge_integration`: 执行合并后集成测试
+
+### 集成时机:
+- pre_commit
+- commit_msg
+- pre_push
+- post_checkout
+- post_merge
+- project_initialization
+- branch_operations
+
+### 使用方式:
+```python
+# 调用Perfect21功能
+from features.git_workflow import get_manager
+manager = get_manager()
+result = manager.function_name()
+```
+
+---
+*此功能由Perfect21 capability_discovery自动注册*
+
+
+## Perfect21功能: claude_md_manager
+
+**描述**: Perfect21的CLAUDE.md自动管理和内存同步系统
+**分类**: unknown
+**优先级**: low
+
+### 可用函数:
+- `sync_claude_md`: 同步CLAUDE.md内容与项目状态
+- `update_memory_bank`: 更新内存银行信息
+- `template_management`: 管理CLAUDE.md模板
+- `content_analysis`: 分析和优化文档内容
+- `auto_update`: 自动更新项目状态信息
+- `memory_sync`: 内存与代码状态同步
+- `git_integration`: 与Git工作流集成
+
+### 集成时机:
+- pre_commit
+- post_merge
+- post_checkout
+- version_update
+- project_status_change
+
+### 使用方式:
+```python
+# 调用Perfect21功能
+from features.claude_md_manager import get_manager
+manager = get_manager()
+result = manager.function_name()
+```
+
+---
+*此功能由Perfect21 capability_discovery自动注册*
