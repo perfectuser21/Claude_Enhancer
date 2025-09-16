@@ -83,6 +83,12 @@ class Perfect21:
             elif hook_type == 'post-checkout':
                 old_ref, new_ref, branch_flag = args[:3] if len(args) >= 3 else ('', '', '1')
                 result = self.git_hooks.post_checkout_hook(old_ref, new_ref, branch_flag)
+            elif hook_type == 'prepare-commit-msg':
+                commit_msg_file = args[0] if args else '.git/COMMIT_EDITMSG'
+                result = self.git_hooks.prepare_commit_msg_hook(commit_msg_file)
+            elif hook_type == 'commit-msg':
+                commit_msg_file = args[0] if args else '.git/COMMIT_EDITMSG'
+                result = self.git_hooks.commit_msg_hook(commit_msg_file)
             else:
                 return {
                     'success': False,

@@ -229,6 +229,65 @@ class GitHooks:
             }
         )
 
+    def prepare_commit_msg_hook(self, commit_msg_file: str) -> Dict[str, Any]:
+        """准备提交消息钩子 - 自动优化提交消息格式"""
+        logger.info("执行prepare-commit-msg钩子")
+
+        git_status = self.get_git_status()
+        current_branch = git_status['current_branch']
+
+        # 获取暂存文件信息
+        try:
+            staged_files = subprocess.check_output(
+                ['git', 'diff', '--cached', '--name-only'],
+                cwd=self.project_root,
+                text=True,
+                encoding='utf-8'
+            ).strip().split('\n')
+            staged_files = [f for f in staged_files if f]  # 过滤空行
+        except:
+            staged_files = []
+
+        # 调用Business Analyst优化提交消息
+        return self.call_subagent(
+            '@business-analyst',
+            f"分析分支{current_branch}的提交内容，优化提交消息格式和语义",
+            {
+                'branch': current_branch,
+                'staged_files': staged_files,
+                'commit_msg_file': commit_msg_file,
+                'action': 'prepare_commit_message',
+                'requirements': ['semantic_format', 'clear_description', 'change_summary']
+            }
+        )
+
+    def commit_msg_hook(self, commit_msg_file: str) -> Dict[str, Any]:
+        """提交消息验证钩子 - 验证提交消息格式和质量"""
+        logger.info("执行commit-msg钩子")
+
+        git_status = self.get_git_status()
+        current_branch = git_status['current_branch']
+
+        # 读取提交消息
+        try:
+            with open(commit_msg_file, 'r', encoding='utf-8') as f:
+                commit_message = f.read().strip()
+        except:
+            commit_message = ""
+
+        # 调用Business Analyst验证提交消息
+        return self.call_subagent(
+            '@business-analyst',
+            f"验证分支{current_branch}的提交消息格式、语义化标准、描述质量",
+            {
+                'branch': current_branch,
+                'commit_message': commit_message,
+                'commit_msg_file': commit_msg_file,
+                'action': 'validate_commit_message',
+                'validation_rules': ['semantic_format', 'length_check', 'description_quality', 'no_fixup']
+            }
+        )
+
     def get_hook_status(self) -> Dict[str, Any]:
         """获取钩子状态"""
         git_status = self.get_git_status()

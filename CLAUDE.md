@@ -71,14 +71,49 @@ Perfect21/
 ### 快速开始
 ```bash
 # 查看系统状态
-./vp.py status                                 # 或 python3 main/cli.py status
+python3 main/cli.py status
+
+# 查看所有开发模板
+python3 main/cli.py templates list
+
+# 开发任务统一入口 - 这是核心功能！
+python3 main/cli.py develop "实现用户登录API接口"
+python3 main/cli.py develop "修复数据库性能问题" --template performance_optimization
+python3 main/cli.py develop "设计微服务架构" --async
+
+# 实时监控任务执行
+python3 main/cli.py monitor --live
 
 # 版本管理
-./vp.py version                               # 查看当前版本
 python3 -c "from features.version_manager import get_global_version_manager; vm = get_global_version_manager(); print(vm.generate_version_report())"
+```
 
-# 功能发现
-python3 -c "from features.capability_discovery import bootstrap_capability_discovery; print(bootstrap_capability_discovery())"
+### 🎯 Perfect21 开发统一入口
+
+**所有开发工作现在都通过Perfect21调用多Agent协作完成：**
+
+```bash
+# 基础用法：智能分析任务并自动选择Agent
+python3 main/cli.py develop "你的开发需求描述"
+
+# 使用预定义模板：更精确的Agent组合
+python3 main/cli.py templates list                    # 查看所有模板
+python3 main/cli.py templates info api_development    # 查看模板详情
+python3 main/cli.py templates recommend "任务描述"     # 获取推荐模板
+
+# 模板化开发 - 推荐方式
+python3 main/cli.py develop "实现REST API" --template api_development
+python3 main/cli.py develop "前端组件开发" --template frontend_feature
+python3 main/cli.py develop "Bug修复" --template bug_fix
+python3 main/cli.py develop "性能优化" --template performance_optimization
+
+# 异步执行 - 适合复杂任务
+python3 main/cli.py develop "微服务架构设计" --template microservice --async
+
+# 任务监控
+python3 main/cli.py monitor                # 查看当前状态
+python3 main/cli.py monitor --live         # 实时监控
+python3 main/cli.py monitor --show-stats   # 性能统计
 ```
 
 ### Git工作流管理
@@ -184,15 +219,23 @@ branch_mapping = {
 
 ## 📊 核心价值
 
-### 对比传统方案
+### Perfect21 vs 传统开发流程
 
-| 特性 | 传统Git工具 | Perfect21 |
-|------|------------|-----------|
-| 代码审查 | 手动或简单脚本 | @code-reviewer智能分析 |
-| 安全检查 | 第三方工具集成 | @security-auditor专业扫描 |
-| 测试管理 | 固定测试脚本 | @test-engineer智能策略 |
-| 分支策略 | 静态规则 | 动态SubAgent选择 |
-| 学习能力 | 无 | Agent持续改进 |
+| 开发任务 | 传统方式 | Perfect21方式 | 优势 |
+|---------|---------|-------------|-----|
+| API开发 | 手动编码+人工测试 | `develop "API开发" --template api_development` | 5个Agent协作：设计+开发+测试+安全+文档 |
+| Bug修复 | 手动调试+修复 | `develop "修复XX问题" --template bug_fix` | 专业Agent：问题诊断+代码修复+回归测试 |
+| 性能优化 | 工具分析+手动优化 | `develop "性能优化" --template performance_optimization` | 多角度分析：数据库+架构+代码+基础设施 |
+| 前端开发 | 单人开发 | `develop "前端功能" --template frontend_feature` | 并行协作：组件+类型+测试+可访问性 |
+| 微服务设计 | 架构师设计 | `develop "微服务架构" --template microservice` | 全栈协作：架构+开发+部署+监控 |
+
+### 执行模式对比
+
+| 模式 | 适用场景 | 执行方式 | 效率提升 |
+|------|---------|---------|---------|
+| **串行** | 简单任务、Bug修复 | 单Agent按序执行 | 2-3倍 |
+| **并行** | 前端开发、性能优化 | 多Agent同时执行 | 5-10倍 |
+| **协调者** | 复杂架构、大型项目 | @orchestrator指挥多Agent | 10倍+ |
 
 ### 扩展能力
 - **新功能**: 在features/目录添加新的SubAgent编排器
@@ -200,19 +243,65 @@ branch_mapping = {
 - **自定义**: 在modules/目录扩展工具函数
 - **集成**: 在main/目录添加新的入口点
 
-## 🎉 核心优势
+## 🎉 Perfect21 完整开发平台
 
-**Perfect21提供的独特价值**:
+**🚀 现在你的所有开发工作都可以通过Perfect21统一处理：**
 
-1. **🎯 智能编排**: 53个专业Agent + 智能调用策略
-2. **🏗️ 架构清晰**: feature/main/core/module标准分层
-3. **⚡ 轻量高效**: 98%代码减少，专注核心价值
-4. **🔄 官方同步**: 自动获得claude-code-unified-agents更新
-5. **🚀 Git专精**: 专为Git工作流优化的智能管理
+### 🎯 10个预定义开发模板
+1. **API开发** - 后端API完整开发流程
+2. **前端功能开发** - React/Vue组件开发
+3. **Bug修复** - 系统化问题修复
+4. **微服务开发** - 完整微服务架构
+5. **性能优化** - 系统性能诊断优化
+6. **安全审计** - 全面安全检查
+7. **数据工程** - 数据管道ETL开发
+8. **机器学习** - 端到端ML项目
+9. **移动应用** - 跨平台移动开发
+10. **DevOps设置** - CI/CD基础设施
+
+### 💡 Perfect21现在有三种使用方式
+
+#### 🚀 方式1: 智能命令（推荐）- 无需输入复杂命令
+```bash
+# 安装智能环境（一次性）
+python3 features/smart_commands.py
+source ~/.bashrc
+
+# 自然语言开发 - 就像对同事说话一样
+implement user login system           # 自动选择API开发模板
+fix database performance issues       # 自动选择Bug修复模板
+optimize query response time          # 自动选择性能优化模板
+design microservice architecture      # 自动选择架构设计模板
+
+# 超级智能命令
+auto_dev create user authentication   # 自动分析+选择最佳模板
+dev mobile shopping app               # 快捷开发命令
+```
+
+#### 📋 方式2: 传统命令行
+```bash
+python3 main/cli.py develop "任务描述"                    # 自动选择Agent
+python3 main/cli.py develop "任务描述" --template 模板名   # 使用模板
+python3 main/cli.py templates list                       # 查看模板
+```
+
+#### 🔍 方式3: 自动监控（后台运行）
+```bash
+python3 features/auto_monitor.py --activate              # 激活自动监控
+python3 show_status.py                                   # 查看状态
+python3 show_status.py --loop                           # 循环显示状态
+```
+
+### 🎯 核心优势
+- **🤖 56个专业Agent**: 涵盖完整开发生命周期
+- **⚡ 智能并行**: 自动识别串行/并行/协调者模式
+- **📋 模板化**: 10个预定义最佳实践模板
+- **🔍 实时监控**: 可视化任务执行状态
+- **🚀 零配置**: 开箱即用的企业级开发平台
 
 ---
 
-**🎯 Perfect21 = claude-code-unified-agents + 智能Git工作流管理** 🚁
+**🎯 Perfect21 = 你的个人开发团队，一个命令调动56个专业Agent！** 🚁
 
 ## 📁 文件管理规则 (重要!)
 
@@ -266,4 +355,4 @@ python3 main/cli.py workflow list
 *最后更新: 2025-09-16*
 *版本: Perfect21 2.3.0*
 *架构: claude-code-unified-agents + 企业级开发平台*
-*核心模块: 3个 | Agent集成: 56个 | Git Hooks: 8/13 (61.5%) | 系统状态: 生产就绪*
+*核心模块: 3个 | Agent集成: 56个 | Git Hooks: 13/13 (100%) | 系统状态: 生产就绪*

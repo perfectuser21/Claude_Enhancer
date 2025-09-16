@@ -19,6 +19,9 @@ else:
     from .perfect21 import Perfect21
 from modules.utils import format_execution_result
 from modules.logger import log_info
+from modules.parallel_monitor import get_global_monitor
+from features.development_orchestrator import get_global_orchestrator, develop
+from features.dev_templates_simple import DevTemplates
 
 def print_status(p21: Perfect21) -> None:
     """打印系统状态"""
@@ -116,6 +119,10 @@ def handle_git_hooks(p21: Perfect21, args: argparse.Namespace) -> None:
             hook_args = [args.remote or 'origin']
         elif hook_name == 'post-checkout':
             hook_args = [args.old_ref or '', args.new_ref or '', '1']
+        elif hook_name == 'prepare-commit-msg':
+            hook_args = [args.file or '.git/COMMIT_EDITMSG']
+        elif hook_name == 'commit-msg':
+            hook_args = [args.file or '.git/COMMIT_EDITMSG']
 
         result = p21.git_hook_handler(hook_name, *hook_args)
 
@@ -386,6 +393,157 @@ def handle_claude_md(p21: Perfect21, args: argparse.Namespace) -> None:
         import traceback
         traceback.print_exc()
 
+def handle_monitor(args):
+    """处理监控命令"""
+    monitor = get_global_monitor()
+
+    if args.live:
+        import time
+        print("🔍 Perfect21 实时任务监控 (按Ctrl+C退出)")
+        print("=" * 50)
+        try:
+            while True:
+                # 清屏
+                os.system('clear' if os.name == 'posix' else 'cls')
+                print(monitor.get_status_display())
+                time.sleep(1)
+        except KeyboardInterrupt:
+            print("\n👋 监控已停止")
+            return
+
+    elif args.show_stats:
+        import json
+        stats = monitor.get_performance_stats()
+        print("📊 Perfect21 性能统计")
+        print("=" * 30)
+        print(json.dumps(stats, indent=2, ensure_ascii=False))
+
+    else:
+        print(monitor.get_status_display())
+
+def handle_develop(args):
+    """处理开发命令"""
+    import asyncio
+    import json
+
+    # 解析上下文
+    context = {}
+    if args.context:
+        try:
+            context = json.loads(args.context)
+        except json.JSONDecodeError:
+            print(f"❌ 无效的JSON格式: {args.context}")
+            return
+
+    async def run_development():
+        print(f"🚀 开始执行开发任务: {args.description}")
+        print("-" * 50)
+
+        if args.template:
+            # 使用模板执行
+            template = DevTemplates.get_template(args.template)
+            if not template:
+                print(f"❌ 模板不存在: {args.template}")
+                return
+
+            print(f"📋 使用模板: {template.name}")
+            print(f"📊 复杂度: {template.complexity}/10")
+            print(f"⚡ 执行模式: {template.execution_mode}")
+            print(f"🤖 涉及Agent: {len(template.agents)}个")
+            print()
+
+        # 执行开发任务
+        result = await develop(args.description, **context)
+
+        print("\n" + "="*50)
+        print("📊 执行结果:")
+        if result.get('success'):
+            print(f"✅ 任务执行成功")
+            print(f"⚡ 执行模式: {result.get('execution_mode', '未知')}")
+            if 'agents_count' in result:
+                print(f"🤖 参与Agent: {result['agents_count']}个")
+        else:
+            print(f"❌ 任务执行失败: {result.get('error', '未知错误')}")
+
+    if getattr(args, 'async', False):
+        # 异步执行
+        import threading
+        thread = threading.Thread(target=lambda: asyncio.run(run_development()))
+        thread.daemon = True
+        thread.start()
+        print(f"⚡ 任务已在后台启动，使用 'python3 main/cli.py monitor --live' 查看进度")
+    else:
+        # 同步执行
+        asyncio.run(run_development())
+
+def handle_templates(args):
+    """处理模板命令"""
+    if args.template_action == 'list':
+        # 列出模板
+        categories = DevTemplates.list_by_category()
+
+        if args.category:
+            # 按类别筛选
+            if args.category in categories:
+                print(f"📁 {args.category} 类别模板:")
+                print("-" * 30)
+                for name in categories[args.category]:
+                    template = DevTemplates.get_template(name)
+                    print(f"• {template.name}")
+                    print(f"  描述: {template.description}")
+                    print(f"  复杂度: {template.complexity}/10, 模式: {template.execution_mode}")
+                    print()
+            else:
+                print(f"❌ 类别不存在: {args.category}")
+                print(f"可用类别: {', '.join(categories.keys())}")
+        else:
+            # 列出所有模板
+            print("🚀 Perfect21 开发模板库")
+            print("=" * 50)
+            for category, template_names in categories.items():
+                print(f"\n📁 {category}:")
+                for name in template_names:
+                    template = DevTemplates.get_template(name)
+                    print(f"  • {template.name} (复杂度: {template.complexity}/10)")
+
+    elif args.template_action == 'info':
+        # 模板详情
+        template = DevTemplates.get_template(args.name)
+        if not template:
+            print(f"❌ 模板不存在: {args.name}")
+            return
+
+        print(f"📋 模板详情: {template.name}")
+        print("=" * 50)
+        print(f"📝 描述: {template.description}")
+        print(f"📁 类别: {template.category}")
+        print(f"📊 复杂度: {template.complexity}/10")
+        print(f"⚡ 执行模式: {template.execution_mode}")
+        print(f"🤖 参与Agent: {len(template.agents)}个")
+
+        print(f"\n🤖 涉及Agent:")
+        for agent in sorted(template.agents):
+            print(f"  • {agent}")
+
+    elif args.template_action == 'recommend':
+        # 推荐模板
+        recommendations = DevTemplates.recommend(args.description)
+
+        print(f"🎯 为任务 '{args.description}' 推荐的模板:")
+        print("-" * 50)
+
+        if recommendations:
+            for i, name in enumerate(recommendations, 1):
+                template = DevTemplates.get_template(name)
+                print(f"{i}. {template.name}")
+                print(f"   描述: {template.description}")
+                print(f"   复杂度: {template.complexity}/10, 模式: {template.execution_mode}")
+                print(f"   使用: python3 main/cli.py develop '{args.description}' --template {name}")
+                print()
+        else:
+            print("❌ 未找到匹配的模板")
+            print("💡 使用 'python3 main/cli.py templates list' 查看所有可用模板")
+
 def main():
     """CLI主函数"""
     parser = argparse.ArgumentParser(description='Perfect21 CLI - Git工作流管理工具')
@@ -393,6 +551,34 @@ def main():
 
     # status命令
     status_parser = subparsers.add_parser('status', help='查看系统状态')
+
+    # monitor命令 - 并行任务监控
+    monitor_parser = subparsers.add_parser('monitor', help='并行任务监控')
+    monitor_parser.add_argument('--show-stats', action='store_true', help='显示性能统计')
+    monitor_parser.add_argument('--live', action='store_true', help='实时监控模式')
+
+    # develop命令 - 开发任务统一入口
+    develop_parser = subparsers.add_parser('develop', help='开发任务统一入口')
+    develop_parser.add_argument('description', help='任务描述')
+    develop_parser.add_argument('--template', help='使用指定模板')
+    develop_parser.add_argument('--context', help='JSON格式的上下文信息')
+    develop_parser.add_argument('--async', action='store_true', help='异步执行')
+
+    # templates命令 - 模板管理
+    templates_parser = subparsers.add_parser('templates', help='开发模板管理')
+    templates_subparsers = templates_parser.add_subparsers(dest='template_action', help='模板操作')
+
+    # templates list - 列出模板
+    list_templates_parser = templates_subparsers.add_parser('list', help='列出所有模板')
+    list_templates_parser.add_argument('--category', help='按类别筛选')
+
+    # templates info - 模板详情
+    info_templates_parser = templates_subparsers.add_parser('info', help='查看模板详情')
+    info_templates_parser.add_argument('name', help='模板名称')
+
+    # templates recommend - 推荐模板
+    recommend_templates_parser = templates_subparsers.add_parser('recommend', help='推荐模板')
+    recommend_templates_parser.add_argument('description', help='任务描述')
 
     # git-hooks命令
     hooks_parser = subparsers.add_parser('hooks', help='Git钩子管理')
@@ -415,7 +601,7 @@ def main():
 
     # hooks execute - 手动执行钩子 (用于测试)
     execute_parser = hooks_subparsers.add_parser('execute', help='手动执行钩子 (测试用)')
-    execute_parser.add_argument('hook_name', choices=['pre-commit', 'pre-push', 'post-checkout', 'commit-msg', 'post-merge'], help='钩子名称')
+    execute_parser.add_argument('hook_name', choices=['pre-commit', 'pre-push', 'post-checkout', 'commit-msg', 'post-merge', 'prepare-commit-msg'], help='钩子名称')
     execute_parser.add_argument('--remote', default='origin', help='远程仓库名(pre-push)')
     execute_parser.add_argument('--old-ref', help='旧引用(post-checkout)')
     execute_parser.add_argument('--new-ref', help='新引用(post-checkout)')
@@ -469,6 +655,12 @@ def main():
     try:
         if args.command == 'status':
             print_status(p21)
+        elif args.command == 'monitor':
+            handle_monitor(args)
+        elif args.command == 'develop':
+            handle_develop(args)
+        elif args.command == 'templates':
+            handle_templates(args)
         elif args.command == 'hooks':
             handle_git_hooks(p21, args)
         elif args.command == 'branch':
