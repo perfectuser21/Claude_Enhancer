@@ -5,130 +5,56 @@ Perfect21功能模块能力描述文件
 """
 
 # Perfect21功能模块标准描述
-CAPABILITY_INFO = {
+CAPABILITY = {
     "name": "claude_md_manager",
-    "display_name": "CLAUDE.md自动管理器",
-    "version": "1.0.0",
-    "description": "基于Claude Code最佳实践的CLAUDE.md动态更新和内存管理系统",
-    "category": "documentation",
-    "tags": ["claude-code", "memory", "documentation", "auto-update"],
+    "version": "2.3.0",
+    "description": "Perfect21的CLAUDE.md自动管理和内存同步系统",
+    "category": "unknown",
+    "priority": "low",
+    "is_core": False,
 
-    # 功能特性
-    "features": [
-        {
-            "name": "dynamic_update",
-            "description": "动态更新CLAUDE.md内容，自动同步项目状态",
-            "subagent": "@technical-writer"
-        },
-        {
-            "name": "memory_synchronization",
-            "description": "内存银行同步，确保文档与代码状态一致",
-            "subagent": "@business-analyst"
-        },
-        {
-            "name": "template_management",
-            "description": "模板管理系统，支持分层内存配置",
-            "subagent": "@api-designer"
-        },
-        {
-            "name": "content_analysis",
-            "description": "智能内容分析，识别静态和动态区块",
-            "subagent": "@code-reviewer"
-        }
+    "agents_can_use": [
+        "technical-writer",
+        "business-analyst",
+        "api-designer",
+        "code-reviewer",
+        "orchestrator"
     ],
 
-    # 依赖关系
-    "dependencies": {
-        "internal": [
-            "version_manager",  # 获取版本信息
-            "capability_discovery",  # 功能模块扫描
-            "git_workflow"  # Git状态集成
-        ],
-        "external": [
-            "jinja2",  # 模板引擎
-            "markdown",  # Markdown处理
-            "pyyaml"  # 配置文件处理
-        ]
+    "functions": {
+        "sync_claude_md": "同步CLAUDE.md内容与项目状态",
+        "update_memory_bank": "更新内存银行信息",
+        "template_management": "管理CLAUDE.md模板",
+        "content_analysis": "分析和优化文档内容",
+        "auto_update": "自动更新项目状态信息",
+        "memory_sync": "内存与代码状态同步",
+        "git_integration": "与Git工作流集成"
     },
 
-    # CLI命令
-    "cli_commands": [
-        {
-            "name": "claude-md",
-            "description": "CLAUDE.md管理命令组",
-            "subcommands": [
-                {
-                    "name": "sync",
-                    "description": "同步CLAUDE.md内容",
-                    "usage": "python3 main/cli.py claude-md sync"
-                },
-                {
-                    "name": "status",
-                    "description": "检查同步状态",
-                    "usage": "python3 main/cli.py claude-md status"
-                },
-                {
-                    "name": "template",
-                    "description": "管理模板",
-                    "usage": "python3 main/cli.py claude-md template [list|update]"
-                },
-                {
-                    "name": "memory",
-                    "description": "快速记忆管理",
-                    "usage": "python3 main/cli.py claude-md memory --add \"记忆内容\""
-                }
-            ]
-        }
+    "integration_points": [
+        "pre_commit",
+        "post_merge",
+        "post_checkout",
+        "version_update",
+        "project_status_change"
     ],
 
-    # API端点
-    "api_endpoints": [
-        {
-            "path": "/claude-md/sync",
-            "method": "POST",
-            "description": "触发CLAUDE.md同步"
-        },
-        {
-            "path": "/claude-md/status",
-            "method": "GET",
-            "description": "获取同步状态"
-        },
-        {
-            "path": "/claude-md/memory",
-            "method": "POST",
-            "description": "添加快速记忆"
-        }
+    "dependencies": [
+        "jinja2",
+        "markdown",
+        "pyyaml",
+        "pathlib",
+        "json"
     ],
 
-    # Git钩子集成
-    "git_hooks": [
-        {
-            "hook": "pre-commit",
-            "action": "sync_project_status",
-            "description": "提交前同步项目状态信息"
-        },
-        {
-            "hook": "post-merge",
-            "action": "sync_after_merge",
-            "description": "合并后同步版本和功能变更"
-        },
-        {
-            "hook": "post-checkout",
-            "action": "update_branch_context",
-            "description": "切换分支后更新分支上下文"
-        }
-    ],
-
-    # SubAgent调用映射
-    "subagent_mappings": {
-        "content_generation": "@technical-writer",
-        "template_analysis": "@api-designer",
-        "memory_organization": "@business-analyst",
-        "quality_check": "@code-reviewer",
-        "sync_coordination": "@orchestrator"
+    "configuration": {
+        "auto_sync": True,
+        "template_path": "templates/claude_md.j2",
+        "backup_enabled": True,
+        "memory_retention": 30
     }
 }
 
 def get_capability_info():
     """获取功能模块能力信息"""
-    return CAPABILITY_INFO
+    return CAPABILITY

@@ -12,7 +12,16 @@ from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
 from datetime import datetime
 
-from .semantic_version import SemanticVersion, Version
+try:
+    from .semantic_version import SemanticVersion, Version
+except ImportError:
+    # 动态加载时的绝对导入
+    import sys
+    import os
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    if current_dir not in sys.path:
+        sys.path.insert(0, current_dir)
+    from semantic_version import SemanticVersion, Version
 
 logger = logging.getLogger("VersionManager")
 
@@ -72,9 +81,16 @@ class VersionManager:
             }
         ]
 
+        # 需要排除的目录
+        excluded_dirs = {'venv', '.venv', 'env', '.env', 'node_modules', '.git', '__pycache__', '.pytest_cache'}
+
         for pattern_info in patterns:
             files = list(Path(self.project_root).glob(pattern_info['pattern']))
             for file_path in files:
+                # 检查文件路径是否在排除目录中
+                if self._should_exclude_path(file_path, excluded_dirs):
+                    continue
+
                 if file_path.is_file():
                     try:
                         content = file_path.read_text(encoding='utf-8')
@@ -94,6 +110,23 @@ class VersionManager:
 
         logger.info(f"发现 {len(sources)} 个版本源")
         return sources
+
+    def _should_exclude_path(self, file_path: Path, excluded_dirs: set) -> bool:
+        """
+        检查文件路径是否应该被排除
+
+        Args:
+            file_path: 文件路径
+            excluded_dirs: 排除的目录集合
+
+        Returns:
+            bool: 是否应该排除
+        """
+        # 检查路径中的每个部分
+        for part in file_path.parts:
+            if part in excluded_dirs:
+                return True
+        return False
 
     def get_current_version(self) -> Optional[str]:
         """

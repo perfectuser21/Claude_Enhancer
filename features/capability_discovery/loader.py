@@ -260,8 +260,23 @@ class CapabilityLoader:
             Optional[Any]: 导入的模块对象
         """
         try:
-            spec = importlib.util.spec_from_file_location(f"perfect21_{name}", module_file)
+            # 添加features目录到sys.path
+            features_root = str(Path(self.features_root).absolute())
+            if features_root not in sys.path:
+                sys.path.insert(0, features_root)
+
+            # 添加项目根目录到sys.path
+            project_root = str(Path(self.features_root).parent.absolute())
+            if project_root not in sys.path:
+                sys.path.insert(0, project_root)
+
+            # 使用相对导入方式
+            module_name = f"features.{name}"
+            spec = importlib.util.spec_from_file_location(module_name, module_file)
             module = importlib.util.module_from_spec(spec)
+
+            # 添加到sys.modules中以支持相对导入
+            sys.modules[module_name] = module
             spec.loader.exec_module(module)
 
             return module
