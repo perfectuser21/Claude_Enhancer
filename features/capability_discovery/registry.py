@@ -235,8 +235,8 @@ class CapabilityRegistry:
 ### 使用方式:
 ```python
 # 调用Perfect21功能
-from features.{capability_name} import {capability_name.title()}Manager
-manager = {capability_name.title()}Manager()
+from features.{capability_name} import get_manager
+manager = get_manager()
 result = manager.function_name()
 ```
 

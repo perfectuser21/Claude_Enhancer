@@ -9,10 +9,13 @@ import sys
 import time
 import logging
 import threading
+import asyncio
 from typing import Dict, List, Any, Optional, Callable
 from pathlib import Path
 import importlib
 import importlib.util
+import hashlib
+import json
 
 from .scanner import CapabilityScanner
 from .registry import CapabilityRegistry
@@ -47,7 +50,24 @@ class CapabilityLoader:
         self._monitor_running = False
         self._last_scan_time = 0
 
-        logger.info(f"功能加载器初始化 - 自动重载: {auto_reload}")
+        # 性能优化：智能缓存
+        self._cache = {}
+        self._cache_timestamps = {}
+        self._cache_ttl = 300  # 5分钟缓存
+
+        # 性能优化：异步处理
+        self._async_tasks = set()
+
+        # 性能监控：执行时间统计
+        self._performance_stats = {
+            'bootstrap_times': [],
+            'scan_times': [],
+            'load_times': [],
+            'cache_hits': 0,
+            'cache_misses': 0
+        }
+
+        logger.info(f"功能加载器初始化 - 自动重载: {auto_reload} | 缓存TTL: {self._cache_ttl}s")
 
     def bootstrap(self) -> Dict[str, bool]:
         """
@@ -59,9 +79,16 @@ class CapabilityLoader:
         logger.info("启动Perfect21功能发现和加载系统...")
 
         try:
-            # 1. 扫描所有功能
-            capabilities = self.scanner.scan_all_features()
-            logger.info(f"发现 {len(capabilities)} 个功能模块")
+            # 1. 扫描所有功能 (带缓存优化)
+            cache_key = self._get_cache_key("scan_features", self.features_root)
+            capabilities = self._get_cached_result(cache_key)
+
+            if capabilities is None:
+                capabilities = self.scanner.scan_all_features()
+                self._set_cache(cache_key, capabilities)
+                logger.info(f"发现 {len(capabilities)} 个功能模块 (新扫描)")
+            else:
+                logger.info(f"发现 {len(capabilities)} 个功能模块 (缓存命中)")
 
             # 2. 验证功能
             validated_capabilities = self._validate_capabilities(capabilities)
@@ -435,6 +462,30 @@ class CapabilityLoader:
             except Exception as e:
                 logger.error(f"执行卸载回调失败: {e}")
 
+    def _get_cache_key(self, operation: str, *args) -> str:
+        """生成缓存键"""
+        key_data = f"{operation}:{':'.join(map(str, args))}"
+        return hashlib.md5(key_data.encode()).hexdigest()
+
+    def _is_cache_valid(self, cache_key: str) -> bool:
+        """检查缓存是否有效"""
+        if cache_key not in self._cache_timestamps:
+            return False
+        return time.time() - self._cache_timestamps[cache_key] < self._cache_ttl
+
+    def _get_cached_result(self, cache_key: str):
+        """获取缓存结果"""
+        if self._is_cache_valid(cache_key):
+            self._performance_stats['cache_hits'] += 1
+            return self._cache.get(cache_key)
+        self._performance_stats['cache_misses'] += 1
+        return None
+
+    def _set_cache(self, cache_key: str, result):
+        """设置缓存"""
+        self._cache[cache_key] = result
+        self._cache_timestamps[cache_key] = time.time()
+
     def get_loaded_capabilities(self) -> Dict[str, Any]:
         """
         获取已加载的功能列表
@@ -508,6 +559,13 @@ class CapabilityLoader:
         scanner_stats = self.scanner.get_statistics()
         registry_stats = self.registry.get_registration_statistics()
 
+        # 计算性能统计
+        avg_bootstrap_time = (sum(self._performance_stats['bootstrap_times']) /
+                            len(self._performance_stats['bootstrap_times'])) if self._performance_stats['bootstrap_times'] else 0
+
+        cache_hit_rate = (self._performance_stats['cache_hits'] /
+                         (self._performance_stats['cache_hits'] + self._performance_stats['cache_misses'])) if (self._performance_stats['cache_hits'] + self._performance_stats['cache_misses']) > 0 else 0
+
         return {
             'loaded_capabilities': len(self.loaded_capabilities),
             'auto_reload_enabled': self.auto_reload,
@@ -515,7 +573,14 @@ class CapabilityLoader:
             'scanner_stats': scanner_stats,
             'registry_stats': registry_stats,
             'load_callbacks': len(self.load_callbacks),
-            'unload_callbacks': len(self.unload_callbacks)
+            'unload_callbacks': len(self.unload_callbacks),
+            'performance_stats': {
+                'avg_bootstrap_time_ms': round(avg_bootstrap_time * 1000, 2),
+                'cache_hit_rate': round(cache_hit_rate * 100, 2),
+                'cache_hits': self._performance_stats['cache_hits'],
+                'cache_misses': self._performance_stats['cache_misses'],
+                'total_cached_items': len(self._cache)
+            }
         }
 
     def __del__(self):
