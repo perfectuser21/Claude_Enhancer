@@ -266,4 +266,4 @@ python3 main/cli.py workflow list
 *最后更新: 2025-09-16*
 *版本: Perfect21 2.3.0*
 *架构: claude-code-unified-agents + 企业级开发平台*
-*核心模块: 3个 | Agent集成: 56个 | 系统状态: 生产就绪*
+*核心模块: 3个 | Agent集成: 56个 | Git Hooks: 8/13 (61.5%) | 系统状态: 生产就绪*
