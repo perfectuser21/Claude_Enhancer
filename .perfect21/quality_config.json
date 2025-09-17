@@ -1,0 +1,21 @@
+{
+  "min_line_coverage": 85.0,
+  "min_branch_coverage": 80.0,
+  "min_function_coverage": 90.0,
+  "max_complexity": 15,
+  "max_duplications": 5.0,
+  "max_security_issues": 0,
+  "max_response_time_p95": 200.0,
+  "max_memory_usage": 512.0,
+  "min_throughput": 100.0,
+  "max_coupling_score": 0.3,
+  "min_cohesion_score": 0.7,
+  "max_cyclomatic_complexity": 10,
+  "fail_fast": false,
+  "parallel_execution": true,
+  "timeout_seconds": 300,
+  "allowed_security_levels": [
+    "low",
+    "info"
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "timestamp": "2025-09-16T16:39:35.795652",
+  "tests": {
+    "sequential": {
+      "results": [
+        {
+          "cmd": "timeout 60s python3 main/cli.py develop '创建用户注册API' --no-parallel",
+          "description": "创建用户注册API (顺序)",
+          "duration": 0.21965670585632324,
+          "success": true,
+          "stdout_length": 1684,
+          "stderr": "2025-09-16 16:39:31 - Perfect21 - INFO - Perfect21初始化完成\n2025-09-16 16:39:31 - Perfect21 - INFO - Perfect21清理完成\n"
+        },
+        {
+          "cmd": "timeout 60s python3 main/cli.py develop '实现数据验证功能' --no-parallel",
+          "description": "实现数据验证功能 (顺序)",
+          "duration": 0.18863129615783691,
+          "success": true,
+          "stdout_length": 1666,
+          "stderr": "2025-09-16 16:39:31 - Perfect21 - INFO - Perfect21初始化完成\n2025-09-16 16:39:31 - Perfect21 - INFO - Perfect21清理完成\n"
+        }
+      ],
+      "total_time": 0.4084293842315674,
+      "success_rate": 1.0
+    },
+    "parallel": {
+      "results": [
+        {
+          "cmd": "timeout 60s python3 main/cli.py develop '创建用户登录API' --parallel",
+          "description": "创建用户登录API (并行)",
+          "duration": 0.18031620979309082,
+          "success": true,
+          "stdout_length": 1685,
+          "stderr": "2025-09-16 16:39:33 - Perfect21 - INFO - Perfect21初始化完成\n2025-09-16 16:39:33 - Perfect21 - INFO - Perfect21清理完成\n"
+        },
+        {
+          "cmd": "timeout 60s python3 main/cli.py develop '实现权限验证功能' --parallel",
+          "description": "实现权限验证功能 (并行)",
+          "duration": 0.18564796447753906,
+          "success": true,
+          "stdout_length": 1667,
+          "stderr": "2025-09-16 16:39:33 - Perfect21 - INFO - Perfect21初始化完成\n2025-09-16 16:39:33 - Perfect21 - INFO - Perfect21清理完成\n"
+        }
+      ],
+      "total_time": 0.18763136863708496,
+      "success_rate": 1.0
+    },
+    "complex": {
+      "results": [
+        {
+          "cmd": "timeout 120s python3 main/cli.py develop '实现完整的用户管理系统，包括注册、登录、权限验证和数据管理' --parallel",
+          "description": "复杂用户管理系统 (并行)",
+          "duration": 0.16863012313842773,
+          "success": true,
+          "stdout_length": 1817,
+          "stderr": "2025-09-16 16:39:35 - Perfect21 - INFO - Perfect21初始化完成\n2025-09-16 16:39:35 - Perfect21 - INFO - Perfect21清理完成\n"
+        }
+      ],
+      "total_time": 0.16863012313842773,
+      "success_rate": 1.0
+    }
+  },
+  "analysis": {
+    "speedup": 2.1767649364725794,
+    "time_saved": 0.22079801559448242,
+    "parallel_efficiency": 1.0
+  }
+}

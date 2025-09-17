@@ -1,0 +1,205 @@
+{
+  "summary": {
+    "total_managers": 15,
+    "successful_loads": 15,
+    "failed_loads": 0,
+    "total_load_time_ms": 198.72212409973145,
+    "total_memory_mb": 15.7265625,
+    "total_lines_of_code": 4469,
+    "average_load_time_ms": 13.248141606648764,
+    "average_memory_mb": 1.0484375
+  },
+  "performance_bottlenecks": {
+    "slowest_managers": [
+      [
+        "architecture_manager",
+        44.8300838470459
+      ],
+      [
+        "auth_manager",
+        42.84405708312988
+      ],
+      [
+        "lifecycle_manager",
+        29.160737991333008
+      ],
+      [
+        "parallel_manager",
+        27.567148208618164
+      ],
+      [
+        "hooks_manager",
+        21.180391311645508
+      ]
+    ],
+    "memory_heavy_managers": [
+      [
+        "auth_manager",
+        5.09375
+      ],
+      [
+        "parallel_manager",
+        4.45703125
+      ],
+      [
+        "architecture_manager",
+        3.1484375
+      ],
+      [
+        "workspace_manager",
+        1.546875
+      ],
+      [
+        "lifecycle_manager",
+        0.96484375
+      ]
+    ]
+  },
+  "coupling_analysis": {
+    "dependency_counts": {
+      "architecture_manager": 0,
+      "parallel_manager": 2,
+      "workflow_orchestrator": 1,
+      "sync_point_manager": 1,
+      "auth_manager": 4,
+      "token_manager": 1,
+      "task_manager": 1,
+      "workspace_manager": 1,
+      "decision_recorder": 1,
+      "branch_manager": 2,
+      "hooks_manager": 5,
+      "plugin_manager": 2,
+      "lifecycle_manager": 1,
+      "template_manager": 1,
+      "version_manager": 2
+    },
+    "high_coupling_modules": {
+      "auth_manager": 4,
+      "hooks_manager": 5
+    },
+    "average_dependencies": 1.6666666666666667
+  },
+  "failed_modules": [],
+  "detailed_benchmarks": [
+    {
+      "name": "architecture_manager",
+      "load_time_ms": 44.8300838470459,
+      "memory_mb": 3.1484375,
+      "dependencies_count": 0,
+      "lines_of_code": 283,
+      "success": true
+    },
+    {
+      "name": "parallel_manager",
+      "load_time_ms": 27.567148208618164,
+      "memory_mb": 4.45703125,
+      "dependencies_count": 2,
+      "lines_of_code": 332,
+      "success": true
+    },
+    {
+      "name": "workflow_orchestrator",
+      "load_time_ms": 0.6396770477294922,
+      "memory_mb": 0.0,
+      "dependencies_count": 1,
+      "lines_of_code": 78,
+      "success": true
+    },
+    {
+      "name": "sync_point_manager",
+      "load_time_ms": 0.44798851013183594,
+      "memory_mb": 0.0,
+      "dependencies_count": 1,
+      "lines_of_code": 53,
+      "success": true
+    },
+    {
+      "name": "auth_manager",
+      "load_time_ms": 42.84405708312988,
+      "memory_mb": 5.09375,
+      "dependencies_count": 4,
+      "lines_of_code": 316,
+      "success": true
+    },
+    {
+      "name": "token_manager",
+      "load_time_ms": 0.04291534423828125,
+      "memory_mb": 0.0,
+      "dependencies_count": 1,
+      "lines_of_code": 257,
+      "success": true
+    },
+    {
+      "name": "task_manager",
+      "load_time_ms": 0.2770423889160156,
+      "memory_mb": 0.0,
+      "dependencies_count": 1,
+      "lines_of_code": 56,
+      "success": true
+    },
+    {
+      "name": "workspace_manager",
+      "load_time_ms": 10.530948638916016,
+      "memory_mb": 1.546875,
+      "dependencies_count": 1,
+      "lines_of_code": 485,
+      "success": true
+    },
+    {
+      "name": "decision_recorder",
+      "load_time_ms": 6.936311721801758,
+      "memory_mb": 0.0,
+      "dependencies_count": 1,
+      "lines_of_code": 464,
+      "success": true
+    },
+    {
+      "name": "branch_manager",
+      "load_time_ms": 1.6393661499023438,
+      "memory_mb": 0.0,
+      "dependencies_count": 2,
+      "lines_of_code": 265,
+      "success": true
+    },
+    {
+      "name": "hooks_manager",
+      "load_time_ms": 21.180391311645508,
+      "memory_mb": 0.515625,
+      "dependencies_count": 5,
+      "lines_of_code": 434,
+      "success": true
+    },
+    {
+      "name": "plugin_manager",
+      "load_time_ms": 0.04220008850097656,
+      "memory_mb": 0.0,
+      "dependencies_count": 2,
+      "lines_of_code": 400,
+      "success": true
+    },
+    {
+      "name": "lifecycle_manager",
+      "load_time_ms": 29.160737991333008,
+      "memory_mb": 0.96484375,
+      "dependencies_count": 1,
+      "lines_of_code": 357,
+      "success": true
+    },
+    {
+      "name": "template_manager",
+      "load_time_ms": 0.04100799560546875,
+      "memory_mb": 0.0,
+      "dependencies_count": 1,
+      "lines_of_code": 229,
+      "success": true
+    },
+    {
+      "name": "version_manager",
+      "load_time_ms": 12.542247772216797,
+      "memory_mb": 0.0,
+      "dependencies_count": 2,
+      "lines_of_code": 460,
+      "success": true
+    }
+  ]
+}

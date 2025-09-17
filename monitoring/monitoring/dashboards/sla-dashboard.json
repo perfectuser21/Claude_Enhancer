@@ -1,0 +1,31 @@
+{
+  "title": "Perfect21 SLA Dashboard",
+  "description": "Service Level Agreement Monitoring",
+  "uid": "perfect21-sla",
+  "panels": [
+    {
+      "title": "SLA Compliance",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "(1 - rate(perfect21_api_requests_total{status_code=~'5..'}[30d])) * 100",
+          "legendFormat": "Availability %"
+        }
+      ],
+      "thresholds": [
+        {
+          "color": "red",
+          "value": 0
+        },
+        {
+          "color": "yellow",
+          "value": 99
+        },
+        {
+          "color": "green",
+          "value": 99.9
+        }
+      ]
+    }
+  ]
+}

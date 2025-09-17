@@ -1,0 +1,15 @@
+{
+  "id": "ADR-20250917-175812",
+  "title": "系统验证测试",
+  "date": "2025-09-17T17:58:12.289892",
+  "status": "proposed",
+  "context": "验证Perfect21决策记录功能",
+  "decision": "创建测试决策记录",
+  "consequences": "确认存储功能正常",
+  "agents_involved": [],
+  "metadata": {
+    "project": "Perfect21",
+    "session_id": null,
+    "complexity": "medium"
+  }
+}

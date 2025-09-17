@@ -1,0 +1,554 @@
+openapi: 3.0.3
+info:
+  title: Perfect21 Authentication API
+  description: |
+    Perfect21认证API提供完整的用户认证和授权功能，支持JWT令牌认证、刷新令牌机制、用户管理等核心功能。
+
+    ## 主要特性
+    - JWT访问令牌 + 刷新令牌机制
+    - 多种登录方式（用户名/邮箱）
+    - 强密码策略和安全防护
+    - 请求频率限制和异常检测
+    - 完整的用户生命周期管理
+
+    ## 认证方式
+    使用Bearer Token认证，在请求头中添加：
+    ```
+    Authorization: Bearer <your_access_token>
+    ```
+  version: 1.0.0
+  contact:
+    name: Perfect21 API Support
+    url: https://github.com/your-org/perfect21
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8000/api/auth
+    description: 开发环境
+  - url: https://api.perfect21.com/auth
+    description: 生产环境
+
+paths:
+  /login:
+    post:
+      summary: 用户登录
+      description: |
+        用户使用邮箱/用户名和密码进行登录，获取访问令牌和刷新令牌。
+
+        **安全特性：**
+        - 密码bcrypt加密验证
+        - 登录失败次数限制（5次/15分钟）
+        - IP地址跟踪和异常检测
+        - 设备指纹识别
+      operationId: login
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            examples:
+              email_login:
+                summary: 邮箱登录
+                value:
+                  identifier: "user@example.com"
+                  password: "securepassword123"
+                  remember_me: false
+              username_login:
+                summary: 用户名登录
+                value:
+                  identifier: "john_doe"
+                  password: "securepassword123"
+                  remember_me: true
+      responses:
+        '200':
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+              examples:
+                success:
+                  summary: 成功登录
+                  value:
+                    success: true
+                    access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    refresh_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IlJlZnJlc2gifQ..."
+                    expires_in: 3600
+                    message: "登录成功"
+                    user:
+                      id: "12345"
+                      username: "john_doe"
+                      email: "user@example.com"
+                      role: "user"
+                      created_at: "2025-01-01T00:00:00Z"
+                      last_login: "2025-01-15T10:30:00Z"
+        '401':
+          description: 认证失败
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+              examples:
+                invalid_credentials:
+                  summary: 用户名或密码错误
+                  value:
+                    success: false
+                    access_token: null
+                    refresh_token: null
+                    user: null
+                    expires_in: null
+                    message: "用户名或密码错误"
+        '403':
+          description: 账户被禁用或锁定
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                account_locked:
+                  summary: 账户被锁定
+                  value:
+                    success: false
+                    message: "账户已被锁定，请15分钟后重试"
+                    error: "account_locked"
+        '422':
+          description: 请求参数验证失败
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '429':
+          description: 请求过于频繁
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RateLimitErrorResponse'
+              examples:
+                rate_limit:
+                  summary: 请求频率超限
+                  value:
+                    success: false
+                    message: "请求过于频繁，请稍后再试"
+                    error: "rate_limit_exceeded"
+                    retry_after: 60
+
+  /refresh:
+    post:
+      summary: 刷新访问令牌
+      description: |
+        使用有效的刷新令牌获取新的访问令牌。刷新令牌一次性使用，使用后会生成新的刷新令牌。
+
+        **安全特性：**
+        - 刷新令牌30天有效期
+        - 一次性使用，防止重放攻击
+        - 自动轮换机制
+        - 黑名单检查
+      operationId: refreshToken
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+            examples:
+              refresh:
+                summary: 刷新令牌
+                value:
+                  refresh_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IlJlZnJlc2gifQ..."
+      responses:
+        '200':
+          description: 令牌刷新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshResponse'
+              examples:
+                success:
+                  summary: 刷新成功
+                  value:
+                    success: true
+                    access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    expires_in: 3600
+                    message: "令牌刷新成功"
+                    user:
+                      id: "12345"
+                      username: "john_doe"
+                      email: "user@example.com"
+                      role: "user"
+        '401':
+          description: 刷新令牌无效或过期
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshResponse'
+              examples:
+                invalid_token:
+                  summary: 令牌无效
+                  value:
+                    success: false
+                    access_token: null
+                    user: null
+                    expires_in: null
+                    message: "刷新令牌已过期或无效"
+        '403':
+          description: 刷新令牌被吊销
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /logout:
+    post:
+      summary: 用户登出
+      description: |
+        登出当前用户，使当前的访问令牌立即失效，并将其加入黑名单。
+
+        **安全特性：**
+        - 访问令牌立即失效
+        - 加入令牌黑名单
+        - 清除服务端会话状态
+      operationId: logout
+      tags:
+        - Authentication
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 登出成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                success:
+                  summary: 成功登出
+                  value:
+                    success: true
+                    message: "登出成功"
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+  /me:
+    get:
+      summary: 获取当前用户信息
+      description: |
+        获取当前已认证用户的详细信息，包括用户档案、角色权限等。
+
+        **返回信息：**
+        - 基本用户信息（ID、用户名、邮箱）
+        - 用户角色和权限
+        - 账户创建时间和最后登录时间
+      operationId: getCurrentUser
+      tags:
+        - Authentication
+        - User Profile
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: 成功获取用户信息
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+              examples:
+                user_info:
+                  summary: 用户信息
+                  value:
+                    id: "12345"
+                    username: "john_doe"
+                    email: "user@example.com"
+                    role: "user"
+                    created_at: "2025-01-01T00:00:00Z"
+                    last_login: "2025-01-15T10:30:00Z"
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+
+components:
+  schemas:
+    LoginRequest:
+      type: object
+      required:
+        - identifier
+        - password
+      properties:
+        identifier:
+          type: string
+          description: 用户名或邮箱地址
+          example: "user@example.com"
+          minLength: 1
+        password:
+          type: string
+          description: 用户密码
+          example: "securepassword123"
+          format: password
+          minLength: 1
+        remember_me:
+          type: boolean
+          description: 是否记住登录状态（延长令牌有效期）
+          default: false
+          example: false
+
+    RefreshTokenRequest:
+      type: object
+      required:
+        - refresh_token
+      properties:
+        refresh_token:
+          type: string
+          description: 有效的刷新令牌
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IlJlZnJlc2gifQ..."
+          minLength: 1
+
+    LoginResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: 操作是否成功
+          example: true
+        access_token:
+          type: string
+          nullable: true
+          description: JWT访问令牌
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        refresh_token:
+          type: string
+          nullable: true
+          description: 刷新令牌
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IlJlZnJlc2gifQ..."
+        expires_in:
+          type: number
+          nullable: true
+          description: 访问令牌过期时间（秒）
+          example: 3600
+        message:
+          type: string
+          description: 响应消息
+          example: "登录成功"
+        user:
+          $ref: '#/components/schemas/UserResponse'
+          nullable: true
+
+    RefreshResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: 操作是否成功
+          example: true
+        access_token:
+          type: string
+          nullable: true
+          description: 新的JWT访问令牌
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        expires_in:
+          type: number
+          nullable: true
+          description: 访问令牌过期时间（秒）
+          example: 3600
+        message:
+          type: string
+          description: 响应消息
+          example: "令牌刷新成功"
+        user:
+          $ref: '#/components/schemas/UserResponse'
+          nullable: true
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: 用户唯一标识符
+          example: "12345"
+        username:
+          type: string
+          description: 用户名
+          example: "john_doe"
+        email:
+          type: string
+          format: email
+          description: 用户邮箱地址
+          example: "user@example.com"
+        role:
+          type: string
+          description: 用户角色
+          enum: [user, admin, moderator]
+          example: "user"
+        created_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: 账户创建时间
+          example: "2025-01-01T00:00:00Z"
+        last_login:
+          type: string
+          format: date-time
+          nullable: true
+          description: 最后登录时间
+          example: "2025-01-15T10:30:00Z"
+
+    ApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: 操作是否成功
+          example: true
+        message:
+          type: string
+          description: 响应消息
+          example: "操作成功"
+        error:
+          type: string
+          nullable: true
+          description: 错误代码（仅在失败时返回）
+          example: null
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: 操作是否成功
+          example: false
+        message:
+          type: string
+          description: 错误消息
+          example: "操作失败"
+        error:
+          type: string
+          description: 错误代码
+          example: "invalid_request"
+
+    ValidationErrorResponse:
+      type: object
+      properties:
+        detail:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                description: 验证失败的字段名
+                example: "password"
+              message:
+                type: string
+                description: 验证失败的错误消息
+                example: "密码长度至少8位"
+
+    RateLimitErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+          description: 错误消息
+          example: "请求过于频繁，请稍后再试"
+        error:
+          type: string
+          description: 错误代码
+          example: "rate_limit_exceeded"
+        retry_after:
+          type: integer
+          description: 建议重试等待时间（秒）
+          example: 60
+
+  responses:
+    UnauthorizedError:
+      description: 认证失败或令牌无效
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
+                example: "需要认证"
+          examples:
+            missing_token:
+              summary: 缺少认证令牌
+              value:
+                detail: "需要认证"
+            invalid_token:
+              summary: 令牌无效
+              value:
+                detail: "访问令牌无效或已过期"
+      headers:
+        WWW-Authenticate:
+          schema:
+            type: string
+          description: 认证方式说明
+          example: "Bearer"
+
+    ForbiddenError:
+      description: 权限不足
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
+                example: "权限不足"
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT访问令牌认证。在请求头中添加：
+        ```
+        Authorization: Bearer <your_access_token>
+        ```
+
+        **令牌获取方式：**
+        1. 通过 `/login` 端点登录获取
+        2. 通过 `/refresh` 端点刷新获取
+
+        **令牌特性：**
+        - 有效期：1小时（3600秒）
+        - 格式：JWT (JSON Web Token)
+        - 包含：用户ID、角色、过期时间等信息
+
+  parameters:
+    Authorization:
+      name: Authorization
+      in: header
+      required: true
+      description: Bearer token for authentication
+      schema:
+        type: string
+        example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+tags:
+  - name: Authentication
+    description: |
+      用户认证相关操作，包括登录、登出、令牌管理等核心功能。
+
+      **主要功能：**
+      - 用户登录和登出
+      - JWT令牌管理和刷新
+      - 用户信息获取
+      - 安全防护和异常检测
+  - name: User Profile
+    description: |
+      用户档案管理，包括个人信息查看和更新。
+
+externalDocs:
+  description: Perfect21 完整文档
+  url: https://github.com/your-org/perfect21/docs

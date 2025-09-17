@@ -15,8 +15,15 @@ __all__ = [
     'CapabilityScanner',
     'CapabilityRegistry',
     'CapabilityLoader',
-    'bootstrap_capability_discovery'
+    'bootstrap_capability_discovery',
+    'get_perfect21_capabilities'
 ]
+
+def get_perfect21_capabilities() -> dict:
+    """获取Perfect21能力信息的主入口 - 供@orchestrator使用"""
+    from .orchestrator_bridge import OrchestratorBridge
+    bridge = OrchestratorBridge()
+    return bridge.get_perfect21_info_for_orchestrator()
 
 def bootstrap_capability_discovery(features_root: str = None, auto_reload: bool = True) -> dict:
     """

@@ -19,7 +19,13 @@ class DynamicUpdater:
     """CLAUDE.md动态更新器"""
 
     def __init__(self, project_root: str = None):
-        self.project_root = project_root or os.getcwd()
+        # 智能检测项目根目录
+        if project_root is None:
+            # 从当前文件位置推断项目根目录
+            current_file = os.path.abspath(__file__)
+            # features/claude_md_manager/dynamic_updater.py -> 向上2级
+            project_root = os.path.dirname(os.path.dirname(os.path.dirname(current_file)))
+        self.project_root = project_root
         self.claude_md_path = os.path.join(self.project_root, 'CLAUDE.md')
         self.claude_local_path = os.path.join(self.project_root, 'CLAUDE.local.md')
 

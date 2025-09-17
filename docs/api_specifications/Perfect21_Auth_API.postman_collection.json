@@ -1,0 +1,410 @@
+{
+  "info": {
+    "name": "Perfect21 Authentication API",
+    "description": "Perfect21认证API完整测试集合，包含登录、令牌管理、用户信息获取等核心功能测试用例。",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000/api/auth",
+      "type": "string",
+      "description": "API基础URL"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string",
+      "description": "访问令牌（登录后自动设置）"
+    },
+    {
+      "key": "refresh_token",
+      "value": "",
+      "type": "string",
+      "description": "刷新令牌（登录后自动设置）"
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "string",
+      "description": "用户ID（登录后自动设置）"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. 用户登录",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// 检查响应状态",
+              "pm.test('登录请求状态为200', () => {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "// 解析响应数据",
+              "const responseJson = pm.response.json();",
+              "",
+              "// 检查响应结构",
+              "pm.test('响应包含必要字段', () => {",
+              "    pm.expect(responseJson).to.have.property('success');",
+              "    pm.expect(responseJson).to.have.property('message');",
+              "});",
+              "",
+              "// 如果登录成功，保存令牌",
+              "if (responseJson.success) {",
+              "    pm.test('登录成功', () => {",
+              "        pm.expect(responseJson.success).to.be.true;",
+              "        pm.expect(responseJson).to.have.property('access_token');",
+              "        pm.expect(responseJson).to.have.property('refresh_token');",
+              "        pm.expect(responseJson).to.have.property('user');",
+              "    });",
+              "    ",
+              "    // 保存令牌到环境变量",
+              "    pm.collectionVariables.set('access_token', responseJson.access_token);",
+              "    pm.collectionVariables.set('refresh_token', responseJson.refresh_token);",
+              "    pm.collectionVariables.set('user_id', responseJson.user.id);",
+              "    ",
+              "    console.log('🎉 登录成功，令牌已保存');",
+              "} else {",
+              "    pm.test('登录失败原因', () => {",
+              "        console.log('❌ 登录失败: ' + responseJson.message);",
+              "    });",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"identifier\": \"user@example.com\",\n  \"password\": \"password123\",\n  \"remember_me\": false\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["login"]
+        },
+        "description": "用户登录接口测试。使用邮箱/用户名和密码进行登录，成功后获取访问令牌和刷新令牌。"
+      }
+    },
+    {
+      "name": "2. 获取当前用户信息",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// 检查响应状态",
+              "pm.test('获取用户信息状态为200', () => {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "// 解析响应数据",
+              "const responseJson = pm.response.json();",
+              "",
+              "// 检查用户信息结构",
+              "pm.test('用户信息包含必要字段', () => {",
+              "    pm.expect(responseJson).to.have.property('id');",
+              "    pm.expect(responseJson).to.have.property('username');",
+              "    pm.expect(responseJson).to.have.property('email');",
+              "    pm.expect(responseJson).to.have.property('role');",
+              "});",
+              "",
+              "// 验证数据类型",
+              "pm.test('用户信息数据类型正确', () => {",
+              "    pm.expect(responseJson.id).to.be.a('string');",
+              "    pm.expect(responseJson.username).to.be.a('string');",
+              "    pm.expect(responseJson.email).to.include('@');",
+              "    pm.expect(['user', 'admin', 'moderator']).to.include(responseJson.role);",
+              "});",
+              "",
+              "console.log('✅ 用户信息获取成功:', responseJson.username);"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "// 检查是否有访问令牌",
+              "const accessToken = pm.collectionVariables.get('access_token');",
+              "if (!accessToken) {",
+              "    console.log('⚠️ 警告: 没有访问令牌，请先执行登录请求');",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/me",
+          "host": ["{{baseUrl}}"],
+          "path": ["me"]
+        },
+        "description": "获取当前已认证用户的详细信息。需要在请求头中提供有效的访问令牌。"
+      }
+    },
+    {
+      "name": "3. 刷新访问令牌",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// 检查响应状态",
+              "pm.test('刷新令牌状态为200', () => {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "// 解析响应数据",
+              "const responseJson = pm.response.json();",
+              "",
+              "// 检查响应结构",
+              "pm.test('刷新响应包含必要字段', () => {",
+              "    pm.expect(responseJson).to.have.property('success');",
+              "    pm.expect(responseJson).to.have.property('message');",
+              "});",
+              "",
+              "// 如果刷新成功，更新令牌",
+              "if (responseJson.success) {",
+              "    pm.test('令牌刷新成功', () => {",
+              "        pm.expect(responseJson.success).to.be.true;",
+              "        pm.expect(responseJson).to.have.property('access_token');",
+              "        pm.expect(responseJson).to.have.property('expires_in');",
+              "    });",
+              "    ",
+              "    // 更新访问令牌",
+              "    pm.collectionVariables.set('access_token', responseJson.access_token);",
+              "    ",
+              "    console.log('🔄 令牌刷新成功');",
+              "} else {",
+              "    pm.test('令牌刷新失败原因', () => {",
+              "        console.log('❌ 令牌刷新失败: ' + responseJson.message);",
+              "    });",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "// 检查是否有刷新令牌",
+              "const refreshToken = pm.collectionVariables.get('refresh_token');",
+              "if (!refreshToken) {",
+              "    console.log('⚠️ 警告: 没有刷新令牌，请先执行登录请求');",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/refresh",
+          "host": ["{{baseUrl}}"],
+          "path": ["refresh"]
+        },
+        "description": "使用有效的刷新令牌获取新的访问令牌。刷新令牌是一次性使用的。"
+      }
+    },
+    {
+      "name": "4. 用户登出",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// 检查响应状态",
+              "pm.test('登出请求状态为200', () => {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "// 解析响应数据",
+              "const responseJson = pm.response.json();",
+              "",
+              "// 检查登出结果",
+              "pm.test('登出成功', () => {",
+              "    pm.expect(responseJson).to.have.property('success');",
+              "    pm.expect(responseJson.success).to.be.true;",
+              "    pm.expect(responseJson).to.have.property('message');",
+              "});",
+              "",
+              "// 清除保存的令牌",
+              "pm.collectionVariables.set('access_token', '');",
+              "pm.collectionVariables.set('refresh_token', '');",
+              "pm.collectionVariables.set('user_id', '');",
+              "",
+              "console.log('👋 登出成功，令牌已清除');"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "// 检查是否有访问令牌",
+              "const accessToken = pm.collectionVariables.get('access_token');",
+              "if (!accessToken) {",
+              "    console.log('⚠️ 警告: 没有访问令牌，请先执行登录请求');",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/logout",
+          "host": ["{{baseUrl}}"],
+          "path": ["logout"]
+        },
+        "description": "登出当前用户，使访问令牌立即失效并加入黑名单。"
+      }
+    },
+    {
+      "name": "5. 健康检查",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// 检查响应状态",
+              "pm.test('健康检查状态为200', () => {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "// 解析响应数据",
+              "const responseJson = pm.response.json();",
+              "",
+              "// 检查健康状态",
+              "pm.test('服务健康状态正常', () => {",
+              "    pm.expect(responseJson).to.have.property('status');",
+              "    pm.expect(responseJson.status).to.equal('healthy');",
+              "    pm.expect(responseJson).to.have.property('service');",
+              "    pm.expect(responseJson.service).to.equal('auth');",
+              "});",
+              "",
+              "console.log('✅ 认证服务健康状态正常');"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["health"]
+        },
+        "description": "检查认证服务的健康状态，无需认证。"
+      }
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// 全局预请求脚本",
+          "console.log('🚀 执行API请求: ' + pm.info.requestName);",
+          "",
+          "// 设置通用请求头",
+          "if (!pm.request.headers.has('User-Agent')) {",
+          "    pm.request.headers.add({",
+          "        key: 'User-Agent',",
+          "        value: 'Perfect21-Postman-Tests/1.0'",
+          "    });",
+          "}",
+          "",
+          "// 添加请求ID用于追踪",
+          "const requestId = 'req_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);",
+          "pm.request.headers.add({",
+          "    key: 'X-Request-Id',",
+          "    value: requestId",
+          "});"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// 全局后置脚本",
+          "console.log('📊 响应时间: ' + pm.response.responseTime + 'ms');",
+          "console.log('📄 响应大小: ' + pm.response.responseSize + ' bytes');",
+          "",
+          "// 检查通用响应头",
+          "pm.test('响应包含Content-Type', () => {",
+          "    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+          "});",
+          "",
+          "// 性能测试",
+          "pm.test('响应时间小于2秒', () => {",
+          "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+          "});"
+        ]
+      }
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  }
+}

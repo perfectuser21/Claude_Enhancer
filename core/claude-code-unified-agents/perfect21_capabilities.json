@@ -1,7 +1,7 @@
 {
   "capability_discovery": {
     "name": "capability_discovery",
-    "description": "动态发现和集成Perfect21新功能的元功能模块",
+    "description": "动态发现Perfect21功能并为@orchestrator提供集成桥梁",
     "category": "meta",
     "priority": "critical",
     "is_core": true,
@@ -17,15 +17,21 @@
       "register_to_agents",
       "hot_reload",
       "validate_capability",
-      "get_capability_catalog"
+      "get_capability_catalog",
+      "get_perfect21_capabilities",
+      "save_capabilities_manifest",
+      "get_capabilities_for_orchestrator"
     ],
     "integration_points": [
       "system_startup",
       "feature_added",
       "runtime_update",
-      "before_task_routing"
+      "before_task_routing",
+      "before_orchestrator_call",
+      "capability_update",
+      "feature_discovery"
     ],
-    "registered_at": "2025-09-16T09:36:47.076196"
+    "registered_at": "2025-09-17T08:47:24.253333"
   },
   "git_workflow": {
     "name": "git_workflow",
@@ -63,7 +69,7 @@
       "project_initialization",
       "branch_operations"
     ],
-    "registered_at": "2025-09-16T09:36:47.084621"
+    "registered_at": "2025-09-17T08:47:24.275225"
   },
   "version_manager": {
     "name": "version_manager",
@@ -102,7 +108,7 @@
       "version_update",
       "deployment"
     ],
-    "registered_at": "2025-09-16T09:36:47.079768"
+    "registered_at": "2025-09-17T08:47:24.270485"
   },
   "claude_md_manager": {
     "name": "claude_md_manager",
@@ -133,6 +139,237 @@
       "version_update",
       "project_status_change"
     ],
-    "registered_at": "2025-09-16T09:36:47.089356"
+    "registered_at": "2025-09-17T08:47:24.295673"
+  },
+  "workflow_engine": {
+    "name": "workflow_engine",
+    "description": "Perfect21多Agent工作流执行引擎，实现真正的并行协作",
+    "category": "execution",
+    "priority": "critical",
+    "is_core": true,
+    "agents_can_use": [
+      "orchestrator",
+      "project-manager",
+      "backend-architect",
+      "devops-engineer"
+    ],
+    "functions": [
+      "execute_parallel_tasks",
+      "execute_sequential_pipeline",
+      "handle_dependencies",
+      "monitor_execution",
+      "integrate_results",
+      "create_task_graph",
+      "validate_workflow",
+      "get_execution_status"
+    ],
+    "integration_points": [
+      "orchestrator_call",
+      "multi_agent_request",
+      "parallel_execution",
+      "workflow_monitoring",
+      "result_integration"
+    ],
+    "registered_at": "2025-09-17T08:47:24.256683"
+  },
+  "workflow_templates": {
+    "name": "workflow_templates",
+    "description": "Perfect21工作流模板系统，提供预定义的多Agent协作模板",
+    "category": "development",
+    "priority": "high",
+    "is_core": true,
+    "agents_can_use": [
+      "orchestrator",
+      "project-manager",
+      "backend-architect",
+      "frontend-specialist",
+      "devops-engineer",
+      "product-strategist"
+    ],
+    "functions": [
+      "get_template",
+      "list_templates",
+      "search_templates",
+      "create_custom_template",
+      "get_templates_by_category",
+      "get_templates_by_pattern",
+      "export_template",
+      "validate_template",
+      "get_statistics"
+    ],
+    "integration_points": [
+      "template_selection",
+      "workflow_execution",
+      "custom_template_creation",
+      "template_export_import",
+      "template_validation"
+    ],
+    "registered_at": "2025-09-17T08:47:24.266500"
+  },
+  "execution_monitor": {
+    "name": "execution_monitor",
+    "description": "Perfect21执行监控和可视化系统，实时监控多Agent工作流执行状态",
+    "category": "monitoring",
+    "priority": "high",
+    "is_core": true,
+    "agents_can_use": [
+      "orchestrator",
+      "project-manager",
+      "devops-engineer",
+      "monitoring-specialist",
+      "performance-engineer"
+    ],
+    "functions": [
+      "start_monitoring",
+      "stop_monitoring",
+      "emit_event",
+      "get_workflow_status",
+      "get_active_workflows",
+      "get_agent_status",
+      "get_recent_events",
+      "get_statistics",
+      "export_workflow_report",
+      "start_console_display",
+      "generate_html_report"
+    ],
+    "integration_points": [
+      "workflow_execution_start",
+      "task_delegation",
+      "agent_status_change",
+      "error_handling",
+      "performance_analysis",
+      "report_generation"
+    ],
+    "registered_at": "2025-09-17T08:47:24.261269"
+  },
+  "learning_loop": {
+    "name": "learning_loop",
+    "description": "自动生成的功能描述: learning_loop",
+    "category": "unknown",
+    "priority": "low",
+    "is_core": false,
+    "agents_can_use": [
+      "orchestrator"
+    ],
+    "functions": [],
+    "integration_points": [],
+    "registered_at": "2025-09-17T08:47:24.277527"
+  },
+  "auth_api": {
+    "name": "auth_api",
+    "description": "自动生成的功能描述: auth_api",
+    "category": "unknown",
+    "priority": "low",
+    "is_core": false,
+    "agents_can_use": [
+      "orchestrator"
+    ],
+    "functions": [],
+    "integration_points": [],
+    "registered_at": "2025-09-17T08:47:24.279174"
+  },
+  "preventive_quality": {
+    "name": "preventive_quality",
+    "description": "自动生成的功能描述: preventive_quality",
+    "category": "unknown",
+    "priority": "low",
+    "is_core": false,
+    "agents_can_use": [
+      "orchestrator"
+    ],
+    "functions": [],
+    "integration_points": [],
+    "registered_at": "2025-09-17T08:47:24.280778"
+  },
+  "multi_workspace": {
+    "name": "multi_workspace",
+    "description": "自动生成的功能描述: multi_workspace",
+    "category": "unknown",
+    "priority": "low",
+    "is_core": false,
+    "agents_can_use": [
+      "orchestrator"
+    ],
+    "functions": [],
+    "integration_points": [],
+    "registered_at": "2025-09-17T08:47:24.282782"
+  },
+  "quality_guardian": {
+    "name": "quality_guardian",
+    "description": "自动生成的功能描述: quality_guardian",
+    "category": "unknown",
+    "priority": "low",
+    "is_core": false,
+    "agents_can_use": [
+      "orchestrator"
+    ],
+    "functions": [],
+    "integration_points": [],
+    "registered_at": "2025-09-17T08:47:24.284339"
+  },
+  "workflow_orchestrator": {
+    "name": "workflow_orchestrator",
+    "description": "自动生成的功能描述: workflow_orchestrator",
+    "category": "unknown",
+    "priority": "low",
+    "is_core": false,
+    "agents_can_use": [
+      "orchestrator"
+    ],
+    "functions": [],
+    "integration_points": [],
+    "registered_at": "2025-09-17T08:47:24.285795"
+  },
+  "auth_system": {
+    "name": "auth_system",
+    "description": "自动生成的功能描述: auth_system",
+    "category": "unknown",
+    "priority": "low",
+    "is_core": false,
+    "agents_can_use": [
+      "orchestrator"
+    ],
+    "functions": [],
+    "integration_points": [],
+    "registered_at": "2025-09-17T08:47:24.287243"
+  },
+  "sync_point_manager": {
+    "name": "sync_point_manager",
+    "description": "自动生成的功能描述: sync_point_manager",
+    "category": "unknown",
+    "priority": "low",
+    "is_core": false,
+    "agents_can_use": [
+      "orchestrator"
+    ],
+    "functions": [],
+    "integration_points": [],
+    "registered_at": "2025-09-17T08:47:24.288894"
+  },
+  "learning_feedback": {
+    "name": "learning_feedback",
+    "description": "自动生成的功能描述: learning_feedback",
+    "category": "unknown",
+    "priority": "low",
+    "is_core": false,
+    "agents_can_use": [
+      "orchestrator"
+    ],
+    "functions": [],
+    "integration_points": [],
+    "registered_at": "2025-09-17T08:47:24.290327"
+  },
+  "decision_recorder": {
+    "name": "decision_recorder",
+    "description": "自动生成的功能描述: decision_recorder",
+    "category": "unknown",
+    "priority": "low",
+    "is_core": false,
+    "agents_can_use": [
+      "orchestrator"
+    ],
+    "functions": [],
+    "integration_points": [],
+    "registered_at": "2025-09-17T08:47:24.291943"
   }
 }

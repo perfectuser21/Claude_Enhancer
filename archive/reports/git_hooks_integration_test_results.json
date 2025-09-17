@@ -1,0 +1,288 @@
+{
+  "timestamp": "2025-09-17T09:19:06.688179",
+  "test_summary": {
+    "total_tests": 6,
+    "passed_tests": 5,
+    "failed_tests": 1,
+    "success_rate": 83.33333333333334,
+    "overall_status": "部分失败"
+  },
+  "hooks_tests": {
+    "configuration": {
+      "hooks_manager_init": true,
+      "total_hooks": 13,
+      "hook_groups": [
+        "advanced",
+        "complete",
+        "essential",
+        "standard"
+      ],
+      "required_hooks": [
+        "commit-msg",
+        "post-checkout",
+        "post-commit",
+        "post-merge",
+        "pre-commit",
+        "pre-push",
+        "prepare-commit-msg"
+      ],
+      "subagent_mapping": {
+        "applypatch-msg": "@business-analyst",
+        "commit-msg": "@business-analyst",
+        "post-applypatch": "@test-engineer",
+        "post-checkout": "@devops-engineer",
+        "post-commit": "@devops-engineer",
+        "post-merge": "@test-engineer",
+        "post-rewrite": "@devops-engineer",
+        "pre-applypatch": "@code-reviewer",
+        "pre-auto-gc": "@devops-engineer",
+        "pre-commit": "auto",
+        "pre-push": "auto",
+        "pre-rebase": "@code-reviewer",
+        "prepare-commit-msg": "@business-analyst"
+      }
+    },
+    "installation": {
+      "git_hooks_dir_exists": true,
+      "install_capability": true,
+      "hook_groups_available": [
+        "advanced",
+        "complete",
+        "essential",
+        "standard"
+      ],
+      "installation_methods": [
+        "single",
+        "group",
+        "all"
+      ],
+      "existing_hooks": [
+        "post-rewrite",
+        "post-checkout",
+        "post-checkout.backup.perfect21",
+        "prepare-commit-msg",
+        "applypatch-msg",
+        "pre-commit.backup.perfect21",
+        "pre-commit",
+        "pre-auto-gc",
+        "pre-rebase.backup.perfect21",
+        "post-commit",
+        "post-merge.backup.perfect21",
+        "prepare-commit-msg.backup.perfect21",
+        "post-merge",
+        "pre-push.backup.perfect21",
+        "commit-msg.backup.perfect21",
+        "post-commit.backup.perfect21",
+        "pre-push",
+        "pre-rebase",
+        "commit-msg",
+        "pre-applypatch",
+        "post-applypatch"
+      ],
+      "perfect21_hooks": [
+        "post-rewrite",
+        "post-checkout",
+        "post-checkout.backup.perfect21",
+        "prepare-commit-msg",
+        "applypatch-msg",
+        "pre-commit.backup.perfect21",
+        "pre-commit",
+        "pre-auto-gc",
+        "pre-rebase.backup.perfect21",
+        "post-commit",
+        "post-merge.backup.perfect21",
+        "prepare-commit-msg.backup.perfect21",
+        "post-merge",
+        "pre-push.backup.perfect21",
+        "commit-msg.backup.perfect21",
+        "post-commit.backup.perfect21",
+        "pre-push",
+        "pre-rebase",
+        "commit-msg",
+        "pre-applypatch",
+        "post-applypatch"
+      ]
+    },
+    "execution": {
+      "perfect21_init": true,
+      "hook_simulations": {
+        "pre-commit": {
+          "success": true,
+          "has_call_info": false,
+          "message": "需要并行调用2个agents"
+        },
+        "pre-push": {
+          "success": true,
+          "has_call_info": false,
+          "message": "需要并行调用2个agents"
+        },
+        "post-checkout": {
+          "success": true,
+          "has_call_info": false,
+          "message": "需要并行调用1个agents"
+        },
+        "commit-msg": {
+          "success": true,
+          "has_call_info": false,
+          "message": "需要并行调用1个agents"
+        }
+      },
+      "agent_calls_generated": {},
+      "branch_routing": {}
+    }
+  },
+  "agent_coordination": {
+    "branch_routing": {
+      "current_branch": "feature/bugfix_auth",
+      "routing_logic": {
+        "main": {
+          "type": "main",
+          "protection_level": "strict",
+          "requires_review": true,
+          "suggested_agent": "@orchestrator"
+        },
+        "feature/test": {
+          "type": "feature",
+          "protection_level": "standard",
+          "requires_review": false,
+          "suggested_agent": "@code-reviewer"
+        },
+        "release/1.0.0": {
+          "type": "release",
+          "protection_level": "strict",
+          "requires_review": true,
+          "suggested_agent": "@deployment-manager"
+        },
+        "hotfix/critical": {
+          "type": "hotfix",
+          "protection_level": "expedited",
+          "requires_review": true,
+          "suggested_agent": "@test-engineer"
+        }
+      },
+      "protection_levels": {},
+      "agent_selection": {
+        "main": "@orchestrator",
+        "feature/test": "@code-reviewer",
+        "release/1.0.0": "@deployment-manager",
+        "hotfix/critical": "@test-engineer"
+      }
+    },
+    "multi_agent": {
+      "parallel_capability": true,
+      "agent_workflows": {},
+      "coordination_scenarios": {
+        "main_branch_commit": {
+          "agents_count": 4,
+          "coordination_complexity": "complex",
+          "expected_execution_time": "20-32秒",
+          "config": {
+            "primary_agent": "@orchestrator",
+            "supporting_agents": [
+              "@code-reviewer",
+              "@security-auditor",
+              "@test-engineer"
+            ],
+            "execution_mode": "sequential_with_gates"
+          }
+        },
+        "feature_development": {
+          "agents_count": 2,
+          "coordination_complexity": "simple",
+          "expected_execution_time": "4-6秒",
+          "config": {
+            "primary_agent": "@code-reviewer",
+            "supporting_agents": [
+              "@test-engineer"
+            ],
+            "execution_mode": "parallel"
+          }
+        },
+        "security_focused": {
+          "agents_count": 2,
+          "coordination_complexity": "simple",
+          "expected_execution_time": "6-10秒",
+          "config": {
+            "primary_agent": "@security-auditor",
+            "supporting_agents": [
+              "@code-reviewer"
+            ],
+            "execution_mode": "security_first"
+          }
+        },
+        "performance_critical": {
+          "agents_count": 3,
+          "coordination_complexity": "complex",
+          "expected_execution_time": "9-15秒",
+          "config": {
+            "primary_agent": "@performance-engineer",
+            "supporting_agents": [
+              "@test-engineer",
+              "@devops-engineer"
+            ],
+            "execution_mode": "performance_gated"
+          }
+        }
+      },
+      "available_agents": [
+        "orchestrator",
+        "python-pro",
+        "fullstack-engineer",
+        "typescript-pro",
+        "nextjs-pro",
+        "vue-specialist",
+        "react-pro",
+        "java-enterprise",
+        "backend-architect",
+        "database-specialist",
+        "frontend-specialist",
+        "rust-pro",
+        "angular-expert",
+        "golang-pro",
+        "javascript-pro",
+        "prompt-engineer",
+        "mlops-engineer",
+        "analytics-engineer",
+        "data-engineer",
+        "ai-engineer",
+        "data-scientist",
+        "mobile-developer",
+        "game-developer",
+        "fintech-specialist",
+        "blockchain-developer",
+        "embedded-engineer",
+        "documentation-writer",
+        "context-manager",
+        "workflow-optimizer",
+        "agent-generator",
+        "error-detective",
+        "healthcare-dev",
+        "ecommerce-expert",
+        "ux-designer",
+        "code-reviewer",
+        "test-engineer",
+        "e2e-test-specialist",
+        "performance-tester",
+        "accessibility-auditor",
+        "security-auditor",
+        "incident-responder",
+        "devops-engineer",
+        "performance-engineer",
+        "kubernetes-expert",
+        "cloud-architect",
+        "deployment-manager",
+        "monitoring-specialist",
+        "product-strategist",
+        "business-analyst",
+        "api-designer",
+        "project-manager",
+        "requirements-analyst",
+        "technical-writer"
+      ]
+    }
+  },
+  "performance": {
+    "success": false,
+    "error": "No module named 'features.auto_capability_injection'"
+  }
+}

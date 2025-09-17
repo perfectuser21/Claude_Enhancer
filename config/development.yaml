@@ -1,0 +1,96 @@
+# Perfect21开发环境配置
+# 后端API服务器配置
+
+# 服务器设置
+server:
+  host: "127.0.0.1"
+  port: 8000
+  workers: 1
+  reload: true
+  debug: true
+
+# 数据库配置
+database:
+  type: "sqlite"
+  path: "data/development.db"
+  pool_size: 5
+  max_overflow: 10
+  pool_timeout: 30
+
+# 缓存配置
+cache:
+  type: "memory"
+  default_ttl: 1800  # 30分钟
+
+# 认证配置
+auth:
+  jwt_secret_key: "dev-secret-key-change-in-production"
+  access_token_expire_hours: 24  # 开发环境更长的过期时间
+  refresh_token_expire_days: 30
+  password_min_length: 6  # 开发环境更宽松的密码要求
+  max_login_attempts: 10
+  lockout_duration_minutes: 5
+
+# API限流配置
+rate_limiting:
+  enabled: false  # 开发环境禁用限流
+
+# 日志配置
+logging:
+  level: "DEBUG"
+  file: "logs/development.log"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+# Perfect21核心配置
+perfect21:
+  version: "2.3.0"
+  mode: "development"
+  data_dir: "data"
+  logs_dir: "logs"
+  temp_dir: "temp"
+
+# Git工作流配置
+git_workflow:
+  enabled: true
+  auto_hooks: true
+  branch_protection: false
+  require_pr_review: false
+
+# 安全配置
+security:
+  allowed_origins: ["*"]  # 开发环境允许所有来源
+  cors_credentials: true
+  secure_cookies: false
+  session_secure: false
+  content_type_nosniff: true
+  frame_deny: false
+  xss_protection: true
+
+# 监控配置
+monitoring:
+  enabled: true
+  metrics_endpoint: "/metrics"
+  health_check_endpoint: "/health"
+  performance_tracking: true
+
+# 任务执行配置
+task_execution:
+  max_parallel_tasks: 2
+  default_timeout: 300
+  max_timeout: 600
+  result_cache_ttl: 1800
+
+# 文件上传配置
+file_upload:
+  enabled: true
+  max_file_size: "5MB"
+  allowed_extensions: [".jpg", ".jpeg", ".png", ".gif", ".pdf", ".txt"]
+  upload_dir: "uploads"
+
+# 邮件配置
+email:
+  enabled: false  # 开发环境禁用邮件
+
+# 备份配置
+backup:
+  enabled: false  # 开发环境禁用自动备份

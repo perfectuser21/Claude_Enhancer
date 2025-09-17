@@ -10,17 +10,43 @@ import json
 from typing import Dict, Any, List, Tuple, Set
 from datetime import datetime
 
+# 导入新组件
+try:
+    from .template_engine import TemplateEngine
+    from .smart_classifier import SmartClassifier, ContentSegment
+    from .lifecycle_manager import LifecycleManager
+except ImportError:
+    # 向后兼容
+    TemplateEngine = None
+    SmartClassifier = None
+    ContentSegment = None
+    LifecycleManager = None
+
 class ContentAnalyzer:
     """内容分析器"""
 
     def __init__(self, project_root: str = None):
-        self.project_root = project_root or os.getcwd()
+        # 智能检测项目根目录
+        if project_root is None:
+            # 从当前文件位置推断项目根目录
+            current_file = os.path.abspath(__file__)
+            # features/claude_md_manager/content_analyzer.py -> 向上2级
+            project_root = os.path.dirname(os.path.dirname(os.path.dirname(current_file)))
+        self.project_root = project_root
+
+        # 初始化新组件（如果可用）
+        self.template_engine = TemplateEngine(project_root) if TemplateEngine else None
+        self.smart_classifier = SmartClassifier(project_root) if SmartClassifier else None
+        self.lifecycle_manager = LifecycleManager(project_root) if LifecycleManager else None
+
+        # 启用智能分析
+        self.use_smart_analysis = all([self.template_engine, self.smart_classifier, self.lifecycle_manager])
 
         # 内容区块类型定义
         self.block_types = {
-            'static': ['项目概述', '核心理念', '设计原则', '文件管理规则'],
-            'dynamic': ['系统架构', '使用方法', '版本更新', '技术指标'],
-            'meta': ['最后更新', '版本', '系统状态']
+            'static': ['项目本质', '核心理念', '设计原则', '基本使用', '简化架构', '扩展规则'],
+            'dynamic': ['当前状态', '版本信息', '模块状态', '系统状态', '技术指标'],
+            'meta': ['最后更新', '版本', '文档说明']
         }
 
         # 快速记忆模式
@@ -32,7 +58,7 @@ class ContentAnalyzer:
         }
 
     def analyze_claude_md(self, file_path: str = None) -> Dict[str, Any]:
-        """分析CLAUDE.md文件"""
+        """分析CLAUDE.md文件（增强版）"""
         if file_path is None:
             file_path = os.path.join(self.project_root, 'CLAUDE.md')
 
@@ -47,12 +73,14 @@ class ContentAnalyzer:
             with open(file_path, 'r', encoding='utf-8') as f:
                 content = f.read()
 
+            # 基础分析
             analysis = {
                 'success': True,
                 'file_path': file_path,
                 'file_size': len(content),
                 'line_count': len(content.split('\n')),
                 'analysis_timestamp': datetime.now().isoformat(),
+                'analysis_mode': 'smart' if self.use_smart_analysis else 'legacy',
                 'structure': self._analyze_structure(content),
                 'content_blocks': self._identify_content_blocks(content),
                 'dynamic_content': self._identify_dynamic_content(content),
@@ -60,6 +88,10 @@ class ContentAnalyzer:
                 'metadata': self._extract_metadata(content),
                 'quality_score': self._calculate_quality_score(content)
             }
+
+            # 智能分析增强
+            if self.use_smart_analysis:
+                analysis.update(self._smart_analysis_enhancement(content))
 
             return analysis
 
@@ -292,8 +324,8 @@ class ContentAnalyzer:
             'consistency': 0    # 一致性
         }
 
-        # 完整性评分 (0-25)
-        required_sections = ['项目概述', '系统架构', '使用方法', '技术实现']
+        # 完整性评分 (0-25) - 适应精简文档结构
+        required_sections = ['项目本质', '基本使用', '当前状态']
         found_sections = 0
         for section in required_sections:
             if section in content:
@@ -319,11 +351,16 @@ class ContentAnalyzer:
         else:
             score_details['freshness'] = 0
 
-        # 结构性评分 (0-25)
+        # 结构性评分 (0-25) - 精简文档友好
         structure = self._analyze_structure(content)
-        if structure['total_headers'] >= 5:
+        line_count = len(content.split('\n'))
+
+        # 精简文档：行数适中 + 结构清晰 = 高分
+        if 50 <= line_count <= 100 and structure['total_headers'] >= 4:
             score_details['structure'] = 25
-        elif structure['total_headers'] >= 3:
+        elif 30 <= line_count <= 150 and structure['total_headers'] >= 3:
+            score_details['structure'] = 20
+        elif structure['total_headers'] >= 2:
             score_details['structure'] = 15
         else:
             score_details['structure'] = 10
@@ -402,6 +439,173 @@ class ContentAnalyzer:
             })
 
         return suggestions
+
+    def _smart_analysis_enhancement(self, content: str) -> Dict[str, Any]:
+        """智能分析增强"""
+        enhancement = {}
+
+        # 智能分类分析
+        if self.smart_classifier:
+            segments = self.smart_classifier.classify_content(content)
+            classification_report = self.smart_classifier.get_classification_report(segments)
+
+            enhancement['smart_classification'] = {
+                'segments': [
+                    {
+                        'id': seg.id,
+                        'type': seg.type,
+                        'confidence': seg.confidence,
+                        'content_preview': seg.content[:100] + "..." if len(seg.content) > 100 else seg.content,
+                        'semantic_tags': seg.semantic_tags
+                    }
+                    for seg in segments
+                ],
+                'classification_report': classification_report
+            }
+
+        # 生命周期分析
+        if self.lifecycle_manager:
+            lifecycle_report = self.lifecycle_manager.generate_lifecycle_report()
+            enhancement['lifecycle_analysis'] = lifecycle_report
+
+            # 清理建议
+            cleanup_actions = self.lifecycle_manager.suggest_cleanup_actions()
+            enhancement['cleanup_suggestions'] = [
+                {
+                    'action': action.action_type,
+                    'target': action.target_content,
+                    'reason': action.reason,
+                    'confidence': action.confidence
+                }
+                for action in cleanup_actions
+            ]
+
+        # 模板一致性检查
+        if self.template_engine:
+            template_analysis = self.template_engine.analyze_current_document()
+            enhancement['template_compliance'] = {
+                'has_fixed_marker': template_analysis.get('has_fixed_marker', False),
+                'has_dynamic_marker': template_analysis.get('has_dynamic_marker', False),
+                'detected_blocks': len(template_analysis.get('detected_blocks', [])),
+                'size_bytes': template_analysis.get('size_bytes', 0)
+            }
+
+        # 综合健康度评估
+        enhancement['comprehensive_health'] = self._calculate_comprehensive_health(content, enhancement)
+
+        return enhancement
+
+    def _calculate_comprehensive_health(self, content: str, enhancement: Dict[str, Any]) -> Dict[str, Any]:
+        """计算综合健康度"""
+        health_factors = {}
+        total_score = 0
+        max_score = 0
+
+        # 基础质量分数 (40%)
+        basic_quality = self._calculate_quality_score(content)
+        basic_score = basic_quality['total_score']
+        health_factors['basic_quality'] = basic_score
+        total_score += basic_score * 0.4
+        max_score += 100 * 0.4
+
+        # 智能分类准确性 (25%)
+        if 'smart_classification' in enhancement:
+            classification = enhancement['smart_classification']['classification_report']
+            high_confidence = classification['confidence_distribution'].get('high', 0)
+            total_segments = classification['total_segments']
+            if total_segments > 0:
+                classification_score = (high_confidence / total_segments) * 100
+            else:
+                classification_score = 0
+            health_factors['classification_accuracy'] = classification_score
+            total_score += classification_score * 0.25
+            max_score += 100 * 0.25
+
+        # 生命周期健康度 (20%)
+        if 'lifecycle_analysis' in enhancement:
+            lifecycle = enhancement['lifecycle_analysis']
+            status_summary = lifecycle['status_summary']
+            total_items = lifecycle['total_content_items']
+            if total_items > 0:
+                active_ratio = status_summary.get('active', 0) / total_items
+                lifecycle_score = active_ratio * 100
+            else:
+                lifecycle_score = 100  # 无内容项时认为健康
+            health_factors['lifecycle_health'] = lifecycle_score
+            total_score += lifecycle_score * 0.2
+            max_score += 100 * 0.2
+
+        # 模板一致性 (15%)
+        if 'template_compliance' in enhancement:
+            compliance = enhancement['template_compliance']
+            compliance_score = 0
+            if compliance.get('has_fixed_marker'):
+                compliance_score += 50
+            if compliance.get('has_dynamic_marker'):
+                compliance_score += 50
+            health_factors['template_compliance'] = compliance_score
+            total_score += compliance_score * 0.15
+            max_score += 100 * 0.15
+
+        # 计算最终分数
+        if max_score > 0:
+            final_score = (total_score / max_score) * 100
+        else:
+            final_score = basic_quality['total_score']
+
+        # 等级评定
+        if final_score >= 90:
+            grade = 'A+'
+        elif final_score >= 85:
+            grade = 'A'
+        elif final_score >= 80:
+            grade = 'B+'
+        elif final_score >= 75:
+            grade = 'B'
+        elif final_score >= 70:
+            grade = 'C+'
+        elif final_score >= 65:
+            grade = 'C'
+        elif final_score >= 60:
+            grade = 'D'
+        else:
+            grade = 'F'
+
+        return {
+            'final_score': round(final_score, 1),
+            'grade': grade,
+            'factors': health_factors,
+            'recommendations': self._generate_health_recommendations(health_factors, final_score)
+        }
+
+    def _generate_health_recommendations(self, factors: Dict[str, float], final_score: float) -> List[str]:
+        """生成健康度改进建议"""
+        recommendations = []
+
+        # 基于各项因子给出建议
+        if factors.get('basic_quality', 0) < 70:
+            recommendations.append("基础文档质量较低，建议检查完整性和结构")
+
+        if factors.get('classification_accuracy', 0) < 80:
+            recommendations.append("内容分类准确性不高，建议优化内容标记")
+
+        if factors.get('lifecycle_health', 0) < 80:
+            recommendations.append("存在过期内容，建议执行生命周期清理")
+
+        if factors.get('template_compliance', 0) < 80:
+            recommendations.append("模板一致性不佳，建议使用标准分隔标记")
+
+        # 基于总分给出总体建议
+        if final_score >= 90:
+            recommendations.append("文档健康度优秀，继续保持")
+        elif final_score >= 80:
+            recommendations.append("文档健康度良好，可进行细节优化")
+        elif final_score >= 70:
+            recommendations.append("文档健康度一般，建议重点改进薄弱环节")
+        else:
+            recommendations.append("文档健康度较差，建议全面重构")
+
+        return recommendations
 
 if __name__ == "__main__":
     # 测试脚本

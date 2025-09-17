@@ -1,0 +1,18 @@
+{
+  "id": "ADR-20250917-180618",
+  "title": "工作流决策: 实现用户登录功能，包括JWT认证、密码加密、会话管理",
+  "date": "2025-09-17T18:06:18.487702",
+  "status": "proposed",
+  "context": "用户请求: 实现用户登录功能，包括JWT认证、密码加密、会话管理",
+  "decision": "使用2个agents的sequential工作流",
+  "consequences": "预计0.8小时完成，2个阶段",
+  "agents_involved": [
+    "backend-architect",
+    "security-auditor"
+  ],
+  "metadata": {
+    "project": "Perfect21",
+    "session_id": null,
+    "complexity": "simple"
+  }
+}

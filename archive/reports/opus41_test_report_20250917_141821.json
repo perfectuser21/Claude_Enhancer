@@ -1,0 +1,12 @@
+{
+  "test_time": "2025-09-17T14:18:21.160204",
+  "total_tests": 12,
+  "failures": 3,
+  "errors": 0,
+  "success_rate": 0.75,
+  "test_results": {
+    "passed": 9,
+    "failed": 3,
+    "errors": 0
+  }
+}

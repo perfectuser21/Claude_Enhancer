@@ -1,0 +1,499 @@
+name: Perfect21 CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop, 'feature/*', 'release/*' ]
+  pull_request:
+    branches: [ main, develop ]
+  release:
+    types: [ published ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '18'
+
+jobs:
+  # ================== CODE QUALITY CHECKS ==================
+  code-quality:
+    name: Code Quality & Security
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install black flake8 mypy bandit safety pytest-cov
+
+    - name: Code formatting check (Black)
+      run: black --check --diff .
+
+    - name: Linting (Flake8)
+      run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+
+    - name: Type checking (MyPy)
+      run: mypy --ignore-missing-imports .
+
+    - name: Security scan (Bandit)
+      run: bandit -r . -f json -o bandit-report.json || true
+
+    - name: Dependency vulnerability scan (Safety)
+      run: safety check --json --output safety-report.json || true
+
+    - name: Upload security reports
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: security-reports
+        path: |
+          bandit-report.json
+          safety-report.json
+
+  # ================== UNIT TESTS ==================
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.11']
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov pytest-asyncio pytest-mock
+
+    - name: Run unit tests
+      run: |
+        pytest tests/unit/ \
+          --cov=. \
+          --cov-report=xml \
+          --cov-report=html \
+          --cov-fail-under=80 \
+          --junitxml=junit-unit.xml \
+          -v
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: unit-test-results-py${{ matrix.python-version }}
+        path: |
+          junit-unit.xml
+          htmlcov/
+          coverage.xml
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+
+  # ================== INTEGRATION TESTS ==================
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: [unit-tests]
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: perfect21_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-asyncio pytest-mock httpx
+
+    - name: Wait for services
+      run: |
+        sleep 10
+        pg_isready -h localhost -p 5432 -U postgres
+        redis-cli -h localhost -p 6379 ping
+
+    - name: Run integration tests
+      env:
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/perfect21_test
+        REDIS_URL: redis://localhost:6379/0
+        JWT_SECRET_KEY: test-secret-key
+      run: |
+        pytest tests/integration/ \
+          --junitxml=junit-integration.xml \
+          -v
+
+    - name: Upload integration test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: integration-test-results
+        path: junit-integration.xml
+
+  # ================== SECURITY TESTS ==================
+  security-tests:
+    name: Security Tests
+    runs-on: ubuntu-latest
+    needs: [integration-tests]
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+    - name: Run OWASP ZAP security test
+      run: |
+        docker run -v $(pwd):/zap/wrk/:rw \
+          -t owasp/zap2docker-stable \
+          zap-baseline.py -t http://host.docker.internal:8000 \
+          -J zap-report.json || true
+
+    - name: Upload ZAP results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: zap-security-report
+        path: zap-report.json
+
+  # ================== BUILD DOCKER IMAGE ==================
+  build-image:
+    name: Build Docker Image
+    runs-on: ubuntu-latest
+    needs: [code-quality, unit-tests]
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+      image-digest: ${{ steps.build.outputs.digest }}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+
+    - name: Build and push Docker image
+      id: build
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        build-args: |
+          BUILD_DATE=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
+          VCS_REF=${{ github.sha }}
+          VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
+
+    - name: Generate SBOM
+      uses: anchore/sbom-action@v0
+      with:
+        image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+        format: spdx-json
+        output-file: sbom.spdx.json
+
+    - name: Upload SBOM
+      uses: actions/upload-artifact@v3
+      with:
+        name: sbom
+        path: sbom.spdx.json
+
+  # ================== PERFORMANCE TESTS ==================
+  performance-tests:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    needs: [build-image]
+    if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install K6
+      run: |
+        sudo gpg -k
+        sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+        echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+        sudo apt-get update
+        sudo apt-get install k6
+
+    - name: Start application with Docker Compose
+      run: |
+        echo "JWT_SECRET_KEY=test-secret-key" > .env
+        echo "POSTGRES_PASSWORD=test-password" >> .env
+        echo "GRAFANA_PASSWORD=test-password" >> .env
+        docker-compose up -d perfect21-api postgres redis
+        sleep 30
+
+    - name: Wait for application to be ready
+      run: |
+        timeout 60 sh -c 'until curl -f http://localhost:8000/health; do sleep 2; done'
+
+    - name: Run load tests
+      run: |
+        k6 run tests/performance/load-test.js \
+          --out json=load-test-results.json
+
+    - name: Upload performance test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: performance-test-results
+        path: load-test-results.json
+
+    - name: Cleanup
+      if: always()
+      run: docker-compose down -v
+
+  # ================== END-TO-END TESTS ==================
+  e2e-tests:
+    name: End-to-End Tests
+    runs-on: ubuntu-latest
+    needs: [build-image]
+    if: github.ref == 'refs/heads/main' || github.event_name == 'pull_request'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-asyncio httpx
+
+    - name: Start full application stack
+      run: |
+        echo "JWT_SECRET_KEY=test-secret-key" > .env
+        echo "POSTGRES_PASSWORD=test-password" >> .env
+        echo "GRAFANA_PASSWORD=test-password" >> .env
+        docker-compose up -d
+        sleep 60
+
+    - name: Wait for all services
+      run: |
+        timeout 120 sh -c 'until curl -f http://localhost:8000/health; do sleep 5; done'
+        timeout 120 sh -c 'until curl -f http://localhost:3000/api/health; do sleep 5; done'
+
+    - name: Run E2E tests
+      run: |
+        pytest tests/e2e/ \
+          --junitxml=junit-e2e.xml \
+          -v
+
+    - name: Upload E2E test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: e2e-test-results
+        path: junit-e2e.xml
+
+    - name: Cleanup
+      if: always()
+      run: docker-compose down -v
+
+  # ================== DEPLOY TO STAGING ==================
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [security-tests, performance-tests, e2e-tests]
+    if: github.ref == 'refs/heads/develop'
+    environment:
+      name: staging
+      url: https://staging.perfect21.example.com
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'latest'
+
+    - name: Configure kubectl
+      run: |
+        echo "${{ secrets.KUBE_CONFIG_STAGING }}" | base64 -d > kubeconfig
+        export KUBECONFIG=kubeconfig
+
+    - name: Deploy to staging
+      run: |
+        export KUBECONFIG=kubeconfig
+        kubectl set image deployment/perfect21-api \
+          perfect21-api=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+          -n perfect21-staging
+        kubectl rollout status deployment/perfect21-api -n perfect21-staging --timeout=300s
+
+    - name: Run smoke tests
+      run: |
+        sleep 30
+        curl -f https://staging.perfect21.example.com/health
+
+  # ================== DEPLOY TO PRODUCTION ==================
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [security-tests, performance-tests, e2e-tests]
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: production
+      url: https://perfect21.example.com
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'latest'
+
+    - name: Configure kubectl
+      run: |
+        echo "${{ secrets.KUBE_CONFIG_PROD }}" | base64 -d > kubeconfig
+        export KUBECONFIG=kubeconfig
+
+    - name: Blue-Green deployment
+      run: |
+        export KUBECONFIG=kubeconfig
+
+        # Create new deployment with different label
+        kubectl patch deployment perfect21-api \
+          -p '{"spec":{"template":{"metadata":{"labels":{"version":"green"}}}}}' \
+          -n perfect21
+
+        # Update image
+        kubectl set image deployment/perfect21-api \
+          perfect21-api=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+          -n perfect21
+
+        # Wait for rollout
+        kubectl rollout status deployment/perfect21-api -n perfect21 --timeout=600s
+
+        # Switch traffic
+        kubectl patch service perfect21-api-service \
+          -p '{"spec":{"selector":{"version":"green"}}}' \
+          -n perfect21
+
+    - name: Run production smoke tests
+      run: |
+        sleep 30
+        curl -f https://perfect21.example.com/health
+        curl -f https://perfect21.example.com/metrics
+
+    - name: Notify deployment success
+      uses: 8398a7/action-slack@v3
+      if: success()
+      with:
+        status: success
+        text: "✅ Perfect21 successfully deployed to production!"
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+    - name: Notify deployment failure
+      uses: 8398a7/action-slack@v3
+      if: failure()
+      with:
+        status: failure
+        text: "❌ Perfect21 deployment to production failed!"
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # ================== CLEANUP ==================
+  cleanup:
+    name: Cleanup
+    runs-on: ubuntu-latest
+    needs: [deploy-production, deploy-staging]
+    if: always()
+    steps:
+    - name: Delete old images
+      run: |
+        # Keep only last 10 images
+        echo "Cleanup would delete old container images here"

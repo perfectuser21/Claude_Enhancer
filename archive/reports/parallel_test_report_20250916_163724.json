@@ -1,0 +1,68 @@
+{
+  "timestamp": "2025-09-16T16:37:24.259900",
+  "tests": {
+    "sequential": {
+      "results": [
+        {
+          "cmd": "python3 main/cli.py develop '创建用户注册API' --no-parallel",
+          "description": "创建用户注册API (顺序)",
+          "duration": 0.17673540115356445,
+          "success": false,
+          "stdout_length": 0,
+          "stderr": "Traceback (most recent call last):\n  File \"/home/xx/dev/Perfect21/main/cli.py\", line 17, in <module>\n    from perfect21 import Perfect21\n  File \"/home/xx/dev/Perfect21/main/perfect21.py\", line 18, in "
+        },
+        {
+          "cmd": "python3 main/cli.py develop '实现数据验证功能' --no-parallel",
+          "description": "实现数据验证功能 (顺序)",
+          "duration": 0.15345358848571777,
+          "success": false,
+          "stdout_length": 0,
+          "stderr": "Traceback (most recent call last):\n  File \"/home/xx/dev/Perfect21/main/cli.py\", line 17, in <module>\n    from perfect21 import Perfect21\n  File \"/home/xx/dev/Perfect21/main/perfect21.py\", line 18, in "
+        }
+      ],
+      "total_time": 0.33026623725891113,
+      "success_rate": 0.0
+    },
+    "parallel": {
+      "results": [
+        {
+          "cmd": "python3 main/cli.py develop '创建用户登录API' --parallel",
+          "description": "创建用户登录API (并行)",
+          "duration": 0.1731102466583252,
+          "success": false,
+          "stdout_length": 0,
+          "stderr": "Traceback (most recent call last):\n  File \"/home/xx/dev/Perfect21/main/cli.py\", line 17, in <module>\n    from perfect21 import Perfect21\n  File \"/home/xx/dev/Perfect21/main/perfect21.py\", line 18, in "
+        },
+        {
+          "cmd": "python3 main/cli.py develop '实现权限验证功能' --parallel",
+          "description": "实现权限验证功能 (并行)",
+          "duration": 0.18258190155029297,
+          "success": false,
+          "stdout_length": 0,
+          "stderr": "Traceback (most recent call last):\n  File \"/home/xx/dev/Perfect21/main/cli.py\", line 17, in <module>\n    from perfect21 import Perfect21\n  File \"/home/xx/dev/Perfect21/main/perfect21.py\", line 18, in "
+        }
+      ],
+      "total_time": 0.18364214897155762,
+      "success_rate": 0.0
+    },
+    "complex": {
+      "results": [
+        {
+          "cmd": "python3 main/cli.py develop '实现完整的用户管理系统，包括注册、登录、权限验证和数据管理' --parallel",
+          "description": "复杂用户管理系统 (并行)",
+          "duration": 0.20047903060913086,
+          "success": false,
+          "stdout_length": 0,
+          "stderr": "Traceback (most recent call last):\n  File \"/home/xx/dev/Perfect21/main/cli.py\", line 17, in <module>\n    from perfect21 import Perfect21\n  File \"/home/xx/dev/Perfect21/main/perfect21.py\", line 18, in "
+        }
+      ],
+      "total_time": 0.20047903060913086,
+      "success_rate": 0.0
+    }
+  },
+  "analysis": {
+    "speedup": 1.7984228517716951,
+    "time_saved": 0.14662408828735352,
+    "parallel_efficiency": 0.0
+  }
+}

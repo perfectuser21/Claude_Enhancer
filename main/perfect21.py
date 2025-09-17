@@ -7,6 +7,7 @@ Perfect21 - 企业级多Agent协作开发平台
 import os
 import sys
 import argparse
+import weakref
 from typing import Dict, Any
 
 # 添加项目路径
@@ -15,14 +16,41 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from modules.config import config
 from modules.utils import setup_logging, get_project_info, format_execution_result
 from modules.logger import log_info, log_error, log_git_operation
+from modules.error_integration import (
+    get_error_handler, with_git_error_handling, with_workflow_error_handling,
+    Perfect21ErrorHandler, handle_perfect21_error
+)
+from modules.exceptions import (
+    Perfect21BaseException, GitOperationError, WorkflowError,
+    ErrorContext, ErrorSeverity, ErrorCategory
+)
 from features.git_workflow import GitHooks, WorkflowManager, BranchManager
 
-class Perfect21:
-    """Perfect21主程序"""
+class Perfect21Core:
+    """Perfect21核心类 - 向后兼容"""
 
     def __init__(self):
         self.project_root = os.getcwd()
         self.config = config
+        setup_logging(
+            self.config.get('logging.level', 'INFO'),
+            self.config.get('logging.file', 'logs/perfect21.log')
+        )
+
+class Perfect21:
+    """Perfect21主程序"""
+
+    # 类级实例跟踪
+    _instances = weakref.WeakSet()
+
+    def __init__(self):
+        self.project_root = os.getcwd()
+        self.config = config
+        self._cleanup_callbacks = []
+        self._is_cleaned_up = False
+
+        # 添加到实例跟踪
+        self._instances.add(self)
 
         # 设置日志
         setup_logging(
@@ -30,27 +58,106 @@ class Perfect21:
             self.config.get('logging.file', 'logs/perfect21.log')
         )
 
-        # 初始化组件
-        self.git_hooks = GitHooks(self.project_root)
-        self.workflow_manager = WorkflowManager(self.project_root)
-        self.branch_manager = BranchManager(self.project_root)
+        # 初始化错误处理系统
+        self.error_handler = get_error_handler()
+
+        # 初始化组件（带错误处理）
+        try:
+            self.git_hooks = GitHooks(self.project_root)
+            self.workflow_manager = WorkflowManager(self.project_root)
+            self.branch_manager = BranchManager(self.project_root)
+        except Exception as e:
+            error = Perfect21BaseException(
+                message=f"Failed to initialize Perfect21 components: {str(e)}",
+                category=ErrorCategory.SYSTEM,
+                severity=ErrorSeverity.CRITICAL,
+                context=ErrorContext(
+                    component="Perfect21Core",
+                    operation="initialization",
+                    metadata={"project_root": self.project_root}
+                ),
+                original_exception=e,
+                recovery_suggestions=[
+                    "Check project directory permissions",
+                    "Verify git repository is valid",
+                    "Check system dependencies"
+                ]
+            )
+            self.error_handler.handle_error(error)
+            raise
+
+        # 注册清理回调
+        self._register_cleanup_callbacks()
 
         log_info("Perfect21初始化完成")
 
+    def _register_cleanup_callbacks(self):
+        """注册清理回调"""
+        self._cleanup_callbacks.extend([
+            lambda: setattr(self, 'git_hooks', None),
+            lambda: setattr(self, 'workflow_manager', None),
+            lambda: setattr(self, 'branch_manager', None),
+        ])
+
+    def cleanup(self):
+        """清理资源"""
+        if self._is_cleaned_up:
+            return
+
+        try:
+            log_info("Perfect21开始清理资源...")
+
+            # 执行清理回调
+            for callback in self._cleanup_callbacks:
+                try:
+                    callback()
+                except Exception as e:
+                    log_error(f"清理回调执行失败: {e}")
+
+            self._is_cleaned_up = True
+            log_info("Perfect21资源清理完成")
+
+        except Exception as e:
+            log_error(f"Perfect21资源清理失败: {e}")
+
+    def __del__(self):
+        """析构函数"""
+        try:
+            self.cleanup()
+        except Exception:
+            pass  # 在析构函数中忽略所有异常
+
+    @classmethod
+    def cleanup_all_instances(cls):
+        """清理所有实例"""
+        instances = list(cls._instances)
+        for instance in instances:
+            try:
+                instance.cleanup()
+            except Exception as e:
+                log_error(f"实例清理失败: {e}")
+
     def status(self) -> Dict[str, Any]:
         """获取系统状态"""
+        if self._is_cleaned_up:
+            return {
+                'success': False,
+                'error': 'Perfect21实例已被清理'
+            }
+
         try:
             project_info = get_project_info(self.project_root)
-            hook_status = self.git_hooks.get_hook_status()
-            workflow_status = self.workflow_manager.get_workflow_status()
-            branch_status = self.branch_manager.get_branch_status()
+            hook_status = self.git_hooks.get_hook_status() if self.git_hooks else {}
+            workflow_status = self.workflow_manager.get_workflow_status() if self.workflow_manager else {}
+            branch_status = self.branch_manager.get_branch_status() if self.branch_manager else {}
 
             status_info = {
                 'perfect21': {
                     'version': self.config.get('perfect21.version'),
                     'mode': self.config.get('perfect21.mode'),
                     'core_agents_available': project_info.get('has_core_agents', False),
-                    'agent_count': project_info.get('agent_count', 0)
+                    'agent_count': project_info.get('agent_count', 0),
+                    'cleanup_status': 'active' if not self._is_cleaned_up else 'cleaned'
                 },
                 'project': project_info,
                 'git_hooks': hook_status,
@@ -89,6 +196,8 @@ class Perfect21:
             elif hook_type == 'commit-msg':
                 commit_msg_file = args[0] if args else '.git/COMMIT_EDITMSG'
                 result = self.git_hooks.commit_msg_hook(commit_msg_file)
+            elif hook_type == 'post-commit':
+                result = self.git_hooks.post_commit_hook()
             else:
                 return {
                     'success': False,
@@ -253,6 +362,9 @@ def main():
 
     # 返回退出码
     sys.exit(0 if result.get('success') else 1)
+
+# 向后兼容导出
+__all__ = ['Perfect21', 'Perfect21Core']
 
 if __name__ == '__main__':
     main()

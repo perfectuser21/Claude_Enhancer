@@ -1,0 +1,130 @@
+# Perfect21生产环境配置
+# 后端API服务器配置
+
+# 服务器设置
+server:
+  host: "0.0.0.0"
+  port: 8000
+  workers: 4
+  max_connections: 1000
+  keepalive_timeout: 65
+
+# 数据库配置
+database:
+  type: "sqlite"  # sqlite | postgresql | mysql
+  path: "/var/lib/perfect21/data/production.db"
+  # 如果使用PostgreSQL或MySQL，取消注释以下配置
+  # host: "localhost"
+  # port: 5432
+  # name: "perfect21_prod"
+  # user: "perfect21_user"
+  # password: "${DATABASE_PASSWORD}"
+  pool_size: 10
+  max_overflow: 20
+  pool_timeout: 30
+
+# 缓存配置
+cache:
+  type: "file"  # memory | file | redis
+  default_ttl: 3600
+  file_dir: "/var/lib/perfect21/cache"
+  # Redis配置（如果使用）
+  # redis_host: "localhost"
+  # redis_port: 6379
+  # redis_db: 0
+  # redis_password: "${REDIS_PASSWORD}"
+
+# 认证配置
+auth:
+  jwt_secret_key: "${JWT_SECRET_KEY}"
+  access_token_expire_hours: 1
+  refresh_token_expire_days: 7
+  password_min_length: 8
+  max_login_attempts: 5
+  lockout_duration_minutes: 15
+
+# API限流配置
+rate_limiting:
+  enabled: true
+  default_max_requests: 1000
+  default_window_seconds: 3600
+  # 不同端点的特殊限制
+  endpoint_limits:
+    "/api/auth/login":
+      max_requests: 10
+      window_seconds: 600
+    "/api/auth/register":
+      max_requests: 5
+      window_seconds: 3600
+
+# 日志配置
+logging:
+  level: "INFO"
+  file: "/var/log/perfect21/api.log"
+  max_size: "50MB"
+  backup_count: 10
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+# Perfect21核心配置
+perfect21:
+  version: "2.3.0"
+  mode: "production"
+  data_dir: "/var/lib/perfect21/data"
+  logs_dir: "/var/log/perfect21"
+  temp_dir: "/tmp/perfect21"
+
+# Git工作流配置
+git_workflow:
+  enabled: true
+  auto_hooks: true
+  branch_protection: true
+  require_pr_review: true
+
+# 安全配置
+security:
+  allowed_origins:
+    - "https://yourdomain.com"
+    - "https://api.yourdomain.com"
+  cors_credentials: true
+  secure_cookies: true
+  session_secure: true
+  content_type_nosniff: true
+  frame_deny: true
+  xss_protection: true
+
+# 监控配置
+monitoring:
+  enabled: true
+  metrics_endpoint: "/metrics"
+  health_check_endpoint: "/health"
+  performance_tracking: true
+
+# 任务执行配置
+task_execution:
+  max_parallel_tasks: 5
+  default_timeout: 300
+  max_timeout: 1800
+  result_cache_ttl: 3600
+
+# 文件上传配置
+file_upload:
+  enabled: true
+  max_file_size: "10MB"
+  allowed_extensions: [".jpg", ".jpeg", ".png", ".gif", ".pdf", ".txt", ".doc", ".docx"]
+  upload_dir: "/var/lib/perfect21/uploads"
+
+# 邮件配置（用于用户验证等）
+email:
+  enabled: false
+  # smtp_server: "smtp.gmail.com"
+  # smtp_port: 587
+  # smtp_user: "${EMAIL_USER}"
+  # smtp_password: "${EMAIL_PASSWORD}"
+  # from_address: "noreply@yourdomain.com"
+
+# 备份配置
+backup:
+  enabled: true
+  schedule: "0 2 * * *"  # 每天凌晨2点
+  retention_days: 30
+  backup_dir: "/var/lib/perfect21/backups"

@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 """
 Logger - 日志系统
-Perfect21简化日志管理
+Perfect21简化日志管理，集成错误处理系统
 """
 
 import os
 import logging
 import logging.handlers
-from typing import Optional
+import json
+import traceback
+from typing import Optional, Dict, Any
 from datetime import datetime
 
 class Perfect21Logger:
@@ -79,11 +81,35 @@ class Perfect21Logger:
             message = f"{message} | {extra_data}"
         self.logger.info(message)
 
-    def error(self, message: str, exception: Exception = None) -> None:
-        """记录错误日志"""
-        if exception:
-            message = f"{message} | Exception: {exception}"
-        self.logger.error(message)
+    def error(self, message: str, exception: Exception = None, error_context: Dict[str, Any] = None) -> None:
+        """记录错误日志，支持Perfect21异常"""
+        try:
+            # Import here to avoid circular imports
+            from .exceptions import Perfect21BaseException, ErrorLogger
+
+            if isinstance(exception, Perfect21BaseException):
+                # Use Perfect21's error logging
+                error_logger = ErrorLogger(self.logger)
+                error_logger.log_error(exception)
+            else:
+                # Standard error logging
+                if exception:
+                    message = f"{message} | Exception: {exception}"
+                    if error_context:
+                        message += f" | Context: {json.dumps(error_context, default=str)}"
+                    # Add traceback for debugging
+                    self.logger.error(message)
+                    if exception:
+                        self.logger.debug(traceback.format_exc())
+                else:
+                    if error_context:
+                        message += f" | Context: {json.dumps(error_context, default=str)}"
+                    self.logger.error(message)
+        except ImportError:
+            # Fallback if exceptions module not available
+            if exception:
+                message = f"{message} | Exception: {exception}"
+            self.logger.error(message)
 
     def warning(self, message: str) -> None:
         """记录警告日志"""
@@ -125,8 +151,44 @@ class Perfect21Logger:
                     return all_lines[-lines:] if len(all_lines) > lines else all_lines
             return []
         except Exception as e:
-            self.error(f"读取日志文件失败: {e}")
+            self.error(f"读取日志文件失败: {e}", e)
             return []
+
+    def log_parallel_error_aggregation(self, errors: list, context: Dict[str, Any] = None) -> None:
+        """记录并行执行的错误聚合"""
+        try:
+            from .exceptions import ErrorAggregator, ErrorLogger
+
+            aggregator = ErrorAggregator()
+            for error in errors:
+                if hasattr(error, 'add_error'):
+                    aggregator.add_error(error)
+                else:
+                    # Convert to string if not a Perfect21 exception
+                    aggregator.add_warning(str(error))
+
+            if context:
+                aggregator.context = context
+
+            error_logger = ErrorLogger(self.logger)
+            error_logger.log_error_aggregation(aggregator)
+
+        except ImportError:
+            # Fallback logging
+            self.error(f"Parallel execution errors: {len(errors)} errors", context={'errors': [str(e) for e in errors]})
+
+    def log_recovery_attempt(self, error_type: str, success: bool, details: Dict[str, Any] = None) -> None:
+        """记录错误恢复尝试"""
+        status = "成功" if success else "失败"
+        message = f"错误恢复{status}: {error_type}"
+
+        if details:
+            message += f" | 详情: {json.dumps(details, default=str, ensure_ascii=False)}"
+
+        if success:
+            self.info(message)
+        else:
+            self.warning(message)
 
     def create_session_log(self, session_id: str, task_description: str) -> str:
         """创建会话日志文件"""
@@ -159,9 +221,9 @@ def log_info(message: str, extra_data: dict = None) -> None:
     """记录信息日志"""
     perfect21_logger.info(message, extra_data)
 
-def log_error(message: str, exception: Exception = None) -> None:
+def log_error(message: str, exception: Exception = None, error_context: Dict[str, Any] = None) -> None:
     """记录错误日志"""
-    perfect21_logger.error(message, exception)
+    perfect21_logger.error(message, exception, error_context)
 
 def log_git_operation(operation: str, details: dict = None) -> None:
     """记录Git操作"""
@@ -170,3 +232,39 @@ def log_git_operation(operation: str, details: dict = None) -> None:
 def log_subagent_call(agent_name: str, task: str, result: dict = None) -> None:
     """记录SubAgent调用"""
     perfect21_logger.log_subagent_call(agent_name, task, result)
+
+def log_warning(message: str) -> None:
+    """记录警告日志"""
+    perfect21_logger.warning(message)
+
+def setup_logging(log_level: str = "INFO", log_file: str = None) -> None:
+    """设置日志系统"""
+    # 设置日志级别
+    level = getattr(logging, log_level.upper(), logging.INFO)
+    perfect21_logger.logger.setLevel(level)
+
+    # 如果指定了日志文件，更新文件处理器
+    if log_file:
+        # 创建目录
+        os.makedirs(os.path.dirname(log_file), exist_ok=True)
+
+        # 更新文件处理器
+        for handler in perfect21_logger.logger.handlers[:]:
+            if isinstance(handler, logging.handlers.RotatingFileHandler):
+                perfect21_logger.logger.removeHandler(handler)
+
+        # 添加新的文件处理器
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S'
+        )
+
+        file_handler = logging.handlers.RotatingFileHandler(
+            log_file,
+            maxBytes=10*1024*1024,
+            backupCount=5,
+            encoding='utf-8'
+        )
+        file_handler.setLevel(level)
+        file_handler.setFormatter(formatter)
+        perfect21_logger.logger.addHandler(file_handler)

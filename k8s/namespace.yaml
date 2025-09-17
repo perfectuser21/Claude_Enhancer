@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: perfect21
+  labels:
+    name: perfect21
+    app.kubernetes.io/name: perfect21
+    app.kubernetes.io/version: "2.3.0"

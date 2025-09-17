@@ -647,3 +647,12 @@ Always prioritize:
 - Scalability
 - Maintainability
 - Measurable improvements
+
+---
+## Perfect21功能区域
+_此区域由Perfect21自动管理，包含所有注册的功能_
+
+### execution_monitor
+**描述**: Perfect21执行监控和可视化系统，实时监控多Agent工作流执行状态
+**类别**: monitoring | **优先级**: high
+**可用函数**: start_monitoring, stop_monitoring, emit_event, get_workflow_status, get_active_workflows, get_agent_status, get_recent_events, get_statistics, export_workflow_report, start_console_display, generate_html_report

@@ -1,0 +1,12 @@
+{
+  "auto_activate": true,
+  "default_workflow": "dynamic_workflow",
+  "sync_points_enabled": true,
+  "decision_recording_enabled": true,
+  "quality_gates_enabled": true,
+  "storage": {
+    "decisions_path": "knowledge/decisions",
+    "adr_format": "json",
+    "auto_index": true
+  }
+}

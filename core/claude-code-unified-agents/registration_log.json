@@ -1,13 +1,26 @@
 [
   {
-    "timestamp": "2025-09-16T09:36:47.091012",
-    "total_capabilities": 4,
-    "successful": 4,
+    "timestamp": "2025-09-17T08:47:24.297246",
+    "total_capabilities": 17,
+    "successful": 17,
     "failed": 0,
     "details": {
       "capability_discovery": true,
+      "workflow_engine": true,
+      "execution_monitor": true,
+      "workflow_templates": true,
       "version_manager": true,
       "git_workflow": true,
+      "learning_loop": true,
+      "auth_api": true,
+      "preventive_quality": true,
+      "multi_workspace": true,
+      "quality_guardian": true,
+      "workflow_orchestrator": true,
+      "auth_system": true,
+      "sync_point_manager": true,
+      "learning_feedback": true,
+      "decision_recorder": true,
       "claude_md_manager": true
     }
   }

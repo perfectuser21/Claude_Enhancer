@@ -1,0 +1,150 @@
+{
+  "timestamp": "2025-09-17T11:49:26.391037",
+  "startup_performance": {
+    "instance_creation": 0.002190828323364258,
+    "first_status_call": 0.029843568801879883,
+    "total_startup_time": 0.10073232650756836,
+    "module_load_times": {
+      "main.perfect21": 0.030743122100830078,
+      "main.cli": 3.5762786865234375e-06,
+      "features.capability_discovery": 0.007099628448486328,
+      "features.git_workflow": 3.337860107421875e-06,
+      "features.workflow_orchestrator": 0.0003800392150878906,
+      "features.sync_point_manager": 0.0005862712860107422,
+      "features.parallel_executor": 0.029490947723388672
+    }
+  },
+  "memory_usage": {
+    "rss": 25.1796875,
+    "vms": 34.75,
+    "shared": 9.4375,
+    "growth_since_startup": 4.96875,
+    "python_current": 1.8603324890136719,
+    "python_peak": 2.5401344299316406,
+    "gc_stats": [
+      {
+        "collections": 49,
+        "collected": 163,
+        "uncollectable": 0
+      },
+      {
+        "collections": 4,
+        "collected": 206,
+        "uncollectable": 0
+      },
+      {
+        "collections": 5,
+        "collected": 0,
+        "uncollectable": 0
+      }
+    ],
+    "gc_objects": 19438,
+    "system_total": 7.751277923583984,
+    "system_available": 2.131256103515625,
+    "system_usage_percent": 72.5
+  },
+  "cpu_usage": {
+    "current": 20.6,
+    "per_cpu": [
+      24.9,
+      32.7,
+      19.9,
+      50.0
+    ],
+    "load_average": [
+      0.998046875,
+      0.822265625,
+      0.74365234375
+    ]
+  },
+  "execution_performance": {
+    "status_query": {
+      "avg_time": 0.06012606620788574,
+      "min_time": 0.04526567459106445,
+      "max_time": 0.06850576400756836,
+      "success_rate": 1.0
+    },
+    "git_hooks_status": {
+      "avg_time": 0.011919403076171875,
+      "min_time": 0.011252403259277344,
+      "max_time": 0.012366771697998047,
+      "success_rate": 1.0
+    },
+    "capability_discovery": {
+      "avg_time": 0.004020881652832031,
+      "min_time": 0.0028884410858154297,
+      "max_time": 0.007216691970825195,
+      "success_rate": 1.0
+    },
+    "workflow_status": {
+      "avg_time": 0.01694912910461426,
+      "min_time": 0.015911340713500977,
+      "max_time": 0.017755508422851562,
+      "success_rate": 1.0
+    },
+    "parallel_preparation": {
+      "avg_time": 0.00018157958984375,
+      "min_time": 5.0067901611328125e-06,
+      "max_time": 0.0008547306060791016,
+      "success_rate": 1.0
+    }
+  },
+  "io_performance": {
+    "read_count": 1621,
+    "write_count": 834,
+    "read_bytes": 0.01953125,
+    "write_bytes": 0.15625,
+    "file_operations": {
+      "write_1mb": 0.003372669219970703,
+      "read_1mb": 0.002685546875
+    },
+    "disk_total": 154.8827362060547,
+    "disk_used": 44.0981330871582,
+    "disk_free": 110.76897811889648,
+    "disk_usage_percent": 28.47194862860017
+  },
+  "parallel_efficiency": {
+    "decomposition_avg_time": 0.013898213704427084,
+    "decomposition_success_rate": 1.0,
+    "tested_complexities": [
+      "simple",
+      "complex",
+      "simple"
+    ],
+    "cpu_cores": 4,
+    "logical_cores": 4,
+    "cpu_freq": {
+      "current": 2494.14,
+      "min": 0.0,
+      "max": 0.0
+    }
+  },
+  "database_performance": {
+    "database_files": [
+      "data/perfect21.db",
+      "data/auth.db"
+    ],
+    "database_count": 2,
+    "total_database_size": 0.08203125,
+    "config_files": [
+      ".perfect21/feedback/feedback_data.json",
+      ".pre-commit-config.yaml",
+      "config/dual_engine_config.yaml",
+      "features/parallel_config.yaml",
+      "features/git_workflow/hooks_config.yaml",
+      "k8s/configmap.yaml",
+      ".perfect21/workspaces/workspace_config.json",
+      ".perfect21/workspaces/bugfix_bugfix_auth/config.json",
+      ".perfect21/workspaces/feature_test_system/config.json"
+    ],
+    "mock_performance": {
+      "insert_1000_records": 0.012077093124389648,
+      "count_query": 0.00024247169494628906,
+      "total_test_time": 0.015697717666625977
+    }
+  },
+  "bottlenecks": [],
+  "recommendations": [
+    "并行优化：充分利用多核CPU，增加并行执行的机会"
+  ]
+}

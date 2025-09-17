@@ -1,0 +1,114 @@
+# Perfect21 Pre-commit Configuration
+# 代码质量检查和自动格式化
+
+repos:
+  # Python 代码格式化
+  - repo: https://github.com/psf/black
+    rev: 23.11.0
+    hooks:
+      - id: black
+        language_version: python3
+        args: [--line-length=88]
+        exclude: ^(venv/|core/claude-code-unified-agents/)
+
+  # 导入排序
+  - repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        args: [--profile=black, --line-length=88]
+        exclude: ^(venv/|core/claude-code-unified-agents/)
+
+  # Python 语法检查
+  - repo: https://github.com/pycqa/flake8
+    rev: 6.1.0
+    hooks:
+      - id: flake8
+        args: [--max-line-length=88, --extend-ignore=E203,E501,W503]
+        exclude: ^(venv/|core/claude-code-unified-agents/)
+
+  # 安全检查
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.5
+    hooks:
+      - id: bandit
+        args: [-r, -f, json, -o, bandit-report.json]
+        exclude: ^(tests/|venv/|core/claude-code-unified-agents/)
+
+  # YAML 格式检查
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.33.0
+    hooks:
+      - id: yamllint
+        args: [-d, relaxed]
+        exclude: ^(venv/|core/claude-code-unified-agents/)
+
+  # 文件结尾换行检查
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: end-of-file-fixer
+        exclude: ^(venv/|core/claude-code-unified-agents/|\.git/)
+      - id: trailing-whitespace
+        exclude: ^(venv/|core/claude-code-unified-agents/|\.git/)
+      - id: check-yaml
+        exclude: ^(venv/|core/claude-code-unified-agents/)
+      - id: check-json
+        exclude: ^(venv/|core/claude-code-unified-agents/)
+      - id: check-toml
+        exclude: ^(venv/|core/claude-code-unified-agents/)
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: check-docstring-first
+        exclude: ^(venv/|core/claude-code-unified-agents/)
+
+  # Dockerfile linting
+  - repo: https://github.com/hadolint/hadolint
+    rev: v2.12.0
+    hooks:
+      - id: hadolint-docker
+        args: [--ignore, DL3008, --ignore, DL3009]
+
+  # Perfect21 自定义钩子
+  - repo: local
+    hooks:
+      - id: perfect21-test-check
+        name: Perfect21 基础测试
+        entry: python -m pytest tests/test_*.py -v --tb=short
+        language: system
+        pass_filenames: false
+        always_run: false
+        files: \.py$
+        exclude: ^(venv/|core/claude-code-unified-agents/)
+
+      - id: perfect21-api-check
+        name: Perfect21 API 检查
+        entry: python -c "import sys; sys.path.append('.'); from api.rest_server import app; print('API structure OK')"
+        language: system
+        pass_filenames: false
+        files: ^api/.*\.py$
+
+      - id: perfect21-config-validation
+        name: Perfect21 配置验证
+        entry: python -c "import yaml; import json; import os; [yaml.safe_load(open(f)) for f in ['config/development.yaml', 'config/production.yaml'] if os.path.exists(f)]"
+        language: system
+        pass_filenames: false
+        files: ^config/.*\.(yaml|yml|json)$
+
+# 全局配置
+default_stages: [commit, push]
+fail_fast: false
+minimum_pre_commit_version: 3.0.0
+
+# CI 配置
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit hooks
+
+    🤖 Generated with Claude Code
+  autofix_prs: true
+  autoupdate_branch: ''
+  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+  autoupdate_schedule: weekly
+  skip: []
+  submodules: false

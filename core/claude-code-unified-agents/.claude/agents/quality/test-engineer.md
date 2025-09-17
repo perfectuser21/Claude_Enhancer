@@ -148,568 +148,126 @@ describe('Component/Feature', () => {
 ```
 
 
-## Perfect21功能: git_workflow
 
-**描述**: Perfect21的Git工作流管理和自动化功能模块
-**分类**: workflow
-**优先级**: high
 
-### 可用函数:
-- `install_hooks`: 安装Perfect21 Git钩子到项目
-- `uninstall_hooks`: 卸载Perfect21 Git钩子
-- `create_feature_branch`: 创建符合规范的功能分支
-- `create_release_branch`: 创建发布分支
-- `merge_to_main`: 安全地合并分支到主分支
-- `branch_analysis`: 分析分支状态和保护规则
-- `cleanup_branches`: 清理过期分支
-- `validate_commit`: 验证提交消息格式
-- `pre_commit_check`: 执行提交前检查
-- `pre_push_validation`: 执行推送前验证
-- `post_merge_integration`: 执行合并后集成测试
-
-### 集成时机:
-- pre_commit
-- commit_msg
-- pre_push
-- post_checkout
-- post_merge
-- project_initialization
-- branch_operations
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.git_workflow import Git_WorkflowManager
-manager = Git_WorkflowManager()
-result = manager.function_name()
-```
 
 ---
-*此功能由Perfect21 capability_discovery自动注册*
+## Perfect21功能区域
+_此区域由Perfect21自动管理，包含所有注册的功能_
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ## Perfect21功能: git_workflow
 
-**描述**: Perfect21的Git工作流管理和自动化功能模块
-**分类**: workflow
-**优先级**: high
-
-### 可用函数:
-- `install_hooks`: 安装Perfect21 Git钩子到项目
-- `uninstall_hooks`: 卸载Perfect21 Git钩子
-- `create_feature_branch`: 创建符合规范的功能分支
-- `create_release_branch`: 创建发布分支
-- `merge_to_main`: 安全地合并分支到主分支
-- `branch_analysis`: 分析分支状态和保护规则
-- `cleanup_branches`: 清理过期分支
-- `validate_commit`: 验证提交消息格式
-- `pre_commit_check`: 执行提交前检查
-- `pre_push_validation`: 执行推送前验证
-- `post_merge_integration`: 执行合并后集成测试
-
-### 集成时机:
-- pre_commit
-- commit_msg
-- pre_push
-- post_checkout
-- post_merge
-- project_initialization
-- branch_operations
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.git_workflow import Git_WorkflowManager
-manager = Git_WorkflowManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: git_workflow
-
-**描述**: Perfect21的Git工作流管理和自动化功能模块
-**分类**: workflow
-**优先级**: high
-
-### 可用函数:
-- `install_hooks`: 安装Perfect21 Git钩子到项目
-- `uninstall_hooks`: 卸载Perfect21 Git钩子
-- `create_feature_branch`: 创建符合规范的功能分支
-- `create_release_branch`: 创建发布分支
-- `merge_to_main`: 安全地合并分支到主分支
-- `branch_analysis`: 分析分支状态和保护规则
-- `cleanup_branches`: 清理过期分支
-- `validate_commit`: 验证提交消息格式
-- `pre_commit_check`: 执行提交前检查
-- `pre_push_validation`: 执行推送前验证
-- `post_merge_integration`: 执行合并后集成测试
-
-### 集成时机:
-- pre_commit
-- commit_msg
-- pre_push
-- post_checkout
-- post_merge
-- project_initialization
-- branch_operations
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.git_workflow import Git_WorkflowManager
-manager = Git_WorkflowManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: git_workflow
-
-**描述**: Perfect21的Git工作流管理和自动化功能模块
-**分类**: workflow
-**优先级**: high
-
-### 可用函数:
-- `install_hooks`: 安装Perfect21 Git钩子到项目
-- `uninstall_hooks`: 卸载Perfect21 Git钩子
-- `create_feature_branch`: 创建符合规范的功能分支
-- `create_release_branch`: 创建发布分支
-- `merge_to_main`: 安全地合并分支到主分支
-- `branch_analysis`: 分析分支状态和保护规则
-- `cleanup_branches`: 清理过期分支
-- `validate_commit`: 验证提交消息格式
-- `pre_commit_check`: 执行提交前检查
-- `pre_push_validation`: 执行推送前验证
-- `post_merge_integration`: 执行合并后集成测试
-
-### 集成时机:
-- pre_commit
-- commit_msg
-- pre_push
-- post_checkout
-- post_merge
-- project_initialization
-- branch_operations
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.git_workflow import Git_WorkflowManager
-manager = Git_WorkflowManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: git_workflow
-
-**描述**: Perfect21的Git工作流管理和自动化功能模块
-**分类**: workflow
-**优先级**: high
-
-### 可用函数:
-- `install_hooks`: 安装Perfect21 Git钩子到项目
-- `uninstall_hooks`: 卸载Perfect21 Git钩子
-- `create_feature_branch`: 创建符合规范的功能分支
-- `create_release_branch`: 创建发布分支
-- `merge_to_main`: 安全地合并分支到主分支
-- `branch_analysis`: 分析分支状态和保护规则
-- `cleanup_branches`: 清理过期分支
-- `validate_commit`: 验证提交消息格式
-- `pre_commit_check`: 执行提交前检查
-- `pre_push_validation`: 执行推送前验证
-- `post_merge_integration`: 执行合并后集成测试
-
-### 集成时机:
-- pre_commit
-- commit_msg
-- pre_push
-- post_checkout
-- post_merge
-- project_initialization
-- branch_operations
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.git_workflow import Git_WorkflowManager
-manager = Git_WorkflowManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: git_workflow
-
-**描述**: Perfect21的Git工作流管理和自动化功能模块
-**分类**: workflow
-**优先级**: high
-
-### 可用函数:
-- `install_hooks`: 安装Perfect21 Git钩子到项目
-- `uninstall_hooks`: 卸载Perfect21 Git钩子
-- `create_feature_branch`: 创建符合规范的功能分支
-- `create_release_branch`: 创建发布分支
-- `merge_to_main`: 安全地合并分支到主分支
-- `branch_analysis`: 分析分支状态和保护规则
-- `cleanup_branches`: 清理过期分支
-- `validate_commit`: 验证提交消息格式
-- `pre_commit_check`: 执行提交前检查
-- `pre_push_validation`: 执行推送前验证
-- `post_merge_integration`: 执行合并后集成测试
-
-### 集成时机:
-- pre_commit
-- commit_msg
-- pre_push
-- post_checkout
-- post_merge
-- project_initialization
-- branch_operations
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.git_workflow import Git_WorkflowManager
-manager = Git_WorkflowManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: git_workflow
-
-**描述**: Perfect21的Git工作流管理和自动化功能模块
-**分类**: workflow
-**优先级**: high
-
-### 可用函数:
-- `install_hooks`: 安装Perfect21 Git钩子到项目
-- `uninstall_hooks`: 卸载Perfect21 Git钩子
-- `create_feature_branch`: 创建符合规范的功能分支
-- `create_release_branch`: 创建发布分支
-- `merge_to_main`: 安全地合并分支到主分支
-- `branch_analysis`: 分析分支状态和保护规则
-- `cleanup_branches`: 清理过期分支
-- `validate_commit`: 验证提交消息格式
-- `pre_commit_check`: 执行提交前检查
-- `pre_push_validation`: 执行推送前验证
-- `post_merge_integration`: 执行合并后集成测试
-
-### 集成时机:
-- pre_commit
-- commit_msg
-- pre_push
-- post_checkout
-- post_merge
-- project_initialization
-- branch_operations
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.git_workflow import Git_WorkflowManager
-manager = Git_WorkflowManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: git_workflow
-
-**描述**: Perfect21的Git工作流管理和自动化功能模块
-**分类**: workflow
-**优先级**: high
-
-### 可用函数:
-- `install_hooks`: 安装Perfect21 Git钩子到项目
-- `uninstall_hooks`: 卸载Perfect21 Git钩子
-- `create_feature_branch`: 创建符合规范的功能分支
-- `create_release_branch`: 创建发布分支
-- `merge_to_main`: 安全地合并分支到主分支
-- `branch_analysis`: 分析分支状态和保护规则
-- `cleanup_branches`: 清理过期分支
-- `validate_commit`: 验证提交消息格式
-- `pre_commit_check`: 执行提交前检查
-- `pre_push_validation`: 执行推送前验证
-- `post_merge_integration`: 执行合并后集成测试
-
-### 集成时机:
-- pre_commit
-- commit_msg
-- pre_push
-- post_checkout
-- post_merge
-- project_initialization
-- branch_operations
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.git_workflow import Git_WorkflowManager
-manager = Git_WorkflowManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: git_workflow
-
-**描述**: Perfect21的Git工作流管理和自动化功能模块
-**分类**: workflow
-**优先级**: high
-
-### 可用函数:
-- `install_hooks`: 安装Perfect21 Git钩子到项目
-- `uninstall_hooks`: 卸载Perfect21 Git钩子
-- `create_feature_branch`: 创建符合规范的功能分支
-- `create_release_branch`: 创建发布分支
-- `merge_to_main`: 安全地合并分支到主分支
-- `branch_analysis`: 分析分支状态和保护规则
-- `cleanup_branches`: 清理过期分支
-- `validate_commit`: 验证提交消息格式
-- `pre_commit_check`: 执行提交前检查
-- `pre_push_validation`: 执行推送前验证
-- `post_merge_integration`: 执行合并后集成测试
-
-### 集成时机:
-- pre_commit
-- commit_msg
-- pre_push
-- post_checkout
-- post_merge
-- project_initialization
-- branch_operations
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.git_workflow import Git_WorkflowManager
-manager = Git_WorkflowManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: git_workflow
-
-**描述**: Perfect21的Git工作流管理和自动化功能模块
-**分类**: workflow
-**优先级**: high
-
-### 可用函数:
-- `install_hooks`: 安装Perfect21 Git钩子到项目
-- `uninstall_hooks`: 卸载Perfect21 Git钩子
-- `create_feature_branch`: 创建符合规范的功能分支
-- `create_release_branch`: 创建发布分支
-- `merge_to_main`: 安全地合并分支到主分支
-- `branch_analysis`: 分析分支状态和保护规则
-- `cleanup_branches`: 清理过期分支
-- `validate_commit`: 验证提交消息格式
-- `pre_commit_check`: 执行提交前检查
-- `pre_push_validation`: 执行推送前验证
-- `post_merge_integration`: 执行合并后集成测试
-
-### 集成时机:
-- pre_commit
-- commit_msg
-- pre_push
-- post_checkout
-- post_merge
-- project_initialization
-- branch_operations
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.git_workflow import Git_WorkflowManager
-manager = Git_WorkflowManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: git_workflow
-
-**描述**: Perfect21的Git工作流管理和自动化功能模块
-**分类**: workflow
-**优先级**: high
-
-### 可用函数:
-- `install_hooks`: 安装Perfect21 Git钩子到项目
-- `uninstall_hooks`: 卸载Perfect21 Git钩子
-- `create_feature_branch`: 创建符合规范的功能分支
-- `create_release_branch`: 创建发布分支
-- `merge_to_main`: 安全地合并分支到主分支
-- `branch_analysis`: 分析分支状态和保护规则
-- `cleanup_branches`: 清理过期分支
-- `validate_commit`: 验证提交消息格式
-- `pre_commit_check`: 执行提交前检查
-- `pre_push_validation`: 执行推送前验证
-- `post_merge_integration`: 执行合并后集成测试
-
-### 集成时机:
-- pre_commit
-- commit_msg
-- pre_push
-- post_checkout
-- post_merge
-- project_initialization
-- branch_operations
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.git_workflow import Git_WorkflowManager
-manager = Git_WorkflowManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: git_workflow
-
-**描述**: Perfect21的Git工作流管理和自动化功能模块
-**分类**: workflow
-**优先级**: high
-
-### 可用函数:
-- `install_hooks`: 安装Perfect21 Git钩子到项目
-- `uninstall_hooks`: 卸载Perfect21 Git钩子
-- `create_feature_branch`: 创建符合规范的功能分支
-- `create_release_branch`: 创建发布分支
-- `merge_to_main`: 安全地合并分支到主分支
-- `branch_analysis`: 分析分支状态和保护规则
-- `cleanup_branches`: 清理过期分支
-- `validate_commit`: 验证提交消息格式
-- `pre_commit_check`: 执行提交前检查
-- `pre_push_validation`: 执行推送前验证
-- `post_merge_integration`: 执行合并后集成测试
-
-### 集成时机:
-- pre_commit
-- commit_msg
-- pre_push
-- post_checkout
-- post_merge
-- project_initialization
-- branch_operations
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.git_workflow import Git_WorkflowManager
-manager = Git_WorkflowManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: git_workflow
-
-**描述**: Perfect21的Git工作流管理和自动化功能模块
-**分类**: workflow
-**优先级**: high
-
-### 可用函数:
-- `install_hooks`: 安装Perfect21 Git钩子到项目
-- `uninstall_hooks`: 卸载Perfect21 Git钩子
-- `create_feature_branch`: 创建符合规范的功能分支
-- `create_release_branch`: 创建发布分支
-- `merge_to_main`: 安全地合并分支到主分支
-- `branch_analysis`: 分析分支状态和保护规则
-- `cleanup_branches`: 清理过期分支
-- `validate_commit`: 验证提交消息格式
-- `pre_commit_check`: 执行提交前检查
-- `pre_push_validation`: 执行推送前验证
-- `post_merge_integration`: 执行合并后集成测试
-
-### 集成时机:
-- pre_commit
-- commit_msg
-- pre_push
-- post_checkout
-- post_merge
-- project_initialization
-- branch_operations
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.git_workflow import Git_WorkflowManager
-manager = Git_WorkflowManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: git_workflow
-
-**描述**: Perfect21的Git工作流管理和自动化功能模块
-**分类**: workflow
-**优先级**: high
-
-### 可用函数:
-- `install_hooks`: 安装Perfect21 Git钩子到项目
-- `uninstall_hooks`: 卸载Perfect21 Git钩子
-- `create_feature_branch`: 创建符合规范的功能分支
-- `create_release_branch`: 创建发布分支
-- `merge_to_main`: 安全地合并分支到主分支
-- `branch_analysis`: 分析分支状态和保护规则
-- `cleanup_branches`: 清理过期分支
-- `validate_commit`: 验证提交消息格式
-- `pre_commit_check`: 执行提交前检查
-- `pre_push_validation`: 执行推送前验证
-- `post_merge_integration`: 执行合并后集成测试
-
-### 集成时机:
-- pre_commit
-- commit_msg
-- pre_push
-- post_checkout
-- post_merge
-- project_initialization
-- branch_operations
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.git_workflow import Git_WorkflowManager
-manager = Git_WorkflowManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: git_workflow
-
+**版本**: 2.3.0
+**更新时间**: 2025-09-16 18:29:51
 **描述**: Perfect21的Git工作流管理和自动化功能模块
 **分类**: workflow
 **优先级**: high
@@ -745,4 +303,9 @@ result = manager.function_name()
 ```
 
 ---
-*此功能由Perfect21 capability_discovery自动注册*
+*此功能由Perfect21 capability_discovery自动注册 - git_workflow*
+
+### git_workflow
+**描述**: Perfect21的Git工作流管理和自动化功能模块
+**类别**: workflow | **优先级**: high
+**可用函数**: install_hooks, uninstall_hooks, create_feature_branch, create_release_branch, merge_to_main, branch_analysis, cleanup_branches, validate_commit, pre_commit_check, pre_push_validation, post_merge_integration

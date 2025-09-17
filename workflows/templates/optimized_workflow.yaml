@@ -1,0 +1,172 @@
+# Perfect21 优化工作流模板 (3-4阶段)
+name: 优化工作流
+version: 3.0
+philosophy: "高效精准，质量为先"
+target_quality: production_grade
+estimated_time: "根据复杂度动态调整"
+
+metadata:
+  description: "简化为3-4阶段的高效工作流，平衡质量和效率"
+  suitable_for: ["功能开发", "Bug修复", "模块重构", "API开发"]
+  required_agents: ["由Claude Code根据需要选择"]
+
+# ===== Claude Code执行策略 =====
+execution_strategy:
+  mode: "adaptive"  # 根据任务自适应调整
+  quality_first: true
+  parallel_by_default: true  # 默认并行执行
+
+stages:
+  # ===== 阶段1：理解与设计 (合并原来的阶段1和2) =====
+  - name: understand_and_design
+    description: "深度理解需求并完成架构设计"
+    execution_mode: parallel
+    thinking_mode: think_hard
+    agents: ["project-manager", "business-analyst", "api-designer", "backend-architect"]
+
+    claude_instruction: |
+      ## 阶段1：理解与设计（并行执行）
+
+      在一个消息中并行调用以下agents：
+      1. @project-manager - 分析产品需求和项目范围
+      2. @business-analyst - 分析业务逻辑和流程
+      3. @api-designer - 设计API接口（如需要）
+      4. @backend-architect - 设计技术架构
+
+      关键要求：
+      - 确保需求理解一致
+      - 设计方案可行且高效
+      - 考虑扩展性和维护性
+
+    sync_point:
+      name: design_validation
+      type: quality_check
+      validation_criteria:
+        requirements_clarity: "需求100%明确"
+        design_completeness: "架构设计完整"
+        feasibility: "技术可行性确认"
+
+  # ===== 阶段2：实现与测试 (合并原来的阶段3和4) =====
+  - name: implement_and_test
+    description: "并行实现功能和编写测试"
+    execution_mode: parallel
+    thinking_mode: normal
+    agents: ["backend-architect", "frontend-specialist", "test-engineer"]
+    depends_on: ["understand_and_design"]
+
+    claude_instruction: |
+      ## 阶段2：实现与测试（并行执行）
+
+      在一个消息中并行调用以下agents（根据需要选择）：
+      1. @backend-architect - 实现后端功能
+      2. @frontend-specialist - 实现前端界面（如需要）
+      3. @test-engineer - 编写测试用例
+
+      关键要求：
+      - 代码质量优先
+      - 测试覆盖率>90%
+      - 遵循项目规范
+
+    sync_point:
+      name: implementation_review
+      type: code_review
+      validation_criteria:
+        code_quality: "代码审查通过"
+        test_coverage: ">90%覆盖率"
+        functionality: "功能完整实现"
+
+  # ===== 阶段3：验证与优化 (简化的质量保证) =====
+  - name: validate_and_optimize
+    description: "验证质量并优化性能"
+    execution_mode: parallel
+    thinking_mode: think
+    agents: ["code-reviewer", "security-auditor", "performance-engineer"]
+    depends_on: ["implement_and_test"]
+
+    claude_instruction: |
+      ## 阶段3：验证与优化（并行执行）
+
+      在一个消息中并行调用以下agents进行质量验证：
+      1. @code-reviewer - 代码质量审查
+      2. @security-auditor - 安全审计（关键功能）
+      3. @performance-engineer - 性能优化（如需要）
+
+      关键要求：
+      - 无严重代码问题
+      - 无安全漏洞
+      - 性能满足要求
+
+    quality_gate:
+      checklist:
+        - "代码审查通过"
+        - "安全扫描通过"
+        - "性能测试通过"
+      must_pass: true
+
+  # ===== 阶段4（可选）：部署准备 =====
+  - name: deployment_ready
+    description: "准备部署（可选阶段）"
+    execution_mode: sequential
+    thinking_mode: normal
+    agents: ["devops-engineer"]
+    depends_on: ["validate_and_optimize"]
+    optional: true  # 标记为可选
+
+    claude_instruction: |
+      ## 阶段4：部署准备（可选）
+
+      如果需要部署到生产环境：
+      1. 调用 @devops-engineer - 准备部署配置
+
+      关键要求：
+      - 部署文档完整
+      - 回滚方案就绪
+      - 监控配置完成
+
+# ===== 动态调整规则 =====
+dynamic_adjustment:
+  simple_tasks:
+    description: "简单任务（如Bug修复）"
+    skip_stages: ["deployment_ready"]
+    reduce_agents: true
+
+  complex_tasks:
+    description: "复杂任务（如微服务架构）"
+    add_agents: ["database-specialist", "monitoring-specialist"]
+    enhance_thinking: true
+
+  urgent_tasks:
+    description: "紧急任务"
+    skip_optional_checks: true
+    focus_on: ["implement_and_test"]
+
+# ===== Hook配置 =====
+hooks:
+  pre_execution:
+    - name: task_complexity_analysis
+      description: "分析任务复杂度，动态调整工作流"
+
+  post_execution:
+    - name: quality_summary
+      description: "生成质量总结报告"
+
+  on_error:
+    - name: rollback_handler
+      description: "错误时的回滚处理"
+
+# ===== 思考增强配置 =====
+thinking_enhancement:
+  architecture_decisions:
+    trigger_conditions: ["新架构", "重大重构", "技术选型"]
+    strategy: "ultrathink"
+    instruction: "请深度分析架构决策的长期影响"
+
+  security_critical:
+    trigger_conditions: ["认证", "授权", "加密", "支付"]
+    strategy: "adversarial_thinking"
+    instruction: "从攻击者角度审视安全设计"
+
+  performance_critical:
+    trigger_conditions: ["高并发", "大数据", "实时处理"]
+    strategy: "think_harder"
+    instruction: "深入分析性能瓶颈和优化方案"

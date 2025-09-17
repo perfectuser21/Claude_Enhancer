@@ -170,9 +170,124 @@ Acceptance Criteria:
 ```
 
 
+
+
+
+---
+## Perfect21功能区域
+_此区域由Perfect21自动管理，包含所有注册的功能_
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## Perfect21功能: capability_discovery
 
-**描述**: 动态发现和集成Perfect21新功能的元功能模块
+**版本**: 2.3.0
+**更新时间**: 2025-09-16 18:29:51
+**描述**: 动态发现Perfect21功能并为@orchestrator提供集成桥梁
 **分类**: meta
 **优先级**: critical
 
@@ -183,1098 +298,18 @@ Acceptance Criteria:
 - `hot_reload`: 运行时热加载新增功能
 - `validate_capability`: 验证功能模块的完整性
 - `get_capability_catalog`: 获取所有可用功能的目录
+- `get_perfect21_capabilities`: 获取Perfect21能力信息供@orchestrator使用
+- `save_capabilities_manifest`: 保存能力清单到临时文件
+- `get_capabilities_for_orchestrator`: 生成@orchestrator专用的功能描述
 
 ### 集成时机:
 - system_startup
 - feature_added
 - runtime_update
 - before_task_routing
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.capability_discovery import Capability_DiscoveryManager
-manager = Capability_DiscoveryManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: capability_discovery
-
-**描述**: 动态发现和集成Perfect21新功能的元功能模块
-**分类**: meta
-**优先级**: critical
-
-### 可用函数:
-- `scan_features`: 自动扫描features目录发现新功能模块
-- `load_capability`: 动态加载单个功能模块
-- `register_to_agents`: 向claude-code-unified-agents注册功能
-- `hot_reload`: 运行时热加载新增功能
-- `validate_capability`: 验证功能模块的完整性
-- `get_capability_catalog`: 获取所有可用功能的目录
-
-### 集成时机:
-- system_startup
-- feature_added
-- runtime_update
-- before_task_routing
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.capability_discovery import Capability_DiscoveryManager
-manager = Capability_DiscoveryManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: capability_discovery
-
-**描述**: 动态发现和集成Perfect21新功能的元功能模块
-**分类**: meta
-**优先级**: critical
-
-### 可用函数:
-- `scan_features`: 自动扫描features目录发现新功能模块
-- `load_capability`: 动态加载单个功能模块
-- `register_to_agents`: 向claude-code-unified-agents注册功能
-- `hot_reload`: 运行时热加载新增功能
-- `validate_capability`: 验证功能模块的完整性
-- `get_capability_catalog`: 获取所有可用功能的目录
-
-### 集成时机:
-- system_startup
-- feature_added
-- runtime_update
-- before_task_routing
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.capability_discovery import Capability_DiscoveryManager
-manager = Capability_DiscoveryManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: capability_discovery
-
-**描述**: 动态发现和集成Perfect21新功能的元功能模块
-**分类**: meta
-**优先级**: critical
-
-### 可用函数:
-- `scan_features`: 自动扫描features目录发现新功能模块
-- `load_capability`: 动态加载单个功能模块
-- `register_to_agents`: 向claude-code-unified-agents注册功能
-- `hot_reload`: 运行时热加载新增功能
-- `validate_capability`: 验证功能模块的完整性
-- `get_capability_catalog`: 获取所有可用功能的目录
-
-### 集成时机:
-- system_startup
-- feature_added
-- runtime_update
-- before_task_routing
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.capability_discovery import Capability_DiscoveryManager
-manager = Capability_DiscoveryManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: capability_discovery
-
-**描述**: 动态发现和集成Perfect21新功能的元功能模块
-**分类**: meta
-**优先级**: critical
-
-### 可用函数:
-- `scan_features`: 自动扫描features目录发现新功能模块
-- `load_capability`: 动态加载单个功能模块
-- `register_to_agents`: 向claude-code-unified-agents注册功能
-- `hot_reload`: 运行时热加载新增功能
-- `validate_capability`: 验证功能模块的完整性
-- `get_capability_catalog`: 获取所有可用功能的目录
-
-### 集成时机:
-- system_startup
-- feature_added
-- runtime_update
-- before_task_routing
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.capability_discovery import Capability_DiscoveryManager
-manager = Capability_DiscoveryManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: version_manager
-
-**描述**: Perfect21的统一版本管理和发布系统
-**分类**: management
-**优先级**: high
-
-### 可用函数:
-- `get_current_version`: 获取当前Perfect21版本
-- `set_version`: 设置新的版本号
-- `bump_version`: 自动递增版本号(major/minor/patch)
-- `sync_all_versions`: 同步所有模块的版本号
-- `validate_version`: 验证版本号格式
-- `create_release`: 创建新的发布版本
-- `get_version_info`: 获取详细的版本信息
-- `check_version_consistency`: 检查版本一致性
-- `generate_changelog`: 生成版本更新日志
-- `create_version_tag`: 创建Git版本标签
-
-### 集成时机:
-- project_initialization
-- pre_commit
-- pre_release
-- post_release
-- version_update
-- deployment
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.version_manager import Version_ManagerManager
-manager = Version_ManagerManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: capability_discovery
-
-**描述**: 动态发现和集成Perfect21新功能的元功能模块
-**分类**: meta
-**优先级**: critical
-
-### 可用函数:
-- `scan_features`: 自动扫描features目录发现新功能模块
-- `load_capability`: 动态加载单个功能模块
-- `register_to_agents`: 向claude-code-unified-agents注册功能
-- `hot_reload`: 运行时热加载新增功能
-- `validate_capability`: 验证功能模块的完整性
-- `get_capability_catalog`: 获取所有可用功能的目录
-
-### 集成时机:
-- system_startup
-- feature_added
-- runtime_update
-- before_task_routing
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.capability_discovery import Capability_DiscoveryManager
-manager = Capability_DiscoveryManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: version_manager
-
-**描述**: Perfect21的统一版本管理和发布系统
-**分类**: management
-**优先级**: high
-
-### 可用函数:
-- `get_current_version`: 获取当前Perfect21版本
-- `set_version`: 设置新的版本号
-- `bump_version`: 自动递增版本号(major/minor/patch)
-- `sync_all_versions`: 同步所有模块的版本号
-- `validate_version`: 验证版本号格式
-- `create_release`: 创建新的发布版本
-- `get_version_info`: 获取详细的版本信息
-- `check_version_consistency`: 检查版本一致性
-- `generate_changelog`: 生成版本更新日志
-- `create_version_tag`: 创建Git版本标签
-- `suggest_version_bump`: 基于变更分析建议版本升级类型
-- `generate_upgrade_report`: 生成详细的版本升级建议报告
-- `validate_version_history`: 验证版本历史的合理性和一致性
-- `analyze_breaking_changes`: 自动检测可能的破坏性变更
-
-### 集成时机:
-- project_initialization
-- pre_commit
-- pre_release
-- post_release
-- version_update
-- deployment
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.version_manager import Version_ManagerManager
-manager = Version_ManagerManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: capability_discovery
-
-**描述**: 动态发现和集成Perfect21新功能的元功能模块
-**分类**: meta
-**优先级**: critical
-
-### 可用函数:
-- `scan_features`: 自动扫描features目录发现新功能模块
-- `load_capability`: 动态加载单个功能模块
-- `register_to_agents`: 向claude-code-unified-agents注册功能
-- `hot_reload`: 运行时热加载新增功能
-- `validate_capability`: 验证功能模块的完整性
-- `get_capability_catalog`: 获取所有可用功能的目录
-
-### 集成时机:
-- system_startup
-- feature_added
-- runtime_update
-- before_task_routing
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.capability_discovery import Capability_DiscoveryManager
-manager = Capability_DiscoveryManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: version_manager
-
-**描述**: Perfect21的统一版本管理和发布系统
-**分类**: management
-**优先级**: high
-
-### 可用函数:
-- `get_current_version`: 获取当前Perfect21版本
-- `set_version`: 设置新的版本号
-- `bump_version`: 自动递增版本号(major/minor/patch)
-- `sync_all_versions`: 同步所有模块的版本号
-- `validate_version`: 验证版本号格式
-- `create_release`: 创建新的发布版本
-- `get_version_info`: 获取详细的版本信息
-- `check_version_consistency`: 检查版本一致性
-- `generate_changelog`: 生成版本更新日志
-- `create_version_tag`: 创建Git版本标签
-- `suggest_version_bump`: 基于变更分析建议版本升级类型
-- `generate_upgrade_report`: 生成详细的版本升级建议报告
-- `validate_version_history`: 验证版本历史的合理性和一致性
-- `analyze_breaking_changes`: 自动检测可能的破坏性变更
-
-### 集成时机:
-- project_initialization
-- pre_commit
-- pre_release
-- post_release
-- version_update
-- deployment
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.version_manager import Version_ManagerManager
-manager = Version_ManagerManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: capability_discovery
-
-**描述**: 动态发现和集成Perfect21新功能的元功能模块
-**分类**: meta
-**优先级**: critical
-
-### 可用函数:
-- `scan_features`: 自动扫描features目录发现新功能模块
-- `load_capability`: 动态加载单个功能模块
-- `register_to_agents`: 向claude-code-unified-agents注册功能
-- `hot_reload`: 运行时热加载新增功能
-- `validate_capability`: 验证功能模块的完整性
-- `get_capability_catalog`: 获取所有可用功能的目录
-
-### 集成时机:
-- system_startup
-- feature_added
-- runtime_update
-- before_task_routing
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.capability_discovery import Capability_DiscoveryManager
-manager = Capability_DiscoveryManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: version_manager
-
-**描述**: Perfect21的统一版本管理和发布系统
-**分类**: management
-**优先级**: high
-
-### 可用函数:
-- `get_current_version`: 获取当前Perfect21版本
-- `set_version`: 设置新的版本号
-- `bump_version`: 自动递增版本号(major/minor/patch)
-- `sync_all_versions`: 同步所有模块的版本号
-- `validate_version`: 验证版本号格式
-- `create_release`: 创建新的发布版本
-- `get_version_info`: 获取详细的版本信息
-- `check_version_consistency`: 检查版本一致性
-- `generate_changelog`: 生成版本更新日志
-- `create_version_tag`: 创建Git版本标签
-- `suggest_version_bump`: 基于变更分析建议版本升级类型
-- `generate_upgrade_report`: 生成详细的版本升级建议报告
-- `validate_version_history`: 验证版本历史的合理性和一致性
-- `analyze_breaking_changes`: 自动检测可能的破坏性变更
-
-### 集成时机:
-- project_initialization
-- pre_commit
-- pre_release
-- post_release
-- version_update
-- deployment
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.version_manager import Version_ManagerManager
-manager = Version_ManagerManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: capability_discovery
-
-**描述**: 动态发现和集成Perfect21新功能的元功能模块
-**分类**: meta
-**优先级**: critical
-
-### 可用函数:
-- `scan_features`: 自动扫描features目录发现新功能模块
-- `load_capability`: 动态加载单个功能模块
-- `register_to_agents`: 向claude-code-unified-agents注册功能
-- `hot_reload`: 运行时热加载新增功能
-- `validate_capability`: 验证功能模块的完整性
-- `get_capability_catalog`: 获取所有可用功能的目录
-
-### 集成时机:
-- system_startup
-- feature_added
-- runtime_update
-- before_task_routing
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.capability_discovery import Capability_DiscoveryManager
-manager = Capability_DiscoveryManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: version_manager
-
-**描述**: Perfect21的统一版本管理和发布系统
-**分类**: management
-**优先级**: high
-
-### 可用函数:
-- `get_current_version`: 获取当前Perfect21版本
-- `set_version`: 设置新的版本号
-- `bump_version`: 自动递增版本号(major/minor/patch)
-- `sync_all_versions`: 同步所有模块的版本号
-- `validate_version`: 验证版本号格式
-- `create_release`: 创建新的发布版本
-- `get_version_info`: 获取详细的版本信息
-- `check_version_consistency`: 检查版本一致性
-- `generate_changelog`: 生成版本更新日志
-- `create_version_tag`: 创建Git版本标签
-- `suggest_version_bump`: 基于变更分析建议版本升级类型
-- `generate_upgrade_report`: 生成详细的版本升级建议报告
-- `validate_version_history`: 验证版本历史的合理性和一致性
-- `analyze_breaking_changes`: 自动检测可能的破坏性变更
-
-### 集成时机:
-- project_initialization
-- pre_commit
-- pre_release
-- post_release
-- version_update
-- deployment
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.version_manager import Version_ManagerManager
-manager = Version_ManagerManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: capability_discovery
-
-**描述**: 动态发现和集成Perfect21新功能的元功能模块
-**分类**: meta
-**优先级**: critical
-
-### 可用函数:
-- `scan_features`: 自动扫描features目录发现新功能模块
-- `load_capability`: 动态加载单个功能模块
-- `register_to_agents`: 向claude-code-unified-agents注册功能
-- `hot_reload`: 运行时热加载新增功能
-- `validate_capability`: 验证功能模块的完整性
-- `get_capability_catalog`: 获取所有可用功能的目录
-
-### 集成时机:
-- system_startup
-- feature_added
-- runtime_update
-- before_task_routing
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.capability_discovery import Capability_DiscoveryManager
-manager = Capability_DiscoveryManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: version_manager
-
-**描述**: Perfect21的统一版本管理和发布系统
-**分类**: management
-**优先级**: high
-
-### 可用函数:
-- `get_current_version`: 获取当前Perfect21版本
-- `set_version`: 设置新的版本号
-- `bump_version`: 自动递增版本号(major/minor/patch)
-- `sync_all_versions`: 同步所有模块的版本号
-- `validate_version`: 验证版本号格式
-- `create_release`: 创建新的发布版本
-- `get_version_info`: 获取详细的版本信息
-- `check_version_consistency`: 检查版本一致性
-- `generate_changelog`: 生成版本更新日志
-- `create_version_tag`: 创建Git版本标签
-- `suggest_version_bump`: 基于变更分析建议版本升级类型
-- `generate_upgrade_report`: 生成详细的版本升级建议报告
-- `validate_version_history`: 验证版本历史的合理性和一致性
-- `analyze_breaking_changes`: 自动检测可能的破坏性变更
-
-### 集成时机:
-- project_initialization
-- pre_commit
-- pre_release
-- post_release
-- version_update
-- deployment
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.version_manager import Version_ManagerManager
-manager = Version_ManagerManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: capability_discovery
-
-**描述**: 动态发现和集成Perfect21新功能的元功能模块
-**分类**: meta
-**优先级**: critical
-
-### 可用函数:
-- `scan_features`: 自动扫描features目录发现新功能模块
-- `load_capability`: 动态加载单个功能模块
-- `register_to_agents`: 向claude-code-unified-agents注册功能
-- `hot_reload`: 运行时热加载新增功能
-- `validate_capability`: 验证功能模块的完整性
-- `get_capability_catalog`: 获取所有可用功能的目录
-
-### 集成时机:
-- system_startup
-- feature_added
-- runtime_update
-- before_task_routing
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.capability_discovery import Capability_DiscoveryManager
-manager = Capability_DiscoveryManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: version_manager
-
-**描述**: Perfect21的统一版本管理和发布系统
-**分类**: management
-**优先级**: high
-
-### 可用函数:
-- `get_current_version`: 获取当前Perfect21版本
-- `set_version`: 设置新的版本号
-- `bump_version`: 自动递增版本号(major/minor/patch)
-- `sync_all_versions`: 同步所有模块的版本号
-- `validate_version`: 验证版本号格式
-- `create_release`: 创建新的发布版本
-- `get_version_info`: 获取详细的版本信息
-- `check_version_consistency`: 检查版本一致性
-- `generate_changelog`: 生成版本更新日志
-- `create_version_tag`: 创建Git版本标签
-- `suggest_version_bump`: 基于变更分析建议版本升级类型
-- `generate_upgrade_report`: 生成详细的版本升级建议报告
-- `validate_version_history`: 验证版本历史的合理性和一致性
-- `analyze_breaking_changes`: 自动检测可能的破坏性变更
-
-### 集成时机:
-- project_initialization
-- pre_commit
-- pre_release
-- post_release
-- version_update
-- deployment
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.version_manager import Version_ManagerManager
-manager = Version_ManagerManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: capability_discovery
-
-**描述**: 动态发现和集成Perfect21新功能的元功能模块
-**分类**: meta
-**优先级**: critical
-
-### 可用函数:
-- `scan_features`: 自动扫描features目录发现新功能模块
-- `load_capability`: 动态加载单个功能模块
-- `register_to_agents`: 向claude-code-unified-agents注册功能
-- `hot_reload`: 运行时热加载新增功能
-- `validate_capability`: 验证功能模块的完整性
-- `get_capability_catalog`: 获取所有可用功能的目录
-
-### 集成时机:
-- system_startup
-- feature_added
-- runtime_update
-- before_task_routing
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.capability_discovery import Capability_DiscoveryManager
-manager = Capability_DiscoveryManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: version_manager
-
-**描述**: Perfect21的统一版本管理和发布系统
-**分类**: management
-**优先级**: high
-
-### 可用函数:
-- `get_current_version`: 获取当前Perfect21版本
-- `set_version`: 设置新的版本号
-- `bump_version`: 自动递增版本号(major/minor/patch)
-- `sync_all_versions`: 同步所有模块的版本号
-- `validate_version`: 验证版本号格式
-- `create_release`: 创建新的发布版本
-- `get_version_info`: 获取详细的版本信息
-- `check_version_consistency`: 检查版本一致性
-- `generate_changelog`: 生成版本更新日志
-- `create_version_tag`: 创建Git版本标签
-- `suggest_version_bump`: 基于变更分析建议版本升级类型
-- `generate_upgrade_report`: 生成详细的版本升级建议报告
-- `validate_version_history`: 验证版本历史的合理性和一致性
-- `analyze_breaking_changes`: 自动检测可能的破坏性变更
-
-### 集成时机:
-- project_initialization
-- pre_commit
-- pre_release
-- post_release
-- version_update
-- deployment
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.version_manager import Version_ManagerManager
-manager = Version_ManagerManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: capability_discovery
-
-**描述**: 动态发现和集成Perfect21新功能的元功能模块
-**分类**: meta
-**优先级**: critical
-
-### 可用函数:
-- `scan_features`: 自动扫描features目录发现新功能模块
-- `load_capability`: 动态加载单个功能模块
-- `register_to_agents`: 向claude-code-unified-agents注册功能
-- `hot_reload`: 运行时热加载新增功能
-- `validate_capability`: 验证功能模块的完整性
-- `get_capability_catalog`: 获取所有可用功能的目录
-
-### 集成时机:
-- system_startup
-- feature_added
-- runtime_update
-- before_task_routing
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.capability_discovery import Capability_DiscoveryManager
-manager = Capability_DiscoveryManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: version_manager
-
-**描述**: Perfect21的统一版本管理和发布系统
-**分类**: management
-**优先级**: high
-
-### 可用函数:
-- `get_current_version`: 获取当前Perfect21版本
-- `set_version`: 设置新的版本号
-- `bump_version`: 自动递增版本号(major/minor/patch)
-- `sync_all_versions`: 同步所有模块的版本号
-- `validate_version`: 验证版本号格式
-- `create_release`: 创建新的发布版本
-- `get_version_info`: 获取详细的版本信息
-- `check_version_consistency`: 检查版本一致性
-- `generate_changelog`: 生成版本更新日志
-- `create_version_tag`: 创建Git版本标签
-- `suggest_version_bump`: 基于变更分析建议版本升级类型
-- `generate_upgrade_report`: 生成详细的版本升级建议报告
-- `validate_version_history`: 验证版本历史的合理性和一致性
-- `analyze_breaking_changes`: 自动检测可能的破坏性变更
-
-### 集成时机:
-- project_initialization
-- pre_commit
-- pre_release
-- post_release
-- version_update
-- deployment
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.version_manager import Version_ManagerManager
-manager = Version_ManagerManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: capability_discovery
-
-**描述**: 动态发现和集成Perfect21新功能的元功能模块
-**分类**: meta
-**优先级**: critical
-
-### 可用函数:
-- `scan_features`: 自动扫描features目录发现新功能模块
-- `load_capability`: 动态加载单个功能模块
-- `register_to_agents`: 向claude-code-unified-agents注册功能
-- `hot_reload`: 运行时热加载新增功能
-- `validate_capability`: 验证功能模块的完整性
-- `get_capability_catalog`: 获取所有可用功能的目录
-
-### 集成时机:
-- system_startup
-- feature_added
-- runtime_update
-- before_task_routing
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.capability_discovery import Capability_DiscoveryManager
-manager = Capability_DiscoveryManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: version_manager
-
-**描述**: Perfect21的统一版本管理和发布系统
-**分类**: management
-**优先级**: high
-
-### 可用函数:
-- `get_current_version`: 获取当前Perfect21版本
-- `set_version`: 设置新的版本号
-- `bump_version`: 自动递增版本号(major/minor/patch)
-- `sync_all_versions`: 同步所有模块的版本号
-- `validate_version`: 验证版本号格式
-- `create_release`: 创建新的发布版本
-- `get_version_info`: 获取详细的版本信息
-- `check_version_consistency`: 检查版本一致性
-- `generate_changelog`: 生成版本更新日志
-- `create_version_tag`: 创建Git版本标签
-- `suggest_version_bump`: 基于变更分析建议版本升级类型
-- `generate_upgrade_report`: 生成详细的版本升级建议报告
-- `validate_version_history`: 验证版本历史的合理性和一致性
-- `analyze_breaking_changes`: 自动检测可能的破坏性变更
-
-### 集成时机:
-- project_initialization
-- pre_commit
-- pre_release
-- post_release
-- version_update
-- deployment
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.version_manager import Version_ManagerManager
-manager = Version_ManagerManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: capability_discovery
-
-**描述**: 动态发现和集成Perfect21新功能的元功能模块
-**分类**: meta
-**优先级**: critical
-
-### 可用函数:
-- `scan_features`: 自动扫描features目录发现新功能模块
-- `load_capability`: 动态加载单个功能模块
-- `register_to_agents`: 向claude-code-unified-agents注册功能
-- `hot_reload`: 运行时热加载新增功能
-- `validate_capability`: 验证功能模块的完整性
-- `get_capability_catalog`: 获取所有可用功能的目录
-
-### 集成时机:
-- system_startup
-- feature_added
-- runtime_update
-- before_task_routing
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.capability_discovery import Capability_DiscoveryManager
-manager = Capability_DiscoveryManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: version_manager
-
-**描述**: Perfect21的统一版本管理和发布系统
-**分类**: management
-**优先级**: high
-
-### 可用函数:
-- `get_current_version`: 获取当前Perfect21版本
-- `set_version`: 设置新的版本号
-- `bump_version`: 自动递增版本号(major/minor/patch)
-- `sync_all_versions`: 同步所有模块的版本号
-- `validate_version`: 验证版本号格式
-- `create_release`: 创建新的发布版本
-- `get_version_info`: 获取详细的版本信息
-- `check_version_consistency`: 检查版本一致性
-- `generate_changelog`: 生成版本更新日志
-- `create_version_tag`: 创建Git版本标签
-- `suggest_version_bump`: 基于变更分析建议版本升级类型
-- `generate_upgrade_report`: 生成详细的版本升级建议报告
-- `validate_version_history`: 验证版本历史的合理性和一致性
-- `analyze_breaking_changes`: 自动检测可能的破坏性变更
-
-### 集成时机:
-- project_initialization
-- pre_commit
-- pre_release
-- post_release
-- version_update
-- deployment
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.version_manager import Version_ManagerManager
-manager = Version_ManagerManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: capability_discovery
-
-**描述**: 动态发现和集成Perfect21新功能的元功能模块
-**分类**: meta
-**优先级**: critical
-
-### 可用函数:
-- `scan_features`: 自动扫描features目录发现新功能模块
-- `load_capability`: 动态加载单个功能模块
-- `register_to_agents`: 向claude-code-unified-agents注册功能
-- `hot_reload`: 运行时热加载新增功能
-- `validate_capability`: 验证功能模块的完整性
-- `get_capability_catalog`: 获取所有可用功能的目录
-
-### 集成时机:
-- system_startup
-- feature_added
-- runtime_update
-- before_task_routing
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.capability_discovery import Capability_DiscoveryManager
-manager = Capability_DiscoveryManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: version_manager
-
-**描述**: Perfect21的统一版本管理和发布系统
-**分类**: management
-**优先级**: high
-
-### 可用函数:
-- `get_current_version`: 获取当前Perfect21版本
-- `set_version`: 设置新的版本号
-- `bump_version`: 自动递增版本号(major/minor/patch)
-- `sync_all_versions`: 同步所有模块的版本号
-- `validate_version`: 验证版本号格式
-- `create_release`: 创建新的发布版本
-- `get_version_info`: 获取详细的版本信息
-- `check_version_consistency`: 检查版本一致性
-- `generate_changelog`: 生成版本更新日志
-- `create_version_tag`: 创建Git版本标签
-- `suggest_version_bump`: 基于变更分析建议版本升级类型
-- `generate_upgrade_report`: 生成详细的版本升级建议报告
-- `validate_version_history`: 验证版本历史的合理性和一致性
-- `analyze_breaking_changes`: 自动检测可能的破坏性变更
-
-### 集成时机:
-- project_initialization
-- pre_commit
-- pre_release
-- post_release
-- version_update
-- deployment
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.version_manager import Version_ManagerManager
-manager = Version_ManagerManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: capability_discovery
-
-**描述**: 动态发现和集成Perfect21新功能的元功能模块
-**分类**: meta
-**优先级**: critical
-
-### 可用函数:
-- `scan_features`: 自动扫描features目录发现新功能模块
-- `load_capability`: 动态加载单个功能模块
-- `register_to_agents`: 向claude-code-unified-agents注册功能
-- `hot_reload`: 运行时热加载新增功能
-- `validate_capability`: 验证功能模块的完整性
-- `get_capability_catalog`: 获取所有可用功能的目录
-
-### 集成时机:
-- system_startup
-- feature_added
-- runtime_update
-- before_task_routing
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.capability_discovery import Capability_DiscoveryManager
-manager = Capability_DiscoveryManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: version_manager
-
-**描述**: Perfect21的统一版本管理和发布系统
-**分类**: management
-**优先级**: high
-
-### 可用函数:
-- `get_current_version`: 获取当前Perfect21版本
-- `set_version`: 设置新的版本号
-- `bump_version`: 自动递增版本号(major/minor/patch)
-- `sync_all_versions`: 同步所有模块的版本号
-- `validate_version`: 验证版本号格式
-- `create_release`: 创建新的发布版本
-- `get_version_info`: 获取详细的版本信息
-- `check_version_consistency`: 检查版本一致性
-- `generate_changelog`: 生成版本更新日志
-- `create_version_tag`: 创建Git版本标签
-- `suggest_version_bump`: 基于变更分析建议版本升级类型
-- `generate_upgrade_report`: 生成详细的版本升级建议报告
-- `validate_version_history`: 验证版本历史的合理性和一致性
-- `analyze_breaking_changes`: 自动检测可能的破坏性变更
-
-### 集成时机:
-- project_initialization
-- pre_commit
-- pre_release
-- post_release
-- version_update
-- deployment
-
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.version_manager import Version_ManagerManager
-manager = Version_ManagerManager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-
-
-## Perfect21功能: capability_discovery
-
-**描述**: 动态发现和集成Perfect21新功能的元功能模块
-**分类**: meta
-**优先级**: critical
-
-### 可用函数:
-- `scan_features`: 自动扫描features目录发现新功能模块
-- `load_capability`: 动态加载单个功能模块
-- `register_to_agents`: 向claude-code-unified-agents注册功能
-- `hot_reload`: 运行时热加载新增功能
-- `validate_capability`: 验证功能模块的完整性
-- `get_capability_catalog`: 获取所有可用功能的目录
-
-### 集成时机:
-- system_startup
-- feature_added
-- runtime_update
-- before_task_routing
+- before_orchestrator_call
+- capability_update
+- feature_discovery
 
 ### 使用方式:
 ```python
@@ -1284,12 +319,11 @@ manager = get_manager()
 result = manager.function_name()
 ```
 
----
-*此功能由Perfect21 capability_discovery自动注册*
-
 
 ## Perfect21功能: version_manager
 
+**版本**: 2.3.0
+**更新时间**: 2025-09-16 18:29:51
 **描述**: Perfect21的统一版本管理和发布系统
 **分类**: management
 **优先级**: high
@@ -1327,4 +361,32 @@ result = manager.function_name()
 ```
 
 ---
-*此功能由Perfect21 capability_discovery自动注册*
+*此功能由Perfect21 capability_discovery自动注册 - version_manager*
+
+---
+*此功能由Perfect21 capability_discovery自动注册 - capability_discovery*
+
+### workflow_engine
+**描述**: Perfect21多Agent工作流执行引擎，实现真正的并行协作
+**类别**: execution | **优先级**: critical
+**可用函数**: execute_parallel_tasks, execute_sequential_pipeline, handle_dependencies, monitor_execution, integrate_results, create_task_graph, validate_workflow, get_execution_status
+
+### capability_discovery
+**描述**: 动态发现Perfect21功能并为@orchestrator提供集成桥梁
+**类别**: meta | **优先级**: critical
+**可用函数**: scan_features, load_capability, register_to_agents, hot_reload, validate_capability, get_capability_catalog, get_perfect21_capabilities, save_capabilities_manifest, get_capabilities_for_orchestrator
+
+### version_manager
+**描述**: Perfect21的统一版本管理和发布系统
+**类别**: management | **优先级**: high
+**可用函数**: get_current_version, set_version, bump_version, sync_all_versions, validate_version, create_release, get_version_info, check_version_consistency, generate_changelog, create_version_tag, suggest_version_bump, generate_upgrade_report, validate_version_history, analyze_breaking_changes
+
+### workflow_templates
+**描述**: Perfect21工作流模板系统，提供预定义的多Agent协作模板
+**类别**: development | **优先级**: high
+**可用函数**: get_template, list_templates, search_templates, create_custom_template, get_templates_by_category, get_templates_by_pattern, export_template, validate_template, get_statistics
+
+### execution_monitor
+**描述**: Perfect21执行监控和可视化系统，实时监控多Agent工作流执行状态
+**类别**: monitoring | **优先级**: high
+**可用函数**: start_monitoring, stop_monitoring, emit_event, get_workflow_status, get_active_workflows, get_agent_status, get_recent_events, get_statistics, export_workflow_report, start_console_display, generate_html_report

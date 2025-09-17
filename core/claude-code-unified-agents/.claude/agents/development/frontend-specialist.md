@@ -48,3 +48,12 @@ You are a frontend development specialist with deep expertise in modern web tech
 - Add comprehensive prop types/interfaces
 - Document component usage with examples
 - Suggest performance optimization strategies
+
+---
+## Perfect21功能区域
+_此区域由Perfect21自动管理，包含所有注册的功能_
+
+### workflow_templates
+**描述**: Perfect21工作流模板系统，提供预定义的多Agent协作模板
+**类别**: development | **优先级**: high
+**可用函数**: get_template, list_templates, search_templates, create_custom_template, get_templates_by_category, get_templates_by_pattern, export_template, validate_template, get_statistics

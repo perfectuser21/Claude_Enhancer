@@ -1,0 +1,273 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: perfect21
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/component: database
+    app.kubernetes.io/part-of: perfect21
+spec:
+  serviceName: postgres-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+        app.kubernetes.io/name: postgres
+        app.kubernetes.io/component: database
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9187"
+        prometheus.io/path: "/metrics"
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+      containers:
+      - name: postgres
+        image: postgres:15-alpine
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5432
+          name: postgres
+          protocol: TCP
+        env:
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: perfect21-secrets
+              key: postgres-db
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: perfect21-secrets
+              key: postgres-user
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: perfect21-secrets
+              key: database-password
+        - name: POSTGRES_INITDB_ARGS
+          value: "--auth-host=scram-sha-256"
+        - name: POSTGRES_HOST_AUTH_METHOD
+          value: "scram-sha-256"
+        - name: PGDATA
+          value: "/var/lib/postgresql/data/pgdata"
+        args:
+        - postgres
+        - -c
+        - shared_preload_libraries=pg_stat_statements
+        - -c
+        - pg_stat_statements.track=all
+        - -c
+        - max_connections=200
+        - -c
+        - shared_buffers=256MB
+        - -c
+        - effective_cache_size=1GB
+        - -c
+        - work_mem=4MB
+        - -c
+        - maintenance_work_mem=64MB
+        - -c
+        - random_page_cost=1.1
+        - -c
+        - temp_file_limit=2GB
+        - -c
+        - log_min_duration_statement=1000
+        - -c
+        - log_checkpoints=on
+        - -c
+        - log_connections=on
+        - -c
+        - log_disconnections=on
+        - -c
+        - log_lock_waits=on
+        - -c
+        - log_statement=ddl
+        - -c
+        - logging_collector=on
+        - -c
+        - log_filename=postgresql-%Y%m%d_%H%M%S.log
+        - -c
+        - log_rotation_age=1d
+        - -c
+        - log_rotation_size=100MB
+        volumeMounts:
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
+        - name: init-scripts
+          mountPath: /docker-entrypoint-initdb.d
+          readOnly: true
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - exec pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB" -h 127.0.0.1 -p 5432
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 6
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - exec pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB" -h 127.0.0.1 -p 5432
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 6
+        startupProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - exec pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB" -h 127.0.0.1 -p 5432
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 10
+
+      # PostgreSQL Exporter for Prometheus
+      - name: postgres-exporter
+        image: prometheuscommunity/postgres-exporter:v0.12.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9187
+          name: metrics
+          protocol: TCP
+        env:
+        - name: DATA_SOURCE_NAME
+          value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@localhost:5432/$(POSTGRES_DB)?sslmode=disable"
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: perfect21-secrets
+              key: postgres-user
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: perfect21-secrets
+              key: database-password
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: perfect21-secrets
+              key: postgres-db
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+        livenessProbe:
+          httpGet:
+            path: /metrics
+            port: metrics
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /metrics
+            port: metrics
+          initialDelaySeconds: 5
+          periodSeconds: 5
+
+      volumes:
+      - name: init-scripts
+        configMap:
+          name: postgres-init-scripts
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 60
+
+  volumeClaimTemplates:
+  - metadata:
+      name: postgres-data
+      labels:
+        app.kubernetes.io/name: postgres
+        app.kubernetes.io/component: database
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: fast-ssd
+      resources:
+        requests:
+          storage: 20Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+  namespace: perfect21
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/component: database
+spec:
+  type: ClusterIP
+  ports:
+  - port: 5432
+    targetPort: 5432
+    protocol: TCP
+    name: postgres
+  - port: 9187
+    targetPort: 9187
+    protocol: TCP
+    name: metrics
+  selector:
+    app: postgres
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init-scripts
+  namespace: perfect21
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/component: database
+data:
+  01-init-perfect21.sql: |
+    -- Perfect21 Database Initialization Script
+
+    -- Create extensions
+    CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+    CREATE EXTENSION IF NOT EXISTS "pg_stat_statements";
+    CREATE EXTENSION IF NOT EXISTS "pg_trgm";
+
+    -- Create schemas
+    CREATE SCHEMA IF NOT EXISTS perfect21;
+    CREATE SCHEMA IF NOT EXISTS auth;
+    CREATE SCHEMA IF NOT EXISTS workflow;
+    CREATE SCHEMA IF NOT EXISTS monitoring;
+
+    -- Grant permissions
+    GRANT USAGE ON SCHEMA perfect21 TO perfect21_user;
+    GRANT USAGE ON SCHEMA auth TO perfect21_user;
+    GRANT USAGE ON SCHEMA workflow TO perfect21_user;
+    GRANT USAGE ON SCHEMA monitoring TO perfect21_user;
+
+    GRANT CREATE ON SCHEMA perfect21 TO perfect21_user;
+    GRANT CREATE ON SCHEMA auth TO perfect21_user;
+    GRANT CREATE ON SCHEMA workflow TO perfect21_user;
+    GRANT CREATE ON SCHEMA monitoring TO perfect21_user;
+
+    -- Create monitoring user for metrics
+    CREATE USER postgres_exporter WITH PASSWORD 'exporter_password';
+    GRANT CONNECT ON DATABASE perfect21 TO postgres_exporter;
+    GRANT pg_monitor TO postgres_exporter;

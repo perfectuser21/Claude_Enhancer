@@ -1,0 +1,345 @@
+# Perfect21 Production Docker Ignore
+# Optimized for multi-stage builds and security
+
+# ==============================================
+# VERSION CONTROL
+# ==============================================
+.git/
+.gitignore
+.gitattributes
+.github/
+.gitlab-ci.yml
+
+# ==============================================
+# DOCUMENTATION
+# ==============================================
+*.md
+!README.md
+docs/
+README/
+CHANGELOG*
+LICENSE*
+AUTHORS*
+CONTRIBUTING*
+
+# ==============================================
+# DEVELOPMENT FILES
+# ==============================================
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Testing
+.tox/
+.nox/
+.coverage
+.pytest_cache/
+cover/
+*.cover
+*.py,cover
+.hypothesis/
+test_*.py
+*_test.py
+tests/
+htmlcov/
+.cache/
+nosetests.xml
+coverage.xml
+*.lcov
+junit-*.xml
+test-summary.*
+*_test_report_*
+*test_results*
+
+# ==============================================
+# ENVIRONMENT FILES
+# ==============================================
+# Environment variables
+.env
+.env.*
+!.env.example
+.envrc
+.python-version
+.pyenv
+venv/
+.venv/
+ENV/
+env/
+.ENV/
+.env/
+pipenv/
+Pipfile.lock
+poetry.lock
+
+# Configuration
+*.local
+*.development
+*.staging
+development.yaml
+staging.yaml
+local.yaml
+config/local/
+config/development/
+config/staging/
+
+# ==============================================
+# IDE AND EDITOR FILES
+# ==============================================
+# VSCode
+.vscode/
+*.code-workspace
+
+# IntelliJ
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# Vim
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# ==============================================
+# OPERATING SYSTEM
+# ==============================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ==============================================
+# APPLICATION DATA
+# ==============================================
+# Development data
+data/
+!data/.gitkeep
+logs/
+!logs/.gitkeep
+uploads/
+!uploads/.gitkeep
+backups/
+!backups/.gitkeep
+cache/
+!cache/.gitkeep
+tmp/
+temp/
+*.tmp
+*.temp
+*.log
+*.log.*
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+
+# ==============================================
+# INFRASTRUCTURE FILES
+# ==============================================
+# Docker
+.dockerignore
+Dockerfile.dev
+Dockerfile.test
+docker-compose.override.yml
+docker-compose.dev.yml
+docker-compose.test.yml
+
+# Kubernetes development
+k8s/local/
+k8s/dev/
+k8s/test/
+
+# Terraform
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfplan
+.terraform/
+terraform.rc
+.terraformrc
+
+# ==============================================
+# MONITORING AND LOGS
+# ==============================================
+# Prometheus
+prometheus_data/
+
+# Grafana
+grafana_data/
+
+# Application logs
+*.log
+logs/
+log/
+*.out
+*.err
+
+# ==============================================
+# SECURITY AND SECRETS
+# ==============================================
+# SSL/TLS certificates
+*.pem
+*.key
+*.crt
+*.csr
+*.p12
+*.pfx
+*.jks
+
+# SSH keys
+id_rsa
+id_dsa
+id_ecdsa
+id_ed25519
+*.pub
+
+# GPG keys
+*.gpg
+*.asc
+
+# Secrets and credentials
+secrets/
+.secrets/
+credentials/
+.credentials/
+passwords.txt
+api_keys.txt
+
+# ==============================================
+# PERFORMANCE AND PROFILING
+# ==============================================
+# Python profiling
+*.prof
+*.pstats
+profile_output.*
+
+# Memory dumps
+*.dump
+*.hprof
+heapdump.*
+
+# ==============================================
+# PACKAGE MANAGERS
+# ==============================================
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+package-lock.json
+yarn.lock
+
+# Python
+*.wheel
+.pip-cache/
+
+# ==============================================
+# CLOUD PROVIDER SPECIFIC
+# ==============================================
+# AWS
+.aws/
+
+# Google Cloud
+.gcloud/
+service-account.json
+*-service-account.json
+
+# Azure
+.azure/
+
+# ==============================================
+# CUSTOM IGNORES
+# ==============================================
+# Add project-specific ignores here
+vendor/
+third_party/
+external/
+
+# Development scripts
+scripts/dev/
+scripts/local/
+run_dev.sh
+run_local.sh
+
+# Experimental features
+experimental/
+prototype/
+sandbox/
+
+# Examples and demos
+examples/
+demo/
+sample/

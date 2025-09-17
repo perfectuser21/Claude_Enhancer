@@ -30,16 +30,34 @@ class CapabilityRegistry:
 
         logger.info(f"功能注册器初始化 - Agent路径: {self.claude_agents_path}")
 
-    def register_capabilities(self, capabilities: Dict[str, Any]) -> Dict[str, bool]:
+    def discover_capabilities(self) -> Dict[str, Any]:
+        """
+        发现所有可用的功能模块
+
+        Returns:
+            Dict[str, Any]: 发现的功能模块信息
+        """
+        from .scanner import CapabilityScanner
+
+        scanner = CapabilityScanner()
+        capabilities = scanner.scan_all_features()
+
+        logger.info(f"发现 {len(capabilities)} 个功能模块")
+        return capabilities
+
+    def register_capabilities(self, capabilities: Dict[str, Any] = None) -> Dict[str, bool]:
         """
         批量注册功能到claude-code-unified-agents
 
         Args:
-            capabilities: 功能字典
+            capabilities: 功能字典，如果为None则自动发现
 
         Returns:
             Dict[str, bool]: 注册结果，键为功能名，值为是否成功
         """
+        if capabilities is None:
+            capabilities = self.discover_capabilities()
+
         logger.info(f"开始注册 {len(capabilities)} 个功能...")
 
         results = {}
@@ -187,9 +205,23 @@ class CapabilityRegistry:
         return None
 
     def _read_agent_file(self, agent_file: str) -> str:
-        """读取Agent文件内容"""
+        """读取Agent文件内容（带路径遍历防护）"""
         try:
-            with open(agent_file, 'r', encoding='utf-8') as f:
+            # 路径遍历防护：确保文件路径在预期目录内
+            agent_file_path = os.path.abspath(agent_file)
+            allowed_base_path = os.path.abspath(self.claude_agents_path)
+
+            # 检查文件路径是否在允许的目录内
+            if not agent_file_path.startswith(allowed_base_path):
+                logger.error(f"安全错误：尝试访问不允许的路径: {agent_file}")
+                return ""
+
+            # 检查文件存在性
+            if not os.path.exists(agent_file_path):
+                logger.error(f"文件不存在: {agent_file_path}")
+                return ""
+
+            with open(agent_file_path, 'r', encoding='utf-8') as f:
                 return f.read()
         except Exception as e:
             logger.error(f"读取Agent文件失败: {agent_file} - {e}")
@@ -197,7 +229,7 @@ class CapabilityRegistry:
 
     def _inject_capability_description(self, agent_content: str, capability_name: str, capability: Dict[str, Any]) -> str:
         """
-        向Agent描述中注入功能信息
+        向Agent描述中注入功能信息（防重复注入）
 
         Args:
             agent_content: 原Agent内容
@@ -207,50 +239,35 @@ class CapabilityRegistry:
         Returns:
             str: 更新后的Agent内容
         """
-        # 构建功能描述
+        # 简单策略：不注入到orchestrator.md
+        # orchestrator.md已经有完整的Perfect21功能区域，由人工维护
+        # 避免重复注入和文件污染
+        if "name: orchestrator" in agent_content:
+            logger.info(f"跳过向orchestrator注入功能 {capability_name}（人工维护）")
+            return agent_content
+
+        # 检查是否已经存在该功能的描述，避免重复
+        if f"### {capability_name}" in agent_content:
+            logger.info(f"功能 {capability_name} 已存在于Agent中，跳过注入")
+            return agent_content
+
+        # 确保有Perfect21功能区域
+        if "## Perfect21功能区域" not in agent_content:
+            agent_content += "\n\n---\n## Perfect21功能区域\n_此区域由Perfect21自动管理，包含所有注册的功能_\n"
+
+        # 构建简洁的功能描述
         capability_section = f"""
 
-## Perfect21功能: {capability_name}
-
+### {capability_name}
 **描述**: {capability.get('description', '无描述')}
-**分类**: {capability.get('category', 'unknown')}
-**优先级**: {capability.get('priority', 'low')}
-
-### 可用函数:
+**类别**: {capability.get('category', 'unknown')} | **优先级**: {capability.get('priority', 'low')}
+**可用函数**: {', '.join(capability.get('functions', {}).keys())}
 """
 
-        functions = capability.get('functions', {})
-        for func_name, func_desc in functions.items():
-            capability_section += f"- `{func_name}`: {func_desc}\n"
+        # 在功能区域末尾添加
+        agent_content = agent_content.rstrip() + capability_section
 
-        # 添加集成点信息
-        integration_points = capability.get('integration_points', [])
-        if integration_points:
-            capability_section += f"\n### 集成时机:\n"
-            for point in integration_points:
-                capability_section += f"- {point}\n"
-
-        # 添加使用示例
-        capability_section += f"""
-### 使用方式:
-```python
-# 调用Perfect21功能
-from features.{capability_name} import get_manager
-manager = get_manager()
-result = manager.function_name()
-```
-
----
-*此功能由Perfect21 capability_discovery自动注册*
-"""
-
-        # 查找合适的位置插入功能描述
-        if "## Perfect21功能:" in agent_content:
-            # 如果已有Perfect21功能部分，追加到末尾
-            return agent_content + capability_section
-        else:
-            # 如果没有，在文件末尾添加
-            return agent_content + "\n" + capability_section
+        return agent_content
 
     def _write_agent_file(self, agent_file: str, content: str) -> None:
         """写入Agent文件"""
@@ -377,7 +394,12 @@ if __name__ == "__main__":
             agent_file = self._find_agent_file(agent_name)
             if agent_file and os.path.exists(agent_file):
                 agent_content = self._read_agent_file(agent_file)
-                if f"Perfect21功能: {name}" not in agent_content:
+
+                # 跳过orchestrator验证，因为orchestrator是人工维护的
+                if agent_name == "orchestrator":
+                    continue
+
+                if f"### {name}" not in agent_content:
                     logger.warning(f"Agent {agent_name} 未正确更新功能信息")
                     return False
 
