@@ -1,0 +1,69 @@
+# Perfect21 Agent Selection Rules
+# These rules help Claude Code choose the right agents for each task
+
+minimum_agents: 3  # Never use less than 3 agents
+
+task_patterns:
+  authentication:
+    keywords: [login, auth, authentication, JWT, session, permission]
+    required_agents:
+      - backend-architect
+      - security-auditor
+      - test-engineer
+      - api-designer
+      - database-specialist
+    min_count: 5
+
+  api_development:
+    keywords: [API, endpoint, REST, GraphQL, service]
+    required_agents:
+      - api-designer
+      - backend-architect
+      - test-engineer
+      - technical-writer
+    min_count: 4
+
+  database:
+    keywords: [database, schema, SQL, MongoDB, Redis, migration]
+    required_agents:
+      - database-specialist
+      - backend-architect
+      - performance-engineer
+    min_count: 3
+
+  frontend:
+    keywords: [UI, interface, React, Vue, component, display]
+    required_agents:
+      - frontend-specialist
+      - ux-designer
+      - test-engineer
+    min_count: 3
+
+  testing:
+    keywords: [test, TDD, unit test, e2e, coverage]
+    required_agents:
+      - test-engineer
+      - e2e-test-specialist
+      - performance-tester
+    min_count: 3
+
+  performance:
+    keywords: [optimize, performance, speed, cache, bottleneck]
+    required_agents:
+      - performance-engineer
+      - backend-architect
+      - database-specialist
+    min_count: 3
+
+  security:
+    keywords: [security, vulnerability, encryption, OWASP, audit]
+    required_agents:
+      - security-auditor
+      - backend-architect
+      - devops-engineer
+    min_count: 3
+
+execution_rules:
+  parallel_required: true  # Always execute agents in parallel
+  single_message: true      # All agents in one function_calls block
+  feedback_on_failure: true # Test failures trigger feedback loop
