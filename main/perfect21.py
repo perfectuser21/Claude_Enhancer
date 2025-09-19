@@ -299,10 +299,15 @@ class Perfect21:
                 'message': f"工作流操作{action}失败"
             }
 
-    def execute_parallel_workflow(self, agents: List[str], base_prompt: str,
+    def generate_parallel_workflow_instructions(self, agents: List[str], base_prompt: str,
                                  task_description: str = None) -> Dict[str, Any]:
         """
-        执行并行工作流 - Perfect21核心功能
+        生成并行工作流指导 - Perfect21核心功能
+
+        为Claude Code生成并行执行的指导模板，包括：
+        - 应该使用哪些Agent
+        - 如何组织并行调用
+        - 执行质量要求
 
         Args:
             agents: Agent列表
@@ -310,17 +315,17 @@ class Perfect21:
             task_description: 任务描述
 
         Returns:
-            Dict: 包含批量执行指令的结果
+            Dict: 包含批量执行指导的结果
         """
         try:
-            log_info(f"Perfect21执行并行工作流: {len(agents)}个agents")
+            log_info(f"Perfect21生成工作流指导: {len(agents)}个agents")
 
-            # 如果优化系统可用，优先使用优化执行
+            # 如果优化系统可用，优先使用优化的指导生成
             if self.optimized_orchestrator and OPTIMIZED_SYSTEMS_AVAILABLE:
-                return self.execute_optimized_parallel_workflow(agents, base_prompt, task_description)
+                return self.generate_optimized_workflow_guidance(agents, base_prompt, task_description)
 
-            # 备用：使用传统执行方式
-            # 准备任务数据
+            # 备用：使用传统方式生成指导
+            # 准备任务指导数据
             tasks = []
             for agent in agents:
                 task_data = {
@@ -368,7 +373,7 @@ class Perfect21:
             Dict: 执行结果
         """
         try:
-            log_info(f"Perfect21执行顺序工作流: {len(pipeline)}个阶段")
+            log_info(f"Perfect21生成顺序工作流指导: {len(pipeline)}个阶段")
 
             # 使用工作流引擎执行顺序任务
             workflow_result = self.workflow_engine.execute_sequential_pipeline(pipeline)
@@ -496,7 +501,7 @@ class Perfect21:
                     'message': '优化系统不可用，使用传统方式'
                 }
 
-            log_info(f"Perfect21执行优化并行工作流: {task_description or base_prompt[:50]}")
+            log_info(f"Perfect21生成优化并行工作流指导: {task_description or base_prompt[:50]}")
 
             # 如果没有指定agents，由智能选择器决定
             if not agents:

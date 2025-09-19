@@ -46,7 +46,7 @@ Perfect21/
     ↓
 Claude Code接收并分析
     ↓
-Perfect21规则匹配
+Claude Code查看Perfect21规则
     ↓
 返回执行指导（Agent组合、执行模式、质量要求）
     ↓
@@ -156,7 +156,7 @@ python3 test_rule_engine.py
 
 当遇到"实现用户登录系统"任务时：
 
-**Perfect21分析并返回：**
+**Perfect21规则匹配后提供指导：**
 ```yaml
 任务类型: authentication
 需要Agents: [backend-architect, security-auditor, test-engineer, api-designer]

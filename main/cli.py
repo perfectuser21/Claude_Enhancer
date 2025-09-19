@@ -421,7 +421,7 @@ def handle_monitor(args):
         print(monitor.get_status_display())
 
 def handle_develop(args):
-    """处理开发命令 - 使用Perfect21执行引擎"""
+    """处理开发命令 - 使用Perfect21规则指导Claude Code执行"""
     import json
 
     # 解析上下文

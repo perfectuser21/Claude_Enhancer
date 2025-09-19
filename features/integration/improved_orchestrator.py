@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-Perfect21 改进的Orchestrator
-集成反馈循环和Git Hook检查点，解决测试失败直接提交的问题
+Perfect21 规则定义 - 改进的工作流规范
+定义反馈循环和Git Hook检查点规则，指导Claude Code处理测试失败场景
+注意：这只是规则定义，实际执行由Claude Code完成
 """
 
 import logging
@@ -38,11 +39,12 @@ class LayerResult:
 
 class ImprovedOrchestrator:
     """
-    改进的工作流编排器
-    核心改进：
-    1. 集成反馈循环 - 失败时回到原Agent修复
-    2. Git Hook检查点 - 关键节点质量验证
-    3. 智能重试机制 - 避免无限循环
+    改进的工作流规范定义器
+    提供规则定义：
+    1. 反馈循环规则 - 定义失败时应该回到原Agent修复
+    2. Git Hook检查点规则 - 定义关键节点的质量验证标准
+    3. 重试规则 - 定义如何避免无限循环
+    注意：这些都是规则定义，执行由Claude Code完成
     """
 
     def __init__(self, max_workers: int = 10):
@@ -66,17 +68,22 @@ class ImprovedOrchestrator:
 
         logger.info(f"改进Orchestrator初始化完成")
 
-    def execute_workflow_with_feedback(self, task_description: str,
+    def generate_workflow_guidance(self, task_description: str,
                                       context: Dict[str, Any] = None) -> Dict[str, Any]:
         """
-        执行带反馈循环的工作流
+        生成带反馈循环的工作流指导
+
+        为Claude Code提供工作流执行指导，包括：
+        - 应该选择哪些Agent
+        - 如何处理失败情况
+        - 质量检查点要求
 
         Args:
             task_description: 任务描述
             context: 额外上下文
 
         Returns:
-            执行结果
+            工作流执行指导
         """
         start_time = time.time()
         workflow_id = f"workflow_{int(time.time())}"
@@ -369,17 +376,19 @@ class ImprovedOrchestrator:
 
         return passed
 
-    def _execute_agents(self, agents: List[str], input_data: Any) -> Dict[str, Any]:
-        """执行Agent（模拟）"""
-        # 实际应该调用真实的Agent
-        outputs = {}
+    def _generate_agent_instructions(self, agents: List[str], input_data: Any) -> Dict[str, Any]:
+        """生成Agent执行指导
+
+        为Claude Code生成应该如何调用这些Agent的指导
+        """
+        instructions = {}
         for agent in agents:
-            outputs[agent] = {
-                "result": f"{agent} 执行结果",
-                "status": "completed",
-                "data": str(input_data)[:100] if input_data else ""
+            instructions[agent] = {
+                "suggested_prompt": f"请作为{agent}处理: {str(input_data)[:100] if input_data else ''}",
+                "execution_mode": "parallel",
+                "quality_requirements": self._get_agent_quality_requirements(agent)
             }
-        return outputs
+        return instructions
 
     def _validate_layer_output(self, layer_name: str, outputs: Dict[str, Any]) -> List[str]:
         """验证层输出"""

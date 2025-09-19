@@ -1,12 +1,12 @@
 """
 execution_monitor功能描述文件
-Perfect21执行监控和可视化系统
+Perfect21工作流状态监控系统
 """
 
 CAPABILITY = {
     "name": "execution_monitor",
     "version": "1.0.0",
-    "description": "Perfect21执行监控和可视化系统，实时监控多Agent工作流执行状态",
+    "description": "Perfect21工作流状态监控系统，监控Claude Code执行多Agent工作流时的状态",
     "category": "monitoring",
     "priority": "high",
     "is_core": True,
