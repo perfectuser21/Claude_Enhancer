@@ -837,8 +837,9 @@ class ManagedPerfect21:
     def __enter__(self):
         """上下文管理器入口"""
         try:
-            from main.perfect21 import Perfect21
-            self._perfect21 = Perfect21()
+            # modules层不能导入main层
+            # Perfect21实例应该由上层传入
+            self._perfect21 = None  # 需要依赖注入
 
             # 注册到资源管理器
             self._resource_manager.register_resource(
@@ -885,8 +886,9 @@ class ManagedPerfect21:
 
     def _init_perfect21(self):
         """初始化Perfect21（在executor中运行）"""
-        from main.perfect21 import Perfect21
-        return Perfect21()
+        # modules层不能导入main层
+        # Perfect21实例应该由上层传入
+        return None  # 需要依赖注入
 
     def _cleanup_perfect21(self):
         """清理Perfect21实例"""

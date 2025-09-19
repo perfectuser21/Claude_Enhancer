@@ -1,0 +1,18 @@
+{
+  "id": "ADR-20250917-185513",
+  "title": "工作流决策: 检查和优化Perfect21系统，包括并行执行能力、决策记录、自动激活机制",
+  "date": "2025-09-17T18:55:13.364107",
+  "status": "proposed",
+  "context": "用户请求: 检查和优化Perfect21系统，包括并行执行能力、决策记录、自动激活机制",
+  "decision": "使用2个agents的sequential工作流",
+  "consequences": "预计0.8小时完成，2个阶段",
+  "agents_involved": [
+    "test-engineer",
+    "backend-architect"
+  ],
+  "metadata": {
+    "project": "Perfect21",
+    "session_id": null,
+    "complexity": "simple"
+  }
+}

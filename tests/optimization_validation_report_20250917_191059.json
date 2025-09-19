@@ -1,0 +1,72 @@
+{
+  "test_run_info": {
+    "timestamp": "2025-09-17T19:10:59.112260",
+    "duration": 4.673829793930054,
+    "python_version": "3.10.12 (main, Aug 15 2025, 14:32:43) [GCC 11.4.0]",
+    "config_file": "tests/performance_benchmark_config.yaml"
+  },
+  "summary": {
+    "total_test_suites": 5,
+    "total_tests": 0,
+    "total_passed": 0,
+    "total_failed": 5,
+    "total_skipped": 0,
+    "success_rate": 0,
+    "total_duration": 0,
+    "overall_status": "FAILED"
+  },
+  "detailed_results": {
+    "parallel_execution": {
+      "status": "unknown",
+      "tests_run": 0,
+      "tests_passed": 0,
+      "tests_failed": 1,
+      "stdout": "",
+      "stderr": "ERROR: usage: __main__.py [options] [file_or_dir] [file_or_dir] [...]\n__main__.py: error: unrecognized arguments: --json-report --json-report-file=temp_test_results.json\n  inifile: /home/xx/dev/Perfect21/pytest.ini\n  rootdir: /home/xx/dev/Perfect21\n\n"
+    },
+    "performance_benchmarks": {
+      "status": "unknown",
+      "tests_run": 0,
+      "tests_passed": 0,
+      "tests_failed": 1,
+      "stdout": "",
+      "stderr": "ERROR: usage: __main__.py [options] [file_or_dir] [file_or_dir] [...]\n__main__.py: error: unrecognized arguments: --json-report --json-report-file=temp_test_results.json\n  inifile: /home/xx/dev/Perfect21/pytest.ini\n  rootdir: /home/xx/dev/Perfect21\n\n"
+    },
+    "agent_selection": {
+      "status": "unknown",
+      "tests_run": 0,
+      "tests_passed": 0,
+      "tests_failed": 1,
+      "stdout": "",
+      "stderr": "ERROR: usage: __main__.py [options] [file_or_dir] [file_or_dir] [...]\n__main__.py: error: unrecognized arguments: --json-report --json-report-file=temp_test_results.json\n  inifile: /home/xx/dev/Perfect21/pytest.ini\n  rootdir: /home/xx/dev/Perfect21\n\n"
+    },
+    "resource_monitoring": {
+      "status": "unknown",
+      "tests_run": 0,
+      "tests_passed": 0,
+      "tests_failed": 1,
+      "stdout": "",
+      "stderr": "ERROR: usage: __main__.py [options] [file_or_dir] [file_or_dir] [...]\n__main__.py: error: unrecognized arguments: --json-report --json-report-file=temp_test_results.json\n  inifile: /home/xx/dev/Perfect21/pytest.ini\n  rootdir: /home/xx/dev/Perfect21\n\n"
+    },
+    "integration_scenarios": {
+      "status": "unknown",
+      "tests_run": 0,
+      "tests_passed": 0,
+      "tests_failed": 1,
+      "stdout": "",
+      "stderr": "ERROR: usage: __main__.py [options] [file_or_dir] [file_or_dir] [...]\n__main__.py: error: unrecognized arguments: --json-report --json-report-file=temp_test_results.json\n  inifile: /home/xx/dev/Perfect21/pytest.ini\n  rootdir: /home/xx/dev/Perfect21\n\n"
+    }
+  },
+  "performance_analysis": {
+    "parallel_execution": "FAILED - Unknown error",
+    "performance_benchmarks": "FAILED - Performance issues detected",
+    "resource_efficiency": "FAILED - Resource usage exceeded limits",
+    "agent_selection_accuracy": "FAILED - Agent selection needs improvement"
+  },
+  "recommendations": [
+    "\u4f18\u5316\u5e76\u884c\u6267\u884c\u673a\u5236\uff0c\u68c0\u67e5\u7ebf\u7a0b\u6c60\u914d\u7f6e\u548c\u4efb\u52a1\u8c03\u5ea6\u7b97\u6cd5",
+    "\u4f18\u5316\u6027\u80fd\u74f6\u9888\uff0c\u8003\u8651\u7f13\u5b58\u7b56\u7565\u548c\u7b97\u6cd5\u4f18\u5316",
+    "\u6539\u8fdbagent\u9009\u62e9\u7b97\u6cd5\uff0c\u4f18\u5316\u5173\u952e\u8bcd\u5339\u914d\u548c\u4e0a\u4e0b\u6587\u5206\u6790",
+    "\u4f18\u5316\u8d44\u6e90\u4f7f\u7528\uff0c\u68c0\u67e5\u5185\u5b58\u6cc4\u6f0f\u548cCPU\u5bc6\u96c6\u578b\u64cd\u4f5c"
+  ]
+}

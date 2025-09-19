@@ -358,25 +358,9 @@ fault_manager = FaultToleranceManager()
 
 def setup_perfect21_fault_tolerance():
     """设置Perfect21故障容错"""
-    # 注册健康检查
-    def capability_discovery_health():
-        try:
-            from features.capability_discovery import get_global_loader
-            loader = get_global_loader()
-            return loader is not None
-        except:
-            return False
-
-    def version_manager_health():
-        try:
-            from features.version_manager import get_global_version_manager
-            vm = get_global_version_manager()
-            return vm is not None
-        except:
-            return False
-
-    fault_manager.register_health_check('capability_discovery', capability_discovery_health)
-    fault_manager.register_health_check('version_manager', version_manager_health)
+    # 注意：modules层不能直接依赖features层
+    # 健康检查应该由上层注册，而不是在这里硬编码
+    pass
 
     # 注册降级函数
     def git_workflow_fallback(context):

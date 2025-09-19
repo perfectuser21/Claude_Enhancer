@@ -1,0 +1,433 @@
+# Perfect21 工作流规则配置
+# 定义反馈循环、Git检查点和质量门的具体规则
+
+# 工作流层级定义
+workflow_layers:
+  analysis:
+    name: "需求分析层"
+    required: true
+    max_retries: 2
+    validation_rules:
+      - must_have_requirements
+      - must_have_acceptance_criteria
+    success_criteria:
+      - clear_scope_definition
+      - identified_constraints
+      - defined_success_metrics
+    agents:
+      - requirements-analyst
+      - business-analyst
+      - product-strategist
+
+  design:
+    name: "架构设计层"
+    required: true
+    max_retries: 3
+    validation_rules:
+      - must_have_api_design
+      - must_have_data_model
+      - must_have_security_plan
+    success_criteria:
+      - complete_api_specification
+      - database_schema_defined
+      - security_measures_documented
+    agents:
+      - backend-architect
+      - api-designer
+      - database-specialist
+      - security-auditor
+
+  implementation:
+    name: "代码实现层"
+    required: true
+    max_retries: 3
+    validation_rules:
+      - must_pass_syntax_check
+      - must_follow_coding_standards
+      - must_have_error_handling
+    success_criteria:
+      - all_features_implemented
+      - code_is_testable
+      - documentation_complete
+    agents:
+      - python-pro
+      - javascript-pro
+      - golang-pro
+      - rust-pro
+      - java-enterprise
+
+  testing:
+    name: "测试验证层"
+    required: true
+    max_retries: 2
+    validation_rules:
+      - must_have_unit_tests
+      - must_pass_all_tests
+      - must_meet_coverage_threshold
+    success_criteria:
+      - test_coverage_above_80
+      - all_tests_passing
+      - no_critical_bugs
+    agents:
+      - test-engineer
+      - performance-tester
+      - e2e-test-specialist
+      - security-auditor
+
+  delivery:
+    name: "交付部署层"
+    required: false
+    max_retries: 1
+    validation_rules:
+      - must_have_deployment_config
+      - must_pass_smoke_tests
+    success_criteria:
+      - deployment_ready
+      - documentation_complete
+      - monitoring_configured
+    agents:
+      - devops-engineer
+      - deployment-manager
+      - technical-writer
+      - monitoring-specialist
+
+# 反馈循环规则
+feedback_rules:
+  # 测试失败时的反馈规则
+  test_failure:
+    description: "测试失败时的处理规则"
+    triggers:
+      - test_execution_failed
+      - test_coverage_below_threshold
+      - critical_bug_found
+    actions:
+      immediate:
+        - return_to_implementation  # 立即返回实现层
+        - use_same_agent            # 使用同一个Agent修复
+        - provide_error_context     # 提供错误上下文
+      after_retry:
+        - escalate_to_expert        # 多次失败后升级到专家
+        - add_additional_agents     # 增加更多Agent协助
+    max_retries: 3
+    retry_strategy: "exponential_backoff"
+
+  lint_failure:
+    description: "代码质量检查失败"
+    triggers:
+      - lint_errors_found
+      - code_style_violations
+      - complexity_threshold_exceeded
+    actions:
+      immediate:
+        - auto_fix_if_possible      # 尝试自动修复
+        - return_to_implementation  # 返回实现层
+      after_retry:
+        - request_code_review       # 请求代码审查
+    max_retries: 2
+    retry_strategy: "immediate"
+
+  security_failure:
+    description: "安全检查失败"
+    triggers:
+      - vulnerability_detected
+      - sensitive_data_exposed
+      - insecure_configuration
+    actions:
+      immediate:
+        - block_progression         # 立即阻止继续
+        - escalate_to_security      # 升级到安全专家
+        - notify_immediately        # 立即通知
+    max_retries: 1
+    retry_strategy: "manual_review"
+
+# Git检查点配置
+git_checkpoints:
+  after_implementation:
+    name: "实现后检查"
+    hooks:
+      - pre-commit
+    checks:
+      - code_formatting
+      - lint_check
+      - type_check
+    auto_fix: true
+    blocking: true
+    required_pass_rate: 100
+
+  after_testing:
+    name: "测试后检查"
+    hooks:
+      - pre-push
+    checks:
+      - all_tests_pass
+      - security_scan
+      - coverage_check
+    auto_fix: false
+    blocking: true
+    required_pass_rate: 100
+
+  before_deployment:
+    name: "部署前检查"
+    hooks:
+      - pre-push
+      - post-merge
+    checks:
+      - integration_tests
+      - performance_tests
+      - deployment_readiness
+    auto_fix: false
+    blocking: true
+    required_pass_rate: 100
+
+# 质量门定义
+quality_gates:
+  code_quality:
+    name: "代码质量门"
+    metrics:
+      cyclomatic_complexity:
+        max_value: 10
+        enforcement: "error"
+      code_duplication:
+        max_percentage: 5
+        enforcement: "warning"
+      maintainability_index:
+        min_value: 70
+        enforcement: "error"
+    tools:
+      - pylint
+      - mypy
+      - black
+      - ruff
+
+  test_quality:
+    name: "测试质量门"
+    metrics:
+      unit_test_coverage:
+        min_value: 80
+        enforcement: "error"
+      integration_test_coverage:
+        min_value: 70
+        enforcement: "warning"
+      test_execution_time:
+        max_seconds: 300
+        enforcement: "warning"
+    tools:
+      - pytest
+      - coverage
+      - pytest-benchmark
+
+  security_quality:
+    name: "安全质量门"
+    metrics:
+      critical_vulnerabilities:
+        max_count: 0
+        enforcement: "error"
+      high_vulnerabilities:
+        max_count: 2
+        enforcement: "warning"
+      dependency_vulnerabilities:
+        max_count: 5
+        enforcement: "warning"
+    tools:
+      - bandit
+      - safety
+      - semgrep
+
+# 重试策略定义
+retry_strategies:
+  immediate:
+    description: "立即重试"
+    initial_delay: 0
+    max_delay: 0
+    backoff_factor: 1
+
+  exponential_backoff:
+    description: "指数退避重试"
+    initial_delay: 1
+    max_delay: 60
+    backoff_factor: 2
+
+  linear_backoff:
+    description: "线性退避重试"
+    initial_delay: 5
+    max_delay: 30
+    backoff_factor: 1
+
+  manual_review:
+    description: "需要人工审核"
+    initial_delay: null
+    max_delay: null
+    backoff_factor: null
+
+# Agent升级路径
+escalation_paths:
+  python-pro:
+    escalate_to: backend-architect
+    conditions:
+      - repeated_failures
+      - architecture_issues
+
+  frontend-specialist:
+    escalate_to: fullstack-engineer
+    conditions:
+      - backend_integration_issues
+      - complex_state_management
+
+  test-engineer:
+    escalate_to: e2e-test-specialist
+    conditions:
+      - integration_test_failures
+      - complex_test_scenarios
+
+  api-designer:
+    escalate_to: backend-architect
+    conditions:
+      - performance_issues
+      - scalability_concerns
+
+# 自动修复规则
+auto_fix_rules:
+  code_formatting:
+    description: "代码格式自动修复"
+    tools:
+      python: "black --line-length 120"
+      javascript: "prettier --write"
+      go: "gofmt -w"
+      rust: "rustfmt"
+    auto_apply: true
+
+  import_sorting:
+    description: "导入排序自动修复"
+    tools:
+      python: "isort --profile black"
+      javascript: "eslint --fix"
+    auto_apply: true
+
+  simple_lint_issues:
+    description: "简单lint问题自动修复"
+    tools:
+      python: "autopep8 --in-place"
+      javascript: "eslint --fix"
+    auto_apply: true
+    review_required: false
+
+# 验证规则定义
+validation_rules:
+  must_have_requirements:
+    description: "必须有明确的需求定义"
+    check: "requirements_documented"
+    severity: "error"
+
+  must_have_api_design:
+    description: "必须有API设计文档"
+    check: "api_specification_exists"
+    severity: "error"
+
+  must_pass_syntax_check:
+    description: "代码必须通过语法检查"
+    check: "no_syntax_errors"
+    severity: "error"
+
+  must_have_unit_tests:
+    description: "必须有单元测试"
+    check: "unit_tests_exist"
+    severity: "error"
+
+  must_pass_all_tests:
+    description: "所有测试必须通过"
+    check: "all_tests_passing"
+    severity: "error"
+
+# 工作流控制配置
+workflow_control:
+  parallel_execution:
+    enabled: true
+    max_parallel_agents: 5
+    max_parallel_layers: 1  # 层之间顺序执行
+
+  timeout_settings:
+    layer_timeout_minutes:
+      analysis: 15
+      design: 20
+      implementation: 30
+      testing: 20
+      delivery: 15
+    agent_timeout_minutes: 10
+    total_workflow_timeout_minutes: 120
+
+  failure_handling:
+    stop_on_critical_failure: true
+    allow_partial_success: false
+    rollback_on_failure: true
+
+  notification_settings:
+    notify_on_start: false
+    notify_on_completion: true
+    notify_on_failure: true
+    notify_on_retry: true
+
+# 性能优化规则
+performance_rules:
+  caching:
+    enabled: true
+    cache_agent_outputs: true
+    cache_duration_minutes: 60
+    max_cache_size_mb: 500
+
+  artifact_management:
+    max_artifact_size_mb: 50
+    compress_artifacts: true
+    generate_summaries: true
+    summary_max_tokens: 2000
+
+  context_management:
+    max_context_tokens: 20000
+    warning_threshold_tokens: 15000
+    auto_summarize_at: 18000
+    preserve_critical_context: true
+
+# 监控和报告
+monitoring:
+  metrics_collection:
+    enabled: true
+    collect_execution_time: true
+    collect_retry_counts: true
+    collect_error_rates: true
+    collect_agent_performance: true
+
+  reporting:
+    generate_summary: true
+    generate_detailed_logs: true
+    include_recommendations: true
+    format: "markdown"
+
+  alerting:
+    alert_on_repeated_failures: true
+    alert_on_timeout: true
+    alert_on_security_issues: true
+    alert_threshold_failures: 3
+
+# 最佳实践建议
+best_practices:
+  task_complexity:
+    simple:
+      recommended_agents: 2-3
+      recommended_layers: 3
+      parallel_execution: true
+
+    moderate:
+      recommended_agents: 3-5
+      recommended_layers: 4
+      parallel_execution: true
+
+    complex:
+      recommended_agents: 5-8
+      recommended_layers: 5
+      parallel_execution: true
+      layered_approach: true
+
+  agent_selection:
+    prefer_specialized: true
+    avoid_redundancy: true
+    ensure_coverage: true
+    balance_workload: true

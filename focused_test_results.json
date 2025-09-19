@@ -1,0 +1,50 @@
+{
+  "timestamp": "2025-09-17 21:18:47",
+  "test_type": "Focused Functionality Test",
+  "summary": {
+    "total_tests": 7,
+    "successful_tests": 7,
+    "failed_tests": 0,
+    "error_tests": 0,
+    "success_rate": 100.0,
+    "execution_time": 0.07729887962341309
+  },
+  "detailed_results": [
+    {
+      "class_name": "TestDynamicWorkflowGeneratorCore",
+      "tests_run": 2,
+      "failures": 0,
+      "errors": 0,
+      "success_rate": 100.0,
+      "execution_time": 0.016992807388305664
+    },
+    {
+      "class_name": "TestCLIBasicFunctionality",
+      "tests_run": 2,
+      "failures": 0,
+      "errors": 0,
+      "success_rate": 100.0,
+      "execution_time": 0.05764150619506836
+    },
+    {
+      "class_name": "TestBoundaryConditionsBasic",
+      "tests_run": 3,
+      "failures": 0,
+      "errors": 0,
+      "success_rate": 100.0,
+      "execution_time": 0.0022225379943847656
+    }
+  ],
+  "core_functionality_status": {
+    "agent_selection_logic": "✅ 测试agent选择返回正确数量",
+    "workflow_generation": "✅ 测试工作流生成基本结构",
+    "cli_basic_functionality": "✅ 测试CLI模块导入和命令",
+    "boundary_conditions": "✅ 测试空输入、长输入、特殊字符处理"
+  },
+  "conclusions": {
+    "agent_selection": "基本功能可用，返回合理数量的agents",
+    "workflow_generation": "基本结构正确，能生成有效的工作流",
+    "cli_integration": "CLI模块可导入，基本命令可执行",
+    "boundary_handling": "能处理各种边界条件输入"
+  }
+}

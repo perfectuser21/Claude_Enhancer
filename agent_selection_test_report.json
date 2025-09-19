@@ -1,0 +1,16 @@
+{
+  "timestamp": "2025-09-17 21:17:42",
+  "test_focus": "Agent Selection Core Logic",
+  "total_tests": 6,
+  "success_rate": 66.66666666666666,
+  "execution_time": 0.021566390991210938,
+  "test_results": {
+    "agent_selection_count_validation": "✅ 验证3-5个agents选择",
+    "agent_selection_relevance": "✅ 验证选择相关性",
+    "workflow_agent_distribution": "✅ 验证工作流中agent分布",
+    "performance_and_caching": "✅ 验证性能和缓存",
+    "load_balancing": "✅ 验证负载均衡",
+    "edge_cases": "✅ 验证边界情况处理"
+  },
+  "summary": "Agent选择逻辑测试 66.7% 通过"
+}

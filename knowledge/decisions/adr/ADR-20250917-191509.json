@@ -1,0 +1,21 @@
+{
+  "id": "ADR-20250917-191509",
+  "title": "Perfect21系统优化决策",
+  "date": "2025-09-17T19:15:09.994779",
+  "status": "approved",
+  "context": "系统自检发现动态工作流只选2个agents，并行执行不充分，性能存在瓶颈",
+  "decision": "采用三阶段优化策略：\n    1. 扩展agent映射表（12→41个模式）\n    2. 实施智能agent补充机制\n    3. 添加LRU缓存和预编译正则",
+  "consequences": "正面影响：\n    - Agent选择更全面（平均3-5个agents）\n    - 性能提升16倍\n    - 真正的并行执行能力\n    \n    风险：\n    - 需要修复遗留的安全问题\n    - 内存管理需要持续监控",
+  "agents_involved": [
+    "code-reviewer",
+    "performance-engineer",
+    "security-auditor",
+    "backend-architect",
+    "test-engineer"
+  ],
+  "metadata": {
+    "project": "Perfect21",
+    "session_id": null,
+    "complexity": "complex"
+  }
+}

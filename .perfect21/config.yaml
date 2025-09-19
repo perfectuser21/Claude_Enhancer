@@ -1,0 +1,19 @@
+# Perfect21 Hook配置
+version: "1.0"
+
+enforcement:
+  enabled: true
+  strict_mode: true  # 严格模式：必须满足所有规则
+  min_agents: 3      # 最少Agent数量
+  parallel_required: true  # 必须并行执行
+
+monitoring:
+  enabled: true
+  log_violations: true
+  alert_threshold: 80  # 合规率低于此值时告警
+
+rules:
+  check_agent_count: true
+  check_parallel: true
+  check_git_hooks: true
+  check_testing: true

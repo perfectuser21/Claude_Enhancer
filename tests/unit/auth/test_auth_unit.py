@@ -34,12 +34,13 @@ class TestPasswordEncryption:
         password = "TestPassword123!"
 
         # 测试密码哈希
-        hashed = user_service._hash_password(password)
+        hashed, salt = user_service._hash_password(password)
 
         # 验证哈希结果
         assert hashed != password
         assert len(hashed) > 0
         assert hashed.startswith('$2b$')  # bcrypt格式
+        assert len(salt) > 0
 
     def test_password_verification(self, user_service):
         """测试密码验证功能"""

@@ -606,6 +606,180 @@ def handle_parallel_status(args):
     except Exception as e:
         print(f"❌ 获取并行执行状态失败: {e}")
 
+def handle_perfect21_parallel(p21, args):
+    """
+    处理Perfect21真实并行执行
+    """
+    print("🚀 Perfect21 真实并行执行引擎")
+    print("=" * 60)
+
+    if hasattr(args, 'description') and args.description:
+        # 直接使用Perfect21的核心并行执行功能
+        agents_list = getattr(args, 'agents', ['backend-architect', 'frontend-specialist', 'test-engineer'])
+
+        # 如果是字符串，转换为列表
+        if isinstance(agents_list, str):
+            agents_list = [agent.strip() for agent in agents_list.split(',')]
+
+        print(f"📋 任务描述: {args.description}")
+        print(f"🤖 选中Agents ({len(agents_list)}个): {', '.join(agents_list)}")
+        print("-" * 50)
+
+        try:
+            # 调用Perfect21的核心并行执行功能
+            result = p21.execute_parallel_workflow(
+                agents=agents_list,
+                base_prompt=args.description,
+                task_description=args.description
+            )
+
+            if result['success']:
+                print(f"✅ 并行工作流执行成功")
+                print(f"🆔 工作流ID: {result['workflow_id']}")
+                print(f"⏱️ 执行时间: {result['execution_time']:.2f}秒")
+                print(f"✅ 成功: {result['success_count']}/{result['agents_count']}")
+                print(f"❌ 失败: {result['failure_count']}")
+
+                if result.get('batch_instruction'):
+                    print("\n" + "="*80)
+                    print("🎯 Claude Code 执行指令已生成")
+                    print("="*80)
+                    print("📋 请复制以下内容到Claude Code中执行:")
+                    print("="*80)
+                    print(result['batch_instruction'])
+                    print("="*80)
+                    print(f"✅ 所有 {result['agents_count']} 个Agents将在Claude Code中并行执行")
+                else:
+                    print("⚠️ 未生成批量执行指令")
+
+            else:
+                print(f"❌ 并行工作流执行失败: {result.get('message')}")
+                if result.get('error'):
+                    print(f"错误详情: {result['error']}")
+
+        except Exception as e:
+            print(f"❌ Perfect21并行执行异常: {e}")
+            import traceback
+            if getattr(args, 'verbose', False):
+                traceback.print_exc()
+    else:
+        print("❌ 请提供任务描述")
+        print("用法: python3 main/cli.py perfect21 parallel '任务描述' --agents 'agent1,agent2,agent3'")
+
+def handle_perfect21_instant(p21, args):
+    """
+    处理Perfect21即时执行指令生成
+    """
+    print("⚡ Perfect21 即时并行指令生成")
+    print("=" * 60)
+
+    if hasattr(args, 'description') and args.description:
+        agents_list = getattr(args, 'agents', ['backend-architect', 'frontend-specialist', 'test-engineer'])
+
+        if isinstance(agents_list, str):
+            agents_list = [agent.strip() for agent in agents_list.split(',')]
+
+        print(f"📋 任务描述: {args.description}")
+        print(f"🤖 选中Agents ({len(agents_list)}个): {', '.join(agents_list)}")
+        print("-" * 50)
+
+        try:
+            # 调用Perfect21的即时指令生成功能
+            result = p21.create_instant_parallel_instruction(
+                agents=agents_list,
+                prompt=args.description
+            )
+
+            if result['success']:
+                print(f"✅ 即时并行指令生成成功")
+                print(f"🤖 Agents数量: {result['agents_count']}")
+
+                print("\n" + "="*80)
+                print("⚡ 即时执行 - 无需等待")
+                print("="*80)
+                print("📋 请复制以下内容到Claude Code中立即执行:")
+                print("="*80)
+                print(result['instruction'])
+                print("="*80)
+                print(f"✅ {result['agents_count']}个Agents将立即并行执行")
+
+            else:
+                print(f"❌ 即时指令生成失败: {result.get('message')}")
+                if result.get('error'):
+                    print(f"错误详情: {result['error']}")
+
+        except Exception as e:
+            print(f"❌ Perfect21即时指令生成异常: {e}")
+            import traceback
+            if getattr(args, 'verbose', False):
+                traceback.print_exc()
+    else:
+        print("❌ 请提供任务描述")
+        print("用法: python3 main/cli.py perfect21 instant '任务描述' --agents 'agent1,agent2,agent3'")
+
+def handle_perfect21_status(p21, args):
+    """
+    处理Perfect21工作流状态查询
+    """
+    print("📈 Perfect21 工作流状态")
+    print("=" * 50)
+
+    try:
+        workflow_id = getattr(args, 'workflow_id', None)
+        result = p21.get_workflow_status(workflow_id)
+
+        if result['success']:
+            if workflow_id:
+                # 特定工作流状态
+                status = result['workflow_status']
+                print(f"🆔 工作流ID: {status['workflow_id']}")
+                print(f"🟢 状态: {status['status']}")
+                print(f"📋 进度: {status['progress']['completed']}/{status['progress']['total']}")
+                print(f"❌ 失败: {status['progress']['failed']}")
+                print(f"✅ 执行就绪: {'YES' if status['execution_ready'] else 'NO'}")
+
+                if status['tasks']:
+                    print("\n📋 任务详情:")
+                    for task in status['tasks']:
+                        status_icon = {"completed": "✅", "failed": "❌", "running": "⏳", "pending": "⏸️"}.get(task['status'], "❓")
+                        print(f"  {status_icon} {task['agent']} - {task['description']} ({task['status']})")
+            else:
+                # 所有工作流概览
+                print(f"🟢 活跃工作流: {len(result['active_workflows'])}")
+                for wid in result['active_workflows']:
+                    print(f"  - {wid}")
+
+                print(f"\n📈 最近历史 ({len(result['recent_history'])}条):")
+                for hist in result['recent_history']:
+                    status_icon = {"completed": "✅", "failed": "❌"}.get(hist['status'], "❓")
+                    print(f"  {status_icon} {hist['workflow_id']} - 成功:{hist['success_count']}/{hist['agents_count']} 时间:{hist['execution_time']:.1f}s")
+
+        else:
+            print(f"❌ 获取状态失败: {result.get('message')}")
+
+    except Exception as e:
+        print(f"❌ Perfect21状态查询异常: {e}")
+        import traceback
+        if getattr(args, 'verbose', False):
+            traceback.print_exc()
+
+def handle_perfect21_command(p21, args):
+    """
+    处理Perfect21核心命令
+    """
+    if hasattr(args, 'perfect21_action'):
+        if args.perfect21_action == 'parallel':
+            handle_perfect21_parallel(p21, args)
+        elif args.perfect21_action == 'instant':
+            handle_perfect21_instant(p21, args)
+        elif args.perfect21_action == 'status':
+            handle_perfect21_status(p21, args)
+        else:
+            print(f"❌ 未知Perfect21操作: {args.perfect21_action}")
+    else:
+        print("❌ 请指定Perfect21操作")
+        print("可用操作: parallel, instant, status")
+
 def handle_parallel_command(args):
     """处理并行命令的分发"""
     if getattr(args, 'status', False):
@@ -1471,6 +1645,25 @@ def main():
     develop_parser.add_argument('--parallel', action='store_true', help='强制并行执行')
     develop_parser.add_argument('--no-parallel', action='store_true', help='禁用并行执行')
 
+    # perfect21命令 - Perfect21核心功能
+    perfect21_parser = subparsers.add_parser('perfect21', help='Perfect21 核心工作流引擎')
+    perfect21_subparsers = perfect21_parser.add_subparsers(dest='perfect21_action', help='Perfect21操作')
+
+    # perfect21 parallel - 真实并行执行
+    parallel_p21_parser = perfect21_subparsers.add_parser('parallel', help='真实并行执行')
+    parallel_p21_parser.add_argument('description', help='任务描述')
+    parallel_p21_parser.add_argument('--agents', help='Agent列表（逗号分隔）', default='backend-architect,frontend-specialist,test-engineer')
+    parallel_p21_parser.add_argument('--timeout', type=int, default=300, help='超时时间（秒）')
+
+    # perfect21 instant - 即时执行指令生成
+    instant_p21_parser = perfect21_subparsers.add_parser('instant', help='即时并行指令生成')
+    instant_p21_parser.add_argument('description', help='任务描述')
+    instant_p21_parser.add_argument('--agents', help='Agent列表（逗号分隔）', default='backend-architect,frontend-specialist,test-engineer')
+
+    # perfect21 status - 工作流状态
+    status_p21_parser = perfect21_subparsers.add_parser('status', help='查看工作流状态')
+    status_p21_parser.add_argument('--workflow-id', help='特定工作流ID')
+
     # parallel命令 - 并行执行核心功能
     parallel_parser = subparsers.add_parser('parallel', help='Perfect21 智能并行执行器')
 
@@ -1709,6 +1902,9 @@ def main():
             # 执行命令
             if args.command == 'status':
                 print_status(p21)
+            elif args.command == 'perfect21':
+                # Perfect21核心功能
+                handle_perfect21_command(p21, args)
             elif args.command == 'monitor':
                 handle_monitor(args)
             elif args.command == 'develop':

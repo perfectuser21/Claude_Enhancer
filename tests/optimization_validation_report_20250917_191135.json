@@ -1,0 +1,38 @@
+{
+  "test_run_info": {
+    "timestamp": "2025-09-17T19:11:35.325214",
+    "duration": 2.424678087234497,
+    "python_version": "3.10.12 (main, Aug 15 2025, 14:32:43) [GCC 11.4.0]",
+    "config_file": "tests/performance_benchmark_config.yaml"
+  },
+  "summary": {
+    "total_test_suites": 1,
+    "total_tests": 2,
+    "total_passed": 2,
+    "total_failed": 0,
+    "total_skipped": 0,
+    "success_rate": 100.0,
+    "total_duration": 1.16,
+    "overall_status": "PASSED"
+  },
+  "detailed_results": {
+    "parallel_execution": {
+      "status": "passed",
+      "tests_run": 2,
+      "tests_passed": 2,
+      "tests_failed": 0,
+      "duration": 1.16,
+      "stdout": "============================= test session starts ==============================\nplatform linux -- Python 3.10.12, pytest-8.4.1, pluggy-1.6.0 -- /usr/bin/python3\ncachedir: .pytest_cache\nrootdir: /home/xx/dev/Perfect21\nconfigfile: pytest.ini\nplugins: asyncio-1.2.0, anyio-4.10.0, langsmith-0.4.26, cov-6.2.1\nasyncio: mode=strict, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollecting ... collected 2 items\n\ntests/test_perfect21_optimization_validation.py::TestParallelExecution::test_parallel_agent_execution PASSED [ 50%]\ntests/test_perfect21_optimization_validation.py::TestParallelExecution::test_parallel_execution_scaling PASSED [100%]\n\n=============================== warnings summary ===============================\nshared/types.py:297\n  /home/xx/dev/Perfect21/shared/types.py:297: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/\n    @validator('task_id')\n\nshared/types.py:303\n  /home/xx/dev/Perfect21/shared/types.py:303: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/\n    @validator('agent')\n\n../../../../usr/local/lib/python3.10/dist-packages/pydantic/_internal/_config.py:323\n../../../../usr/local/lib/python3.10/dist-packages/pydantic/_internal/_config.py:323\n../../../../usr/local/lib/python3.10/dist-packages/pydantic/_internal/_config.py:323\n../../../../usr/local/lib/python3.10/dist-packages/pydantic/_internal/_config.py:323\n../../../../usr/local/lib/python3.10/dist-packages/pydantic/_internal/_config.py:323\n  /usr/local/lib/python3.10/dist-packages/pydantic/_internal/_config.py:323: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/\n    warnings.warn(DEPRECATION_MESSAGE, DeprecationWarning)\n\nshared/types.py:330\n  /home/xx/dev/Perfect21/shared/types.py:330: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/\n    @validator('name')\n\nshared/types.py:356\n  /home/xx/dev/Perfect21/shared/types.py:356: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/\n    @validator('workflow_id')\n\nshared/types.py:378\n  /home/xx/dev/Perfect21/shared/types.py:378: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/\n    @validator('username')\n\nshared/types.py:402\n  /home/xx/dev/Perfect21/shared/types.py:402: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.11/migration/\n    @validator('secret_key')\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n======================== 2 passed, 11 warnings in 1.16s ========================\n",
+      "stderr": ""
+    }
+  },
+  "performance_analysis": {
+    "parallel_execution": "PASSED - Parallel execution capabilities verified",
+    "performance_benchmarks": "Not tested",
+    "resource_efficiency": "Not tested",
+    "agent_selection_accuracy": "Not tested"
+  },
+  "recommendations": [
+    "\u6240\u6709\u6d4b\u8bd5\u901a\u8fc7\uff0c\u7cfb\u7edf\u6027\u80fd\u8868\u73b0\u826f\u597d"
+  ]
+}

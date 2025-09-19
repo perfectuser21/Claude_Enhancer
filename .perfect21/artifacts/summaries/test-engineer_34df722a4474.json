@@ -1,0 +1,10 @@
+{
+  "artifact_id": "test-engineer_34df722a4474",
+  "agent_name": "test-engineer",
+  "summary_text": "测试结果: 0/0 通过",
+  "key_points": [],
+  "metadata": {
+    "type": "test_result"
+  },
+  "created_at": "2025-09-18T23:20:01.123891"
+}

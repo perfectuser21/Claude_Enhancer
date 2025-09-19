@@ -1,0 +1,69 @@
+{
+  "timestamp": "2025-09-18T17:32:57.634926",
+  "summary": {
+    "total": 6,
+    "passed": 6,
+    "failed": 0,
+    "success_rate": 100.0
+  },
+  "detailed_results": [
+    {
+      "test": "Git Hooks管理器测试",
+      "success": true,
+      "details": {
+        "success": true,
+        "hook_status": true,
+        "config_loaded": true,
+        "test_execution": false
+      }
+    },
+    {
+      "test": "Git工作流管理器测试",
+      "success": true,
+      "details": {
+        "success": true,
+        "git_status": true,
+        "current_branch": true,
+        "smart_message": true,
+        "health_check": true
+      }
+    },
+    {
+      "test": "高级工作流管理器测试",
+      "success": true,
+      "details": {
+        "success": true,
+        "task_creation": true,
+        "task_update": true,
+        "dashboard_available": true,
+        "task_id": "task_20250918_173257"
+      }
+    },
+    {
+      "test": "CLI接口测试",
+      "success": true,
+      "details": {
+        "success": true,
+        "parser_created": true,
+        "dashboard_command": false
+      }
+    },
+    {
+      "test": "生产力分析器测试",
+      "success": true,
+      "details": {
+        "success": true,
+        "session_tracking": true,
+        "insights_generated": false
+      }
+    },
+    {
+      "test": "智能分支管理测试",
+      "success": true,
+      "details": {
+        "success": true,
+        "cleanup_suggestions_available": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "id": "ADR-20250917-183402",
+  "title": "用户登录系统技术架构决策",
+  "date": "2025-09-17T18:34:02.286569",
+  "status": "approved",
+  "context": "需要实现安全、高性能的用户认证系统",
+  "decision": "采用JWT RS256 + bcrypt + Redis方案",
+  "consequences": "\n    正面影响：\n    - 高安全性：RS256非对称加密，bcrypt防暴力破解\n    - 高性能：Redis会话缓存，并发支持1000+\n    - 可扩展：微服务友好，无状态设计\n    \n    负面影响：\n    - 复杂度增加：需要管理密钥对\n    - 资源消耗：Redis需要额外内存\n    ",
+  "agents_involved": [
+    "business-analyst",
+    "security-auditor",
+    "api-designer",
+    "backend-architect",
+    "database-specialist",
+    "fullstack-engineer",
+    "test-engineer"
+  ],
+  "metadata": {
+    "project": "Perfect21",
+    "session_id": null,
+    "complexity": "medium"
+  }
+}

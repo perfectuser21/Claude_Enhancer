@@ -185,6 +185,14 @@ async def execute_task(request: TaskRequest, http_request: Request):
         if not current_user:
             raise HTTPException(status_code=401, detail="需要认证")
 
+        # 加强认证验证：确保用户会话有效
+        if not hasattr(current_user, 'id') or not current_user.id:
+            raise HTTPException(status_code=401, detail="无效的用户认证")
+
+        # 可选：验证用户权限
+        # if not auth_manager.has_permission(current_user, 'execute_task'):
+        #     raise HTTPException(status_code=403, detail="权限不足")
+
         sdk = await get_sdk()
         # 在executor中运行同步任务
         loop = asyncio.get_event_loop()
