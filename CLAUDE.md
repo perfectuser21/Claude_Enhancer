@@ -9,6 +9,30 @@
 - https://github.com/stretchcloud/claude-code-unified-agents 这个是claude-code-unified-agents项目的官方地址
 - 你要记住就是 claude code 不能用 subagent 调用 subagent 只能 claude code 调用
 
+## 🔔 自动监督机制 【Hook会强制执行！】
+
+**Perfect21通过3层监督确保Claude Code遵守规则：**
+
+### 1️⃣ **Claude Code Hooks** - 工具执行前后自动检查
+   📍 位置：`.claude/hooks/`
+   - `pre-edit.sh` - 编辑前验证Agent选择（阻止少于3个Agent）
+   - `post-task.sh` - 任务后检查健康分数（低于80分警告）
+   - `on-error.sh` - 错误时提供修复建议（分析错误类型）
+
+### 2️⃣ **Git Hooks** - Git操作时强制验证
+   📍 位置：`hooks/`
+   - `pre-commit` - 代码质量检查（运行所有测试）
+   - `pre-push` - 测试和安全扫描（验证通过才能推送）
+   - `commit-msg` - 提交消息格式（必须符合规范）
+
+### 3️⃣ **Rule Guardian** - 实时监督和指导
+   📍 位置：`features/guardian/rule_guardian.py`
+   - 在5个关键检查点主动验证
+   - 违规立即警告并阻止继续
+   - 提供自动修复建议
+
+⚠️ **重要**：Hooks会阻止违规操作！必须满足要求才能继续。
+
 ## 🎯 Perfect21定位声明
 **Perfect21 = 个人编程助理**
 
@@ -39,6 +63,25 @@
 
 ## ⚡ 执行规则
 
+### 🔔 自动检查点 【必须通过所有检查！】
+**Claude Code在以下时刻必须检查规则：**
+
+| 检查点 | 触发时机 | 检查内容 | 失败后果 |
+|--------|---------|----------|----------|
+| 📥 **任务分析** | 接到任务时 | 识别任务类型，确定Agent需求 | 选择错误Agent组合 |
+| 👥 **Agent选择** | 选择Agent时 | 验证≥3个并行执行 | Hook阻止执行 |
+| ⚡ **执行前** | 开始执行前 | 确认质量要求和反馈机制 | 缺少质量保障 |
+| 🧪 **测试后** | 测试完成后 | 失败必须触发反馈循环 | 直接提交错误代码 |
+| 📦 **提交前** | Git提交前 | 检查格式、测试、质量门 | Git Hook阻止提交 |
+
+### 📋 执行前自检清单
+在执行任何编程任务前，Claude Code必须确认：
+- [ ] 识别了任务类型？（认证/API/数据库等）
+- [ ] 选择了≥3个Agent？（Hook会检查）
+- [ ] 使用并行执行模式？（单个function_calls）
+- [ ] 配置了反馈循环？（测试失败自动修复）
+- [ ] 设置了质量门？（覆盖率>80%）
+
 ### 规则1：批量并行执行【最重要！】
 **记住：批量调用 = 真正的并行执行**
 
@@ -60,18 +103,30 @@
 </function_calls>
 ```
 
-### 规则2：智能Agent选择
-- **永远不要只用1-2个agents，至少选择3-5个！**
-- 优先使用成功模式组合
-- 相关agents必须一起调用
+### 规则2：智能Agent选择 【Hook强制执行】
+- **🔴 永远不要只用1-2个agents，至少选择3-5个！**
+- **🟡 优先使用成功模式组合**
+- **🟢 相关agents必须一起调用**
 
-### 规则3：任务识别与Agent选择
+⚠️ **Hook执行流程**：
+```
+你选择Agent → pre-edit.sh检查 →
+  ├─ ✅ ≥3个Agent → 继续执行
+  └─ ❌ <3个Agent → 阻止并要求修正
+```
+
+### 规则3：任务识别与Agent选择 【强制组合】
 **Perfect21会根据任务类型自动匹配最佳Agent组合**
 
-示例规则（完整定义见rules/perfect21_rules.yaml）：
-- 认证系统 → [backend-architect, security-auditor, test-engineer, api-designer]
-- API开发 → [api-designer, backend-architect, test-engineer, technical-writer]
-- 数据库设计 → [database-specialist, backend-architect, performance-engineer]
+| 任务类型 | 必须Agent组合 | 最少数量 |
+|----------|--------------|----------|
+| 🔐 认证系统 | backend-architect, security-auditor, test-engineer, api-designer, database-specialist | 5个 |
+| 🌐 API开发 | api-designer, backend-architect, test-engineer, technical-writer | 4个 |
+| 💾 数据库 | database-specialist, backend-architect, performance-engineer | 3个 |
+| 🎨 前端开发 | frontend-specialist, ux-designer, test-engineer | 3个 |
+| ⚡ 性能优化 | performance-engineer, backend-architect, database-specialist | 3个 |
+
+📌 **完整定义**：`rules/perfect21_rules.yaml`
 
 ### 规则4：Git Hook自动触发
 **在特定时机自动执行检查**
@@ -181,6 +236,6 @@ python3 main/cli.py status
 > - Feature专项指导见 **FEATURE_GUIDES.md**
 > - 本文件是核心定义，应保持稳定，避免频繁修改
 >
-> **版本**: v5.0 | **最后更新**: 2025-09-18
+> **版本**: v5.1 | **最后更新**: 2025-09-19
 > **核心理念**: Perfect21是行为规范框架，不是执行系统
 > **原则**: 规则清晰、指导明确、专注规范

@@ -2,6 +2,8 @@
 """
 Perfect21 Hook执行器 - 强制Claude Code遵守规则
 这个Hook会验证Claude Code的行为并阻止违规操作
+
+集成Rule Guardian实现实时监督
 """
 
 import json
@@ -10,6 +12,16 @@ import sys
 from typing import Dict, List, Tuple, Optional
 from datetime import datetime
 from pathlib import Path
+import os
+
+# 添加项目根目录到路径
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+try:
+    from features.guardian.rule_guardian import get_rule_guardian
+    GUARDIAN_AVAILABLE = True
+except ImportError:
+    GUARDIAN_AVAILABLE = False
 
 class Perfect21Enforcer:
     """Perfect21规则执行器"""
@@ -17,6 +29,9 @@ class Perfect21Enforcer:
     def __init__(self):
         self.violations_log = Path("/home/xx/dev/Perfect21/.perfect21/violations.log")
         self.violations_log.parent.mkdir(exist_ok=True)
+
+        # 集成Rule Guardian
+        self.guardian = get_rule_guardian() if GUARDIAN_AVAILABLE else None
 
         # 任务类型到Agent组合的映射
         self.task_patterns = {
@@ -47,6 +62,21 @@ class Perfect21Enforcer:
                 "keywords": ["性能", "优化", "performance", "速度", "缓存"],
                 "required_agents": ["performance-engineer", "backend-architect",
                                    "database-specialist"],
+                "min_agents": 3
+            },
+            "testing": {
+                "keywords": ["测试", "test", "TDD", "单元测试", "e2e"],
+                "required_agents": ["test-engineer", "e2e-test-specialist", "performance-tester"],
+                "min_agents": 3
+            },
+            "security": {
+                "keywords": ["安全", "security", "加密", "漏洞", "OWASP"],
+                "required_agents": ["security-auditor", "backend-architect", "devops-engineer"],
+                "min_agents": 3
+            },
+            "deployment": {
+                "keywords": ["部署", "deploy", "CI/CD", "Docker", "Kubernetes"],
+                "required_agents": ["devops-engineer", "deployment-manager", "monitoring-specialist"],
                 "min_agents": 3
             }
         }
