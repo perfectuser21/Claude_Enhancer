@@ -1,0 +1,174 @@
+{
+  "version": "1.0.0",
+  "project": "Perfect21",
+  "description": "AI-Driven Development Framework with Smart Hooks",
+
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "type": "command",
+        "command": "python3 /home/xx/dev/Perfect21/.claude/hooks/perfect21_core.py analyze-task",
+        "description": "Analyze task type and suggest agents"
+      }
+    ],
+
+    "PreToolUse": [
+      {
+        "matcher": "Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 /home/xx/dev/Perfect21/.claude/hooks/perfect21_core.py validate-agents",
+            "blocking": true,
+            "description": "Validate agent selection (min 3 agents)"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 /home/xx/dev/Perfect21/.claude/hooks/security_validator.py",
+            "blocking": true,
+            "description": "Security validation for dangerous commands"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 /home/xx/dev/Perfect21/.claude/hooks/perfect21_core.py pre-edit",
+            "description": "Pre-edit quality checks"
+          }
+        ]
+      }
+    ],
+
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 /home/xx/dev/Perfect21/.claude/hooks/perfect21_core.py format-code",
+            "environment": {
+              "use_file_paths": true
+            },
+            "description": "Auto-format code after edits"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "condition": "contains:test|pytest|jest",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 /home/xx/dev/Perfect21/.claude/hooks/perfect21_core.py analyze-test-results",
+            "description": "Analyze test execution results"
+          }
+        ]
+      }
+    ],
+
+    "Stop": [
+      {
+        "type": "command",
+        "command": "python3 /home/xx/dev/Perfect21/.claude/hooks/perfect21_core.py check-completion",
+        "output_format": "json",
+        "description": "Check if tasks are complete before stopping"
+      }
+    ],
+
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "python3 /home/xx/dev/Perfect21/.claude/hooks/perfect21_core.py load-context",
+        "description": "Load project context and Perfect21 rules"
+      }
+    ],
+
+    "SessionEnd": [
+      {
+        "type": "command",
+        "command": "python3 /home/xx/dev/Perfect21/.claude/hooks/perfect21_core.py generate-report",
+        "description": "Generate workflow summary report"
+      }
+    ],
+
+    "Notification": [
+      {
+        "type": "command",
+        "command": "python3 /home/xx/dev/Perfect21/.claude/hooks/perfect21_core.py log-notification",
+        "description": "Log notifications for audit"
+      }
+    ]
+  },
+
+  "environment": {
+    "PERFECT21_HOME": "/home/xx/dev/Perfect21",
+    "PERFECT21_RULES": "/home/xx/dev/Perfect21/rules/perfect21_rules.yaml",
+    "PERFECT21_LOG_LEVEL": "INFO",
+    "PERFECT21_STRICT_MODE": "true"
+  },
+
+  "security": {
+    "blocked_commands": [
+      "rm -rf /",
+      "sudo rm -rf",
+      "chmod 777",
+      "curl | sh",
+      "wget | bash"
+    ],
+    "protected_paths": [
+      "/etc",
+      "/usr",
+      "/boot",
+      "~/.ssh",
+      "~/.aws"
+    ],
+    "allowed_sudo_commands": []
+  },
+
+  "quality": {
+    "auto_format": true,
+    "run_tests_before_commit": true,
+    "min_test_coverage": 80,
+    "max_complexity": 10,
+    "enforce_type_hints": true
+  },
+
+  "logging": {
+    "enabled": true,
+    "path": "/tmp/perfect21_hooks.log",
+    "format": "json",
+    "level": "INFO",
+    "rotate": true,
+    "max_size_mb": 10
+  },
+
+  "performance": {
+    "cache_enabled": true,
+    "cache_ttl": 300,
+    "parallel_hooks": false,
+    "timeout_seconds": 30
+  },
+
+  "integrations": {
+    "pre_commit": {
+      "enabled": true,
+      "config_file": ".pre-commit-config.yaml"
+    },
+    "ruff": {
+      "enabled": true,
+      "auto_fix": true
+    },
+    "gitleaks": {
+      "enabled": true,
+      "config_file": ".gitleaks.toml"
+    }
+  }
+}

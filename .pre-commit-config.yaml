@@ -1,114 +1,160 @@
 # Perfect21 Pre-commit Configuration
-# 代码质量检查和自动格式化
+# Modern tools integration for code quality
 
 repos:
-  # Python 代码格式化
+  # Python formatting and linting with Ruff (fast!)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.0
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  # Traditional Python tools (optional, Ruff covers most)
   - repo: https://github.com/psf/black
-    rev: 23.11.0
+    rev: 23.9.1
     hooks:
       - id: black
         language_version: python3
-        args: [--line-length=88]
-        exclude: ^(venv/|core/claude-code-unified-agents/)
 
-  # 导入排序
-  - repo: https://github.com/pycqa/isort
+  - repo: https://github.com/PyCQA/isort
     rev: 5.12.0
     hooks:
       - id: isort
-        args: [--profile=black, --line-length=88]
-        exclude: ^(venv/|core/claude-code-unified-agents/)
+        args: ["--profile", "black"]
 
-  # Python 语法检查
-  - repo: https://github.com/pycqa/flake8
-    rev: 6.1.0
+  # Security scanning
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
     hooks:
-      - id: flake8
-        args: [--max-line-length=88, --extend-ignore=E203,E501,W503]
-        exclude: ^(venv/|core/claude-code-unified-agents/)
+      - id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']
 
-  # 安全检查
   - repo: https://github.com/PyCQA/bandit
     rev: 1.7.5
     hooks:
       - id: bandit
-        args: [-r, -f, json, -o, bandit-report.json]
-        exclude: ^(tests/|venv/|core/claude-code-unified-agents/)
+        args: ['-ll', '-i', '-x', 'tests/']
 
-  # YAML 格式检查
-  - repo: https://github.com/adrienverge/yamllint
-    rev: v1.33.0
+  # Git leaks detection
+  - repo: https://github.com/zricethezav/gitleaks
+    rev: v8.18.0
     hooks:
-      - id: yamllint
-        args: [-d, relaxed]
-        exclude: ^(venv/|core/claude-code-unified-agents/)
+      - id: gitleaks
 
-  # 文件结尾换行检查
+  # General file checks
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:
-      - id: end-of-file-fixer
-        exclude: ^(venv/|core/claude-code-unified-agents/|\.git/)
       - id: trailing-whitespace
-        exclude: ^(venv/|core/claude-code-unified-agents/|\.git/)
+      - id: end-of-file-fixer
       - id: check-yaml
-        exclude: ^(venv/|core/claude-code-unified-agents/)
+        args: [--allow-multiple-documents]
       - id: check-json
-        exclude: ^(venv/|core/claude-code-unified-agents/)
       - id: check-toml
-        exclude: ^(venv/|core/claude-code-unified-agents/)
-      - id: check-merge-conflict
+      - id: check-xml
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
       - id: check-case-conflict
-      - id: check-docstring-first
-        exclude: ^(venv/|core/claude-code-unified-agents/)
+      - id: check-merge-conflict
+      - id: check-symlinks
+      - id: check-vcs-permalinks
+      - id: destroyed-symlinks
+      - id: detect-private-key
+      - id: mixed-line-ending
+        args: ['--fix=lf']
+      - id: no-commit-to-branch
+        args: ['--branch', 'main', '--branch', 'master']
+
+  # JavaScript/TypeScript/JSON formatting
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.0.3
+    hooks:
+      - id: prettier
+        types_or: [javascript, jsx, ts, tsx, json, markdown, yaml]
+
+  # Shell script checks
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.9.0.6
+    hooks:
+      - id: shellcheck
 
   # Dockerfile linting
   - repo: https://github.com/hadolint/hadolint
     rev: v2.12.0
     hooks:
       - id: hadolint-docker
-        args: [--ignore, DL3008, --ignore, DL3009]
 
-  # Perfect21 自定义钩子
+  # Markdown linting
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.37.0
+    hooks:
+      - id: markdownlint
+        args: ['--fix']
+
+  # Type checking for Python (simplified)
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.5.1
+    hooks:
+      - id: mypy
+        args: [--ignore-missing-imports, --no-strict-optional]
+
+  # Perfect21 custom hooks
   - repo: local
     hooks:
+      - id: perfect21-validation
+        name: Perfect21 Validation
+        entry: python3 /home/xx/dev/Perfect21/.claude/hooks/perfect21_core.py validate-pre-commit
+        language: system
+        always_run: true
+        pass_filenames: false
+
+      - id: perfect21-security
+        name: Perfect21 Security Check
+        entry: python3 /home/xx/dev/Perfect21/.claude/hooks/security_validator.py
+        language: system
+        files: \.(py|js|ts|sh)$
+
       - id: perfect21-test-check
-        name: Perfect21 基础测试
-        entry: python -m pytest tests/test_*.py -v --tb=short
+        name: Perfect21 Test Verification
+        entry: bash -c 'if [ -n "$(git diff --cached --name-only | grep -E "\.(py|js|ts)$")" ]; then echo "⚠️ Remember to run tests before committing!"; fi'
         language: system
+        always_run: true
         pass_filenames: false
-        always_run: false
-        files: \.py$
-        exclude: ^(venv/|core/claude-code-unified-agents/)
 
-      - id: perfect21-api-check
-        name: Perfect21 API 检查
-        entry: python -c "import sys; sys.path.append('.'); from api.rest_server import app; print('API structure OK')"
-        language: system
-        pass_filenames: false
-        files: ^api/.*\.py$
+# Configuration
+default_language_version:
+  python: python3
 
-      - id: perfect21-config-validation
-        name: Perfect21 配置验证
-        entry: python -c "import yaml; import json; import os; [yaml.safe_load(open(f)) for f in ['config/development.yaml', 'config/production.yaml'] if os.path.exists(f)]"
-        language: system
-        pass_filenames: false
-        files: ^config/.*\.(yaml|yml|json)$
+default_stages: [pre-commit, pre-push]
 
-# 全局配置
-default_stages: [commit, push]
 fail_fast: false
-minimum_pre_commit_version: 3.0.0
 
-# CI 配置
+# Exclude patterns
+exclude: |
+  (?x)^(
+    .*\.min\.js|
+    .*\.min\.css|
+    node_modules/|
+    venv/|
+    \.git/|
+    \.tox/|
+    dist/|
+    build/|
+    .*\.egg-info/|
+    __pycache__/|
+    \.pytest_cache/|
+    \.mypy_cache/
+  )
+
+# CI configuration
 ci:
+  autofix_prs: true
   autofix_commit_msg: |
     [pre-commit.ci] auto fixes from pre-commit hooks
 
-    🤖 Generated with Claude Code
-  autofix_prs: true
-  autoupdate_branch: ''
-  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+    for more information, see https://pre-commit.ci
   autoupdate_schedule: weekly
+  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
   skip: []
   submodules: false

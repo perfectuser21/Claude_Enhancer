@@ -1,0 +1,148 @@
+# Perfect21 Hooks Configuration
+# 配置所有Perfect21 hooks的行为
+
+version: "2.0"
+description: "Perfect21 Claude Hooks配置 - 自动执行所有规则"
+
+# Hook执行配置
+hooks:
+  # Agent验证器
+  agent_validator:
+    enabled: true
+    strict: true  # 严格模式：不满足就阻止
+    min_agents: 3
+    max_agents: 10
+    block_on_violation: true
+
+  # 并行检查器
+  parallel_checker:
+    enabled: true
+    strict: false  # 警告模式：提醒但不阻止
+    warn_sequential: true
+    block_on_violation: false
+
+  # 任务分析器
+  task_analyzer:
+    enabled: true
+    auto_suggest: true
+    show_best_practices: true
+
+  # 质量门
+  quality_gates:
+    enabled: true
+    checks:
+      - test_before_commit
+      - lint_check
+      - security_scan
+      - type_check
+
+# 任务类型定义（简化版）
+task_types:
+  authentication:
+    keywords: ["登录", "认证", "auth", "jwt", "oauth"]
+    required: ["backend-architect", "security-auditor", "test-engineer"]
+    recommended: ["api-designer", "database-specialist"]
+
+  api_development:
+    keywords: ["api", "接口", "rest", "graphql", "endpoint"]
+    required: ["api-designer", "backend-architect", "test-engineer"]
+    recommended: ["technical-writer"]
+
+  database_design:
+    keywords: ["数据库", "database", "schema", "sql", "mongodb"]
+    required: ["database-specialist", "backend-architect"]
+    recommended: ["performance-engineer"]
+
+  frontend_development:
+    keywords: ["前端", "frontend", "react", "vue", "ui"]
+    required: ["frontend-specialist", "ux-designer"]
+    recommended: ["test-engineer", "accessibility-auditor"]
+
+  testing:
+    keywords: ["测试", "test", "jest", "pytest", "e2e"]
+    required: ["test-engineer"]
+    recommended: ["e2e-test-specialist", "performance-tester"]
+
+# 执行模式
+execution_modes:
+  parallel:
+    description: "并行执行多个Agent"
+    when:
+      - "agent_count >= 3"
+      - "independent_tasks"
+      - "time_critical"
+
+  sequential:
+    description: "顺序执行（仅在有依赖时）"
+    when:
+      - "has_dependencies"
+      - "incremental_refinement"
+
+# 日志配置
+logging:
+  level: "INFO"  # DEBUG, INFO, WARN, ERROR
+  file: "/tmp/perfect21_hooks.log"
+  rotate: true
+  max_size: "10MB"
+
+# 错误处理
+error_handling:
+  on_block:
+    show_alternatives: true
+    suggest_fixes: true
+    log_details: true
+
+  on_warning:
+    display: true
+    log: true
+    continue: true
+
+# 性能优化
+performance:
+  cache_task_analysis: true
+  cache_ttl: 300  # 秒
+  parallel_hook_execution: false  # hooks本身是否并行
+
+# 集成配置
+integrations:
+  git_hooks:
+    enabled: true
+    auto_install: false
+    hooks:
+      - pre-commit
+      - commit-msg
+      - pre-push
+
+  claude_code:
+    enabled: true
+    override_defaults: true
+    priority: 100  # hook优先级
+
+# 通知配置
+notifications:
+  on_block: true
+  on_warning: true
+  on_success: false
+  format: "emoji"  # emoji, plain, detailed
+
+# 白名单（跳过检查）
+whitelist:
+  # 某些操作可以跳过检查
+  operations:
+    - "rollback"
+    - "hotfix"
+    - "emergency"
+
+  # 某些路径可以跳过
+  paths:
+    - "*/test/*"
+    - "*/docs/*"
+    - "*.md"
+
+# 自定义规则（可扩展）
+custom_rules:
+  # 可以添加项目特定的规则
+  example_rule:
+    enabled: false
+    pattern: "custom_pattern"
+    action: "warn"
