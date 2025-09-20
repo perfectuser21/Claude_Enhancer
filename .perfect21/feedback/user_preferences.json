@@ -1,9 +1,0 @@
-{
-  "preferred_agents": [],
-  "preferred_templates": [],
-  "preferred_execution_style": "balanced",
-  "feedback_frequency": "normal",
-  "auto_feedback": true,
-  "quality_threshold": 0.7,
-  "performance_threshold": 300
-}

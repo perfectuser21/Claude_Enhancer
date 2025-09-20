@@ -1,7 +1,0 @@
-{
-  "name": "bugfix_auth",
-  "dev_port": 3002,
-  "api_port": 3003,
-  "branch": "feature/bugfix_auth",
-  "created_at": "2025-09-16T23:40:48.497554"
-}

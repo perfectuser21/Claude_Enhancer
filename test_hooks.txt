@@ -1,5 +1,0 @@
-测试Perfect21 Git工作流hooks
-这是一个测试文件，用于验证hooks是否正确触发多Agent协作
-
-更新：修复hooks权限后的测试
-🎯 最终测试：修复hooks路径配置后验证多Agent协作

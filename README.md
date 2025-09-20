@@ -1,104 +1,92 @@
-# Perfect21 - Simple Rules for Better AI Coding
+# Claude Code 工作流配置
 
-> Making Claude Code work smarter, not harder
+> 让Claude Code自动遵守软件工程最佳实践的配置包
 
-## What is Perfect21?
+## 这是什么？
 
-Perfect21 is a simple set of rules and hooks that help Claude Code write better code. It's not a framework or system - just guidelines that get automatically enforced.
+一套Claude Code配置文件，包含：
+- 🤖 **56个专业Agents** - 覆盖开发、测试、运维、AI等各领域
+- 🔄 **5阶段工作流** - 需求→设计→开发→测试→部署
+- ✅ **自动质量检查** - 代码规范、安全审查、性能优化
+- 🔗 **Git集成** - 提交规范、分支管理
 
-Think of it as "coding standards" but for AI.
+## 快速使用
 
-## The 3 Core Rules
-
-1. **Use Multiple Agents** - Never use just 1-2 agents, always 3+
-2. **Execute in Parallel** - All agents run together, not one by one
-3. **Feedback Loop on Failures** - When tests fail, fix them properly
-
-## Quick Start
-
-Perfect21 is already configured. Just use Claude Code normally and the hooks will guide you:
-
+1. 复制配置到你的项目：
 ```bash
-# Good - triggers parallel execution with multiple agents
-"Help me build a login system"
-
-# The hooks will ensure Claude Code:
-# - Uses 5 agents (backend, security, test, api, database)
-# - Runs them in parallel
-# - Fixes any test failures properly
+cp -r .claude /your-project/
 ```
 
-## Project Structure
-
-```
-Perfect21/
-├── .claude/
-│   ├── hooks/          # Automatic rule enforcement
-│   └── commands/       # Quick commands (/parallel, /review, /test)
-├── rules/
-│   └── agent_rules.yaml  # Agent selection rules
-├── CLAUDE.md           # Rules for Claude Code to follow
-└── README.md           # This file
+2. (可选) 安装Git hooks：
+```bash
+cp .git/hooks/* /your-project/.git/hooks/
 ```
 
-## Commands
+3. 正常使用Claude Code，配置自动生效
 
-- `/parallel` - Execute task with multiple agents in parallel
-- `/review` - Get comprehensive code review
-- `/test` - Run tests with feedback loop
+## 包含的56个专业Agents
 
-## How It Works
+### 开发 (14个)
+`react-pro`, `vue-specialist`, `angular-expert`, `python-pro`, `java-enterprise`, `golang-pro`, `rust-pro`, `backend-architect`, `frontend-specialist`, `fullstack-engineer` 等
 
-1. **You ask Claude Code to do something**
-2. **Hooks check if the approach follows the rules**
-3. **If not, hooks block and suggest the right way**
-4. **Claude Code executes with proper agent selection**
+### 基础设施 (7个)
+`devops-engineer`, `cloud-architect`, `kubernetes-expert`, `monitoring-specialist`, `deployment-manager`, `performance-engineer`, `incident-responder`
 
-## Examples
+### 质量保证 (7个)
+`test-engineer`, `e2e-test-specialist`, `security-auditor`, `code-reviewer`, `performance-tester`, `accessibility-auditor`
 
-### Wrong Way ❌
+### 数据/AI (6个)
+`data-scientist`, `ai-engineer`, `mlops-engineer`, `data-engineer`, `analytics-engineer`, `prompt-engineer`
+
+### 业务分析 (6个)
+`requirements-analyst`, `product-strategist`, `business-analyst`, `project-manager`, `api-designer`, `technical-writer`
+
+### 特殊领域 (11个)
+`blockchain-developer`, `fintech-specialist`, `healthcare-dev`, `game-developer`, `mobile-developer` 等
+
+## 使用示例
+
+### Web应用开发
 ```
-Claude Code: I'll use backend-architect to design this...
-Hook: ⚠️ You need at least 3 agents!
+"创建一个博客系统，支持用户登录、文章发布、评论功能"
+→ Claude自动调用: backend-architect, frontend-specialist, database-specialist等
 ```
 
-### Right Way ✅
+### 移动应用
 ```
-Claude Code: I'll use 5 agents in parallel:
-- backend-architect (design)
-- security-auditor (security)
-- test-engineer (tests)
-- api-designer (endpoints)
-- database-specialist (schema)
+"开发一个跨平台的记账App"
+→ Claude自动调用: mobile-developer, ux-designer, test-engineer等
 ```
 
-## Agent Combinations
+### AI项目
+```
+"构建一个图像识别系统"
+→ Claude自动调用: ai-engineer, data-scientist, mlops-engineer等
+```
 
-Perfect21 knows which agents work best together:
+## 工作原理
 
-| Task Type | Required Agents | Count |
-|-----------|----------------|-------|
-| Authentication | backend, security, test, api, database | 5 |
-| API Development | api, backend, test, docs | 4 |
-| Database | database, backend, performance | 3 |
-| Frontend | frontend, ux, test | 3 |
-| Testing | test, e2e, performance | 3 |
+1. **Claude理解任务** - 分析你的需求
+2. **自动选择Agents** - 基于任务类型选择专业团队
+3. **并行执行** - 多个Agent同时工作提高效率
+4. **质量保证** - 自动进行代码检查和测试
+5. **完整交付** - 从需求到部署的端到端解决方案
 
-## Why Perfect21?
+## 文件结构
 
-- **Better Code Quality** - Multiple perspectives catch more issues
-- **Faster Development** - Parallel execution saves time
-- **Automatic Standards** - Hooks enforce best practices
-- **Zero Configuration** - Already set up and ready
-
-## Installation
-
-Already installed! Just start using Claude Code.
+```
+.claude/
+├── agents/          # 56个专业Agents定义
+│   ├── development/
+│   ├── infrastructure/
+│   ├── quality/
+│   ├── data-ai/
+│   ├── business/
+│   └── specialized/
+├── hooks/          # 工作流控制
+└── settings.json   # 基础配置
+```
 
 ## License
 
-MIT
-
----
-
-*Perfect21 v2.0 - Simplified and effective*
+MIT - 自由使用和修改
