@@ -1,0 +1,246 @@
+# =============================================================================
+# Nginx Load Balancer and Reverse Proxy for Perfect21 Claude Enhancer
+# High-performance load balancer with SSL termination and security
+# =============================================================================
+
+# Nginx Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+  namespace: claude-enhancer
+  labels:
+    app.kubernetes.io/name: nginx
+    app.kubernetes.io/component: loadbalancer
+    app.kubernetes.io/part-of: claude-enhancer
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: nginx
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: nginx
+        app.kubernetes.io/component: loadbalancer
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+        runAsGroup: 101
+        fsGroup: 101
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+          name: http
+        - containerPort: 443
+          name: https
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+          readOnly: true
+        - name: tls-certs
+          mountPath: /etc/nginx/ssl
+          readOnly: true
+        - name: nginx-cache
+          mountPath: /var/cache/nginx
+        - name: nginx-logs
+          mountPath: /var/log/nginx
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 256Mi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/bin/sh", "-c", "nginx -s quit; while killall -0 nginx; do sleep 1; done"]
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: nginx-config
+      - name: tls-certs
+        secret:
+          secretName: claude-enhancer-tls
+      - name: nginx-cache
+        emptyDir: {}
+      - name: nginx-logs
+        emptyDir: {}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                  - nginx
+              topologyKey: kubernetes.io/hostname
+
+---
+# Nginx Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+  namespace: claude-enhancer
+  labels:
+    app.kubernetes.io/name: nginx
+    app.kubernetes.io/component: loadbalancer
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: nlb
+    service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+spec:
+  selector:
+    app.kubernetes.io/name: nginx
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+    protocol: TCP
+  - name: https
+    port: 443
+    targetPort: 443
+    protocol: TCP
+  type: LoadBalancer
+  loadBalancerSourceRanges:
+  - 0.0.0.0/0
+
+---
+# Nginx Horizontal Pod Autoscaler
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: nginx-hpa
+  namespace: claude-enhancer
+  labels:
+    app.kubernetes.io/name: nginx
+    app.kubernetes.io/component: autoscaling
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: nginx
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 80
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 85
+
+---
+# Nginx Pod Disruption Budget
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: nginx-pdb
+  namespace: claude-enhancer
+  labels:
+    app.kubernetes.io/name: nginx
+    app.kubernetes.io/component: loadbalancer
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: nginx
+
+---
+# Nginx Exporter for Prometheus
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-exporter
+  namespace: claude-enhancer
+  labels:
+    app.kubernetes.io/name: nginx-exporter
+    app.kubernetes.io/component: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: nginx-exporter
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: nginx-exporter
+        app.kubernetes.io/component: monitoring
+    spec:
+      containers:
+      - name: nginx-exporter
+        image: nginx/nginx-prometheus-exporter:0.11.0
+        args:
+        - -nginx.scrape-uri=http://nginx-service:80/nginx_status
+        ports:
+        - containerPort: 9113
+          name: metrics
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+        livenessProbe:
+          httpGet:
+            path: /metrics
+            port: 9113
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /metrics
+            port: 9113
+          initialDelaySeconds: 5
+          periodSeconds: 5
+
+---
+# Nginx Exporter Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-exporter-service
+  namespace: claude-enhancer
+  labels:
+    app.kubernetes.io/name: nginx-exporter
+    app.kubernetes.io/component: monitoring
+spec:
+  selector:
+    app.kubernetes.io/name: nginx-exporter
+  ports:
+  - port: 9113
+    targetPort: 9113
+    protocol: TCP
+    name: metrics
+  type: ClusterIP

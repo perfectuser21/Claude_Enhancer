@@ -1,0 +1,262 @@
+# =============================================================================
+# PostgreSQL Database Deployment for Perfect21 Claude Enhancer
+# Production-ready PostgreSQL with persistence and monitoring
+# =============================================================================
+
+# PostgreSQL StatefulSet
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: claude-enhancer
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/component: database
+    app.kubernetes.io/part-of: claude-enhancer
+spec:
+  serviceName: postgres-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: postgres
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: postgres
+        app.kubernetes.io/component: database
+    spec:
+      securityContext:
+        fsGroup: 70
+        runAsUser: 70
+        runAsGroup: 70
+      containers:
+      - name: postgres
+        image: postgres:15-alpine
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5432
+          name: postgres
+        env:
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_DB
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_PASSWORD
+        - name: PGDATA
+          value: /var/lib/postgresql/data/pgdata
+        - name: POSTGRES_INITDB_ARGS
+          value: "--auth-host=scram-sha-256"
+        args:
+        - "postgres"
+        - "-c"
+        - "shared_preload_libraries=pg_stat_statements"
+        - "-c"
+        - "pg_stat_statements.track=all"
+        - "-c"
+        - "max_connections=200"
+        - "-c"
+        - "shared_buffers=256MB"
+        - "-c"
+        - "effective_cache_size=1GB"
+        - "-c"
+        - "maintenance_work_mem=64MB"
+        - "-c"
+        - "checkpoint_completion_target=0.9"
+        - "-c"
+        - "wal_buffers=16MB"
+        - "-c"
+        - "default_statistics_target=100"
+        - "-c"
+        - "random_page_cost=1.1"
+        - "-c"
+        - "effective_io_concurrency=200"
+        - "-c"
+        - "work_mem=4MB"
+        - "-c"
+        - "min_wal_size=1GB"
+        - "-c"
+        - "max_wal_size=4GB"
+        - "-c"
+        - "max_worker_processes=8"
+        - "-c"
+        - "max_parallel_workers_per_gather=4"
+        - "-c"
+        - "max_parallel_workers=8"
+        - "-c"
+        - "max_parallel_maintenance_workers=4"
+        volumeMounts:
+        - name: postgres-storage
+          mountPath: /var/lib/postgresql/data
+        - name: postgres-init
+          mountPath: /docker-entrypoint-initdb.d
+          readOnly: true
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 1Gi
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - exec pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB" -h 127.0.0.1 -p 5432
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 6
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - exec pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB" -h 127.0.0.1 -p 5432
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+      volumes:
+      - name: postgres-init
+        configMap:
+          name: postgres-init-scripts
+          optional: true
+  volumeClaimTemplates:
+  - metadata:
+      name: postgres-storage
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: fast-ssd
+      resources:
+        requests:
+          storage: 20Gi
+
+---
+# PostgreSQL Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+  namespace: claude-enhancer
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/component: database
+spec:
+  selector:
+    app.kubernetes.io/name: postgres
+  ports:
+  - port: 5432
+    targetPort: 5432
+    protocol: TCP
+    name: postgres
+  type: ClusterIP
+
+---
+# PostgreSQL Monitoring Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-exporter-service
+  namespace: claude-enhancer
+  labels:
+    app.kubernetes.io/name: postgres-exporter
+    app.kubernetes.io/component: monitoring
+spec:
+  selector:
+    app.kubernetes.io/name: postgres-exporter
+  ports:
+  - port: 9187
+    targetPort: 9187
+    protocol: TCP
+    name: metrics
+  type: ClusterIP
+
+---
+# PostgreSQL Exporter for Prometheus
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-exporter
+  namespace: claude-enhancer
+  labels:
+    app.kubernetes.io/name: postgres-exporter
+    app.kubernetes.io/component: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: postgres-exporter
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: postgres-exporter
+        app.kubernetes.io/component: monitoring
+    spec:
+      containers:
+      - name: postgres-exporter
+        image: prometheuscommunity/postgres-exporter:v0.15.0
+        ports:
+        - containerPort: 9187
+          name: metrics
+        env:
+        - name: DATA_SOURCE_NAME
+          value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres-service:5432/$(POSTGRES_DB)?sslmode=disable"
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_PASSWORD
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_DB
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+        livenessProbe:
+          httpGet:
+            path: /metrics
+            port: 9187
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /metrics
+            port: 9187
+          initialDelaySeconds: 5
+          periodSeconds: 5
+
+---
+# PersistentVolume for PostgreSQL (adjust based on your storage class)
+apiVersion: v1
+kind: StorageClass
+metadata:
+  name: fast-ssd
+  namespace: claude-enhancer
+provisioner: kubernetes.io/gce-pd
+parameters:
+  type: pd-ssd
+  replication-type: regional-pd
+allowVolumeExpansion: true
+volumeBindingMode: WaitForFirstConsumer

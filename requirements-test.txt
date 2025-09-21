@@ -1,0 +1,115 @@
+# Todo API 测试依赖包
+# 这个文件定义了运行测试所需的所有Python包
+
+# 核心测试框架
+pytest>=7.4.0
+pytest-cov>=4.1.0
+pytest-html>=3.2.0
+pytest-json-report>=1.5.0
+pytest-xdist>=3.3.0  # 并行测试执行
+pytest-timeout>=2.1.0  # 测试超时控制
+pytest-mock>=3.11.0  # Mock功能增强
+pytest-benchmark>=4.0.0  # 性能基准测试
+pytest-asyncio>=0.21.0  # 异步测试支持
+
+# 代码覆盖率工具
+coverage[toml]>=7.2.0
+coverage-badge>=1.1.0
+
+# HTTP客户端和服务器测试
+aiohttp>=3.8.0
+aioresponses>=0.7.4  # aiohttp mock响应
+httpx>=0.24.0  # 现代HTTP客户端
+respx>=0.20.0  # httpx mock响应
+
+# 数据库测试
+sqlalchemy>=2.0.0
+alembic>=1.11.0
+pytest-postgresql>=5.0.0  # PostgreSQL测试数据库
+sqlite3  # SQLite数据库（内置）
+
+# 认证和安全
+PyJWT>=2.7.0
+werkzeug>=2.3.0  # 密码哈希
+cryptography>=41.0.0
+
+# 性能和负载测试
+locust>=2.15.0  # 负载测试
+memory-profiler>=0.60.0  # 内存分析
+psutil>=5.9.0  # 系统资源监控
+
+# 数据生成和验证
+faker>=19.0.0  # 假数据生成
+factory-boy>=3.3.0  # 测试数据工厂
+pydantic>=2.0.0  # 数据验证
+jsonschema>=4.18.0  # JSON schema验证
+
+# 时间和日期处理
+python-dateutil>=2.8.0
+freezegun>=1.2.0  # 时间冻结用于测试
+
+# 开发和调试工具
+ipdb>=0.13.0  # 调试器
+rich>=13.4.0  # 美化输出
+tabulate>=0.9.0  # 表格输出
+colorama>=0.4.0  # 彩色输出
+
+# 静态分析和代码质量
+flake8>=6.0.0
+black>=23.0.0
+isort>=5.12.0
+mypy>=1.4.0
+bandit>=1.7.0  # 安全扫描
+safety>=2.3.0  # 依赖安全检查
+
+# 文档生成
+sphinx>=7.0.0
+sphinx-rtd-theme>=1.3.0
+
+# 环境和配置
+python-dotenv>=1.0.0
+click>=8.1.0  # 命令行工具
+
+# API文档和测试
+openapi-spec-validator>=0.6.0
+swagger-ui-bundle>=0.0.9
+
+# 并发和异步支持
+aiofiles>=23.0.0
+anyio>=3.7.0
+
+# 邮件和通知（测试用）
+aiosmtpd>=1.4.0  # SMTP测试服务器
+
+# 缓存测试
+fakeredis>=2.16.0  # Redis mock
+
+# 图像和文件处理测试
+Pillow>=10.0.0
+
+# XML和HTML解析
+lxml>=4.9.0
+beautifulsoup4>=4.12.0
+
+# 序列化测试
+orjson>=3.9.0
+msgpack>=1.0.0
+
+# 网络和协议测试
+requests-mock>=1.11.0
+responses>=0.23.0
+
+# 容器化测试支持
+testcontainers>=3.7.0
+docker>=6.1.0
+
+# 测试报告美化
+allure-pytest>=2.13.0
+pytest-html-reporter>=0.2.9
+
+# 特殊用途测试工具
+hypothesis>=6.82.0  # 属性基测试
+mutmut>=2.4.0  # 变异测试
+
+# 监控和指标
+prometheus-client>=0.17.0

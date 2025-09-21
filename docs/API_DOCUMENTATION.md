@@ -1,8 +1,8 @@
-# Perfect21 JWT Authentication API Documentation
+# Perfect21 System API Documentation
 
 ## 🌟 API Overview
 
-Perfect21 JWT Authentication API provides a complete, secure authentication system with advanced features like JWT token management, role-based access control, multi-factor authentication, and comprehensive security measures.
+Perfect21 (Claude Enhancer) provides a comprehensive API for AI-driven development workflow management. The system orchestrates multiple specialized AI agents to deliver high-quality software solutions through intelligent task analysis, automated agent selection, and parallel execution strategies.
 
 ### 📋 Quick Information
 
@@ -10,33 +10,40 @@ Perfect21 JWT Authentication API provides a complete, secure authentication syst
 |-----------|-------|
 | **Base URL** | `https://api.perfect21.com/v1` |
 | **Protocol** | HTTPS (Required in production) |
-| **Authentication** | Bearer JWT Token |
+| **Authentication** | Bearer JWT Token / API Key |
 | **Content Type** | `application/json` |
-| **API Version** | v1.0.0 |
+| **API Version** | v4.0.0 |
+| **Agent Count** | 56+ Specialized AI Agents |
 | **Rate Limiting** | Yes (See [Rate Limits](#rate-limits)) |
 
-### 🏗️ Architecture Overview
+### 🏗️ System Architecture Overview
 
 ```mermaid
 graph TB
-    Client[Client Application] --> LB[Load Balancer]
-    LB --> API[Authentication API]
-    API --> Cache[Redis Cache]
-    API --> DB[(PostgreSQL)]
-    API --> Email[Email Service]
+    Client[Client Interface] --> API[Perfect21 API Gateway]
+    API --> TaskAnalyzer[Task Analyzer]
+    TaskAnalyzer --> AgentSelector[Smart Agent Selector]
+    AgentSelector --> AgentPool[56+ AI Agents]
 
-    subgraph "Security Layers"
-        RL[Rate Limiting]
-        CORS[CORS Protection]
-        Helmet[Security Headers]
-        JWT[JWT Validation]
+    subgraph "Agent Categories"
+        DevAgents[Development Agents]
+        QAAgents[Quality Assurance]
+        InfraAgents[Infrastructure]
+        SpecAgents[Specialized Domains]
     end
 
-    Client --> RL
-    RL --> CORS
-    CORS --> Helmet
-    Helmet --> JWT
-    JWT --> API
+    AgentPool --> DevAgents
+    AgentPool --> QAAgents
+    AgentPool --> InfraAgents
+    AgentPool --> SpecAgents
+
+    API --> WorkflowEngine[8-Phase Workflow Engine]
+    WorkflowEngine --> QualityGates[Quality Gates]
+    QualityGates --> Deployment[Deployment Pipeline]
+
+    API --> Cache[Redis Cache]
+    API --> DB[(Configuration Store)]
+    API --> Monitor[Monitoring System]
 ```
 
 ## 🔐 Authentication & Authorization

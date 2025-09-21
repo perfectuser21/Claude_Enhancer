@@ -23,7 +23,7 @@ if [ -d .git ]; then
     echo "📌 安装Git Hooks..."
 
     # 备份现有hooks
-    for hook in pre-commit commit-msg pre-push; do
+    for hook in pre-commit commit-msg; do
         if [ -f .git/hooks/$hook ]; then
             cp .git/hooks/$hook .git/hooks/$hook.backup.$(date +%Y%m%d)
             echo "  备份: $hook → $hook.backup"
@@ -31,13 +31,15 @@ if [ -d .git ]; then
     done
 
     # 安装新hooks
-    cp .claude/hooks/simple_pre_commit.sh .git/hooks/pre-commit
-    cp .claude/hooks/simple_commit_msg.sh .git/hooks/commit-msg
-    cp .claude/hooks/simple_pre_push.sh .git/hooks/pre-push
+    if [ -f .claude/git-hooks/pre-commit ]; then
+        cp .claude/git-hooks/pre-commit .git/hooks/pre-commit
+    fi
+    if [ -f .claude/git-hooks/commit-msg ]; then
+        cp .claude/git-hooks/commit-msg .git/hooks/commit-msg
+    fi
 
-    chmod +x .git/hooks/pre-commit
-    chmod +x .git/hooks/commit-msg
-    chmod +x .git/hooks/pre-push
+    chmod +x .git/hooks/pre-commit 2>/dev/null
+    chmod +x .git/hooks/commit-msg 2>/dev/null
 
     echo "  ✅ Git Hooks已安装"
 fi

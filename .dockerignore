@@ -1,0 +1,184 @@
+# =============================================================================
+# Docker Ignore File for Perfect21 Claude Enhancer
+# Optimizes image size by excluding unnecessary files
+# =============================================================================
+
+# Git files
+.git
+.gitignore
+.github
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Testing
+.tox/
+.nox/
+.coverage
+.pytest_cache/
+htmlcov/
+.coverage.*
+coverage.xml
+*.cover
+.hypothesis/
+
+# Jupyter
+.ipynb_checkpoints
+
+# Documentation build
+docs/_build/
+target/
+
+# Local environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Node.js dependencies (if any)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+tmp/
+temp/
+
+# Development databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Backup files
+*.bak
+*.backup
+backup_*/
+
+# Archive files
+*.tar
+*.zip
+*.7z
+*.rar
+
+# SSL certificates (should be mounted)
+*.pem
+*.key
+*.crt
+
+# Terraform files
+*.tfstate
+*.tfstate.backup
+.terraform/
+*.tfvars
+
+# Kubernetes files
+*.yaml.backup
+
+# Development scripts
+scripts/dev-*
+scripts/local-*
+
+# Test results
+test-results/
+coverage/
+test-output/
+
+# Monitoring data
+prometheus_data/
+grafana_data/
+elasticsearch_data/
+
+# Docker files
+docker-compose.override.yml
+docker-compose.local.yml
+
+# Claude-specific development files
+.claude/hooks/test-*
+.claude/hooks/debug-*
+.claude/agents_backup_*
+
+# README and documentation that's not needed in container
+README*.md
+CHANGELOG.md
+CONTRIBUTING.md
+LICENSE
+*.md
+
+# Config files that should be mounted
+nginx/
+ssl/
+monitoring/grafana/
+monitoring/prometheus/
+
+# Performance test results
+load_tests/results/
+performance-*.json
+
+# Migration artifacts
+migration_report.json
+backup_controllers/
+
+# Test outputs
+TEST_*.md
+HOOK_*.md
+PERFORMANCE_*.md

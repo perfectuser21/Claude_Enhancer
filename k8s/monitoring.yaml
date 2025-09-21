@@ -1,0 +1,585 @@
+# =============================================================================
+# Monitoring Stack for Perfect21 Claude Enhancer
+# Prometheus, Grafana, and Alertmanager deployment
+# =============================================================================
+
+# Prometheus Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: claude-enhancer
+  labels:
+    app.kubernetes.io/name: prometheus
+    app.kubernetes.io/component: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: prometheus
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: prometheus
+        app.kubernetes.io/component: monitoring
+    spec:
+      serviceAccountName: prometheus
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        fsGroup: 65534
+      containers:
+      - name: prometheus
+        image: prom/prometheus:v2.48.0
+        args:
+        - '--config.file=/etc/prometheus/prometheus.yml'
+        - '--storage.tsdb.path=/prometheus'
+        - '--storage.tsdb.retention.time=30d'
+        - '--storage.tsdb.retention.size=10GB'
+        - '--web.console.libraries=/etc/prometheus/console_libraries'
+        - '--web.console.templates=/etc/prometheus/consoles'
+        - '--web.enable-lifecycle'
+        - '--web.enable-admin-api'
+        - '--web.external-url=http://prometheus.claude-enhancer.com'
+        ports:
+        - containerPort: 9090
+          name: http
+        volumeMounts:
+        - name: prometheus-config
+          mountPath: /etc/prometheus
+          readOnly: true
+        - name: prometheus-data
+          mountPath: /prometheus
+        resources:
+          requests:
+            cpu: 200m
+            memory: 512Mi
+          limits:
+            cpu: 1000m
+            memory: 2Gi
+        livenessProbe:
+          httpGet:
+            path: /-/healthy
+            port: 9090
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /-/ready
+            port: 9090
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: prometheus-config
+        configMap:
+          name: prometheus-config
+      - name: prometheus-data
+        persistentVolumeClaim:
+          claimName: prometheus-pvc
+
+---
+# Prometheus Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-service
+  namespace: claude-enhancer
+  labels:
+    app.kubernetes.io/name: prometheus
+    app.kubernetes.io/component: monitoring
+spec:
+  selector:
+    app.kubernetes.io/name: prometheus
+  ports:
+  - port: 9090
+    targetPort: 9090
+    protocol: TCP
+    name: http
+  type: ClusterIP
+
+---
+# Prometheus Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: claude-enhancer
+  labels:
+    app.kubernetes.io/name: prometheus
+    app.kubernetes.io/component: monitoring
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+      external_labels:
+        cluster: 'claude-enhancer-production'
+        region: 'us-west-2'
+
+    alerting:
+      alertmanagers:
+      - static_configs:
+        - targets:
+          - alertmanager-service:9093
+
+    rule_files:
+    - "alert_rules.yml"
+
+    scrape_configs:
+    - job_name: 'prometheus'
+      static_configs:
+      - targets: ['localhost:9090']
+
+    - job_name: 'claude-enhancer'
+      kubernetes_sd_configs:
+      - role: pod
+        namespaces:
+          names:
+          - claude-enhancer
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+        action: keep
+        regex: true
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+        action: replace
+        target_label: __metrics_path__
+        regex: (.+)
+      - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+        action: replace
+        regex: ([^:]+)(?::\d+)?;(\d+)
+        replacement: $1:$2
+        target_label: __address__
+      - action: labelmap
+        regex: __meta_kubernetes_pod_label_(.+)
+      - source_labels: [__meta_kubernetes_namespace]
+        action: replace
+        target_label: kubernetes_namespace
+      - source_labels: [__meta_kubernetes_pod_name]
+        action: replace
+        target_label: kubernetes_pod_name
+
+    - job_name: 'postgres'
+      static_configs:
+      - targets: ['postgres-exporter-service:9187']
+
+    - job_name: 'redis'
+      static_configs:
+      - targets: ['redis-exporter-service:9121']
+
+    - job_name: 'nginx'
+      static_configs:
+      - targets: ['nginx-exporter-service:9113']
+
+  alert_rules.yml: |
+    groups:
+    - name: claude-enhancer-alerts
+      rules:
+      - alert: ApplicationDown
+        expr: up{job="claude-enhancer"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Claude Enhancer application is down"
+          description: "Application has been down for more than 1 minute"
+
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{job="claude-enhancer",status=~"5.."}[5m]) / rate(http_requests_total{job="claude-enhancer"}[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is above 5%"
+
+---
+# Prometheus ServiceAccount and RBAC
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus
+  namespace: claude-enhancer
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: prometheus
+rules:
+- apiGroups: [""]
+  resources:
+  - nodes
+  - nodes/proxy
+  - services
+  - endpoints
+  - pods
+  verbs: ["get", "list", "watch"]
+- apiGroups:
+  - extensions
+  resources:
+  - ingresses
+  verbs: ["get", "list", "watch"]
+- nonResourceURLs: ["/metrics"]
+  verbs: ["get"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prometheus
+subjects:
+- kind: ServiceAccount
+  name: prometheus
+  namespace: claude-enhancer
+
+---
+# Prometheus PVC
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: prometheus-pvc
+  namespace: claude-enhancer
+  labels:
+    app.kubernetes.io/name: prometheus
+    app.kubernetes.io/component: monitoring
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: fast-ssd
+  resources:
+    requests:
+      storage: 50Gi
+
+---
+# Grafana Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: claude-enhancer
+  labels:
+    app.kubernetes.io/name: grafana
+    app.kubernetes.io/component: visualization
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: grafana
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: grafana
+        app.kubernetes.io/component: visualization
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 472
+        fsGroup: 472
+      containers:
+      - name: grafana
+        image: grafana/grafana:10.2.0
+        ports:
+        - containerPort: 3000
+          name: http
+        env:
+        - name: GF_SECURITY_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: claude-enhancer-secrets
+              key: GRAFANA_ADMIN_PASSWORD
+        - name: GF_USERS_ALLOW_SIGN_UP
+          value: "false"
+        - name: GF_INSTALL_PLUGINS
+          value: "grafana-piechart-panel,grafana-worldmap-panel,grafana-clock-panel"
+        - name: GF_SERVER_ROOT_URL
+          value: "http://grafana.claude-enhancer.com"
+        volumeMounts:
+        - name: grafana-data
+          mountPath: /var/lib/grafana
+        - name: grafana-config
+          mountPath: /etc/grafana/provisioning
+          readOnly: true
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: grafana-data
+        persistentVolumeClaim:
+          claimName: grafana-pvc
+      - name: grafana-config
+        configMap:
+          name: grafana-config
+
+---
+# Grafana Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana-service
+  namespace: claude-enhancer
+  labels:
+    app.kubernetes.io/name: grafana
+    app.kubernetes.io/component: visualization
+spec:
+  selector:
+    app.kubernetes.io/name: grafana
+  ports:
+  - port: 3000
+    targetPort: 3000
+    protocol: TCP
+    name: http
+  type: ClusterIP
+
+---
+# Grafana PVC
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: grafana-pvc
+  namespace: claude-enhancer
+  labels:
+    app.kubernetes.io/name: grafana
+    app.kubernetes.io/component: visualization
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: fast-ssd
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+# Grafana Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-config
+  namespace: claude-enhancer
+  labels:
+    app.kubernetes.io/name: grafana
+    app.kubernetes.io/component: visualization
+data:
+  datasources.yml: |
+    apiVersion: 1
+    datasources:
+    - name: Prometheus
+      type: prometheus
+      access: proxy
+      url: http://prometheus-service:9090
+      isDefault: true
+      editable: true
+
+  dashboards.yml: |
+    apiVersion: 1
+    providers:
+    - name: 'default'
+      orgId: 1
+      folder: ''
+      type: file
+      disableDeletion: false
+      updateIntervalSeconds: 10
+      allowUiUpdates: true
+      options:
+        path: /var/lib/grafana/dashboards
+
+---
+# Alertmanager Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alertmanager
+  namespace: claude-enhancer
+  labels:
+    app.kubernetes.io/name: alertmanager
+    app.kubernetes.io/component: alerting
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: alertmanager
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: alertmanager
+        app.kubernetes.io/component: alerting
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        fsGroup: 65534
+      containers:
+      - name: alertmanager
+        image: prom/alertmanager:v0.26.0
+        args:
+        - '--config.file=/etc/alertmanager/alertmanager.yml'
+        - '--storage.path=/alertmanager'
+        - '--web.external-url=http://alertmanager.claude-enhancer.com'
+        ports:
+        - containerPort: 9093
+          name: http
+        volumeMounts:
+        - name: alertmanager-config
+          mountPath: /etc/alertmanager
+          readOnly: true
+        - name: alertmanager-data
+          mountPath: /alertmanager
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+        livenessProbe:
+          httpGet:
+            path: /-/healthy
+            port: 9093
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /-/ready
+            port: 9093
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: alertmanager-config
+        configMap:
+          name: alertmanager-config
+      - name: alertmanager-data
+        persistentVolumeClaim:
+          claimName: alertmanager-pvc
+
+---
+# Alertmanager Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: alertmanager-service
+  namespace: claude-enhancer
+  labels:
+    app.kubernetes.io/name: alertmanager
+    app.kubernetes.io/component: alerting
+spec:
+  selector:
+    app.kubernetes.io/name: alertmanager
+  ports:
+  - port: 9093
+    targetPort: 9093
+    protocol: TCP
+    name: http
+  type: ClusterIP
+
+---
+# Alertmanager Configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-config
+  namespace: claude-enhancer
+  labels:
+    app.kubernetes.io/name: alertmanager
+    app.kubernetes.io/component: alerting
+data:
+  alertmanager.yml: |
+    global:
+      smtp_smarthost: 'smtp.gmail.com:587'
+      smtp_from: 'alerts@claude-enhancer.com'
+      smtp_auth_username: 'alerts@claude-enhancer.com'
+      smtp_auth_password: 'your-app-password'
+
+    route:
+      group_by: ['alertname', 'cluster', 'service']
+      group_wait: 10s
+      group_interval: 10s
+      repeat_interval: 1h
+      receiver: 'web.hook'
+      routes:
+      - match:
+          severity: critical
+        receiver: 'critical-alerts'
+      - match:
+          severity: warning
+        receiver: 'warning-alerts'
+
+    receivers:
+    - name: 'web.hook'
+      webhook_configs:
+      - url: 'http://webhook-service:5000/alerts'
+        send_resolved: true
+
+    - name: 'critical-alerts'
+      email_configs:
+      - to: 'admin@claude-enhancer.com'
+        subject: '🚨 CRITICAL: {{ .GroupLabels.alertname }}'
+        body: |
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Severity: {{ .Labels.severity }}
+          Service: {{ .Labels.service }}
+          Instance: {{ .Labels.instance }}
+          {{ end }}
+      slack_configs:
+      - api_url: 'YOUR_SLACK_WEBHOOK_URL'
+        channel: '#alerts-critical'
+        title: 'Critical Alert: {{ .GroupLabels.alertname }}'
+        text: '{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+
+    - name: 'warning-alerts'
+      email_configs:
+      - to: 'devops@claude-enhancer.com'
+        subject: '⚠️ WARNING: {{ .GroupLabels.alertname }}'
+        body: |
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Severity: {{ .Labels.severity }}
+          Service: {{ .Labels.service }}
+          Instance: {{ .Labels.instance }}
+          {{ end }}
+
+    inhibit_rules:
+    - source_match:
+        severity: 'critical'
+      target_match:
+        severity: 'warning'
+      equal: ['alertname', 'cluster', 'service']
+
+---
+# Alertmanager PVC
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: alertmanager-pvc
+  namespace: claude-enhancer
+  labels:
+    app.kubernetes.io/name: alertmanager
+    app.kubernetes.io/component: alerting
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: fast-ssd
+  resources:
+    requests:
+      storage: 5Gi

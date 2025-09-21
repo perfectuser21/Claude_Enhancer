@@ -1,0 +1,19 @@
+# =============================================================================
+# Kubernetes Namespace for Perfect21 Claude Enhancer
+# =============================================================================
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: claude-enhancer
+  labels:
+    name: claude-enhancer
+    app.kubernetes.io/name: claude-enhancer
+    app.kubernetes.io/instance: production
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/component: infrastructure
+    app.kubernetes.io/part-of: claude-enhancer-platform
+    app.kubernetes.io/managed-by: kubernetes
+  annotations:
+    description: "Perfect21 Claude Enhancer - AI-driven development workflow system"
+    contact: "admin@claude-enhancer.com"
+    deployment.kubernetes.io/revision: "1"
