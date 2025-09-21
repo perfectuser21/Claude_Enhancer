@@ -7,7 +7,9 @@ Phase Enforcer - 强制Claude Code按5阶段执行
 import json
 import sys
 from typing import Dict, List, Optional, Tuple
-from phase_manager import get_phase_manager, ExecutionPhase
+
+from phase_manager import ExecutionPhase, get_phase_manager
+
 
 class PhaseEnforcer:
     """阶段执行强制器"""
@@ -41,8 +43,7 @@ class PhaseEnforcer:
 
         # 生成执行指令
         instructions = self.manager.generate_phase_instructions(
-            ExecutionPhase.ANALYSIS,
-            {"user_request": user_request}
+            ExecutionPhase.ANALYSIS, {"user_request": user_request}
         )
 
         # 生成XML格式的agent调用
@@ -51,7 +52,7 @@ class PhaseEnforcer:
         return {
             "action": "redirect",
             "message": f"""
-🎯 **Perfect21 5阶段执行模式已启动**
+🎯 **Claude Enhancer 5阶段执行模式已启动**
 
 📋 **任务**: {user_request}
 📊 **当前阶段**: {instructions['phase_name']} (1/5)
@@ -65,11 +66,13 @@ class PhaseEnforcer:
 
 ⚠️ **重要**: 所有agents必须在同一个function_calls块中并行执行！
 """,
-            "phase": instructions['phase'],
-            "agents_required": [a['agent'] for a in instructions['agents_to_call']]
+            "phase": instructions["phase"],
+            "agents_required": [a["agent"] for a in instructions["agents_to_call"]],
         }
 
-    def validate_current_execution(self, tool_name: str, params: dict) -> Optional[dict]:
+    def validate_current_execution(
+        self, tool_name: str, params: dict
+    ) -> Optional[dict]:
         """验证当前执行是否符合阶段要求"""
         if tool_name != "Task":
             return None
@@ -77,7 +80,7 @@ class PhaseEnforcer:
         agent_type = params.get("subagent_type", "")
 
         # 收集本次执行的agents
-        if not hasattr(self, 'current_execution_agents'):
+        if not hasattr(self, "current_execution_agents"):
             self.current_execution_agents = []
 
         self.current_execution_agents.append(agent_type)
@@ -92,7 +95,7 @@ class PhaseEnforcer:
             if not is_valid:
                 return {
                     "action": "warn",
-                    "message": f"⚠️ 阶段执行不符合要求:\n" + "\n".join(errors)
+                    "message": f"⚠️ 阶段执行不符合要求:\n" + "\n".join(errors),
                 }
 
         return None
@@ -147,8 +150,8 @@ class PhaseEnforcer:
 {xml_calls}
 ```
 """,
-                "phase": instructions['phase'],
-                "agents_required": [a['agent'] for a in instructions['agents_to_call']]
+                "phase": instructions["phase"],
+                "agents_required": [a["agent"] for a in instructions["agents_to_call"]],
             }
         else:
             # 所有阶段完成
@@ -164,7 +167,7 @@ class PhaseEnforcer:
 {summary}
 
 ✨ 任务执行成功！
-"""
+""",
             }
 
     def get_phase_number(self, phase: ExecutionPhase) -> int:
@@ -174,7 +177,7 @@ class PhaseEnforcer:
             ExecutionPhase.DESIGN,
             ExecutionPhase.IMPLEMENTATION,
             ExecutionPhase.TESTING,
-            ExecutionPhase.DEPLOYMENT
+            ExecutionPhase.DEPLOYMENT,
         ]
         return phase_order.index(phase) + 1
 
@@ -184,7 +187,7 @@ class PhaseEnforcer:
         import re
 
         # 统计function_calls块数量
-        function_calls_count = execution_log.count('<function_calls>')
+        function_calls_count = execution_log.count("<function_calls>")
 
         # 统计Task调用数量
         task_invokes = re.findall(r'<invoke name="Task">', execution_log)
@@ -199,15 +202,18 @@ class PhaseEnforcer:
             return False, f"只找到{len(task_invokes)}个Task调用，最少需要3个"
 
         # 检查是否在同一块内
-        fc_start = execution_log.find('<function_calls>')
-        fc_end = execution_log.find('</function_calls>')
+        fc_start = execution_log.find("<function_calls>")
+        fc_end = execution_log.find("</function_calls>")
 
         if fc_start != -1 and fc_end != -1:
             block_content = execution_log[fc_start:fc_end]
             block_task_count = block_content.count('<invoke name="Task">')
 
             if block_task_count != len(task_invokes):
-                return False, f"有{len(task_invokes) - block_task_count}个Task调用在function_calls块外"
+                return (
+                    False,
+                    f"有{len(task_invokes) - block_task_count}个Task调用在function_calls块外",
+                )
 
         return True, "✅ 所有agents在同一function_calls块中并行执行"
 
@@ -226,17 +232,20 @@ def pre_tool_use_hook(tool_name: str, params: dict) -> Optional[dict]:
 
     return None
 
+
 def post_tool_use_hook(tool_name: str, result: any) -> Optional[dict]:
     """PostToolUse Hook - 在工具使用后处理"""
     if tool_name == "Task":
         enforcer = PhaseEnforcer()
 
         # 检查是否需要进入下一阶段
-        if hasattr(enforcer, 'current_execution_agents'):
+        if hasattr(enforcer, "current_execution_agents"):
             config = enforcer.manager.get_current_phase_config()
             if len(enforcer.current_execution_agents) >= config["min_agents"]:
                 # 阶段完成，准备下一阶段
-                next_phase_info = enforcer.handle_phase_completion({"agents_executed": enforcer.current_execution_agents})
+                next_phase_info = enforcer.handle_phase_completion(
+                    {"agents_executed": enforcer.current_execution_agents}
+                )
                 if next_phase_info:
                     print(next_phase_info["message"])
 

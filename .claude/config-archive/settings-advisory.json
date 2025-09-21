@@ -1,0 +1,37 @@
+{
+  "version": "3.0.0",
+  "project": "Perfect21 - Advisory Mode",
+  "description": "Hooks提供建议但不阻止执行",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Task",
+        "type": "command",
+        "command": "bash .claude/hooks/parallel-validators-advisory.sh",
+        "description": "验证Agent选择（建议模式）",
+        "timeout": 3000
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Task",
+        "type": "command",
+        "command": "echo '📊 Agent执行完成' >&2",
+        "description": "Agent完成通知",
+        "timeout": 1000
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "type": "command",
+        "command": "echo '🎯 Perfect21 Workflow Active (Advisory Mode)' >&2",
+        "description": "Workflow提示",
+        "timeout": 1000
+      }
+    ]
+  },
+  "environment": {
+    "ADVISORY_MODE": "true",
+    "MIN_AGENTS": "3"
+  }
+}

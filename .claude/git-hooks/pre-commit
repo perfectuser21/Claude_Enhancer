@@ -1,0 +1,107 @@
+#!/bin/bash
+# Claude Enhancer Git Hook - Pre-commit
+# 第三层防护：代码质量检查
+
+set -e
+
+echo "🔍 Claude Enhancer Pre-commit Check"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+# 颜色定义
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+# 检查结果
+CHECKS_PASSED=true
+
+# 1. 检查是否有测试文件
+echo "1. Checking for tests..."
+if find . -name "*test*.py" -o -name "*test*.js" -o -name "*_test.go" | grep -q .; then
+    echo -e "${GREEN}✅ Test files found${NC}"
+else
+    echo -e "${YELLOW}⚠️  Warning: No test files found${NC}"
+    # 不强制失败，但警告
+fi
+
+# 2. 检查是否有文档
+echo "2. Checking for documentation..."
+if [ -f "README.md" ] || [ -f "docs/README.md" ]; then
+    echo -e "${GREEN}✅ Documentation found${NC}"
+else
+    echo -e "${RED}❌ ERROR: No README.md found${NC}"
+    CHECKS_PASSED=false
+fi
+
+# 3. 检查代码格式（Python）
+echo "3. Checking code format..."
+if command -v black &> /dev/null; then
+    if black --check . 2>/dev/null; then
+        echo -e "${GREEN}✅ Python code formatted${NC}"
+    else
+        echo -e "${YELLOW}⚠️  Python code needs formatting (run: black .)${NC}"
+    fi
+fi
+
+# 4. 检查是否有安全问题（简单检查）
+echo "4. Security check..."
+SECURITY_ISSUES=false
+
+# 检查是否有硬编码的密码
+if grep -r "password\s*=\s*[\"']" --include="*.py" --include="*.js" . 2>/dev/null | grep -v test | grep -v example; then
+    echo -e "${RED}❌ Hardcoded passwords detected${NC}"
+    SECURITY_ISSUES=true
+fi
+
+# 检查是否有API密钥
+if grep -r "api_key\s*=\s*[\"']" --include="*.py" --include="*.js" . 2>/dev/null | grep -v test | grep -v example; then
+    echo -e "${RED}❌ Hardcoded API keys detected${NC}"
+    SECURITY_ISSUES=true
+fi
+
+if [ "$SECURITY_ISSUES" = false ]; then
+    echo -e "${GREEN}✅ No obvious security issues${NC}"
+fi
+
+# 5. 检查提交大小
+echo "5. Checking commit size..."
+FILES_COUNT=$(git diff --cached --name-only | wc -l)
+if [ $FILES_COUNT -gt 50 ]; then
+    echo -e "${YELLOW}⚠️  Large commit: $FILES_COUNT files (consider splitting)${NC}"
+else
+    echo -e "${GREEN}✅ Commit size OK: $FILES_COUNT files${NC}"
+fi
+
+# 6. 检查Claude Enhancer标准
+echo "6. Checking Claude Enhancer standards..."
+
+# 检查最近的执行日志
+if [ -f "/tmp/claude_enhancer_max_quality.log" ]; then
+    # 检查最近是否使用了足够的agents
+    LAST_AGENTS=$(tail -100 /tmp/claude_enhancer_max_quality.log 2>/dev/null | grep -c "agent" || echo "0")
+    if [ "$LAST_AGENTS" -ge 5 ]; then
+        echo -e "${GREEN}✅ Multi-agent collaboration detected${NC}"
+    else
+        echo -e "${YELLOW}⚠️  Consider using more agents for better quality${NC}"
+    fi
+else
+    echo -e "${YELLOW}⚠️  No Claude Enhancer execution log found${NC}"
+fi
+
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+# 最终结果
+if [ "$CHECKS_PASSED" = true ] && [ "$SECURITY_ISSUES" = false ]; then
+    echo -e "${GREEN}✅ All checks passed! Proceeding with commit.${NC}"
+    exit 0
+else
+    echo -e "${RED}❌ Commit blocked! Please fix the issues above.${NC}"
+    echo ""
+    echo "Tips:"
+    echo "- Add tests for your code"
+    echo "- Create or update README.md"
+    echo "- Remove hardcoded secrets"
+    echo "- Use environment variables for sensitive data"
+    exit 1
+fi

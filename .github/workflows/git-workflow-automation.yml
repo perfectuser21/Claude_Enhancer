@@ -1,0 +1,430 @@
+# =============================================================================
+# Git工作流自动化 - GitHub Actions集成
+# 与本地git-workflow.sh脚本协同工作
+# =============================================================================
+
+name: Git Workflow Automation
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+    inputs:
+      workflow_type:
+        description: '工作流类型'
+        required: true
+        default: 'full'
+        type: choice
+        options:
+        - quality-check
+        - full
+        - deploy
+
+env:
+  PYTHON_VERSION: '3.10'
+  NODE_VERSION: '18'
+
+# 工作流作业
+jobs:
+  # ==========================================================================
+  # 变更检测 - 智能决定运行哪些检查
+  # ==========================================================================
+  detect-changes:
+    name: 🔍 检测变更
+    runs-on: ubuntu-latest
+    outputs:
+      python: ${{ steps.changes.outputs.python }}
+      scripts: ${{ steps.changes.outputs.scripts }}
+      docs: ${{ steps.changes.outputs.docs }}
+      config: ${{ steps.changes.outputs.config }}
+      workflows: ${{ steps.changes.outputs.workflows }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 检测文件变更
+        uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            python:
+              - '**/*.py'
+              - 'requirements*.txt'
+              - 'setup.py'
+              - 'pyproject.toml'
+            scripts:
+              - 'scripts/**/*.sh'
+              - '**/*.sh'
+            docs:
+              - '**/*.md'
+              - 'docs/**'
+            config:
+              - '**/*.yaml'
+              - '**/*.yml'
+              - '**/*.json'
+              - '.pre-commit-config.yaml'
+            workflows:
+              - '.github/workflows/**'
+
+  # ==========================================================================
+  # 质量检查作业 - 并行执行多种检查
+  # ==========================================================================
+  quality-checks:
+    name: 🔍 代码质量检查
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.python == 'true' || needs.detect-changes.outputs.scripts == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        check-type:
+          - name: python-format
+            condition: python
+            script: |
+              pip install black isort flake8
+              black --check .
+              isort --check-only .
+              flake8 .
+          - name: python-security
+            condition: python
+            script: |
+              pip install bandit safety
+              bandit -r . -x "./venv,./test"
+              safety check
+          - name: shell-scripts
+            condition: scripts
+            script: |
+              sudo apt-get update && sudo apt-get install -y shellcheck
+              find . -name "*.sh" -exec shellcheck {} \;
+          - name: documentation
+            condition: docs
+            script: |
+              npm install -g markdownlint-cli
+              markdownlint "**/*.md" --ignore node_modules
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        if: contains(matrix.check-type.condition, 'python')
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Setup Node.js
+        if: contains(matrix.check-type.condition, 'docs')
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.npm
+          key: ${{ runner.os }}-deps-${{ matrix.check-type.name }}-${{ hashFiles('**/requirements*.txt', '**/package*.json') }}
+          restore-keys: |
+            ${{ runner.os }}-deps-${{ matrix.check-type.name }}-
+
+      - name: Run ${{ matrix.check-type.name }} checks
+        if: needs.detect-changes.outputs[matrix.check-type.condition] == 'true'
+        run: ${{ matrix.check-type.script }}
+
+  # ==========================================================================
+  # 集成测试 - 运行完整的质量检查脚本
+  # ==========================================================================
+  integrated-quality-check:
+    name: 🧪 集成质量检查
+    runs-on: ubuntu-latest
+    needs: [detect-changes, quality-checks]
+    if: always() && (needs.detect-changes.outputs.python == 'true' || needs.detect-changes.outputs.scripts == 'true')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+          pip install black isort flake8 bandit safety pytest coverage
+
+      - name: Make scripts executable
+        run: |
+          chmod +x scripts/quality-check.sh
+          chmod +x scripts/git-workflow.sh
+
+      - name: Run integrated quality check
+        run: |
+          cd ${{ github.workspace }}
+          bash scripts/quality-check.sh
+
+      - name: Upload quality report
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: quality-report
+          path: |
+            .quality-report.json
+            .quality-report-summary.json
+
+  # ==========================================================================
+  # 自动修复 - 对可修复的问题进行自动修复
+  # ==========================================================================
+  auto-fix:
+    name: 🔧 自动修复
+    runs-on: ubuntu-latest
+    needs: [detect-changes, integrated-quality-check]
+    if: failure() && github.event_name == 'pull_request'
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.head_ref }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install auto-fix tools
+        run: |
+          pip install black isort
+
+      - name: Auto-fix Python code
+        if: needs.detect-changes.outputs.python == 'true'
+        run: |
+          black .
+          isort .
+
+      - name: Commit fixes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git diff --staged --quiet || git commit -m "style: auto-fix code formatting
+
+          🤖 自动修复以下问题:
+          - Python代码格式化 (Black)
+          - 导入排序 (isort)
+
+          Generated with Claude Code
+          Co-Authored-By: Claude <noreply@anthropic.com>"
+
+      - name: Push changes
+        run: |
+          git push
+
+  # ==========================================================================
+  # 工作流验证 - 验证工作流脚本本身
+  # ==========================================================================
+  validate-workflow:
+    name: ✅ 工作流脚本验证
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.scripts == 'true' || needs.detect-changes.outputs.workflows == 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck bats
+
+      - name: Validate shell scripts
+        run: |
+          find scripts/ -name "*.sh" -exec shellcheck {} \;
+
+      - name: Test workflow script dry-run
+        run: |
+          chmod +x scripts/git-workflow.sh
+          chmod +x scripts/workflow
+          # 测试配置生成
+          bash scripts/git-workflow.sh config || true
+          # 测试状态检查
+          bash scripts/git-workflow.sh status || true
+
+      - name: Test quality check script
+        run: |
+          chmod +x scripts/quality-check.sh
+          bash scripts/quality-check.sh || true
+
+  # ==========================================================================
+  # 部署工作流 - 在主分支上自动部署
+  # ==========================================================================
+  deploy-workflow:
+    name: 🚀 部署工作流工具
+    runs-on: ubuntu-latest
+    needs: [quality-checks, integrated-quality-check, validate-workflow]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment:
+      name: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup deployment
+        run: |
+          # 创建发布包
+          mkdir -p workflow-tools
+          cp scripts/git-workflow.sh workflow-tools/
+          cp scripts/workflow workflow-tools/
+          cp scripts/quality-check.sh workflow-tools/
+          cp .github/workflows/git-workflow-automation.yml workflow-tools/
+
+          # 创建安装脚本
+          cat > workflow-tools/install.sh << 'EOF'
+          #!/bin/bash
+          # Git工作流自动化工具安装脚本
+
+          INSTALL_DIR="/usr/local/bin"
+          SCRIPTS_DIR="$HOME/.git-workflow"
+
+          echo "🚀 安装Git工作流自动化工具..."
+
+          # 创建脚本目录
+          mkdir -p "$SCRIPTS_DIR"
+
+          # 复制脚本
+          cp git-workflow.sh "$SCRIPTS_DIR/"
+          cp quality-check.sh "$SCRIPTS_DIR/"
+
+          # 创建全局命令
+          sudo cp workflow "$INSTALL_DIR/workflow"
+          sudo chmod +x "$INSTALL_DIR/workflow"
+
+          # 设置权限
+          chmod +x "$SCRIPTS_DIR"/*.sh
+
+          echo "✅ 安装完成!"
+          echo "使用 'workflow help' 查看帮助"
+          EOF
+
+          chmod +x workflow-tools/install.sh
+
+      - name: Create release package
+        run: |
+          tar -czf git-workflow-automation.tar.gz workflow-tools/
+
+      - name: Upload release artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: git-workflow-automation
+          path: git-workflow-automation.tar.gz
+
+  # ==========================================================================
+  # 通知和报告
+  # ==========================================================================
+  notify-results:
+    name: 📊 结果通知
+    runs-on: ubuntu-latest
+    needs: [quality-checks, integrated-quality-check, validate-workflow]
+    if: always()
+    steps:
+      - name: Download quality reports
+        uses: actions/download-artifact@v3
+        with:
+          name: quality-report
+        continue-on-error: true
+
+      - name: Generate workflow summary
+        run: |
+          cat >> $GITHUB_STEP_SUMMARY << 'EOF'
+          # 🔍 Git工作流自动化报告
+
+          ## 📊 检查结果
+
+          | 检查项 | 状态 |
+          |--------|------|
+          | 代码质量检查 | ${{ needs.quality-checks.result }} |
+          | 集成测试 | ${{ needs.integrated-quality-check.result }} |
+          | 工作流验证 | ${{ needs.validate-workflow.result }} |
+
+          ## 🎯 下一步操作
+
+          - 如果检查失败，请查看详细日志
+          - 使用本地 `workflow` 命令进行快速修复
+          - 运行 `scripts/quality-check.sh` 进行本地验证
+
+          ## 🛠️ 本地工具使用
+
+          ```bash
+          # 开始新功能
+          workflow new feature-name
+
+          # 保存进度
+          workflow save
+
+          # 发布功能
+          workflow ship
+
+          # 查看状态
+          workflow status
+          ```
+
+          ---
+          🤖 Generated with Claude Code
+          EOF
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('🔍 Git工作流自动化报告')
+            );
+
+            const body = `## 🔍 Git工作流自动化报告
+
+            ### 📊 检查结果
+            - **代码质量检查**: ${{ needs.quality-checks.result }}
+            - **集成测试**: ${{ needs.integrated-quality-check.result }}
+            - **工作流验证**: ${{ needs.validate-workflow.result }}
+
+            ### 🎯 建议操作
+            ${needs.integrated-quality-check.result === 'failure' ?
+              '⚠️ 质量检查发现问题，请运行本地修复命令：\n```bash\nworkflow save\n```' :
+              '✅ 所有检查通过，可以安全合并！'}
+
+            ---
+            🤖 自动生成于 ${new Date().toISOString()}`;
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+            }

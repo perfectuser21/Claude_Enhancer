@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Perfect21 Smart Dispatcher
+Claude Enhancer Smart Dispatcher
 Intelligent routing for hooks based on context and content
 """
 
@@ -16,10 +16,10 @@ from pathlib import Path
 
 # Configure logging
 logging.basicConfig(
-    level=os.getenv('PERFECT21_LOG_LEVEL', 'INFO'),
+    level=os.getenv('CLAUDE_ENHANCER_LOG_LEVEL', 'INFO'),
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
-logger = logging.getLogger('perfect21.dispatcher')
+logger = logging.getLogger('claude_enhancer.dispatcher')
 
 @dataclass
 class HookContext:
@@ -139,19 +139,19 @@ class SmartDispatcher:
             # Check for dangerous patterns
             dangerous_patterns = ['rm ', 'sudo', 'chmod', 'curl', 'wget']
             if any(p in context.input_data.lower() for p in dangerous_patterns):
-                return True, "python3 /home/xx/dev/Perfect21/.claude/hooks/security_validator.py"
+                return True, "python3 /home/xx/dev/Claude Enhancer/.claude/hooks/security_validator.py"
         return False, ""
 
     def _route_agent_validation(self, context: HookContext) -> Tuple[bool, str]:
         """Route to agent validation for Task operations"""
         if context.tool == 'Task' and 'subagent_type' in context.input_data:
-            return True, "python3 /home/xx/dev/Perfect21/.claude/hooks/perfect21_core.py validate-agents"
+            return True, "python3 /home/xx/dev/Claude Enhancer/.claude/hooks/claude_enhancer_core.py validate-agents"
         return False, ""
 
     def _route_quality_check(self, context: HookContext) -> Tuple[bool, str]:
         """Route to quality checks for code operations"""
         if context.tool in ['Edit', 'Write', 'MultiEdit']:
-            return True, "python3 /home/xx/dev/Perfect21/.claude/hooks/perfect21_core.py pre-edit"
+            return True, "python3 /home/xx/dev/Claude Enhancer/.claude/hooks/claude_enhancer_core.py pre-edit"
         return False, ""
 
     def _route_formatting(self, context: HookContext) -> Tuple[bool, str]:
@@ -160,7 +160,7 @@ class SmartDispatcher:
             # Check if files are formattable
             formattable_extensions = ['.py', '.js', '.jsx', '.ts', '.tsx', '.go', '.json', '.md']
             if any(Path(f).suffix in formattable_extensions for f in context.file_paths):
-                return True, "python3 /home/xx/dev/Perfect21/.claude/hooks/perfect21_core.py format-code"
+                return True, "python3 /home/xx/dev/Claude Enhancer/.claude/hooks/claude_enhancer_core.py format-code"
         return False, ""
 
     def _route_test_analysis(self, context: HookContext) -> Tuple[bool, str]:
@@ -168,49 +168,49 @@ class SmartDispatcher:
         if context.tool == 'Bash':
             test_indicators = ['test', 'pytest', 'jest', 'mocha', 'npm test']
             if any(ind in context.input_data.lower() for ind in test_indicators):
-                return True, "python3 /home/xx/dev/Perfect21/.claude/hooks/perfect21_core.py analyze-test-results"
+                return True, "python3 /home/xx/dev/Claude Enhancer/.claude/hooks/claude_enhancer_core.py analyze-test-results"
         return False, ""
 
     def _route_commit_preparation(self, context: HookContext) -> Tuple[bool, str]:
         """Route to commit preparation for git operations"""
         if context.tool == 'Bash' and 'git commit' in context.input_data:
-            return True, "python3 /home/xx/dev/Perfect21/.claude/hooks/git_helper.py prepare-commit"
+            return True, "python3 /home/xx/dev/Claude Enhancer/.claude/hooks/git_helper.py prepare-commit"
         return False, ""
 
     def _route_task_analysis(self, context: HookContext) -> Tuple[bool, str]:
         """Route to task analysis on prompt submission"""
         # Analyze all prompts for task type
-        return True, "python3 /home/xx/dev/Perfect21/.claude/hooks/perfect21_core.py analyze-task"
+        return True, "python3 /home/xx/dev/Claude Enhancer/.claude/hooks/claude_enhancer_core.py analyze-task"
 
     def _route_context_injection(self, context: HookContext) -> Tuple[bool, str]:
         """Route to context injection for enrichment"""
         # Check if prompt needs context
         if any(kw in context.input_data.lower() for kw in ['implement', 'create', 'build', 'develop']):
-            return True, "python3 /home/xx/dev/Perfect21/.claude/hooks/context_injector.py"
+            return True, "python3 /home/xx/dev/Claude Enhancer/.claude/hooks/context_injector.py"
         return False, ""
 
     def _route_completion_check(self, context: HookContext) -> Tuple[bool, str]:
         """Route to completion check on stop"""
-        return True, "python3 /home/xx/dev/Perfect21/.claude/hooks/perfect21_core.py check-completion"
+        return True, "python3 /home/xx/dev/Claude Enhancer/.claude/hooks/claude_enhancer_core.py check-completion"
 
     def _route_summary_generation(self, context: HookContext) -> Tuple[bool, str]:
         """Route to summary generation"""
         # Generate summary for long sessions
         if self.stats['total'] > 10:
-            return True, "python3 /home/xx/dev/Perfect21/.claude/hooks/perfect21_core.py generate-report"
+            return True, "python3 /home/xx/dev/Claude Enhancer/.claude/hooks/claude_enhancer_core.py generate-report"
         return False, ""
 
     def _route_initialization(self, context: HookContext) -> Tuple[bool, str]:
         """Route to session initialization"""
-        return True, "python3 /home/xx/dev/Perfect21/.claude/hooks/perfect21_core.py load-context"
+        return True, "python3 /home/xx/dev/Claude Enhancer/.claude/hooks/claude_enhancer_core.py load-context"
 
     def _route_cleanup(self, context: HookContext) -> Tuple[bool, str]:
         """Route to cleanup operations"""
-        return True, "python3 /home/xx/dev/Perfect21/.claude/hooks/cleanup.py"
+        return True, "python3 /home/xx/dev/Claude Enhancer/.claude/hooks/cleanup.py"
 
     def _route_reporting(self, context: HookContext) -> Tuple[bool, str]:
         """Route to final reporting"""
-        return True, "python3 /home/xx/dev/Perfect21/.claude/hooks/perfect21_core.py generate-report"
+        return True, "python3 /home/xx/dev/Claude Enhancer/.claude/hooks/claude_enhancer_core.py generate-report"
 
     def get_stats(self) -> Dict[str, int]:
         """Get dispatcher statistics"""

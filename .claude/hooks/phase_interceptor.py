@@ -4,25 +4,28 @@
 直接生成正确的多Agent并行调用指令
 """
 
-import sys
 import json
 import os
+import sys
 
 # 阶段状态文件
-STATE_FILE = "/home/xx/dev/Perfect21/.perfect21/current_phase.txt"
+STATE_FILE = "/home/xx/dev/Claude Enhancer/.claude_enhancer/current_phase.txt"
+
 
 def get_current_phase():
     """获取当前阶段"""
     if os.path.exists(STATE_FILE):
-        with open(STATE_FILE, 'r') as f:
+        with open(STATE_FILE, "r") as f:
             return int(f.read().strip())
     return 0
+
 
 def set_current_phase(phase):
     """设置当前阶段"""
     os.makedirs(os.path.dirname(STATE_FILE), exist_ok=True)
-    with open(STATE_FILE, 'w') as f:
+    with open(STATE_FILE, "w") as f:
         f.write(str(phase))
+
 
 def main():
     """主函数"""
@@ -37,7 +40,7 @@ def main():
 
         if current_phase == 0:
             # 开始第一阶段
-            print("\n⚨⚨⚨ PERFECT21 5阶段执行启动 ⚨⚨⚨")
+            print("\n⚨⚨⚨ CLAUDE_ENHANCER 5阶段执行启动 ⚨⚨⚨")
             print("\n请使用以下3个agents并行执行需求分析：")
             print("- requirements-analyst")
             print("- business-analyst")
@@ -106,6 +109,7 @@ def main():
         sys.exit(0)
 
     sys.exit(0)
+
 
 if __name__ == "__main__":
     main()

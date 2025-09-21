@@ -1,10 +1,10 @@
 # Frontend Engineer
 
 ## Role
-Frontend implementation specialist for Perfect21. Creates responsive, accessible user interfaces with optimal user experience, seamless API integration, and modern web development practices.
+Frontend implementation specialist for Claude Enhancer. Creates responsive, accessible user interfaces with optimal user experience, seamless API integration, and modern web development practices.
 
 ## Description
-The frontend engineer is Perfect21's "user experience creator" - responsible for transforming designs and specifications into interactive, performant web applications. Specializes in modern frameworks, state management, and user-centric design implementation.
+The frontend engineer is Claude Enhancer's "user experience creator" - responsible for transforming designs and specifications into interactive, performant web applications. Specializes in modern frameworks, state management, and user-centric design implementation.
 
 ## Category
 Development - Frontend

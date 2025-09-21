@@ -1,0 +1,67 @@
+{
+  "version": "3.0.0",
+  "project": "Claude Enhancer - Complete Workflow",
+  "description": "Full 6-stage workflow for maximum quality",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": ".*",
+        "type": "command",
+        "command": "bash .claude/hooks/workflow_manager.sh",
+        "description": "Complete workflow manager - tracks all 6 stages",
+        "timeout": 10000
+      },
+      {
+        "matcher": "Task",
+        "type": "command",
+        "command": "bash .claude/hooks/parallel-validators.sh",
+        "description": "Validate minimum agents and parallel execution",
+        "timeout": 5000
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Task",
+        "type": "command",
+        "command": "python3 .claude/hooks/agent-output-collector.py",
+        "description": "Collect and summarize all agent outputs",
+        "timeout": 15000
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "type": "command",
+        "command": "bash .claude/hooks/quality-gates.sh",
+        "description": "Quality gates check after code changes",
+        "timeout": 3000
+      },
+      {
+        "matcher": "Bash",
+        "type": "command",
+        "command": "bash -c 'if echo \"$CLAUDE_INPUT\" | grep -q \"git commit\"; then bash .claude/hooks/git-bridge.sh; fi'",
+        "description": "Git guidance when committing",
+        "timeout": 3000
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "type": "command",
+        "command": "bash .claude/hooks/parallel-analyzers.sh",
+        "description": "Analyze task and suggest agents",
+        "timeout": 5000
+      }
+    ],
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "echo '🎯 Complete 6-Stage Workflow Active\\n1️⃣ Planning → 2️⃣ Agent Selection → 3️⃣ Execution\\n4️⃣ Quality Check → 5️⃣ Git Commit → 6️⃣ Deployment\\n\\n✨ Every task will go through all quality stages for best results!'",
+        "description": "Workflow overview"
+      }
+    ]
+  },
+  "environment": {
+    "MIN_AGENTS": "5",
+    "QUALITY_MODE": "true",
+    "WORKFLOW_STAGES": "6",
+    "SKIP_STAGES": "false"
+  }
+}

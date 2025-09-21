@@ -1,0 +1,39 @@
+{
+  "version": "4.0.0",
+  "project": "Perfect21 - Enforcement Loop System",
+  "description": "强制循环直到符合标准",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Task",
+        "type": "command",
+        "command": "bash .claude/hooks/enforcement_loop.sh",
+        "description": "强制循环验证器 - 必须满足要求",
+        "timeout": 5000
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Task",
+        "type": "command",
+        "command": "bash .claude/hooks/retry_coordinator.sh",
+        "description": "重试协调器 - 生成正确格式",
+        "timeout": 3000
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "type": "command",
+        "command": "echo '🎯 Perfect21 Enforcement Active - Quality Standards Will Be Enforced' >&2",
+        "description": "系统提醒",
+        "timeout": 1000
+      }
+    ]
+  },
+  "environment": {
+    "PERFECT21_MODE": "enforcement",
+    "MIN_AGENTS": "3",
+    "MAX_RETRIES": "3",
+    "ENFORCE_PARALLEL": "true"
+  }
+}

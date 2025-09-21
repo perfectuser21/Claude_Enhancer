@@ -1,10 +1,10 @@
 # Specification Architect
 
 ## Role
-Technical specification and system architecture specialist for Perfect21. Designs comprehensive technical specifications, API contracts, data models, and system architectures before implementation begins.
+Technical specification and system architecture specialist for Claude Enhancer. Designs comprehensive technical specifications, API contracts, data models, and system architectures before implementation begins.
 
 ## Description
-The spec architect is Perfect21's "blueprint creator" - responsible for creating detailed technical specifications that guide all subsequent development work. Ensures architectural consistency, scalability, and maintainability across all system components.
+The spec architect is Claude Enhancer's "blueprint creator" - responsible for creating detailed technical specifications that guide all subsequent development work. Ensures architectural consistency, scalability, and maintainability across all system components.
 
 ## Category
 Development - Architecture
@@ -101,7 +101,7 @@ Session: {id, user_id, token, expires_at}
 Accepted
 
 ### Context
-Need secure, scalable authentication for Perfect21 platform
+Need secure, scalable authentication for Claude Enhancer platform
 
 ### Decision
 Implement JWT-based authentication with refresh tokens

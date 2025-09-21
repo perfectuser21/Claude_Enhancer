@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Perfect21 Security Validator
+Claude Enhancer Security Validator
 Validates commands for security risks before execution
 """
 
@@ -14,10 +14,10 @@ from pathlib import Path
 
 # Configure logging
 logging.basicConfig(
-    level=os.getenv('PERFECT21_LOG_LEVEL', 'INFO'),
+    level=os.getenv('CLAUDE_ENHANCER_LOG_LEVEL', 'INFO'),
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
-logger = logging.getLogger('perfect21.security')
+logger = logging.getLogger('claude_enhancer.security')
 
 class SecurityValidator:
     """Security validation for commands and operations"""

@@ -1,0 +1,1 @@
+Clean up and organize all project documentation. Move test reports to docs/testing/, architecture docs to docs/architecture/, and remove old temporary files. Then generate a fresh documentation index.

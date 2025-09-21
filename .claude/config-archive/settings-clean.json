@@ -1,0 +1,36 @@
+{
+  "version": "1.1.0",
+  "project": "Claude Enhancer",
+  "description": "Lightweight multi-agent enhancer",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Task",
+        "type": "command",
+        "command": "bash .claude/hooks/parallel-validators.sh",
+        "description": "Validate agents in parallel",
+        "timeout": 5000
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Task",
+        "type": "command",
+        "command": "python3 .claude/hooks/agent-output-collector.py",
+        "description": "Collect agent outputs",
+        "timeout": 10000
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "type": "command",
+        "command": "bash .claude/hooks/parallel-analyzers.sh",
+        "description": "Analyze task in parallel",
+        "timeout": 3000
+      }
+    ]
+  },
+  "environment": {
+    "MIN_AGENTS": "3"
+  }
+}

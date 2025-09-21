@@ -1,23 +1,26 @@
 #!/usr/bin/env python3
 """
-Perfect21 Phase Manager - Claude Hooks的5阶段执行管理器
+Claude Enhancer Phase Manager - Claude Hooks的5阶段执行管理器
 自动引导Claude Code按5个阶段执行任务，每阶段并行多Agent
 """
 
 import json
 import os
 import re
+from datetime import datetime
 from enum import Enum
 from typing import Dict, List, Optional, Tuple
-from datetime import datetime
+
 
 class ExecutionPhase(Enum):
     """执行阶段枚举"""
-    ANALYSIS = "analysis"      # 需求分析
-    DESIGN = "design"          # 架构设计
-    IMPLEMENTATION = "impl"    # 实现开发
-    TESTING = "testing"        # 测试验证
-    DEPLOYMENT = "deploy"      # 部署上线
+
+    ANALYSIS = "analysis"  # 需求分析
+    DESIGN = "design"  # 架构设计
+    IMPLEMENTATION = "impl"  # 实现开发
+    TESTING = "testing"  # 测试验证
+    DEPLOYMENT = "deploy"  # 部署上线
+
 
 class PhaseManager:
     """5阶段执行管理器"""
@@ -29,17 +32,17 @@ class PhaseManager:
                 "agents": [
                     "requirements-analyst",
                     "business-analyst",
-                    "project-manager"
+                    "project-manager",
                 ],
                 "min_agents": 3,
                 "execution_mode": "parallel",
                 "prompts": {
                     "requirements-analyst": "分析用户需求，创建详细的需求规格说明，包括功能需求、非功能需求、用户故事和验收标准",
                     "business-analyst": "分析业务流程，识别业务价值，创建业务案例，评估ROI和风险",
-                    "project-manager": "创建项目计划，定义里程碑，分配资源，识别依赖关系和风险"
+                    "project-manager": "创建项目计划，定义里程碑，分配资源，识别依赖关系和风险",
                 },
                 "sync_point": "requirements_review",
-                "git_operations": []
+                "git_operations": [],
             },
             ExecutionPhase.DESIGN: {
                 "name": "架构设计",
@@ -47,7 +50,7 @@ class PhaseManager:
                     "api-designer",
                     "backend-architect",
                     "database-specialist",
-                    "frontend-specialist"
+                    "frontend-specialist",
                 ],
                 "min_agents": 4,
                 "execution_mode": "parallel",
@@ -55,10 +58,10 @@ class PhaseManager:
                     "api-designer": "设计REST API或GraphQL schema，定义端点、请求/响应格式、认证方案",
                     "backend-architect": "设计后端架构，选择技术栈，定义服务边界，设计数据流",
                     "database-specialist": "设计数据库schema，定义表结构、关系、索引、优化策略",
-                    "frontend-specialist": "设计前端架构，组件结构，状态管理，UI/UX方案"
+                    "frontend-specialist": "设计前端架构，组件结构，状态管理，UI/UX方案",
                 },
                 "sync_point": "design_review",
-                "git_operations": ["create_feature_branch", "init_project_structure"]
+                "git_operations": ["create_feature_branch", "init_project_structure"],
             },
             ExecutionPhase.IMPLEMENTATION: {
                 "name": "实现开发",
@@ -67,7 +70,7 @@ class PhaseManager:
                     "backend-architect",
                     "frontend-specialist",
                     "database-specialist",
-                    "test-engineer"
+                    "test-engineer",
                 ],
                 "min_agents": 5,
                 "execution_mode": "parallel",
@@ -76,10 +79,10 @@ class PhaseManager:
                     "backend-architect": "实现后端服务，API端点，业务逻辑，数据访问层",
                     "frontend-specialist": "实现前端组件，页面，交互逻辑，响应式设计",
                     "database-specialist": "创建数据库迁移脚本，优化查询，实现数据访问模式",
-                    "test-engineer": "编写单元测试，集成测试，准备测试数据和测试场景"
+                    "test-engineer": "编写单元测试，集成测试，准备测试数据和测试场景",
                 },
                 "sync_point": "code_review",
-                "git_operations": ["commit_changes", "run_pre_commit_hooks"]
+                "git_operations": ["commit_changes", "run_pre_commit_hooks"],
             },
             ExecutionPhase.TESTING: {
                 "name": "测试验证",
@@ -87,7 +90,7 @@ class PhaseManager:
                     "test-engineer",
                     "e2e-test-specialist",
                     "performance-tester",
-                    "security-auditor"
+                    "security-auditor",
                 ],
                 "min_agents": 4,
                 "execution_mode": "parallel",
@@ -95,45 +98,64 @@ class PhaseManager:
                     "test-engineer": "执行完整测试套件，验证功能正确性，测试覆盖率分析",
                     "e2e-test-specialist": "执行端到端测试，验证用户工作流，测试集成点",
                     "performance-tester": "执行性能测试，负载测试，识别性能瓶颈",
-                    "security-auditor": "执行安全审计，漏洞扫描，验证安全最佳实践"
+                    "security-auditor": "执行安全审计，漏洞扫描，验证安全最佳实践",
                 },
                 "sync_point": "quality_gate",
-                "git_operations": ["run_tests", "generate_coverage_report"]
+                "git_operations": ["run_tests", "generate_coverage_report"],
             },
             ExecutionPhase.DEPLOYMENT: {
                 "name": "部署上线",
                 "agents": [
                     "devops-engineer",
                     "monitoring-specialist",
-                    "technical-writer"
+                    "technical-writer",
                 ],
                 "min_agents": 3,
                 "execution_mode": "sequential",  # 部署阶段顺序执行
                 "prompts": {
                     "devops-engineer": "准备部署配置，CI/CD管道，容器化，环境配置",
                     "monitoring-specialist": "设置监控告警，日志收集，性能指标，健康检查",
-                    "technical-writer": "更新文档，API文档，部署指南，用户手册"
+                    "technical-writer": "更新文档，API文档，部署指南，用户手册",
                 },
                 "sync_point": "deployment_verification",
-                "git_operations": ["tag_release", "merge_to_main"]
-            }
+                "git_operations": ["tag_release", "merge_to_main"],
+            },
         }
 
         # 状态管理
         self.current_phase = None
         self.phase_history = []
         self.context_pool = {}
-        self.state_file = "/home/xx/dev/Perfect21/.perfect21/phase_state.json"
+        self.state_file = "/home/xx/dev/Claude Enhancer/.claude_enhancer/phase_state.json"
         self.load_state()
 
     def detect_task_type(self, user_request: str) -> bool:
         """检测是否需要进入5阶段执行"""
         # 编程任务关键词
         programming_keywords = [
-            "实现", "开发", "创建", "构建", "编写", "设计",
-            "implement", "develop", "create", "build", "write", "design",
-            "api", "功能", "系统", "服务", "应用", "组件",
-            "feature", "system", "service", "application", "component"
+            "实现",
+            "开发",
+            "创建",
+            "构建",
+            "编写",
+            "设计",
+            "implement",
+            "develop",
+            "create",
+            "build",
+            "write",
+            "design",
+            "api",
+            "功能",
+            "系统",
+            "服务",
+            "应用",
+            "组件",
+            "feature",
+            "system",
+            "service",
+            "application",
+            "component",
         ]
 
         request_lower = user_request.lower()
@@ -175,11 +197,13 @@ class PhaseManager:
             if context:
                 prompt += f"\n\n基于之前的分析结果:\n{json.dumps(context, ensure_ascii=False, indent=2)}"
 
-            agent_calls.append({
-                "agent": agent,
-                "prompt": prompt,
-                "execution_mode": config["execution_mode"]
-            })
+            agent_calls.append(
+                {
+                    "agent": agent,
+                    "prompt": prompt,
+                    "execution_mode": config["execution_mode"],
+                }
+            )
 
         return {
             "phase": phase.value,
@@ -187,10 +211,12 @@ class PhaseManager:
             "agents_to_call": agent_calls,
             "min_agents": config["min_agents"],
             "sync_point": config["sync_point"],
-            "git_operations": config["git_operations"]
+            "git_operations": config["git_operations"],
         }
 
-    def validate_agent_execution(self, agents_used: List[str]) -> Tuple[bool, List[str]]:
+    def validate_agent_execution(
+        self, agents_used: List[str]
+    ) -> Tuple[bool, List[str]]:
         """验证agent执行是否符合当前阶段要求"""
         if not self.current_phase:
             return False, ["未进入阶段执行模式"]
@@ -200,10 +226,12 @@ class PhaseManager:
 
         # 检查agent数量
         if len(agents_used) < config["min_agents"]:
-            errors.append(f"阶段{config['name']}需要至少{config['min_agents']}个agents，实际只有{len(agents_used)}个")
+            errors.append(
+                f"阶段{config['name']}需要至少{config['min_agents']}个agents，实际只有{len(agents_used)}个"
+            )
 
         # 检查必需的agents
-        required_agents = set(config["agents"][:config["min_agents"]])
+        required_agents = set(config["agents"][: config["min_agents"]])
         used_agents = set(agents_used)
         missing = required_agents - used_agents
 
@@ -219,7 +247,7 @@ class PhaseManager:
             ExecutionPhase.DESIGN,
             ExecutionPhase.IMPLEMENTATION,
             ExecutionPhase.TESTING,
-            ExecutionPhase.DEPLOYMENT
+            ExecutionPhase.DEPLOYMENT,
         ]
 
         if not self.current_phase:
@@ -238,13 +266,15 @@ class PhaseManager:
         """保存阶段结果"""
         self.context_pool[phase.value] = {
             "timestamp": datetime.now().isoformat(),
-            "results": results
+            "results": results,
         }
-        self.phase_history.append({
-            "phase": phase.value,
-            "completed_at": datetime.now().isoformat(),
-            "results_summary": len(results)
-        })
+        self.phase_history.append(
+            {
+                "phase": phase.value,
+                "completed_at": datetime.now().isoformat(),
+                "results_summary": len(results),
+            }
+        )
         self.save_state()
 
     def get_context_for_phase(self, phase: ExecutionPhase) -> dict:
@@ -256,7 +286,7 @@ class PhaseManager:
             ExecutionPhase.ANALYSIS,
             ExecutionPhase.DESIGN,
             ExecutionPhase.IMPLEMENTATION,
-            ExecutionPhase.TESTING
+            ExecutionPhase.TESTING,
         ]
 
         current_idx = phase_order.index(phase) if phase in phase_order else -1
@@ -281,18 +311,18 @@ class PhaseManager:
         state = {
             "current_phase": self.current_phase.value if self.current_phase else None,
             "phase_history": self.phase_history,
-            "context_pool": self.context_pool
+            "context_pool": self.context_pool,
         }
 
         os.makedirs(os.path.dirname(self.state_file), exist_ok=True)
-        with open(self.state_file, 'w', encoding='utf-8') as f:
+        with open(self.state_file, "w", encoding="utf-8") as f:
             json.dump(state, f, ensure_ascii=False, indent=2)
 
     def load_state(self):
         """从文件加载状态"""
         if os.path.exists(self.state_file):
             try:
-                with open(self.state_file, 'r', encoding='utf-8') as f:
+                with open(self.state_file, "r", encoding="utf-8") as f:
                     state = json.load(f)
 
                 phase_value = state.get("current_phase")
@@ -326,6 +356,7 @@ class PhaseManager:
 
 # 单例实例
 _phase_manager = None
+
 
 def get_phase_manager() -> PhaseManager:
     """获取阶段管理器单例"""

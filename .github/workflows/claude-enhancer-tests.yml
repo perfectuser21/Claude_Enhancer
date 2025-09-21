@@ -1,0 +1,451 @@
+# Claude Enhancer 自动化测试工作流
+# 在代码变更时自动运行完整的测试套件
+
+name: Claude Enhancer Tests
+
+on:
+  push:
+    branches: [ main, develop, 'feature/*' ]
+    paths:
+      - '.claude/hooks/**'
+      - 'test/claude-enhancer/**'
+      - '.github/workflows/claude-enhancer-tests.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - '.claude/hooks/**'
+      - 'test/claude-enhancer/**'
+  schedule:
+    # 每天凌晨2点运行完整测试套件
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      test_categories:
+        description: '要运行的测试类别（用逗号分隔）'
+        required: false
+        default: 'hooks,workflows,integration,performance,security'
+      parallel_execution:
+        description: '是否并行执行测试'
+        required: false
+        default: 'true'
+        type: boolean
+
+env:
+  PYTHON_VERSION: '3.9'
+  NODE_VERSION: '18'
+
+jobs:
+  # 环境验证作业
+  validate-environment:
+    name: 验证测试环境
+    runs-on: ubuntu-latest
+    outputs:
+      should-run-tests: ${{ steps.validation.outputs.should-run-tests }}
+
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v3
+
+    - name: 设置Python环境
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: 安装测试依赖
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest psutil memory_profiler pyyaml
+        pip install pytest-cov pytest-xdist pytest-json-report
+
+    - name: 验证测试环境
+      id: validation
+      run: |
+        cd test/claude-enhancer
+        python run_tests.py --validate-only
+        echo "should-run-tests=true" >> $GITHUB_OUTPUT
+
+    - name: 缓存Python依赖
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+  # Hook功能测试
+  test-hooks:
+    name: Hook功能测试
+    runs-on: ubuntu-latest
+    needs: validate-environment
+    if: needs.validate-environment.outputs.should-run-tests == 'true'
+
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v3
+
+    - name: 设置Python环境
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: 恢复Python依赖缓存
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+
+    - name: 安装依赖
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest psutil memory_profiler pyyaml
+        pip install pytest-cov pytest-xdist pytest-json-report
+
+    - name: 设置Hook脚本权限
+      run: |
+        find .claude/hooks -name "*.sh" -exec chmod +x {} \;
+
+    - name: 运行Hook测试
+      run: |
+        cd test/claude-enhancer
+        python run_tests.py --categories hooks --output ../../test-results/hooks-results.json
+
+    - name: 上传Hook测试结果
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: hooks-test-results
+        path: test-results/hooks-*.json
+
+  # 工作流测试
+  test-workflows:
+    name: 工作流测试
+    runs-on: ubuntu-latest
+    needs: validate-environment
+    if: needs.validate-environment.outputs.should-run-tests == 'true'
+
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v3
+
+    - name: 设置Python环境
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: 安装依赖
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest psutil memory_profiler pyyaml
+        pip install pytest-cov pytest-xdist pytest-json-report
+
+    - name: 运行工作流测试
+      run: |
+        cd test/claude-enhancer
+        python run_tests.py --categories workflows --output ../../test-results/workflows-results.json
+
+    - name: 上传工作流测试结果
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: workflows-test-results
+        path: test-results/workflows-*.json
+
+  # 集成测试
+  test-integration:
+    name: 集成测试
+    runs-on: ubuntu-latest
+    needs: [test-hooks, test-workflows]
+
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v3
+
+    - name: 设置Python环境
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: 安装依赖
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest psutil memory_profiler pyyaml
+        pip install pytest-cov pytest-xdist pytest-json-report
+
+    - name: 设置Hook脚本权限
+      run: |
+        find .claude/hooks -name "*.sh" -exec chmod +x {} \;
+
+    - name: 运行集成测试
+      run: |
+        cd test/claude-enhancer
+        python run_tests.py --categories integration --output ../../test-results/integration-results.json
+
+    - name: 上传集成测试结果
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: integration-test-results
+        path: test-results/integration-*.json
+
+  # 性能测试
+  test-performance:
+    name: 性能测试
+    runs-on: ubuntu-latest
+    needs: validate-environment
+    if: needs.validate-environment.outputs.should-run-tests == 'true'
+
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v3
+
+    - name: 设置Python环境
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: 安装依赖
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest psutil memory_profiler pyyaml
+        pip install pytest-cov pytest-xdist pytest-json-report
+        pip install pytest-benchmark
+
+    - name: 设置Hook脚本权限
+      run: |
+        find .claude/hooks -name "*.sh" -exec chmod +x {} \;
+
+    - name: 运行性能测试
+      run: |
+        cd test/claude-enhancer
+        python run_tests.py --categories performance --output ../../test-results/performance-results.json
+
+    - name: 上传性能测试结果
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: performance-test-results
+        path: |
+          test-results/performance-*.json
+          performance-results.json
+
+  # 安全测试
+  test-security:
+    name: 安全测试
+    runs-on: ubuntu-latest
+    needs: validate-environment
+    if: needs.validate-environment.outputs.should-run-tests == 'true'
+
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v3
+
+    - name: 设置Python环境
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: 安装依赖
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest psutil memory_profiler pyyaml
+        pip install pytest-cov pytest-xdist pytest-json-report
+
+    - name: 设置Hook脚本权限
+      run: |
+        find .claude/hooks -name "*.sh" -exec chmod +x {} \;
+
+    - name: 运行安全测试
+      run: |
+        cd test/claude-enhancer
+        python run_tests.py --categories security --output ../../test-results/security-results.json
+
+    - name: 上传安全测试结果
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: security-test-results
+        path: test-results/security-*.json
+
+  # 完整测试套件（仅在主分支或手动触发时运行）
+  test-complete-suite:
+    name: 完整测试套件
+    runs-on: ubuntu-latest
+    needs: validate-environment
+    if: |
+      (github.ref == 'refs/heads/main' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') &&
+      needs.validate-environment.outputs.should-run-tests == 'true'
+
+    strategy:
+      matrix:
+        python-version: ['3.8', '3.9', '3.10', '3.11']
+
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v3
+
+    - name: 设置Python环境
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: 安装依赖
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest psutil memory_profiler pyyaml
+        pip install pytest-cov pytest-xdist pytest-json-report pytest-benchmark
+
+    - name: 设置Hook脚本权限
+      run: |
+        find .claude/hooks -name "*.sh" -exec chmod +x {} \;
+
+    - name: 运行完整测试套件
+      run: |
+        cd test/claude-enhancer
+        python run_tests.py \
+          --categories ${{ github.event.inputs.test_categories || 'hooks,workflows,integration,performance,security' }} \
+          ${{ github.event.inputs.parallel_execution == 'false' && '--sequential' || '' }} \
+          --output ../../test-results/complete-suite-py${{ matrix.python-version }}-results.json
+
+    - name: 生成覆盖率报告
+      run: |
+        cd test/claude-enhancer
+        python -m pytest --cov=../../.claude/hooks --cov-report=xml --cov-report=html
+
+    - name: 上传覆盖率到Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./test/claude-enhancer/coverage.xml
+        flags: python${{ matrix.python-version }}
+
+    - name: 上传完整测试结果
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: complete-suite-results-py${{ matrix.python-version }}
+        path: |
+          test-results/complete-suite-*.json
+          test/claude-enhancer/htmlcov/
+
+  # 测试结果汇总
+  summarize-results:
+    name: 测试结果汇总
+    runs-on: ubuntu-latest
+    needs: [test-hooks, test-workflows, test-integration, test-performance, test-security]
+    if: always()
+
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v3
+
+    - name: 下载所有测试结果
+      uses: actions/download-artifact@v3
+      with:
+        path: downloaded-results
+
+    - name: 设置Python环境
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: 生成测试摘要
+      run: |
+        python << 'EOF'
+        import json
+        import os
+        from pathlib import Path
+
+        results_dir = Path("downloaded-results")
+        all_results = {}
+        total_tests = 0
+        total_passed = 0
+        total_failed = 0
+
+        # 收集所有测试结果
+        for result_file in results_dir.rglob("*.json"):
+            try:
+                with open(result_file, 'r') as f:
+                    data = json.load(f)
+                    category = result_file.stem.split('-')[0]
+                    all_results[category] = data
+
+                    if "total_tests" in data:
+                        total_tests += data.get("total_tests", 0)
+                        total_passed += data.get("total_passed", 0)
+                        total_failed += data.get("total_failed", 0)
+            except Exception as e:
+                print(f"Error processing {result_file}: {e}")
+
+        # 生成摘要
+        summary = {
+            "overall_success": total_failed == 0,
+            "total_tests": total_tests,
+            "total_passed": total_passed,
+            "total_failed": total_failed,
+            "success_rate": (total_passed / total_tests * 100) if total_tests > 0 else 0,
+            "categories": all_results
+        }
+
+        # 保存摘要
+        with open("test-summary.json", 'w') as f:
+            json.dump(summary, f, indent=2)
+
+        # 打印摘要
+        print("=" * 60)
+        print("Claude Enhancer 测试摘要")
+        print("=" * 60)
+        print(f"总测试数: {total_tests}")
+        print(f"通过: {total_passed}")
+        print(f"失败: {total_failed}")
+        print(f"成功率: {summary['success_rate']:.1f}%")
+        print(f"整体状态: {'✅ 成功' if summary['overall_success'] else '❌ 失败'}")
+
+        for category, data in all_results.items():
+            status = "✅" if data.get("overall_success", False) else "❌"
+            print(f"  {status} {category}: {data.get('total_passed', 0)}/{data.get('total_tests', 0)}")
+
+        print("=" * 60)
+        EOF
+
+    - name: 上传测试摘要
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-summary
+        path: test-summary.json
+
+    - name: 设置作业状态
+      run: |
+        if [ ! -f test-summary.json ]; then
+          echo "测试摘要文件不存在"
+          exit 1
+        fi
+
+        success=$(python -c "import json; print(json.load(open('test-summary.json'))['overall_success'])")
+        if [ "$success" != "True" ]; then
+          echo "部分测试失败"
+          exit 1
+        fi
+
+        echo "所有测试通过"
+
+  # 通知作业
+  notify:
+    name: 通知测试结果
+    runs-on: ubuntu-latest
+    needs: [summarize-results]
+    if: always() && (github.ref == 'refs/heads/main' || github.event_name == 'schedule')
+
+    steps:
+    - name: 下载测试摘要
+      uses: actions/download-artifact@v3
+      with:
+        name: test-summary
+        path: .
+
+    - name: 发送通知
+      run: |
+        # 这里可以添加通知逻辑，如发送邮件、Slack消息等
+        echo "测试完成，结果已生成"
+
+        if [ -f test-summary.json ]; then
+          cat test-summary.json
+        fi

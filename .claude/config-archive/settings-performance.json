@@ -1,0 +1,87 @@
+{
+  "version": "5.0.0-performance",
+  "project": "Claude Enhancer - High Performance Mode",
+  "description": "优化配置：减少延迟、提高并行效率、优化资源使用",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Task",
+        "type": "command",
+        "command": "bash .claude/hooks/fast_agent_validator.sh",
+        "description": "高性能Agent验证器 - 缓存优化",
+        "timeout": 2000
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Task",
+        "type": "command",
+        "command": "python3 .claude/hooks/optimized_logger.py log-execution",
+        "description": "优化日志记录 - 异步批量写入",
+        "timeout": 1000
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "type": "command",
+        "command": "python3 .claude/hooks/resource_monitor.py status | jq -r '.current | \"🚀 Performance Mode: CPU \\(.cpu_percent)% | Memory \\(.memory_percent)%\"'",
+        "description": "性能状态监控",
+        "timeout": 500
+      }
+    ],
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "python3 .claude/hooks/resource_monitor.py cleanup",
+        "description": "会话开始清理资源",
+        "timeout": 3000
+      }
+    ],
+    "SessionEnd": [
+      {
+        "type": "command",
+        "command": "python3 .claude/hooks/performance_optimized_dispatcher.py stats",
+        "description": "输出性能统计",
+        "timeout": 2000
+      }
+    ]
+  },
+  "environment": {
+    "CLAUDE_ENHANCER_MODE": "performance",
+    "CLAUDE_ENHANCER_CACHE": "true",
+    "CLAUDE_ENHANCER_LOG_LEVEL": "WARN",
+    "MIN_AGENTS": "3",
+    "MAX_RETRIES": "2",
+    "ENFORCE_PARALLEL": "true",
+    "PERFORMANCE_MONITORING": "true",
+    "AUTO_OPTIMIZATION": "true",
+    "RESOURCE_CLEANUP": "true"
+  },
+  "performance_settings": {
+    "cache_enabled": true,
+    "cache_ttl_seconds": 300,
+    "max_cache_size": 1000,
+    "async_logging": true,
+    "log_buffer_size": 500,
+    "resource_monitoring": true,
+    "auto_cleanup": true,
+    "parallel_optimization": true,
+    "max_concurrent_agents": 8,
+    "timeout_optimization": true
+  },
+  "resource_limits": {
+    "max_memory_percent": 85,
+    "max_cpu_percent": 80,
+    "max_open_files": 1000,
+    "cleanup_interval_seconds": 300
+  },
+  "optimization_rules": {
+    "enable_smart_caching": true,
+    "enable_adaptive_batching": true,
+    "enable_load_balancing": true,
+    "enable_resource_monitoring": true,
+    "enable_auto_cleanup": true,
+    "prefer_cached_results": true,
+    "optimize_hook_execution": true
+  }
+}

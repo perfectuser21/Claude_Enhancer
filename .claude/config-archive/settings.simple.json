@@ -1,0 +1,19 @@
+{
+  "description": "Simplified Claude Code hooks - no fancy names, just tools",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Task",
+        "type": "command",
+        "command": "bash -c 'agents=$(echo \"$CLAUDE_INPUT\" | grep -o \"subagent_type\" | wc -l); if [ $agents -lt 3 ]; then echo \"⚠️ Need at least 3 agents for development tasks\" >&2; exit 2; fi'"
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "type": "command",
+        "command": "echo '📝 Files modified. Run tests before committing.' >&2"
+      }
+    ]
+  }
+}

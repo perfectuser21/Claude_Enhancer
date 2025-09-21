@@ -1,13 +1,13 @@
-# Perfect21 完整工作流集成
+# Claude Enhancer 完整工作流集成
 
 ## 🎯 系统架构 - 完全集成
 
-现在Perfect21实现了Claude hooks和Git hooks的**完全集成**，形成了一个端到端的工作流：
+现在Claude Enhancer实现了Claude hooks和Git hooks的**完全集成**，形成了一个端到端的工作流：
 
 ```mermaid
 graph TD
     A[用户请求] --> B[Claude Code接收]
-    B --> C{Perfect21 Workflow}
+    B --> C{Claude Enhancer Workflow}
 
     C --> D[1. 任务规划]
     D --> E[Task Analyzer<br/>任务类型识别]
@@ -32,7 +32,7 @@ graph TD
 ### Stage 1: 任务规划 (Planning)
 ```bash
 触发: 用户提出需求
-Hooks: perfect21_task_analyzer.sh
+Hooks: claude_enhancer_task_analyzer.sh
 输出: 任务类型识别，Agent建议
 ```
 
@@ -40,29 +40,29 @@ Hooks: perfect21_task_analyzer.sh
 ```bash
 触发: Task工具调用
 Hooks:
-  - perfect21_agent_validator.sh (验证数量)
-  - perfect21_parallel_checker.sh (检查并行)
+  - claude_enhancer_agent_validator.sh (验证数量)
+  - claude_enhancer_parallel_checker.sh (检查并行)
 输出: 验证通过或阻止
 ```
 
 ### Stage 3: 代码执行 (Execution)
 ```bash
 触发: Edit/Write操作
-Hooks: perfect21_quality_gates.sh
+Hooks: claude_enhancer_quality_gates.sh
 输出: 质量提醒和建议
 ```
 
 ### Stage 4: 质量检查 (Quality Check)
 ```bash
 触发: 测试运行
-Hooks: perfect21_quality_gates.sh
+Hooks: claude_enhancer_quality_gates.sh
 输出: 测试结果分析
 ```
 
 ### Stage 5: Git提交 (Git Commit)
 ```bash
 触发: git add/commit/push
-Claude Hooks: perfect21_git_bridge.sh
+Claude Hooks: claude_enhancer_git_bridge.sh
 Git Hooks: pre-commit, commit-msg, pre-push
 输出: 提交验证和格式化
 ```
@@ -70,7 +70,7 @@ Git Hooks: pre-commit, commit-msg, pre-push
 ### Stage 6: 部署 (Deployment)
 ```bash
 触发: deploy命令
-Hooks: perfect21_workflow.sh
+Hooks: claude_enhancer_workflow.sh
 输出: 部署检查清单
 ```
 
@@ -95,7 +95,7 @@ Hooks: perfect21_workflow.sh
 ### 2. **智能提醒**
 ```bash
 # 示例：提交代码时的自动提醒
-🔗 Perfect21 Git Bridge: 检测到commit操作
+🔗 Claude Enhancer Git Bridge: 检测到commit操作
 
 ⚠️ Git提交前检查清单：
   □ 运行测试 (npm test / pytest)
@@ -117,14 +117,14 @@ Hooks: perfect21_workflow.sh
 
 ### 4. **日志统一**
 所有操作记录在统一的日志中：
-- `/tmp/perfect21_workflow.log` - 主工作流日志
-- `/tmp/perfect21_master.log` - Hook执行日志
+- `/tmp/claude_enhancer_workflow.log` - 主工作流日志
+- `/tmp/claude_enhancer_master.log` - Hook执行日志
 - 各专项日志文件
 
 ## 🔧 配置文件
 
 ### Claude Hooks配置
-`.claude/hooks/perfect21_config.yaml`
+`.claude/hooks/claude_enhancer_config.yaml`
 - Hook行为配置
 - 任务类型定义
 - 执行模式设置
@@ -141,24 +141,24 @@ Hooks: perfect21_workflow.sh
 ```bash
 # 1. 任务开始 - 自动任务分析
 "实现用户登录功能"
-→ perfect21_task_analyzer识别为authentication任务
+→ claude_enhancer_task_analyzer识别为authentication任务
 
 # 2. Agent选择 - 自动验证
 使用5个agents并行执行
-→ perfect21_agent_validator验证通过
-→ perfect21_parallel_checker确认并行
+→ claude_enhancer_agent_validator验证通过
+→ claude_enhancer_parallel_checker确认并行
 
 # 3. 代码执行 - 质量提醒
 编辑auth.py文件
-→ perfect21_quality_gates提供Python最佳实践
+→ claude_enhancer_quality_gates提供Python最佳实践
 
 # 4. 测试运行 - 自动检查
 运行pytest
-→ perfect21_quality_gates监控测试结果
+→ claude_enhancer_quality_gates监控测试结果
 
 # 5. Git提交 - 双重验证
 git commit -m "feat: 添加用户登录"
-→ perfect21_git_bridge预检查
+→ claude_enhancer_git_bridge预检查
 → git pre-commit hook执行
 
 # 6. 推送代码
@@ -170,7 +170,7 @@ git push
 
 ```
 ┌─────────────────────────────────────────────┐
-│            Perfect21 统一工作流              │
+│            Claude Enhancer 统一工作流              │
 ├─────────────────────────────────────────────┤
 │                                             │
 │  Claude Hooks                Git Hooks     │
@@ -205,7 +205,7 @@ git add test.txt
 git commit -m "test: 验证hooks"
 
 # 查看工作流日志
-tail -f /tmp/perfect21_workflow.log
+tail -f /tmp/claude_enhancer_workflow.log
 ```
 
 ### 集成指标
@@ -216,7 +216,7 @@ tail -f /tmp/perfect21_workflow.log
 
 ## 🌟 总结
 
-Perfect21现在提供了一个**完整的、自动化的、端到端**的工作流：
+Claude Enhancer现在提供了一个**完整的、自动化的、端到端**的工作流：
 
 1. **从想法到代码** - 任务分析和Agent选择
 2. **从代码到质量** - 自动质量检查

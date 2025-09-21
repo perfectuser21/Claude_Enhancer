@@ -1,40 +1,49 @@
-# Perfect21 Git忽略配置
+# Claude Enhancer .gitignore
 
-# 安全敏感文件
-config/security.env
-*.key
-*.pem
-*.crt
-*.p12
-.env
-.env.local
-.env.production
-
-# 临时文件
+# Temporary files
 *.tmp
-*.temp
-*.log
-*.pid
+*.backup.*
+*.old
+.DS_Store
 
-# Python缓存
+# Test outputs (auto-generated)
+*test-report-*.json
+*test-report-*.md
+*test_output*.txt
+
+# Logs
+*.log
+/logs/
+/tmp/
+
+# Archive
+/docs/archive/*.old
+
+# Cache
+.cache/
 __pycache__/
 *.pyc
-*.pyo
-*.pyd
-.Python
-env/
-venv/
+
+# Environment
+.env
 .venv/
+venv/
 
-# 工作空间
-/tmp/perfect21_workspaces/
-
-# IDE配置
+# IDE
 .vscode/
 .idea/
-*.swp
-*.swo
 
-# 系统文件
-.DS_Store
-Thumbs.db
+# Build outputs
+/build/
+/dist/
+*.egg-info/
+
+# Coverage reports
+.coverage
+coverage.xml
+htmlcov/
+
+# Keep important docs
+!README.md
+!CLAUDE.md
+!/docs/guides/*.md

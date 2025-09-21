@@ -1,21 +1,32 @@
 #!/usr/bin/env python3
+
+import os
+import sys
+
+# 动态获取Claude Enhancer项目路径
+CLAUDE_ENHANCER_HOME = os.environ.get('CLAUDE_ENHANCER_HOME', os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+sys.path.insert(0, CLAUDE_ENHANCER_HOME)
+
 """
 Agent Output Summarizer - 汇总多个subagent的输出，防止上下文溢出
 """
 
-import sys
 import json
 import re
-from typing import List, Dict, Any
+import sys
+from typing import Any, Dict, List
+
 
 class AgentSummarizer:
     """汇总和压缩多个Agent的输出"""
 
     def __init__(self):
         self.max_output_per_agent = 500  # 每个Agent最多保留500行
-        self.max_total_output = 2000     # 总输出最多2000行
+        self.max_total_output = 2000  # 总输出最多2000行
 
-    def summarize_agent_outputs(self, agents_data: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def summarize_agent_outputs(
+        self, agents_data: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
         """
         汇总多个Agent的输出
 
@@ -35,7 +46,7 @@ class AgentSummarizer:
             "key_results": {},
             "compressed_outputs": {},
             "action_items": [],
-            "warnings": []
+            "warnings": [],
         }
 
         total_lines = 0
@@ -60,7 +71,7 @@ class AgentSummarizer:
             warnings = self._extract_warnings(output)
             summary["warnings"].extend(warnings)
 
-            total_lines += len(compressed.split('\n'))
+            total_lines += len(compressed.split("\n"))
 
         # 如果总输出还是太大，进一步压缩
         if total_lines > self.max_total_output:
@@ -70,22 +81,18 @@ class AgentSummarizer:
 
     def _extract_key_information(self, text: str) -> Dict[str, Any]:
         """提取关键信息"""
-        key_info = {
-            "main_points": [],
-            "decisions": [],
-            "dependencies": []
-        }
+        key_info = {"main_points": [], "decisions": [], "dependencies": []}
 
         # 提取要点（查找列表项）
-        bullets = re.findall(r'[•\-\*]\s+(.+)', text)
+        bullets = re.findall(r"[•\-\*]\s+(.+)", text)
         key_info["main_points"] = bullets[:5]  # 最多5个要点
 
         # 提取决策（查找决策关键词）
         decision_patterns = [
-            r'决定[：:]\s*(.+)',
-            r'选择[：:]\s*(.+)',
-            r'采用[：:]\s*(.+)',
-            r'Decision[：:]\s*(.+)',
+            r"决定[：:]\s*(.+)",
+            r"选择[：:]\s*(.+)",
+            r"采用[：:]\s*(.+)",
+            r"Decision[：:]\s*(.+)",
         ]
         for pattern in decision_patterns:
             decisions = re.findall(pattern, text, re.IGNORECASE)
@@ -93,9 +100,9 @@ class AgentSummarizer:
 
         # 提取依赖
         dep_patterns = [
-            r'依赖[：:]\s*(.+)',
-            r'需要[：:]\s*(.+)',
-            r'Depends on[：:]\s*(.+)',
+            r"依赖[：:]\s*(.+)",
+            r"需要[：:]\s*(.+)",
+            r"Depends on[：:]\s*(.+)",
         ]
         for pattern in dep_patterns:
             deps = re.findall(pattern, text, re.IGNORECASE)
@@ -105,39 +112,47 @@ class AgentSummarizer:
 
     def _compress_output(self, text: str, max_lines: int) -> str:
         """压缩输出文本"""
-        lines = text.split('\n')
+        lines = text.split("\n")
 
         if len(lines) <= max_lines:
             return text
 
         # 保留开头和结尾
-        head_lines = lines[:max_lines//3]
-        tail_lines = lines[-(max_lines//3):]
+        head_lines = lines[: max_lines // 3]
+        tail_lines = lines[-(max_lines // 3) :]
 
         # 中间部分提取重要行
         middle_lines = []
         important_keywords = [
-            'error', 'warning', 'critical', 'important',
-            '错误', '警告', '重要', '关键',
-            'TODO', 'FIXME', 'NOTE'
+            "error",
+            "warning",
+            "critical",
+            "important",
+            "错误",
+            "警告",
+            "重要",
+            "关键",
+            "TODO",
+            "FIXME",
+            "NOTE",
         ]
 
-        for line in lines[max_lines//3:-(max_lines//3)]:
+        for line in lines[max_lines // 3 : -(max_lines // 3)]:
             if any(keyword in line.lower() for keyword in important_keywords):
                 middle_lines.append(line)
-                if len(middle_lines) >= max_lines//3:
+                if len(middle_lines) >= max_lines // 3:
                     break
 
-        compressed = head_lines + ['... [中间内容已压缩] ...'] + middle_lines + tail_lines
-        return '\n'.join(compressed)
+        compressed = head_lines + ["... [中间内容已压缩] ..."] + middle_lines + tail_lines
+        return "\n".join(compressed)
 
     def _extract_action_items(self, text: str) -> List[str]:
         """提取行动项"""
         action_patterns = [
-            r'TODO[：:]\s*(.+)',
-            r'Action[：:]\s*(.+)',
-            r'Next step[：:]\s*(.+)',
-            r'下一步[：:]\s*(.+)',
+            r"TODO[：:]\s*(.+)",
+            r"Action[：:]\s*(.+)",
+            r"Next step[：:]\s*(.+)",
+            r"下一步[：:]\s*(.+)",
         ]
 
         actions = []
@@ -150,10 +165,10 @@ class AgentSummarizer:
     def _extract_warnings(self, text: str) -> List[str]:
         """提取警告信息"""
         warning_patterns = [
-            r'WARNING[：:]\s*(.+)',
-            r'CAUTION[：:]\s*(.+)',
-            r'⚠️\s*(.+)',
-            r'警告[：:]\s*(.+)',
+            r"WARNING[：:]\s*(.+)",
+            r"CAUTION[：:]\s*(.+)",
+            r"⚠️\s*(.+)",
+            r"警告[：:]\s*(.+)",
         ]
 
         warnings = []
@@ -169,7 +184,7 @@ class AgentSummarizer:
         compressed_summary = {
             "agent_count": summary["agent_count"],
             "status": "heavily_compressed",
-            "critical_only": {}
+            "critical_only": {},
         }
 
         for agent, info in summary["key_results"].items():
@@ -195,7 +210,7 @@ def main():
 
     try:
         # 读取Agent输出
-        with open(sys.argv[1], 'r') as f:
+        with open(sys.argv[1], "r") as f:
             agent_outputs = json.load(f)
 
         # 创建汇总器

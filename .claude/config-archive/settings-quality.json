@@ -1,0 +1,52 @@
+{
+  "version": "2.0.0",
+  "project": "Claude Enhancer - Quality Mode",
+  "description": "Maximum quality output with comprehensive checks",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Task",
+        "type": "command",
+        "command": "bash .claude/hooks/parallel-validators.sh",
+        "description": "Enforce minimum 5 agents for quality",
+        "timeout": 5000
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Task",
+        "type": "command",
+        "command": "python3 .claude/hooks/agent-output-collector.py",
+        "description": "Collect all agent insights",
+        "timeout": 15000
+      },
+      {
+        "matcher": "Edit|Write",
+        "type": "command",
+        "command": "bash -c 'echo -e \"\\n⚠️ Quality Checklist:\\n✓ Run tests\\n✓ Check security\\n✓ Review code\\n✓ Update documentation\" >&2'",
+        "description": "Quality reminders",
+        "timeout": 1000
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "type": "command",
+        "command": "bash .claude/hooks/quality-enforcer.sh",
+        "description": "Force comprehensive approach",
+        "timeout": 5000
+      }
+    ],
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "echo '🎯 Quality Mode Active: Every task will use multiple experts for best results'",
+        "description": "Quality mode reminder"
+      }
+    ]
+  },
+  "environment": {
+    "MIN_AGENTS": "5",
+    "QUALITY_MODE": "true",
+    "SKIP_STAGES": "false"
+  }
+}

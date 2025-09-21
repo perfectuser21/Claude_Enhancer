@@ -1,0 +1,38 @@
+{
+  "version": "3.0.0",
+  "project": "Perfect21 - Enforced Mode with Pre-Check",
+  "description": "强制执行Perfect21规则，提供预检查指导",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "type": "command",
+        "command": "bash .claude/hooks/task_precheck.sh",
+        "description": "任务预检查 - 提示需要哪些Agent",
+        "timeout": 2000
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Task",
+        "type": "command",
+        "command": "bash .claude/hooks/agent_validator_enforced.sh",
+        "description": "强制验证Agent选择是否符合规则",
+        "timeout": 3000
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Task",
+        "type": "command",
+        "command": "echo '📊 Agent task completed. Check if all required agents were used.' >&2",
+        "description": "任务完成提醒",
+        "timeout": 1000
+      }
+    ]
+  },
+  "environment": {
+    "PERFECT21_MODE": "enforced",
+    "MIN_AGENTS": "3",
+    "ENFORCE_PARALLEL": "true"
+  }
+}

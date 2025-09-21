@@ -1,92 +1,83 @@
-# Claude Code 工作流配置
+# Claude Enhancer
 
-> 让Claude Code自动遵守软件工程最佳实践的配置包
+## 🎯 这是什么？
 
-## 这是什么？
+一个智能的开发工作流系统，为Claude Code Max 20X用户优化，提供：
+- **8-Phase工作流** - 从分支创建到部署的完整流程
+- **4-6-8 Agent策略** - 从56个可用Agent中智能选择
+- **自动质量保证** - 代码检查、测试提醒、提交规范
 
-一套Claude Code配置文件，包含：
-- 🤖 **56个专业Agents** - 覆盖开发、测试、运维、AI等各领域
-- 🔄 **5阶段工作流** - 需求→设计→开发→测试→部署
-- ✅ **自动质量检查** - 代码规范、安全审查、性能优化
-- 🔗 **Git集成** - 提交规范、分支管理
+## 🤖 关于56个Agent
 
-## 快速使用
+Claude Code提供56个专业Agent，涵盖：
+- 开发类：backend-architect, frontend-specialist, fullstack-engineer等
+- 语言专家：python-pro, golang-pro, rust-pro, java-enterprise等
+- 框架专家：react-pro, vue-specialist, angular-expert, nextjs-pro等
+- 专业领域：database-specialist, security-auditor, performance-engineer等
+- 支持角色：test-engineer, devops-engineer, documentation-writer等
 
-1. 复制配置到你的项目：
+**我们的策略**：不是用所有56个，而是根据任务智能选择4-6-8个最合适的。
+
+## 🚀 快速开始
+
+### 1. 复制到你的项目
 ```bash
 cp -r .claude /your-project/
+cd /your-project
 ```
 
-2. (可选) 安装Git hooks：
+### 2. 安装（可选）
 ```bash
-cp .git/hooks/* /your-project/.git/hooks/
+./.claude/install.sh
 ```
 
-3. 正常使用Claude Code，配置自动生效
+## 📋 工作原理
 
-## 包含的56个专业Agents
+### 8-Phase工作流
+0. **Git分支** - 版本控制
+1. **需求分析** - 理解任务
+2. **设计规划** - 技术方案
+3. **实现开发** - Agent并行执行
+4. **本地测试** - 质量验证
+5. **代码提交** - Git Hooks检查
+6. **代码审查** - PR Review
+7. **合并部署** - 上线发布
 
-### 开发 (14个)
-`react-pro`, `vue-specialist`, `angular-expert`, `python-pro`, `java-enterprise`, `golang-pro`, `rust-pro`, `backend-architect`, `frontend-specialist`, `fullstack-engineer` 等
+### 4-6-8 Agent策略
+| 复杂度 | Agent数量 | 从56个中选择 | 执行时间 |
+|--------|-----------|--------------|----------|
+| 简单 | 4个 | 基础组合 | 5-10分钟 |
+| 标准 | 6个 | 平衡组合 | 15-20分钟 |
+| 复杂 | 8个 | 全面组合 | 25-30分钟 |
 
-### 基础设施 (7个)
-`devops-engineer`, `cloud-architect`, `kubernetes-expert`, `monitoring-specialist`, `deployment-manager`, `performance-engineer`, `incident-responder`
-
-### 质量保证 (7个)
-`test-engineer`, `e2e-test-specialist`, `security-auditor`, `code-reviewer`, `performance-tester`, `accessibility-auditor`
-
-### 数据/AI (6个)
-`data-scientist`, `ai-engineer`, `mlops-engineer`, `data-engineer`, `analytics-engineer`, `prompt-engineer`
-
-### 业务分析 (6个)
-`requirements-analyst`, `product-strategist`, `business-analyst`, `project-manager`, `api-designer`, `technical-writer`
-
-### 特殊领域 (11个)
-`blockchain-developer`, `fintech-specialist`, `healthcare-dev`, `game-developer`, `mobile-developer` 等
-
-## 使用示例
-
-### Web应用开发
-```
-"创建一个博客系统，支持用户登录、文章发布、评论功能"
-→ Claude自动调用: backend-architect, frontend-specialist, database-specialist等
-```
-
-### 移动应用
-```
-"开发一个跨平台的记账App"
-→ Claude自动调用: mobile-developer, ux-designer, test-engineer等
-```
-
-### AI项目
-```
-"构建一个图像识别系统"
-→ Claude自动调用: ai-engineer, data-scientist, mlops-engineer等
-```
-
-## 工作原理
-
-1. **Claude理解任务** - 分析你的需求
-2. **自动选择Agents** - 基于任务类型选择专业团队
-3. **并行执行** - 多个Agent同时工作提高效率
-4. **质量保证** - 自动进行代码检查和测试
-5. **完整交付** - 从需求到部署的端到端解决方案
-
-## 文件结构
+## 📁 核心文件
 
 ```
 .claude/
-├── agents/          # 56个专业Agents定义
-│   ├── development/
-│   ├── infrastructure/
-│   ├── quality/
-│   ├── data-ai/
-│   ├── business/
-│   └── specialized/
-├── hooks/          # 工作流控制
-└── settings.json   # 基础配置
+├── settings.json         # Claude配置
+├── WORKFLOW.md          # 8-Phase详细说明
+├── AGENT_STRATEGY.md    # 4-6-8策略说明
+├── hooks/
+│   ├── smart_agent_selector.sh  # 智能选择器
+│   ├── simple_pre_commit.sh     # Git检查
+│   └── ...
+└── install.sh           # 一键安装
 ```
 
-## License
+## 💡 Max 20X理念
 
-MIT - 自由使用和修改
+- **质量优先** - 不在乎Token消耗
+- **智能选择** - 56个Agent中选最合适的
+- **灵活执行** - 框架固定，内容灵活
+
+## 🛠️ 适用项目
+
+任何需要高质量代码的项目：
+- Web应用、API服务
+- 命令行工具、库/框架
+- 微服务、全栈应用
+- AI/ML项目、数据工程
+
+## 📝 License
+
+MIT

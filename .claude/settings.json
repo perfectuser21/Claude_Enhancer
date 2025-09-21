@@ -1,56 +1,33 @@
 {
-  "version": "1.0.0",
-  "project": "Claude Workflow",
-  "description": "5-Phase workflow with Git integration",
-
+  "version": "4.0.0",
+  "project": "Claude Enhancer - Enforcement Loop System",
+  "description": "\u5f3a\u5236\u5faa\u73af\u76f4\u5230\u7b26\u5408\u6807\u51c6",
   "hooks": {
     "PreToolUse": [
       {
         "matcher": "Task",
         "type": "command",
-        "command": "bash .claude/hooks/enforce-multi-agent.sh",
-        "description": "Ensure multiple agents are used"
-      },
-      {
-        "matcher": "Task",
-        "type": "command",
-        "command": "bash .claude/hooks/context-manager.sh",
-        "description": "Monitor context capacity"
+        "command": "bash .claude/hooks/smart_agent_selector.sh",
+        "description": "智能Agent选择器 - 4-6-8策略",
+        "timeout": 5000
       }
     ],
-    "PostToolUse": [
-      {
-        "matcher": "Task",
-        "type": "command",
-        "command": "python3 .claude/hooks/agent-output-collector.py",
-        "description": "Collect and summarize agent outputs"
-      },
-      {
-        "matcher": "Edit|Write",
-        "type": "command",
-        "command": "echo '📝 Code modified - Remember to test before committing'",
-        "description": "Quality reminder"
-      }
-    ],
+    "PostToolUse": [],
     "UserPromptSubmit": [
       {
         "type": "command",
-        "command": "bash .claude/hooks/task-type-detector.sh",
-        "description": "Analyze task type and suggest agents"
-      }
-    ],
-    "SessionStart": [
-      {
-        "type": "command",
-        "command": "echo '🚀 5-Phase Workflow Active: Requirements → Design → Development → Testing → Deployment'",
-        "description": "Workflow reminder"
+        "command": "bash .claude/hooks/branch_helper.sh",
+        "description": "Branch检查和工作流提醒",
+        "timeout": 1000
       }
     ]
   },
-
   "environment": {
-    "WORKFLOW_HOME": "/home/xx/dev/Perfect21",
+    "CLAUDE_ENHANCER_MODE": "enforcement",
     "MIN_AGENTS": "3",
-    "WORKFLOW_PHASES": "5"
+    "MAX_RETRIES": "3",
+    "ENFORCE_PARALLEL": "true",
+    "CLAUDE_ENHANCER_BACKEND": "new",
+    "CLAUDE_ENHANCER_API_MODE": "integrated"
   }
 }

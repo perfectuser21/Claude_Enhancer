@@ -2,7 +2,6 @@
   "version": "1.0.0",
   "project": "Perfect21",
   "description": "Simplified hooks configuration without errors",
-
   "hooks": {
     "UserPromptSubmit": [],
     "PreToolUse": [],
@@ -12,7 +11,6 @@
     "SessionEnd": [],
     "Notification": []
   },
-
   "environment": {
     "PERFECT21_HOME": "/home/xx/dev/Perfect21",
     "PERFECT21_RULES": "/home/xx/dev/Perfect21/rules/perfect21_rules.yaml",
