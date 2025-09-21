@@ -1,0 +1,419 @@
+# Perfect21 测试配置文件
+# 全面的测试配置管理 - 像专业的测试指挥中心
+
+# ==========================================
+# 测试环境配置
+# ==========================================
+environments:
+  # 本地开发环境
+  local:
+    base_url: "http://localhost:8080"
+    database_url: "postgresql://test_user:test_pass@localhost:5432/test_db"
+    redis_url: "redis://localhost:6379/0"
+    jwt_secret: "local-test-jwt-secret"
+    timeout: 30
+    retries: 3
+
+  # CI/CD环境
+  ci:
+    base_url: "http://localhost:8080"
+    database_url: "postgresql://test_user:test_password@localhost:5432/test_db"
+    redis_url: "redis://localhost:6379/0"
+    jwt_secret: "ci-test-jwt-secret"
+    timeout: 60
+    retries: 5
+
+  # 测试环境
+  testing:
+    base_url: "https://test.perfect21.com"
+    database_url: "${DATABASE_URL}"
+    redis_url: "${REDIS_URL}"
+    jwt_secret: "${JWT_SECRET}"
+    timeout: 45
+    retries: 3
+
+  # 预生产环境
+  staging:
+    base_url: "https://staging.perfect21.com"
+    database_url: "${DATABASE_URL}"
+    redis_url: "${REDIS_URL}"
+    jwt_secret: "${JWT_SECRET}"
+    timeout: 30
+    retries: 2
+
+# ==========================================
+# 覆盖率要求
+# ==========================================
+coverage:
+  # 全局覆盖率要求
+  global:
+    line_coverage: 85      # 行覆盖率
+    branch_coverage: 80    # 分支覆盖率
+    function_coverage: 90  # 函数覆盖率
+
+  # 关键模块覆盖率要求
+  critical_modules:
+    auth_system:
+      line_coverage: 95
+      branch_coverage: 90
+      function_coverage: 100
+
+    core_api:
+      line_coverage: 90
+      branch_coverage: 85
+      function_coverage: 95
+
+    database_layer:
+      line_coverage: 85
+      branch_coverage: 80
+      function_coverage: 90
+
+  # 覆盖率排除规则
+  exclude_patterns:
+    - "*/tests/*"
+    - "*/test_*"
+    - "*/__pycache__/*"
+    - "*/migrations/*"
+    - "*/venv/*"
+    - "*/node_modules/*"
+    - "*.test.js"
+    - "*.spec.js"
+
+# ==========================================
+# 测试执行配置
+# ==========================================
+execution:
+  # 并行执行配置
+  parallel:
+    unit_tests:
+      max_workers: 4
+      chunk_size: 50
+
+    integration_tests:
+      max_workers: 2
+      chunk_size: 20
+
+    security_tests:
+      max_workers: 2
+      sequential_required: true
+
+  # 超时配置
+  timeouts:
+    unit_test: 300        # 5分钟
+    integration_test: 900 # 15分钟
+    security_test: 1200   # 20分钟
+    performance_test: 1800 # 30分钟
+    e2e_test: 2400        # 40分钟
+
+  # 重试配置
+  retries:
+    flaky_tests: 3
+    network_tests: 5
+    performance_tests: 2
+
+# ==========================================
+# 性能测试基准
+# ==========================================
+performance:
+  # 响应时间要求 (毫秒)
+  response_time:
+    authentication:
+      p50: 100    # 50%请求在100ms内
+      p95: 200    # 95%请求在200ms内
+      p99: 500    # 99%请求在500ms内
+
+    api_endpoints:
+      p50: 150
+      p95: 300
+      p99: 800
+
+    database_queries:
+      p50: 50
+      p95: 150
+      p99: 300
+
+  # 吞吐量要求
+  throughput:
+    min_rps: 100           # 最小每秒请求数
+    target_rps: 500        # 目标每秒请求数
+    max_concurrent: 1000   # 最大并发用户数
+
+  # 资源使用限制
+  resources:
+    cpu_limit: 70          # CPU使用率限制 (%)
+    memory_limit: 512      # 内存使用限制 (MB)
+    disk_io_limit: 100     # 磁盘I/O限制 (MB/s)
+
+  # 错误率阈值
+  error_rates:
+    max_error_rate: 0.01   # 最大错误率 1%
+    max_timeout_rate: 0.005 # 最大超时率 0.5%
+
+# ==========================================
+# 安全测试配置
+# ==========================================
+security:
+  # 漏洞严重程度阈值
+  vulnerability_thresholds:
+    block_on_critical: true    # 发现严重漏洞时阻止构建
+    block_on_high: true        # 发现高危漏洞时阻止构建
+    warn_on_medium: true       # 发现中危漏洞时警告
+    report_on_low: true        # 发现低危漏洞时报告
+
+  # 安全扫描工具配置
+  tools:
+    bandit:
+      enabled: true
+      config_file: ".bandit"
+      exclude_paths:
+        - "*/tests/*"
+        - "*/venv/*"
+
+    safety:
+      enabled: true
+      ignore_vulnerabilities: []  # 忽略的漏洞ID列表
+
+    semgrep:
+      enabled: true
+      config: "auto"
+      rules:
+        - "p/security-audit"
+        - "p/python"
+        - "p/javascript"
+
+  # 渗透测试配置
+  penetration_testing:
+    enabled: true
+    target_endpoints:
+      - "/api/v1/auth/login"
+      - "/api/v1/auth/register"
+      - "/api/v1/user/profile"
+      - "/api/v1/admin/*"
+
+    test_payloads:
+      sql_injection: true
+      xss_testing: true
+      csrf_testing: true
+      auth_bypass: true
+
+# ==========================================
+# 测试数据配置
+# ==========================================
+test_data:
+  # 测试用户配置
+  users:
+    admin_user:
+      email: "admin-test@perfect21.com"
+      password: "AdminTest123!"
+      role: "admin"
+
+    regular_user:
+      email: "user-test@perfect21.com"
+      password: "UserTest123!"
+      role: "user"
+
+    test_user:
+      email: "test@perfect21.com"
+      password: "TestPassword123!"
+      role: "user"
+
+  # 数据库配置
+  database:
+    cleanup_after_tests: true
+    seed_data: true
+    backup_before_tests: false
+
+    test_data_sets:
+      minimal: "test/fixtures/minimal_dataset.sql"
+      standard: "test/fixtures/standard_dataset.sql"
+      comprehensive: "test/fixtures/comprehensive_dataset.sql"
+
+  # 模拟数据配置
+  mock_data:
+    generate_users: 100
+    generate_sessions: 50
+    generate_api_calls: 1000
+
+# ==========================================
+# 报告配置
+# ==========================================
+reporting:
+  # 报告格式
+  formats:
+    - html
+    - xml
+    - json
+    - junit
+
+  # 报告输出路径
+  output_paths:
+    html_reports: "test-results/html"
+    xml_reports: "test-results/xml"
+    json_reports: "test-results/json"
+    coverage_reports: "test-results/coverage"
+
+  # 通知配置
+  notifications:
+    slack:
+      enabled: false
+      webhook_url: "${SLACK_WEBHOOK_URL}"
+      channels:
+        success: "#ci-success"
+        failure: "#ci-alerts"
+
+    email:
+      enabled: false
+      smtp_server: "${SMTP_SERVER}"
+      recipients:
+        - "team@perfect21.com"
+
+# ==========================================
+# 集成测试配置
+# ==========================================
+integration:
+  # 外部服务模拟
+  mock_services:
+    email_service:
+      enabled: true
+      mock_responses: true
+
+    payment_gateway:
+      enabled: false
+      use_sandbox: true
+
+    third_party_apis:
+      enabled: true
+      record_interactions: true
+
+  # 数据库迁移测试
+  database_migrations:
+    test_rollback: true
+    test_upgrade: true
+    backup_before_migration: true
+
+# ==========================================
+# 端到端测试配置
+# ==========================================
+e2e:
+  # 浏览器配置
+  browsers:
+    - name: "chromium"
+      headless: true
+      viewport:
+        width: 1920
+        height: 1080
+
+    - name: "firefox"
+      headless: true
+      enabled: false
+
+    - name: "webkit"
+      headless: true
+      enabled: false
+
+  # 测试场景配置
+  scenarios:
+    critical_path:
+      - user_registration
+      - user_login
+      - profile_management
+      - password_reset
+
+    admin_workflows:
+      - admin_login
+      - user_management
+      - system_configuration
+
+    api_workflows:
+      - api_authentication
+      - crud_operations
+      - error_handling
+
+  # 视觉回归测试
+  visual_regression:
+    enabled: false
+    threshold: 0.2
+    update_snapshots: false
+
+# ==========================================
+# 质量门控配置
+# ==========================================
+quality_gates:
+  # 必须通过的检查
+  mandatory_checks:
+    - unit_tests_pass
+    - integration_tests_pass
+    - coverage_threshold_met
+    - no_critical_security_issues
+    - no_high_security_issues
+    - performance_thresholds_met
+
+  # 可选检查 (警告但不阻止)
+  optional_checks:
+    - code_style_compliance
+    - documentation_coverage
+    - no_medium_security_issues
+
+  # 豁免规则
+  exemptions:
+    security_issues:
+      # 可以豁免的漏洞ID列表
+      allowed_cve_ids: []
+
+    coverage:
+      # 可以豁免覆盖率要求的文件
+      exclude_files:
+        - "legacy/*"
+        - "deprecated/*"
+
+# ==========================================
+# 调试和故障排除
+# ==========================================
+debugging:
+  # 详细日志配置
+  verbose_logging:
+    enabled: false
+    log_level: "DEBUG"
+    log_file: "test-results/debug.log"
+
+  # 失败时保留环境
+  preserve_on_failure:
+    containers: false
+    databases: false
+    log_files: true
+    screenshots: true
+
+  # 性能分析
+  profiling:
+    enabled: false
+    memory_profiling: true
+    cpu_profiling: false
+    output_dir: "test-results/profiling"
+
+# ==========================================
+# 工具版本要求
+# ==========================================
+tool_versions:
+  python: ">=3.8"
+  node: ">=16.0"
+  pytest: ">=7.0"
+  k6: ">=0.40"
+  docker: ">=20.0"
+  docker_compose: ">=2.0"
+
+# ==========================================
+# 自定义扩展
+# ==========================================
+extensions:
+  # 自定义测试钩子
+  hooks:
+    pre_test: []
+    post_test: []
+    on_failure: []
+    on_success: []
+
+  # 自定义插件
+  plugins:
+    custom_reporters: []
+    test_decorators: []
+    data_generators: []

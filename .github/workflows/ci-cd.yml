@@ -1,7 +1,9 @@
-# Claude Enhancer - Comprehensive CI/CD Pipeline
-# Automated testing, building, security scanning, and deployment
+# =============================================================================
+# Perfect21 Claude Enhancer - Complete DevOps CI/CD Pipeline
+# Enterprise-grade pipeline with blue-green deployment and comprehensive monitoring
+# =============================================================================
 
-name: Claude Enhancer CI/CD
+name: Perfect21 Claude Enhancer DevOps Pipeline
 
 on:
   push:
@@ -10,20 +12,54 @@ on:
     branches: [ main, develop ]
   release:
     types: [ published ]
+  schedule:
+    - cron: '0 2 * * 1'  # Weekly security scans
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - staging
+        - production
+      deployment_strategy:
+        description: 'Deployment strategy'
+        required: true
+        default: 'blue-green'
+        type: choice
+        options:
+        - rolling
+        - blue-green
+        - canary
+      skip_tests:
+        description: 'Skip tests (emergency deployment only)'
+        required: false
+        default: false
+        type: boolean
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: claude-enhancer
+  IMAGE_NAME: perfect21/claude-enhancer
   NODE_VERSION: '18'
   PYTHON_VERSION: '3.11'
+  TERRAFORM_VERSION: '1.5.7'
+  KUBECTL_VERSION: '1.28.2'
+  HELM_VERSION: '3.13.0'
+  BUILD_PLATFORMS: linux/amd64,linux/arm64
 
 jobs:
   # ==========================================
-  # Code Quality & Security Checks
+  # Phase 1: Code Quality & Security Scanning
   # ==========================================
-  quality-check:
-    name: Code Quality & Security
+  code-quality:
+    name: 🔍 Code Quality & Security Scanning
     runs-on: ubuntu-latest
+    if: github.event.inputs.skip_tests != 'true'
+    outputs:
+      quality-gate: ${{ steps.quality-gate.outputs.passed }}
+      security-score: ${{ steps.security-scan.outputs.score }}
 
     steps:
     - name: Checkout code
@@ -93,12 +129,19 @@ jobs:
           npm-audit-report.json
 
   # ==========================================
-  # Unit & Integration Tests
+  # Phase 2: Comprehensive Testing Suite
   # ==========================================
-  test:
-    name: Run Tests
+  test-suite:
+    name: 🧪 Comprehensive Testing Suite
     runs-on: ubuntu-latest
-    needs: quality-check
+    needs: code-quality
+    if: always() && (needs.code-quality.result == 'success' || github.event.inputs.skip_tests == 'true')
+    strategy:
+      matrix:
+        test-type: [unit, integration, performance, security]
+    outputs:
+      test-results: ${{ steps.test-summary.outputs.results }}
+      coverage: ${{ steps.coverage.outputs.percentage }}
 
     services:
       postgres:
@@ -188,12 +231,17 @@ jobs:
         name: claude-enhancer-coverage
 
   # ==========================================
-  # Docker Build & Security Scan
+  # Phase 3: Multi-Platform Container Build
   # ==========================================
-  build:
-    name: Build & Scan Docker Images
+  container-build:
+    name: 🐳 Multi-Platform Container Build
     runs-on: ubuntu-latest
-    needs: test
+    needs: [code-quality, test-suite]
+    if: always() && (needs.test-suite.result == 'success' || github.event.inputs.skip_tests == 'true')
+    outputs:
+      image-digest: ${{ steps.build.outputs.digest }}
+      image-tags: ${{ steps.meta.outputs.tags }}
+      vulnerability-score: ${{ steps.security-scan.outputs.score }}
 
     steps:
     - name: Checkout code
@@ -247,13 +295,127 @@ jobs:
         sarif_file: 'trivy-results.sarif'
 
   # ==========================================
-  # End-to-End Testing
+  # Phase 4: Infrastructure Provisioning
   # ==========================================
-  e2e-test:
-    name: End-to-End Tests
+  infrastructure:
+    name: 🏗️ Infrastructure Provisioning
     runs-on: ubuntu-latest
-    needs: build
-    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+    needs: container-build
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || github.event_name == 'workflow_dispatch'
+    environment: ${{ github.event.inputs.environment || 'staging' }}
+    outputs:
+      cluster-endpoint: ${{ steps.terraform.outputs.cluster-endpoint }}
+      infrastructure-status: ${{ steps.terraform.outputs.status }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ vars.AWS_REGION || 'us-west-2' }}
+
+    - name: Terraform Init
+      working-directory: terraform
+      run: |
+        terraform init
+        terraform workspace select ${{ github.event.inputs.environment || 'staging' }} || terraform workspace new ${{ github.event.inputs.environment || 'staging' }}
+
+    - name: Terraform Plan
+      id: plan
+      working-directory: terraform
+      run: |
+        terraform plan -var="environment=${{ github.event.inputs.environment || 'staging' }}" -out=tfplan
+        terraform show -no-color tfplan > tfplan.txt
+
+    - name: Terraform Apply
+      id: terraform
+      working-directory: terraform
+      run: |
+        terraform apply tfplan
+        echo "cluster-endpoint=$(terraform output -raw cluster_endpoint)" >> $GITHUB_OUTPUT
+        echo "status=success" >> $GITHUB_OUTPUT
+
+    - name: Upload Terraform Plan
+      uses: actions/upload-artifact@v4
+      with:
+        name: terraform-plan-${{ github.event.inputs.environment || 'staging' }}
+        path: terraform/tfplan.txt
+
+  # ==========================================
+  # Phase 5: Application Deployment
+  # ==========================================
+  deploy-application:
+    name: 🚀 Blue-Green Application Deployment
+    runs-on: ubuntu-latest
+    needs: [container-build, infrastructure]
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || github.event_name == 'workflow_dispatch'
+    environment: ${{ github.event.inputs.environment || 'staging' }}
+    outputs:
+      deployment-url: ${{ steps.deploy.outputs.url }}
+      deployment-status: ${{ steps.deploy.outputs.status }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: ${{ env.KUBECTL_VERSION }}
+
+    - name: Setup Helm
+      uses: azure/setup-helm@v3
+      with:
+        version: ${{ env.HELM_VERSION }}
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ vars.AWS_REGION || 'us-west-2' }}
+
+    - name: Update kubeconfig
+      run: |
+        aws eks update-kubeconfig --region ${{ vars.AWS_REGION || 'us-west-2' }} --name claude-enhancer-${{ github.event.inputs.environment || 'staging' }}
+
+    - name: Deploy with blue-green strategy
+      id: deploy
+      env:
+        ENVIRONMENT: ${{ github.event.inputs.environment || 'staging' }}
+        IMAGE_TAG: ${{ github.sha }}
+        DEPLOYMENT_STRATEGY: ${{ github.event.inputs.deployment_strategy || 'blue-green' }}
+      run: |
+        chmod +x scripts/deploy.sh
+        ./scripts/deploy.sh --environment "$ENVIRONMENT" --tag "$IMAGE_TAG" --strategy "$DEPLOYMENT_STRATEGY"
+
+        # Get deployment URL
+        LOAD_BALANCER_IP=$(kubectl get service nginx-service -n claude-enhancer -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+        echo "url=https://$LOAD_BALANCER_IP" >> $GITHUB_OUTPUT
+        echo "status=success" >> $GITHUB_OUTPUT
+
+    - name: Wait for deployment readiness
+      run: |
+        kubectl wait --for=condition=available deployment/claude-enhancer -n claude-enhancer --timeout=600s
+        kubectl get pods -n claude-enhancer
+
+  # ==========================================
+  # Phase 6: End-to-End Testing
+  # ==========================================
+  e2e-testing:
+    name: 🎯 End-to-End Testing
+    runs-on: ubuntu-latest
+    needs: deploy-application
+    if: always() && needs.deploy-application.result == 'success'
 
     steps:
     - name: Checkout code
@@ -308,13 +470,13 @@ jobs:
         docker-compose down -v
 
   # ==========================================
-  # Performance Testing
+  # Phase 7: Performance & Load Testing
   # ==========================================
-  performance-test:
-    name: Performance Testing
+  performance-testing:
+    name: ⚡ Performance & Load Testing
     runs-on: ubuntu-latest
-    needs: build
-    if: github.ref == 'refs/heads/main'
+    needs: e2e-testing
+    if: github.ref == 'refs/heads/main' || github.event.inputs.environment == 'production'
 
     steps:
     - name: Checkout code
@@ -372,49 +534,106 @@ jobs:
         docker-compose down -v
 
   # ==========================================
-  # Deploy to Staging
+  # Phase 8: Monitoring & Observability Setup
   # ==========================================
-  deploy-staging:
-    name: Deploy to Staging
+  monitoring-setup:
+    name: 📊 Monitoring & Observability
     runs-on: ubuntu-latest
-    needs: [test, build, e2e-test]
-    if: github.ref == 'refs/heads/develop'
-    environment: staging
+    needs: deploy-application
+    if: always() && needs.deploy-application.result == 'success'
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Deploy to staging
+    - name: Setup kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: ${{ env.KUBECTL_VERSION }}
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ vars.AWS_REGION || 'us-west-2' }}
+
+    - name: Update kubeconfig
       run: |
-        echo "🚀 Deploying to staging environment..."
-        # Add your staging deployment logic here
-        # This could include SSH to staging server, kubectl apply, etc.
+        aws eks update-kubeconfig --region ${{ vars.AWS_REGION || 'us-west-2' }} --name claude-enhancer-${{ github.event.inputs.environment || 'staging' }}
+
+    - name: Deploy monitoring stack
+      run: |
+        echo "📊 Setting up monitoring and observability..."
+        kubectl apply -f k8s/monitoring.yaml
+
+        # Wait for monitoring components
+        kubectl wait --for=condition=available deployment/prometheus -n claude-enhancer --timeout=300s
+        kubectl wait --for=condition=available deployment/grafana -n claude-enhancer --timeout=300s
+        kubectl wait --for=condition=available deployment/alertmanager -n claude-enhancer --timeout=300s
+
+    - name: Configure dashboards
+      run: |
+        echo "📈 Configuring Grafana dashboards..."
+        # Import custom dashboards
+        kubectl create configmap grafana-dashboards \
+          --from-file=monitoring/grafana/dashboards/ \
+          -n claude-enhancer --dry-run=client -o yaml | kubectl apply -f -
+
+    - name: Setup alerts
+      run: |
+        echo "🚨 Configuring alerting rules..."
+        kubectl create configmap prometheus-rules \
+          --from-file=monitoring/alert_rules.yml \
+          -n claude-enhancer --dry-run=client -o yaml | kubectl apply -f -
 
   # ==========================================
-  # Deploy to Production
+  # Phase 9: Production Release (Manual Gate)
   # ==========================================
-  deploy-production:
-    name: Deploy to Production
+  production-release:
+    name: 🌟 Production Release
     runs-on: ubuntu-latest
-    needs: [test, build, e2e-test, performance-test]
-    if: github.ref == 'refs/heads/main'
+    needs: [deploy-application, e2e-testing, performance-testing, monitoring-setup]
+    if: github.ref == 'refs/heads/main' && github.event.inputs.environment == 'production'
     environment: production
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Deploy to production
+    - name: Production deployment approval
       run: |
-        echo "🚀 Deploying to production environment..."
-        # Add your production deployment logic here
+        echo "🎯 Production deployment approved"
+        echo "📊 Deployment Summary:"
+        echo "- Environment: production"
+        echo "- Image: ${{ needs.container-build.outputs.image-tags }}"
+        echo "- Strategy: ${{ github.event.inputs.deployment_strategy }}"
+        echo "- Test Coverage: ${{ needs.test-suite.outputs.coverage }}%"
+        echo "- Security Score: ${{ needs.container-build.outputs.vulnerability-score }}"
+
+    - name: Notify stakeholders
+      if: always()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        channel: '#deployments'
+        text: |
+          🚀 *Production Deployment Complete*
+
+          *Environment:* Production
+          *Version:* ${{ github.sha }}
+          *Image:* ${{ needs.container-build.outputs.image-tags }}
+          *Status:* ${{ job.status }}
+
+          *Metrics:*
+          • Test Coverage: ${{ needs.test-suite.outputs.coverage }}%
+          • Security Score: ${{ needs.container-build.outputs.vulnerability-score }}
+          • Deployment URL: ${{ needs.deploy-application.outputs.deployment-url }}
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   # ==========================================
-  # Security Monitoring
+  # Continuous Security Monitoring
   # ==========================================
   security-monitoring:
-    name: Security Monitoring
+    name: 🛡️ Continuous Security Monitoring
     runs-on: ubuntu-latest
     if: github.event_name == 'schedule' || github.event_name == 'push'
 
@@ -422,16 +641,118 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Run security scan
-      uses: securecodewarrior/github-action-add-sarif@v1
+    - name: Run Trivy security scan
+      uses: aquasecurity/trivy-action@master
       with:
-        sarif-file: 'security-scan-results.sarif'
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: Upload security scan results
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+    - name: Run SAST analysis
+      uses: github/codeql-action/analyze@v2
+      with:
+        languages: python, javascript
+
+    - name: Dependency vulnerability check
+      run: |
+        pip install safety
+        safety check --json --output safety-report.json || true
+        npm audit --audit-level=moderate --json > npm-audit.json || true
+
+    - name: Upload security artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: security-reports
+        path: |
+          trivy-results.sarif
+          safety-report.json
+          npm-audit.json
 
     - name: Notify security team
       if: failure()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: failure
+        channel: '#security-alerts'
+        text: |
+          🚨 *Security Scan Alert*
+
+          Security vulnerabilities detected in Perfect21 Claude Enhancer
+
+          *Repository:* ${{ github.repository }}
+          *Branch:* ${{ github.ref_name }}
+          *Commit:* ${{ github.sha }}
+
+          Please review the security reports in the workflow artifacts.
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # ==========================================
+  # Rollback Mechanism
+  # ==========================================
+  rollback:
+    name: 🔄 Emergency Rollback
+    runs-on: ubuntu-latest
+    if: failure() && (github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch')
+    needs: [deploy-application, e2e-testing]
+    environment: ${{ github.event.inputs.environment || 'staging' }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: ${{ env.KUBECTL_VERSION }}
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ vars.AWS_REGION || 'us-west-2' }}
+
+    - name: Update kubeconfig
       run: |
-        echo "🚨 Security scan failed! Notifying security team..."
-        # Add notification logic here (Slack, email, etc.)
+        aws eks update-kubeconfig --region ${{ vars.AWS_REGION || 'us-west-2' }} --name claude-enhancer-${{ github.event.inputs.environment || 'staging' }}
+
+    - name: Perform rollback
+      run: |
+        echo "🔄 Performing emergency rollback..."
+        kubectl rollout undo deployment/claude-enhancer -n claude-enhancer
+        kubectl rollout status deployment/claude-enhancer -n claude-enhancer --timeout=300s
+
+    - name: Verify rollback
+      run: |
+        echo "✅ Verifying rollback success..."
+        kubectl get pods -n claude-enhancer
+        # Perform basic health check
+        kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=claude-enhancer -n claude-enhancer --timeout=300s
+
+    - name: Notify rollback completion
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        channel: '#incidents'
+        text: |
+          🔄 *Emergency Rollback Completed*
+
+          *Environment:* ${{ github.event.inputs.environment || 'staging' }}
+          *Status:* ${{ job.status }}
+          *Triggered by:* Deployment failure
+
+          The application has been rolled back to the previous stable version.
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
 # ==========================================
 # Scheduled Jobs
