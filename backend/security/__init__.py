@@ -18,14 +18,14 @@ from .input_validator import InputValidator, SecurityValidator
 from .security_middleware import SecurityMiddleware
 
 __all__ = [
-    'RateLimiter',
-    'SecurityRateLimiter', 
-    'IPBlacklistManager',
-    'LoginAnomalyDetector',
-    'SecurityAuditLogger',
-    'InputValidator',
-    'SecurityValidator',
-    'SecurityMiddleware'
+    "RateLimiter",
+    "SecurityRateLimiter",
+    "IPBlacklistManager",
+    "LoginAnomalyDetector",
+    "SecurityAuditLogger",
+    "InputValidator",
+    "SecurityValidator",
+    "SecurityMiddleware",
 ]
 
-__version__ = '1.0.0'
+__version__ = "1.0.0"

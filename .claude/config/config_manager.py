@@ -72,32 +72,32 @@ class ConfigManager:
             config = self.loader.load_config(environment=env)
             validation = self.loader._validate_config(config)
 
-            print(f"🔍 Validating configuration for {(env or self.loader.environment).value} environment")
+    # print(f"🔍 Validating configuration for {(env or self.loader.environment).value} environment")
 
             if validation.is_valid:
-                print("✅ Configuration is valid")
+    # print("✅ Configuration is valid")
 
                 if validation.warnings:
-                    print("\n⚠️  Warnings:")
+    # print("\n⚠️  Warnings:")
                     for warning in validation.warnings:
-                        print(f"  • {warning}")
+    # print(f"  • {warning}")
 
                 return True
             else:
-                print("❌ Configuration validation failed")
-                print("\n🚨 Errors:")
+    # print("❌ Configuration validation failed")
+    # print("\n🚨 Errors:")
                 for error in validation.errors:
-                    print(f"  • {error}")
+    # print(f"  • {error}")
 
                 if validation.warnings:
-                    print("\n⚠️  Warnings:")
+    # print("\n⚠️  Warnings:")
                     for warning in validation.warnings:
-                        print(f"  • {warning}")
+    # print(f"  • {warning}")
 
                 return False
 
         except Exception as e:
-            print(f"❌ Validation error: {e}")
+    # print(f"❌ Validation error: {e}")
             return False
 
     def get(self, key_path: str, environment: str = None, format_output: str = "yaml") -> Any:
@@ -108,22 +108,22 @@ class ConfigManager:
             value = self.loader.get_config_value(key_path, config=config)
 
             if value is None:
-                print(f"❌ Configuration key not found: {key_path}")
+    # print(f"❌ Configuration key not found: {key_path}")
                 return None
 
-            print(f"📋 {key_path}:")
+    # print(f"📋 {key_path}:")
 
             if format_output == "json":
-                print(json.dumps(value, indent=2))
+    # print(json.dumps(value, indent=2))
             elif format_output == "yaml":
-                print(yaml.dump(value, default_flow_style=False))
+    # print(yaml.dump(value, default_flow_style=False))
             else:
-                print(value)
+    # print(value)
 
             return value
 
         except Exception as e:
-            print(f"❌ Error getting configuration: {e}")
+    # print(f"❌ Error getting configuration: {e}")
             return None
 
     def set(self, key_path: str, value: str, environment: str = None) -> bool:
@@ -141,11 +141,11 @@ class ConfigManager:
             # Set the value
             updated_config = self.loader.set_config_value(key_path, parsed_value, config)
 
-            print(f"✅ Configuration updated: {key_path} = {parsed_value}")
+    # print(f"✅ Configuration updated: {key_path} = {parsed_value}")
             return True
 
         except Exception as e:
-            print(f"❌ Error setting configuration: {e}")
+    # print(f"❌ Error setting configuration: {e}")
             return False
 
     def reload(self, environment: str = None) -> bool:
@@ -155,12 +155,12 @@ class ConfigManager:
             config = self.loader.load_config(force_reload=True, environment=env)
 
             env_name = (env or self.loader.environment).value
-            print(f"🔄 Configuration reloaded for {env_name} environment")
-            print(f"📊 Loaded {len(config)} configuration sections")
+    # print(f"🔄 Configuration reloaded for {env_name} environment")
+    # print(f"📊 Loaded {len(config)} configuration sections")
             return True
 
         except Exception as e:
-            print(f"❌ Error reloading configuration: {e}")
+    # print(f"❌ Error reloading configuration: {e}")
             return False
 
     def switch_environment(self, environment: str) -> bool:
@@ -171,7 +171,7 @@ class ConfigManager:
             # Check if environment configuration exists
             env_file = self.config_dir / "env" / f"{environment}.yaml"
             if not env_file.exists():
-                print(f"❌ Environment configuration not found: {env_file}")
+    # print(f"❌ Environment configuration not found: {env_file}")
                 return False
 
             # Load configuration for new environment
@@ -180,12 +180,12 @@ class ConfigManager:
             # Update environment variable
             os.environ['PERFECT21_ENV'] = environment
 
-            print(f"🔄 Switched to {environment} environment")
-            print(f"📊 Loaded {len(config)} configuration sections")
+    # print(f"🔄 Switched to {environment} environment")
+    # print(f"📊 Loaded {len(config)} configuration sections")
             return True
 
         except Exception as e:
-            print(f"❌ Error switching environment: {e}")
+    # print(f"❌ Error switching environment: {e}")
             return False
 
     def health_check(self) -> Dict[str, Any]:
@@ -278,37 +278,37 @@ class ConfigManager:
     def migrate_legacy(self, backup: bool = True, cleanup: bool = False) -> bool:
         """Migrate legacy configuration files."""
         try:
-            print("🔍 Discovering legacy configuration files...")
+    # print("🔍 Discovering legacy configuration files...")
             legacy_files = self.migrator.discover_legacy_configs()
 
             if not legacy_files:
-                print("✅ No legacy configuration files found")
+    # print("✅ No legacy configuration files found")
                 return True
 
-            print(f"📋 Found {len(legacy_files)} legacy configuration files:")
+    # print(f"📋 Found {len(legacy_files)} legacy configuration files:")
             for file_path in legacy_files:
-                print(f"  • {file_path}")
+    # print(f"  • {file_path}")
 
-            print("\n🚀 Starting migration...")
+    # print("\n🚀 Starting migration...")
             report = self.migrator.migrate_all(backup=backup)
 
             if report['status'] == 'success':
-                print("✅ Migration completed successfully!")
+    # print("✅ Migration completed successfully!")
             elif report['status'] == 'partial_failure':
-                print("⚠️  Migration completed with some errors")
+    # print("⚠️  Migration completed with some errors")
             else:
-                print("❌ Migration failed")
+    # print("❌ Migration failed")
                 return False
 
-            print(f"\n📊 Migration Summary:")
-            print(f"  • Files processed: {len(report['files'])}")
-            print(f"  • Successful: {sum(1 for f in report['files'] if f['status'] == 'migrated')}")
-            print(f"  • Errors: {len(report['errors'])}")
+    # print(f"\n📊 Migration Summary:")
+    # print(f"  • Files processed: {len(report['files'])}")
+    # print(f"  • Successful: {sum(1 for f in report['files'] if f['status'] == 'migrated')}")
+    # print(f"  • Errors: {len(report['errors'])}")
 
             if report['errors']:
-                print("\n❌ Errors:")
+    # print("\n❌ Errors:")
                 for error in report['errors']:
-                    print(f"  • {error}")
+    # print(f"  • {error}")
 
             if cleanup:
                 self.migrator.cleanup_legacy_files(legacy_files, confirm=False)
@@ -316,7 +316,7 @@ class ConfigManager:
             return True
 
         except Exception as e:
-            print(f"❌ Migration failed: {e}")
+    # print(f"❌ Migration failed: {e}")
             return False
 
     def backup_config(self, backup_dir: str = None) -> str:
@@ -332,11 +332,11 @@ class ConfigManager:
             backup_path.mkdir(parents=True, exist_ok=True)
             shutil.copytree(self.config_dir, backup_path / "config")
 
-            print(f"✅ Configuration backed up to: {backup_path}")
+    # print(f"✅ Configuration backed up to: {backup_path}")
             return str(backup_path)
 
         except Exception as e:
-            print(f"❌ Backup failed: {e}")
+    # print(f"❌ Backup failed: {e}")
             raise
 
 
@@ -408,16 +408,16 @@ def main():
     try:
         if args.command == "status":
             status = manager.status()
-            print("📊 Configuration Status:")
-            print(f"  Environment: {status.get('environment', 'unknown')}")
-            print(f"  Valid: {'✅' if status.get('config_valid') else '❌'}")
-            print(f"  Version: {status.get('config_version', 'unknown')}")
-            print(f"  Sections: {status.get('total_sections', 0)}")
+    # print("📊 Configuration Status:")
+    # print(f"  Environment: {status.get('environment', 'unknown')}")
+    # print(f"  Valid: {'✅' if status.get('config_valid') else '❌'}")
+    # print(f"  Version: {status.get('config_version', 'unknown')}")
+    # print(f"  Sections: {status.get('total_sections', 0)}")
 
             if status.get('errors'):
-                print("\n❌ Errors:")
+    # print("\n❌ Errors:")
                 for error in status['errors']:
-                    print(f"  • {error}")
+    # print(f"  • {error}")
 
         elif args.command == "validate":
             success = manager.validate(args.environment)
@@ -443,26 +443,26 @@ def main():
             health = manager.health_check()
             status_icon = {"healthy": "✅", "warning": "⚠️", "unhealthy": "❌"}
 
-            print(f"🏥 Configuration Health Check")
-            print(f"Overall Status: {status_icon.get(health['overall_status'], '❓')} {health['overall_status']}")
+    # print(f"🏥 Configuration Health Check")
+    # print(f"Overall Status: {status_icon.get(health['overall_status'], '❓')} {health['overall_status']}")
 
             for check_name, check_result in health['checks'].items():
                 if isinstance(check_result, dict):
                     status = check_result.get('status', 'unknown')
                     icon = {"pass": "✅", "warn": "⚠️", "fail": "❌"}.get(status, "❓")
-                    print(f"  {check_name}: {icon} {status}")
+    # print(f"  {check_name}: {icon} {status}")
 
                     if status == "fail" and check_result.get('errors'):
                         for error in check_result['errors']:
-                            print(f"    • {error}")
+    # print(f"    • {error}")
 
         elif args.command == "list":
             environments = manager.list_environments()
-            print("🌍 Available Environments:")
+    # print("🌍 Available Environments:")
             for env_name, env_info in environments.items():
                 status = "✅ exists" if env_info['exists'] else "❌ missing"
                 current = " (current)" if env_info['current'] else ""
-                print(f"  • {env_name}: {status}{current}")
+    # print(f"  • {env_name}: {status}{current}")
 
         elif args.command == "migrate":
             success = manager.migrate_legacy(
@@ -478,10 +478,10 @@ def main():
             parser.print_help()
 
     except KeyboardInterrupt:
-        print("\n❌ Operation cancelled")
+    # print("\n❌ Operation cancelled")
         sys.exit(1)
     except Exception as e:
-        print(f"❌ Error: {e}")
+    # print(f"❌ Error: {e}")
         sys.exit(1)
 
 

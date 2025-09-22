@@ -112,7 +112,7 @@ formatter = generic
 format = %(levelname)-5.5s [%(name)s] %(message)s
 datefmt = %H:%M:%S
 """
-        with open(ini_path, 'w') as f:
+        with open(ini_path, "w") as f:
             f.write(ini_content)
 
     def init_migrations(self) -> bool:
@@ -193,10 +193,12 @@ if context.is_offline_mode():
 else:
     run_migrations_online()
 '''
-        with open(env_py_path, 'w') as f:
+        with open(env_py_path, "w") as f:
             f.write(env_py_content)
 
-    def create_migration(self, message: str, auto_generate: bool = True) -> Optional[str]:
+    def create_migration(
+        self, message: str, auto_generate: bool = True
+    ) -> Optional[str]:
         """
         创建新迁移
 
@@ -209,16 +211,9 @@ else:
         """
         try:
             if auto_generate:
-                command.revision(
-                    self.alembic_cfg,
-                    message=message,
-                    autogenerate=True
-                )
+                command.revision(self.alembic_cfg, message=message, autogenerate=True)
             else:
-                command.revision(
-                    self.alembic_cfg,
-                    message=message
-                )
+                command.revision(self.alembic_cfg, message=message)
 
             logger.info(f"创建迁移: {message}")
             return self._get_latest_migration_file()
@@ -293,12 +288,16 @@ else:
             history = []
 
             for revision in script_dir.walk_revisions():
-                history.append({
-                    'revision': revision.revision,
-                    'down_revision': revision.down_revision,
-                    'message': revision.doc,
-                    'created_at': revision.create_date if hasattr(revision, 'create_date') else None
-                })
+                history.append(
+                    {
+                        "revision": revision.revision,
+                        "down_revision": revision.down_revision,
+                        "message": revision.doc,
+                        "created_at": revision.create_date
+                        if hasattr(revision, "create_date")
+                        else None,
+                    }
+                )
 
             return history
 
@@ -332,15 +331,18 @@ else:
                 return None
 
             migration_files = [
-                f for f in os.listdir(versions_dir)
-                if f.endswith('.py') and not f.startswith('__')
+                f
+                for f in os.listdir(versions_dir)
+                if f.endswith(".py") and not f.startswith("__")
             ]
 
             if not migration_files:
                 return None
 
             # 按创建时间排序，返回最新的
-            migration_files.sort(key=lambda f: os.path.getctime(os.path.join(versions_dir, f)))
+            migration_files.sort(
+                key=lambda f: os.path.getctime(os.path.join(versions_dir, f))
+            )
             return os.path.join(versions_dir, migration_files[-1])
 
         except Exception as e:
@@ -361,7 +363,7 @@ else:
             from backend.models.base import Base
             from sqlalchemy.schema import CreateTable
 
-            with open(output_file, 'w') as f:
+            with open(output_file, "w") as f:
                 for table in Base.metadata.sorted_tables:
                     f.write(str(CreateTable(table).compile(engine)) + ";\n\n")
 
@@ -387,19 +389,25 @@ else:
 
             # 使用pg_dump备份PostgreSQL数据库
             import subprocess
+
             cmd = [
-                'pg_dump',
-                '-h', config.host,
-                '-p', str(config.port),
-                '-U', config.username,
-                '-d', config.database,
-                '-f', backup_file,
-                '--verbose'
+                "pg_dump",
+                "-h",
+                config.host,
+                "-p",
+                str(config.port),
+                "-U",
+                config.username,
+                "-d",
+                config.database,
+                "-f",
+                backup_file,
+                "--verbose",
             ]
 
             # 设置密码环境变量
             env = os.environ.copy()
-            env['PGPASSWORD'] = config.password
+            env["PGPASSWORD"] = config.password
 
             result = subprocess.run(cmd, env=env, capture_output=True, text=True)
 
@@ -452,12 +460,12 @@ def check_migrations() -> bool:
 
 # 导出公共接口
 __all__ = [
-    'MigrationManager',
-    'migration_manager',
-    'init_migrations',
-    'create_migration',
-    'upgrade_database',
-    'downgrade_database',
-    'get_current_version',
-    'check_migrations',
+    "MigrationManager",
+    "migration_manager",
+    "init_migrations",
+    "create_migration",
+    "upgrade_database",
+    "downgrade_database",
+    "get_current_version",
+    "check_migrations",
 ]

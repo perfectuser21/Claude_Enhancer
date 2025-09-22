@@ -24,14 +24,20 @@ class PasswordValidator:
 
     # 常见弱密码模式
     WEAK_PATTERNS = [
-        'password', 'pass123', '123456', 'qwerty', 'abc123',
-        'password123', 'admin', 'root', 'user', 'guest'
+        "password",
+        "pass123",
+        "123456",
+        "qwerty",
+        "abc123",
+        "password123",
+        "admin",
+        "root",
+        "user",
+        "guest",
     ]
 
     # 键盘模式
-    KEYBOARD_PATTERNS = [
-        'qwerty', 'asdf', 'zxcv', '1234', 'abcd'
-    ]
+    KEYBOARD_PATTERNS = ["qwerty", "asdf", "zxcv", "1234", "abcd"]
 
     @classmethod
     def validate_strength(cls, password: str) -> Tuple[bool, List[str]]:
@@ -56,7 +62,7 @@ class PasswordValidator:
         has_upper = any(c.isupper() for c in password)
         has_lower = any(c.islower() for c in password)
         has_digit = any(c.isdigit() for c in password)
-        has_special = any(c in "!@#$%^&*(),.?\":{}|<>[]\\/-_+=~`" for c in password)
+        has_special = any(c in '!@#$%^&*(),.?":{}|<>[]\\/-_+=~`' for c in password)
 
         if not has_upper:
             errors.append("密码必须包含大写字母")
@@ -93,7 +99,7 @@ class PasswordValidator:
         """检查是否有过多重复字符"""
         count = 1
         for i in range(1, len(password)):
-            if password[i] == password[i-1]:
+            if password[i] == password[i - 1]:
                 count += 1
                 if count > max_repeat:
                     return True
@@ -140,11 +146,12 @@ class PasswordValidator:
             charset_size += 26
         if any(c.isdigit() for c in password):
             charset_size += 10
-        if any(c in "!@#$%^&*(),.?\":{}|<>[]\\/-_+=~`" for c in password):
+        if any(c in '!@#$%^&*(),.?":{}|<>[]\\/-_+=~`' for c in password):
             charset_size += 32
 
         # 计算熵值
         import math
+
         if charset_size > 0:
             entropy = len(password) * math.log2(charset_size)
         else:
@@ -175,13 +182,9 @@ class DeviceFingerprint:
         accept = request_headers.get("accept", "")
 
         # 组合指纹信息
-        fingerprint_data = "|".join([
-            user_agent,
-            accept_language,
-            accept_encoding,
-            accept,
-            ip_address
-        ])
+        fingerprint_data = "|".join(
+            [user_agent, accept_language, accept_encoding, accept, ip_address]
+        )
 
         # 生成哈希
         return hashlib.sha256(fingerprint_data.encode()).hexdigest()
@@ -202,21 +205,18 @@ class DeviceFingerprint:
             return {
                 "browser": {
                     "family": ua.browser.family,
-                    "version": ua.browser.version_string
+                    "version": ua.browser.version_string,
                 },
-                "os": {
-                    "family": ua.os.family,
-                    "version": ua.os.version_string
-                },
+                "os": {"family": ua.os.family, "version": ua.os.version_string},
                 "device": {
                     "family": ua.device.family,
                     "brand": ua.device.brand,
-                    "model": ua.device.model
+                    "model": ua.device.model,
                 },
                 "is_mobile": ua.is_mobile,
                 "is_tablet": ua.is_tablet,
                 "is_pc": ua.is_pc,
-                "is_bot": ua.is_bot
+                "is_bot": ua.is_bot,
             }
         except Exception as e:
             logger.warning(f"User-Agent解析失败: {e}")
@@ -227,7 +227,7 @@ class DeviceFingerprint:
                 "is_mobile": False,
                 "is_tablet": False,
                 "is_pc": True,
-                "is_bot": False
+                "is_bot": False,
             }
 
 
@@ -236,10 +236,10 @@ class SecurityAnalyzer:
 
     # 可疑IP范围（示例）
     SUSPICIOUS_IP_RANGES = [
-        "127.0.0.0/8",    # 本地回环
-        "10.0.0.0/8",     # 私有网络
+        "127.0.0.0/8",  # 本地回环
+        "10.0.0.0/8",  # 私有网络
         "172.16.0.0/12",  # 私有网络
-        "192.168.0.0/16", # 私有网络
+        "192.168.0.0/16",  # 私有网络
     ]
 
     # 已知恶意User-Agent模式
@@ -250,7 +250,7 @@ class SecurityAnalyzer:
         r"masscan",
         r"python-requests",
         r"curl",
-        r"wget"
+        r"wget",
     ]
 
     @classmethod
@@ -259,7 +259,7 @@ class SecurityAnalyzer:
         user_id: str,
         ip_address: str,
         user_agent: str,
-        login_history: List[Dict[str, Any]]
+        login_history: List[Dict[str, Any]],
     ) -> Dict[str, Any]:
         """
         分析登录风险
@@ -311,11 +311,13 @@ class SecurityAnalyzer:
             "risk_level": risk_level,
             "risk_factors": risk_factors,
             "requires_additional_verification": risk_score >= 50,
-            "block_login": risk_score >= 90
+            "block_login": risk_score >= 90,
         }
 
     @classmethod
-    def _analyze_ip_risk(cls, ip_address: str, login_history: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def _analyze_ip_risk(
+        cls, ip_address: str, login_history: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
         """分析IP地址风险"""
         risk_score = 0
         factors = []
@@ -332,11 +334,14 @@ class SecurityAnalyzer:
 
             # 检查IP使用频率
             recent_logins = [
-                login for login in login_history
+                login
+                for login in login_history
                 if (datetime.utcnow() - login.get("timestamp", datetime.min)).days <= 30
             ]
 
-            ip_usage = sum(1 for login in recent_logins if login.get("ip_address") == ip_address)
+            ip_usage = sum(
+                1 for login in recent_logins if login.get("ip_address") == ip_address
+            )
             total_recent = len(recent_logins)
 
             if total_recent > 0:
@@ -355,7 +360,9 @@ class SecurityAnalyzer:
         return {"score": risk_score, "factors": factors}
 
     @classmethod
-    def _analyze_device_risk(cls, user_agent: str, login_history: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def _analyze_device_risk(
+        cls, user_agent: str, login_history: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
         """分析设备风险"""
         risk_score = 0
         factors = []
@@ -367,9 +374,7 @@ class SecurityAnalyzer:
                 factors.append(f"可疑User-Agent模式: {pattern}")
 
         # 检查User-Agent变化
-        recent_agents = [
-            login.get("user_agent", "") for login in login_history[-10:]
-        ]
+        recent_agents = [login.get("user_agent", "") for login in login_history[-10:]]
 
         if user_agent not in recent_agents and len(recent_agents) > 0:
             risk_score += 20
@@ -383,7 +388,9 @@ class SecurityAnalyzer:
         return {"score": risk_score, "factors": factors}
 
     @classmethod
-    def _analyze_time_pattern(cls, login_history: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def _analyze_time_pattern(
+        cls, login_history: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
         """分析时间模式风险"""
         risk_score = 0
         factors = []
@@ -395,7 +402,8 @@ class SecurityAnalyzer:
 
         # 检查登录频率
         recent_hour = [
-            login for login in login_history
+            login
+            for login in login_history
             if (now - login.get("timestamp", datetime.min)).total_seconds() < 3600
         ]
 
@@ -412,7 +420,9 @@ class SecurityAnalyzer:
         return {"score": risk_score, "factors": factors}
 
     @classmethod
-    def _analyze_geographic_risk(cls, ip_address: str, login_history: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def _analyze_geographic_risk(
+        cls, ip_address: str, login_history: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
         """分析地理位置风险"""
         # TODO: 实现IP地理位置查询和分析
         # 这里需要集成IP地理位置服务
@@ -429,7 +439,7 @@ class QRCodeGenerator:
         issuer: str = "Perfect21",
         algorithm: str = "SHA1",
         digits: int = 6,
-        period: int = 30
+        period: int = 30,
     ) -> str:
         """
         生成TOTP二维码
@@ -470,7 +480,7 @@ class QRCodeGenerator:
 
         # 转换为base64
         buffer = BytesIO()
-        img.save(buffer, format='PNG')
+        img.save(buffer, format="PNG")
         img_str = base64.b64encode(buffer.getvalue()).decode()
 
         return f"data:image/png;base64,{img_str}"
@@ -507,12 +517,14 @@ class TokenUtils:
         codes = []
         for _ in range(count):
             # 生成数字码
-            code = ''.join(secrets.choice('0123456789') for _ in range(length))
+            code = "".join(secrets.choice("0123456789") for _ in range(length))
             codes.append(code)
         return codes
 
     @staticmethod
-    def mask_sensitive_data(data: str, mask_char: str = "*", visible_chars: int = 4) -> str:
+    def mask_sensitive_data(
+        data: str, mask_char: str = "*", visible_chars: int = 4
+    ) -> str:
         """
         掩码敏感数据
 
@@ -539,8 +551,12 @@ class EmailValidator:
 
     # 一次性邮箱域名列表（示例）
     DISPOSABLE_DOMAINS = {
-        "10minutemail.com", "guerrillamail.com", "mailinator.com",
-        "tempmail.org", "yopmail.com", "throwaway.email"
+        "10minutemail.com",
+        "guerrillamail.com",
+        "mailinator.com",
+        "tempmail.org",
+        "yopmail.com",
+        "throwaway.email",
     }
 
     @classmethod
@@ -557,7 +573,7 @@ class EmailValidator:
         errors = []
 
         # 基本格式检查
-        email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        email_pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
         if not re.match(email_pattern, email):
             errors.append("邮箱格式不正确")
             return False, errors
@@ -567,7 +583,7 @@ class EmailValidator:
             errors.append("邮箱地址过长")
 
         # 域名检查
-        domain = email.split('@')[1].lower()
+        domain = email.split("@")[1].lower()
 
         # 检查一次性邮箱
         if domain in cls.DISPOSABLE_DOMAINS:
@@ -594,13 +610,13 @@ class EmailValidator:
         email = email.lower().strip()
 
         # Gmail特殊处理（移除.和+别名）
-        if email.endswith('@gmail.com'):
-            local, domain = email.split('@')
+        if email.endswith("@gmail.com"):
+            local, domain = email.split("@")
             # 移除点号
-            local = local.replace('.', '')
+            local = local.replace(".", "")
             # 移除+号及之后的内容
-            if '+' in local:
-                local = local.split('+')[0]
+            if "+" in local:
+                local = local.split("+")[0]
             email = f"{local}@{domain}"
 
         return email
@@ -613,11 +629,7 @@ class RateLimiter:
         self._requests = {}
 
     def is_allowed(
-        self,
-        key: str,
-        limit: int,
-        window: int,
-        current_time: Optional[datetime] = None
+        self, key: str, limit: int, window: int, current_time: Optional[datetime] = None
     ) -> bool:
         """
         检查是否允许请求
@@ -639,8 +651,7 @@ class RateLimiter:
         # 清理过期记录
         if key in self._requests:
             self._requests[key] = [
-                req_time for req_time in self._requests[key]
-                if req_time > window_start
+                req_time for req_time in self._requests[key] if req_time > window_start
             ]
         else:
             self._requests[key] = []
@@ -659,10 +670,13 @@ class RateLimiter:
         window_start = current_time - timedelta(seconds=window)
 
         if key in self._requests:
-            current_count = len([
-                req_time for req_time in self._requests[key]
-                if req_time > window_start
-            ])
+            current_count = len(
+                [
+                    req_time
+                    for req_time in self._requests[key]
+                    if req_time > window_start
+                ]
+            )
             return max(0, limit - current_count)
 
         return limit

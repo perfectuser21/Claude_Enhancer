@@ -566,37 +566,37 @@ if __name__ == "__main__":
     try:
         if args.migrate:
             config = loader.migrate_legacy_config(args.migrate)
-            print("✅ Legacy configuration migrated successfully")
+    # print("✅ Legacy configuration migrated successfully")
 
         elif args.validate:
             config = loader.load_config()
             validation = loader._validate_config(config)
 
             if validation.is_valid:
-                print("✅ Configuration is valid")
+    # print("✅ Configuration is valid")
             else:
-                print("❌ Configuration validation failed:")
+    # print("❌ Configuration validation failed:")
                 for error in validation.errors:
-                    print(f"  • {error}")
+    # print(f"  • {error}")
 
             if validation.warnings:
-                print("⚠️  Configuration warnings:")
+    # print("⚠️  Configuration warnings:")
                 for warning in validation.warnings:
-                    print(f"  • {warning}")
+    # print(f"  • {warning}")
 
         elif args.get:
             config = loader.load_config()
             value = loader.get_config_value(args.get, config=config)
-            print(f"{args.get}: {value}")
+    # print(f"{args.get}: {value}")
 
         else:
             config = loader.load_config(force_reload=args.reload)
-            print(f"✅ Configuration loaded for {loader.environment.value} environment")
-            print(f"📋 Configuration sections: {list(config.keys())}")
+    # print(f"✅ Configuration loaded for {loader.environment.value} environment")
+    # print(f"📋 Configuration sections: {list(config.keys())}")
 
     except ConfigurationError as e:
-        print(f"❌ Configuration error: {e}")
+    # print(f"❌ Configuration error: {e}")
         exit(1)
     except Exception as e:
-        print(f"❌ Unexpected error: {e}")
+    # print(f"❌ Unexpected error: {e}")
         exit(1)

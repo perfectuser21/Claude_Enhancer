@@ -67,38 +67,50 @@ class PerformanceMetrics:
             return {}
 
         total_operations = self.success_count + self.error_count
-        duration = (self.end_time - self.start_time) if self.end_time and self.start_time else 0
+        duration = (
+            (self.end_time - self.start_time)
+            if self.end_time and self.start_time
+            else 0
+        )
 
         response_stats = {
             "min_ms": min(self.response_times),
             "max_ms": max(self.response_times),
             "mean_ms": statistics.mean(self.response_times),
             "median_ms": statistics.median(self.response_times),
-            "std_dev_ms": statistics.stdev(self.response_times) if len(self.response_times) > 1 else 0,
+            "std_dev_ms": statistics.stdev(self.response_times)
+            if len(self.response_times) > 1
+            else 0,
             "p95_ms": self._percentile(self.response_times, 95),
-            "p99_ms": self._percentile(self.response_times, 99)
+            "p99_ms": self._percentile(self.response_times, 99),
         }
 
         throughput_stats = {
             "total_operations": total_operations,
             "successful_operations": self.success_count,
             "failed_operations": self.error_count,
-            "success_rate_percent": (self.success_count / total_operations * 100) if total_operations > 0 else 0,
+            "success_rate_percent": (self.success_count / total_operations * 100)
+            if total_operations > 0
+            else 0,
             "operations_per_second": total_operations / duration if duration > 0 else 0,
-            "duration_seconds": duration
+            "duration_seconds": duration,
         }
 
         resource_stats = {
-            "avg_cpu_percent": statistics.mean(self.cpu_samples) if self.cpu_samples else 0,
+            "avg_cpu_percent": statistics.mean(self.cpu_samples)
+            if self.cpu_samples
+            else 0,
             "max_cpu_percent": max(self.cpu_samples) if self.cpu_samples else 0,
-            "avg_memory_mb": statistics.mean(self.memory_samples) if self.memory_samples else 0,
-            "max_memory_mb": max(self.memory_samples) if self.memory_samples else 0
+            "avg_memory_mb": statistics.mean(self.memory_samples)
+            if self.memory_samples
+            else 0,
+            "max_memory_mb": max(self.memory_samples) if self.memory_samples else 0,
         }
 
         return {
             "response_times": response_stats,
             "throughput": throughput_stats,
-            "system_resources": resource_stats
+            "system_resources": resource_stats,
         }
 
     def _percentile(self, data: List[float], percentile: int) -> float:
@@ -111,55 +123,71 @@ class PerformanceMetrics:
         """Print performance summary"""
         stats = self.get_statistics()
         if not stats:
-            print(f"❌ {test_name}: No data collected")
+            # print(f"❌ {test_name}: No data collected")
             return
 
-        print(f"\n📊 {test_name} Performance Summary")
-        print("=" * 60)
-        print(f"Total Operations: {stats['throughput']['total_operations']}")
-        print(f"Success Rate: {stats['throughput']['success_rate_percent']:.1f}%")
-        print(f"Duration: {stats['throughput']['duration_seconds']:.2f}s")
-        print(f"Throughput: {stats['throughput']['operations_per_second']:.1f} ops/sec")
-        print()
-        print("Response Times:")
-        print(f"  Average: {stats['response_times']['mean_ms']:.1f}ms")
-        print(f"  Median: {stats['response_times']['median_ms']:.1f}ms")
-        print(f"  P95: {stats['response_times']['p95_ms']:.1f}ms")
-        print(f"  P99: {stats['response_times']['p99_ms']:.1f}ms")
-        print(f"  Min/Max: {stats['response_times']['min_ms']:.1f}ms / {stats['response_times']['max_ms']:.1f}ms")
-        print()
-        print("System Resources:")
-        print(f"  Avg CPU: {stats['system_resources']['avg_cpu_percent']:.1f}%")
-        print(f"  Max CPU: {stats['system_resources']['max_cpu_percent']:.1f}%")
-        print(f"  Avg Memory: {stats['system_resources']['avg_memory_mb']:.1f}MB")
-        print(f"  Max Memory: {stats['system_resources']['max_memory_mb']:.1f}MB")
-        print("=" * 60)
+    # print(f"\n📊 {test_name} Performance Summary")
+    # print("=" * 60)
+    # print(f"Total Operations: {stats['throughput']['total_operations']}")
+    # print(f"Success Rate: {stats['throughput']['success_rate_percent']:.1f}%")
+    # print(f"Duration: {stats['throughput']['duration_seconds']:.2f}s")
+    # print(f"Throughput: {stats['throughput']['operations_per_second']:.1f} ops/sec")
+    # print()
+    # print("Response Times:")
+    # print(f"  Average: {stats['response_times']['mean_ms']:.1f}ms")
+    # print(f"  Median: {stats['response_times']['median_ms']:.1f}ms")
+    # print(f"  P95: {stats['response_times']['p95_ms']:.1f}ms")
+    # print(f"  P99: {stats['response_times']['p99_ms']:.1f}ms")
+    # print(f"  Min/Max: {stats['response_times']['min_ms']:.1f}ms / {stats['response_times']['max_ms']:.1f}ms")
+    # print()
+    # print("System Resources:")
+    # print(f"  Avg CPU: {stats['system_resources']['avg_cpu_percent']:.1f}%")
+    # print(f"  Max CPU: {stats['system_resources']['max_cpu_percent']:.1f}%")
+    # print(f"  Avg Memory: {stats['system_resources']['avg_memory_mb']:.1f}MB")
+    # print(f"  Max Memory: {stats['system_resources']['max_memory_mb']:.1f}MB")
+    # print("=" * 60)
 
 
 class TestRegistrationPerformance:
     """Test user registration performance under various loads"""
 
     @pytest.mark.asyncio
-    async def test_concurrent_registration_light_load(self, integrated_test_environment):
+    async def test_concurrent_registration_light_load(
+        self, integrated_test_environment
+    ):
         """⚡ Test concurrent user registration - Light Load (50 users)"""
-        await self._test_concurrent_registrations(integrated_test_environment, 50, "Light Load")
+        await self._test_concurrent_registrations(
+            integrated_test_environment, 50, "Light Load"
+        )
 
     @pytest.mark.asyncio
-    async def test_concurrent_registration_medium_load(self, integrated_test_environment):
+    async def test_concurrent_registration_medium_load(
+        self, integrated_test_environment
+    ):
         """⚡⚡ Test concurrent user registration - Medium Load (200 users)"""
-        await self._test_concurrent_registrations(integrated_test_environment, 200, "Medium Load")
+        await self._test_concurrent_registrations(
+            integrated_test_environment, 200, "Medium Load"
+        )
 
     @pytest.mark.asyncio
-    async def test_concurrent_registration_heavy_load(self, integrated_test_environment):
+    async def test_concurrent_registration_heavy_load(
+        self, integrated_test_environment
+    ):
         """⚡⚡⚡ Test concurrent user registration - Heavy Load (500 users)"""
-        await self._test_concurrent_registrations(integrated_test_environment, 500, "Heavy Load")
+        await self._test_concurrent_registrations(
+            integrated_test_environment, 500, "Heavy Load"
+        )
 
-    async def _test_concurrent_registrations(self, env, user_count: int, load_type: str):
+    async def _test_concurrent_registrations(
+        self, env, user_count: int, load_type: str
+    ):
         """Helper method for concurrent registration testing"""
         metrics = PerformanceMetrics()
 
         # Generate test users
-        users = TestDataGenerator.generate_users_batch(user_count, UserRole.USER, TestScenario.HAPPY_PATH)
+        users = TestDataGenerator.generate_users_batch(
+            user_count, UserRole.USER, TestScenario.HAPPY_PATH
+        )
 
         async def register_single_user(user_index, user):
             """Register a single user and measure performance"""
@@ -167,7 +195,9 @@ class TestRegistrationPerformance:
             try:
                 result = await env.register_user(user.to_dict())
                 end_time = time.time()
-                metrics.record_operation(end_time - start_time, result.get("success", False))
+                metrics.record_operation(
+                    end_time - start_time, result.get("success", False)
+                )
 
                 # Sample system resources periodically
                 if user_index % 10 == 0:
@@ -196,7 +226,8 @@ class TestRegistrationPerformance:
 
         # Analyze results
         successful_registrations = sum(
-            1 for result in results
+            1
+            for result in results
             if isinstance(result, dict) and result.get("success", False)
         )
 
@@ -210,13 +241,17 @@ class TestRegistrationPerformance:
         metrics.print_summary(f"Registration {load_type}")
 
     @pytest.mark.asyncio
-    async def test_registration_with_email_delivery_load(self, integrated_test_environment):
+    async def test_registration_with_email_delivery_load(
+        self, integrated_test_environment
+    ):
         """📧 Test registration performance including email delivery simulation"""
         env = integrated_test_environment
         metrics = PerformanceMetrics()
 
         user_count = 100
-        users = TestDataGenerator.generate_users_batch(user_count, UserRole.USER, TestScenario.HAPPY_PATH)
+        users = TestDataGenerator.generate_users_batch(
+            user_count, UserRole.USER, TestScenario.HAPPY_PATH
+        )
 
         async def register_user_with_email_delay(user):
             """Registration with simulated email delivery delay"""
@@ -229,7 +264,9 @@ class TestRegistrationPerformance:
             await asyncio.sleep(random.uniform(0.1, 0.3))  # 100-300ms delay
 
             end_time = time.time()
-            metrics.record_operation(end_time - start_time, result.get("success", False))
+            metrics.record_operation(
+                end_time - start_time, result.get("success", False)
+            )
             return result
 
         metrics.start_monitoring()
@@ -268,7 +305,9 @@ class TestLoginPerformance:
 
         # Setup: Create users first
         user_count = 100
-        users = TestDataGenerator.generate_users_batch(user_count, UserRole.USER, TestScenario.HAPPY_PATH)
+        users = TestDataGenerator.generate_users_batch(
+            user_count, UserRole.USER, TestScenario.HAPPY_PATH
+        )
 
         # Pre-register all users
         for user in users:
@@ -281,7 +320,9 @@ class TestLoginPerformance:
             try:
                 result = await env.login_user(user.email, user.password)
                 end_time = time.time()
-                metrics.record_operation(end_time - start_time, result.get("success", False))
+                metrics.record_operation(
+                    end_time - start_time, result.get("success", False)
+                )
                 return result
             except Exception as e:
                 end_time = time.time()
@@ -298,14 +339,17 @@ class TestLoginPerformance:
 
         # Analyze results
         successful_logins = sum(
-            1 for result in results
+            1
+            for result in results
             if isinstance(result, dict) and result.get("success", False)
         )
 
         stats = metrics.get_statistics()
         assert successful_logins >= user_count * 0.95  # 95% success rate
         assert stats["response_times"]["p95_ms"] < 1000  # P95 under 1 second
-        assert stats["throughput"]["operations_per_second"] > 20  # At least 20 logins/sec
+        assert (
+            stats["throughput"]["operations_per_second"] > 20
+        )  # At least 20 logins/sec
 
         metrics.print_summary("Concurrent Login Burst")
 
@@ -316,7 +360,9 @@ class TestLoginPerformance:
         metrics = PerformanceMetrics()
 
         # Setup users
-        users = TestDataGenerator.generate_users_batch(50, UserRole.USER, TestScenario.HAPPY_PATH)
+        users = TestDataGenerator.generate_users_batch(
+            50, UserRole.USER, TestScenario.HAPPY_PATH
+        )
         for user in users:
             await env.register_user(user.to_dict())
             await env.database.update_user(user.email, {"is_verified": True})
@@ -335,7 +381,9 @@ class TestLoginPerformance:
                 try:
                     result = await env.login_user(user.email, user.password)
                     operation_time = time.time() - start_time
-                    metrics.record_operation(operation_time, result.get("success", False))
+                    metrics.record_operation(
+                        operation_time, result.get("success", False)
+                    )
 
                     # Sample resources periodically
                     if random.random() < 0.1:  # 10% chance
@@ -368,22 +416,25 @@ class TestLoginPerformance:
         metrics.print_summary("Sustained Login Load")
 
     @pytest.mark.asyncio
-    async def test_login_with_mfa_performance(self, integrated_test_environment, mock_sms_service):
+    async def test_login_with_mfa_performance(
+        self, integrated_test_environment, mock_sms_service
+    ):
         """📱 Test login performance with MFA enabled"""
         env = integrated_test_environment
         metrics = PerformanceMetrics()
 
         # Setup MFA-enabled users
-        users = TestDataGenerator.generate_users_batch(20, UserRole.USER, TestScenario.HAPPY_PATH)
+        users = TestDataGenerator.generate_users_batch(
+            20, UserRole.USER, TestScenario.HAPPY_PATH
+        )
         for user in users:
             user_dict = user.to_dict()
             user_dict["phone"] = f"+1{random.randint(1000000000, 9999999999)}"
             await env.register_user(user_dict)
-            await env.database.update_user(user.email, {
-                "is_verified": True,
-                "mfa_enabled": True,
-                "phone": user_dict["phone"]
-            })
+            await env.database.update_user(
+                user.email,
+                {"is_verified": True, "mfa_enabled": True, "phone": user_dict["phone"]},
+            )
 
         async def mfa_login_flow(user):
             """Complete MFA login flow"""
@@ -411,7 +462,7 @@ class TestLoginPerformance:
                 final_token = env.jwt_service.generate_token(
                     user_id=str(hash(user.email)),
                     email=user.email,
-                    permissions=["read", "write", "mfa_verified"]
+                    permissions=["read", "write", "mfa_verified"],
                 )
 
                 end_time = time.time()
@@ -433,13 +484,16 @@ class TestLoginPerformance:
 
         # Analyze MFA performance
         successful_mfa_logins = sum(
-            1 for result in results
+            1
+            for result in results
             if isinstance(result, dict) and result.get("success", False)
         )
 
         stats = metrics.get_statistics()
         assert successful_mfa_logins >= len(users) * 0.90  # 90% success rate for MFA
-        assert stats["response_times"]["p95_ms"] < 3000  # P95 under 3 seconds (MFA adds overhead)
+        assert (
+            stats["response_times"]["p95_ms"] < 3000
+        )  # P95 under 3 seconds (MFA adds overhead)
 
         metrics.print_summary("MFA Login Performance")
 
@@ -471,7 +525,9 @@ class TestTokenValidationPerformance:
                 try:
                     result = await env.verify_token(token)
                     end_time = time.time()
-                    metrics.record_operation(end_time - start_time, result.get("valid", False))
+                    metrics.record_operation(
+                        end_time - start_time, result.get("valid", False)
+                    )
 
                     # Sample resources every 100 validations
                     if i % 100 == 0:
@@ -487,9 +543,13 @@ class TestTokenValidationPerformance:
 
         # Verify validation performance
         stats = metrics.get_statistics()
-        assert stats["throughput"]["success_rate_percent"] == 100  # All validations should succeed
+        assert (
+            stats["throughput"]["success_rate_percent"] == 100
+        )  # All validations should succeed
         assert stats["response_times"]["p95_ms"] < 10  # P95 under 10ms for validation
-        assert stats["throughput"]["operations_per_second"] > 100  # At least 100 validations/sec
+        assert (
+            stats["throughput"]["operations_per_second"] > 100
+        )  # At least 100 validations/sec
 
         metrics.print_summary("High-Frequency Token Validation")
 
@@ -500,7 +560,9 @@ class TestTokenValidationPerformance:
         metrics = PerformanceMetrics()
 
         # Setup: Create multiple users and tokens
-        users = TestDataGenerator.generate_users_batch(50, UserRole.USER, TestScenario.HAPPY_PATH)
+        users = TestDataGenerator.generate_users_batch(
+            50, UserRole.USER, TestScenario.HAPPY_PATH
+        )
         tokens = []
 
         for user in users:
@@ -519,7 +581,9 @@ class TestTokenValidationPerformance:
                 try:
                     result = await env.verify_token(token)
                     end_time = time.time()
-                    metrics.record_operation(end_time - start_time, result.get("valid", False))
+                    metrics.record_operation(
+                        end_time - start_time, result.get("valid", False)
+                    )
                 except Exception as e:
                     end_time = time.time()
                     metrics.record_operation(end_time - start_time, False)
@@ -549,7 +613,9 @@ class TestStressScenarios:
     """Test authentication system under extreme stress"""
 
     @pytest.mark.asyncio
-    async def test_registration_flood_attack_simulation(self, integrated_test_environment):
+    async def test_registration_flood_attack_simulation(
+        self, integrated_test_environment
+    ):
         """🌊 Simulate flood attack on registration endpoint"""
         env = integrated_test_environment
         metrics = PerformanceMetrics()
@@ -562,16 +628,30 @@ class TestStressScenarios:
             # Generate various types of invalid data
             if i % 4 == 0:
                 # Invalid email
-                invalid_users.append({"email": f"invalid_email_{i}", "password": "ValidPass123!"})
+                invalid_users.append(
+                    {"email": f"invalid_email_{i}", "password": "ValidPass123!"}
+                )
             elif i % 4 == 1:
                 # Weak password
-                invalid_users.append({"email": f"user{i}@example.com", "password": "weak"})
+                invalid_users.append(
+                    {"email": f"user{i}@example.com", "password": "weak"}
+                )
             elif i % 4 == 2:
                 # SQL injection attempt
-                invalid_users.append({"email": f"user{i}' OR '1'='1' --@example.com", "password": "ValidPass123!"})
+                invalid_users.append(
+                    {
+                        "email": f"user{i}' OR '1'='1' --@example.com",
+                        "password": "ValidPass123!",
+                    }
+                )
             else:
                 # XSS attempt
-                invalid_users.append({"email": f"user{i}@example.com", "password": "<script>alert('xss')</script>"})
+                invalid_users.append(
+                    {
+                        "email": f"user{i}@example.com",
+                        "password": "<script>alert('xss')</script>",
+                    }
+                )
 
         async def flood_registration(user_data):
             """Single flood request"""
@@ -581,10 +661,14 @@ class TestStressScenarios:
                 result = await env.register_user(user_data)
                 end_time = time.time()
                 # For flood attack, we expect failures
-                metrics.record_operation(end_time - start_time, not result.get("success", True))
+                metrics.record_operation(
+                    end_time - start_time, not result.get("success", True)
+                )
             except Exception:
                 end_time = time.time()
-                metrics.record_operation(end_time - start_time, True)  # Exception is expected
+                metrics.record_operation(
+                    end_time - start_time, True
+                )  # Exception is expected
 
         # Execute flood attack
         metrics.start_monitoring()
@@ -597,8 +681,12 @@ class TestStressScenarios:
         # Verify system resilience
         stats = metrics.get_statistics()
         # System should handle flood gracefully
-        assert stats["response_times"]["p95_ms"] < 5000  # P95 under 5 seconds even under attack
-        assert stats["throughput"]["operations_per_second"] > 10  # Maintain some throughput
+        assert (
+            stats["response_times"]["p95_ms"] < 5000
+        )  # P95 under 5 seconds even under attack
+        assert (
+            stats["throughput"]["operations_per_second"] > 10
+        )  # Maintain some throughput
 
         metrics.print_summary("Registration Flood Attack Simulation")
 
@@ -610,7 +698,9 @@ class TestStressScenarios:
 
         # Create many concurrent long-lived sessions
         session_count = 100
-        users = TestDataGenerator.generate_users_batch(session_count, UserRole.USER, TestScenario.HAPPY_PATH)
+        users = TestDataGenerator.generate_users_batch(
+            session_count, UserRole.USER, TestScenario.HAPPY_PATH
+        )
 
         # Create all users
         for user in users:
@@ -671,7 +761,9 @@ class TestStressScenarios:
         stats = metrics.get_statistics()
 
         assert successful_sessions >= session_count * 0.85  # 85% success under pressure
-        assert stats["system_resources"]["max_memory_mb"] < 1024  # Keep memory under 1GB
+        assert (
+            stats["system_resources"]["max_memory_mb"] < 1024
+        )  # Keep memory under 1GB
 
         metrics.print_summary("Memory Pressure Scenario")
 
@@ -682,7 +774,9 @@ class TestStressScenarios:
         metrics = PerformanceMetrics()
 
         # Setup users
-        users = TestDataGenerator.generate_users_batch(50, UserRole.USER, TestScenario.HAPPY_PATH)
+        users = TestDataGenerator.generate_users_batch(
+            50, UserRole.USER, TestScenario.HAPPY_PATH
+        )
         for user in users:
             await env.register_user(user.to_dict())
             await env.database.update_user(user.email, {"is_verified": True})
@@ -711,7 +805,9 @@ class TestStressScenarios:
                     # Normal operation or recovery
                     result = await env.login_user(user.email, user.password)
                     end_op_time = time.time()
-                    metrics.record_operation(end_op_time - start_op_time, result.get("success", False))
+                    metrics.record_operation(
+                        end_op_time - start_op_time, result.get("success", False)
+                    )
 
                 except Exception:
                     end_op_time = time.time()
@@ -731,21 +827,28 @@ class TestStressScenarios:
         # Verify recovery behavior
         stats = metrics.get_statistics()
         # Overall success rate should be reasonable despite failures
-        assert stats["throughput"]["success_rate_percent"] > 40  # At least 40% success during degradation
-        assert stats["response_times"]["p95_ms"] < 10000  # P95 under 10 seconds even during failures
+        assert (
+            stats["throughput"]["success_rate_percent"] > 40
+        )  # At least 40% success during degradation
+        assert (
+            stats["response_times"]["p95_ms"] < 10000
+        )  # P95 under 10 seconds even during failures
 
         metrics.print_summary("Cascading Failure Recovery")
 
 
 if __name__ == "__main__":
-    print("🚀 Running Load & Performance Tests")
-    print("=" * 50)
+    # print("🚀 Running Load & Performance Tests")
+    # print("=" * 50)
 
-    pytest.main([
-        __file__,
-        "-v",
-        "--tb=short",
-        "--asyncio-mode=auto",
-        "--durations=15",
-        "-m", "not slow"  # Skip slow tests by default
-    ])
+    pytest.main(
+        [
+            __file__,
+            "-v",
+            "--tb=short",
+            "--asyncio-mode=auto",
+            "--durations=15",
+            "-m",
+            "not slow",  # Skip slow tests by default
+        ]
+    )

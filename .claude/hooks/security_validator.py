@@ -193,7 +193,7 @@ def main():
         input_data = ' '.join(sys.argv[1:]) if len(sys.argv) > 1 else ""
 
     if not input_data:
-        print("No input provided")
+    # print("No input provided")
         sys.exit(0)
 
     validator = SecurityValidator()
@@ -210,25 +210,25 @@ def main():
 
     # Output results
     if not is_safe:
-        print("🛑 安全验证失败")
+    # print("🛑 安全验证失败")
         for error in errors:
-            print(f"  ❌ {error}")
+    # print(f"  ❌ {error}")
         for warning in warnings:
-            print(f"  ⚠️ {warning}")
+    # print(f"  ⚠️ {warning}")
 
-        print("\n💡 建议:")
-        print("  • 检查命令是否包含危险操作")
-        print("  • 避免在受保护的系统目录执行操作")
-        print("  • 使用更安全的替代方案")
+    # print("\n💡 建议:")
+    # print("  • 检查命令是否包含危险操作")
+    # print("  • 避免在受保护的系统目录执行操作")
+    # print("  • 使用更安全的替代方案")
 
         logger.warning(f"Blocked command: {command[:100]}...")
         sys.exit(1)
     else:
         if warnings:
-            print("⚠️ 安全警告:")
+    # print("⚠️ 安全警告:")
             for warning in warnings:
-                print(f"  • {warning}")
-            print("\n命令将被执行，但请注意上述警告")
+    # print(f"  • {warning}")
+    # print("\n命令将被执行，但请注意上述警告")
         else:
             logger.info(f"Command validated: {command[:50]}...")
 

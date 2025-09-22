@@ -17,9 +17,15 @@ from typing import Generator
 import uuid
 
 from backend.db import (
-    init_database, close_database, init_cache, close_cache,
-    transaction, async_transaction, readonly_transaction,
-    get_redis_client, get_async_redis_client
+    init_database,
+    close_database,
+    init_cache,
+    close_cache,
+    transaction,
+    async_transaction,
+    readonly_transaction,
+    get_redis_client,
+    get_async_redis_client,
 )
 from backend.models import User, UserProfile, Session, AuditLog
 from backend.db.utils import PaginationHelper, BulkOperator
@@ -69,10 +75,7 @@ class TestUserModel:
     def test_user_creation(self):
         """测试用户创建"""
         with transaction() as session:
-            user = User(
-                username="test_user",
-                email="test@example.com"
-            )
+            user = User(username="test_user", email="test@example.com")
             user.set_password("test123456")
 
             session.add(user)
@@ -120,19 +123,14 @@ class TestUserModel:
         """测试用户关联关系"""
         with transaction() as session:
             # 创建用户
-            user = User(
-                username="relation_user",
-                email="relation@example.com"
-            )
+            user = User(username="relation_user", email="relation@example.com")
             user.set_password("test123")
             session.add(user)
             session.flush()
 
             # 创建用户资料
             profile = UserProfile(
-                user_id=user.id,
-                display_name="Test User",
-                bio="Test bio"
+                user_id=user.id, display_name="Test User", bio="Test bio"
             )
             session.add(profile)
             session.flush()
@@ -157,10 +155,7 @@ class TestSessionModel:
         """测试会话创建"""
         with transaction() as session_db:
             # 先创建用户
-            user = User(
-                username="session_user",
-                email="session@example.com"
-            )
+            user = User(username="session_user", email="session@example.com")
             user.set_password("test123")
             session_db.add(user)
             session_db.flush()
@@ -172,7 +167,7 @@ class TestSessionModel:
                 token=token,
                 expires_in_seconds=3600,
                 ip_address="192.168.1.1",
-                user_agent="Test Client"
+                user_agent="Test Client",
             )
 
             session_db.add(session)
@@ -188,19 +183,14 @@ class TestSessionModel:
         """测试会话过期"""
         with transaction() as session_db:
             # 创建用户
-            user = User(
-                username="expire_user",
-                email="expire@example.com"
-            )
+            user = User(username="expire_user", email="expire@example.com")
             user.set_password("test123")
             session_db.add(user)
             session_db.flush()
 
             # 创建已过期的会话
             session = Session.create_session(
-                user_id=str(user.id),
-                token="expire_token",
-                expires_in_seconds=-1  # 已过期
+                user_id=str(user.id), token="expire_token", expires_in_seconds=-1  # 已过期
             )
 
             session_db.add(session)
@@ -226,10 +216,7 @@ class TestTransactionManagement:
 
         # 创建用户
         with transaction() as session:
-            user = User(
-                username="commit_user",
-                email="commit@example.com"
-            )
+            user = User(username="commit_user", email="commit@example.com")
             user.set_password("test123")
             session.add(user)
             session.flush()
@@ -247,10 +234,7 @@ class TestTransactionManagement:
 
         try:
             with transaction() as session:
-                user = User(
-                    username="rollback_user",
-                    email="rollback@example.com"
-                )
+                user = User(username="rollback_user", email="rollback@example.com")
                 user.set_password("test123")
                 session.add(user)
                 session.flush()
@@ -274,10 +258,7 @@ class TestTransactionManagement:
 
         # 创建用户
         async with async_transaction() as session:
-            user = User(
-                username="async_user",
-                email="async@example.com"
-            )
+            user = User(username="async_user", email="async@example.com")
             user.set_password("test123")
             session.add(user)
             await session.flush()
@@ -285,10 +266,9 @@ class TestTransactionManagement:
 
         # 验证用户已保存
         from sqlalchemy import select
+
         async with readonly_transaction() as session:
-            result = await session.execute(
-                select(User).where(User.id == user_id)
-            )
+            result = await session.execute(select(User).where(User.id == user_id))
             user = result.scalar_one_or_none()
             assert user is not None
             assert user.username == "async_user"
@@ -381,19 +361,18 @@ class TestQueryOperations:
         with transaction() as session:
             users = []
             for i in range(25):  # 创建25个用户
-                user = User(
-                    username=f"page_user_{i}",
-                    email=f"page{i}@example.com"
-                )
+                user = User(username=f"page_user_{i}", email=f"page{i}@example.com")
                 user.set_password("test123")
                 users.append(user)
                 session.add(user)
 
         # 测试分页
         with readonly_transaction() as session:
-            query = session.session.query(User).filter(
-                User.username.like("page_user_%")
-            ).order_by(User.created_at)
+            query = (
+                session.session.query(User)
+                .filter(User.username.like("page_user_%"))
+                .order_by(User.created_at)
+            )
 
             # 第一页
             users_page1, pagination1 = PaginationHelper.paginate_query(
@@ -401,11 +380,11 @@ class TestQueryOperations:
             )
 
             assert len(users_page1) == 10
-            assert pagination1['page'] == 1
-            assert pagination1['total'] == 25
-            assert pagination1['total_pages'] == 3
-            assert pagination1['has_next'] == True
-            assert pagination1['has_prev'] == False
+            assert pagination1["page"] == 1
+            assert pagination1["total"] == 25
+            assert pagination1["total_pages"] == 3
+            assert pagination1["has_next"] == True
+            assert pagination1["has_prev"] == False
 
             # 第二页
             users_page2, pagination2 = PaginationHelper.paginate_query(
@@ -413,9 +392,9 @@ class TestQueryOperations:
             )
 
             assert len(users_page2) == 10
-            assert pagination2['page'] == 2
-            assert pagination2['has_next'] == True
-            assert pagination2['has_prev'] == True
+            assert pagination2["page"] == 2
+            assert pagination2["has_next"] == True
+            assert pagination2["has_prev"] == True
 
             # 最后一页
             users_page3, pagination3 = PaginationHelper.paginate_query(
@@ -423,38 +402,39 @@ class TestQueryOperations:
             )
 
             assert len(users_page3) == 5  # 剩余5个
-            assert pagination3['page'] == 3
-            assert pagination3['has_next'] == False
-            assert pagination3['has_prev'] == True
+            assert pagination3["page"] == 3
+            assert pagination3["has_next"] == False
+            assert pagination3["has_prev"] == True
 
     def test_bulk_operations(self):
         """测试批量操作"""
         # 准备批量数据
         users_data = []
         for i in range(50):
-            users_data.append({
-                "username": f"bulk_user_{i}",
-                "email": f"bulk{i}@example.com",
-                "status": "active",
-                "role": "user"
-            })
+            users_data.append(
+                {
+                    "username": f"bulk_user_{i}",
+                    "email": f"bulk{i}@example.com",
+                    "status": "active",
+                    "role": "user",
+                }
+            )
 
         # 批量插入
         with transaction() as session:
             count = BulkOperator.bulk_insert(
-                session.session,
-                User,
-                users_data,
-                batch_size=20
+                session.session, User, users_data, batch_size=20
             )
 
             assert count == 50
 
         # 验证插入结果
         with readonly_transaction() as session:
-            bulk_users = session.session.query(User).filter(
-                User.username.like("bulk_user_%")
-            ).all()
+            bulk_users = (
+                session.session.query(User)
+                .filter(User.username.like("bulk_user_%"))
+                .all()
+            )
 
             assert len(bulk_users) == 50
 
@@ -473,10 +453,7 @@ class TestAuditLog:
         """测试审计日志创建"""
         with transaction() as session:
             # 创建用户
-            user = User(
-                username="audit_user",
-                email="audit@example.com"
-            )
+            user = User(username="audit_user", email="audit@example.com")
             user.set_password("test123")
             session.add(user)
             session.flush()
@@ -489,7 +466,7 @@ class TestAuditLog:
                 user_id=str(user.id),
                 resource_id=str(user.id),
                 ip_address="192.168.1.1",
-                success=True
+                success=True,
             )
 
             session.add(audit_log)

@@ -37,11 +37,13 @@ except ImportError as e:
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler('/app/logs/api.log') if os.path.exists('/app/logs') else logging.StreamHandler()
-    ]
+        logging.FileHandler("/app/logs/api.log")
+        if os.path.exists("/app/logs")
+        else logging.StreamHandler(),
+    ],
 )
 
 logger = logging.getLogger(__name__)
@@ -49,6 +51,7 @@ logger = logging.getLogger(__name__)
 # Global components
 database_manager = None
 cache_manager = None
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -58,6 +61,7 @@ async def lifespan(app: FastAPI):
     yield
     # Shutdown
     await shutdown_event()
+
 
 async def startup_event():
     """Application startup event"""
@@ -91,6 +95,7 @@ async def startup_event():
         logger.error(f"❌ Failed to start Claude Enhancer API: {e}")
         raise
 
+
 async def shutdown_event():
     """Application shutdown event"""
     logger.info("🛑 Shutting down Perfect21 Claude Enhancer API...")
@@ -109,6 +114,7 @@ async def shutdown_event():
     except Exception as e:
         logger.error(f"❌ Error during shutdown: {e}")
 
+
 # Create FastAPI application
 app = FastAPI(
     title="Perfect21 Claude Enhancer",
@@ -116,7 +122,7 @@ app = FastAPI(
     version="2.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 # Add middleware
@@ -129,8 +135,7 @@ app.add_middleware(
 )
 
 app.add_middleware(
-    TrustedHostMiddleware,
-    allowed_hosts=["*"]  # Configure this properly for production
+    TrustedHostMiddleware, allowed_hosts=["*"]  # Configure this properly for production
 )
 
 # Add custom middleware
@@ -139,6 +144,7 @@ try:
     app.add_middleware(RateLimitMiddleware)
 except NameError:
     logger.warning("⚠️ Custom middleware not available, skipping...")
+
 
 # Add metrics middleware
 @app.middleware("http")
@@ -151,9 +157,12 @@ async def metrics_middleware(request: Request, call_next):
     duration = time.time() - start_time
 
     # Log request metrics
-    logger.info(f"Request: {request.method} {request.url.path} - {response.status_code} - {duration:.3f}s")
+    logger.info(
+        f"Request: {request.method} {request.url.path} - {response.status_code} - {duration:.3f}s"
+    )
 
     return response
+
 
 # Global exception handling
 @app.exception_handler(Exception)
@@ -167,9 +176,10 @@ async def global_exception_handler(request: Request, exc: Exception):
             "error": "Internal Server Error",
             "message": "An unexpected error occurred",
             "timestamp": datetime.utcnow().isoformat(),
-            "path": request.url.path
-        }
+            "path": request.url.path,
+        },
     )
+
 
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exc: HTTPException):
@@ -180,9 +190,10 @@ async def http_exception_handler(request: Request, exc: HTTPException):
             "error": exc.detail,
             "status_code": exc.status_code,
             "timestamp": datetime.utcnow().isoformat(),
-            "path": request.url.path
-        }
+            "path": request.url.path,
+        },
     )
+
 
 # Health check endpoints
 @app.get("/health", tags=["Health"])
@@ -208,8 +219,8 @@ async def health_check():
             "version": "2.0.0",
             "checks": {
                 "database": "healthy" if db_healthy else "unhealthy",
-                "cache": "healthy" if cache_healthy else "unhealthy"
-            }
+                "cache": "healthy" if cache_healthy else "unhealthy",
+            },
         }
     except Exception as e:
         logger.error(f"Health check failed: {e}")
@@ -218,9 +229,10 @@ async def health_check():
             content={
                 "status": "unhealthy",
                 "error": str(e),
-                "timestamp": datetime.utcnow().isoformat()
-            }
+                "timestamp": datetime.utcnow().isoformat(),
+            },
         )
+
 
 @app.get("/ready", tags=["Health"])
 async def readiness_check():
@@ -242,8 +254,8 @@ async def readiness_check():
                 status_code=503,
                 content={
                     "status": "not_ready",
-                    "timestamp": datetime.utcnow().isoformat()
-                }
+                    "timestamp": datetime.utcnow().isoformat(),
+                },
             )
     except Exception as e:
         return JSONResponse(
@@ -251,14 +263,16 @@ async def readiness_check():
             content={
                 "status": "not_ready",
                 "error": str(e),
-                "timestamp": datetime.utcnow().isoformat()
-            }
+                "timestamp": datetime.utcnow().isoformat(),
+            },
         )
+
 
 @app.get("/metrics", tags=["Monitoring"])
 async def get_metrics():
     """Metrics endpoint for Prometheus"""
     return {"message": "Metrics available at /metrics endpoint"}
+
 
 @app.get("/", tags=["Root"])
 async def root():
@@ -269,8 +283,9 @@ async def root():
         "status": "running",
         "timestamp": datetime.utcnow().isoformat(),
         "docs_url": "/docs",
-        "health_url": "/health"
+        "health_url": "/health",
     }
+
 
 # Register API routes
 try:
@@ -284,28 +299,29 @@ except NameError:
         return {
             "todos": [],
             "message": "Todo service is starting up",
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
         }
 
     @app.post("/api/v1/todos", tags=["Todos"])
     async def create_todo():
-        return {
-            "message": "Todo creation endpoint",
-            "status": "service_starting"
-        }
+        return {"message": "Todo creation endpoint", "status": "service_starting"}
+
 
 # Dependency injection functions
 def get_database():
     """Get database connection"""
     return database_manager
 
+
 def get_cache():
     """Get cache manager"""
     return cache_manager
 
+
 # Add dependency injection to app state
 app.state.get_database = get_database
 app.state.get_cache = get_cache
+
 
 # Custom DatabaseManager and CacheManager classes (fallback)
 class DatabaseManager:
@@ -327,6 +343,7 @@ class DatabaseManager:
         """Close database connection"""
         pass
 
+
 class CacheManager:
     """Simple cache manager for fallback"""
 
@@ -346,6 +363,7 @@ class CacheManager:
         """Close cache connection"""
         pass
 
+
 if __name__ == "__main__":
     # Configuration
     config = {
@@ -357,10 +375,12 @@ if __name__ == "__main__":
 
     # Development vs Production configuration
     if os.getenv("CLAUDE_ENV") == "development":
-        config.update({
-            "reload": True,
-            "reload_dirs": ["backend"],
-        })
+        config.update(
+            {
+                "reload": True,
+                "reload_dirs": ["backend"],
+            }
+        )
         logger.info("🔧 Running in DEVELOPMENT mode")
     else:
         logger.info("🚀 Running in PRODUCTION mode")

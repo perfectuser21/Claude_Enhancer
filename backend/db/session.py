@@ -30,6 +30,7 @@ logger = logging.getLogger(__name__)
 
 class TransactionError(Exception):
     """事务错误"""
+
     pass
 
 
@@ -227,7 +228,9 @@ class TransactionManager:
         self.retry_delay = retry_delay
 
     @contextmanager
-    def transaction(self, read_only: bool = False) -> Generator[DatabaseSession, None, None]:
+    def transaction(
+        self, read_only: bool = False
+    ) -> Generator[DatabaseSession, None, None]:
         """
         同步事务上下文管理器
 
@@ -263,7 +266,9 @@ class TransactionManager:
                 raise TransactionError(f"事务执行失败: {e}")
 
     @asynccontextmanager
-    async def async_transaction(self, read_only: bool = False) -> AsyncGenerator[AsyncDatabaseSession, None]:
+    async def async_transaction(
+        self, read_only: bool = False
+    ) -> AsyncGenerator[AsyncDatabaseSession, None]:
         """
         异步事务上下文管理器
 
@@ -281,7 +286,9 @@ class TransactionManager:
                     if read_only:
                         await session.execute("SET TRANSACTION READ ONLY")
 
-                    db_session = AsyncDatabaseSession(session, auto_commit=not read_only)
+                    db_session = AsyncDatabaseSession(
+                        session, auto_commit=not read_only
+                    )
                     yield db_session
                     break
 
@@ -299,7 +306,9 @@ class TransactionManager:
                 raise TransactionError(f"异步事务执行失败: {e}")
 
     @contextmanager
-    def bulk_transaction(self, batch_size: int = 1000) -> Generator[DatabaseSession, None, None]:
+    def bulk_transaction(
+        self, batch_size: int = 1000
+    ) -> Generator[DatabaseSession, None, None]:
         """
         批量操作事务
 
@@ -322,6 +331,7 @@ transaction_manager = TransactionManager()
 
 # 便捷函数和装饰器
 
+
 @contextmanager
 def transaction(read_only: bool = False) -> Generator[DatabaseSession, None, None]:
     """
@@ -338,7 +348,9 @@ def transaction(read_only: bool = False) -> Generator[DatabaseSession, None, Non
 
 
 @asynccontextmanager
-async def async_transaction(read_only: bool = False) -> AsyncGenerator[AsyncDatabaseSession, None]:
+async def async_transaction(
+    read_only: bool = False,
+) -> AsyncGenerator[AsyncDatabaseSession, None]:
     """
     异步事务上下文管理器 (便捷函数)
 
@@ -407,16 +419,18 @@ def transactional(read_only: bool = False, retry: bool = True):
         @wraps(func)
         def wrapper(*args, **kwargs):
             # 检查是否已经在事务中
-            if hasattr(args[0], 'session') and isinstance(args[0].session, Session):
+            if hasattr(args[0], "session") and isinstance(args[0].session, Session):
                 # 已在事务中，直接执行
                 return func(*args, **kwargs)
 
             # 创建新事务
-            manager = TransactionManager() if retry else TransactionManager(max_retries=0)
+            manager = (
+                TransactionManager() if retry else TransactionManager(max_retries=0)
+            )
             with manager.transaction(read_only=read_only) as session:
                 # 将会话注入到第一个参数（通常是self）
-                if args and hasattr(args[0], '__dict__'):
-                    original_session = getattr(args[0], 'session', None)
+                if args and hasattr(args[0], "__dict__"):
+                    original_session = getattr(args[0], "session", None)
                     args[0].session = session.session
                     try:
                         result = func(*args, **kwargs)
@@ -425,10 +439,10 @@ def transactional(read_only: bool = False, retry: bool = True):
                         if original_session:
                             args[0].session = original_session
                         else:
-                            delattr(args[0], 'session')
+                            delattr(args[0], "session")
                 else:
                     # 将会话作为关键字参数传递
-                    kwargs['session'] = session.session
+                    kwargs["session"] = session.session
                     return func(*args, **kwargs)
 
         return wrapper
@@ -452,16 +466,20 @@ def async_transactional(read_only: bool = False, retry: bool = True):
         @wraps(func)
         async def wrapper(*args, **kwargs):
             # 检查是否已经在事务中
-            if hasattr(args[0], 'session') and isinstance(args[0].session, AsyncSession):
+            if hasattr(args[0], "session") and isinstance(
+                args[0].session, AsyncSession
+            ):
                 # 已在事务中，直接执行
                 return await func(*args, **kwargs)
 
             # 创建新事务
-            manager = TransactionManager() if retry else TransactionManager(max_retries=0)
+            manager = (
+                TransactionManager() if retry else TransactionManager(max_retries=0)
+            )
             async with manager.async_transaction(read_only=read_only) as session:
                 # 将会话注入到第一个参数（通常是self）
-                if args and hasattr(args[0], '__dict__'):
-                    original_session = getattr(args[0], 'session', None)
+                if args and hasattr(args[0], "__dict__"):
+                    original_session = getattr(args[0], "session", None)
                     args[0].session = session.session
                     try:
                         result = await func(*args, **kwargs)
@@ -470,10 +488,10 @@ def async_transactional(read_only: bool = False, retry: bool = True):
                         if original_session:
                             args[0].session = original_session
                         else:
-                            delattr(args[0], 'session')
+                            delattr(args[0], "session")
                 else:
                     # 将会话作为关键字参数传递
-                    kwargs['session'] = session.session
+                    kwargs["session"] = session.session
                     return await func(*args, **kwargs)
 
         return wrapper
@@ -527,17 +545,17 @@ class BatchProcessor:
 
 # 导出公共接口
 __all__ = [
-    'DatabaseSession',
-    'AsyncDatabaseSession',
-    'TransactionManager',
-    'transaction_manager',
-    'transaction',
-    'async_transaction',
-    'readonly_transaction',
-    'async_readonly_transaction',
-    'bulk_transaction',
-    'transactional',
-    'async_transactional',
-    'BatchProcessor',
-    'TransactionError',
+    "DatabaseSession",
+    "AsyncDatabaseSession",
+    "TransactionManager",
+    "transaction_manager",
+    "transaction",
+    "async_transaction",
+    "readonly_transaction",
+    "async_readonly_transaction",
+    "bulk_transaction",
+    "transactional",
+    "async_transactional",
+    "BatchProcessor",
+    "TransactionError",
 ]

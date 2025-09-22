@@ -441,8 +441,8 @@ async def init_app():
 
 async def main():
     """主函数"""
-    print("🚀 启动Perfect21模拟性能测试服务器")
-    print("=" * 50)
+    # print("🚀 启动Perfect21模拟性能测试服务器")
+    # print("=" * 50)
 
     app = await init_app()
 
@@ -453,33 +453,33 @@ async def main():
     site = web.TCPSite(runner, 'localhost', 8080)
     await site.start()
 
-    print("✅ 服务器已启动")
-    print("📍 访问地址: http://localhost:8080")
-    print("\n📋 可用端点:")
-    print("  GET /health - 健康检查")
-    print("  GET /api/health - API健康检查")
-    print("  GET /api/status - 服务状态")
-    print("  GET /api/metrics - 系统指标")
-    print("  GET /api/users?limit=100&active_only=true - 用户列表")
-    print("  GET /api/users/{user_id} - 用户详情")
-    print("  GET /api/users/search?q=query&limit=50 - 用户搜索")
-    print("  GET /api/analytics - 分析数据")
-    print("  GET /api/reports?type=summary|detailed - 报告")
-    print("  GET /api/data/large?size=1000 - 大数据(内存测试)")
-    print("  GET /api/slow?delay=1.0 - 慢端点")
-    print("  GET /api/error?type=server|timeout|forbidden - 错误端点")
-    print("  GET /api/config - 配置信息")
-    print("\n⏱️  服务器运行中，按 Ctrl+C 停止...")
+    # print("✅ 服务器已启动")
+    # print("📍 访问地址: http://localhost:8080")
+    # print("\n📋 可用端点:")
+    # print("  GET /health - 健康检查")
+    # print("  GET /api/health - API健康检查")
+    # print("  GET /api/status - 服务状态")
+    # print("  GET /api/metrics - 系统指标")
+    # print("  GET /api/users?limit=100&active_only=true - 用户列表")
+    # print("  GET /api/users/{user_id} - 用户详情")
+    # print("  GET /api/users/search?q=query&limit=50 - 用户搜索")
+    # print("  GET /api/analytics - 分析数据")
+    # print("  GET /api/reports?type=summary|detailed - 报告")
+    # print("  GET /api/data/large?size=1000 - 大数据(内存测试)")
+    # print("  GET /api/slow?delay=1.0 - 慢端点")
+    # print("  GET /api/error?type=server|timeout|forbidden - 错误端点")
+    # print("  GET /api/config - 配置信息")
+    # print("\n⏱️  服务器运行中，按 Ctrl+C 停止...")
 
     try:
         # 持续运行
         while True:
             await asyncio.sleep(1)
     except KeyboardInterrupt:
-        print("\n🛑 停止服务器...")
+    # print("\n🛑 停止服务器...")
     finally:
         await runner.cleanup()
-        print("✅ 服务器已停止")
+    # print("✅ 服务器已停止")
 
 if __name__ == "__main__":
     asyncio.run(main())

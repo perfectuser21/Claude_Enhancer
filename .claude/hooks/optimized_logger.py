@@ -15,15 +15,17 @@ from typing import Dict, Any, Optional
 from pathlib import Path
 import atexit
 
+
 class OptimizedLogger:
     """High-performance logger with intelligent buffering"""
 
-    def __init__(self,
-                 log_dir: str = "/tmp/claude_enhancer_logs",
-                 buffer_size: int = 500,
-                 compress_after: int = 1000,
-                 auto_cleanup_days: int = 7):
-
+    def __init__(
+        self,
+        log_dir: str = "/tmp/claude_enhancer_logs",
+        buffer_size: int = 500,
+        compress_after: int = 1000,
+        auto_cleanup_days: int = 7,
+    ):
         self.log_dir = Path(log_dir)
         self.log_dir.mkdir(exist_ok=True)
 
@@ -37,10 +39,10 @@ class OptimizedLogger:
 
         # Performance counters
         self.counters = {
-            'logs_written': 0,
-            'logs_compressed': 0,
-            'logs_dropped': 0,
-            'buffer_flushes': 0
+            "logs_written": 0,
+            "logs_compressed": 0,
+            "logs_dropped": 0,
+            "buffer_flushes": 0,
         }
 
         # Current log file
@@ -60,9 +62,7 @@ class OptimizedLogger:
     def _start_background_thread(self):
         """Start background thread for async operations"""
         self.bg_thread = threading.Thread(
-            target=self._background_worker,
-            daemon=True,
-            name="ClaudeEnhancerLogger"
+            target=self._background_worker, daemon=True, name="ClaudeEnhancerLogger"
         )
         self.bg_thread.start()
 
@@ -87,13 +87,13 @@ class OptimizedLogger:
 
     def _execute_background_task(self, task: Dict[str, Any]):
         """Execute background task"""
-        task_type = task.get('type')
+        task_type = task.get("type")
 
-        if task_type == 'flush_buffer':
-            self._flush_buffer_to_file(task['data'])
-        elif task_type == 'compress_file':
-            self._compress_log_file(task['file_path'])
-        elif task_type == 'cleanup':
+        if task_type == "flush_buffer":
+            self._flush_buffer_to_file(task["data"])
+        elif task_type == "compress_file":
+            self._compress_log_file(task["file_path"])
+        elif task_type == "cleanup":
             self._cleanup_old_logs()
 
     def log(self, level: str, message: str, extra: Optional[Dict] = None):
@@ -102,13 +102,15 @@ class OptimizedLogger:
 
         # Create log entry
         entry = {
-            'ts': timestamp,
-            'level': level,
-            'msg': message[:1000],  # Truncate long messages
+            "ts": timestamp,
+            "level": level,
+            "msg": message[:1000],  # Truncate long messages
         }
 
         if extra:
-            entry['extra'] = {k: str(v)[:100] for k, v in extra.items()}  # Limit extra data
+            entry["extra"] = {
+                k: str(v)[:100] for k, v in extra.items()
+            }  # Limit extra data
 
         # Add to buffer with thread safety
         with self.buffer_lock:
@@ -119,7 +121,7 @@ class OptimizedLogger:
             self.buffer.append(entry)
 
         # Auto-flush for critical errors
-        if level == 'ERROR':
+        if level == "ERROR":
             self._schedule_buffer_flush()
 
     def _schedule_buffer_flush(self):
@@ -130,40 +132,36 @@ class OptimizedLogger:
                 self.buffer.clear()
 
                 with self.bg_lock:
-                    self.bg_queue.append({
-                        'type': 'flush_buffer',
-                        'data': buffer_data
-                    })
+                    self.bg_queue.append({"type": "flush_buffer", "data": buffer_data})
 
-                self.counters['buffer_flushes'] += 1
+                self.counters["buffer_flushes"] += 1
 
     def _flush_buffer_to_file(self, buffer_data: list):
         """Flush buffer data to file"""
         try:
-            with open(self.current_log, 'a') as f:
+            with open(self.current_log, "a") as f:
                 for entry in buffer_data:
                     # Fast JSON serialization
-                    json_line = json.dumps(entry, separators=(',', ':'))
-                    f.write(json_line + '\n')
+                    json_line = json.dumps(entry, separators=(",", ":"))
+                    f.write(json_line + "\n")
 
-            self.counters['logs_written'] += len(buffer_data)
+            self.counters["logs_written"] += len(buffer_data)
 
             # Check if file needs compression
             if self.current_log.stat().st_size > self.compress_after:
                 self._schedule_compression(self.current_log)
                 # Start new log file
-                self.current_log = self.log_dir / f"claude_enhancer_{int(time.time())}.log"
+                self.current_log = (
+                    self.log_dir / f"claude_enhancer_{int(time.time())}.log"
+                )
 
         except Exception:
-            self.counters['logs_dropped'] += len(buffer_data)
+            self.counters["logs_dropped"] += len(buffer_data)
 
     def _schedule_compression(self, file_path: Path):
         """Schedule file compression"""
         with self.bg_lock:
-            self.bg_queue.append({
-                'type': 'compress_file',
-                'file_path': str(file_path)
-            })
+            self.bg_queue.append({"type": "compress_file", "file_path": str(file_path)})
 
     def _compress_log_file(self, file_path: str):
         """Compress log file to save space"""
@@ -172,15 +170,15 @@ class OptimizedLogger:
             if not source_path.exists():
                 return
 
-            compressed_path = source_path.with_suffix('.log.gz')
+            compressed_path = source_path.with_suffix(".log.gz")
 
-            with open(source_path, 'rb') as f_in:
-                with gzip.open(compressed_path, 'wb') as f_out:
+            with open(source_path, "rb") as f_in:
+                with gzip.open(compressed_path, "wb") as f_out:
                     f_out.writelines(f_in)
 
             # Remove original file
             source_path.unlink()
-            self.counters['logs_compressed'] += 1
+            self.counters["logs_compressed"] += 1
 
         except Exception:
             pass  # Silent fail
@@ -208,11 +206,13 @@ class OptimizedLogger:
     def get_stats(self) -> Dict[str, Any]:
         """Get logger statistics"""
         return {
-            'counters': self.counters.copy(),
-            'buffer_size': len(self.buffer),
-            'log_dir_size': sum(f.stat().st_size for f in self.log_dir.glob("*") if f.is_file()),
-            'current_log': str(self.current_log),
-            'background_queue_size': len(self.bg_queue)
+            "counters": self.counters.copy(),
+            "buffer_size": len(self.buffer),
+            "log_dir_size": sum(
+                f.stat().st_size for f in self.log_dir.glob("*") if f.is_file()
+            ),
+            "current_log": str(self.current_log),
+            "background_queue_size": len(self.bg_queue),
         }
 
     def shutdown_logger(self):
@@ -226,49 +226,53 @@ class OptimizedLogger:
         if self.bg_thread and self.bg_thread.is_alive():
             self.bg_thread.join(timeout=2.0)
 
+
 # Global logger instances
 _performance_logger = None
 _error_logger = None
+
 
 def get_performance_logger():
     """Get performance logger instance"""
     global _performance_logger
     if _performance_logger is None:
         _performance_logger = OptimizedLogger(
-            log_dir="/tmp/claude_enhancer_perf",
-            buffer_size=1000,
-            compress_after=5000
+            log_dir="/tmp/claude_enhancer_perf", buffer_size=1000, compress_after=5000
         )
     return _performance_logger
+
 
 def get_error_logger():
     """Get error logger instance"""
     global _error_logger
     if _error_logger is None:
         _error_logger = OptimizedLogger(
-            log_dir="/tmp/claude_enhancer_errors",
-            buffer_size=100,
-            compress_after=1000
+            log_dir="/tmp/claude_enhancer_errors", buffer_size=100, compress_after=1000
         )
     return _error_logger
+
 
 # Convenience functions
 def log_performance(message: str, **extra):
     """Log performance information"""
-    get_performance_logger().log('PERF', message, extra)
+    get_performance_logger().log("PERF", message, extra)
+
 
 def log_error(message: str, **extra):
     """Log error information"""
-    get_error_logger().log('ERROR', message, extra)
+    get_error_logger().log("ERROR", message, extra)
+
 
 def log_info(message: str, **extra):
     """Log general information"""
-    get_performance_logger().log('INFO', message, extra)
+    get_performance_logger().log("INFO", message, extra)
+
 
 def log_debug(message: str, **extra):
     """Log debug information"""
-    if os.getenv('CLAUDE_ENHANCER_DEBUG'):
-        get_performance_logger().log('DEBUG', message, extra)
+    if os.getenv("CLAUDE_ENHANCER_DEBUG"):
+        get_performance_logger().log("DEBUG", message, extra)
+
 
 def cleanup_logs():
     """Manual log cleanup"""
@@ -277,14 +281,16 @@ def cleanup_logs():
     if _error_logger:
         _error_logger._cleanup_old_logs()
 
+
 def get_logger_stats():
     """Get all logger statistics"""
     stats = {}
     if _performance_logger:
-        stats['performance'] = _performance_logger.get_stats()
+        stats["performance"] = _performance_logger.get_stats()
     if _error_logger:
-        stats['error'] = _error_logger.get_stats()
+        stats["error"] = _error_logger.get_stats()
     return stats
+
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
@@ -292,10 +298,10 @@ if __name__ == "__main__":
 
         if command == "stats":
             stats = get_logger_stats()
-            print(json.dumps(stats, indent=2))
+        # print(json.dumps(stats, indent=2))
         elif command == "cleanup":
             cleanup_logs()
-            print("Logs cleaned up")
+        # print("Logs cleaned up")
         elif command == "test":
             # Test the logger
             perf_logger = get_performance_logger()
@@ -303,12 +309,12 @@ if __name__ == "__main__":
 
             start_time = time.time()
             for i in range(1000):
-                perf_logger.log('TEST', f'Test message {i}', {'iteration': i})
+                perf_logger.log("TEST", f"Test message {i}", {"iteration": i})
 
             end_time = time.time()
-            print(f"1000 log entries in {end_time - start_time:.3f} seconds")
+            # print(f"1000 log entries in {end_time - start_time:.3f} seconds")
 
             # Force flush and show stats
             perf_logger.force_flush()
             stats = perf_logger.get_stats()
-            print(f"Stats: {json.dumps(stats, indent=2)}")
+    # print(f"Stats: {json.dumps(stats, indent=2)}")

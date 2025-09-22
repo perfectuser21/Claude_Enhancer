@@ -126,7 +126,7 @@ class PerformanceTestSuite:
 
     def test_hook_latency(self) -> Dict[str, float]:
         """Test hook execution latency"""
-        print("🔬 Testing Hook Latency...")
+    # print("🔬 Testing Hook Latency...")
 
         latency_results = {}
 
@@ -184,7 +184,7 @@ class PerformanceTestSuite:
 
     def test_cache_performance(self) -> Dict[str, Any]:
         """Test caching performance improvements"""
-        print("💾 Testing Cache Performance...")
+    # print("💾 Testing Cache Performance...")
 
         dispatcher_path = "/home/xx/dev/Perfect21/.claude/hooks/performance_optimized_dispatcher.py"
 
@@ -255,7 +255,7 @@ class PerformanceTestSuite:
 
     def test_resource_usage(self) -> Dict[str, Any]:
         """Test resource usage optimization"""
-        print("📊 Testing Resource Usage...")
+    # print("📊 Testing Resource Usage...")
 
         monitor_path = "/home/xx/dev/Perfect21/.claude/hooks/resource_monitor.py"
 
@@ -327,8 +327,8 @@ class PerformanceTestSuite:
 
     def run_quick_test(self) -> Dict[str, Any]:
         """Run quick performance test"""
-        print("🚀 Running Quick Performance Test")
-        print("=" * 50)
+    # print("🚀 Running Quick Performance Test")
+    # print("=" * 50)
 
         start_time = time.time()
 
@@ -437,16 +437,16 @@ def main():
 
         # Generate and display report
         report = test_suite.generate_quick_report(results)
-        print(report)
+    # print(report)
 
         # Also output JSON for programmatic use
-        print("\n" + "="*55)
-        print("JSON Results:")
-        print(json.dumps(results, indent=2))
+    # print("\n" + "="*55)
+    # print("JSON Results:")
+    # print(json.dumps(results, indent=2))
 
     else:
-        print("Usage: python3 performance_test.py quick")
-        print("Full test suite not implemented in this version")
+    # print("Usage: python3 performance_test.py quick")
+    # print("Full test suite not implemented in this version")
 
 if __name__ == "__main__":
     main()

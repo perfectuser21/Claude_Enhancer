@@ -14,7 +14,7 @@ class AuthException(Exception):
         self,
         message: str,
         error_code: str = "AUTH_ERROR",
-        details: Optional[Dict[str, Any]] = None
+        details: Optional[Dict[str, Any]] = None,
     ):
         self.message = message
         self.error_code = error_code
@@ -26,86 +26,57 @@ class InvalidCredentialsException(AuthException):
     """无效凭据异常"""
 
     def __init__(self, message: str = "无效的用户名或密码"):
-        super().__init__(
-            message=message,
-            error_code="INVALID_CREDENTIALS"
-        )
+        super().__init__(message=message, error_code="INVALID_CREDENTIALS")
 
 
 class AccountLockedException(AuthException):
     """账户锁定异常"""
 
-    def __init__(
-        self,
-        message: str = "账户已被锁定",
-        lock_duration: Optional[int] = None
-    ):
+    def __init__(self, message: str = "账户已被锁定", lock_duration: Optional[int] = None):
         details = {}
         if lock_duration:
             details["lock_duration_minutes"] = lock_duration
 
-        super().__init__(
-            message=message,
-            error_code="ACCOUNT_LOCKED",
-            details=details
-        )
+        super().__init__(message=message, error_code="ACCOUNT_LOCKED", details=details)
 
 
 class AccountDisabledException(AuthException):
     """账户禁用异常"""
 
     def __init__(self, message: str = "账户已被禁用"):
-        super().__init__(
-            message=message,
-            error_code="ACCOUNT_DISABLED"
-        )
+        super().__init__(message=message, error_code="ACCOUNT_DISABLED")
 
 
 class EmailNotVerifiedException(AuthException):
     """邮箱未验证异常"""
 
     def __init__(self, message: str = "邮箱地址未验证"):
-        super().__init__(
-            message=message,
-            error_code="EMAIL_NOT_VERIFIED"
-        )
+        super().__init__(message=message, error_code="EMAIL_NOT_VERIFIED")
 
 
 class MFARequiredException(AuthException):
     """需要MFA验证异常"""
 
-    def __init__(
-        self,
-        message: str = "需要多因子认证",
-        mfa_token: Optional[str] = None
-    ):
+    def __init__(self, message: str = "需要多因子认证", mfa_token: Optional[str] = None):
         details = {}
         if mfa_token:
             details["mfa_token"] = mfa_token
 
-        super().__init__(
-            message=message,
-            error_code="MFA_REQUIRED",
-            details=details
-        )
+        super().__init__(message=message, error_code="MFA_REQUIRED", details=details)
 
 
 class InvalidMFACodeException(AuthException):
     """无效MFA验证码异常"""
 
     def __init__(
-        self,
-        message: str = "无效的验证码",
-        attempts_remaining: Optional[int] = None
+        self, message: str = "无效的验证码", attempts_remaining: Optional[int] = None
     ):
         details = {}
         if attempts_remaining is not None:
             details["attempts_remaining"] = attempts_remaining
 
         super().__init__(
-            message=message,
-            error_code="INVALID_MFA_CODE",
-            details=details
+            message=message, error_code="INVALID_MFA_CODE", details=details
         )
 
 
@@ -113,59 +84,40 @@ class MFACodeExpiredException(AuthException):
     """MFA验证码过期异常"""
 
     def __init__(self, message: str = "验证码已过期"):
-        super().__init__(
-            message=message,
-            error_code="MFA_CODE_EXPIRED"
-        )
+        super().__init__(message=message, error_code="MFA_CODE_EXPIRED")
 
 
 class InvalidTokenException(AuthException):
     """无效Token异常"""
 
-    def __init__(
-        self,
-        message: str = "无效或已过期的令牌",
-        token_type: str = "access_token"
-    ):
+    def __init__(self, message: str = "无效或已过期的令牌", token_type: str = "access_token"):
         super().__init__(
             message=message,
             error_code="INVALID_TOKEN",
-            details={"token_type": token_type}
+            details={"token_type": token_type},
         )
 
 
 class TokenExpiredException(AuthException):
     """Token过期异常"""
 
-    def __init__(
-        self,
-        message: str = "令牌已过期",
-        token_type: str = "access_token"
-    ):
+    def __init__(self, message: str = "令牌已过期", token_type: str = "access_token"):
         super().__init__(
             message=message,
             error_code="TOKEN_EXPIRED",
-            details={"token_type": token_type}
+            details={"token_type": token_type},
         )
 
 
 class TokenRevokedException(AuthException):
     """Token已撤销异常"""
 
-    def __init__(
-        self,
-        message: str = "令牌已被撤销",
-        reason: Optional[str] = None
-    ):
+    def __init__(self, message: str = "令牌已被撤销", reason: Optional[str] = None):
         details = {}
         if reason:
             details["revocation_reason"] = reason
 
-        super().__init__(
-            message=message,
-            error_code="TOKEN_REVOKED",
-            details=details
-        )
+        super().__init__(message=message, error_code="TOKEN_REVOKED", details=details)
 
 
 class InsufficientPermissionsException(AuthException):
@@ -175,7 +127,7 @@ class InsufficientPermissionsException(AuthException):
         self,
         message: str = "权限不足",
         required_permissions: Optional[list] = None,
-        current_permissions: Optional[list] = None
+        current_permissions: Optional[list] = None,
     ):
         details = {}
         if required_permissions:
@@ -184,24 +136,18 @@ class InsufficientPermissionsException(AuthException):
             details["current_permissions"] = current_permissions
 
         super().__init__(
-            message=message,
-            error_code="INSUFFICIENT_PERMISSIONS",
-            details=details
+            message=message, error_code="INSUFFICIENT_PERMISSIONS", details=details
         )
 
 
 class UserAlreadyExistsException(AuthException):
     """用户已存在异常"""
 
-    def __init__(
-        self,
-        message: str = "用户已存在",
-        existing_field: str = "email"
-    ):
+    def __init__(self, message: str = "用户已存在", existing_field: str = "email"):
         super().__init__(
             message=message,
             error_code="USER_ALREADY_EXISTS",
-            details={"existing_field": existing_field}
+            details={"existing_field": existing_field},
         )
 
 
@@ -209,39 +155,27 @@ class UserNotFoundException(AuthException):
     """用户不存在异常"""
 
     def __init__(self, message: str = "用户不存在"):
-        super().__init__(
-            message=message,
-            error_code="USER_NOT_FOUND"
-        )
+        super().__init__(message=message, error_code="USER_NOT_FOUND")
 
 
 class WeakPasswordException(AuthException):
     """弱密码异常"""
 
     def __init__(
-        self,
-        message: str = "密码强度不足",
-        password_requirements: Optional[list] = None
+        self, message: str = "密码强度不足", password_requirements: Optional[list] = None
     ):
         details = {}
         if password_requirements:
             details["requirements"] = password_requirements
 
-        super().__init__(
-            message=message,
-            error_code="WEAK_PASSWORD",
-            details=details
-        )
+        super().__init__(message=message, error_code="WEAK_PASSWORD", details=details)
 
 
 class PasswordHistoryException(AuthException):
     """密码历史冲突异常"""
 
     def __init__(self, message: str = "不能使用最近使用过的密码"):
-        super().__init__(
-            message=message,
-            error_code="PASSWORD_HISTORY_CONFLICT"
-        )
+        super().__init__(message=message, error_code="PASSWORD_HISTORY_CONFLICT")
 
 
 class RateLimitExceededException(AuthException):
@@ -251,7 +185,7 @@ class RateLimitExceededException(AuthException):
         self,
         message: str = "请求过于频繁，请稍后再试",
         retry_after: Optional[int] = None,
-        limit: Optional[int] = None
+        limit: Optional[int] = None,
     ):
         details = {}
         if retry_after:
@@ -260,9 +194,7 @@ class RateLimitExceededException(AuthException):
             details["rate_limit"] = limit
 
         super().__init__(
-            message=message,
-            error_code="RATE_LIMIT_EXCEEDED",
-            details=details
+            message=message, error_code="RATE_LIMIT_EXCEEDED", details=details
         )
 
 
@@ -270,18 +202,14 @@ class SuspiciousActivityException(AuthException):
     """可疑活动异常"""
 
     def __init__(
-        self,
-        message: str = "检测到可疑活动，账户已被临时限制",
-        risk_factors: Optional[list] = None
+        self, message: str = "检测到可疑活动，账户已被临时限制", risk_factors: Optional[list] = None
     ):
         details = {}
         if risk_factors:
             details["risk_factors"] = risk_factors
 
         super().__init__(
-            message=message,
-            error_code="SUSPICIOUS_ACTIVITY",
-            details=details
+            message=message, error_code="SUSPICIOUS_ACTIVITY", details=details
         )
 
 
@@ -289,38 +217,28 @@ class DeviceNotTrustedException(AuthException):
     """设备不受信任异常"""
 
     def __init__(self, message: str = "设备未受信任，需要额外验证"):
-        super().__init__(
-            message=message,
-            error_code="DEVICE_NOT_TRUSTED"
-        )
+        super().__init__(message=message, error_code="DEVICE_NOT_TRUSTED")
 
 
 class SessionExpiredException(AuthException):
     """会话过期异常"""
 
     def __init__(self, message: str = "会话已过期，请重新登录"):
-        super().__init__(
-            message=message,
-            error_code="SESSION_EXPIRED"
-        )
+        super().__init__(message=message, error_code="SESSION_EXPIRED")
 
 
 class ConcurrentSessionException(AuthException):
     """并发会话异常"""
 
     def __init__(
-        self,
-        message: str = "检测到并发会话，请重新认证",
-        max_sessions: Optional[int] = None
+        self, message: str = "检测到并发会话，请重新认证", max_sessions: Optional[int] = None
     ):
         details = {}
         if max_sessions:
             details["max_allowed_sessions"] = max_sessions
 
         super().__init__(
-            message=message,
-            error_code="CONCURRENT_SESSION_LIMIT",
-            details=details
+            message=message, error_code="CONCURRENT_SESSION_LIMIT", details=details
         )
 
 
@@ -356,17 +274,19 @@ def auth_exception_to_http_exception(exc: AuthException) -> HTTPException:
         "SUSPICIOUS_ACTIVITY": status.HTTP_403_FORBIDDEN,
         "DEVICE_NOT_TRUSTED": status.HTTP_403_FORBIDDEN,
         "SESSION_EXPIRED": status.HTTP_401_UNAUTHORIZED,
-        "CONCURRENT_SESSION_LIMIT": status.HTTP_409_CONFLICT
+        "CONCURRENT_SESSION_LIMIT": status.HTTP_409_CONFLICT,
     }
 
-    status_code = status_code_mapping.get(exc.error_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+    status_code = status_code_mapping.get(
+        exc.error_code, status.HTTP_500_INTERNAL_SERVER_ERROR
+    )
 
     # 构建错误响应
     detail = {
         "success": False,
         "error": exc.error_code,
         "message": exc.message,
-        "details": exc.details
+        "details": exc.details,
     }
 
     # 添加特殊头部
@@ -378,9 +298,7 @@ def auth_exception_to_http_exception(exc: AuthException) -> HTTPException:
             headers["Retry-After"] = str(exc.details["retry_after_seconds"])
 
     return HTTPException(
-        status_code=status_code,
-        detail=detail,
-        headers=headers if headers else None
+        status_code=status_code, detail=detail, headers=headers if headers else None
     )
 
 
@@ -389,6 +307,7 @@ def handle_auth_exceptions(func):
     """
     装饰器：自动捕获并转换认证异常为HTTP异常
     """
+
     async def wrapper(*args, **kwargs):
         try:
             return await func(*args, **kwargs)

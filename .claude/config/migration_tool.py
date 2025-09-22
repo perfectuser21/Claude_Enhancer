@@ -573,60 +573,60 @@ def main():
     try:
         if args.discover_only:
             legacy_files = migrator.discover_legacy_configs()
-            print(f"📋 Found {len(legacy_files)} legacy configuration files:")
+    # print(f"📋 Found {len(legacy_files)} legacy configuration files:")
             for file_path in legacy_files:
-                print(f"  • {file_path}")
+    # print(f"  • {file_path}")
             return
 
         # Discover legacy files
         legacy_files = migrator.discover_legacy_configs()
 
         if not legacy_files:
-            print("✅ No legacy configuration files found")
+    # print("✅ No legacy configuration files found")
             return
 
-        print(f"📋 Found {len(legacy_files)} legacy configuration files:")
+    # print(f"📋 Found {len(legacy_files)} legacy configuration files:")
         for file_path in legacy_files:
-            print(f"  • {file_path}")
+    # print(f"  • {file_path}")
 
         # Confirm migration
         if not args.force:
             response = input("\n🔄 Proceed with migration? (y/N): ")
             if response.lower() != 'y':
-                print("❌ Migration cancelled")
+    # print("❌ Migration cancelled")
                 return
 
         # Perform migration
-        print("\n🚀 Starting migration...")
+    # print("\n🚀 Starting migration...")
         report = migrator.migrate_all(backup=not args.no_backup)
 
         # Display results
         if report['status'] == 'success':
-            print("✅ Migration completed successfully!")
+    # print("✅ Migration completed successfully!")
         elif report['status'] == 'partial_failure':
-            print("⚠️  Migration completed with some errors")
+    # print("⚠️  Migration completed with some errors")
         else:
-            print("❌ Migration failed")
+    # print("❌ Migration failed")
 
-        print(f"\n📊 Migration Summary:")
-        print(f"  • Files processed: {len(report['files'])}")
-        print(f"  • Successful: {sum(1 for f in report['files'] if f['status'] == 'migrated')}")
-        print(f"  • Errors: {len(report['errors'])}")
+    # print(f"\n📊 Migration Summary:")
+    # print(f"  • Files processed: {len(report['files'])}")
+    # print(f"  • Successful: {sum(1 for f in report['files'] if f['status'] == 'migrated')}")
+    # print(f"  • Errors: {len(report['errors'])}")
 
         if report['errors']:
-            print("\n❌ Errors:")
+    # print("\n❌ Errors:")
             for error in report['errors']:
-                print(f"  • {error}")
+    # print(f"  • {error}")
 
         # Clean up legacy files
         if args.cleanup and report['status'] in ['success', 'partial_failure']:
             migrator.cleanup_legacy_files(legacy_files, confirm=not args.force)
 
-        print(f"\n📁 Configuration saved to: {migrator.config_dir / 'main.yaml'}")
-        print(f"📄 Migration report: {migrator.config_dir / 'migration_report.json'}")
+    # print(f"\n📁 Configuration saved to: {migrator.config_dir / 'main.yaml'}")
+    # print(f"📄 Migration report: {migrator.config_dir / 'migration_report.json'}")
 
     except Exception as e:
-        print(f"❌ Migration failed: {e}")
+    # print(f"❌ Migration failed: {e}")
         exit(1)
 
 

@@ -22,9 +22,11 @@ from .performance_dashboard import PerformanceDashboard
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class PerformanceReport:
     """性能报告"""
+
     timestamp: datetime
     overall_score: float  # 0-100
     response_time_p95: float
@@ -35,10 +37,13 @@ class PerformanceReport:
     recommendations: List[str]
     metrics_summary: Dict[str, Any]
 
+
 class PerformanceManager:
     """统一性能管理器 - 企业级性能优化系统的中央控制器"""
 
-    def __init__(self, service_name: str = "perfect21", config_file: Optional[str] = None):
+    def __init__(
+        self, service_name: str = "perfect21", config_file: Optional[str] = None
+    ):
         self.service_name = service_name
         self.config_manager = PerformanceConfigManager(config_file)
         self.config: Optional[PerformanceConfig] = None
@@ -58,14 +63,14 @@ class PerformanceManager:
 
         # 性能统计
         self.stats = {
-            'total_requests': 0,
-            'successful_requests': 0,
-            'failed_requests': 0,
-            'avg_response_time': 0.0,
-            'cache_hit_count': 0,
-            'cache_miss_count': 0,
-            'db_query_count': 0,
-            'async_task_count': 0
+            "total_requests": 0,
+            "successful_requests": 0,
+            "failed_requests": 0,
+            "avg_response_time": 0.0,
+            "cache_hit_count": 0,
+            "cache_miss_count": 0,
+            "db_query_count": 0,
+            "async_task_count": 0,
         }
 
     async def initialize(self) -> bool:
@@ -124,7 +129,7 @@ class PerformanceManager:
                 retention_period_hours=self.config.metrics.retention_period_hours,
                 enable_system_metrics=self.config.metrics.enable_system_metrics,
                 enable_application_metrics=self.config.metrics.enable_application_metrics,
-                export_file=self.config.metrics.export_file
+                export_file=self.config.metrics.export_file,
             )
 
             self.metrics_collector = MetricsCollector(self.service_name, metrics_config)
@@ -150,7 +155,7 @@ class PerformanceManager:
                 pool_size=self.config.redis.pool_size,
                 timeout=self.config.redis.timeout,
                 compression_enabled=self.config.redis.compression_enabled,
-                default_ttl=self.config.redis.default_ttl
+                default_ttl=self.config.redis.default_ttl,
             )
 
             self.cache_manager = CacheManager(cache_config)
@@ -171,7 +176,7 @@ class PerformanceManager:
                 max_overflow=self.config.database.max_overflow,
                 slow_query_threshold=self.config.database.slow_query_threshold,
                 enable_query_cache=self.config.database.enable_query_cache,
-                query_cache_ttl=self.config.database.query_cache_ttl
+                query_cache_ttl=self.config.database.query_cache_ttl,
             )
 
             self.database_optimizer = DatabaseOptimizer(db_config)
@@ -191,7 +196,7 @@ class PerformanceManager:
                 max_queue_size=self.config.async_processor.max_queue_size,
                 smtp_host=self.config.async_processor.smtp_host,
                 smtp_port=self.config.async_processor.smtp_port,
-                rabbitmq_url=self.config.async_processor.rabbitmq_url
+                rabbitmq_url=self.config.async_processor.rabbitmq_url,
             )
 
             self.async_processor = AsyncProcessor(async_config)
@@ -210,7 +215,7 @@ class PerformanceManager:
                 algorithm=self.config.load_balancer.algorithm,
                 health_check_enabled=self.config.load_balancer.health_check_enabled,
                 health_check_interval=self.config.load_balancer.health_check_interval,
-                circuit_breaker_enabled=self.config.load_balancer.circuit_breaker_enabled
+                circuit_breaker_enabled=self.config.load_balancer.circuit_breaker_enabled,
             )
 
             self.load_balancer = LoadBalancer(lb_config)
@@ -231,13 +236,19 @@ class PerformanceManager:
             if self.cache_manager:
                 self.dashboard.register_component("cache_manager", self.cache_manager)
             if self.database_optimizer:
-                self.dashboard.register_component("database_optimizer", self.database_optimizer)
+                self.dashboard.register_component(
+                    "database_optimizer", self.database_optimizer
+                )
             if self.async_processor:
-                self.dashboard.register_component("async_processor", self.async_processor)
+                self.dashboard.register_component(
+                    "async_processor", self.async_processor
+                )
             if self.load_balancer:
                 self.dashboard.register_component("load_balancer", self.load_balancer)
             if self.metrics_collector:
-                self.dashboard.register_component("metrics_collector", self.metrics_collector)
+                self.dashboard.register_component(
+                    "metrics_collector", self.metrics_collector
+                )
 
             await self.dashboard.initialize()
 
@@ -257,7 +268,7 @@ class PerformanceManager:
             "response_time_warning",
             "lb_avg_response_time",
             self.config.thresholds.response_time_warning,
-            message="响应时间过高"
+            message="响应时间过高",
         )
 
         # CPU使用率告警
@@ -265,7 +276,7 @@ class PerformanceManager:
             "cpu_usage_critical",
             "cpu_usage",
             self.config.thresholds.cpu_usage_critical,
-            message="CPU使用率达到临界值"
+            message="CPU使用率达到临界值",
         )
 
         # 内存使用率告警
@@ -273,7 +284,7 @@ class PerformanceManager:
             "memory_usage_critical",
             "memory_usage",
             self.config.thresholds.memory_usage_critical,
-            message="内存使用率达到临界值"
+            message="内存使用率达到临界值",
         )
 
         # 错误率告警
@@ -281,7 +292,7 @@ class PerformanceManager:
             "error_rate_warning",
             "db_error_rate",
             self.config.thresholds.error_rate_warning,
-            message="错误率过高"
+            message="错误率过高",
         )
 
     @asynccontextmanager
@@ -293,7 +304,7 @@ class PerformanceManager:
         if self.metrics_collector:
             self.metrics_collector.increment_counter(
                 f"{operation_name}_requests_total",
-                labels={"service": self.service_name}
+                labels={"service": self.service_name},
             )
 
         try:
@@ -301,46 +312,49 @@ class PerformanceManager:
 
             # 记录成功
             duration = time.time() - start_time
-            self.stats['successful_requests'] += 1
+            self.stats["successful_requests"] += 1
             self._update_avg_response_time(duration)
 
             if self.metrics_collector:
                 self.metrics_collector.record_timer(
                     f"{operation_name}_duration",
                     duration,
-                    labels={"service": self.service_name, "status": "success"}
+                    labels={"service": self.service_name, "status": "success"},
                 )
 
         except Exception as e:
             # 记录失败
             duration = time.time() - start_time
-            self.stats['failed_requests'] += 1
+            self.stats["failed_requests"] += 1
 
             if self.metrics_collector:
                 self.metrics_collector.record_timer(
                     f"{operation_name}_duration",
                     duration,
-                    labels={"service": self.service_name, "status": "error"}
+                    labels={"service": self.service_name, "status": "error"},
                 )
                 self.metrics_collector.increment_counter(
                     f"{operation_name}_errors_total",
-                    labels={"service": self.service_name, "error_type": type(e).__name__}
+                    labels={
+                        "service": self.service_name,
+                        "error_type": type(e).__name__,
+                    },
                 )
 
             raise
 
         finally:
-            self.stats['total_requests'] += 1
+            self.stats["total_requests"] += 1
 
     def _update_avg_response_time(self, duration: float):
         """更新平均响应时间"""
-        if self.stats['successful_requests'] == 1:
-            self.stats['avg_response_time'] = duration
+        if self.stats["successful_requests"] == 1:
+            self.stats["avg_response_time"] = duration
         else:
             # 指数移动平均
             alpha = 0.1
-            self.stats['avg_response_time'] = (
-                alpha * duration + (1 - alpha) * self.stats['avg_response_time']
+            self.stats["avg_response_time"] = (
+                alpha * duration + (1 - alpha) * self.stats["avg_response_time"]
             )
 
     async def _performance_monitoring_loop(self):
@@ -351,7 +365,7 @@ class PerformanceManager:
                 await self._collect_performance_metrics()
 
                 # 生成性能报告
-                if self.stats['total_requests'] % 1000 == 0:  # 每1000个请求生成一次报告
+                if self.stats["total_requests"] % 1000 == 0:  # 每1000个请求生成一次报告
                     report = await self.generate_performance_report()
                     logger.info(f"📊 性能报告 - 评分: {report.overall_score:.1f}/100")
 
@@ -366,14 +380,22 @@ class PerformanceManager:
             return
 
         # 收集基础统计
-        self.metrics_collector.set_gauge("total_requests", self.stats['total_requests'])
-        self.metrics_collector.set_gauge("successful_requests", self.stats['successful_requests'])
-        self.metrics_collector.set_gauge("failed_requests", self.stats['failed_requests'])
-        self.metrics_collector.set_gauge("avg_response_time", self.stats['avg_response_time'] * 1000)  # 转换为毫秒
+        self.metrics_collector.set_gauge("total_requests", self.stats["total_requests"])
+        self.metrics_collector.set_gauge(
+            "successful_requests", self.stats["successful_requests"]
+        )
+        self.metrics_collector.set_gauge(
+            "failed_requests", self.stats["failed_requests"]
+        )
+        self.metrics_collector.set_gauge(
+            "avg_response_time", self.stats["avg_response_time"] * 1000
+        )  # 转换为毫秒
 
         # 计算成功率
-        if self.stats['total_requests'] > 0:
-            success_rate = (self.stats['successful_requests'] / self.stats['total_requests']) * 100
+        if self.stats["total_requests"] > 0:
+            success_rate = (
+                self.stats["successful_requests"] / self.stats["total_requests"]
+            ) * 100
             self.metrics_collector.set_gauge("success_rate", success_rate)
 
         # 服务运行时间
@@ -392,7 +414,7 @@ class PerformanceManager:
                         self.metrics_collector.set_gauge(
                             f"{component}_health",
                             1.0 if status else 0.0,
-                            labels={"service": self.service_name}
+                            labels={"service": self.service_name},
                         )
 
             except Exception as e:
@@ -424,22 +446,24 @@ class PerformanceManager:
 
         try:
             if self.cache_manager:
-                health_status['cache'] = await self.cache_manager.health_check()
+                health_status["cache"] = await self.cache_manager.health_check()
 
             if self.database_optimizer:
-                health_status['database'] = await self.database_optimizer.health_check()
+                health_status["database"] = await self.database_optimizer.health_check()
 
             if self.async_processor:
-                health_status['async_processor'] = await self.async_processor.health_check()
+                health_status[
+                    "async_processor"
+                ] = await self.async_processor.health_check()
 
             if self.load_balancer:
-                health_status['load_balancer'] = await self.load_balancer.health_check()
+                health_status["load_balancer"] = await self.load_balancer.health_check()
 
             if self.metrics_collector:
-                health_status['metrics'] = await self.metrics_collector.health_check()
+                health_status["metrics"] = await self.metrics_collector.health_check()
 
             if self.dashboard:
-                health_status['dashboard'] = await self.dashboard.health_check()
+                health_status["dashboard"] = await self.dashboard.health_check()
 
         except Exception as e:
             logger.error(f"❌ 健康状态检查失败: {e}")
@@ -453,18 +477,20 @@ class PerformanceManager:
             overall_score = await self._calculate_performance_score()
 
             # 获取关键指标
-            response_time_p95 = self.stats['avg_response_time'] * 1.2  # 估算P95
+            response_time_p95 = self.stats["avg_response_time"] * 1.2  # 估算P95
             cache_hit_rate = 0.0
             if self.cache_manager:
                 cache_stats = await self.cache_manager.get_stats()
-                cache_hit_rate = cache_stats.get('hit_rate', 0)
+                cache_hit_rate = cache_stats.get("hit_rate", 0)
 
             # 数据库性能
             database_performance = 100.0
             if self.database_optimizer:
                 db_stats = await self.database_optimizer.get_database_stats()
-                if db_stats['avg_query_time'] > 0:
-                    database_performance = max(0, 100 - (db_stats['avg_query_time'] * 1000 / 10))
+                if db_stats["avg_query_time"] > 0:
+                    database_performance = max(
+                        0, 100 - (db_stats["avg_query_time"] * 1000 / 10)
+                    )
 
             # 系统健康状态
             health_status = await self.get_health_status()
@@ -495,7 +521,7 @@ class PerformanceManager:
                 system_health=system_health,
                 bottlenecks=bottlenecks,
                 recommendations=recommendations,
-                metrics_summary=self.stats.copy()
+                metrics_summary=self.stats.copy(),
             )
 
         except Exception as e:
@@ -510,7 +536,7 @@ class PerformanceManager:
                 system_health="unknown",
                 bottlenecks=["无法生成报告"],
                 recommendations=["检查系统状态"],
-                metrics_summary={}
+                metrics_summary={},
             )
 
     async def _calculate_performance_score(self) -> float:
@@ -518,7 +544,7 @@ class PerformanceManager:
         score = 100.0
 
         # 响应时间评分（30%）
-        avg_response_time_ms = self.stats['avg_response_time'] * 1000
+        avg_response_time_ms = self.stats["avg_response_time"] * 1000
         if avg_response_time_ms > 1000:
             score -= 30
         elif avg_response_time_ms > 500:
@@ -527,22 +553,26 @@ class PerformanceManager:
             score -= 10
 
         # 成功率评分（25%）
-        if self.stats['total_requests'] > 0:
-            success_rate = self.stats['successful_requests'] / self.stats['total_requests']
+        if self.stats["total_requests"] > 0:
+            success_rate = (
+                self.stats["successful_requests"] / self.stats["total_requests"]
+            )
             if success_rate < 0.95:
                 score -= (1 - success_rate) * 25
 
         # 缓存命中率评分（20%）
         if self.cache_manager:
             cache_stats = await self.cache_manager.get_stats()
-            hit_rate = cache_stats.get('hit_rate', 0) / 100
+            hit_rate = cache_stats.get("hit_rate", 0) / 100
             if hit_rate < 0.8:
                 score -= (0.8 - hit_rate) * 20
 
         # 系统健康评分（25%）
         health_status = await self.get_health_status()
         if health_status:
-            healthy_ratio = sum(1 for status in health_status.values() if status) / len(health_status)
+            healthy_ratio = sum(1 for status in health_status.values() if status) / len(
+                health_status
+            )
             score -= (1 - healthy_ratio) * 25
 
         return max(0.0, min(100.0, score))
@@ -552,25 +582,25 @@ class PerformanceManager:
         bottlenecks = []
 
         # 响应时间瓶颈
-        if self.stats['avg_response_time'] > 1.0:
+        if self.stats["avg_response_time"] > 1.0:
             bottlenecks.append("响应时间过长")
 
         # 缓存命中率瓶颈
         if self.cache_manager:
             cache_stats = await self.cache_manager.get_stats()
-            if cache_stats.get('hit_rate', 0) < 80:
+            if cache_stats.get("hit_rate", 0) < 80:
                 bottlenecks.append("缓存命中率低")
 
         # 数据库性能瓶颈
         if self.database_optimizer:
             db_stats = await self.database_optimizer.get_database_stats()
-            if db_stats.get('slow_query_count', 0) > 0:
+            if db_stats.get("slow_query_count", 0) > 0:
                 bottlenecks.append("存在慢查询")
 
         # 异步队列瓶颈
         if self.async_processor:
             queue_status = await self.async_processor.get_queue_status()
-            if queue_status.get('queue_size', 0) > 100:
+            if queue_status.get("queue_size", 0) > 100:
                 bottlenecks.append("异步队列堆积")
 
         return bottlenecks
@@ -608,7 +638,7 @@ class PerformanceManager:
             ("异步处理器", self.async_processor),
             ("数据库优化器", self.database_optimizer),
             ("缓存管理器", self.cache_manager),
-            ("配置管理器", self.config_manager)
+            ("配置管理器", self.config_manager),
         ]
 
         for name, component in components:
@@ -621,11 +651,14 @@ class PerformanceManager:
 
         logger.info("✅ 性能管理器已完全关闭")
 
+
 # 全局性能管理器实例
 _performance_manager: Optional[PerformanceManager] = None
 
-async def get_performance_manager(service_name: str = "perfect21",
-                                config_file: Optional[str] = None) -> PerformanceManager:
+
+async def get_performance_manager(
+    service_name: str = "perfect21", config_file: Optional[str] = None
+) -> PerformanceManager:
     """获取性能管理器实例（单例模式）"""
     global _performance_manager
 
@@ -634,6 +667,7 @@ async def get_performance_manager(service_name: str = "perfect21",
         await _performance_manager.initialize()
 
     return _performance_manager
+
 
 async def shutdown_performance_manager():
     """关闭全局性能管理器"""

@@ -34,23 +34,27 @@ async def get_client_info(request: Request) -> Dict[str, Any]:
     return {
         "ip_address": request.client.host if request.client else "unknown",
         "user_agent": request.headers.get("user-agent", ""),
-        "real_ip": request.headers.get("x-real-ip", request.client.host if request.client else "unknown"),
+        "real_ip": request.headers.get(
+            "x-real-ip", request.client.host if request.client else "unknown"
+        ),
         "forwarded_for": request.headers.get("x-forwarded-for", ""),
         "device_info": {
             "user_agent": request.headers.get("user-agent", ""),
             "accept_language": request.headers.get("accept-language", ""),
             "accept_encoding": request.headers.get("accept-encoding", ""),
             "origin": request.headers.get("origin", ""),
-            "referer": request.headers.get("referer", "")
+            "referer": request.headers.get("referer", ""),
         },
-        "request_id": request.headers.get("x-request-id", f"req-{datetime.utcnow().timestamp()}")
+        "request_id": request.headers.get(
+            "x-request-id", f"req-{datetime.utcnow().timestamp()}"
+        ),
     }
 
 
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     jwt_manager: JWTTokenManager = Depends(),
-    user_service: UserService = Depends()
+    user_service: UserService = Depends(),
 ) -> User:
     """
     获取当前认证用户
@@ -118,7 +122,7 @@ async def get_current_user(
 
 
 async def get_current_active_user(
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ) -> User:
     """
     获取当前活跃用户（已验证邮箱）
@@ -134,8 +138,7 @@ async def get_current_active_user(
     """
     if not current_user.is_verified:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="用户邮箱未验证，请先验证邮箱"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="用户邮箱未验证，请先验证邮箱"
         )
 
     return current_user
@@ -144,7 +147,7 @@ async def get_current_active_user(
 async def get_optional_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     jwt_manager: JWTTokenManager = Depends(),
-    user_service: UserService = Depends()
+    user_service: UserService = Depends(),
 ) -> Optional[User]:
     """
     获取可选的当前用户（不强制要求认证）
@@ -176,15 +179,13 @@ def require_permissions(*required_permissions: str):
     Returns:
         权限检查依赖函数
     """
+
     async def permission_checker(
-        current_user: User = Depends(get_current_user)
+        current_user: User = Depends(get_current_user),
     ) -> User:
         """检查用户权限"""
-        if not hasattr(current_user, '_token_claims'):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="缺少权限信息"
-            )
+        if not hasattr(current_user, "_token_claims"):
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="缺少权限信息")
 
         user_permissions = set(current_user._token_claims.permissions)
         required_perms = set(required_permissions)
@@ -194,7 +195,7 @@ def require_permissions(*required_permissions: str):
             missing_perms = required_perms - user_permissions
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"缺少必要权限: {', '.join(missing_perms)}"
+                detail=f"缺少必要权限: {', '.join(missing_perms)}",
             )
 
         return current_user
@@ -212,15 +213,13 @@ def require_any_permission(*required_permissions: str):
     Returns:
         权限检查依赖函数
     """
+
     async def permission_checker(
-        current_user: User = Depends(get_current_user)
+        current_user: User = Depends(get_current_user),
     ) -> User:
         """检查用户是否具有任一权限"""
-        if not hasattr(current_user, '_token_claims'):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="缺少权限信息"
-            )
+        if not hasattr(current_user, "_token_claims"):
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="缺少权限信息")
 
         user_permissions = set(current_user._token_claims.permissions)
         required_perms = set(required_permissions)
@@ -229,7 +228,7 @@ def require_any_permission(*required_permissions: str):
         if not user_permissions.intersection(required_perms):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"需要以下任一权限: {', '.join(required_permissions)}"
+                detail=f"需要以下任一权限: {', '.join(required_permissions)}",
             )
 
         return current_user
@@ -248,8 +247,7 @@ def require_admin():
 
 
 async def rate_limit_check(
-    request: Request,
-    client_info: Dict[str, Any] = Depends(get_client_info)
+    request: Request, client_info: Dict[str, Any] = Depends(get_client_info)
 ) -> bool:
     """
     速率限制检查
@@ -276,7 +274,7 @@ async def rate_limit_check(
         "/auth/login": {"requests": 5, "window": 300},  # 5次/5分钟
         "/auth/register": {"requests": 3, "window": 3600},  # 3次/小时
         "/auth/refresh": {"requests": 10, "window": 300},  # 10次/5分钟
-        "default": {"requests": 100, "window": 3600}  # 默认100次/小时
+        "default": {"requests": 100, "window": 3600},  # 默认100次/小时
     }
 
     # 获取限制配置
@@ -305,7 +303,9 @@ async def security_headers_middleware(request: Request, call_next):
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["X-XSS-Protection"] = "1; mode=block"
-    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    response.headers[
+        "Strict-Transport-Security"
+    ] = "max-age=31536000; includeSubDomains"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     response.headers["Content-Security-Policy"] = "default-src 'self'"
 
@@ -347,7 +347,7 @@ def validate_email_domain(email: str, allowed_domains: Optional[list] = None) ->
     if not allowed_domains:
         return True
 
-    domain = email.split('@')[1].lower()
+    domain = email.split("@")[1].lower()
     return domain in [d.lower() for d in allowed_domains]
 
 
@@ -368,9 +368,7 @@ def validate_password_history(user_id: str, new_password: str) -> bool:
 
 
 async def validate_device_trust(
-    user_id: str,
-    device_fingerprint: str,
-    client_info: Dict[str, Any]
+    user_id: str, device_fingerprint: str, client_info: Dict[str, Any]
 ) -> bool:
     """
     验证设备信任状态
@@ -390,9 +388,7 @@ async def validate_device_trust(
 
 # 错误处理辅助函数
 def create_auth_error(
-    error_code: str,
-    message: str,
-    details: Optional[Dict[str, Any]] = None
+    error_code: str, message: str, details: Optional[Dict[str, Any]] = None
 ) -> HTTPException:
     """
     创建认证错误响应
@@ -411,15 +407,14 @@ def create_auth_error(
             "error": error_code,
             "message": message,
             "details": details or {},
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
         },
-        headers={"WWW-Authenticate": "Bearer"}
+        headers={"WWW-Authenticate": "Bearer"},
     )
 
 
 def create_permission_error(
-    required_permissions: list,
-    user_permissions: list
+    required_permissions: list, user_permissions: list
 ) -> HTTPException:
     """
     创建权限错误响应
@@ -436,10 +431,7 @@ def create_permission_error(
         detail={
             "error": "INSUFFICIENT_PERMISSIONS",
             "message": "权限不足",
-            "details": {
-                "required": required_permissions,
-                "current": user_permissions
-            },
-            "timestamp": datetime.utcnow().isoformat()
-        }
+            "details": {"required": required_permissions, "current": user_permissions},
+            "timestamp": datetime.utcnow().isoformat(),
+        },
     )

@@ -1100,9 +1100,9 @@ class SimplePerformanceTester:
 
 def print_console_summary(report: PerformanceReport):
     """打印控制台摘要"""
-    print("\n" + "="*80)
-    print("🎯 PERFECT21 性能测试报告")
-    print("="*80)
+    # print("\n" + "="*80)
+    # print("🎯 PERFECT21 性能测试报告")
+    # print("="*80)
 
     # 整体评分
     if report.overall_score >= 80:
@@ -1115,19 +1115,19 @@ def print_console_summary(report: PerformanceReport):
         score_icon = "🔴"
         score_desc = "需改进"
 
-    print(f"{score_icon} 整体性能评分: {report.overall_score:.1f}/100 ({score_desc})")
+    # print(f"{score_icon} 整体性能评分: {report.overall_score:.1f}/100 ({score_desc})")
 
     # 测试结果概览
-    print(f"\n📊 测试结果概览:")
-    print(f"  测试时间: {report.timestamp.strftime('%Y-%m-%d %H:%M:%S')}")
-    print(f"  测试项目: {len(report.test_results)}个")
-    print(f"  系统配置: {report.system_info['cpu_count']}核CPU, {report.system_info['total_memory_gb']:.1f}GB内存")
+    # print(f"\n📊 测试结果概览:")
+    # print(f"  测试时间: {report.timestamp.strftime('%Y-%m-%d %H:%M:%S')}")
+    # print(f"  测试项目: {len(report.test_results)}个")
+    # print(f"  系统配置: {report.system_info['cpu_count']}核CPU, {report.system_info['total_memory_gb']:.1f}GB内存")
 
     # 详细测试结果表格
-    print(f"\n📈 详细测试结果:")
-    print("-" * 80)
-    print(f"{'测试项目':<25} {'RPS':<8} {'响应时间':<12} {'P95':<10} {'错误率':<8} {'CPU':<6} {'内存':<8}")
-    print("-" * 80)
+    # print(f"\n📈 详细测试结果:")
+    # print("-" * 80)
+    # print(f"{'测试项目':<25} {'RPS':<8} {'响应时间':<12} {'P95':<10} {'错误率':<8} {'CPU':<6} {'内存':<8}")
+    # print("-" * 80)
 
     for result in report.test_results:
         test_name = result.test_name[:24]
@@ -1138,48 +1138,48 @@ def print_console_summary(report: PerformanceReport):
         cpu = f"{result.cpu_usage_percent:.1f}%"
         memory = f"{result.memory_usage_mb:.0f}MB"
 
-        print(f"{test_name:<25} {rps:<8} {avg_time:<12} {p95_time:<10} {error_rate:<8} {cpu:<6} {memory:<8}")
+    # print(f"{test_name:<25} {rps:<8} {avg_time:<12} {p95_time:<10} {error_rate:<8} {cpu:<6} {memory:<8}")
 
     # 特殊指标
     cache_tests = [r for r in report.test_results if r.cache_hit_rate_percent > 0]
     if cache_tests:
-        print(f"\n🗂️ 缓存性能:")
+    # print(f"\n🗂️ 缓存性能:")
         for result in cache_tests:
-            print(f"  {result.test_name}: 命中率 {result.cache_hit_rate_percent:.1f}%")
+    # print(f"  {result.test_name}: 命中率 {result.cache_hit_rate_percent:.1f}%")
 
     db_tests = [r for r in report.test_results if r.database_query_time_ms > 0]
     if db_tests:
-        print(f"\n🗄️ 数据库性能:")
+    # print(f"\n🗄️ 数据库性能:")
         for result in db_tests:
-            print(f"  {result.test_name}: 平均查询时间 {result.database_query_time_ms:.1f}ms")
+    # print(f"  {result.test_name}: 平均查询时间 {result.database_query_time_ms:.1f}ms")
 
     # 性能瓶颈
     if report.bottlenecks:
-        print(f"\n⚠️ 发现的性能瓶颈 ({len(report.bottlenecks)}个):")
+    # print(f"\n⚠️ 发现的性能瓶颈 ({len(report.bottlenecks)}个):")
         for i, bottleneck in enumerate(report.bottlenecks, 1):
-            print(f"  {i}. {bottleneck}")
+    # print(f"  {i}. {bottleneck}")
 
     # 优化建议
     if report.recommendations:
-        print(f"\n💡 优化建议 ({len(report.recommendations)}个):")
+    # print(f"\n💡 优化建议 ({len(report.recommendations)}个):")
         for i, recommendation in enumerate(report.recommendations, 1):
-            print(f"  {i}. {recommendation}")
+    # print(f"  {i}. {recommendation}")
 
     # 图表信息
     charts_dir = Path("performance_charts")
     if charts_dir.exists():
         charts = list(charts_dir.glob("*.png"))
         if charts:
-            print(f"\n📈 生成的图表文件 ({len(charts)}个):")
+    # print(f"\n📈 生成的图表文件 ({len(charts)}个):")
             for chart in charts:
-                print(f"  📊 {chart.name}")
+    # print(f"  📊 {chart.name}")
 
-    print("\n" + "="*80)
+    # print("\n" + "="*80)
 
 async def main():
     """主函数"""
-    print("🚀 Perfect21 简化性能测试")
-    print("=" * 50)
+    # print("🚀 Perfect21 简化性能测试")
+    # print("=" * 50)
 
     try:
         # 检查matplotlib后端
@@ -1189,14 +1189,14 @@ async def main():
         # 创建测试器
         tester = SimplePerformanceTester()
 
-        print("\n🔄 准备开始性能测试...")
-        print("测试将包括:")
-        print("  ⚡ 负载测试 (1000并发用户)")
-        print("  ⏱️ 响应时间测试")
-        print("  💾 内存使用测试")
-        print("  🗄️ 数据库查询优化测试")
-        print("  🗂️ 缓存命中率测试")
-        print("  💥 压力测试 (极限负载)")
+    # print("\n🔄 准备开始性能测试...")
+    # print("测试将包括:")
+    # print("  ⚡ 负载测试 (1000并发用户)")
+    # print("  ⏱️ 响应时间测试")
+    # print("  💾 内存使用测试")
+    # print("  🗄️ 数据库查询优化测试")
+    # print("  🗂️ 缓存命中率测试")
+    # print("  💥 压力测试 (极限负载)")
 
         # 运行测试
         report = await tester.run_comprehensive_tests()
@@ -1207,8 +1207,8 @@ async def main():
         # 打印摘要
         print_console_summary(report)
 
-        print(f"\n📁 详细报告已保存: {report_filename}")
-        print("✅ 性能测试完成！")
+    # print(f"\n📁 详细报告已保存: {report_filename}")
+    # print("✅ 性能测试完成！")
 
         return 0
 

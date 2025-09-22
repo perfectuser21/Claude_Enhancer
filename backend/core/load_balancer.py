@@ -584,10 +584,10 @@ async def example_usage():
             client_ip="192.168.1.100",
             session_id="session123"
         )
-        print(f"Response: {status}, Data: {data}")
+    # print(f"Response: {status}, Data: {data}")
     except Exception as e:
-        print(f"Request failed: {e}")
+    # print(f"Request failed: {e}")
 
     # 获取统计信息
     stats = await lb.get_server_stats()
-    print(f"Stats: {json.dumps(stats, indent=2)}")
+    # print(f"Stats: {json.dumps(stats, indent=2)}")

@@ -74,11 +74,11 @@ class TestSuiteOrchestrator:
         """Initialize test suite execution"""
         self.suite_start_time = datetime.utcnow()
         self.environment_info = self._collect_environment_info()
-        print("\n🚀 Starting Comprehensive Authentication Test Suite")
-        print("=" * 70)
-        print(f"Started at: {self.suite_start_time.strftime('%Y-%m-%d %H:%M:%S')} UTC")
-        print(f"Environment: {self.environment_info.get('platform', 'Unknown')}")
-        print("=" * 70)
+    # print("\n🚀 Starting Comprehensive Authentication Test Suite")
+    # print("=" * 70)
+    # print(f"Started at: {self.suite_start_time.strftime('%Y-%m-%d %H:%M:%S')} UTC")
+    # print(f"Environment: {self.environment_info.get('platform', 'Unknown')}")
+    # print("=" * 70)
 
     def end_suite(self):
         """Finalize test suite execution"""
@@ -157,7 +157,7 @@ class TestSuiteOrchestrator:
         with open(report_path, 'w') as f:
             json.dump(report, f, indent=2, default=str)
 
-        print(f"\n📄 Test report saved to: {report_path}")
+    # print(f"\n📄 Test report saved to: {report_path}")
         return report_path
 
     def print_summary(self):
@@ -165,42 +165,42 @@ class TestSuiteOrchestrator:
         report = self.generate_comprehensive_report()
         summary = report["summary"]
 
-        print(f"\n📊 COMPREHENSIVE TEST SUITE SUMMARY")
-        print("=" * 70)
-        print(f"Total Tests: {summary['total_tests']}")
-        print(f"Pass Rate: {summary['pass_rate_percent']:.1f}%")
-        print(f"Average Test Duration: {summary['avg_test_duration_ms']:.1f}ms")
-        print(f"Total Suite Duration: {report['suite_info']['total_duration_seconds']:.1f}s")
-        print()
+    # print(f"\n📊 COMPREHENSIVE TEST SUITE SUMMARY")
+    # print("=" * 70)
+    # print(f"Total Tests: {summary['total_tests']}")
+    # print(f"Pass Rate: {summary['pass_rate_percent']:.1f}%")
+    # print(f"Average Test Duration: {summary['avg_test_duration_ms']:.1f}ms")
+    # print(f"Total Suite Duration: {report['suite_info']['total_duration_seconds']:.1f}s")
+    # print()
 
-        print("RESULTS BY STATUS:")
+    # print("RESULTS BY STATUS:")
         for status, count in summary["results_by_status"].items():
             percentage = (count / summary['total_tests'] * 100) if summary['total_tests'] > 0 else 0
-            print(f"  {status}: {count} ({percentage:.1f}%)")
-        print()
+    # print(f"  {status}: {count} ({percentage:.1f}%)")
+    # print()
 
-        print("RESULTS BY CATEGORY:")
+    # print("RESULTS BY CATEGORY:")
         for category, count in summary["results_by_category"].items():
             percentage = (count / summary['total_tests'] * 100) if summary['total_tests'] > 0 else 0
-            print(f"  {category.upper()}: {count} ({percentage:.1f}%)")
-        print()
+    # print(f"  {category.upper()}: {count} ({percentage:.1f}%)")
+    # print()
 
         if summary["results_by_status"]["FAIL"] > 0 or summary["results_by_status"]["ERROR"] > 0:
-            print("FAILURE SEVERITY BREAKDOWN:")
+    # print("FAILURE SEVERITY BREAKDOWN:")
             for severity, count in summary["failure_severity"].items():
                 if count > 0:
-                    print(f"  {severity.upper()}: {count}")
-            print()
+    # print(f"  {severity.upper()}: {count}")
+    # print()
 
         # Print key recommendations
         recommendations = report["recommendations"]
         if recommendations:
-            print("KEY RECOMMENDATIONS:")
+    # print("KEY RECOMMENDATIONS:")
             for i, rec in enumerate(recommendations[:5], 1):
-                print(f"  {i}. {rec}")
-            print()
+    # print(f"  {i}. {rec}")
+    # print()
 
-        print("=" * 70)
+    # print("=" * 70)
 
     def _collect_environment_info(self) -> Dict[str, Any]:
         """Collect environment information"""
@@ -348,7 +348,7 @@ class TestAuthenticationComprehensive:
 
     async def _run_unit_tests(self, env):
         """Execute unit tests"""
-        print("\n🧪 Running Unit Tests...")
+    # print("\n🧪 Running Unit Tests...")
 
         # Test 1: User Registration Validation
         start_time = time.time()
@@ -456,7 +456,7 @@ class TestAuthenticationComprehensive:
 
     async def _run_integration_tests(self, env):
         """Execute integration tests"""
-        print("\n🔄 Running Integration Tests...")
+    # print("\n🔄 Running Integration Tests...")
 
         # Test 1: Complete Registration Flow
         start_time = time.time()
@@ -554,7 +554,7 @@ class TestAuthenticationComprehensive:
 
     async def _run_security_tests(self, env):
         """Execute security tests"""
-        print("\n🛡️ Running Security Tests...")
+    # print("\n🛡️ Running Security Tests...")
 
         # Test 1: SQL Injection Protection
         start_time = time.time()
@@ -652,7 +652,7 @@ class TestAuthenticationComprehensive:
 
     async def _run_performance_tests(self, env):
         """Execute performance tests"""
-        print("\n⚡ Running Performance Tests...")
+    # print("\n⚡ Running Performance Tests...")
 
         # Test 1: Registration Performance
         start_time = time.time()
@@ -765,7 +765,7 @@ class TestAuthenticationComprehensive:
 
     async def _run_end_to_end_tests(self, env):
         """Execute end-to-end tests"""
-        print("\n🌐 Running End-to-End Tests...")
+    # print("\n🌐 Running End-to-End Tests...")
 
         # Test 1: Complete User Journey
         start_time = time.time()
@@ -839,8 +839,8 @@ class TestAuthenticationComprehensive:
 
 
 if __name__ == "__main__":
-    print("🎯 Running Comprehensive Authentication Test Suite")
-    print("=" * 70)
+    # print("🎯 Running Comprehensive Authentication Test Suite")
+    # print("=" * 70)
 
     pytest.main([
         __file__,

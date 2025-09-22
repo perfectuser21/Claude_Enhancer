@@ -226,7 +226,7 @@ def pre_tool_use_hook(tool_name: str, params: dict) -> Optional[dict]:
 
     if result and result.get("action") == "redirect":
         # 输出重定向信息
-        print(result["message"])
+    # print(result["message"])
         # 返回修改后的参数，强制执行
         return {"modified": True, "instructions": result}
 
@@ -247,7 +247,7 @@ def post_tool_use_hook(tool_name: str, result: any) -> Optional[dict]:
                     {"agents_executed": enforcer.current_execution_agents}
                 )
                 if next_phase_info:
-                    print(next_phase_info["message"])
+    # print(next_phase_info["message"])
 
     return None
 
@@ -257,15 +257,15 @@ if __name__ == "__main__":
     enforcer = PhaseEnforcer()
 
     # 模拟任务开始
-    print("测试阶段强制执行...")
+    # print("测试阶段强制执行...")
     result = enforcer.intercept_tool_use("Task", {"prompt": "实现用户认证系统"})
 
     if result:
-        print(result["message"])
-        print(f"\n需要的agents: {result.get('agents_required')}")
+    # print(result["message"])
+    # print(f"\n需要的agents: {result.get('agents_required')}")
 
     # 模拟阶段完成
-    print("\n模拟阶段完成...")
+    # print("\n模拟阶段完成...")
     completion = enforcer.handle_phase_completion({"test": "results"})
     if completion:
-        print(completion["message"])
+    # print(completion["message"])

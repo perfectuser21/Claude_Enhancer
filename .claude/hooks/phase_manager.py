@@ -126,7 +126,9 @@ class PhaseManager:
         self.current_phase = None
         self.phase_history = []
         self.context_pool = {}
-        self.state_file = "/home/xx/dev/Claude Enhancer/.claude_enhancer/phase_state.json"
+        self.state_file = (
+            "/home/xx/dev/Claude Enhancer/.claude_enhancer/phase_state.json"
+        )
         self.load_state()
 
     def detect_task_type(self, user_request: str) -> bool:
@@ -334,7 +336,7 @@ class PhaseManager:
                 self.phase_history = state.get("phase_history", [])
                 self.context_pool = state.get("context_pool", {})
             except Exception as e:
-                print(f"加载状态失败: {e}")
+                # print(f"加载状态失败: {e}")
                 self.reset_phases()
 
     def generate_phase_summary(self) -> str:

@@ -23,15 +23,19 @@ import uuid
 
 logger = logging.getLogger(__name__)
 
+
 class TaskPriority(Enum):
     """任务优先级"""
+
     LOW = 1
     NORMAL = 2
     HIGH = 3
     CRITICAL = 4
 
+
 class TaskStatus(Enum):
     """任务状态"""
+
     PENDING = "pending"
     PROCESSING = "processing"
     COMPLETED = "completed"
@@ -39,9 +43,11 @@ class TaskStatus(Enum):
     RETRYING = "retrying"
     CANCELLED = "cancelled"
 
+
 @dataclass
 class Task:
     """异步任务"""
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     name: str = ""
     func: Callable = None
@@ -59,9 +65,11 @@ class Task:
     error: Optional[str] = None
     result: Any = None
 
+
 @dataclass
 class ProcessorConfig:
     """异步处理器配置"""
+
     max_workers: int = 10
     max_queue_size: int = 1000
     worker_timeout: float = 300.0  # 5分钟
@@ -85,6 +93,7 @@ class ProcessorConfig:
     api_timeout: float = 30.0
     api_retries: int = 3
 
+
 class AsyncProcessor:
     """异步后台处理器 - 企业级异步任务处理系统"""
 
@@ -95,12 +104,12 @@ class AsyncProcessor:
         self.workers: List[asyncio.Task] = []
         self.running = False
         self.stats = {
-            'total_tasks': 0,
-            'completed_tasks': 0,
-            'failed_tasks': 0,
-            'retried_tasks': 0,
-            'avg_processing_time': 0.0,
-            'active_workers': 0
+            "total_tasks": 0,
+            "completed_tasks": 0,
+            "failed_tasks": 0,
+            "retried_tasks": 0,
+            "avg_processing_time": 0.0,
+            "active_workers": 0,
         }
         self._lock = asyncio.Lock()
         self.rabbitmq_connection = None
@@ -130,13 +139,19 @@ class AsyncProcessor:
     async def _setup_rabbitmq(self):
         """设置RabbitMQ连接"""
         try:
-            self.rabbitmq_connection = await aio_pika.connect_robust(self.config.rabbitmq_url)
+            self.rabbitmq_connection = await aio_pika.connect_robust(
+                self.config.rabbitmq_url
+            )
             self.rabbitmq_channel = await self.rabbitmq_connection.channel()
 
             # 声明队列
-            await self.rabbitmq_channel.declare_queue("perfect21.notifications", durable=True)
+            await self.rabbitmq_channel.declare_queue(
+                "perfect21.notifications", durable=True
+            )
             await self.rabbitmq_channel.declare_queue("perfect21.emails", durable=True)
-            await self.rabbitmq_channel.declare_queue("perfect21.webhooks", durable=True)
+            await self.rabbitmq_channel.declare_queue(
+                "perfect21.webhooks", durable=True
+            )
 
             logger.info("✅ RabbitMQ连接建立成功")
 
@@ -157,24 +172,23 @@ class AsyncProcessor:
             try:
                 # 获取任务（按优先级）
                 priority, task = await asyncio.wait_for(
-                    self.pending_queue.get(),
-                    timeout=1.0
+                    self.pending_queue.get(), timeout=1.0
                 )
 
-                self.stats['active_workers'] += 1
+                self.stats["active_workers"] += 1
 
                 # 处理任务
                 await self._process_task(task, worker_name)
 
                 self.pending_queue.task_done()
-                self.stats['active_workers'] -= 1
+                self.stats["active_workers"] -= 1
 
             except asyncio.TimeoutError:
                 # 队列为空，继续等待
                 continue
             except Exception as e:
                 logger.error(f"❌ 工作进程 {worker_name} 错误: {e}")
-                self.stats['active_workers'] -= 1
+                self.stats["active_workers"] -= 1
                 await asyncio.sleep(1)
 
     async def _process_task(self, task: Task, worker_name: str):
@@ -189,8 +203,7 @@ class AsyncProcessor:
             # 执行任务（带超时）
             if task.timeout:
                 task.result = await asyncio.wait_for(
-                    task.func(*task.args, **task.kwargs),
-                    timeout=task.timeout
+                    task.func(*task.args, **task.kwargs), timeout=task.timeout
                 )
             else:
                 task.result = await task.func(*task.args, **task.kwargs)
@@ -200,14 +213,14 @@ class AsyncProcessor:
             task.completed_at = datetime.now()
 
             processing_time = time.time() - start_time
-            self.stats['completed_tasks'] += 1
+            self.stats["completed_tasks"] += 1
 
             # 更新平均处理时间
-            total_completed = self.stats['completed_tasks']
-            self.stats['avg_processing_time'] = (
-                (self.stats['avg_processing_time'] * (total_completed - 1) + processing_time) /
-                total_completed
-            )
+            total_completed = self.stats["completed_tasks"]
+            self.stats["avg_processing_time"] = (
+                self.stats["avg_processing_time"] * (total_completed - 1)
+                + processing_time
+            ) / total_completed
 
             logger.debug(f"✅ 任务完成: {task.name} - 耗时: {processing_time:.2f}s")
 
@@ -237,13 +250,13 @@ class AsyncProcessor:
             logger.info(f"🔄 任务重试: {task.name} - 第{task.retries}次重试，延迟{delay}s")
 
             asyncio.create_task(self._schedule_retry(task, delay))
-            self.stats['retried_tasks'] += 1
+            self.stats["retried_tasks"] += 1
 
         else:
             # 重试次数用尽，标记为失败
             task.status = TaskStatus.FAILED
             task.completed_at = datetime.now()
-            self.stats['failed_tasks'] += 1
+            self.stats["failed_tasks"] += 1
 
             logger.error(f"💀 任务最终失败: {task.name} - 已重试{task.retries}次")
 
@@ -265,41 +278,56 @@ class AsyncProcessor:
             priority = -task.priority.value  # 负值使得高优先级在前
             await self.pending_queue.put((priority, task))
 
-            self.stats['total_tasks'] += 1
+            self.stats["total_tasks"] += 1
 
-            logger.debug(f"📝 任务已入队: {task.name} (ID: {task.id}, 优先级: {task.priority.name})")
+            logger.debug(
+                f"📝 任务已入队: {task.name} (ID: {task.id}, 优先级: {task.priority.name})"
+            )
 
             return task.id
 
-    async def submit_email_task(self, to_emails: List[str], subject: str,
-                              body: str, is_html: bool = False,
-                              priority: TaskPriority = TaskPriority.NORMAL) -> str:
+    async def submit_email_task(
+        self,
+        to_emails: List[str],
+        subject: str,
+        body: str,
+        is_html: bool = False,
+        priority: TaskPriority = TaskPriority.NORMAL,
+    ) -> str:
         """提交邮件发送任务"""
         task = Task(
             name=f"send_email",
             func=self._send_email,
             args=(to_emails, subject, body, is_html),
             priority=priority,
-            timeout=30.0
+            timeout=30.0,
         )
         return await self.add_task(task)
 
-    async def submit_notification_task(self, user_id: str, message: str,
-                                     notification_type: str = "info",
-                                     priority: TaskPriority = TaskPriority.NORMAL) -> str:
+    async def submit_notification_task(
+        self,
+        user_id: str,
+        message: str,
+        notification_type: str = "info",
+        priority: TaskPriority = TaskPriority.NORMAL,
+    ) -> str:
         """提交通知任务"""
         task = Task(
             name=f"send_notification",
             func=self._send_notification,
             args=(user_id, message, notification_type),
             priority=priority,
-            timeout=10.0
+            timeout=10.0,
         )
         return await self.add_task(task)
 
-    async def submit_webhook_task(self, url: str, payload: dict,
-                                headers: Optional[dict] = None,
-                                priority: TaskPriority = TaskPriority.NORMAL) -> str:
+    async def submit_webhook_task(
+        self,
+        url: str,
+        payload: dict,
+        headers: Optional[dict] = None,
+        priority: TaskPriority = TaskPriority.NORMAL,
+    ) -> str:
         """提交Webhook调用任务"""
         task = Task(
             name=f"webhook",
@@ -307,15 +335,20 @@ class AsyncProcessor:
             args=(url, payload, headers or {}),
             priority=priority,
             timeout=self.config.api_timeout,
-            max_retries=self.config.api_retries
+            max_retries=self.config.api_retries,
         )
         return await self.add_task(task)
 
-    async def submit_custom_task(self, func: Callable, *args,
-                               name: str = None,
-                               priority: TaskPriority = TaskPriority.NORMAL,
-                               timeout: Optional[float] = None,
-                               max_retries: int = 3, **kwargs) -> str:
+    async def submit_custom_task(
+        self,
+        func: Callable,
+        *args,
+        name: str = None,
+        priority: TaskPriority = TaskPriority.NORMAL,
+        timeout: Optional[float] = None,
+        max_retries: int = 3,
+        **kwargs,
+    ) -> str:
         """提交自定义任务"""
         task = Task(
             name=name or func.__name__,
@@ -324,23 +357,28 @@ class AsyncProcessor:
             kwargs=kwargs,
             priority=priority,
             timeout=timeout,
-            max_retries=max_retries
+            max_retries=max_retries,
         )
         return await self.add_task(task)
 
-    async def _send_email(self, to_emails: List[str], subject: str,
-                         body: str, is_html: bool = False):
+    async def _send_email(
+        self, to_emails: List[str], subject: str, body: str, is_html: bool = False
+    ):
         """发送邮件"""
         try:
             # 创建邮件消息
-            msg = MIMEMultipart('alternative') if is_html else MIMEText(body, 'plain', 'utf-8')
-            msg['Subject'] = subject
-            msg['From'] = self.config.email_from
-            msg['To'] = ', '.join(to_emails)
+            msg = (
+                MIMEMultipart("alternative")
+                if is_html
+                else MIMEText(body, "plain", "utf-8")
+            )
+            msg["Subject"] = subject
+            msg["From"] = self.config.email_from
+            msg["To"] = ", ".join(to_emails)
 
             if is_html:
-                text_part = MIMEText(body, 'plain', 'utf-8')
-                html_part = MIMEText(body, 'html', 'utf-8')
+                text_part = MIMEText(body, "plain", "utf-8")
+                html_part = MIMEText(body, "html", "utf-8")
                 msg.attach(text_part)
                 msg.attach(html_part)
 
@@ -360,15 +398,17 @@ class AsyncProcessor:
             logger.error(f"❌ 邮件发送失败: {e}")
             raise
 
-    async def _send_notification(self, user_id: str, message: str, notification_type: str):
+    async def _send_notification(
+        self, user_id: str, message: str, notification_type: str
+    ):
         """发送通知"""
         try:
             notification_data = {
-                'user_id': user_id,
-                'message': message,
-                'type': notification_type,
-                'timestamp': datetime.now().isoformat(),
-                'id': str(uuid.uuid4())
+                "user_id": user_id,
+                "message": message,
+                "type": notification_type,
+                "timestamp": datetime.now().isoformat(),
+                "id": str(uuid.uuid4()),
             }
 
             # 发送到消息队列
@@ -376,9 +416,9 @@ class AsyncProcessor:
                 await self.rabbitmq_channel.default_exchange.publish(
                     aio_pika.Message(
                         json.dumps(notification_data).encode(),
-                        delivery_mode=aio_pika.DeliveryMode.PERSISTENT
+                        delivery_mode=aio_pika.DeliveryMode.PERSISTENT,
                     ),
-                    routing_key="perfect21.notifications"
+                    routing_key="perfect21.notifications",
                 )
 
             logger.info(f"🔔 通知发送成功 - 用户: {user_id}, 类型: {notification_type}")
@@ -397,10 +437,10 @@ class AsyncProcessor:
                     url,
                     json=payload,
                     headers={
-                        'Content-Type': 'application/json',
-                        'User-Agent': 'Perfect21-AsyncProcessor/1.0',
-                        **headers
-                    }
+                        "Content-Type": "application/json",
+                        "User-Agent": "Perfect21-AsyncProcessor/1.0",
+                        **headers,
+                    },
                 ) as response:
                     response_text = await response.text()
 
@@ -432,12 +472,12 @@ class AsyncProcessor:
     async def get_queue_status(self) -> Dict[str, Any]:
         """获取队列状态"""
         return {
-            'queue_size': self.pending_queue.qsize(),
-            'max_queue_size': self.config.max_queue_size,
-            'active_workers': self.stats['active_workers'],
-            'max_workers': self.config.max_workers,
-            'total_tasks': len(self.tasks),
-            'stats': self.stats.copy()
+            "queue_size": self.pending_queue.qsize(),
+            "max_queue_size": self.config.max_queue_size,
+            "active_workers": self.stats["active_workers"],
+            "max_workers": self.config.max_workers,
+            "total_tasks": len(self.tasks),
+            "stats": self.stats.copy(),
         }
 
     async def _health_monitor(self):
@@ -464,7 +504,9 @@ class AsyncProcessor:
                 # 检查队列健康状态
                 queue_size = self.pending_queue.qsize()
                 if queue_size > self.config.max_queue_size * 0.8:
-                    logger.warning(f"⚠️ 队列接近满载: {queue_size}/{self.config.max_queue_size}")
+                    logger.warning(
+                        f"⚠️ 队列接近满载: {queue_size}/{self.config.max_queue_size}"
+                    )
 
             except Exception as e:
                 logger.error(f"❌ 健康监控失败: {e}")
@@ -494,12 +536,22 @@ class AsyncProcessor:
             try:
                 await asyncio.sleep(self.config.cleanup_interval)
 
-                cutoff_time = datetime.now() - timedelta(hours=self.config.task_retention_hours)
+                cutoff_time = datetime.now() - timedelta(
+                    hours=self.config.task_retention_hours
+                )
                 tasks_to_remove = []
 
                 for task_id, task in self.tasks.items():
-                    if (task.completed_at and task.completed_at < cutoff_time and
-                        task.status in [TaskStatus.COMPLETED, TaskStatus.FAILED, TaskStatus.CANCELLED]):
+                    if (
+                        task.completed_at
+                        and task.completed_at < cutoff_time
+                        and task.status
+                        in [
+                            TaskStatus.COMPLETED,
+                            TaskStatus.FAILED,
+                            TaskStatus.CANCELLED,
+                        ]
+                    ):
                         tasks_to_remove.append(task_id)
 
                 for task_id in tasks_to_remove:
@@ -514,9 +566,9 @@ class AsyncProcessor:
     async def health_check(self) -> bool:
         """健康检查"""
         return (
-            self.running and
-            len([w for w in self.workers if not w.done()]) > 0 and
-            self.pending_queue.qsize() < self.config.max_queue_size
+            self.running
+            and len([w for w in self.workers if not w.done()]) > 0
+            and self.pending_queue.qsize() < self.config.max_queue_size
         )
 
     async def shutdown(self):
@@ -543,27 +595,34 @@ class AsyncProcessor:
 
         logger.info("✅ 异步处理器已关闭")
 
-def async_task(priority: TaskPriority = TaskPriority.NORMAL,
-               timeout: Optional[float] = None,
-               max_retries: int = 3):
+
+def async_task(
+    priority: TaskPriority = TaskPriority.NORMAL,
+    timeout: Optional[float] = None,
+    max_retries: int = 3,
+):
     """异步任务装饰器"""
+
     def decorator(func):
         @wraps(func)
         async def wrapper(*args, processor: AsyncProcessor = None, **kwargs):
             if processor:
                 return await processor.submit_custom_task(
-                    func, *args,
+                    func,
+                    *args,
                     name=func.__name__,
                     priority=priority,
                     timeout=timeout,
                     max_retries=max_retries,
-                    **kwargs
+                    **kwargs,
                 )
             else:
                 return await func(*args, **kwargs)
 
         return wrapper
+
     return decorator
+
 
 # 使用示例
 @async_task(priority=TaskPriority.HIGH, timeout=60.0)
@@ -574,6 +633,7 @@ async def process_user_registration(user_id: str, email: str):
     # 初始化用户设置
     await asyncio.sleep(1)  # 模拟处理时间
     return f"用户 {user_id} 注册处理完成"
+
 
 @async_task(priority=TaskPriority.NORMAL)
 async def generate_report(report_type: str, params: dict):

@@ -24,6 +24,7 @@ import string
 
 class UserRole(Enum):
     """User roles for testing"""
+
     ADMIN = "admin"
     USER = "user"
     MODERATOR = "moderator"
@@ -32,6 +33,7 @@ class UserRole(Enum):
 
 class TestScenario(Enum):
     """Test scenario types"""
+
     HAPPY_PATH = "happy_path"
     ERROR_CASE = "error_case"
     EDGE_CASE = "edge_case"
@@ -42,6 +44,7 @@ class TestScenario(Enum):
 @dataclass
 class TestUser:
     """Test user data structure"""
+
     email: str
     password: str
     first_name: str
@@ -69,7 +72,7 @@ class TestUser:
             "is_active": self.is_active,
             "mfa_enabled": self.mfa_enabled,
             "terms_accepted": self.terms_accepted,
-            "created_at": self.created_at.isoformat() if self.created_at else None
+            "created_at": self.created_at.isoformat() if self.created_at else None,
         }
 
 
@@ -80,7 +83,7 @@ class TestDataGenerator:
     def generate_email(prefix: str = "test", domain: str = "example.com") -> str:
         """Generate unique test email"""
         timestamp = int(time.time() * 1000)
-        random_suffix = ''.join(random.choices(string.ascii_lowercase, k=4))
+        random_suffix = "".join(random.choices(string.ascii_lowercase, k=4))
         return f"{prefix}_{timestamp}_{random_suffix}@{domain}"
 
     @staticmethod
@@ -89,7 +92,7 @@ class TestDataGenerator:
         include_uppercase: bool = True,
         include_lowercase: bool = True,
         include_digits: bool = True,
-        include_special: bool = True
+        include_special: bool = True,
     ) -> str:
         """Generate test password with specified complexity"""
         chars = ""
@@ -106,7 +109,7 @@ class TestDataGenerator:
         if not chars:
             raise ValueError("At least one character type must be included")
 
-        password = ''.join(random.choices(chars, k=length))
+        password = "".join(random.choices(chars, k=length))
 
         # Ensure at least one character from each selected type
         requirements = []
@@ -125,13 +128,13 @@ class TestDataGenerator:
             if i < len(password_list):
                 password_list[i] = req_char
 
-        return ''.join(password_list)
+        return "".join(password_list)
 
     @staticmethod
     def generate_user(
         role: UserRole = UserRole.USER,
         scenario: TestScenario = TestScenario.HAPPY_PATH,
-        **kwargs
+        **kwargs,
     ) -> TestUser:
         """Generate test user based on scenario"""
 
@@ -143,7 +146,7 @@ class TestDataGenerator:
                 last_name="User",
                 phone=f"+1{random.randint(1000000000, 9999999999)}",
                 role=role,
-                **kwargs
+                **kwargs,
             )
 
         elif scenario == TestScenario.ERROR_CASE:
@@ -154,7 +157,7 @@ class TestDataGenerator:
                 last_name="",
                 role=role,
                 is_active=False,  # Inactive user
-                **kwargs
+                **kwargs,
             )
 
         elif scenario == TestScenario.EDGE_CASE:
@@ -165,7 +168,7 @@ class TestDataGenerator:
                 last_name="B" * 50,
                 phone="+1" + "9" * 15,  # Very long phone
                 role=role,
-                **kwargs
+                **kwargs,
             )
 
         elif scenario == TestScenario.SECURITY_TEST:
@@ -175,7 +178,7 @@ class TestDataGenerator:
                 first_name="'; DROP TABLE users; --",
                 last_name="<img src=x onerror=alert('xss')>",
                 role=role,
-                **kwargs
+                **kwargs,
             )
 
         else:
@@ -185,23 +188,22 @@ class TestDataGenerator:
                 first_name="Test",
                 last_name="User",
                 role=role,
-                **kwargs
+                **kwargs,
             )
 
     @staticmethod
     def generate_users_batch(
         count: int,
         role: UserRole = UserRole.USER,
-        scenario: TestScenario = TestScenario.HAPPY_PATH
+        scenario: TestScenario = TestScenario.HAPPY_PATH,
     ) -> List[TestUser]:
         """Generate batch of test users"""
-        return [
-            TestDataGenerator.generate_user(role, scenario)
-            for _ in range(count)
-        ]
+        return [TestDataGenerator.generate_user(role, scenario) for _ in range(count)]
 
     @staticmethod
-    def generate_device_info(scenario: TestScenario = TestScenario.HAPPY_PATH) -> Dict[str, Any]:
+    def generate_device_info(
+        scenario: TestScenario = TestScenario.HAPPY_PATH,
+    ) -> Dict[str, Any]:
         """Generate device information for testing"""
 
         if scenario == TestScenario.HAPPY_PATH:
@@ -210,7 +212,7 @@ class TestDataGenerator:
                 "platform": "Win32",
                 "screen_resolution": "1920x1080",
                 "timezone": "America/New_York",
-                "language": "en-US"
+                "language": "en-US",
             }
 
         elif scenario == TestScenario.EDGE_CASE:
@@ -219,7 +221,7 @@ class TestDataGenerator:
                 "platform": "Unknown",
                 "screen_resolution": "99999x99999",
                 "timezone": "Invalid/Timezone",
-                "language": "xx-XX"
+                "language": "xx-XX",
             }
 
         elif scenario == TestScenario.SECURITY_TEST:
@@ -228,7 +230,7 @@ class TestDataGenerator:
                 "platform": "'; DROP TABLE devices; --",
                 "screen_resolution": "../../../etc/passwd",
                 "timezone": "$(whoami)",
-                "language": "|cat /etc/shadow"
+                "language": "|cat /etc/shadow",
             }
 
         else:
@@ -237,7 +239,7 @@ class TestDataGenerator:
                 "platform": "TestPlatform",
                 "screen_resolution": "800x600",
                 "timezone": "UTC",
-                "language": "en"
+                "language": "en",
             }
 
 
@@ -255,7 +257,7 @@ class MockJWTService:
         user_id: str,
         email: str,
         permissions: List[str] = None,
-        expires_in: int = 3600
+        expires_in: int = 3600,
     ) -> str:
         """Generate JWT token"""
         import jwt
@@ -267,7 +269,7 @@ class MockJWTService:
             "permissions": permissions or [],
             "iat": int(now.timestamp()),
             "exp": int((now + timedelta(seconds=expires_in)).timestamp()),
-            "jti": secrets.token_urlsafe(16)
+            "jti": secrets.token_urlsafe(16),
         }
 
         token = jwt.encode(payload, self.secret, algorithm=self.algorithm)
@@ -299,7 +301,7 @@ class MockJWTService:
                 token,
                 self.secret,
                 algorithms=[self.algorithm],
-                options={"verify_exp": False}
+                options={"verify_exp": False},
             )
             jti = payload.get("jti")
             if jti:
@@ -314,7 +316,7 @@ class MockJWTService:
         return {
             "total_tokens": len(self.tokens),
             "blacklisted_tokens": len(self.blacklist),
-            "active_tokens": len(self.tokens) - len(self.blacklist)
+            "active_tokens": len(self.tokens) - len(self.blacklist),
         }
 
 
@@ -330,13 +332,15 @@ class MockEmailService:
         if email in self.delivery_failures:
             return False
 
-        self.sent_emails.append({
-            "type": "verification",
-            "to": email,
-            "token": token,
-            "sent_at": datetime.utcnow(),
-            "template": "email_verification"
-        })
+        self.sent_emails.append(
+            {
+                "type": "verification",
+                "to": email,
+                "token": token,
+                "sent_at": datetime.utcnow(),
+                "template": "email_verification",
+            }
+        )
         return True
 
     async def send_password_reset_email(self, email: str, token: str) -> bool:
@@ -344,35 +348,43 @@ class MockEmailService:
         if email in self.delivery_failures:
             return False
 
-        self.sent_emails.append({
-            "type": "password_reset",
-            "to": email,
-            "token": token,
-            "sent_at": datetime.utcnow(),
-            "template": "password_reset"
-        })
+        self.sent_emails.append(
+            {
+                "type": "password_reset",
+                "to": email,
+                "token": token,
+                "sent_at": datetime.utcnow(),
+                "template": "password_reset",
+            }
+        )
         return True
 
-    async def send_security_alert(self, email: str, alert_type: str, details: Dict[str, Any]) -> bool:
+    async def send_security_alert(
+        self, email: str, alert_type: str, details: Dict[str, Any]
+    ) -> bool:
         """Send security alert email"""
         if email in self.delivery_failures:
             return False
 
-        self.sent_emails.append({
-            "type": "security_alert",
-            "to": email,
-            "alert_type": alert_type,
-            "details": details,
-            "sent_at": datetime.utcnow(),
-            "template": "security_alert"
-        })
+        self.sent_emails.append(
+            {
+                "type": "security_alert",
+                "to": email,
+                "alert_type": alert_type,
+                "details": details,
+                "sent_at": datetime.utcnow(),
+                "template": "security_alert",
+            }
+        )
         return True
 
     def simulate_delivery_failure(self, email: str):
         """Simulate email delivery failure"""
         self.delivery_failures.add(email)
 
-    def get_sent_emails(self, email: str = None, email_type: str = None) -> List[Dict[str, Any]]:
+    def get_sent_emails(
+        self, email: str = None, email_type: str = None
+    ) -> List[Dict[str, Any]]:
         """Get sent emails with optional filtering"""
         emails = self.sent_emails
 
@@ -405,15 +417,17 @@ class MockSMSService:
         self.verification_codes[phone] = {
             "code": code,
             "sent_at": datetime.utcnow(),
-            "attempts": 0
+            "attempts": 0,
         }
 
-        self.sent_messages.append({
-            "to": phone,
-            "code": code,
-            "sent_at": datetime.utcnow(),
-            "message": f"Your verification code is: {code}"
-        })
+        self.sent_messages.append(
+            {
+                "to": phone,
+                "code": code,
+                "sent_at": datetime.utcnow(),
+                "message": f"Your verification code is: {code}",
+            }
+        )
         return True
 
     def verify_code(self, phone: str, code: str) -> Dict[str, Any]:
@@ -457,49 +471,69 @@ def test_data_generator():
     """Provide test data generator"""
     return TestDataGenerator()
 
+
 @pytest.fixture
 def mock_jwt_service():
     """Provide mock JWT service"""
     return MockJWTService()
+
 
 @pytest.fixture
 def mock_email_service():
     """Provide mock email service"""
     return MockEmailService()
 
+
 @pytest.fixture
 def mock_sms_service():
     """Provide mock SMS service"""
     return MockSMSService()
 
+
 @pytest.fixture
 def comprehensive_test_users(test_data_generator):
     """Generate comprehensive set of test users for various scenarios"""
     return {
-        "valid_users": test_data_generator.generate_users_batch(10, UserRole.USER, TestScenario.HAPPY_PATH),
-        "admin_users": test_data_generator.generate_users_batch(3, UserRole.ADMIN, TestScenario.HAPPY_PATH),
-        "edge_case_users": test_data_generator.generate_users_batch(5, UserRole.USER, TestScenario.EDGE_CASE),
-        "security_test_users": test_data_generator.generate_users_batch(5, UserRole.USER, TestScenario.SECURITY_TEST),
-        "error_case_users": test_data_generator.generate_users_batch(5, UserRole.USER, TestScenario.ERROR_CASE)
+        "valid_users": test_data_generator.generate_users_batch(
+            10, UserRole.USER, TestScenario.HAPPY_PATH
+        ),
+        "admin_users": test_data_generator.generate_users_batch(
+            3, UserRole.ADMIN, TestScenario.HAPPY_PATH
+        ),
+        "edge_case_users": test_data_generator.generate_users_batch(
+            5, UserRole.USER, TestScenario.EDGE_CASE
+        ),
+        "security_test_users": test_data_generator.generate_users_batch(
+            5, UserRole.USER, TestScenario.SECURITY_TEST
+        ),
+        "error_case_users": test_data_generator.generate_users_batch(
+            5, UserRole.USER, TestScenario.ERROR_CASE
+        ),
     }
+
 
 @pytest.fixture
 def device_info_scenarios(test_data_generator):
     """Generate device info for various test scenarios"""
     return {
-        "normal_device": test_data_generator.generate_device_info(TestScenario.HAPPY_PATH),
-        "suspicious_device": test_data_generator.generate_device_info(TestScenario.SECURITY_TEST),
-        "edge_case_device": test_data_generator.generate_device_info(TestScenario.EDGE_CASE)
+        "normal_device": test_data_generator.generate_device_info(
+            TestScenario.HAPPY_PATH
+        ),
+        "suspicious_device": test_data_generator.generate_device_info(
+            TestScenario.SECURITY_TEST
+        ),
+        "edge_case_device": test_data_generator.generate_device_info(
+            TestScenario.EDGE_CASE
+        ),
     }
+
 
 @pytest.fixture
 async def integrated_test_environment(
-    mock_jwt_service,
-    mock_email_service,
-    mock_sms_service,
-    test_database
+    mock_jwt_service, mock_email_service, mock_sms_service, test_database
 ):
     """Provide integrated test environment with all services"""
+
     class IntegratedTestEnvironment:
         def __init__(self):
             self.jwt_service = mock_jwt_service
@@ -518,18 +552,19 @@ async def integrated_test_environment(
             # Send verification email
             verification_token = secrets.token_urlsafe(32)
             email_sent = await self.email_service.send_verification_email(
-                user_data["email"],
-                verification_token
+                user_data["email"], verification_token
             )
 
             return {
                 "success": True,
                 "user_id": hash(user_data["email"]),
                 "verification_token": verification_token,
-                "email_sent": email_sent
+                "email_sent": email_sent,
             }
 
-        async def login_user(self, email: str, password: str, device_info: Dict[str, Any] = None) -> Dict[str, Any]:
+        async def login_user(
+            self, email: str, password: str, device_info: Dict[str, Any] = None
+        ) -> Dict[str, Any]:
             """Complete user login flow"""
             # Get user from database
             user = await self.database.get_user(email)
@@ -542,27 +577,24 @@ async def integrated_test_environment(
 
             # Generate JWT token
             token = self.jwt_service.generate_token(
-                user_id=str(hash(email)),
-                email=email,
-                permissions=["read", "write"]
+                user_id=str(hash(email)), email=email, permissions=["read", "write"]
             )
 
             # Create session
-            session_id = await self.database.create_session({
-                "user_email": email,
-                "token": token,
-                "device_info": device_info or {},
-                "created_at": datetime.utcnow()
-            })
+            session_id = await self.database.create_session(
+                {
+                    "user_email": email,
+                    "token": token,
+                    "device_info": device_info or {},
+                    "created_at": datetime.utcnow(),
+                }
+            )
 
             return {
                 "success": True,
                 "token": token,
                 "session_id": session_id,
-                "user": {
-                    "email": email,
-                    "id": str(hash(email))
-                }
+                "user": {"email": email, "id": str(hash(email))},
             }
 
         async def verify_token(self, token: str) -> Dict[str, Any]:
@@ -575,12 +607,12 @@ async def integrated_test_environment(
                 "jwt_service": self.jwt_service.get_token_stats(),
                 "email_service": {
                     "total_sent": len(self.email_service.sent_emails),
-                    "delivery_failures": len(self.email_service.delivery_failures)
+                    "delivery_failures": len(self.email_service.delivery_failures),
                 },
                 "sms_service": {
                     "total_sent": len(self.sms_service.sent_messages),
-                    "delivery_failures": len(self.sms_service.delivery_failures)
-                }
+                    "delivery_failures": len(self.sms_service.delivery_failures),
+                },
             }
 
     env = IntegratedTestEnvironment()

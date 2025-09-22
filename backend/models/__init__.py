@@ -24,15 +24,15 @@ from .session import Session
 from .audit import AuditLog
 
 __all__ = [
-    'Base',
-    'TimestampMixin',
-    'SoftDeleteMixin',
-    'User',
-    'Session',
-    'AuditLog',
+    "Base",
+    "TimestampMixin",
+    "SoftDeleteMixin",
+    "User",
+    "Session",
+    "AuditLog",
 ]
 
 # 版本信息
-__version__ = '1.0.0'
-__author__ = 'Perfect21 Team'
-__description__ = 'SQLAlchemy ORM模型层 - 提供完整的数据模型定义'
+__version__ = "1.0.0"
+__author__ = "Perfect21 Team"
+__description__ = "SQLAlchemy ORM模型层 - 提供完整的数据模型定义"

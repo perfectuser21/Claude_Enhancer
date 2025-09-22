@@ -14,5 +14,5 @@ __all__ = [
     "RegisterRequest",
     "RefreshTokenRequest",
     "MFAVerificationRequest",
-    "MFAEnableRequest"
+    "MFAEnableRequest",
 ]

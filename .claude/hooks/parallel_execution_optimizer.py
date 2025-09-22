@@ -524,12 +524,12 @@ if __name__ == "__main__":
         if command == "report":
             optimizer = get_execution_optimizer()
             report = optimizer.get_performance_report()
-            print(json.dumps(report, indent=2))
+    # print(json.dumps(report, indent=2))
         elif command == "recommendations":
             optimizer = get_execution_optimizer()
             recommendations = optimizer.get_optimization_recommendations()
             for rec in recommendations:
-                print(f"• {rec}")
+    # print(f"• {rec}")
         elif command == "test":
             # Test optimization
             test_agents = ['backend-architect', 'security-auditor', 'test-engineer']
@@ -540,7 +540,7 @@ if __name__ == "__main__":
             }
 
             result = optimize_agent_execution(test_agents, test_prompts)
-            print("Optimized execution plan:")
-            print(result)
+    # print("Optimized execution plan:")
+    # print(result)
     else:
-        print("Usage: python parallel_execution_optimizer.py [report|recommendations|test]")
+    # print("Usage: python parallel_execution_optimizer.py [report|recommendations|test]")

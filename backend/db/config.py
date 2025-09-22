@@ -40,32 +40,30 @@ class DatabaseConfig(BaseSettings):
     ssl_ca: Optional[str] = None
 
     # 连接池配置
-    pool_size: int = 10              # 连接池大小
-    max_overflow: int = 20           # 最大溢出连接数
-    pool_timeout: int = 30           # 获取连接超时 (秒)
-    pool_recycle: int = 3600         # 连接回收时间 (秒)
-    pool_pre_ping: bool = True       # 连接前ping检查
+    pool_size: int = 10  # 连接池大小
+    max_overflow: int = 20  # 最大溢出连接数
+    pool_timeout: int = 30  # 获取连接超时 (秒)
+    pool_recycle: int = 3600  # 连接回收时间 (秒)
+    pool_pre_ping: bool = True  # 连接前ping检查
 
     # 异步连接池配置
     async_pool_size: int = 20
     async_max_overflow: int = 30
 
     # 查询配置
-    echo: bool = False               # 是否打印SQL语句
-    echo_pool: bool = False          # 是否打印连接池信息
-    query_timeout: int = 30          # 查询超时 (秒)
+    echo: bool = False  # 是否打印SQL语句
+    echo_pool: bool = False  # 是否打印连接池信息
+    query_timeout: int = 30  # 查询超时 (秒)
 
     # 重试配置
-    max_retries: int = 3             # 最大重试次数
-    retry_interval: float = 1.0      # 重试间隔 (秒)
+    max_retries: int = 3  # 最大重试次数
+    retry_interval: float = 1.0  # 重试间隔 (秒)
 
     model_config = SettingsConfigDict(
-        env_prefix="DB_",
-        env_file=".env",
-        case_sensitive=False
+        env_prefix="DB_", env_file=".env", case_sensitive=False
     )
 
-    @validator('password')
+    @validator("password")
     def encode_password(cls, v):
         """URL编码密码中的特殊字符"""
         return quote_plus(v) if v else v
@@ -122,7 +120,7 @@ class DatabaseConfig(BaseSettings):
             "connect_args": {
                 "connect_timeout": self.query_timeout,
                 "command_timeout": self.query_timeout,
-            }
+            },
         }
 
     def get_async_engine_kwargs(self) -> Dict[str, Any]:
@@ -133,10 +131,12 @@ class DatabaseConfig(BaseSettings):
             异步引擎配置字典
         """
         kwargs = self.get_engine_kwargs()
-        kwargs.update({
-            "pool_size": self.async_pool_size,
-            "max_overflow": self.async_max_overflow,
-        })
+        kwargs.update(
+            {
+                "pool_size": self.async_pool_size,
+                "max_overflow": self.async_max_overflow,
+            }
+        )
         return kwargs
 
 
@@ -156,20 +156,20 @@ class CacheConfig(BaseSettings):
 
     # 集群配置
     cluster_enabled: bool = False
-    cluster_nodes: str = ""          # 格式: "host1:port1,host2:port2"
+    cluster_nodes: str = ""  # 格式: "host1:port1,host2:port2"
 
     # 连接池配置
-    max_connections: int = 100       # 最大连接数
+    max_connections: int = 100  # 最大连接数
     max_connections_per_node: int = 50  # 集群模式下每个节点的最大连接数
 
     # 超时配置
-    socket_timeout: float = 5.0      # Socket超时
+    socket_timeout: float = 5.0  # Socket超时
     socket_connect_timeout: float = 5.0  # 连接超时
-    socket_keepalive: bool = True    # 保持连接
+    socket_keepalive: bool = True  # 保持连接
     socket_keepalive_options: Dict[str, Any] = field(default_factory=dict)
 
     # 重试配置
-    retry_on_timeout: bool = True    # 超时重试
+    retry_on_timeout: bool = True  # 超时重试
     health_check_interval: int = 30  # 健康检查间隔 (秒)
 
     # SSL配置
@@ -180,18 +180,16 @@ class CacheConfig(BaseSettings):
     ssl_keyfile: Optional[str] = None
 
     # 序列化配置
-    serializer: str = "json"         # json, pickle, msgpack
-    compression: bool = False        # 是否启用压缩
+    serializer: str = "json"  # json, pickle, msgpack
+    compression: bool = False  # 是否启用压缩
 
     # TTL配置 (秒)
-    default_ttl: int = 3600          # 默认过期时间
-    session_ttl: int = 86400         # 会话缓存过期时间
-    user_ttl: int = 1800            # 用户缓存过期时间
+    default_ttl: int = 3600  # 默认过期时间
+    session_ttl: int = 86400  # 会话缓存过期时间
+    user_ttl: int = 1800  # 用户缓存过期时间
 
     model_config = SettingsConfigDict(
-        env_prefix="REDIS_",
-        env_file=".env",
-        case_sensitive=False
+        env_prefix="REDIS_", env_file=".env", case_sensitive=False
     )
 
     def get_redis_url(self) -> str:
@@ -246,13 +244,15 @@ class CacheConfig(BaseSettings):
             kwargs["password"] = self.password
 
         if self.ssl_enabled:
-            kwargs.update({
-                "ssl": True,
-                "ssl_cert_reqs": self.ssl_cert_reqs,
-                "ssl_ca_certs": self.ssl_ca_certs,
-                "ssl_certfile": self.ssl_certfile,
-                "ssl_keyfile": self.ssl_keyfile,
-            })
+            kwargs.update(
+                {
+                    "ssl": True,
+                    "ssl_cert_reqs": self.ssl_cert_reqs,
+                    "ssl_ca_certs": self.ssl_ca_certs,
+                    "ssl_certfile": self.ssl_certfile,
+                    "ssl_keyfile": self.ssl_keyfile,
+                }
+            )
 
         return kwargs
 
@@ -277,6 +277,7 @@ class CacheConfig(BaseSettings):
 @dataclass
 class ConnectionInfo:
     """连接信息数据类"""
+
     host: str
     port: int
     database: str
@@ -334,7 +335,7 @@ def get_connection_info() -> ConnectionInfo:
         username=db_config.username,
         pool_size=db_config.pool_size,
         max_connections=cache_config.max_connections,
-        ssl_enabled=db_config.ssl_mode != "disable"
+        ssl_enabled=db_config.ssl_mode != "disable",
     )
 
 
@@ -350,11 +351,11 @@ def load_config_from_env() -> tuple[DatabaseConfig, CacheConfig]:
 
 # 导出配置类和函数
 __all__ = [
-    'DatabaseConfig',
-    'CacheConfig',
-    'ConnectionInfo',
-    'get_database_config',
-    'get_cache_config',
-    'get_connection_info',
-    'load_config_from_env'
+    "DatabaseConfig",
+    "CacheConfig",
+    "ConnectionInfo",
+    "get_database_config",
+    "get_cache_config",
+    "get_connection_info",
+    "load_config_from_env",
 ]

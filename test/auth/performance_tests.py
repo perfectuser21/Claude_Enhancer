@@ -22,33 +22,35 @@ import json
 import random
 import string
 
+
 # Performance Test Configuration
 class PerformanceConfig:
     """Configuration for performance tests"""
 
     # Load Test Parameters
-    CONCURRENT_USERS_LIGHT = 50        # Light load
-    CONCURRENT_USERS_MEDIUM = 200      # Medium load
-    CONCURRENT_USERS_HEAVY = 500       # Heavy load
-    CONCURRENT_USERS_STRESS = 1000     # Stress test
+    CONCURRENT_USERS_LIGHT = 50  # Light load
+    CONCURRENT_USERS_MEDIUM = 200  # Medium load
+    CONCURRENT_USERS_HEAVY = 500  # Heavy load
+    CONCURRENT_USERS_STRESS = 1000  # Stress test
 
     # Performance Thresholds (milliseconds)
-    REGISTRATION_THRESHOLD_MS = 1000   # Registration should complete within 1s
-    LOGIN_THRESHOLD_MS = 500           # Login should complete within 500ms
-    TOKEN_VALIDATION_THRESHOLD_MS = 100 # Token validation within 100ms
-    PROTECTED_ENDPOINT_THRESHOLD_MS = 200 # Protected endpoints within 200ms
+    REGISTRATION_THRESHOLD_MS = 1000  # Registration should complete within 1s
+    LOGIN_THRESHOLD_MS = 500  # Login should complete within 500ms
+    TOKEN_VALIDATION_THRESHOLD_MS = 100  # Token validation within 100ms
+    PROTECTED_ENDPOINT_THRESHOLD_MS = 200  # Protected endpoints within 200ms
 
     # Throughput Targets
-    MIN_REQUESTS_PER_SECOND = 100      # Minimum RPS
-    TARGET_REQUESTS_PER_SECOND = 500   # Target RPS
+    MIN_REQUESTS_PER_SECOND = 100  # Minimum RPS
+    TARGET_REQUESTS_PER_SECOND = 500  # Target RPS
 
     # Resource Limits
-    MAX_CPU_USAGE_PERCENT = 80         # Maximum CPU usage
-    MAX_MEMORY_USAGE_MB = 512          # Maximum memory usage
+    MAX_CPU_USAGE_PERCENT = 80  # Maximum CPU usage
+    MAX_MEMORY_USAGE_MB = 512  # Maximum memory usage
 
     # Test Duration
-    LOAD_TEST_DURATION_SECONDS = 60    # Load test duration
-    STRESS_TEST_DURATION_SECONDS = 120 # Stress test duration
+    LOAD_TEST_DURATION_SECONDS = 60  # Load test duration
+    STRESS_TEST_DURATION_SECONDS = 120  # Stress test duration
+
 
 class PerformanceMetrics:
     """Collect and analyze performance metrics"""
@@ -92,7 +94,11 @@ class PerformanceMetrics:
             return {}
 
         total_requests = self.success_count + self.error_count
-        duration_seconds = (self.end_time - self.start_time) if self.end_time and self.start_time else 0
+        duration_seconds = (
+            (self.end_time - self.start_time)
+            if self.end_time and self.start_time
+            else 0
+        )
 
         return {
             "response_times": {
@@ -101,22 +107,30 @@ class PerformanceMetrics:
                 "mean_ms": statistics.mean(self.response_times),
                 "median_ms": statistics.median(self.response_times),
                 "p95_ms": self._percentile(self.response_times, 95),
-                "p99_ms": self._percentile(self.response_times, 99)
+                "p99_ms": self._percentile(self.response_times, 99),
             },
             "throughput": {
                 "total_requests": total_requests,
                 "successful_requests": self.success_count,
                 "failed_requests": self.error_count,
-                "success_rate_percent": (self.success_count / total_requests * 100) if total_requests > 0 else 0,
-                "requests_per_second": total_requests / duration_seconds if duration_seconds > 0 else 0
+                "success_rate_percent": (self.success_count / total_requests * 100)
+                if total_requests > 0
+                else 0,
+                "requests_per_second": total_requests / duration_seconds
+                if duration_seconds > 0
+                else 0,
             },
             "system_resources": {
-                "avg_cpu_percent": statistics.mean(self.cpu_usage) if self.cpu_usage else 0,
+                "avg_cpu_percent": statistics.mean(self.cpu_usage)
+                if self.cpu_usage
+                else 0,
                 "max_cpu_percent": max(self.cpu_usage) if self.cpu_usage else 0,
-                "avg_memory_mb": statistics.mean(self.memory_usage) if self.memory_usage else 0,
-                "max_memory_mb": max(self.memory_usage) if self.memory_usage else 0
+                "avg_memory_mb": statistics.mean(self.memory_usage)
+                if self.memory_usage
+                else 0,
+                "max_memory_mb": max(self.memory_usage) if self.memory_usage else 0,
             },
-            "duration_seconds": duration_seconds
+            "duration_seconds": duration_seconds,
         }
 
     def _percentile(self, data: List[float], percentile: int) -> float:
@@ -124,6 +138,7 @@ class PerformanceMetrics:
         sorted_data = sorted(data)
         index = int(len(sorted_data) * percentile / 100)
         return sorted_data[min(index, len(sorted_data) - 1)]
+
 
 # Mock Authentication Service for Performance Testing
 class PerformanceTestService:
@@ -155,7 +170,7 @@ class PerformanceTestService:
                     "id": len(self.users) + 1,
                     "created_at": datetime.utcnow(),
                     "is_active": True,
-                    "failed_attempts": 0
+                    "failed_attempts": 0,
                 }
 
                 return True, (time.time() - start_time) * 1000
@@ -182,7 +197,7 @@ class PerformanceTestService:
                 self.sessions[token] = {
                     "user_email": email,
                     "created_at": datetime.utcnow(),
-                    "expires_at": datetime.utcnow() + timedelta(hours=24)
+                    "expires_at": datetime.utcnow() + timedelta(hours=24),
                 }
 
                 return True, token, (time.time() - start_time) * 1000
@@ -218,8 +233,9 @@ class PerformanceTestService:
             return {
                 "total_users": len(self.users),
                 "active_sessions": len(self.sessions),
-                "total_requests": self.request_count
+                "total_requests": self.request_count,
             }
+
 
 # Test Fixtures
 @pytest.fixture
@@ -227,14 +243,17 @@ async def performance_service():
     """Provide performance test service"""
     return PerformanceTestService()
 
+
 @pytest.fixture
 def performance_config():
     """Provide performance configuration"""
     return PerformanceConfig()
 
+
 # ============================================================================
 # PERFORMANCE TESTS - USER REGISTRATION
 # ============================================================================
+
 
 class TestRegistrationPerformance:
     """Test registration performance under various loads"""
@@ -245,39 +264,45 @@ class TestRegistrationPerformance:
         email = "test@example.com"
         password = "TestPassword123!"
 
-        success, response_time = await performance_service.register_user(email, password)
+        success, response_time = await performance_service.register_user(
+            email, password
+        )
 
         assert success is True
         assert response_time < PerformanceConfig.REGISTRATION_THRESHOLD_MS
 
     @pytest.mark.asyncio
-    async def test_concurrent_registrations_light_load(self, performance_service, performance_config):
+    async def test_concurrent_registrations_light_load(
+        self, performance_service, performance_config
+    ):
         """⚡ Test concurrent registrations - light load"""
         await self._test_concurrent_registrations(
-            performance_service,
-            performance_config.CONCURRENT_USERS_LIGHT,
-            "light_load"
+            performance_service, performance_config.CONCURRENT_USERS_LIGHT, "light_load"
         )
 
     @pytest.mark.asyncio
-    async def test_concurrent_registrations_medium_load(self, performance_service, performance_config):
+    async def test_concurrent_registrations_medium_load(
+        self, performance_service, performance_config
+    ):
         """⚡⚡ Test concurrent registrations - medium load"""
         await self._test_concurrent_registrations(
             performance_service,
             performance_config.CONCURRENT_USERS_MEDIUM,
-            "medium_load"
+            "medium_load",
         )
 
     @pytest.mark.asyncio
-    async def test_concurrent_registrations_heavy_load(self, performance_service, performance_config):
+    async def test_concurrent_registrations_heavy_load(
+        self, performance_service, performance_config
+    ):
         """⚡⚡⚡ Test concurrent registrations - heavy load"""
         await self._test_concurrent_registrations(
-            performance_service,
-            performance_config.CONCURRENT_USERS_HEAVY,
-            "heavy_load"
+            performance_service, performance_config.CONCURRENT_USERS_HEAVY, "heavy_load"
         )
 
-    async def _test_concurrent_registrations(self, service, concurrent_users: int, load_type: str):
+    async def _test_concurrent_registrations(
+        self, service, concurrent_users: int, load_type: str
+    ):
         """Helper method for concurrent registration testing"""
         metrics = PerformanceMetrics()
 
@@ -309,20 +334,26 @@ class TestRegistrationPerformance:
 
         # Assertions
         assert successful_registrations == concurrent_users
-        assert stats["response_times"]["p95_ms"] < PerformanceConfig.REGISTRATION_THRESHOLD_MS * 2
+        assert (
+            stats["response_times"]["p95_ms"]
+            < PerformanceConfig.REGISTRATION_THRESHOLD_MS * 2
+        )
         assert stats["throughput"]["success_rate_percent"] > 95
 
         # Log performance metrics
-        print(f"\n📊 Registration Performance - {load_type.upper()}")
-        print(f"Users: {concurrent_users}")
-        print(f"Success Rate: {stats['throughput']['success_rate_percent']:.1f}%")
-        print(f"Avg Response Time: {stats['response_times']['mean_ms']:.1f}ms")
-        print(f"P95 Response Time: {stats['response_times']['p95_ms']:.1f}ms")
-        print(f"Throughput: {stats['throughput']['requests_per_second']:.1f} req/s")
+
+    # print(f"\n📊 Registration Performance - {load_type.upper()}")
+    # print(f"Users: {concurrent_users}")
+    # print(f"Success Rate: {stats['throughput']['success_rate_percent']:.1f}%")
+    # print(f"Avg Response Time: {stats['response_times']['mean_ms']:.1f}ms")
+    # print(f"P95 Response Time: {stats['response_times']['p95_ms']:.1f}ms")
+    # print(f"Throughput: {stats['throughput']['requests_per_second']:.1f} req/s")
+
 
 # ============================================================================
 # PERFORMANCE TESTS - USER LOGIN
 # ============================================================================
+
 
 class TestLoginPerformance:
     """Test login performance under various loads"""
@@ -337,7 +368,9 @@ class TestLoginPerformance:
         await performance_service.register_user(email, password)
 
         # Test login
-        success, token, response_time = await performance_service.login_user(email, password)
+        success, token, response_time = await performance_service.login_user(
+            email, password
+        )
 
         assert success is True
         assert token != ""
@@ -362,7 +395,9 @@ class TestLoginPerformance:
             email = f"loginuser{user_index}@example.com"
             password = f"LoginPassword{user_index}123!"
 
-            success, token, response_time = await performance_service.login_user(email, password)
+            success, token, response_time = await performance_service.login_user(
+                email, password
+            )
             metrics.add_response_time(response_time, success)
 
             if user_index % 20 == 0:
@@ -379,25 +414,30 @@ class TestLoginPerformance:
         metrics.stop_monitoring()
 
         # Analyze results
-        successful_logins = sum(1 for result in results
-                              if isinstance(result, tuple) and result[0] is True)
+        successful_logins = sum(
+            1 for result in results if isinstance(result, tuple) and result[0] is True
+        )
         stats = metrics.calculate_statistics()
 
         # Assertions
         assert successful_logins == num_users
-        assert stats["response_times"]["p95_ms"] < PerformanceConfig.LOGIN_THRESHOLD_MS * 2
+        assert (
+            stats["response_times"]["p95_ms"] < PerformanceConfig.LOGIN_THRESHOLD_MS * 2
+        )
         assert stats["throughput"]["success_rate_percent"] > 98
 
-        print(f"\n🔐 Login Performance Analysis")
-        print(f"Concurrent Users: {num_users}")
-        print(f"Success Rate: {stats['throughput']['success_rate_percent']:.1f}%")
-        print(f"Avg Response Time: {stats['response_times']['mean_ms']:.1f}ms")
-        print(f"P95 Response Time: {stats['response_times']['p95_ms']:.1f}ms")
-        print(f"Throughput: {stats['throughput']['requests_per_second']:.1f} req/s")
+    # print(f"\n🔐 Login Performance Analysis")
+    # print(f"Concurrent Users: {num_users}")
+    # print(f"Success Rate: {stats['throughput']['success_rate_percent']:.1f}%")
+    # print(f"Avg Response Time: {stats['response_times']['mean_ms']:.1f}ms")
+    # print(f"P95 Response Time: {stats['response_times']['p95_ms']:.1f}ms")
+    # print(f"Throughput: {stats['throughput']['requests_per_second']:.1f} req/s")
+
 
 # ============================================================================
 # PERFORMANCE TESTS - TOKEN VALIDATION
 # ============================================================================
+
 
 class TestTokenValidationPerformance:
     """Test token validation performance - critical for API performance"""
@@ -447,14 +487,20 @@ class TestTokenValidationPerformance:
 
         # Assertions
         assert stats["throughput"]["success_rate_percent"] == 100
-        assert stats["response_times"]["p95_ms"] < PerformanceConfig.TOKEN_VALIDATION_THRESHOLD_MS
-        assert stats["throughput"]["requests_per_second"] > PerformanceConfig.MIN_REQUESTS_PER_SECOND
+        assert (
+            stats["response_times"]["p95_ms"]
+            < PerformanceConfig.TOKEN_VALIDATION_THRESHOLD_MS
+        )
+        assert (
+            stats["throughput"]["requests_per_second"]
+            > PerformanceConfig.MIN_REQUESTS_PER_SECOND
+        )
 
-        print(f"\n🎯 Token Validation Performance")
-        print(f"Validations: 1000")
-        print(f"Avg Response Time: {stats['response_times']['mean_ms']:.2f}ms")
-        print(f"P95 Response Time: {stats['response_times']['p95_ms']:.2f}ms")
-        print(f"Throughput: {stats['throughput']['requests_per_second']:.1f} validations/s")
+    # print(f"\n🎯 Token Validation Performance")
+    # print(f"Validations: 1000")
+    # print(f"Avg Response Time: {stats['response_times']['mean_ms']:.2f}ms")
+    # print(f"P95 Response Time: {stats['response_times']['p95_ms']:.2f}ms")
+    # print(f"Throughput: {stats['throughput']['requests_per_second']:.1f} validations/s")
 
     @pytest.mark.asyncio
     async def test_concurrent_token_validations(self, performance_service):
@@ -478,7 +524,9 @@ class TestTokenValidationPerformance:
         async def validate_session_tokens(session_tokens):
             for token in session_tokens:
                 for _ in range(validations_per_session):
-                    valid, response_time = await performance_service.validate_token(token)
+                    valid, response_time = await performance_service.validate_token(
+                        token
+                    )
                     metrics.add_response_time(response_time, valid)
 
         # Execute concurrent validations
@@ -488,7 +536,7 @@ class TestTokenValidationPerformance:
         batch_size = 10
         tasks = []
         for i in range(0, len(tokens), batch_size):
-            batch_tokens = tokens[i:i + batch_size]
+            batch_tokens = tokens[i : i + batch_size]
             tasks.append(validate_session_tokens(batch_tokens))
 
         await asyncio.gather(*tasks)
@@ -500,17 +548,22 @@ class TestTokenValidationPerformance:
         expected_validations = len(tokens) * validations_per_session
         assert stats["throughput"]["total_requests"] == expected_validations
         assert stats["throughput"]["success_rate_percent"] > 99
-        assert stats["response_times"]["p95_ms"] < PerformanceConfig.TOKEN_VALIDATION_THRESHOLD_MS * 1.5
+        assert (
+            stats["response_times"]["p95_ms"]
+            < PerformanceConfig.TOKEN_VALIDATION_THRESHOLD_MS * 1.5
+        )
 
-        print(f"\n🚀 Concurrent Token Validation")
-        print(f"Sessions: {len(tokens)}")
-        print(f"Total Validations: {expected_validations}")
-        print(f"Success Rate: {stats['throughput']['success_rate_percent']:.1f}%")
-        print(f"Throughput: {stats['throughput']['requests_per_second']:.1f} validations/s")
+    # print(f"\n🚀 Concurrent Token Validation")
+    # print(f"Sessions: {len(tokens)}")
+    # print(f"Total Validations: {expected_validations}")
+    # print(f"Success Rate: {stats['throughput']['success_rate_percent']:.1f}%")
+    # print(f"Throughput: {stats['throughput']['requests_per_second']:.1f} validations/s")
+
 
 # ============================================================================
 # PERFORMANCE TESTS - STRESS TESTING
 # ============================================================================
+
 
 class TestStressScenarios:
     """Stress testing authentication system at limits"""
@@ -526,18 +579,24 @@ class TestStressScenarios:
             password = f"StressPassword{user_index}123!"
 
             # Registration
-            reg_success, reg_time = await performance_service.register_user(email, password)
+            reg_success, reg_time = await performance_service.register_user(
+                email, password
+            )
             if reg_success:
                 metrics.add_response_time(reg_time, True)
 
                 # Login
-                login_success, token, login_time = await performance_service.login_user(email, password)
+                login_success, token, login_time = await performance_service.login_user(
+                    email, password
+                )
                 if login_success:
                     metrics.add_response_time(login_time, True)
 
                     # Multiple token validations
                     for _ in range(10):
-                        valid, val_time = await performance_service.validate_token(token)
+                        valid, val_time = await performance_service.validate_token(
+                            token
+                        )
                         metrics.add_response_time(val_time, valid)
 
             if user_index % 50 == 0:
@@ -563,15 +622,17 @@ class TestStressScenarios:
 
         # Verify system handled the load
         assert service_stats["total_users"] > max_users * 0.9  # At least 90% success
-        assert stats["throughput"]["success_rate_percent"] > 85  # At least 85% success rate
+        assert (
+            stats["throughput"]["success_rate_percent"] > 85
+        )  # At least 85% success rate
 
-        print(f"\n💥 Stress Test Results")
-        print(f"Target Users: {max_users}")
-        print(f"Created Users: {service_stats['total_users']}")
-        print(f"Active Sessions: {service_stats['active_sessions']}")
-        print(f"Success Rate: {stats['throughput']['success_rate_percent']:.1f}%")
-        print(f"Max CPU Usage: {stats['system_resources']['max_cpu_percent']:.1f}%")
-        print(f"Max Memory Usage: {stats['system_resources']['max_memory_mb']:.1f}MB")
+    # print(f"\n💥 Stress Test Results")
+    # print(f"Target Users: {max_users}")
+    # print(f"Created Users: {service_stats['total_users']}")
+    # print(f"Active Sessions: {service_stats['active_sessions']}")
+    # print(f"Success Rate: {stats['throughput']['success_rate_percent']:.1f}%")
+    # print(f"Max CPU Usage: {stats['system_resources']['max_cpu_percent']:.1f}%")
+    # print(f"Max Memory Usage: {stats['system_resources']['max_memory_mb']:.1f}MB")
 
     @pytest.mark.asyncio
     async def test_sustained_load_endurance(self, performance_service):
@@ -622,19 +683,24 @@ class TestStressScenarios:
 
         # Verify system maintained performance
         assert stats["throughput"]["success_rate_percent"] > 95
-        assert stats["response_times"]["p95_ms"] < PerformanceConfig.TOKEN_VALIDATION_THRESHOLD_MS * 2
+        assert (
+            stats["response_times"]["p95_ms"]
+            < PerformanceConfig.TOKEN_VALIDATION_THRESHOLD_MS * 2
+        )
 
-        print(f"\n🏃‍♂️ Endurance Test Results")
-        print(f"Duration: {duration_seconds}s")
-        print(f"Concurrent Users: {concurrent_users}")
-        print(f"Total Requests: {stats['throughput']['total_requests']}")
-        print(f"Success Rate: {stats['throughput']['success_rate_percent']:.1f}%")
-        print(f"Avg Response Time: {stats['response_times']['mean_ms']:.1f}ms")
-        print(f"System Stability: {'STABLE' if stats['throughput']['success_rate_percent'] > 95 else 'UNSTABLE'}")
+    # print(f"\n🏃‍♂️ Endurance Test Results")
+    # print(f"Duration: {duration_seconds}s")
+    # print(f"Concurrent Users: {concurrent_users}")
+    # print(f"Total Requests: {stats['throughput']['total_requests']}")
+    # print(f"Success Rate: {stats['throughput']['success_rate_percent']:.1f}%")
+    # print(f"Avg Response Time: {stats['response_times']['mean_ms']:.1f}ms")
+    # print(f"System Stability: {'STABLE' if stats['throughput']['success_rate_percent'] > 95 else 'UNSTABLE'}")
+
 
 # ============================================================================
 # PERFORMANCE BENCHMARKING AND REPORTING
 # ============================================================================
+
 
 class TestPerformanceBenchmarks:
     """Comprehensive performance benchmarking"""
@@ -652,12 +718,16 @@ class TestPerformanceBenchmarks:
             flow_start = time.time()
 
             # 1. Registration
-            reg_success, reg_time = await performance_service.register_user(email, password)
+            reg_success, reg_time = await performance_service.register_user(
+                email, password
+            )
             if not reg_success:
                 return False
 
             # 2. Login
-            login_success, token, login_time = await performance_service.login_user(email, password)
+            login_success, token, login_time = await performance_service.login_user(
+                email, password
+            )
             if not login_success:
                 return False
 
@@ -687,30 +757,30 @@ class TestPerformanceBenchmarks:
         stats = metrics.calculate_statistics()
 
         # Generate benchmark report
-        print(f"\n📊 AUTHENTICATION SYSTEM BENCHMARK REPORT")
-        print("=" * 60)
-        print(f"Test Date: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC")
-        print(f"Users Tested: {num_users}")
-        print(f"Successful Flows: {successful_flows}")
-        print(f"Success Rate: {stats['throughput']['success_rate_percent']:.1f}%")
-        print()
-        print("PERFORMANCE METRICS:")
-        print(f"  Complete Flow Time (avg): {stats['response_times']['mean_ms']:.1f}ms")
-        print(f"  Complete Flow Time (p95): {stats['response_times']['p95_ms']:.1f}ms")
-        print(f"  Complete Flow Time (p99): {stats['response_times']['p99_ms']:.1f}ms")
-        print(f"  Throughput: {stats['throughput']['requests_per_second']:.1f} flows/s")
-        print()
-        print("SYSTEM RESOURCES:")
-        print(f"  Avg CPU Usage: {stats['system_resources']['avg_cpu_percent']:.1f}%")
-        print(f"  Max CPU Usage: {stats['system_resources']['max_cpu_percent']:.1f}%")
-        print(f"  Avg Memory Usage: {stats['system_resources']['avg_memory_mb']:.1f}MB")
-        print(f"  Max Memory Usage: {stats['system_resources']['max_memory_mb']:.1f}MB")
-        print()
+        # print(f"\n📊 AUTHENTICATION SYSTEM BENCHMARK REPORT")
+        # print("=" * 60)
+        # print(f"Test Date: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC")
+        # print(f"Users Tested: {num_users}")
+        # print(f"Successful Flows: {successful_flows}")
+        # print(f"Success Rate: {stats['throughput']['success_rate_percent']:.1f}%")
+        # print()
+        # print("PERFORMANCE METRICS:")
+        # print(f"  Complete Flow Time (avg): {stats['response_times']['mean_ms']:.1f}ms")
+        # print(f"  Complete Flow Time (p95): {stats['response_times']['p95_ms']:.1f}ms")
+        # print(f"  Complete Flow Time (p99): {stats['response_times']['p99_ms']:.1f}ms")
+        # print(f"  Throughput: {stats['throughput']['requests_per_second']:.1f} flows/s")
+        # print()
+        # print("SYSTEM RESOURCES:")
+        # print(f"  Avg CPU Usage: {stats['system_resources']['avg_cpu_percent']:.1f}%")
+        # print(f"  Max CPU Usage: {stats['system_resources']['max_cpu_percent']:.1f}%")
+        # print(f"  Avg Memory Usage: {stats['system_resources']['avg_memory_mb']:.1f}MB")
+        # print(f"  Max Memory Usage: {stats['system_resources']['max_memory_mb']:.1f}MB")
+        # print()
 
         # Performance Rating
         rating = self._calculate_performance_rating(stats)
-        print(f"PERFORMANCE RATING: {rating}")
-        print("=" * 60)
+        # print(f"PERFORMANCE RATING: {rating}")
+        # print("=" * 60)
 
         # Assertions
         assert successful_flows >= num_users * 0.95  # 95% success rate
@@ -772,20 +842,24 @@ class TestPerformanceBenchmarks:
         else:
             return f"F (Poor) - Score: {score}/100"
 
+
 # ============================================================================
 # TEST EXECUTION
 # ============================================================================
 
 if __name__ == "__main__":
-    print("⚡ Running Authentication Performance Tests")
-    print("=" * 50)
+    # print("⚡ Running Authentication Performance Tests")
+    # print("=" * 50)
 
     # Run performance tests
-    pytest.main([
-        __file__,
-        "-v",
-        "--tb=short",
-        "--asyncio-mode=auto",
-        "-m", "not slow",  # Skip slow tests by default
-        "--durations=5"
-    ])
+    pytest.main(
+        [
+            __file__,
+            "-v",
+            "--tb=short",
+            "--asyncio-mode=auto",
+            "-m",
+            "not slow",  # Skip slow tests by default
+            "--durations=5",
+        ]
+    )

@@ -19,8 +19,15 @@ import csv
 import json
 
 from sqlalchemy import (
-    select, update, delete, func, text, inspect,
-    Column, Table, MetaData
+    select,
+    update,
+    delete,
+    func,
+    text,
+    inspect,
+    Column,
+    Table,
+    MetaData,
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session, Query
@@ -56,7 +63,7 @@ class QueryOptimizer:
         """
         try:
             # 获取查询语句
-            if hasattr(query, 'statement'):
+            if hasattr(query, "statement"):
                 statement = query.statement
             else:
                 statement = query
@@ -68,18 +75,22 @@ class QueryOptimizer:
 
             # 解析执行计划
             plan_data = json.loads(plan)[0]
-            execution_plan = plan_data.get('Plan', {})
+            execution_plan = plan_data.get("Plan", {})
 
             return {
-                'total_cost': execution_plan.get('Total Cost'),
-                'actual_time': execution_plan.get('Actual Total Time'),
-                'rows': execution_plan.get('Actual Rows'),
-                'node_type': execution_plan.get('Node Type'),
-                'shared_hit_blocks': plan_data.get('Planning', {}).get('Shared Hit Blocks', 0),
-                'shared_read_blocks': plan_data.get('Planning', {}).get('Shared Read Blocks', 0),
-                'execution_time': plan_data.get('Execution Time'),
-                'planning_time': plan_data.get('Planning Time'),
-                'full_plan': plan_data
+                "total_cost": execution_plan.get("Total Cost"),
+                "actual_time": execution_plan.get("Actual Total Time"),
+                "rows": execution_plan.get("Actual Rows"),
+                "node_type": execution_plan.get("Node Type"),
+                "shared_hit_blocks": plan_data.get("Planning", {}).get(
+                    "Shared Hit Blocks", 0
+                ),
+                "shared_read_blocks": plan_data.get("Planning", {}).get(
+                    "Shared Read Blocks", 0
+                ),
+                "execution_time": plan_data.get("Execution Time"),
+                "planning_time": plan_data.get("Planning Time"),
+                "full_plan": plan_data,
             }
 
         except Exception as e:
@@ -110,18 +121,21 @@ class QueryOptimizer:
 
             # 检查外键索引
             for fk in foreign_keys:
-                fk_columns = fk['constrained_columns']
-                if not any(set(fk_columns).issubset(set(idx['column_names'])) for idx in indexes):
+                fk_columns = fk["constrained_columns"]
+                if not any(
+                    set(fk_columns).issubset(set(idx["column_names"]))
+                    for idx in indexes
+                ):
                     index_name = f"idx_{table_name}_{'_'.join(fk_columns)}"
                     suggestions.append(
                         f"CREATE INDEX {index_name} ON {table_name} ({', '.join(fk_columns)});"
                     )
 
             # 检查常用查询字段
-            common_query_fields = ['created_at', 'updated_at', 'status', 'is_deleted']
+            common_query_fields = ["created_at", "updated_at", "status", "is_deleted"]
             for field in common_query_fields:
-                if any(col['name'] == field for col in columns):
-                    if not any(field in idx['column_names'] for idx in indexes):
+                if any(col["name"] == field for col in columns):
+                    if not any(field in idx["column_names"] for idx in indexes):
                         index_name = f"idx_{table_name}_{field}"
                         suggestions.append(
                             f"CREATE INDEX {index_name} ON {table_name} ({field});"
@@ -147,7 +161,7 @@ class PaginationHelper:
         query: Union[Query, Select],
         page: int = 1,
         per_page: int = 20,
-        max_per_page: int = 100
+        max_per_page: int = 100,
     ) -> Tuple[List[Any], Dict[str, Any]]:
         """
         分页查询
@@ -169,7 +183,7 @@ class PaginationHelper:
         offset = (page - 1) * per_page
 
         # 获取总数
-        if hasattr(query, 'count'):
+        if hasattr(query, "count"):
             total = query.count()
         else:
             # 对于Select对象，需要包装成count查询
@@ -185,14 +199,14 @@ class PaginationHelper:
         has_next = page < total_pages
 
         pagination_info = {
-            'page': page,
-            'per_page': per_page,
-            'total': total,
-            'total_pages': total_pages,
-            'has_prev': has_prev,
-            'has_next': has_next,
-            'prev_page': page - 1 if has_prev else None,
-            'next_page': page + 1 if has_next else None,
+            "page": page,
+            "per_page": per_page,
+            "total": total,
+            "total_pages": total_pages,
+            "has_prev": has_prev,
+            "has_next": has_next,
+            "prev_page": page - 1 if has_prev else None,
+            "next_page": page + 1 if has_next else None,
         }
 
         return items, pagination_info
@@ -203,7 +217,7 @@ class PaginationHelper:
         query: Select,
         page: int = 1,
         per_page: int = 20,
-        max_per_page: int = 100
+        max_per_page: int = 100,
     ) -> Tuple[List[Any], Dict[str, Any]]:
         """
         异步分页查询
@@ -241,14 +255,14 @@ class PaginationHelper:
         has_next = page < total_pages
 
         pagination_info = {
-            'page': page,
-            'per_page': per_page,
-            'total': total,
-            'total_pages': total_pages,
-            'has_prev': has_prev,
-            'has_next': has_next,
-            'prev_page': page - 1 if has_prev else None,
-            'next_page': page + 1 if has_next else None,
+            "page": page,
+            "per_page": per_page,
+            "total": total,
+            "total_pages": total_pages,
+            "has_prev": has_prev,
+            "has_next": has_next,
+            "prev_page": page - 1 if has_prev else None,
+            "next_page": page + 1 if has_next else None,
         }
 
         return items, pagination_info
@@ -267,7 +281,7 @@ class BulkOperator:
         session: Session,
         model: Type[BaseModel],
         data_list: List[Dict[str, Any]],
-        batch_size: int = 1000
+        batch_size: int = 1000,
     ) -> int:
         """
         批量插入
@@ -288,20 +302,17 @@ class BulkOperator:
 
         try:
             for i in range(0, len(data_list), batch_size):
-                batch = data_list[i:i + batch_size]
+                batch = data_list[i : i + batch_size]
 
                 # 添加默认字段
                 for item in batch:
-                    if 'created_at' not in item:
-                        item['created_at'] = datetime.utcnow()
-                    if 'updated_at' not in item:
-                        item['updated_at'] = datetime.utcnow()
+                    if "created_at" not in item:
+                        item["created_at"] = datetime.utcnow()
+                    if "updated_at" not in item:
+                        item["updated_at"] = datetime.utcnow()
 
                 # 批量插入
-                result = session.execute(
-                    model.__table__.insert(),
-                    batch
-                )
+                result = session.execute(model.__table__.insert(), batch)
 
                 total_inserted += result.rowcount
                 session.flush()
@@ -319,7 +330,7 @@ class BulkOperator:
         session: AsyncSession,
         model: Type[BaseModel],
         data_list: List[Dict[str, Any]],
-        batch_size: int = 1000
+        batch_size: int = 1000,
     ) -> int:
         """
         异步批量插入
@@ -340,20 +351,17 @@ class BulkOperator:
 
         try:
             for i in range(0, len(data_list), batch_size):
-                batch = data_list[i:i + batch_size]
+                batch = data_list[i : i + batch_size]
 
                 # 添加默认字段
                 for item in batch:
-                    if 'created_at' not in item:
-                        item['created_at'] = datetime.utcnow()
-                    if 'updated_at' not in item:
-                        item['updated_at'] = datetime.utcnow()
+                    if "created_at" not in item:
+                        item["created_at"] = datetime.utcnow()
+                    if "updated_at" not in item:
+                        item["updated_at"] = datetime.utcnow()
 
                 # 批量插入
-                result = await session.execute(
-                    model.__table__.insert(),
-                    batch
-                )
+                result = await session.execute(model.__table__.insert(), batch)
 
                 total_inserted += result.rowcount
                 await session.flush()
@@ -371,7 +379,7 @@ class BulkOperator:
         session: Session,
         model: Type[BaseModel],
         updates: List[Dict[str, Any]],
-        id_field: str = 'id'
+        id_field: str = "id",
     ) -> int:
         """
         批量更新
@@ -391,13 +399,10 @@ class BulkOperator:
         try:
             # 添加更新时间
             for item in updates:
-                item['updated_at'] = datetime.utcnow()
+                item["updated_at"] = datetime.utcnow()
 
             # 执行批量更新
-            result = session.execute(
-                update(model.__table__),
-                updates
-            )
+            result = session.execute(update(model.__table__), updates)
 
             return result.rowcount
 
@@ -410,8 +415,8 @@ class BulkOperator:
         session: Session,
         model: Type[BaseModel],
         ids: List[Any],
-        id_field: str = 'id',
-        soft_delete: bool = True
+        id_field: str = "id",
+        soft_delete: bool = True,
     ) -> int:
         """
         批量删除
@@ -430,7 +435,7 @@ class BulkOperator:
             return 0
 
         try:
-            if soft_delete and hasattr(model, 'is_deleted'):
+            if soft_delete and hasattr(model, "is_deleted"):
                 # 软删除
                 result = session.execute(
                     update(model.__table__)
@@ -438,14 +443,15 @@ class BulkOperator:
                     .values(
                         is_deleted=True,
                         deleted_at=datetime.utcnow(),
-                        updated_at=datetime.utcnow()
+                        updated_at=datetime.utcnow(),
                     )
                 )
             else:
                 # 硬删除
                 result = session.execute(
-                    delete(model.__table__)
-                    .where(getattr(model.__table__.c, id_field).in_(ids))
+                    delete(model.__table__).where(
+                        getattr(model.__table__.c, id_field).in_(ids)
+                    )
                 )
 
             return result.rowcount
@@ -468,7 +474,7 @@ class DataExporter:
         session: Session,
         query: Union[Query, Select],
         filename: str,
-        headers: Optional[List[str]] = None
+        headers: Optional[List[str]] = None,
     ) -> str:
         """
         导出到CSV文件
@@ -484,7 +490,7 @@ class DataExporter:
         """
         try:
             # 执行查询
-            if hasattr(query, 'all'):
+            if hasattr(query, "all"):
                 results = query.all()
             else:
                 results = session.execute(query).fetchall()
@@ -494,22 +500,22 @@ class DataExporter:
                 return filename
 
             # 写入CSV文件
-            with open(filename, 'w', newline='', encoding='utf-8') as csvfile:
+            with open(filename, "w", newline="", encoding="utf-8") as csvfile:
                 writer = csv.writer(csvfile)
 
                 # 写入标题
                 if headers:
                     writer.writerow(headers)
-                elif hasattr(results[0], '_fields'):
+                elif hasattr(results[0], "_fields"):
                     writer.writerow(results[0]._fields)
-                elif hasattr(results[0], '__dict__'):
+                elif hasattr(results[0], "__dict__"):
                     writer.writerow(results[0].__dict__.keys())
 
                 # 写入数据
                 for row in results:
-                    if hasattr(row, '_asdict'):
+                    if hasattr(row, "_asdict"):
                         writer.writerow(row._asdict().values())
-                    elif hasattr(row, '__dict__'):
+                    elif hasattr(row, "__dict__"):
                         writer.writerow(row.__dict__.values())
                     else:
                         writer.writerow(row)
@@ -523,10 +529,7 @@ class DataExporter:
 
     @staticmethod
     def export_to_json(
-        session: Session,
-        query: Union[Query, Select],
-        filename: str,
-        indent: int = 2
+        session: Session, query: Union[Query, Select], filename: str, indent: int = 2
     ) -> str:
         """
         导出到JSON文件
@@ -542,7 +545,7 @@ class DataExporter:
         """
         try:
             # 执行查询
-            if hasattr(query, 'all'):
+            if hasattr(query, "all"):
                 results = query.all()
             else:
                 results = session.execute(query).fetchall()
@@ -550,19 +553,23 @@ class DataExporter:
             # 转换为字典列表
             data = []
             for row in results:
-                if hasattr(row, 'to_dict'):
+                if hasattr(row, "to_dict"):
                     data.append(row.to_dict())
-                elif hasattr(row, '_asdict'):
+                elif hasattr(row, "_asdict"):
                     data.append(row._asdict())
-                elif hasattr(row, '__dict__'):
-                    row_dict = {k: v for k, v in row.__dict__.items() if not k.startswith('_')}
+                elif hasattr(row, "__dict__"):
+                    row_dict = {
+                        k: v for k, v in row.__dict__.items() if not k.startswith("_")
+                    }
                     data.append(row_dict)
                 else:
                     data.append(str(row))
 
             # 写入JSON文件
-            with open(filename, 'w', encoding='utf-8') as jsonfile:
-                json.dump(data, jsonfile, indent=indent, ensure_ascii=False, default=str)
+            with open(filename, "w", encoding="utf-8") as jsonfile:
+                json.dump(
+                    data, jsonfile, indent=indent, ensure_ascii=False, default=str
+                )
 
             logger.info(f"成功导出 {len(data)} 条记录到 {filename}")
             return filename
@@ -582,13 +589,15 @@ class PerformanceMonitor:
 
     def __init__(self):
         self.metrics = {
-            'query_count': 0,
-            'total_time': 0,
-            'slow_queries': [],
-            'error_count': 0
+            "query_count": 0,
+            "total_time": 0,
+            "slow_queries": [],
+            "error_count": 0,
         }
 
-    def record_query(self, query: str, execution_time: float, error: Optional[Exception] = None):
+    def record_query(
+        self, query: str, execution_time: float, error: Optional[Exception] = None
+    ):
         """
         记录查询指标
 
@@ -597,20 +606,22 @@ class PerformanceMonitor:
             execution_time: 执行时间 (秒)
             error: 错误信息
         """
-        self.metrics['query_count'] += 1
-        self.metrics['total_time'] += execution_time
+        self.metrics["query_count"] += 1
+        self.metrics["total_time"] += execution_time
 
         if error:
-            self.metrics['error_count'] += 1
+            self.metrics["error_count"] += 1
             logger.error(f"查询执行失败: {error}")
 
         # 记录慢查询 (超过1秒)
         if execution_time > 1.0:
-            self.metrics['slow_queries'].append({
-                'query': query[:200] + '...' if len(query) > 200 else query,
-                'execution_time': execution_time,
-                'timestamp': datetime.utcnow().isoformat()
-            })
+            self.metrics["slow_queries"].append(
+                {
+                    "query": query[:200] + "..." if len(query) > 200 else query,
+                    "execution_time": execution_time,
+                    "timestamp": datetime.utcnow().isoformat(),
+                }
+            )
             logger.warning(f"慢查询检测: {execution_time:.3f}s - {query[:100]}...")
 
     def get_metrics(self) -> Dict[str, Any]:
@@ -621,29 +632,29 @@ class PerformanceMonitor:
             性能指标字典
         """
         avg_time = (
-            self.metrics['total_time'] / self.metrics['query_count']
-            if self.metrics['query_count'] > 0
+            self.metrics["total_time"] / self.metrics["query_count"]
+            if self.metrics["query_count"] > 0
             else 0
         )
 
         return {
             **self.metrics,
-            'average_time': avg_time,
-            'slow_query_count': len(self.metrics['slow_queries']),
-            'error_rate': (
-                self.metrics['error_count'] / self.metrics['query_count']
-                if self.metrics['query_count'] > 0
+            "average_time": avg_time,
+            "slow_query_count": len(self.metrics["slow_queries"]),
+            "error_rate": (
+                self.metrics["error_count"] / self.metrics["query_count"]
+                if self.metrics["query_count"] > 0
                 else 0
-            )
+            ),
         }
 
     def reset_metrics(self):
         """重置指标"""
         self.metrics = {
-            'query_count': 0,
-            'total_time': 0,
-            'slow_queries': [],
-            'error_count': 0
+            "query_count": 0,
+            "total_time": 0,
+            "slow_queries": [],
+            "error_count": 0,
         }
 
 
@@ -653,10 +664,10 @@ performance_monitor = PerformanceMonitor()
 
 # 导出公共接口
 __all__ = [
-    'QueryOptimizer',
-    'PaginationHelper',
-    'BulkOperator',
-    'DataExporter',
-    'PerformanceMonitor',
-    'performance_monitor',
+    "QueryOptimizer",
+    "PaginationHelper",
+    "BulkOperator",
+    "DataExporter",
+    "PerformanceMonitor",
+    "performance_monitor",
 ]

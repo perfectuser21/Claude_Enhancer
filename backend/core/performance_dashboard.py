@@ -20,9 +20,11 @@ import weakref
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class DashboardMetric:
     """仪表板指标"""
+
     name: str
     value: float
     unit: str = ""
@@ -32,9 +34,11 @@ class DashboardMetric:
     timestamp: datetime = field(default_factory=datetime.now)
     history: List[Tuple[datetime, float]] = field(default_factory=list)
 
+
 @dataclass
 class SystemStatus:
     """系统状态"""
+
     overall_health: str = "healthy"  # healthy, degraded, unhealthy
     uptime: float = 0.0
     total_requests: int = 0
@@ -43,6 +47,7 @@ class SystemStatus:
     active_connections: int = 0
     cache_hit_rate: float = 0.0
     queue_size: int = 0
+
 
 class WebSocketManager:
     """WebSocket连接管理器"""
@@ -81,6 +86,7 @@ class WebSocketManager:
         for connection in disconnected:
             self.disconnect(connection)
 
+
 class PerformanceDashboard:
     """性能监控仪表板"""
 
@@ -116,10 +122,12 @@ class PerformanceDashboard:
         @self.app.get("/api/status")
         async def get_status():
             """获取系统状态"""
-            return JSONResponse(content={
-                "status": self.system_status.__dict__,
-                "timestamp": datetime.now().isoformat()
-            })
+            return JSONResponse(
+                content={
+                    "status": self.system_status.__dict__,
+                    "timestamp": datetime.now().isoformat(),
+                }
+            )
 
         @self.app.get("/api/metrics")
         async def get_metrics():
@@ -134,7 +142,9 @@ class PerformanceDashboard:
                     "trend": metric.trend,
                     "status": metric.status,
                     "timestamp": metric.timestamp.isoformat(),
-                    "history": [(t.isoformat(), v) for t, v in metric.history[-50:]]  # 最近50个数据点
+                    "history": [
+                        (t.isoformat(), v) for t, v in metric.history[-50:]
+                    ],  # 最近50个数据点
                 }
             return JSONResponse(content=metrics_data)
 
@@ -148,7 +158,7 @@ class PerformanceDashboard:
                     "unit": metric.unit,
                     "trend": metric.trend,
                     "status": metric.status,
-                    "timestamp": metric.timestamp.isoformat()
+                    "timestamp": metric.timestamp.isoformat(),
                 }
                 for name, metric in self.metrics.items()
                 if metric.category == category
@@ -161,13 +171,15 @@ class PerformanceDashboard:
             alerts = []
             for metric in self.metrics.values():
                 if metric.status in ["warning", "critical"]:
-                    alerts.append({
-                        "name": metric.name,
-                        "value": metric.value,
-                        "status": metric.status,
-                        "category": metric.category,
-                        "timestamp": metric.timestamp.isoformat()
-                    })
+                    alerts.append(
+                        {
+                            "name": metric.name,
+                            "value": metric.value,
+                            "status": metric.status,
+                            "category": metric.category,
+                            "timestamp": metric.timestamp.isoformat(),
+                        }
+                    )
             return JSONResponse(content=alerts)
 
         @self.app.websocket("/ws")
@@ -191,7 +203,9 @@ class PerformanceDashboard:
             elif format == "prometheus":
                 return await self._export_prometheus()
             else:
-                return JSONResponse(content={"error": "Unsupported format"}, status_code=400)
+                return JSONResponse(
+                    content={"error": "Unsupported format"}, status_code=400
+                )
 
     async def initialize(self):
         """初始化仪表板"""
@@ -233,31 +247,59 @@ class PerformanceDashboard:
         try:
             # CPU指标
             cpu_percent = psutil.cpu_percent(interval=None)
-            self._update_metric("cpu_usage", cpu_percent, "percent", "system",
-                              self._get_status_by_threshold(cpu_percent, 70, 85))
+            self._update_metric(
+                "cpu_usage",
+                cpu_percent,
+                "percent",
+                "system",
+                self._get_status_by_threshold(cpu_percent, 70, 85),
+            )
 
             # 内存指标
             memory = psutil.virtual_memory()
-            self._update_metric("memory_usage", memory.percent, "percent", "system",
-                              self._get_status_by_threshold(memory.percent, 75, 90))
-            self._update_metric("memory_available", memory.available / 1024 / 1024 / 1024, "GB", "system")
+            self._update_metric(
+                "memory_usage",
+                memory.percent,
+                "percent",
+                "system",
+                self._get_status_by_threshold(memory.percent, 75, 90),
+            )
+            self._update_metric(
+                "memory_available",
+                memory.available / 1024 / 1024 / 1024,
+                "GB",
+                "system",
+            )
 
             # 磁盘指标
-            disk = psutil.disk_usage('/')
+            disk = psutil.disk_usage("/")
             disk_percent = disk.used / disk.total * 100
-            self._update_metric("disk_usage", disk_percent, "percent", "system",
-                              self._get_status_by_threshold(disk_percent, 80, 95))
+            self._update_metric(
+                "disk_usage",
+                disk_percent,
+                "percent",
+                "system",
+                self._get_status_by_threshold(disk_percent, 80, 95),
+            )
 
             # 网络指标
             network = psutil.net_io_counters()
-            self._update_metric("network_bytes_sent", network.bytes_sent / 1024 / 1024, "MB", "network")
-            self._update_metric("network_bytes_recv", network.bytes_recv / 1024 / 1024, "MB", "network")
+            self._update_metric(
+                "network_bytes_sent", network.bytes_sent / 1024 / 1024, "MB", "network"
+            )
+            self._update_metric(
+                "network_bytes_recv", network.bytes_recv / 1024 / 1024, "MB", "network"
+            )
 
             # 进程指标
             process = psutil.Process()
             process_memory = process.memory_info()
-            self._update_metric("process_memory", process_memory.rss / 1024 / 1024, "MB", "process")
-            self._update_metric("process_cpu", process.cpu_percent(), "percent", "process")
+            self._update_metric(
+                "process_memory", process_memory.rss / 1024 / 1024, "MB", "process"
+            )
+            self._update_metric(
+                "process_cpu", process.cpu_percent(), "percent", "process"
+            )
 
         except Exception as e:
             logger.error(f"❌ 系统指标收集失败: {e}")
@@ -268,44 +310,107 @@ class PerformanceDashboard:
             # 缓存管理器指标
             if self.cache_manager:
                 stats = await self.cache_manager.get_stats()
-                self._update_metric("cache_hit_rate", stats.get('hit_rate', 0), "percent", "cache",
-                                  self._get_status_by_threshold(stats.get('hit_rate', 0), 80, 95, reverse=True))
-                self._update_metric("cache_size", stats.get('local_cache_size', 0), "items", "cache")
+                self._update_metric(
+                    "cache_hit_rate",
+                    stats.get("hit_rate", 0),
+                    "percent",
+                    "cache",
+                    self._get_status_by_threshold(
+                        stats.get("hit_rate", 0), 80, 95, reverse=True
+                    ),
+                )
+                self._update_metric(
+                    "cache_size", stats.get("local_cache_size", 0), "items", "cache"
+                )
 
             # 数据库优化器指标
             if self.database_optimizer:
                 stats = await self.database_optimizer.get_database_stats()
-                self._update_metric("db_avg_query_time", stats.get('avg_query_time', 0) * 1000, "ms", "database",
-                                  self._get_status_by_threshold(stats.get('avg_query_time', 0) * 1000, 100, 500))
-                self._update_metric("db_slow_queries", stats.get('slow_query_count', 0), "count", "database")
-                self._update_metric("db_error_rate", stats.get('error_rate', 0), "percent", "database",
-                                  self._get_status_by_threshold(stats.get('error_rate', 0), 1, 5))
+                self._update_metric(
+                    "db_avg_query_time",
+                    stats.get("avg_query_time", 0) * 1000,
+                    "ms",
+                    "database",
+                    self._get_status_by_threshold(
+                        stats.get("avg_query_time", 0) * 1000, 100, 500
+                    ),
+                )
+                self._update_metric(
+                    "db_slow_queries",
+                    stats.get("slow_query_count", 0),
+                    "count",
+                    "database",
+                )
+                self._update_metric(
+                    "db_error_rate",
+                    stats.get("error_rate", 0),
+                    "percent",
+                    "database",
+                    self._get_status_by_threshold(stats.get("error_rate", 0), 1, 5),
+                )
 
             # 异步处理器指标
             if self.async_processor:
                 status = await self.async_processor.get_queue_status()
-                self._update_metric("queue_size", status.get('queue_size', 0), "items", "async",
-                                  self._get_status_by_threshold(status.get('queue_size', 0), 500, 800))
-                self._update_metric("active_workers", status.get('active_workers', 0), "count", "async")
+                self._update_metric(
+                    "queue_size",
+                    status.get("queue_size", 0),
+                    "items",
+                    "async",
+                    self._get_status_by_threshold(
+                        status.get("queue_size", 0), 500, 800
+                    ),
+                )
+                self._update_metric(
+                    "active_workers", status.get("active_workers", 0), "count", "async"
+                )
 
-                stats = status.get('stats', {})
-                self._update_metric("completed_tasks", stats.get('completed_tasks', 0), "count", "async")
-                self._update_metric("failed_tasks", stats.get('failed_tasks', 0), "count", "async")
+                stats = status.get("stats", {})
+                self._update_metric(
+                    "completed_tasks", stats.get("completed_tasks", 0), "count", "async"
+                )
+                self._update_metric(
+                    "failed_tasks", stats.get("failed_tasks", 0), "count", "async"
+                )
 
             # 负载均衡器指标
             if self.load_balancer:
                 stats = await self.load_balancer.get_server_stats()
-                global_stats = stats.get('global_stats', {})
-                self._update_metric("lb_total_requests", global_stats.get('total_requests', 0), "count", "loadbalancer")
-                self._update_metric("lb_success_rate",
-                                  (global_stats.get('successful_requests', 0) / max(global_stats.get('total_requests', 1), 1)) * 100,
-                                  "percent", "loadbalancer")
-                self._update_metric("lb_avg_response_time", global_stats.get('avg_response_time', 0) * 1000, "ms", "loadbalancer")
+                global_stats = stats.get("global_stats", {})
+                self._update_metric(
+                    "lb_total_requests",
+                    global_stats.get("total_requests", 0),
+                    "count",
+                    "loadbalancer",
+                )
+                self._update_metric(
+                    "lb_success_rate",
+                    (
+                        global_stats.get("successful_requests", 0)
+                        / max(global_stats.get("total_requests", 1), 1)
+                    )
+                    * 100,
+                    "percent",
+                    "loadbalancer",
+                )
+                self._update_metric(
+                    "lb_avg_response_time",
+                    global_stats.get("avg_response_time", 0) * 1000,
+                    "ms",
+                    "loadbalancer",
+                )
 
         except Exception as e:
             logger.error(f"❌ 组件指标收集失败: {e}")
 
-    def _update_metric(self, name: str, value: float, unit: str = "", category: str = "general", status: str = "normal"):
+    def _update_metric(
+        self,
+        name: str,
+        value: float,
+        unit: str = "",
+        category: str = "general",
+        status: str = "normal",
+    ):
         """更新指标"""
         now = datetime.now()
 
@@ -316,7 +421,7 @@ class PerformanceDashboard:
                 unit=unit,
                 category=category,
                 status=status,
-                timestamp=now
+                timestamp=now,
             )
         else:
             metric = self.metrics[name]
@@ -369,13 +474,17 @@ class PerformanceDashboard:
 
         # 从指标中提取关键状态
         if "lb_total_requests" in self.metrics:
-            self.system_status.total_requests = int(self.metrics["lb_total_requests"].value)
+            self.system_status.total_requests = int(
+                self.metrics["lb_total_requests"].value
+            )
 
         if "db_error_rate" in self.metrics:
             self.system_status.error_rate = self.metrics["db_error_rate"].value
 
         if "lb_avg_response_time" in self.metrics:
-            self.system_status.avg_response_time = self.metrics["lb_avg_response_time"].value
+            self.system_status.avg_response_time = self.metrics[
+                "lb_avg_response_time"
+            ].value
 
         if "cache_hit_rate" in self.metrics:
             self.system_status.cache_hit_rate = self.metrics["cache_hit_rate"].value
@@ -397,10 +506,10 @@ class PerformanceDashboard:
                             "value": metric.value,
                             "unit": metric.unit,
                             "status": metric.status,
-                            "trend": metric.trend
+                            "trend": metric.trend,
                         }
                         for name, metric in self.metrics.items()
-                    }
+                    },
                 }
 
                 # 广播给所有WebSocket客户端
@@ -420,7 +529,8 @@ class PerformanceDashboard:
                 for metric in self.metrics.values():
                     # 清理历史数据
                     metric.history = [
-                        (timestamp, value) for timestamp, value in metric.history
+                        (timestamp, value)
+                        for timestamp, value in metric.history
                         if timestamp > cutoff_time
                     ]
 
@@ -429,8 +539,13 @@ class PerformanceDashboard:
 
             await asyncio.sleep(300)  # 每5分钟清理一次
 
-    def _get_status_by_threshold(self, value: float, warning_threshold: float,
-                               critical_threshold: float, reverse: bool = False) -> str:
+    def _get_status_by_threshold(
+        self,
+        value: float,
+        warning_threshold: float,
+        critical_threshold: float,
+        reverse: bool = False,
+    ) -> str:
         """根据阈值确定状态"""
         if reverse:
             # 对于缓存命中率等指标，值越高越好
@@ -663,12 +778,12 @@ class PerformanceDashboard:
         self.running = False
 
         # 通知所有WebSocket客户端
-        await self.websocket_manager.send_to_all({
-            "type": "shutdown",
-            "message": "Dashboard is shutting down"
-        })
+        await self.websocket_manager.send_to_all(
+            {"type": "shutdown", "message": "Dashboard is shutting down"}
+        )
 
         logger.info("✅ 性能监控仪表板已关闭")
+
 
 # 使用示例
 async def create_dashboard(service_name: str = "perfect21") -> PerformanceDashboard:

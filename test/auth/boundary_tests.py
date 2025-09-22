@@ -381,15 +381,15 @@ class TestSystemResourceBoundaries:
             # Check memory periodically
             if i % 100 == 0:
                 current_memory = boundary_service.monitor_memory_usage()
-                print(f"Created {users_created} users, Memory: {current_memory:.1f}MB")
+    # print(f"Created {users_created} users, Memory: {current_memory:.1f}MB")
 
         final_memory = boundary_service.monitor_memory_usage()
         memory_increase = final_memory - initial_memory
 
-        print(f"Memory Test Results:")
-        print(f"  Users Created: {users_created}")
-        print(f"  Memory Increase: {memory_increase:.1f}MB")
-        print(f"  Memory Limit Hit: {memory_limit_hit}")
+    # print(f"Memory Test Results:")
+    # print(f"  Users Created: {users_created}")
+    # print(f"  Memory Increase: {memory_increase:.1f}MB")
+    # print(f"  Memory Limit Hit: {memory_limit_hit}")
 
         # Verify memory was tracked
         assert len(boundary_service.memory_usage) > 0
@@ -514,10 +514,10 @@ class TestTimeBasedBoundaries:
         avg_time = sum(session_times) / len(session_times)
         max_time = max(session_times)
 
-        print(f"Session Creation Timing:")
-        print(f"  Sessions Created: {sessions_created}")
-        print(f"  Average Time: {avg_time:.3f}s")
-        print(f"  Maximum Time: {max_time:.3f}s")
+    # print(f"Session Creation Timing:")
+    # print(f"  Sessions Created: {sessions_created}")
+    # print(f"  Average Time: {avg_time:.3f}s")
+    # print(f"  Maximum Time: {max_time:.3f}s")
 
         # Verify reasonable performance
         assert avg_time < 0.1  # Average under 100ms
@@ -644,10 +644,10 @@ class TestEdgeCases:
         success_rate = successful_operations / num_concurrent
         assert success_rate > 0.5  # At least 50% success rate
 
-        print(f"Concurrent Operations Test:")
-        print(f"  Total Operations: {num_concurrent}")
-        print(f"  Successful: {successful_operations}")
-        print(f"  Success Rate: {success_rate:.1%}")
+    # print(f"Concurrent Operations Test:")
+    # print(f"  Total Operations: {num_concurrent}")
+    # print(f"  Successful: {successful_operations}")
+    # print(f"  Success Rate: {success_rate:.1%}")
 
     @pytest.mark.asyncio
     async def test_system_recovery_boundaries(self, boundary_service):
@@ -680,11 +680,11 @@ class TestEdgeCases:
             if result["success"]:
                 additional_users += 1
 
-        print(f"System Recovery Test:")
-        print(f"  Initial Users Created: {users_created}")
-        print(f"  Memory Before Cleanup: {initial_memory:.1f}MB")
-        print(f"  Memory After Cleanup: {post_cleanup_memory:.1f}MB")
-        print(f"  Additional Users After Cleanup: {additional_users}")
+    # print(f"System Recovery Test:")
+    # print(f"  Initial Users Created: {users_created}")
+    # print(f"  Memory Before Cleanup: {initial_memory:.1f}MB")
+    # print(f"  Memory After Cleanup: {post_cleanup_memory:.1f}MB")
+    # print(f"  Additional Users After Cleanup: {additional_users}")
 
         # Verify some level of recovery
         assert additional_users >= 0  # Should at least not crash
@@ -778,68 +778,68 @@ class TestBoundaryReport:
         }
 
         # Generate boundary test report
-        print(f"\n🎯 BOUNDARY TEST ANALYSIS REPORT")
-        print("=" * 50)
-        print(f"Test Date: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC")
-        print()
+    # print(f"\n🎯 BOUNDARY TEST ANALYSIS REPORT")
+    # print("=" * 50)
+    # print(f"Test Date: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC")
+    # print()
 
-        print("INPUT LENGTH BOUNDARY TESTS:")
+    # print("INPUT LENGTH BOUNDARY TESTS:")
         input_tests = boundary_results["input_length_tests"]
         input_total = input_tests["passed"] + input_tests["failed"]
         input_success_rate = (input_tests["passed"] / input_total * 100) if input_total > 0 else 0
-        print(f"  Passed: {input_tests['passed']}")
-        print(f"  Failed: {input_tests['failed']}")
-        print(f"  Success Rate: {input_success_rate:.1f}%")
-        print()
+    # print(f"  Passed: {input_tests['passed']}")
+    # print(f"  Failed: {input_tests['failed']}")
+    # print(f"  Success Rate: {input_success_rate:.1f}%")
+    # print()
 
-        print("RESOURCE LIMIT BOUNDARY TESTS:")
+    # print("RESOURCE LIMIT BOUNDARY TESTS:")
         resource_tests = boundary_results["resource_limit_tests"]
         resource_total = resource_tests["passed"] + resource_tests["failed"]
         resource_success_rate = (resource_tests["passed"] / resource_total * 100) if resource_total > 0 else 0
-        print(f"  Passed: {resource_tests['passed']}")
-        print(f"  Failed: {resource_tests['failed']}")
-        print(f"  Success Rate: {resource_success_rate:.1f}%")
-        print()
+    # print(f"  Passed: {resource_tests['passed']}")
+    # print(f"  Failed: {resource_tests['failed']}")
+    # print(f"  Success Rate: {resource_success_rate:.1f}%")
+    # print()
 
-        print("EDGE CASE BOUNDARY TESTS:")
+    # print("EDGE CASE BOUNDARY TESTS:")
         edge_tests = boundary_results["edge_case_tests"]
         edge_total = edge_tests["passed"] + edge_tests["failed"]
         edge_success_rate = (edge_tests["passed"] / edge_total * 100) if edge_total > 0 else 0
-        print(f"  Passed: {edge_tests['passed']}")
-        print(f"  Failed: {edge_tests['failed']}")
-        print(f"  Success Rate: {edge_success_rate:.1f}%")
-        print()
+    # print(f"  Passed: {edge_tests['passed']}")
+    # print(f"  Failed: {edge_tests['failed']}")
+    # print(f"  Success Rate: {edge_success_rate:.1f}%")
+    # print()
 
-        print("SYSTEM LIMITS ENCOUNTERED:")
+    # print("SYSTEM LIMITS ENCOUNTERED:")
         if boundary_results["system_limits_reached"]:
             for limit in boundary_results["system_limits_reached"]:
-                print(f"  ⚠️ {limit}")
+    # print(f"  ⚠️ {limit}")
         else:
-            print("  ✅ No system limits reached")
-        print()
+    # print("  ✅ No system limits reached")
+    # print()
 
-        print("PERFORMANCE METRICS:")
+    # print("PERFORMANCE METRICS:")
         metrics = boundary_results["performance_metrics"]
-        print(f"  Users Created: {metrics['total_users_created']}")
-        print(f"  Active Sessions: {metrics['active_sessions']}")
-        print(f"  Current Memory: {metrics['memory_usage_mb']:.1f}MB")
-        print(f"  Peak Memory: {metrics['max_memory_mb']:.1f}MB")
-        print()
+    # print(f"  Users Created: {metrics['total_users_created']}")
+    # print(f"  Active Sessions: {metrics['active_sessions']}")
+    # print(f"  Current Memory: {metrics['memory_usage_mb']:.1f}MB")
+    # print(f"  Peak Memory: {metrics['max_memory_mb']:.1f}MB")
+    # print()
 
         # Calculate overall boundary test score
         total_tests = input_total + resource_total + edge_total
         total_passed = input_tests["passed"] + resource_tests["passed"] + edge_tests["passed"]
         overall_score = (total_passed / total_tests * 100) if total_tests > 0 else 0
 
-        print("OVERALL BOUNDARY TEST SCORE:")
+    # print("OVERALL BOUNDARY TEST SCORE:")
         if overall_score >= 90:
-            print(f"🟢 EXCELLENT - {overall_score:.1f}% ({total_passed}/{total_tests})")
+    # print(f"🟢 EXCELLENT - {overall_score:.1f}% ({total_passed}/{total_tests})")
         elif overall_score >= 75:
-            print(f"🟡 GOOD - {overall_score:.1f}% ({total_passed}/{total_tests})")
+    # print(f"🟡 GOOD - {overall_score:.1f}% ({total_passed}/{total_tests})")
         elif overall_score >= 50:
-            print(f"🟠 FAIR - {overall_score:.1f}% ({total_passed}/{total_tests})")
+    # print(f"🟠 FAIR - {overall_score:.1f}% ({total_passed}/{total_tests})")
         else:
-            print(f"🔴 POOR - {overall_score:.1f}% ({total_passed}/{total_tests})")
+    # print(f"🔴 POOR - {overall_score:.1f}% ({total_passed}/{total_tests})")
 
         # Assertions for test validation
         assert overall_score >= 70, f"Boundary test score too low: {overall_score:.1f}%"
@@ -850,8 +850,8 @@ class TestBoundaryReport:
 # ============================================================================
 
 if __name__ == "__main__":
-    print("🎯 Running Authentication Boundary Tests")
-    print("=" * 50)
+    # print("🎯 Running Authentication Boundary Tests")
+    # print("=" * 50)
 
     # Run boundary tests
     pytest.main([

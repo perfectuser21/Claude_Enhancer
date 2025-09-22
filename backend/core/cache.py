@@ -19,8 +19,10 @@ from enum import Enum
 
 logger = logging.getLogger(__name__)
 
+
 class CacheStrategy(Enum):
     """缓存策略"""
+
     LRU = "lru"
     LFU = "lfu"
     TTL = "ttl"
@@ -28,9 +30,11 @@ class CacheStrategy(Enum):
     WRITE_BACK = "write_back"
     WRITE_AROUND = "write_around"
 
+
 @dataclass
 class CacheConfig:
     """缓存配置"""
+
     host: str = "localhost"
     port: int = 6379
     password: Optional[str] = None
@@ -44,6 +48,7 @@ class CacheConfig:
     default_ttl: int = 300  # 5分钟
     max_connections: int = 100
 
+
 class CacheManager:
     """Redis缓存管理器 - 企业级高性能缓存系统"""
 
@@ -52,13 +57,7 @@ class CacheManager:
         self.redis_pool = None
         self.local_cache = {}  # 本地L1缓存
         self.local_cache_ttl = {}
-        self.stats = {
-            'hits': 0,
-            'misses': 0,
-            'sets': 0,
-            'deletes': 0,
-            'errors': 0
-        }
+        self.stats = {"hits": 0, "misses": 0, "sets": 0, "deletes": 0, "errors": 0}
         self._lock = asyncio.Lock()
 
     async def initialize(self):
@@ -71,7 +70,7 @@ class CacheManager:
                 db=self.config.db,
                 max_connections=self.config.max_connections,
                 retry_on_timeout=self.config.retry_on_timeout,
-                decode_responses=self.config.decode_responses
+                decode_responses=self.config.decode_responses,
             )
 
             # 测试连接
@@ -103,16 +102,19 @@ class CacheManager:
         serialized = pickle.dumps(value)
 
         # 压缩大数据
-        if self.config.compression_enabled and len(serialized) > self.config.compression_threshold:
+        if (
+            self.config.compression_enabled
+            and len(serialized) > self.config.compression_threshold
+        ):
             serialized = zlib.compress(serialized)
             # 添加压缩标记
-            serialized = b'COMPRESSED:' + serialized
+            serialized = b"COMPRESSED:" + serialized
 
         return serialized
 
     def _deserialize_value(self, data: bytes) -> Any:
         """反序列化值"""
-        if data.startswith(b'COMPRESSED:'):
+        if data.startswith(b"COMPRESSED:"):
             # 解压缩
             data = zlib.decompress(data[11:])
 
@@ -129,7 +131,7 @@ class CacheManager:
         # 1. 检查本地缓存 (L1)
         if cache_key in self.local_cache:
             if datetime.now() < self.local_cache_ttl.get(cache_key, datetime.min):
-                self.stats['hits'] += 1
+                self.stats["hits"] += 1
                 logger.debug(f"🎯 L1缓存命中: {cache_key}")
                 return self.local_cache[cache_key]
             else:
@@ -146,19 +148,21 @@ class CacheManager:
                     # 更新本地缓存
                     self._update_local_cache(cache_key, value)
 
-                    self.stats['hits'] += 1
+                    self.stats["hits"] += 1
                     logger.debug(f"🎯 L2缓存命中: {cache_key}")
                     return value
 
         except Exception as e:
             logger.error(f"❌ Redis获取失败: {e}")
-            self.stats['errors'] += 1
+            self.stats["errors"] += 1
 
-        self.stats['misses'] += 1
+        self.stats["misses"] += 1
         logger.debug(f"❌ 缓存未命中: {cache_key}")
         return default
 
-    async def set(self, namespace: str, key: str, value: Any, ttl: Optional[int] = None) -> bool:
+    async def set(
+        self, namespace: str, key: str, value: Any, ttl: Optional[int] = None
+    ) -> bool:
         """设置缓存值"""
         cache_key = self._generate_key(namespace, key)
         ttl = ttl or self.config.default_ttl
@@ -174,13 +178,13 @@ class CacheManager:
             # 更新本地缓存
             self._update_local_cache(cache_key, value, ttl=min(ttl, 60))  # 本地缓存最多1分钟
 
-            self.stats['sets'] += 1
+            self.stats["sets"] += 1
             logger.debug(f"✅ 缓存设置成功: {cache_key} (TTL: {ttl}s)")
             return True
 
         except Exception as e:
             logger.error(f"❌ Redis设置失败: {e}")
-            self.stats['errors'] += 1
+            self.stats["errors"] += 1
             return False
 
     async def delete(self, namespace: str, key: str) -> bool:
@@ -195,13 +199,13 @@ class CacheManager:
             # 删除本地缓存
             self._remove_from_local_cache(cache_key)
 
-            self.stats['deletes'] += 1
+            self.stats["deletes"] += 1
             logger.debug(f"🗑️ 缓存删除: {cache_key}")
             return bool(result)
 
         except Exception as e:
             logger.error(f"❌ Redis删除失败: {e}")
-            self.stats['errors'] += 1
+            self.stats["errors"] += 1
             return False
 
     async def delete_pattern(self, namespace: str, pattern: str) -> int:
@@ -216,14 +220,16 @@ class CacheManager:
 
                     # 删除本地缓存中匹配的键
                     for key in keys:
-                        self._remove_from_local_cache(key.decode() if isinstance(key, bytes) else key)
+                        self._remove_from_local_cache(
+                            key.decode() if isinstance(key, bytes) else key
+                        )
 
                     logger.info(f"🗑️ 批量删除缓存: {len(keys)}个键")
                     return deleted
 
         except Exception as e:
             logger.error(f"❌ 批量删除失败: {e}")
-            self.stats['errors'] += 1
+            self.stats["errors"] += 1
 
         return 0
 
@@ -244,7 +250,9 @@ class CacheManager:
             logger.error(f"❌ Redis检查存在失败: {e}")
             return False
 
-    async def increment(self, namespace: str, key: str, amount: int = 1) -> Optional[int]:
+    async def increment(
+        self, namespace: str, key: str, amount: int = 1
+    ) -> Optional[int]:
         """原子递增操作"""
         cache_key = self._generate_key(namespace, key)
 
@@ -265,7 +273,9 @@ class CacheManager:
             async with self._get_connection() as conn:
                 values = await conn.mget(cache_keys)
 
-                for i, (original_key, cache_key, value) in enumerate(zip(keys, cache_keys, values)):
+                for i, (original_key, cache_key, value) in enumerate(
+                    zip(keys, cache_keys, values)
+                ):
                     if value:
                         try:
                             result[original_key] = self._deserialize_value(value)
@@ -279,7 +289,9 @@ class CacheManager:
 
         return result
 
-    async def set_multiple(self, namespace: str, mapping: Dict[str, Any], ttl: Optional[int] = None) -> bool:
+    async def set_multiple(
+        self, namespace: str, mapping: Dict[str, Any], ttl: Optional[int] = None
+    ) -> bool:
         """批量设置缓存"""
         ttl = ttl or self.config.default_ttl
 
@@ -297,7 +309,7 @@ class CacheManager:
 
                 await pipe.execute()
 
-                self.stats['sets'] += len(mapping)
+                self.stats["sets"] += len(mapping)
                 logger.debug(f"✅ 批量设置缓存: {len(mapping)}个键")
                 return True
 
@@ -313,7 +325,9 @@ class CacheManager:
         # 限制本地缓存大小
         if len(self.local_cache) > 1000:
             # 移除最旧的条目
-            oldest_key = min(self.local_cache_ttl.keys(), key=lambda k: self.local_cache_ttl[k])
+            oldest_key = min(
+                self.local_cache_ttl.keys(), key=lambda k: self.local_cache_ttl[k]
+            )
             self._remove_from_local_cache(oldest_key)
 
     def _remove_from_local_cache(self, key: str):
@@ -329,8 +343,7 @@ class CacheManager:
 
                 now = datetime.now()
                 expired_keys = [
-                    key for key, expiry in self.local_cache_ttl.items()
-                    if now >= expiry
+                    key for key, expiry in self.local_cache_ttl.items() if now >= expiry
                 ]
 
                 for key in expired_keys:
@@ -350,7 +363,9 @@ class CacheManager:
 
                 total_operations = sum(self.stats.values())
                 if total_operations > 0:
-                    hit_rate = (self.stats['hits'] / (self.stats['hits'] + self.stats['misses'])) * 100
+                    hit_rate = (
+                        self.stats["hits"] / (self.stats["hits"] + self.stats["misses"])
+                    ) * 100
                     logger.info(
                         f"📊 缓存统计 - "
                         f"命中率: {hit_rate:.2f}%, "
@@ -366,14 +381,16 @@ class CacheManager:
 
     async def get_stats(self) -> Dict[str, Any]:
         """获取缓存统计信息"""
-        total_operations = self.stats['hits'] + self.stats['misses']
-        hit_rate = (self.stats['hits'] / total_operations * 100) if total_operations > 0 else 0
+        total_operations = self.stats["hits"] + self.stats["misses"]
+        hit_rate = (
+            (self.stats["hits"] / total_operations * 100) if total_operations > 0 else 0
+        )
 
         return {
             **self.stats,
-            'hit_rate': hit_rate,
-            'local_cache_size': len(self.local_cache),
-            'redis_connected': await self._check_redis_connection()
+            "hit_rate": hit_rate,
+            "local_cache_size": len(self.local_cache),
+            "redis_connected": await self._check_redis_connection(),
         }
 
     async def _check_redis_connection(self) -> bool:
@@ -399,8 +416,10 @@ class CacheManager:
             await self.redis_pool.disconnect()
             logger.info("📴 Redis连接池已关闭")
 
+
 def cache_result(namespace: str, ttl: int = 300, key_func: Optional[callable] = None):
     """缓存装饰器 - 自动缓存函数结果"""
+
     def decorator(func):
         @wraps(func)
         async def wrapper(*args, **kwargs):
@@ -415,7 +434,7 @@ def cache_result(namespace: str, ttl: int = 300, key_func: Optional[callable] = 
                 cache_key = hashlib.md5(":".join(key_parts).encode()).hexdigest()
 
             # 获取缓存管理器实例（需要从应用状态中获取）
-            cache_manager = getattr(wrapper, '_cache_manager', None)
+            cache_manager = getattr(wrapper, "_cache_manager", None)
             if not cache_manager:
                 # 如果没有缓存管理器，直接执行函数
                 return await func(*args, **kwargs)
@@ -432,7 +451,9 @@ def cache_result(namespace: str, ttl: int = 300, key_func: Optional[callable] = 
             return result
 
         return wrapper
+
     return decorator
+
 
 # 缓存装饰器使用示例
 @cache_result("user_profile", ttl=600, key_func=lambda user_id: f"user_{user_id}")
@@ -440,6 +461,7 @@ async def get_user_profile(user_id: int):
     """获取用户资料（带缓存）"""
     # 实际的数据库查询逻辑
     pass
+
 
 @cache_result("permissions", ttl=300)
 async def get_user_permissions(user_id: int, resource: str):

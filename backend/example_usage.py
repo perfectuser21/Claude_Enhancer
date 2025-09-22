@@ -17,9 +17,15 @@ from datetime import datetime, timedelta
 from typing import List, Optional
 
 from backend.db import (
-    init_database, close_database, init_cache, close_cache,
-    transaction, async_transaction, readonly_transaction,
-    get_redis_client, get_async_redis_client
+    init_database,
+    close_database,
+    init_cache,
+    close_cache,
+    transaction,
+    async_transaction,
+    readonly_transaction,
+    get_redis_client,
+    get_async_redis_client,
 )
 from backend.models import User, UserProfile, Session, AuditLog
 from backend.db.utils import PaginationHelper, BulkOperator, performance_monitor
@@ -61,29 +67,25 @@ class UserService:
         try:
             with transaction() as session:
                 # 检查用户是否已存在
-                existing_user = session.session.query(User).filter(
-                    (User.username == username) | (User.email == email)
-                ).first()
+                existing_user = (
+                    session.session.query(User)
+                    .filter((User.username == username) | (User.email == email))
+                    .first()
+                )
 
                 if existing_user:
                     logger.warning(f"用户已存在: {username}")
                     return None
 
                 # 创建新用户
-                user = User(
-                    username=username,
-                    email=email
-                )
+                user = User(username=username, email=email)
                 user.set_password(password)
 
                 session.add(user)
                 session.flush()  # 获取ID
 
                 # 创建用户资料
-                profile = UserProfile(
-                    user_id=user.id,
-                    display_name=username
-                )
+                profile = UserProfile(user_id=user.id, display_name=username)
                 session.add(profile)
 
                 # 记录审计日志
@@ -92,7 +94,7 @@ class UserService:
                     resource_type="User",
                     description=f"创建用户: {username}",
                     resource_id=str(user.id),
-                    user_id=str(user.id)
+                    user_id=str(user.id),
                 )
                 session.add(audit_log)
 
@@ -103,7 +105,9 @@ class UserService:
             logger.error(f"用户创建失败: {e}")
             return None
 
-    async def create_user_async(self, username: str, email: str, password: str) -> Optional[User]:
+    async def create_user_async(
+        self, username: str, email: str, password: str
+    ) -> Optional[User]:
         """
         创建用户 (异步版本)
         """
@@ -111,6 +115,7 @@ class UserService:
             async with async_transaction() as session:
                 # 检查用户是否已存在
                 from sqlalchemy import select
+
                 result = await session.execute(
                     select(User).where(
                         (User.username == username) | (User.email == email)
@@ -123,20 +128,14 @@ class UserService:
                     return None
 
                 # 创建新用户
-                user = User(
-                    username=username,
-                    email=email
-                )
+                user = User(username=username, email=email)
                 user.set_password(password)
 
                 session.add(user)
                 await session.flush()
 
                 # 创建用户资料
-                profile = UserProfile(
-                    user_id=user.id,
-                    display_name=username
-                )
+                profile = UserProfile(user_id=user.id, display_name=username)
                 session.add(profile)
 
                 # 缓存用户信息
@@ -189,7 +188,7 @@ class UserService:
                     user_data = user.to_dict()
                     # 加入资料信息
                     if user.profile:
-                        user_data['profile'] = user.profile.to_dict()
+                        user_data["profile"] = user.profile.to_dict()
 
                     # 缓存用户信息
                     await self.cache.set(user_key, user_data, ttl=1800)
@@ -248,23 +247,22 @@ class UserService:
                 for user_data in users_data:
                     # 设置密码哈希
                     user = User()
-                    user.set_password(user_data.get('password', 'default123'))
+                    user.set_password(user_data.get("password", "default123"))
 
-                    processed_data.append({
-                        'username': user_data['username'],
-                        'email': user_data['email'],
-                        'password_hash': user.password_hash,
-                        'password_salt': user.password_salt,
-                        'status': 'active',
-                        'role': 'user'
-                    })
+                    processed_data.append(
+                        {
+                            "username": user_data["username"],
+                            "email": user_data["email"],
+                            "password_hash": user.password_hash,
+                            "password_salt": user.password_salt,
+                            "status": "active",
+                            "role": "user",
+                        }
+                    )
 
                 # 批量插入
                 count = BulkOperator.bulk_insert(
-                    session.session,
-                    User,
-                    processed_data,
-                    batch_size=500
+                    session.session, User, processed_data, batch_size=500
                 )
 
                 logger.info(f"批量创建用户完成: {count}条")
@@ -292,11 +290,7 @@ class SessionService:
         self.cache = CacheOperations(redis_client)
 
     async def create_session(
-        self,
-        user_id: str,
-        token: str,
-        ip_address: str = None,
-        user_agent: str = None
+        self, user_id: str, token: str, ip_address: str = None, user_agent: str = None
     ) -> Optional[Session]:
         """
         创建用户会话
@@ -318,7 +312,7 @@ class SessionService:
                     token=token,
                     expires_in_seconds=3600,  # 1小时
                     ip_address=ip_address,
-                    user_agent=user_agent
+                    user_agent=user_agent,
                 )
 
                 db_session.add(session)
@@ -329,19 +323,11 @@ class SessionService:
                     await self.init_cache()
 
                 session_key = CacheKeyManager.session_key(session.session_id)
-                await self.cache.set(
-                    session_key,
-                    session.to_dict(),
-                    ttl=3600
-                )
+                await self.cache.set(session_key, session.to_dict(), ttl=3600)
 
                 # 缓存认证令牌映射
                 auth_key = CacheKeyManager.auth_key(session.token_hash)
-                await self.cache.set(
-                    auth_key,
-                    session.session_id,
-                    ttl=3600
-                )
+                await self.cache.set(auth_key, session.session_id, ttl=3600)
 
                 logger.info(f"会话创建成功: {session.session_id}")
                 return session
@@ -393,11 +379,7 @@ class SessionService:
                 if session and session.is_active:
                     # 更新缓存
                     session_key = CacheKeyManager.session_key(session.session_id)
-                    await self.cache.set(
-                        session_key,
-                        session.to_dict(),
-                        ttl=3600
-                    )
+                    await self.cache.set(session_key, session.to_dict(), ttl=3600)
 
                     logger.info(f"从数据库验证会话: {session.session_id}")
                     return session
@@ -427,9 +409,7 @@ async def demo_database_operations():
         # 演示1: 创建用户
         logger.info("\n--- 演示1: 创建用户 ---")
         user = await user_service.create_user_async(
-            username="demo_user",
-            email="demo@example.com",
-            password="demo123456"
+            username="demo_user", email="demo@example.com", password="demo123456"
         )
 
         if user:
@@ -447,7 +427,7 @@ async def demo_database_operations():
                 user_id=str(user.id),
                 token="demo_token_123456",
                 ip_address="192.168.1.100",
-                user_agent="Demo Client 1.0"
+                user_agent="Demo Client 1.0",
             )
 
             if session:
@@ -455,7 +435,9 @@ async def demo_database_operations():
 
                 # 演示4: 会话验证
                 logger.info("\n--- 演示4: 会话验证 ---")
-                validated_session = await session_service.validate_session("demo_token_123456")
+                validated_session = await session_service.validate_session(
+                    "demo_token_123456"
+                )
                 if validated_session:
                     logger.info("会话验证成功")
 
@@ -467,7 +449,11 @@ async def demo_database_operations():
         # 演示6: 批量操作
         logger.info("\n--- 演示6: 批量操作 ---")
         bulk_users = [
-            {"username": f"bulk_user_{i}", "email": f"bulk{i}@example.com", "password": "bulk123"}
+            {
+                "username": f"bulk_user_{i}",
+                "email": f"bulk{i}@example.com",
+                "password": "bulk123",
+            }
             for i in range(1, 11)
         ]
         count = user_service.bulk_create_users(bulk_users)

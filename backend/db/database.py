@@ -16,11 +16,12 @@ from contextlib import asynccontextmanager, contextmanager
 from typing import AsyncGenerator, Generator, Optional
 import time
 
-from sqlalchemy import (
-    create_engine, Engine, text, event, pool, exc
-)
+from sqlalchemy import create_engine, Engine, text, event, pool, exc
 from sqlalchemy.ext.asyncio import (
-    create_async_engine, AsyncEngine, AsyncSession, async_sessionmaker
+    create_async_engine,
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
 )
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import QueuePool, StaticPool
@@ -40,11 +41,13 @@ AsyncSessionLocal: Optional[async_sessionmaker] = None
 
 class DatabaseConnectionError(Exception):
     """数据库连接错误"""
+
     pass
 
 
 class DatabaseTimeoutError(Exception):
     """数据库超时错误"""
+
     pass
 
 
@@ -63,8 +66,8 @@ def create_database_engine() -> Engine:
             config.get_sync_url(),
             **config.get_engine_kwargs(),
             poolclass=QueuePool,
-            pool_reset_on_return='commit',
-            future=True  # 使用SQLAlchemy 2.0风格
+            pool_reset_on_return="commit",
+            future=True,  # 使用SQLAlchemy 2.0风格
         )
 
         # 注册事件监听器
@@ -97,8 +100,8 @@ def create_async_database_engine() -> AsyncEngine:
             config.get_async_url(),
             **config.get_async_engine_kwargs(),
             poolclass=QueuePool,
-            pool_reset_on_return='commit',
-            future=True
+            pool_reset_on_return="commit",
+            future=True,
         )
 
         # 注册事件监听器
@@ -188,7 +191,7 @@ async def init_database() -> None:
             class_=Session,
             expire_on_commit=False,
             autoflush=True,
-            autocommit=False
+            autocommit=False,
         )
 
         AsyncSessionLocal = async_sessionmaker(
@@ -196,7 +199,7 @@ async def init_database() -> None:
             class_=AsyncSession,
             expire_on_commit=False,
             autoflush=True,
-            autocommit=False
+            autocommit=False,
         )
 
         # 测试连接
@@ -386,7 +389,9 @@ async def get_database_info() -> dict:
                 "database": current_db,
                 "user": current_user,
                 "pool_info": pool_info,
-                "engine_url": str(async_engine.url.render_as_string(hide_password=True)),
+                "engine_url": str(
+                    async_engine.url.render_as_string(hide_password=True)
+                ),
             }
 
     except Exception as e:
@@ -464,20 +469,20 @@ connection_monitor = ConnectionMonitor()
 
 # 导出公共接口
 __all__ = [
-    'engine',
-    'async_engine',
-    'SessionLocal',
-    'AsyncSessionLocal',
-    'get_db_session',
-    'get_async_db_session',
-    'init_database',
-    'close_database',
-    'create_tables',
-    'drop_tables',
-    'test_database_connection',
-    'get_database_info',
-    'ConnectionMonitor',
-    'connection_monitor',
-    'DatabaseConnectionError',
-    'DatabaseTimeoutError',
+    "engine",
+    "async_engine",
+    "SessionLocal",
+    "AsyncSessionLocal",
+    "get_db_session",
+    "get_async_db_session",
+    "init_database",
+    "close_database",
+    "create_tables",
+    "drop_tables",
+    "test_database_connection",
+    "get_database_info",
+    "ConnectionMonitor",
+    "connection_monitor",
+    "DatabaseConnectionError",
+    "DatabaseTimeoutError",
 ]

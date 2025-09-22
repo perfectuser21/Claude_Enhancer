@@ -36,7 +36,7 @@ class AgentOutputCollector:
             # 检测是否是Task工具的输出
             if "Task" not in input_data or "subagent_type" not in input_data:
                 # 不是Agent输出，直接返回
-                print(input_data, end="")
+    # print(input_data, end="")
                 return
 
             # 提取Agent信息
@@ -47,13 +47,13 @@ class AgentOutputCollector:
 
             # 返回处理后的输出
             processed = self.process_output(input_data)
-            print(processed, end="")
+    # print(processed, end="")
 
         except Exception as e:
             # 出错时返回原始输入
-            print(f"Error in collector: {e}", file=sys.stderr)
+    # print(f"Error in collector: {e}", file=sys.stderr)
             if "input_data" in locals():
-                print(input_data, end="")
+    # print(input_data, end="")
 
     def extract_agent_info(self, text):
         """提取Agent类型和输出"""
@@ -115,11 +115,11 @@ class AgentOutputCollector:
 
         # 如果Agent太多，发出警告
         if agent_info["agent_count"] >= 5:
-            print(
+    # print(
                 f"\n⚠️  Context Usage: {agent_info['agent_count']} agents detected",
                 file=sys.stderr,
             )
-            print(f"   Summary saved to reduce context usage", file=sys.stderr)
+    # print(f"   Summary saved to reduce context usage", file=sys.stderr)
 
     def extract_key_points(self, text):
         """提取关键信息点"""

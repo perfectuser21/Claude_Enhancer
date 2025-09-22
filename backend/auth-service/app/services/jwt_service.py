@@ -20,8 +20,10 @@ from app.core.config import settings
 from shared.messaging.publisher import MessagePublisher, MessageType
 from shared.metrics.metrics import monitor_function
 
+
 class TokenClaims(BaseModel):
     """Token声明"""
+
     user_id: str
     permissions: List[str]
     roles: List[str]
@@ -32,13 +34,16 @@ class TokenClaims(BaseModel):
     jti: str
     token_type: str
 
+
 class TokenValidationResult(BaseModel):
     """Token验证结果"""
+
     valid: bool
     claims: Optional[TokenClaims] = None
     error: Optional[str] = None
     warnings: List[str] = []
     risk_factors: List[str] = []
+
 
 class JWTTokenManager:
     """JWT Token管理器"""
@@ -59,9 +64,7 @@ class JWTTokenManager:
     def _initialize(self):
         """初始化Redis和消息发布者"""
         self.redis_client = redis.Redis.from_url(
-            settings.REDIS_URL,
-            decode_responses=True,
-            health_check_interval=30
+            settings.REDIS_URL, decode_responses=True, health_check_interval=30
         )
 
     async def set_message_publisher(self, publisher: MessagePublisher):
@@ -69,8 +72,13 @@ class JWTTokenManager:
         self.message_publisher = publisher
 
     @monitor_function("token")
-    async def generate_token_pair(self, user_id: str, permissions: List[str],
-                                device_info: Dict[str, Any], ip_address: str) -> Dict[str, Any]:
+    async def generate_token_pair(
+        self,
+        user_id: str,
+        permissions: List[str],
+        device_info: Dict[str, Any],
+        ip_address: str,
+    ) -> Dict[str, Any]:
         """生成访问令牌和刷新令牌对"""
 
         current_time = datetime.utcnow()
@@ -86,12 +94,14 @@ class JWTTokenManager:
             "aud": self.audience,
             "sub": user_id,
             "iat": int(current_time.timestamp()),
-            "exp": int((current_time + timedelta(seconds=self.access_token_ttl)).timestamp()),
+            "exp": int(
+                (current_time + timedelta(seconds=self.access_token_ttl)).timestamp()
+            ),
             "jti": access_jti,
             "scope": permissions,
             "device_fingerprint": device_fingerprint,
             "ip_address": ip_address,
-            "token_type": "access"
+            "token_type": "access",
         }
 
         # 刷新令牌负载
@@ -100,11 +110,13 @@ class JWTTokenManager:
             "aud": self.audience,
             "sub": user_id,
             "iat": int(current_time.timestamp()),
-            "exp": int((current_time + timedelta(seconds=self.refresh_token_ttl)).timestamp()),
+            "exp": int(
+                (current_time + timedelta(seconds=self.refresh_token_ttl)).timestamp()
+            ),
             "jti": refresh_jti,
             "device_fingerprint": device_fingerprint,
             "ip_address": ip_address,
-            "token_type": "refresh"
+            "token_type": "refresh",
         }
 
         # 获取当前私钥
@@ -115,31 +127,37 @@ class JWTTokenManager:
 
         # 生成Token
         access_token = jwt.encode(
-            access_payload,
-            private_key,
-            algorithm=self.algorithm,
-            headers=headers
+            access_payload, private_key, algorithm=self.algorithm, headers=headers
         )
 
         refresh_token = jwt.encode(
-            refresh_payload,
-            private_key,
-            algorithm=self.algorithm,
-            headers=headers
+            refresh_payload, private_key, algorithm=self.algorithm, headers=headers
         )
 
         # 存储Token元数据到Redis
-        await self._store_token_metadata(access_jti, user_id, "access", self.access_token_ttl, {
-            "device_fingerprint": device_fingerprint,
-            "ip_address": ip_address,
-            "permissions": permissions
-        })
+        await self._store_token_metadata(
+            access_jti,
+            user_id,
+            "access",
+            self.access_token_ttl,
+            {
+                "device_fingerprint": device_fingerprint,
+                "ip_address": ip_address,
+                "permissions": permissions,
+            },
+        )
 
-        await self._store_token_metadata(refresh_jti, user_id, "refresh", self.refresh_token_ttl, {
-            "device_fingerprint": device_fingerprint,
-            "ip_address": ip_address,
-            "linked_access_jti": access_jti
-        })
+        await self._store_token_metadata(
+            refresh_jti,
+            user_id,
+            "refresh",
+            self.refresh_token_ttl,
+            {
+                "device_fingerprint": device_fingerprint,
+                "ip_address": ip_address,
+                "linked_access_jti": access_jti,
+            },
+        )
 
         # 记录Token生成事件
         if self.message_publisher:
@@ -151,9 +169,9 @@ class JWTTokenManager:
                     "access_jti": access_jti,
                     "refresh_jti": refresh_jti,
                     "ip_address": ip_address,
-                    "device_fingerprint": device_fingerprint
+                    "device_fingerprint": device_fingerprint,
                 },
-                user_id=user_id
+                user_id=user_id,
             )
 
         return {
@@ -163,12 +181,13 @@ class JWTTokenManager:
             "expires_in": self.access_token_ttl,
             "scope": permissions,
             "issued_at": current_time.isoformat(),
-            "device_fingerprint": device_fingerprint
+            "device_fingerprint": device_fingerprint,
         }
 
     @monitor_function("token")
-    async def validate_token(self, token: str, client_ip: str = None,
-                           user_agent: str = None) -> TokenValidationResult:
+    async def validate_token(
+        self, token: str, client_ip: str = None, user_agent: str = None
+    ) -> TokenValidationResult:
         """验证Token有效性"""
         try:
             # 解码Token头部获取密钥ID
@@ -177,17 +196,13 @@ class JWTTokenManager:
 
             if not kid:
                 return TokenValidationResult(
-                    valid=False,
-                    error="Missing key ID in token header"
+                    valid=False, error="Missing key ID in token header"
                 )
 
             # 获取对应公钥
             public_key = await self._get_public_key(kid)
             if not public_key:
-                return TokenValidationResult(
-                    valid=False,
-                    error="Invalid key ID"
-                )
+                return TokenValidationResult(valid=False, error="Invalid key ID")
 
             # 验证Token
             payload = jwt.decode(
@@ -201,8 +216,8 @@ class JWTTokenManager:
                     "verify_exp": True,
                     "verify_iat": True,
                     "verify_aud": True,
-                    "verify_iss": True
-                }
+                    "verify_iss": True,
+                },
             )
 
             jti = payload.get("jti")
@@ -211,16 +226,14 @@ class JWTTokenManager:
             # 检查Token是否在黑名单
             if await self._is_token_blacklisted(jti):
                 return TokenValidationResult(
-                    valid=False,
-                    error="Token has been revoked"
+                    valid=False, error="Token has been revoked"
                 )
 
             # 检查Token元数据
             token_metadata = await self._get_token_metadata(jti)
             if not token_metadata or token_metadata.get("active") != "true":
                 return TokenValidationResult(
-                    valid=False,
-                    error="Token metadata invalid or inactive"
+                    valid=False, error="Token metadata invalid or inactive"
                 )
 
             # 安全检查
@@ -235,7 +248,9 @@ class JWTTokenManager:
 
             # 设备指纹检查
             if user_agent:
-                current_fingerprint = self._generate_device_fingerprint({"user_agent": user_agent})
+                current_fingerprint = self._generate_device_fingerprint(
+                    {"user_agent": user_agent}
+                )
                 token_fingerprint = payload.get("device_fingerprint")
                 if current_fingerprint != token_fingerprint:
                     warnings.append("Device fingerprint mismatch")
@@ -251,7 +266,7 @@ class JWTTokenManager:
                 issued_at=payload.get("iat", 0),
                 expires_at=payload.get("exp", 0),
                 jti=jti,
-                token_type=payload.get("token_type", "access")
+                token_type=payload.get("token_type", "access"),
             )
 
             # 高风险检查
@@ -270,44 +285,36 @@ class JWTTokenManager:
                             "description": "High-risk token usage detected",
                             "risk_factors": risk_factors,
                             "ip_address": client_ip,
-                            "user_agent": user_agent
+                            "user_agent": user_agent,
                         },
                         user_id=user_id,
-                        priority=7
+                        priority=7,
                     )
 
                 return TokenValidationResult(
                     valid=False,
                     error="Token usage flagged as high risk",
-                    risk_factors=risk_factors
+                    risk_factors=risk_factors,
                 )
 
             return TokenValidationResult(
-                valid=True,
-                claims=claims,
-                warnings=warnings,
-                risk_factors=risk_factors
+                valid=True, claims=claims, warnings=warnings, risk_factors=risk_factors
             )
 
         except jwt.ExpiredSignatureError:
             await self._cleanup_expired_token(token)
-            return TokenValidationResult(
-                valid=False,
-                error="Token has expired"
-            )
+            return TokenValidationResult(valid=False, error="Token has expired")
         except jwt.InvalidTokenError as e:
-            return TokenValidationResult(
-                valid=False,
-                error=f"Invalid token: {str(e)}"
-            )
+            return TokenValidationResult(valid=False, error=f"Invalid token: {str(e)}")
         except Exception as e:
             return TokenValidationResult(
-                valid=False,
-                error=f"Token validation error: {str(e)}"
+                valid=False, error=f"Token validation error: {str(e)}"
             )
 
     @monitor_function("token")
-    async def refresh_token(self, refresh_token: str, client_ip: str = None) -> Dict[str, Any]:
+    async def refresh_token(
+        self, refresh_token: str, client_ip: str = None
+    ) -> Dict[str, Any]:
         """刷新访问令牌"""
 
         # 验证refresh token
@@ -335,7 +342,7 @@ class JWTTokenManager:
             user_id=claims.user_id,
             permissions=claims.permissions,
             device_info={"user_agent": "refresh"},  # 简化设备信息
-            ip_address=client_ip or claims.ip_address
+            ip_address=client_ip or claims.ip_address,
         )
 
     @monitor_function("token")
@@ -353,21 +360,24 @@ class JWTTokenManager:
                 mapping={
                     "active": "false",
                     "revoked_at": datetime.utcnow().isoformat(),
-                    "revoke_reason": reason
-                }
+                    "revoke_reason": reason,
+                },
             )
 
             # 记录撤销事件
-            await self._log_token_event("token_revoked", jti, {
-                "reason": reason,
-                "timestamp": datetime.utcnow().isoformat()
-            })
+            await self._log_token_event(
+                "token_revoked",
+                jti,
+                {"reason": reason, "timestamp": datetime.utcnow().isoformat()},
+            )
 
         except Exception as e:
             raise RuntimeError(f"Failed to revoke token: {e}")
 
     @monitor_function("token")
-    async def revoke_all_user_tokens(self, user_id: str, reason: str = "security_measure"):
+    async def revoke_all_user_tokens(
+        self, user_id: str, reason: str = "security_measure"
+    ):
         """撤销用户的所有Token"""
         try:
             # 获取用户所有Token
@@ -391,9 +401,9 @@ class JWTTokenManager:
                         "alert_type": "bulk_token_revocation",
                         "severity": "medium",
                         "description": f"All user tokens revoked: {reason}",
-                        "revoked_count": revoked_count
+                        "revoked_count": revoked_count,
                     },
-                    user_id=user_id
+                    user_id=user_id,
                 )
 
             return revoked_count
@@ -406,22 +416,20 @@ class JWTTokenManager:
         try:
             # 生成新的RSA密钥对
             private_key = rsa.generate_private_key(
-                public_exponent=65537,
-                key_size=2048,
-                backend=default_backend()
+                public_exponent=65537, key_size=2048, backend=default_backend()
             )
 
             # 序列化私钥和公钥
             private_pem = private_key.private_bytes(
                 encoding=serialization.Encoding.PEM,
                 format=serialization.PrivateFormat.PKCS8,
-                encryption_algorithm=serialization.NoEncryption()
+                encryption_algorithm=serialization.NoEncryption(),
             ).decode()
 
             public_key = private_key.public_key()
             public_pem = public_key.public_bytes(
                 encoding=serialization.Encoding.PEM,
-                format=serialization.PublicFormat.SubjectPublicKeyInfo
+                format=serialization.PublicFormat.SubjectPublicKeyInfo,
             ).decode()
 
             # 生成密钥ID
@@ -433,8 +441,8 @@ class JWTTokenManager:
                 mapping={
                     f"private:{kid}": private_pem,
                     f"public:{kid}": public_pem,
-                    "current_kid": kid
-                }
+                    "current_kid": kid,
+                },
             )
 
             # 设置旧密钥过期时间（24小时后）
@@ -456,23 +464,26 @@ class JWTTokenManager:
             # 首次启动，生成初始密钥
             await self.rotate_keys()
 
-    async def batch_validate_tokens(self, tokens: List[str]) -> List[TokenValidationResult]:
+    async def batch_validate_tokens(
+        self, tokens: List[str]
+    ) -> List[TokenValidationResult]:
         """批量验证Token"""
         results = []
 
         # 并发验证所有Token
-        validation_tasks = [
-            self.validate_token(token) for token in tokens
-        ]
+        validation_tasks = [self.validate_token(token) for token in tokens]
 
-        validation_results = await asyncio.gather(*validation_tasks, return_exceptions=True)
+        validation_results = await asyncio.gather(
+            *validation_tasks, return_exceptions=True
+        )
 
         for i, result in enumerate(validation_results):
             if isinstance(result, Exception):
-                results.append(TokenValidationResult(
-                    valid=False,
-                    error=f"Validation error: {str(result)}"
-                ))
+                results.append(
+                    TokenValidationResult(
+                        valid=False, error=f"Validation error: {str(result)}"
+                    )
+                )
             else:
                 results.append(result)
 
@@ -487,14 +498,20 @@ class JWTTokenManager:
             "screen_resolution": device_info.get("screen_resolution", ""),
             "timezone": device_info.get("timezone", ""),
             "language": device_info.get("language", ""),
-            "platform": device_info.get("platform", "")
+            "platform": device_info.get("platform", ""),
         }
 
         fingerprint_string = json.dumps(fingerprint_data, sort_keys=True)
         return hashlib.sha256(fingerprint_string.encode()).hexdigest()
 
-    async def _store_token_metadata(self, jti: str, user_id: str,
-                                  token_type: str, ttl: int, extra_data: Dict[str, Any]):
+    async def _store_token_metadata(
+        self,
+        jti: str,
+        user_id: str,
+        token_type: str,
+        ttl: int,
+        extra_data: Dict[str, Any],
+    ):
         """存储Token元数据"""
         metadata = {
             "jti": jti,
@@ -502,7 +519,7 @@ class JWTTokenManager:
             "token_type": token_type,
             "active": "true",
             "created_at": datetime.utcnow().isoformat(),
-            **extra_data
+            **extra_data,
         }
 
         metadata_key = f"token_metadata:{jti}"
@@ -536,9 +553,7 @@ class JWTTokenManager:
             raise RuntimeError("Private key not found")
 
         return serialization.load_pem_private_key(
-            private_key_pem.encode(),
-            password=None,
-            backend=default_backend()
+            private_key_pem.encode(), password=None, backend=default_backend()
         )
 
     async def _get_public_key(self, kid: str) -> Optional[bytes]:
@@ -548,8 +563,7 @@ class JWTTokenManager:
             return None
 
         return serialization.load_pem_public_key(
-            public_key_pem.encode(),
-            backend=default_backend()
+            public_key_pem.encode(), backend=default_backend()
         )
 
     async def _get_current_key_id(self) -> Optional[str]:
@@ -573,8 +587,7 @@ class JWTTokenManager:
         try:
             # 解码获取JTI（不验证过期时间）
             payload = jwt.decode(
-                token,
-                options={"verify_exp": False, "verify_signature": False}
+                token, options={"verify_exp": False, "verify_signature": False}
             )
             jti = payload.get("jti")
             if jti:
@@ -582,7 +595,9 @@ class JWTTokenManager:
         except:
             pass  # 忽略清理错误
 
-    async def _log_token_event(self, event_type: str, jti: str, details: Dict[str, Any]):
+    async def _log_token_event(
+        self, event_type: str, jti: str, details: Dict[str, Any]
+    ):
         """记录Token事件"""
         if self.message_publisher:
             await self.message_publisher.publish_message(
@@ -591,8 +606,8 @@ class JWTTokenManager:
                     "event_type": event_type,
                     "jti": jti,
                     "details": details,
-                    "timestamp": datetime.utcnow().isoformat()
-                }
+                    "timestamp": datetime.utcnow().isoformat(),
+                },
             )
 
     async def _log_security_event(self, event_type: str, details: Dict[str, Any]):
@@ -603,8 +618,8 @@ class JWTTokenManager:
                 data={
                     "event_type": event_type,
                     "details": details,
-                    "timestamp": datetime.utcnow().isoformat()
-                }
+                    "timestamp": datetime.utcnow().isoformat(),
+                },
             )
 
     async def close(self):
@@ -612,8 +627,10 @@ class JWTTokenManager:
         if self.redis_client:
             await self.redis_client.close()
 
+
 # 全局JWT管理器实例
 jwt_manager = JWTTokenManager()
+
 
 # 提供给其他模块使用的函数
 async def get_jwt_manager() -> JWTTokenManager:

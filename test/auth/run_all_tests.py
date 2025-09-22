@@ -54,11 +54,11 @@ class TestSuiteRunner:
         """
         self.start_time = datetime.utcnow()
 
-        print("🚀 Starting Authentication Test Suite")
-        print("=" * 60)
-        print(f"Started at: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')} UTC")
-        print(f"Test directory: {self.test_dir}")
-        print("=" * 60)
+    # print("🚀 Starting Authentication Test Suite")
+    # print("=" * 60)
+    # print(f"Started at: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')} UTC")
+    # print(f"Test directory: {self.test_dir}")
+    # print("=" * 60)
 
         # Default categories if not specified
         if not categories:
@@ -66,7 +66,7 @@ class TestSuiteRunner:
 
         # Run each test category
         for category in categories:
-            print(f"\n📋 Running {category.upper()} tests...")
+    # print(f"\n📋 Running {category.upper()} tests...")
             self.results[category] = self._run_test_category(category, verbose, parallel, coverage)
 
         self.end_time = datetime.utcnow()
@@ -244,51 +244,51 @@ class TestSuiteRunner:
         elif format_type == "html":
             self._generate_html_report(summary)
         else:
-            print(f"⚠️ Unknown output format: {format_type}, defaulting to console")
+    # print(f"⚠️ Unknown output format: {format_type}, defaulting to console")
             self._print_console_summary(summary)
 
     def _print_console_summary(self, summary: Dict[str, Any]):
         """Print summary to console"""
-        print(f"\n📊 TEST SUITE EXECUTION SUMMARY")
-        print("=" * 60)
+    # print(f"\n📊 TEST SUITE EXECUTION SUMMARY")
+    # print("=" * 60)
 
         exec_info = summary["execution_info"]
         summary_stats = summary["summary"]
 
-        print(f"Execution Time: {exec_info['total_duration_seconds']:.1f} seconds")
-        print(f"Categories Executed: {len(exec_info['categories_executed'])}")
-        print(f"Success Rate: {summary_stats['success_rate_percent']}%")
-        print()
+    # print(f"Execution Time: {exec_info['total_duration_seconds']:.1f} seconds")
+    # print(f"Categories Executed: {len(exec_info['categories_executed'])}")
+    # print(f"Success Rate: {summary_stats['success_rate_percent']}%")
+    # print()
 
-        print("STATUS BREAKDOWN:")
+    # print("STATUS BREAKDOWN:")
         for status, count in summary_stats["status_breakdown"].items():
             if count > 0:
-                print(f"  {status}: {count}")
-        print()
+    # print(f"  {status}: {count}")
+    # print()
 
-        print("CATEGORY DETAILS:")
+    # print("CATEGORY DETAILS:")
         for category, details in summary["category_details"].items():
             status = details["status"]
             duration = details["duration"]
             emoji = "✅" if status == "PASSED" else "❌" if status == "FAILED" else "⚠️"
-            print(f"  {emoji} {category.upper()}: {status} ({duration:.1f}s)")
-        print()
+    # print(f"  {emoji} {category.upper()}: {status} ({duration:.1f}s)")
+    # print()
 
         if summary["recommendations"]:
-            print("RECOMMENDATIONS:")
+    # print("RECOMMENDATIONS:")
             for i, rec in enumerate(summary["recommendations"], 1):
-                print(f"  {i}. {rec}")
-            print()
+    # print(f"  {i}. {rec}")
+    # print()
 
         # Overall result
         if summary_stats["success_rate_percent"] == 100:
-            print("🎉 ALL TESTS PASSED! Authentication system is ready for production.")
+    # print("🎉 ALL TESTS PASSED! Authentication system is ready for production.")
         elif summary_stats["success_rate_percent"] >= 80:
-            print("⚠️ Most tests passed, but some issues need attention.")
+    # print("⚠️ Most tests passed, but some issues need attention.")
         else:
-            print("❌ Multiple test failures detected. System needs significant work.")
+    # print("❌ Multiple test failures detected. System needs significant work.")
 
-        print("=" * 60)
+    # print("=" * 60)
 
     def _save_json_report(self, summary: Dict[str, Any]):
         """Save results as JSON report"""
@@ -299,7 +299,7 @@ class TestSuiteRunner:
         with open(filepath, 'w') as f:
             json.dump(summary, f, indent=2, default=str)
 
-        print(f"\n📄 JSON report saved: {filepath}")
+    # print(f"\n📄 JSON report saved: {filepath}")
 
     def _generate_html_report(self, summary: Dict[str, Any]):
         """Generate HTML report"""
@@ -312,7 +312,7 @@ class TestSuiteRunner:
         with open(filepath, 'w') as f:
             f.write(html_content)
 
-        print(f"\n📄 HTML report saved: {filepath}")
+    # print(f"\n📄 HTML report saved: {filepath}")
 
     def _create_html_content(self, summary: Dict[str, Any]) -> str:
         """Create HTML report content"""

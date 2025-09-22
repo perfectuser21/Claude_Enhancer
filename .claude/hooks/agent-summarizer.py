@@ -4,7 +4,10 @@ import os
 import sys
 
 # 动态获取Claude Enhancer项目路径
-CLAUDE_ENHANCER_HOME = os.environ.get('CLAUDE_ENHANCER_HOME', os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+CLAUDE_ENHANCER_HOME = os.environ.get(
+    "CLAUDE_ENHANCER_HOME",
+    os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")),
+)
 sys.path.insert(0, CLAUDE_ENHANCER_HOME)
 
 """
@@ -205,7 +208,7 @@ class AgentSummarizer:
 def main():
     """主函数 - 处理Hook调用"""
     if len(sys.argv) < 2:
-        print("Usage: agent-summarizer.py <agent_outputs.json>")
+        # print("Usage: agent-summarizer.py <agent_outputs.json>")
         sys.exit(1)
 
     try:
@@ -220,10 +223,10 @@ def main():
         summary = summarizer.summarize_agent_outputs(agent_outputs)
 
         # 输出汇总结果
-        print(json.dumps(summary, ensure_ascii=False, indent=2))
+    # print(json.dumps(summary, ensure_ascii=False, indent=2))
 
     except Exception as e:
-        print(f"错误: {e}", file=sys.stderr)
+        # print(f"错误: {e}", file=sys.stderr)
         sys.exit(1)
 
 

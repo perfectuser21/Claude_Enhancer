@@ -248,7 +248,7 @@ def main():
     if results['executed']:
         logger.info(f"Executed {len(results['executed'])} hooks")
         for item in results['executed']:
-            print(item.get('result', ''))
+    # print(item.get('result', ''))
 
     if results['errors']:
         for error in results['errors']:

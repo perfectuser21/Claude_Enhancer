@@ -15,8 +15,16 @@ import secrets
 import hashlib
 
 from sqlalchemy import (
-    Column, String, Boolean, Integer, DateTime, Text,
-    ForeignKey, Enum, Index, event
+    Column,
+    String,
+    Boolean,
+    Integer,
+    DateTime,
+    Text,
+    ForeignKey,
+    Enum,
+    Index,
+    event,
 )
 from sqlalchemy.dialects.postgresql import UUID, JSONB, INET
 from sqlalchemy.orm import relationship, validates
@@ -27,19 +35,21 @@ from .base import BaseModel
 
 class SessionStatus(enum.Enum):
     """会话状态枚举"""
-    ACTIVE = "active"          # 活跃
-    EXPIRED = "expired"        # 已过期
-    REVOKED = "revoked"        # 已撤销
-    INVALID = "invalid"        # 无效
+
+    ACTIVE = "active"  # 活跃
+    EXPIRED = "expired"  # 已过期
+    REVOKED = "revoked"  # 已撤销
+    INVALID = "invalid"  # 无效
 
 
 class DeviceType(enum.Enum):
     """设备类型枚举"""
-    WEB = "web"               # 网页浏览器
-    MOBILE = "mobile"         # 移动应用
-    DESKTOP = "desktop"       # 桌面应用
-    API = "api"               # API客户端
-    UNKNOWN = "unknown"       # 未知
+
+    WEB = "web"  # 网页浏览器
+    MOBILE = "mobile"  # 移动应用
+    DESKTOP = "desktop"  # 桌面应用
+    API = "api"  # API客户端
+    UNKNOWN = "unknown"  # 未知
 
 
 class Session(BaseModel):
@@ -54,40 +64,33 @@ class Session(BaseModel):
     - 会话生命周期管理
     """
 
-    __tablename__ = 'sessions'
+    __tablename__ = "sessions"
     __table_args__ = (
         # 创建索引
-        Index('idx_sessions_user_id', 'user_id'),
-        Index('idx_sessions_token_hash', 'token_hash'),
-        Index('idx_sessions_status', 'status'),
-        Index('idx_sessions_expires_at', 'expires_at'),
-        Index('idx_sessions_last_activity', 'last_activity_at'),
-
+        Index("idx_sessions_user_id", "user_id"),
+        Index("idx_sessions_token_hash", "token_hash"),
+        Index("idx_sessions_status", "status"),
+        Index("idx_sessions_expires_at", "expires_at"),
+        Index("idx_sessions_last_activity", "last_activity_at"),
         # 表注释
-        {'comment': '用户会话表 - 管理用户登录会话信息'}
+        {"comment": "用户会话表 - 管理用户登录会话信息"},
     )
 
     # 关联用户
     user_id = Column(
         UUID(as_uuid=True),
-        ForeignKey('users.id', ondelete='CASCADE'),
+        ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
-        comment="关联用户ID"
+        comment="关联用户ID",
     )
 
     # 会话标识
     session_id = Column(
-        String(255),
-        unique=True,
-        nullable=False,
-        comment="会话ID (对外暴露的标识符)"
+        String(255), unique=True, nullable=False, comment="会话ID (对外暴露的标识符)"
     )
 
     token_hash = Column(
-        String(255),
-        unique=True,
-        nullable=False,
-        comment="令牌哈希值 (用于验证)"
+        String(255), unique=True, nullable=False, comment="令牌哈希值 (用于验证)"
     )
 
     # 会话状态
@@ -95,95 +98,46 @@ class Session(BaseModel):
         Enum(SessionStatus),
         default=SessionStatus.ACTIVE,
         nullable=False,
-        comment="会话状态"
+        comment="会话状态",
     )
 
     # 时间管理
-    expires_at = Column(
-        DateTime(timezone=True),
-        nullable=False,
-        comment="过期时间"
-    )
+    expires_at = Column(DateTime(timezone=True), nullable=False, comment="过期时间")
 
-    last_activity_at = Column(
-        DateTime(timezone=True),
-        nullable=False,
-        comment="最后活动时间"
-    )
+    last_activity_at = Column(DateTime(timezone=True), nullable=False, comment="最后活动时间")
 
     # 设备信息
     device_type = Column(
-        Enum(DeviceType),
-        default=DeviceType.UNKNOWN,
-        nullable=False,
-        comment="设备类型"
+        Enum(DeviceType), default=DeviceType.UNKNOWN, nullable=False, comment="设备类型"
     )
 
-    device_id = Column(
-        String(255),
-        nullable=True,
-        comment="设备唯一标识"
-    )
+    device_id = Column(String(255), nullable=True, comment="设备唯一标识")
 
-    device_name = Column(
-        String(255),
-        nullable=True,
-        comment="设备名称"
-    )
+    device_name = Column(String(255), nullable=True, comment="设备名称")
 
-    user_agent = Column(
-        Text,
-        nullable=True,
-        comment="用户代理字符串"
-    )
+    user_agent = Column(Text, nullable=True, comment="用户代理字符串")
 
     # 网络信息
-    ip_address = Column(
-        INET,
-        nullable=True,
-        comment="IP地址"
-    )
+    ip_address = Column(INET, nullable=True, comment="IP地址")
 
-    ip_location = Column(
-        JSONB,
-        nullable=True,
-        comment="IP地理位置信息 (JSON)"
-    )
+    ip_location = Column(JSONB, nullable=True, comment="IP地理位置信息 (JSON)")
 
     # 安全字段
-    csrf_token = Column(
-        String(255),
-        nullable=True,
-        comment="CSRF令牌"
-    )
+    csrf_token = Column(String(255), nullable=True, comment="CSRF令牌")
 
     is_trusted_device = Column(
-        Boolean,
-        default=False,
-        nullable=False,
-        comment="是否为受信任设备"
+        Boolean, default=False, nullable=False, comment="是否为受信任设备"
     )
 
-    risk_score = Column(
-        Integer,
-        default=0,
-        nullable=False,
-        comment="风险评分 (0-100)"
-    )
+    risk_score = Column(Integer, default=0, nullable=False, comment="风险评分 (0-100)")
 
     # 扩展信息
-    metadata = Column(
-        JSONB,
-        nullable=True,
-        comment="扩展元数据 (JSON)"
-    )
+    metadata = Column(JSONB, nullable=True, comment="扩展元数据 (JSON)")
 
     # 关联关系
     user = relationship("User", back_populates="sessions")
     refresh_tokens = relationship(
-        "RefreshToken",
-        back_populates="session",
-        cascade="all, delete-orphan"
+        "RefreshToken", back_populates="session", cascade="all, delete-orphan"
     )
 
     @classmethod
@@ -206,7 +160,7 @@ class Session(BaseModel):
         ip_address: str = None,
         user_agent: str = None,
         **kwargs
-    ) -> 'Session':
+    ) -> "Session":
         """
         创建新会话
 
@@ -260,9 +214,9 @@ class Session(BaseModel):
     def is_active(self) -> bool:
         """检查会话是否活跃"""
         return (
-            self.status == SessionStatus.ACTIVE and
-            not self.is_expired and
-            not self.is_deleted
+            self.status == SessionStatus.ACTIVE
+            and not self.is_expired
+            and not self.is_deleted
         )
 
     def extend_session(self, seconds: int = 3600) -> None:
@@ -285,9 +239,9 @@ class Session(BaseModel):
         """
         self.status = SessionStatus.REVOKED
         if reason and self.metadata:
-            self.metadata['revocation_reason'] = reason
+            self.metadata["revocation_reason"] = reason
         elif reason:
-            self.metadata = {'revocation_reason': reason}
+            self.metadata = {"revocation_reason": reason}
 
     def update_activity(self, ip_address: str = None) -> None:
         """
@@ -312,83 +266,47 @@ class RefreshToken(BaseModel):
     - 使用计数和限制
     """
 
-    __tablename__ = 'refresh_tokens'
+    __tablename__ = "refresh_tokens"
     __table_args__ = (
-        Index('idx_refresh_tokens_session_id', 'session_id'),
-        Index('idx_refresh_tokens_token_hash', 'token_hash'),
-        Index('idx_refresh_tokens_expires_at', 'expires_at'),
-        {'comment': '刷新令牌表 - 管理JWT刷新令牌'}
+        Index("idx_refresh_tokens_session_id", "session_id"),
+        Index("idx_refresh_tokens_token_hash", "token_hash"),
+        Index("idx_refresh_tokens_expires_at", "expires_at"),
+        {"comment": "刷新令牌表 - 管理JWT刷新令牌"},
     )
 
     # 关联会话
     session_id = Column(
         UUID(as_uuid=True),
-        ForeignKey('sessions.id', ondelete='CASCADE'),
+        ForeignKey("sessions.id", ondelete="CASCADE"),
         nullable=False,
-        comment="关联会话ID"
+        comment="关联会话ID",
     )
 
     # 令牌信息
-    token_hash = Column(
-        String(255),
-        unique=True,
-        nullable=False,
-        comment="刷新令牌哈希"
-    )
+    token_hash = Column(String(255), unique=True, nullable=False, comment="刷新令牌哈希")
 
-    token_family = Column(
-        String(255),
-        nullable=False,
-        comment="令牌族标识 (用于检测令牌重放)"
-    )
+    token_family = Column(String(255), nullable=False, comment="令牌族标识 (用于检测令牌重放)")
 
     # 时间管理
-    expires_at = Column(
-        DateTime(timezone=True),
-        nullable=False,
-        comment="过期时间"
-    )
+    expires_at = Column(DateTime(timezone=True), nullable=False, comment="过期时间")
 
     # 使用信息
-    used_count = Column(
-        Integer,
-        default=0,
-        nullable=False,
-        comment="使用次数"
-    )
+    used_count = Column(Integer, default=0, nullable=False, comment="使用次数")
 
-    max_uses = Column(
-        Integer,
-        default=1,
-        nullable=False,
-        comment="最大使用次数"
-    )
+    max_uses = Column(Integer, default=1, nullable=False, comment="最大使用次数")
 
-    last_used_at = Column(
-        DateTime(timezone=True),
-        nullable=True,
-        comment="最后使用时间"
-    )
+    last_used_at = Column(DateTime(timezone=True), nullable=True, comment="最后使用时间")
 
     # 状态
-    is_revoked = Column(
-        Boolean,
-        default=False,
-        nullable=False,
-        comment="是否已撤销"
-    )
+    is_revoked = Column(Boolean, default=False, nullable=False, comment="是否已撤销")
 
     # 关联关系
     session = relationship("Session", back_populates="refresh_tokens")
 
     @classmethod
     def create_refresh_token(
-        cls,
-        session_id: str,
-        token: str,
-        expires_in_days: int = 30,
-        max_uses: int = 1
-    ) -> 'RefreshToken':
+        cls, session_id: str, token: str, expires_in_days: int = 30, max_uses: int = 1
+    ) -> "RefreshToken":
         """
         创建刷新令牌
 
@@ -406,7 +324,7 @@ class RefreshToken(BaseModel):
             token_hash=Session.generate_token_hash(token),
             token_family=secrets.token_urlsafe(16),
             expires_at=datetime.utcnow() + timedelta(days=expires_in_days),
-            max_uses=max_uses
+            max_uses=max_uses,
         )
 
     def verify_token(self, token: str) -> bool:
@@ -417,10 +335,10 @@ class RefreshToken(BaseModel):
     def is_valid(self) -> bool:
         """检查令牌是否有效"""
         return (
-            not self.is_revoked and
-            not self.is_deleted and
-            datetime.utcnow() < self.expires_at and
-            self.used_count < self.max_uses
+            not self.is_revoked
+            and not self.is_deleted
+            and datetime.utcnow() < self.expires_at
+            and self.used_count < self.max_uses
         )
 
     def use_token(self) -> bool:
@@ -454,95 +372,55 @@ class LoginHistory(BaseModel):
     - 安全事件记录
     """
 
-    __tablename__ = 'login_history'
+    __tablename__ = "login_history"
     __table_args__ = (
-        Index('idx_login_history_user_id', 'user_id'),
-        Index('idx_login_history_login_at', 'login_at'),
-        Index('idx_login_history_success', 'success'),
-        Index('idx_login_history_ip_address', 'ip_address'),
-        {'comment': '登录历史表 - 记录用户登录历史'}
+        Index("idx_login_history_user_id", "user_id"),
+        Index("idx_login_history_login_at", "login_at"),
+        Index("idx_login_history_success", "success"),
+        Index("idx_login_history_ip_address", "ip_address"),
+        {"comment": "登录历史表 - 记录用户登录历史"},
     )
 
     # 关联用户
     user_id = Column(
         UUID(as_uuid=True),
-        ForeignKey('users.id', ondelete='CASCADE'),
+        ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
-        comment="关联用户ID"
+        comment="关联用户ID",
     )
 
     # 登录信息
-    login_at = Column(
-        DateTime(timezone=True),
-        nullable=False,
-        comment="登录时间"
-    )
+    login_at = Column(DateTime(timezone=True), nullable=False, comment="登录时间")
 
-    success = Column(
-        Boolean,
-        nullable=False,
-        comment="登录是否成功"
-    )
+    success = Column(Boolean, nullable=False, comment="登录是否成功")
 
-    failure_reason = Column(
-        String(255),
-        nullable=True,
-        comment="失败原因"
-    )
+    failure_reason = Column(String(255), nullable=True, comment="失败原因")
 
     # 设备信息
     device_type = Column(
-        Enum(DeviceType),
-        default=DeviceType.UNKNOWN,
-        nullable=False,
-        comment="设备类型"
+        Enum(DeviceType), default=DeviceType.UNKNOWN, nullable=False, comment="设备类型"
     )
 
-    device_fingerprint = Column(
-        String(255),
-        nullable=True,
-        comment="设备指纹"
-    )
+    device_fingerprint = Column(String(255), nullable=True, comment="设备指纹")
 
-    user_agent = Column(
-        Text,
-        nullable=True,
-        comment="用户代理"
-    )
+    user_agent = Column(Text, nullable=True, comment="用户代理")
 
     # 网络信息
-    ip_address = Column(
-        INET,
-        nullable=True,
-        comment="IP地址"
-    )
+    ip_address = Column(INET, nullable=True, comment="IP地址")
 
-    ip_location = Column(
-        JSONB,
-        nullable=True,
-        comment="IP地理位置"
-    )
+    ip_location = Column(JSONB, nullable=True, comment="IP地理位置")
 
     # 安全信息
-    risk_score = Column(
-        Integer,
-        default=0,
-        nullable=False,
-        comment="风险评分"
-    )
+    risk_score = Column(Integer, default=0, nullable=False, comment="风险评分")
 
-    security_flags = Column(
-        JSONB,
-        nullable=True,
-        comment="安全标记 (JSON)"
-    )
+    security_flags = Column(JSONB, nullable=True, comment="安全标记 (JSON)")
 
     # 会话关联 (如果登录成功)
     session_id = Column(
         UUID(as_uuid=True),
-        ForeignKey('sessions.id', ondelete='SET NULL'),
+        ForeignKey("sessions.id", ondelete="SET NULL"),
         nullable=True,
-        comment="关联会话ID"
+        comment="关联会话ID",
     )
 
     # 关联关系
@@ -551,7 +429,7 @@ class LoginHistory(BaseModel):
 
 
 # 事件监听器 - 自动更新会话状态
-@event.listens_for(Session, 'before_update')
+@event.listens_for(Session, "before_update")
 def update_session_status(mapper, connection, target):
     """自动更新过期会话的状态"""
     if target.is_expired and target.status == SessionStatus.ACTIVE:
@@ -559,10 +437,4 @@ def update_session_status(mapper, connection, target):
 
 
 # 导出模型
-__all__ = [
-    'Session',
-    'RefreshToken',
-    'LoginHistory',
-    'SessionStatus',
-    'DeviceType'
-]
+__all__ = ["Session", "RefreshToken", "LoginHistory", "SessionStatus", "DeviceType"]

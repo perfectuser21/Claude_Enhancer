@@ -158,10 +158,10 @@ class TestSQLInjectionAttacks:
         assert report["summary"]["successful_attacks"] == 0, "SQL injection attacks should be blocked"
         assert report["summary"]["block_rate_percent"] == 100, "All SQL injection attempts should be blocked"
 
-        print(f"\n🔍 SQL Injection Test Results:")
-        print(f"  Attacks tested: {report['summary']['total_attack_vectors_tested']}")
-        print(f"  Attacks blocked: {report['summary']['blocked_attacks']}")
-        print(f"  Block rate: {report['summary']['block_rate_percent']:.1f}%")
+    # print(f"\n🔍 SQL Injection Test Results:")
+    # print(f"  Attacks tested: {report['summary']['total_attack_vectors_tested']}")
+    # print(f"  Attacks blocked: {report['summary']['blocked_attacks']}")
+    # print(f"  Block rate: {report['summary']['block_rate_percent']:.1f}%")
 
     @pytest.mark.asyncio
     async def test_sql_injection_registration_attacks(self, integrated_test_environment):
@@ -207,9 +207,9 @@ class TestSQLInjectionAttacks:
         report = security_suite.generate_security_report()
         assert report["summary"]["successful_attacks"] == 0, "Registration SQL injection should be blocked"
 
-        print(f"\n🔍 Registration SQL Injection Test Results:")
-        print(f"  Registration attacks tested: {len(registration_payloads)}")
-        print(f"  Attacks blocked: {report['summary']['blocked_attacks']}")
+    # print(f"\n🔍 Registration SQL Injection Test Results:")
+    # print(f"  Registration attacks tested: {len(registration_payloads)}")
+    # print(f"  Attacks blocked: {report['summary']['blocked_attacks']}")
 
 
 class TestXSSAttacks:
@@ -278,9 +278,9 @@ class TestXSSAttacks:
                     security_suite.log_attack_vector("xss_reflected", f"{field_name}:{payload}", {"success": False, "error": str(e)})
 
         report = security_suite.generate_security_report()
-        print(f"\n🌐 XSS Attack Test Results:")
-        print(f"  XSS vectors tested: {report['summary']['total_attack_vectors_tested']}")
-        print(f"  Potential vulnerabilities: {len(report['vulnerabilities'])}")
+    # print(f"\n🌐 XSS Attack Test Results:")
+    # print(f"  XSS vectors tested: {report['summary']['total_attack_vectors_tested']}")
+    # print(f"  Potential vulnerabilities: {len(report['vulnerabilities'])}")
 
     @pytest.mark.asyncio
     async def test_stored_xss_attacks(self, integrated_test_environment):
@@ -332,9 +332,9 @@ class TestXSSAttacks:
                 security_suite.log_attack_vector("xss_stored_registration", payload, {"success": False, "error": str(e)})
 
         report = security_suite.generate_security_report()
-        print(f"\n💾 Stored XSS Test Results:")
-        print(f"  Stored XSS attempts: {len(xss_payloads)}")
-        print(f"  Vulnerabilities found: {len(report['vulnerabilities'])}")
+    # print(f"\n💾 Stored XSS Test Results:")
+    # print(f"  Stored XSS attempts: {len(xss_payloads)}")
+    # print(f"  Vulnerabilities found: {len(report['vulnerabilities'])}")
 
 
 class TestBruteForceAttacks:
@@ -384,12 +384,12 @@ class TestBruteForceAttacks:
 
                 # Check for rate limiting after several attempts
                 if i > 5 and "rate limit" in result.get("error", "").lower():
-                    print(f"  Rate limiting triggered after {i} attempts")
+    # print(f"  Rate limiting triggered after {i} attempts")
                     break
 
                 # Check for account lockout
                 if "locked" in result.get("error", "").lower():
-                    print(f"  Account lockout triggered after {i} attempts")
+    # print(f"  Account lockout triggered after {i} attempts")
                     break
 
                 # Small delay between attempts
@@ -405,10 +405,10 @@ class TestBruteForceAttacks:
         # Should have proper protection mechanisms
         assert blocked_attempts > 0, "System should block brute force attempts"
 
-        print(f"\n🔨 Brute Force Attack Results:")
-        print(f"  Password attempts: {len(common_passwords)}")
-        print(f"  Blocked attempts: {blocked_attempts}")
-        print(f"  Protection mechanisms working: {blocked_attempts > successful_attempts}")
+    # print(f"\n🔨 Brute Force Attack Results:")
+    # print(f"  Password attempts: {len(common_passwords)}")
+    # print(f"  Blocked attempts: {blocked_attempts}")
+    # print(f"  Protection mechanisms working: {blocked_attempts > successful_attempts}")
 
     @pytest.mark.asyncio
     async def test_distributed_brute_force_attack(self, integrated_test_environment):
@@ -463,10 +463,10 @@ class TestBruteForceAttacks:
         # System should block distributed attacks
         assert successful_attacks == 0 or successful_attacks == 1, "Distributed brute force should be blocked"
 
-        print(f"\n🌐 Distributed Brute Force Results:")
-        print(f"  Total attempts from {len(attacker_ips[:10])} IPs: {total_attempts}")
-        print(f"  Successful attacks: {successful_attacks}")
-        print(f"  Block rate: {((total_attempts - successful_attacks) / total_attempts * 100):.1f}%")
+    # print(f"\n🌐 Distributed Brute Force Results:")
+    # print(f"  Total attempts from {len(attacker_ips[:10])} IPs: {total_attempts}")
+    # print(f"  Successful attacks: {successful_attacks}")
+    # print(f"  Block rate: {((total_attempts - successful_attacks) / total_attempts * 100):.1f}%")
 
 
 class TestAdvancedAttackVectors:
@@ -516,11 +516,11 @@ class TestAdvancedAttackVectors:
                 }
             )
 
-        print(f"\n⏱️ Timing Attack Analysis:")
-        print(f"  Avg time for existing user: {avg_existing:.3f}s")
-        print(f"  Avg time for non-existing user: {avg_nonexisting:.3f}s")
-        print(f"  Timing difference: {timing_difference:.3f}s")
-        print(f"  Timing attack resistance: {'GOOD' if timing_difference < 0.1 else 'NEEDS IMPROVEMENT'}")
+    # print(f"\n⏱️ Timing Attack Analysis:")
+    # print(f"  Avg time for existing user: {avg_existing:.3f}s")
+    # print(f"  Avg time for non-existing user: {avg_nonexisting:.3f}s")
+    # print(f"  Timing difference: {timing_difference:.3f}s")
+    # print(f"  Timing attack resistance: {'GOOD' if timing_difference < 0.1 else 'NEEDS IMPROVEMENT'}")
 
     @pytest.mark.asyncio
     async def test_user_enumeration_attacks(self, integrated_test_environment):
@@ -579,12 +579,12 @@ class TestAdvancedAttackVectors:
                     "error": str(e)
                 })
 
-        print(f"\n🔍 User Enumeration Test Results:")
+    # print(f"\n🔍 User Enumeration Test Results:")
         for result in enumeration_results:
             email = result["email"]
             exists = result["exists"]
             response = result.get("response", {})
-            print(f"  {email}: Exists={exists}, Response={'Success' if response.get('success') else 'Failed'}")
+    # print(f"  {email}: Exists={exists}, Response={'Success' if response.get('success') else 'Failed'}")
 
     @pytest.mark.asyncio
     async def test_session_fixation_attacks(self, integrated_test_environment):
@@ -634,9 +634,9 @@ class TestAdvancedAttackVectors:
                     )
 
         except Exception as e:
-            print(f"Session fixation test error: {e}")
+    # print(f"Session fixation test error: {e}")
 
-        print(f"\n🔗 Session Fixation Test Completed")
+    # print(f"\n🔗 Session Fixation Test Completed")
 
     @pytest.mark.asyncio
     async def test_csrf_token_validation(self, integrated_test_environment):
@@ -678,14 +678,14 @@ class TestAdvancedAttackVectors:
             "description": "Password change with invalid CSRF token should be rejected"
         })
 
-        print(f"\n🛡️ CSRF Protection Analysis:")
+    # print(f"\n🛡️ CSRF Protection Analysis:")
         for test in csrf_test_results:
-            print(f"  {test['test']}: {'PROTECTED' if test['protected'] else 'VULNERABLE'}")
+    # print(f"  {test['test']}: {'PROTECTED' if test['protected'] else 'VULNERABLE'}")
 
 
 if __name__ == "__main__":
-    print("🛡️ Running Advanced Security & Penetration Tests")
-    print("=" * 60)
+    # print("🛡️ Running Advanced Security & Penetration Tests")
+    # print("=" * 60)
 
     pytest.main([
         __file__,

@@ -136,16 +136,16 @@ class ResourceMonitor:
 
     def _handle_cpu_alert(self, snapshot: ResourceSnapshot):
         """Handle high CPU usage"""
-        print(f"⚠️ High CPU usage: {snapshot.cpu_percent:.1f}%", file=sys.stderr)
+    # print(f"⚠️ High CPU usage: {snapshot.cpu_percent:.1f}%", file=sys.stderr)
 
         # Find CPU-intensive Claude processes
         cpu_hogs = self._find_cpu_intensive_processes()
         if cpu_hogs:
-            print(f"Top CPU consumers: {cpu_hogs}", file=sys.stderr)
+    # print(f"Top CPU consumers: {cpu_hogs}", file=sys.stderr)
 
     def _handle_memory_alert(self, snapshot: ResourceSnapshot):
         """Handle high memory usage"""
-        print(f"⚠️ High memory usage: {snapshot.memory_percent:.1f}%", file=sys.stderr)
+    # print(f"⚠️ High memory usage: {snapshot.memory_percent:.1f}%", file=sys.stderr)
 
         # Trigger cleanup
         if self.auto_cleanup:
@@ -153,7 +153,7 @@ class ResourceMonitor:
 
     def _handle_file_alert(self, snapshot: ResourceSnapshot):
         """Handle excessive file handles"""
-        print(f"⚠️ High file handle usage: {snapshot.open_files}", file=sys.stderr)
+    # print(f"⚠️ High file handle usage: {snapshot.open_files}", file=sys.stderr)
 
         # Cleanup temporary files
         self._cleanup_temp_files()
@@ -226,7 +226,7 @@ class ResourceMonitor:
         optimizations.append("Cleared system caches")
 
         if optimizations:
-            print(f"🔧 Auto-optimization: {', '.join(optimizations)}", file=sys.stderr)
+    # print(f"🔧 Auto-optimization: {', '.join(optimizations)}", file=sys.stderr)
 
     def _cleanup_resources(self):
         """Cleanup system resources"""
@@ -385,15 +385,15 @@ if __name__ == "__main__":
 
         if command == "status":
             status = get_system_status()
-            print(json.dumps(status, indent=2))
+    # print(json.dumps(status, indent=2))
         elif command == "cleanup":
             cleanup_system_resources()
-            print("Resources cleaned up")
+    # print("Resources cleaned up")
         elif command == "recommendations":
             monitor = get_resource_monitor()
             recommendations = monitor.get_optimization_recommendations()
             for rec in recommendations:
-                print(f"• {rec}")
+    # print(f"• {rec}")
         elif command == "monitor":
             # Interactive monitoring mode
             monitor = get_resource_monitor()
@@ -401,14 +401,14 @@ if __name__ == "__main__":
                 while True:
                     status = monitor.get_resource_summary()
                     if status:
-                        print(f"\rCPU: {status['current']['cpu_percent']:5.1f}% | "
+    # print(f"\rCPU: {status['current']['cpu_percent']:5.1f}% | "
                               f"Memory: {status['current']['memory_percent']:5.1f}% | "
                               f"Files: {status['current']['open_files']:4d} | "
                               f"Threads: {status['current']['threads']:3d}", end='')
                     time.sleep(1)
             except KeyboardInterrupt:
-                print("\nMonitoring stopped")
+    # print("\nMonitoring stopped")
     else:
         # Start monitoring in background
         monitor = get_resource_monitor()
-        print("Resource monitoring started")
+    # print("Resource monitoring started")

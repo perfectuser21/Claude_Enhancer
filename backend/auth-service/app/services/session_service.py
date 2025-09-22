@@ -707,10 +707,10 @@ class SessionService:
                             cleanup_count += 1
                 
                 if cleanup_count > 0:
-                    print(f"清理了 {cleanup_count} 个过期会话")
+    # print(f"清理了 {cleanup_count} 个过期会话")
                     
             except Exception as e:
-                print(f"会话清理任务错误: {e}")
+    # print(f"会话清理任务错误: {e}")
                 await asyncio.sleep(60)  # 错误时等待1分钟后重试
 
     async def close(self):

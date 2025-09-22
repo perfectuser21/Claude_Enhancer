@@ -19,6 +19,7 @@ import sqlite3
 import tempfile
 import os
 
+
 # Mock Database Layer
 class MockDatabase:
     """Mock database for integration testing"""
@@ -34,7 +35,8 @@ class MockDatabase:
         cursor = self.connection.cursor()
 
         # Users table
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE TABLE users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 email TEXT UNIQUE NOT NULL,
@@ -46,10 +48,12 @@ class MockDatabase:
                 last_login TIMESTAMP,
                 last_activity TIMESTAMP
             )
-        """)
+        """
+        )
 
         # Sessions table
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE TABLE user_sessions (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER NOT NULL,
@@ -61,10 +65,12 @@ class MockDatabase:
                 is_active BOOLEAN DEFAULT TRUE,
                 FOREIGN KEY (user_id) REFERENCES users (id)
             )
-        """)
+        """
+        )
 
         # Password reset tokens table
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE TABLE password_reset_tokens (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER NOT NULL,
@@ -74,7 +80,8 @@ class MockDatabase:
                 is_used BOOLEAN DEFAULT FALSE,
                 FOREIGN KEY (user_id) REFERENCES users (id)
             )
-        """)
+        """
+        )
 
         self.connection.commit()
 
@@ -83,7 +90,7 @@ class MockDatabase:
         cursor = self.connection.cursor()
         cursor.execute(query, params)
 
-        if query.strip().upper().startswith('SELECT'):
+        if query.strip().upper().startswith("SELECT"):
             columns = [description[0] for description in cursor.description]
             rows = cursor.fetchall()
             return [dict(zip(columns, row)) for row in rows]
@@ -95,6 +102,7 @@ class MockDatabase:
         """Close database connection"""
         self.connection.close()
 
+
 # Mock API Server
 class MockAPIServer:
     """Mock API server for integration testing"""
@@ -105,7 +113,9 @@ class MockAPIServer:
         self.session_timeout_hours = 24
         self.max_failed_attempts = 5
 
-    async def register_user(self, email: str, password: str, device_info: str = None) -> Dict[str, Any]:
+    async def register_user(
+        self, email: str, password: str, device_info: str = None
+    ) -> Dict[str, Any]:
         """Register new user endpoint simulation"""
         try:
             # Validate email format
@@ -114,7 +124,10 @@ class MockAPIServer:
 
             # Validate password strength
             if not self._validate_password(password):
-                return {"success": False, "error": "Password does not meet requirements"}
+                return {
+                    "success": False,
+                    "error": "Password does not meet requirements",
+                }
 
             # Check if user already exists
             existing_users = self.database.execute_query(
@@ -129,7 +142,7 @@ class MockAPIServer:
             # Insert new user
             self.database.execute_query(
                 "INSERT INTO users (email, password_hash) VALUES (?, ?)",
-                (email, password_hash)
+                (email, password_hash),
             )
 
             # Get created user
@@ -144,8 +157,8 @@ class MockAPIServer:
                     "user": {
                         "id": user["id"],
                         "email": user["email"],
-                        "created_at": user["created_at"]
-                    }
+                        "created_at": user["created_at"],
+                    },
                 }
             else:
                 return {"success": False, "error": "Failed to create user"}
@@ -153,7 +166,9 @@ class MockAPIServer:
         except Exception as e:
             return {"success": False, "error": f"Registration failed: {str(e)}"}
 
-    async def login_user(self, email: str, password: str, device_info: str = None, ip_address: str = None) -> Dict[str, Any]:
+    async def login_user(
+        self, email: str, password: str, device_info: str = None, ip_address: str = None
+    ) -> Dict[str, Any]:
         """User login endpoint simulation"""
         try:
             # Get user from database
@@ -168,7 +183,10 @@ class MockAPIServer:
 
             # Check if account is locked
             if user["is_locked"]:
-                return {"success": False, "error": "Account is locked due to too many failed attempts"}
+                return {
+                    "success": False,
+                    "error": "Account is locked due to too many failed attempts",
+                }
 
             # Check if account is active
             if not user["is_active"]:
@@ -182,18 +200,21 @@ class MockAPIServer:
 
                 self.database.execute_query(
                     "UPDATE users SET failed_login_attempts = ?, is_locked = ? WHERE id = ?",
-                    (new_attempts, is_locked, user["id"])
+                    (new_attempts, is_locked, user["id"]),
                 )
 
                 if is_locked:
-                    return {"success": False, "error": "Account locked due to too many failed attempts"}
+                    return {
+                        "success": False,
+                        "error": "Account locked due to too many failed attempts",
+                    }
                 else:
                     return {"success": False, "error": "Invalid credentials"}
 
             # Successful login - reset failed attempts and update last login
             self.database.execute_query(
                 "UPDATE users SET failed_login_attempts = 0, last_login = CURRENT_TIMESTAMP WHERE id = ?",
-                (user["id"],)
+                (user["id"],),
             )
 
             # Generate JWT token
@@ -206,7 +227,13 @@ class MockAPIServer:
             self.database.execute_query(
                 """INSERT INTO user_sessions (user_id, token_hash, device_info, ip_address, expires_at)
                    VALUES (?, ?, ?, ?, ?)""",
-                (user["id"], token_hash, device_info, ip_address, expires_at.isoformat())
+                (
+                    user["id"],
+                    token_hash,
+                    device_info,
+                    ip_address,
+                    expires_at.isoformat(),
+                ),
             )
 
             return {
@@ -215,9 +242,9 @@ class MockAPIServer:
                 "user": {
                     "id": user["id"],
                     "email": user["email"],
-                    "last_login": user["last_login"]
+                    "last_login": user["last_login"],
                 },
-                "expires_at": expires_at.isoformat()
+                "expires_at": expires_at.isoformat(),
             }
 
         except Exception as e:
@@ -238,7 +265,7 @@ class MockAPIServer:
                    FROM user_sessions s
                    JOIN users u ON s.user_id = u.id
                    WHERE s.token_hash = ? AND s.is_active = TRUE AND s.expires_at > CURRENT_TIMESTAMP""",
-                (token_hash,)
+                (token_hash,),
             )
 
             if not sessions:
@@ -253,19 +280,16 @@ class MockAPIServer:
             # Update last activity
             self.database.execute_query(
                 "UPDATE user_sessions SET last_activity = CURRENT_TIMESTAMP WHERE id = ?",
-                (session["id"],)
+                (session["id"],),
             )
 
             return {
                 "success": True,
-                "user": {
-                    "id": session["user_id"],
-                    "email": session["email"]
-                },
+                "user": {"id": session["user_id"], "email": session["email"]},
                 "session": {
                     "created_at": session["created_at"],
-                    "expires_at": session["expires_at"]
-                }
+                    "expires_at": session["expires_at"],
+                },
             }
 
         except Exception as e:
@@ -279,7 +303,7 @@ class MockAPIServer:
             # Deactivate session
             result = self.database.execute_query(
                 "UPDATE user_sessions SET is_active = FALSE WHERE token_hash = ?",
-                (token_hash,)
+                (token_hash,),
             )
 
             return {"success": True, "message": "Successfully logged out"}
@@ -299,15 +323,16 @@ class MockAPIServer:
             "data": {
                 "message": "Access granted to protected resource",
                 "user": validation_result["user"],
-                "timestamp": datetime.utcnow().isoformat()
-            }
+                "timestamp": datetime.utcnow().isoformat(),
+            },
         }
 
     # Helper methods
     def _validate_email(self, email: str) -> bool:
         """Basic email validation"""
         import re
-        pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+
+        pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
         return re.match(pattern, email) is not None
 
     def _validate_password(self, password: str) -> bool:
@@ -325,6 +350,7 @@ class MockAPIServer:
     def _hash_password(self, password: str) -> str:
         """Simplified password hashing for testing"""
         import hashlib
+
         return hashlib.sha256(f"salt_{password}".encode()).hexdigest()
 
     def _verify_password(self, password: str, password_hash: str) -> bool:
@@ -334,26 +360,30 @@ class MockAPIServer:
     def _generate_jwt_token(self, user_id: int, email: str) -> str:
         """Generate JWT token"""
         import jwt
+
         payload = {
-            'user_id': user_id,
-            'email': email,
-            'exp': datetime.utcnow() + timedelta(hours=self.session_timeout_hours),
-            'iat': datetime.utcnow()
+            "user_id": user_id,
+            "email": email,
+            "exp": datetime.utcnow() + timedelta(hours=self.session_timeout_hours),
+            "iat": datetime.utcnow(),
         }
-        return jwt.encode(payload, self.jwt_secret, algorithm='HS256')
+        return jwt.encode(payload, self.jwt_secret, algorithm="HS256")
 
     def _decode_jwt_token(self, token: str) -> Optional[Dict]:
         """Decode and validate JWT token"""
         import jwt
+
         try:
-            return jwt.decode(token, self.jwt_secret, algorithms=['HS256'])
+            return jwt.decode(token, self.jwt_secret, algorithms=["HS256"])
         except:
             return None
 
     def _hash_token(self, token: str) -> str:
         """Hash token for storage"""
         import hashlib
+
         return hashlib.sha256(token.encode()).hexdigest()
+
 
 # Test Fixtures
 @pytest.fixture
@@ -363,6 +393,7 @@ async def api_server():
     yield server
     server.database.close()
 
+
 @pytest.fixture
 async def test_user_data():
     """Provide test user data"""
@@ -370,12 +401,14 @@ async def test_user_data():
         "email": "testuser@example.com",
         "password": "TestPassword123!",
         "device_info": "Test Device",
-        "ip_address": "127.0.0.1"
+        "ip_address": "127.0.0.1",
     }
+
 
 # ============================================================================
 # INTEGRATION TESTS - COMPLETE AUTHENTICATION FLOWS
 # ============================================================================
+
 
 class TestCompleteAuthenticationFlows:
     """Test complete authentication workflows - like testing entire security processes"""
@@ -417,7 +450,9 @@ class TestCompleteAuthenticationFlows:
         await api_server.register_user(email, password)
 
         # Step 2: Login user
-        login_result = await api_server.login_user(email, password, device_info, ip_address)
+        login_result = await api_server.login_user(
+            email, password, device_info, ip_address
+        )
 
         assert login_result["success"] is True
         assert "token" in login_result
@@ -428,7 +463,7 @@ class TestCompleteAuthenticationFlows:
         # Step 3: Verify session created in database
         sessions = api_server.database.execute_query(
             "SELECT * FROM user_sessions WHERE user_id = ? AND is_active = TRUE",
-            (login_result["user"]["id"],)
+            (login_result["user"]["id"],),
         )
         assert len(sessions) == 1
         session = sessions[0]
@@ -452,7 +487,10 @@ class TestCompleteAuthenticationFlows:
 
         assert protected_result["success"] is True
         assert "data" in protected_result
-        assert protected_result["data"]["message"] == "Access granted to protected resource"
+        assert (
+            protected_result["data"]["message"]
+            == "Access granted to protected resource"
+        )
         assert protected_result["data"]["user"]["email"] == email
 
     @pytest.mark.asyncio
@@ -537,19 +575,23 @@ class TestCompleteAuthenticationFlows:
         user_id = login1["user"]["id"]
         sessions = api_server.database.execute_query(
             "SELECT * FROM user_sessions WHERE user_id = ? AND is_active = TRUE",
-            (user_id,)
+            (user_id,),
         )
         assert len(sessions) == 2
+
 
 # ============================================================================
 # INTEGRATION TESTS - ERROR SCENARIOS
 # ============================================================================
 
+
 class TestErrorScenarios:
     """Test error handling in integration scenarios"""
 
     @pytest.mark.asyncio
-    async def test_account_lockout_after_failed_attempts(self, api_server, test_user_data):
+    async def test_account_lockout_after_failed_attempts(
+        self, api_server, test_user_data
+    ):
         """🔒 Test account lockout mechanism"""
         email = test_user_data["email"]
         password = test_user_data["password"]
@@ -567,11 +609,15 @@ class TestErrorScenarios:
         # Try with correct password - should still fail
         result = await api_server.login_user(email, password)
         assert result["success"] is False
-        assert "Account locked" in result["error"] or "Account is locked" in result["error"]
+        assert (
+            "Account locked" in result["error"]
+            or "Account is locked" in result["error"]
+        )
 
         # Step 4: Verify lockout status in database
         users = api_server.database.execute_query(
-            "SELECT is_locked, failed_login_attempts FROM users WHERE email = ?", (email,)
+            "SELECT is_locked, failed_login_attempts FROM users WHERE email = ?",
+            (email,),
         )
         user = users[0]
         assert user["is_locked"] is True
@@ -606,7 +652,7 @@ class TestErrorScenarios:
             "expired_token_simulation",
             "",
             None,
-            "malformed-jwt-token"
+            "malformed-jwt-token",
         ]
 
         for token in invalid_tokens:
@@ -621,9 +667,11 @@ class TestErrorScenarios:
             protected_result = await api_server.protected_endpoint(token)
             assert protected_result["success"] is False
 
+
 # ============================================================================
 # INTEGRATION TESTS - PERFORMANCE SCENARIOS
 # ============================================================================
+
 
 class TestPerformanceIntegration:
     """Test authentication performance in integrated environment"""
@@ -648,8 +696,11 @@ class TestPerformanceIntegration:
         duration_ms = (end_time - start_time) * 1000
 
         # Verify all registrations successful
-        successful_registrations = sum(1 for result in results
-                                     if isinstance(result, dict) and result.get("success"))
+        successful_registrations = sum(
+            1
+            for result in results
+            if isinstance(result, dict) and result.get("success")
+        )
 
         assert successful_registrations == 50
         assert duration_ms < 10000  # Should complete within 10 seconds
@@ -684,8 +735,11 @@ class TestPerformanceIntegration:
         duration_ms = (end_time - start_time) * 1000
 
         # Verify all logins successful
-        successful_logins = sum(1 for result in results
-                              if isinstance(result, dict) and result.get("success"))
+        successful_logins = sum(
+            1
+            for result in results
+            if isinstance(result, dict) and result.get("success")
+        )
 
         assert successful_logins == 20
         assert duration_ms < 5000  # Should complete within 5 seconds
@@ -696,19 +750,22 @@ class TestPerformanceIntegration:
         )
         assert sessions[0]["count"] == 20
 
+
 # ============================================================================
 # TEST EXECUTION AND REPORTING
 # ============================================================================
 
 if __name__ == "__main__":
-    print("🔄 Running Authentication Integration Tests")
-    print("=" * 50)
+    # print("🔄 Running Authentication Integration Tests")
+    # print("=" * 50)
 
     # Run all tests with pytest
-    pytest.main([
-        __file__,
-        "-v",                    # Verbose output
-        "--tb=short",           # Short traceback format
-        "--asyncio-mode=auto",  # Enable asyncio support
-        "--durations=10"        # Show 10 slowest tests
-    ])
+    pytest.main(
+        [
+            __file__,
+            "-v",  # Verbose output
+            "--tb=short",  # Short traceback format
+            "--asyncio-mode=auto",  # Enable asyncio support
+            "--durations=10",  # Show 10 slowest tests
+        ]
+    )

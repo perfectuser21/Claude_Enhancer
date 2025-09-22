@@ -17,10 +17,14 @@ from datetime import datetime, timedelta
 from unittest.mock import Mock, patch, MagicMock
 from typing import Dict, Any, Optional
 
+
 # Mock authentication components for testing
 class MockUser:
     """Mock user model for testing"""
-    def __init__(self, email: str, password_hash: str, id: int = 1, is_active: bool = True):
+
+    def __init__(
+        self, email: str, password_hash: str, id: int = 1, is_active: bool = True
+    ):
         self.id = id
         self.email = email
         self.password_hash = password_hash
@@ -29,6 +33,7 @@ class MockUser:
         self.last_login = None
         self.failed_login_attempts = 0
         self.is_locked = False
+
 
 class MockAuthService:
     """Mock authentication service for testing"""
@@ -43,8 +48,11 @@ class MockAuthService:
         """Hash password using bcrypt simulation"""
         # Simulated bcrypt hashing for testing
         import hashlib
+
         salt = "test_salt"
-        return hashlib.pbkdf2_hmac('sha256', password.encode(), salt.encode(), 100000).hex()
+        return hashlib.pbkdf2_hmac(
+            "sha256", password.encode(), salt.encode(), 100000
+        ).hex()
 
     def verify_password(self, password: str, password_hash: str) -> bool:
         """Verify password against hash"""
@@ -53,17 +61,19 @@ class MockAuthService:
     def generate_jwt_token(self, user_id: int, email: str) -> str:
         """Generate JWT token for user"""
         payload = {
-            'user_id': user_id,
-            'email': email,
-            'exp': datetime.utcnow() + timedelta(hours=self.token_expiry_hours),
-            'iat': datetime.utcnow()
+            "user_id": user_id,
+            "email": email,
+            "exp": datetime.utcnow() + timedelta(hours=self.token_expiry_hours),
+            "iat": datetime.utcnow(),
         }
         return jwt.encode(payload, self.jwt_secret, algorithm=self.jwt_algorithm)
 
     def validate_jwt_token(self, token: str) -> Optional[Dict[str, Any]]:
         """Validate JWT token and return payload"""
         try:
-            payload = jwt.decode(token, self.jwt_secret, algorithms=[self.jwt_algorithm])
+            payload = jwt.decode(
+                token, self.jwt_secret, algorithms=[self.jwt_algorithm]
+            )
             return payload
         except jwt.ExpiredSignatureError:
             return None
@@ -76,7 +86,9 @@ class MockAuthService:
             return False
 
         password_hash = self.hash_password(password)
-        user = MockUser(email=email, password_hash=password_hash, id=len(self.users_db) + 1)
+        user = MockUser(
+            email=email, password_hash=password_hash, id=len(self.users_db) + 1
+        )
         self.users_db[email] = user
         return True
 
@@ -96,11 +108,13 @@ class MockAuthService:
                 user.is_locked = True
             return None
 
+
 # Test Fixtures
 @pytest.fixture
 def auth_service():
     """Provide clean auth service for each test"""
     return MockAuthService()
+
 
 @pytest.fixture
 def sample_user(auth_service):
@@ -110,14 +124,17 @@ def sample_user(auth_service):
     auth_service.register_user(email, password)
     return auth_service.users_db[email]
 
+
 @pytest.fixture
 def valid_jwt_token(auth_service, sample_user):
     """Generate valid JWT token for testing"""
     return auth_service.generate_jwt_token(sample_user.id, sample_user.email)
 
+
 # ============================================================================
 # UNIT TESTS - USER REGISTRATION
 # ============================================================================
+
 
 class TestUserRegistration:
     """Test user registration functionality - like testing a signup form"""
@@ -142,14 +159,10 @@ class TestUserRegistration:
         # Should not create duplicate user
         assert len(auth_service.users_db) == 1
 
-    @pytest.mark.parametrize("invalid_email", [
-        "invalid-email",
-        "@example.com",
-        "user@",
-        "user space@example.com",
-        "",
-        None
-    ])
+    @pytest.mark.parametrize(
+        "invalid_email",
+        ["invalid-email", "@example.com", "user@", "user space@example.com", "", None],
+    )
     def test_user_registration_invalid_email_formats(self, auth_service, invalid_email):
         """❌ Test registration with various invalid email formats"""
         # In real implementation, this would validate email format
@@ -158,7 +171,11 @@ class TestUserRegistration:
 
         # This test assumes email validation would happen before registration
         # In a real implementation, you'd have email validation logic
-        if invalid_email is None or invalid_email == "" or "@" not in str(invalid_email):
+        if (
+            invalid_email is None
+            or invalid_email == ""
+            or "@" not in str(invalid_email)
+        ):
             # Simulate email validation failure
             with pytest.raises((ValueError, AttributeError)):
                 # This would typically raise an exception for invalid email
@@ -169,14 +186,17 @@ class TestUserRegistration:
                 if "@" not in invalid_email:
                     raise ValueError("Invalid email format")
 
-    @pytest.mark.parametrize("weak_password", [
-        "123",           # Too short
-        "password",      # No numbers/uppercase
-        "PASSWORD",      # No numbers/lowercase
-        "12345678",      # No letters
-        "",              # Empty
-        "a" * 200        # Too long
-    ])
+    @pytest.mark.parametrize(
+        "weak_password",
+        [
+            "123",  # Too short
+            "password",  # No numbers/uppercase
+            "PASSWORD",  # No numbers/lowercase
+            "12345678",  # No letters
+            "",  # Empty
+            "a" * 200,  # Too long
+        ],
+    )
     def test_user_registration_weak_passwords(self, auth_service, weak_password):
         """❌ Test registration rejection with weak passwords"""
         email = "test@example.com"
@@ -196,9 +216,11 @@ class TestUserRegistration:
         is_valid = validate_password(weak_password)
         assert is_valid is False, f"Password '{weak_password}' should be rejected"
 
+
 # ============================================================================
 # UNIT TESTS - USER LOGIN
 # ============================================================================
+
 
 class TestUserLogin:
     """Test user login functionality - like testing a door lock"""
@@ -218,7 +240,9 @@ class TestUserLogin:
         """❌ Test login rejection with wrong password"""
         wrong_password = "WrongPassword123!"
 
-        authenticated_user = auth_service.authenticate_user(sample_user.email, wrong_password)
+        authenticated_user = auth_service.authenticate_user(
+            sample_user.email, wrong_password
+        )
 
         assert authenticated_user is None
         # Check that failed attempts are tracked
@@ -245,7 +269,9 @@ class TestUserLogin:
 
         # Now try with correct password - should still be locked
         correct_password = "TestPassword123!"
-        authenticated_user = auth_service.authenticate_user(sample_user.email, correct_password)
+        authenticated_user = auth_service.authenticate_user(
+            sample_user.email, correct_password
+        )
 
         assert authenticated_user is None
         assert auth_service.users_db[sample_user.email].is_locked is True
@@ -260,9 +286,11 @@ class TestUserLogin:
 
         assert authenticated_user is None
 
+
 # ============================================================================
 # UNIT TESTS - JWT TOKEN MANAGEMENT
 # ============================================================================
+
 
 class TestJWTTokens:
     """Test JWT token functionality - like testing digital keys"""
@@ -278,18 +306,18 @@ class TestJWTTokens:
         # Verify token can be decoded
         payload = auth_service.validate_jwt_token(token)
         assert payload is not None
-        assert payload['user_id'] == sample_user.id
-        assert payload['email'] == sample_user.email
+        assert payload["user_id"] == sample_user.id
+        assert payload["email"] == sample_user.email
 
     def test_jwt_token_validation_valid(self, auth_service, valid_jwt_token):
         """✅ Test JWT token validation with valid token"""
         payload = auth_service.validate_jwt_token(valid_jwt_token)
 
         assert payload is not None
-        assert 'user_id' in payload
-        assert 'email' in payload
-        assert 'exp' in payload
-        assert 'iat' in payload
+        assert "user_id" in payload
+        assert "email" in payload
+        assert "exp" in payload
+        assert "iat" in payload
 
     def test_jwt_token_validation_expired(self, auth_service, sample_user):
         """❌ Test JWT token rejection when expired"""
@@ -297,13 +325,15 @@ class TestJWTTokens:
         past_time = datetime.utcnow() - timedelta(hours=1)
 
         payload = {
-            'user_id': sample_user.id,
-            'email': sample_user.email,
-            'exp': past_time,
-            'iat': past_time - timedelta(hours=1)
+            "user_id": sample_user.id,
+            "email": sample_user.email,
+            "exp": past_time,
+            "iat": past_time - timedelta(hours=1),
         }
 
-        expired_token = jwt.encode(payload, auth_service.jwt_secret, algorithm=auth_service.jwt_algorithm)
+        expired_token = jwt.encode(
+            payload, auth_service.jwt_secret, algorithm=auth_service.jwt_algorithm
+        )
 
         result = auth_service.validate_jwt_token(expired_token)
         assert result is None
@@ -313,13 +343,15 @@ class TestJWTTokens:
         # Create token with different secret
         wrong_secret = "wrong_secret_key"
         payload = {
-            'user_id': sample_user.id,
-            'email': sample_user.email,
-            'exp': datetime.utcnow() + timedelta(hours=1),
-            'iat': datetime.utcnow()
+            "user_id": sample_user.id,
+            "email": sample_user.email,
+            "exp": datetime.utcnow() + timedelta(hours=1),
+            "iat": datetime.utcnow(),
         }
 
-        tampered_token = jwt.encode(payload, wrong_secret, algorithm=auth_service.jwt_algorithm)
+        tampered_token = jwt.encode(
+            payload, wrong_secret, algorithm=auth_service.jwt_algorithm
+        )
 
         result = auth_service.validate_jwt_token(tampered_token)
         assert result is None
@@ -332,16 +364,18 @@ class TestJWTTokens:
             "",
             None,
             "header.payload",  # Missing signature
-            "too.many.parts.in.token.here"
+            "too.many.parts.in.token.here",
         ]
 
         for token in malformed_tokens:
             result = auth_service.validate_jwt_token(token) if token else None
             assert result is None
 
+
 # ============================================================================
 # UNIT TESTS - PASSWORD MANAGEMENT
 # ============================================================================
+
 
 class TestPasswordManagement:
     """Test password hashing and verification - like testing lock mechanisms"""
@@ -391,12 +425,15 @@ class TestPasswordManagement:
 
         assert hash1 != hash2
 
-    @pytest.mark.parametrize("special_password", [
-        "🔐SecurePassword123!",      # Unicode characters
-        "Very Long Password With Spaces 123!",  # Spaces
-        "P@$$w0rd!@#$%^&*()",       # Special characters
-        "PasswordWithÑumbers123",    # International characters
-    ])
+    @pytest.mark.parametrize(
+        "special_password",
+        [
+            "🔐SecurePassword123!",  # Unicode characters
+            "Very Long Password With Spaces 123!",  # Spaces
+            "P@$$w0rd!@#$%^&*()",  # Special characters
+            "PasswordWithÑumbers123",  # International characters
+        ],
+    )
     def test_password_hashing_special_characters(self, auth_service, special_password):
         """✅ Test password hashing with special characters"""
         password_hash = auth_service.hash_password(special_password)
@@ -408,9 +445,11 @@ class TestPasswordManagement:
         is_valid = auth_service.verify_password(special_password, password_hash)
         assert is_valid is True
 
+
 # ============================================================================
 # UNIT TESTS - PERFORMANCE BENCHMARKS
 # ============================================================================
+
 
 class TestPerformance:
     """Test authentication performance - like measuring response times"""
@@ -469,19 +508,22 @@ class TestPerformance:
         # Each lookup should be very fast
         assert avg_duration_ms < 1  # Less than 1ms per lookup
 
+
 # ============================================================================
 # TEST EXECUTION AND REPORTING
 # ============================================================================
 
 if __name__ == "__main__":
-    print("🧪 Running Authentication Unit Tests")
-    print("=" * 50)
+    # print("🧪 Running Authentication Unit Tests")
+    # print("=" * 50)
 
     # Run all tests with pytest
-    pytest.main([
-        __file__,
-        "-v",                    # Verbose output
-        "--tb=short",           # Short traceback format
-        "--strict-markers",     # Strict marker checking
-        "--durations=10"        # Show 10 slowest tests
-    ])
+    pytest.main(
+        [
+            __file__,
+            "-v",  # Verbose output
+            "--tb=short",  # Short traceback format
+            "--strict-markers",  # Strict marker checking
+            "--durations=10",  # Show 10 slowest tests
+        ]
+    )

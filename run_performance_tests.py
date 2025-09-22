@@ -195,25 +195,25 @@ class PerformanceTestRunner:
 
     def print_console_summary(self, report):
         """打印控制台摘要"""
-        print("\n" + "="*80)
-        print("🎯 PERFECT21 性能测试报告")
-        print("="*80)
+    # print("\n" + "="*80)
+    # print("🎯 PERFECT21 性能测试报告")
+    # print("="*80)
 
         # 整体评分
         score_color = "🟢" if report.overall_score >= 80 else "🟡" if report.overall_score >= 60 else "🔴"
-        print(f"{score_color} 整体性能评分: {report.overall_score:.1f}/100")
+    # print(f"{score_color} 整体性能评分: {report.overall_score:.1f}/100")
 
         # 测试结果概览
-        print(f"\n📊 测试结果概览:")
-        print(f"  测试时间: {report.timestamp.strftime('%Y-%m-%d %H:%M:%S')}")
-        print(f"  测试项目: {len(report.test_results)}个")
-        print(f"  系统信息: {report.system_info['cpu_count']}核CPU, {report.system_info['total_memory_gb']:.1f}GB内存")
+    # print(f"\n📊 测试结果概览:")
+    # print(f"  测试时间: {report.timestamp.strftime('%Y-%m-%d %H:%M:%S')}")
+    # print(f"  测试项目: {len(report.test_results)}个")
+    # print(f"  系统信息: {report.system_info['cpu_count']}核CPU, {report.system_info['total_memory_gb']:.1f}GB内存")
 
         # 详细测试结果
-        print(f"\n📈 详细测试结果:")
-        print("-" * 80)
-        print(f"{'测试项目':<25} {'RPS':<8} {'响应时间':<12} {'P95':<10} {'错误率':<8} {'CPU':<6} {'内存':<8}")
-        print("-" * 80)
+    # print(f"\n📈 详细测试结果:")
+    # print("-" * 80)
+    # print(f"{'测试项目':<25} {'RPS':<8} {'响应时间':<12} {'P95':<10} {'错误率':<8} {'CPU':<6} {'内存':<8}")
+    # print("-" * 80)
 
         for result in report.test_results:
             test_name = result.test_name[:24]
@@ -224,35 +224,35 @@ class PerformanceTestRunner:
             cpu = f"{result.cpu_usage_percent:.1f}%"
             memory = f"{result.memory_usage_mb:.0f}MB"
 
-            print(f"{test_name:<25} {rps:<8} {avg_time:<12} {p95_time:<10} {error_rate:<8} {cpu:<6} {memory:<8}")
+    # print(f"{test_name:<25} {rps:<8} {avg_time:<12} {p95_time:<10} {error_rate:<8} {cpu:<6} {memory:<8}")
 
         # 性能瓶颈
         if report.bottlenecks:
-            print(f"\n⚠️ 发现的性能瓶颈 ({len(report.bottlenecks)}个):")
+    # print(f"\n⚠️ 发现的性能瓶颈 ({len(report.bottlenecks)}个):")
             for i, bottleneck in enumerate(report.bottlenecks, 1):
-                print(f"  {i}. {bottleneck}")
+    # print(f"  {i}. {bottleneck}")
 
         # 优化建议
         if report.recommendations:
-            print(f"\n💡 优化建议 ({len(report.recommendations)}个):")
+    # print(f"\n💡 优化建议 ({len(report.recommendations)}个):")
             for i, recommendation in enumerate(report.recommendations, 1):
-                print(f"  {i}. {recommendation}")
+    # print(f"  {i}. {recommendation}")
 
         # 图表信息
         charts_dir = Path("performance_charts")
         if charts_dir.exists():
             charts = list(charts_dir.glob("*.png"))
             if charts:
-                print(f"\n📈 生成的图表文件 ({len(charts)}个):")
+    # print(f"\n📈 生成的图表文件 ({len(charts)}个):")
                 for chart in charts:
-                    print(f"  📊 {chart.name}")
+    # print(f"  📊 {chart.name}")
 
-        print("\n" + "="*80)
+    # print("\n" + "="*80)
 
 async def main():
     """主函数"""
-    print("🚀 Perfect21 性能测试执行器")
-    print("=" * 50)
+    # print("🚀 Perfect21 性能测试执行器")
+    # print("=" * 50)
 
     runner = PerformanceTestRunner()
 
@@ -266,31 +266,31 @@ async def main():
             return 1
 
         # 3. 等待用户确认或自动开始
-        print("\n🔄 模拟服务器已就绪，准备开始性能测试...")
-        print("测试将包括:")
-        print("  ⚡ 负载测试 (1000并发用户)")
-        print("  ⏱️ 响应时间测试")
-        print("  💾 内存使用测试")
-        print("  🗄️ 数据库查询优化测试")
-        print("  🗂️ 缓存命中率测试")
-        print("  💥 压力测试 (极限负载)")
+    # print("\n🔄 模拟服务器已就绪，准备开始性能测试...")
+    # print("测试将包括:")
+    # print("  ⚡ 负载测试 (1000并发用户)")
+    # print("  ⏱️ 响应时间测试")
+    # print("  💾 内存使用测试")
+    # print("  🗄️ 数据库查询优化测试")
+    # print("  🗂️ 缓存命中率测试")
+    # print("  💥 压力测试 (极限负载)")
 
-        print("\n按 Enter 键开始测试 (或等待10秒自动开始)...")
+    # print("\n按 Enter 键开始测试 (或等待10秒自动开始)...")
 
         # 等待用户输入或超时
         try:
             await asyncio.wait_for(asyncio.to_thread(input), timeout=10.0)
         except asyncio.TimeoutError:
-            print("⏰ 超时，自动开始测试...")
+    # print("⏰ 超时，自动开始测试...")
 
         # 4. 运行性能测试
         report = await runner.run_performance_tests()
 
-        print("\n✅ 性能测试完成！")
+    # print("\n✅ 性能测试完成！")
         return 0
 
     except KeyboardInterrupt:
-        print("\n❌ 用户中断测试")
+    # print("\n❌ 用户中断测试")
         return 1
 
     except Exception as e:

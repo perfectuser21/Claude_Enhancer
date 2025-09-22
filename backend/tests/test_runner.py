@@ -65,10 +65,10 @@ class AuthTestRunner:
         Returns:
             测试结果字典
         """
-        print("🚀 开始执行认证系统测试套件...")
-        print(f"📂 测试目录: {self.test_dir}")
-        print(f"📊 项目根目录: {self.project_root}")
-        print("="*60)
+    # print("🚀 开始执行认证系统测试套件...")
+    # print(f"📂 测试目录: {self.test_dir}")
+    # print(f"📊 项目根目录: {self.project_root}")
+    # print("="*60)
         
         results = {
             "start_time": datetime.now().isoformat(),
@@ -85,7 +85,7 @@ class AuthTestRunner:
         
         # 运行各个测试模块
         for module in self.test_modules:
-            print(f"\n🧪 运行测试模块: {module}")
+    # print(f"\n🧪 运行测试模块: {module}")
             module_result = self._run_single_test(module, verbose)
             results["test_results"][module] = module_result
             
@@ -99,12 +99,12 @@ class AuthTestRunner:
         
         # 运行覆盖率测试
         if coverage:
-            print("\n📊 生成代码覆盖率报告...")
+    # print("\n📊 生成代码覆盖率报告...")
             results["coverage_report"] = self._run_coverage_test()
         
         # 生成测试报告
         if generate_report:
-            print("\n📝 生成测试报告...")
+    # print("\n📝 生成测试报告...")
             self._generate_test_report(results)
         
         results["end_time"] = datetime.now().isoformat()
@@ -128,7 +128,7 @@ class AuthTestRunner:
         test_file = Path(self.test_dir) / module
         
         if not test_file.exists():
-            print(f"⚠️  测试文件不存在: {test_file}")
+    # print(f"⚠️  测试文件不存在: {test_file}")
             return None
         
         # 构建 pytest 命令
@@ -186,20 +186,20 @@ class AuthTestRunner:
                             "duration": json_data.get("duration", 0)
                         })
                 except Exception as e:
-                    print(f"⚠️  解析JSON报告失败: {e}")
+    # print(f"⚠️  解析JSON报告失败: {e}")
             
             # 显示结果
             if result.returncode == 0:
-                print(f"✅ {module}: 测试通过 ({test_result['passed']} passed)")
+    # print(f"✅ {module}: 测试通过 ({test_result['passed']} passed)")
             else:
-                print(f"❌ {module}: 测试失败 ({test_result['failed']} failed, {test_result['errors']} errors)")
+    # print(f"❌ {module}: 测试失败 ({test_result['failed']} failed, {test_result['errors']} errors)")
                 if verbose and result.stderr:
-                    print(f"错误信息: {result.stderr[:500]}")
+    # print(f"错误信息: {result.stderr[:500]}")
             
             return test_result
             
         except subprocess.TimeoutExpired:
-            print(f"⏰ {module}: 测试超时")
+    # print(f"⏰ {module}: 测试超时")
             return {
                 "module": module,
                 "exit_code": -1,
@@ -211,7 +211,7 @@ class AuthTestRunner:
                 "errors": 1
             }
         except Exception as e:
-            print(f"💥 {module}: 运行异常 - {e}")
+    # print(f"💥 {module}: 运行异常 - {e}")
             return {
                 "module": module,
                 "exit_code": -1,
@@ -265,12 +265,12 @@ class AuthTestRunner:
                         coverage_data["summary"] = json_data.get("totals", {})
                         coverage_data["files"] = json_data.get("files", {})
                 except Exception as e:
-                    print(f"⚠️  解析覆盖率JSON失败: {e}")
+    # print(f"⚠️  解析覆盖率JSON失败: {e}")
             
             return coverage_data
             
         except Exception as e:
-            print(f"💥 覆盖率测试异常: {e}")
+    # print(f"💥 覆盖率测试异常: {e}")
             return {"error": str(e)}
     
     def _generate_test_report(self, results: Dict[str, Any]) -> None:
@@ -288,17 +288,17 @@ class AuthTestRunner:
             with open(report_file, 'w', encoding='utf-8') as f:
                 f.write(html_content)
             
-            print(f"📄 测试报告已生成: {report_file}")
+    # print(f"📄 测试报告已生成: {report_file}")
             
             # 同时生成 JSON 报告
             json_file = self.reports_dir / "test_report.json"
             with open(json_file, 'w', encoding='utf-8') as f:
                 json.dump(results, f, indent=2, ensure_ascii=False, default=str)
             
-            print(f"📄 JSON报告已生成: {json_file}")
+    # print(f"📄 JSON报告已生成: {json_file}")
             
         except Exception as e:
-            print(f"💥 生成报告异常: {e}")
+    # print(f"💥 生成报告异常: {e}")
     
     def _build_html_report(self, results: Dict[str, Any]) -> str:
         """
@@ -459,9 +459,9 @@ class AuthTestRunner:
         Args:
             summary: 测试总结数据
         """
-        print("\n" + "="*60)
-        print("🎯 测试执行总结")
-        print("="*60)
+    # print("\n" + "="*60)
+    # print("🎯 测试执行总结")
+    # print("="*60)
         
         total = summary["total_tests"]
         passed = summary["passed"]
@@ -471,19 +471,19 @@ class AuthTestRunner:
         
         success_rate = (passed / total * 100) if total > 0 else 0
         
-        print(f"📊 总测试数:     {total}")
-        print(f"✅ 通过测试:     {passed}")
-        print(f"❌ 失败测试:     {failed}")
-        print(f"⚠️  跳过测试:     {skipped}")
-        print(f"💥 错误测试:     {errors}")
-        print(f"🎯 成功率:       {success_rate:.1f}%")
+    # print(f"📊 总测试数:     {total}")
+    # print(f"✅ 通过测试:     {passed}")
+    # print(f"❌ 失败测试:     {failed}")
+    # print(f"⚠️  跳过测试:     {skipped}")
+    # print(f"💥 错误测试:     {errors}")
+    # print(f"🎯 成功率:       {success_rate:.1f}%")
         
         if failed == 0 and errors == 0:
-            print("\n🎉 所有测试通过！认证系统质量良好。")
+    # print("\n🎉 所有测试通过！认证系统质量良好。")
         elif failed > 0 or errors > 0:
-            print("\n⚠️  发现测试失败，请检查并修复问题。")
+    # print("\n⚠️  发现测试失败，请检查并修复问题。")
         
-        print("="*60)
+    # print("="*60)
     
     def run_specific_test(self, test_name: str, verbose: bool = True) -> Dict[str, Any]:
         """
@@ -497,11 +497,11 @@ class AuthTestRunner:
             测试结果字典
         """
         if test_name not in self.test_modules:
-            print(f"❌ 未找到测试模块: {test_name}")
-            print(f"可用模块: {', '.join(self.test_modules)}")
+    # print(f"❌ 未找到测试模块: {test_name}")
+    # print(f"可用模块: {', '.join(self.test_modules)}")
             return None
         
-        print(f"🧪 运行特定测试: {test_name}")
+    # print(f"🧪 运行特定测试: {test_name}")
         return self._run_single_test(test_name, verbose)
     
     def run_performance_tests(self) -> Dict[str, Any]:
@@ -511,7 +511,7 @@ class AuthTestRunner:
         Returns:
             性能测试结果
         """
-        print("🚀 运行性能基准测试...")
+    # print("🚀 运行性能基准测试...")
         
         # 这里可以添加专门的性能测试
         performance_tests = [
@@ -616,7 +616,7 @@ def main():
         if args.performance:
             # 运行性能测试
             results = runner.run_performance_tests()
-            print("\n🏁 性能测试完成")
+    # print("\n🏁 性能测试完成")
             
         elif args.module:
             # 运行特定模块
@@ -624,8 +624,8 @@ def main():
                 test_file = module_map[args.module]
                 results = runner.run_specific_test(test_file, not args.quiet)
             else:
-                print(f"❌ 未知模块: {args.module}")
-                print(f"可用模块: {', '.join(module_map.keys())}")
+    # print(f"❌ 未知模块: {args.module}")
+    # print(f"可用模块: {', '.join(module_map.keys())}")
                 sys.exit(1)
                 
         else:
@@ -646,10 +646,10 @@ def main():
                 sys.exit(results["exit_code"])
         
     except KeyboardInterrupt:
-        print("\n⚠️  测试被用户中断")
+    # print("\n⚠️  测试被用户中断")
         sys.exit(130)
     except Exception as e:
-        print(f"💥 测试运行器异常: {e}")
+    # print(f"💥 测试运行器异常: {e}")
         sys.exit(1)
 
 

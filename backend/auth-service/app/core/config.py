@@ -8,6 +8,7 @@ from typing import List, Optional
 from pydantic import BaseSettings, Field, validator
 from functools import lru_cache
 
+
 class Settings(BaseSettings):
     """应用配置"""
 
@@ -45,19 +46,31 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = Field(default="RS256", env="JWT_ALGORITHM")
     JWT_PRIVATE_KEY: Optional[str] = Field(default=None, env="JWT_PRIVATE_KEY")
     JWT_PUBLIC_KEY: Optional[str] = Field(default=None, env="JWT_PUBLIC_KEY")
-    JWT_PRIVATE_KEY_PATH: str = Field(default="/secrets/jwt_private_key.pem", env="JWT_PRIVATE_KEY_PATH")
-    JWT_PUBLIC_KEY_PATH: str = Field(default="/secrets/jwt_public_key.pem", env="JWT_PUBLIC_KEY_PATH")
+    JWT_PRIVATE_KEY_PATH: str = Field(
+        default="/secrets/jwt_private_key.pem", env="JWT_PRIVATE_KEY_PATH"
+    )
+    JWT_PUBLIC_KEY_PATH: str = Field(
+        default="/secrets/jwt_public_key.pem", env="JWT_PUBLIC_KEY_PATH"
+    )
     JWT_ACCESS_TOKEN_TTL: int = Field(default=900, env="JWT_ACCESS_TOKEN_TTL")  # 15分钟
-    JWT_REFRESH_TOKEN_TTL: int = Field(default=604800, env="JWT_REFRESH_TOKEN_TTL")  # 7天
+    JWT_REFRESH_TOKEN_TTL: int = Field(
+        default=604800, env="JWT_REFRESH_TOKEN_TTL"
+    )  # 7天
     JWT_ISSUER: str = Field(default="perfect21-auth", env="JWT_ISSUER")
     JWT_AUDIENCE: str = Field(default="perfect21-api", env="JWT_AUDIENCE")
-    JWT_KEY_ROTATION_INTERVAL: int = Field(default=86400, env="JWT_KEY_ROTATION_INTERVAL")  # 24小时
+    JWT_KEY_ROTATION_INTERVAL: int = Field(
+        default=86400, env="JWT_KEY_ROTATION_INTERVAL"
+    )  # 24小时
 
     # 密码配置
     PASSWORD_MIN_LENGTH: int = Field(default=12, env="PASSWORD_MIN_LENGTH")
     PASSWORD_MAX_LENGTH: int = Field(default=128, env="PASSWORD_MAX_LENGTH")
-    PASSWORD_REQUIRE_UPPERCASE: bool = Field(default=True, env="PASSWORD_REQUIRE_UPPERCASE")
-    PASSWORD_REQUIRE_LOWERCASE: bool = Field(default=True, env="PASSWORD_REQUIRE_LOWERCASE")
+    PASSWORD_REQUIRE_UPPERCASE: bool = Field(
+        default=True, env="PASSWORD_REQUIRE_UPPERCASE"
+    )
+    PASSWORD_REQUIRE_LOWERCASE: bool = Field(
+        default=True, env="PASSWORD_REQUIRE_LOWERCASE"
+    )
     PASSWORD_REQUIRE_NUMBERS: bool = Field(default=True, env="PASSWORD_REQUIRE_NUMBERS")
     PASSWORD_REQUIRE_SPECIAL: bool = Field(default=True, env="PASSWORD_REQUIRE_SPECIAL")
     PASSWORD_HISTORY_COUNT: int = Field(default=5, env="PASSWORD_HISTORY_COUNT")
@@ -74,11 +87,15 @@ class Settings(BaseSettings):
     # 会话配置
     SESSION_TTL: int = Field(default=1800, env="SESSION_TTL")  # 30分钟
     SESSION_MAX_PER_USER: int = Field(default=5, env="SESSION_MAX_PER_USER")
-    SESSION_CLEANUP_INTERVAL: int = Field(default=3600, env="SESSION_CLEANUP_INTERVAL")  # 1小时
+    SESSION_CLEANUP_INTERVAL: int = Field(
+        default=3600, env="SESSION_CLEANUP_INTERVAL"
+    )  # 1小时
 
     # 速率限制配置
     RATE_LIMIT_ENABLED: bool = Field(default=True, env="RATE_LIMIT_ENABLED")
-    RATE_LIMIT_DEFAULT_REQUESTS: int = Field(default=100, env="RATE_LIMIT_DEFAULT_REQUESTS")
+    RATE_LIMIT_DEFAULT_REQUESTS: int = Field(
+        default=100, env="RATE_LIMIT_DEFAULT_REQUESTS"
+    )
     RATE_LIMIT_DEFAULT_WINDOW: int = Field(default=60, env="RATE_LIMIT_DEFAULT_WINDOW")
     RATE_LIMIT_AUTH_REQUESTS: int = Field(default=10, env="RATE_LIMIT_AUTH_REQUESTS")
     RATE_LIMIT_AUTH_WINDOW: int = Field(default=60, env="RATE_LIMIT_AUTH_WINDOW")
@@ -88,8 +105,12 @@ class Settings(BaseSettings):
     # 账户锁定配置
     ACCOUNT_LOCKOUT_ENABLED: bool = Field(default=True, env="ACCOUNT_LOCKOUT_ENABLED")
     ACCOUNT_LOCKOUT_ATTEMPTS: int = Field(default=5, env="ACCOUNT_LOCKOUT_ATTEMPTS")
-    ACCOUNT_LOCKOUT_DURATION: int = Field(default=3600, env="ACCOUNT_LOCKOUT_DURATION")  # 1小时
-    ACCOUNT_LOCKOUT_INCREMENT: bool = Field(default=True, env="ACCOUNT_LOCKOUT_INCREMENT")
+    ACCOUNT_LOCKOUT_DURATION: int = Field(
+        default=3600, env="ACCOUNT_LOCKOUT_DURATION"
+    )  # 1小时
+    ACCOUNT_LOCKOUT_INCREMENT: bool = Field(
+        default=True, env="ACCOUNT_LOCKOUT_INCREMENT"
+    )
 
     # 邮件配置
     EMAIL_ENABLED: bool = Field(default=True, env="EMAIL_ENABLED")
@@ -98,10 +119,16 @@ class Settings(BaseSettings):
     EMAIL_SMTP_USERNAME: Optional[str] = Field(default=None, env="EMAIL_SMTP_USERNAME")
     EMAIL_SMTP_PASSWORD: Optional[str] = Field(default=None, env="EMAIL_SMTP_PASSWORD")
     EMAIL_SMTP_TLS: bool = Field(default=True, env="EMAIL_SMTP_TLS")
-    EMAIL_FROM_ADDRESS: str = Field(default="noreply@perfect21.com", env="EMAIL_FROM_ADDRESS")
+    EMAIL_FROM_ADDRESS: str = Field(
+        default="noreply@perfect21.com", env="EMAIL_FROM_ADDRESS"
+    )
     EMAIL_FROM_NAME: str = Field(default="Perfect21", env="EMAIL_FROM_NAME")
-    EMAIL_VERIFICATION_TTL: int = Field(default=3600, env="EMAIL_VERIFICATION_TTL")  # 1小时
-    EMAIL_RESET_PASSWORD_TTL: int = Field(default=3600, env="EMAIL_RESET_PASSWORD_TTL")  # 1小时
+    EMAIL_VERIFICATION_TTL: int = Field(
+        default=3600, env="EMAIL_VERIFICATION_TTL"
+    )  # 1小时
+    EMAIL_RESET_PASSWORD_TTL: int = Field(
+        default=3600, env="EMAIL_RESET_PASSWORD_TTL"
+    )  # 1小时
 
     # SMS配置
     SMS_ENABLED: bool = Field(default=True, env="SMS_ENABLED")
@@ -114,7 +141,9 @@ class Settings(BaseSettings):
     # RabbitMQ配置
     RABBITMQ_URL: str = Field(..., env="RABBITMQ_URL")
     RABBITMQ_EXCHANGE: str = Field(default="perfect21.events", env="RABBITMQ_EXCHANGE")
-    RABBITMQ_QUEUE_PREFIX: str = Field(default="auth-service", env="RABBITMQ_QUEUE_PREFIX")
+    RABBITMQ_QUEUE_PREFIX: str = Field(
+        default="auth-service", env="RABBITMQ_QUEUE_PREFIX"
+    )
     RABBITMQ_POOL_SIZE: int = Field(default=10, env="RABBITMQ_POOL_SIZE")
 
     # gRPC配置
@@ -127,7 +156,9 @@ class Settings(BaseSettings):
     METRICS_ENABLED: bool = Field(default=True, env="METRICS_ENABLED")
     METRICS_PORT: int = Field(default=8000, env="METRICS_PORT")
     JAEGER_ENABLED: bool = Field(default=True, env="JAEGER_ENABLED")
-    JAEGER_ENDPOINT: str = Field(default="http://jaeger-collector:14268/api/traces", env="JAEGER_ENDPOINT")
+    JAEGER_ENDPOINT: str = Field(
+        default="http://jaeger-collector:14268/api/traces", env="JAEGER_ENDPOINT"
+    )
     JAEGER_AGENT_HOST: str = Field(default="jaeger-agent", env="JAEGER_AGENT_HOST")
     JAEGER_AGENT_PORT: int = Field(default=6831, env="JAEGER_AGENT_PORT")
 
@@ -140,9 +171,13 @@ class Settings(BaseSettings):
 
     # 缓存配置
     CACHE_TTL_DEFAULT: int = Field(default=300, env="CACHE_TTL_DEFAULT")  # 5分钟
-    CACHE_TTL_USER_PERMISSIONS: int = Field(default=300, env="CACHE_TTL_USER_PERMISSIONS")
+    CACHE_TTL_USER_PERMISSIONS: int = Field(
+        default=300, env="CACHE_TTL_USER_PERMISSIONS"
+    )
     CACHE_TTL_USER_ROLES: int = Field(default=600, env="CACHE_TTL_USER_ROLES")
-    CACHE_TTL_PERMISSION_CHECK: int = Field(default=300, env="CACHE_TTL_PERMISSION_CHECK")
+    CACHE_TTL_PERMISSION_CHECK: int = Field(
+        default=300, env="CACHE_TTL_PERMISSION_CHECK"
+    )
     CACHE_LOCAL_SIZE: int = Field(default=1000, env="CACHE_LOCAL_SIZE")
     CACHE_LOCAL_TTL: int = Field(default=60, env="CACHE_LOCAL_TTL")  # 1分钟
 
@@ -156,7 +191,7 @@ class Settings(BaseSettings):
     HSTS_MAX_AGE: int = Field(default=31536000, env="HSTS_MAX_AGE")  # 1年
     CSP_POLICY: str = Field(
         default="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'",
-        env="CSP_POLICY"
+        env="CSP_POLICY",
     )
 
     # 开发配置
@@ -165,15 +200,27 @@ class Settings(BaseSettings):
 
     # OAuth2配置
     OAUTH2_ENABLED: bool = Field(default=False, env="OAUTH2_ENABLED")
-    OAUTH2_GOOGLE_CLIENT_ID: Optional[str] = Field(default=None, env="OAUTH2_GOOGLE_CLIENT_ID")
-    OAUTH2_GOOGLE_CLIENT_SECRET: Optional[str] = Field(default=None, env="OAUTH2_GOOGLE_CLIENT_SECRET")
-    OAUTH2_MICROSOFT_CLIENT_ID: Optional[str] = Field(default=None, env="OAUTH2_MICROSOFT_CLIENT_ID")
-    OAUTH2_MICROSOFT_CLIENT_SECRET: Optional[str] = Field(default=None, env="OAUTH2_MICROSOFT_CLIENT_SECRET")
+    OAUTH2_GOOGLE_CLIENT_ID: Optional[str] = Field(
+        default=None, env="OAUTH2_GOOGLE_CLIENT_ID"
+    )
+    OAUTH2_GOOGLE_CLIENT_SECRET: Optional[str] = Field(
+        default=None, env="OAUTH2_GOOGLE_CLIENT_SECRET"
+    )
+    OAUTH2_MICROSOFT_CLIENT_ID: Optional[str] = Field(
+        default=None, env="OAUTH2_MICROSOFT_CLIENT_ID"
+    )
+    OAUTH2_MICROSOFT_CLIENT_SECRET: Optional[str] = Field(
+        default=None, env="OAUTH2_MICROSOFT_CLIENT_SECRET"
+    )
 
     # 前端配置
     FRONTEND_URL: str = Field(default="https://app.perfect21.com", env="FRONTEND_URL")
-    FRONTEND_VERIFY_EMAIL_PATH: str = Field(default="/verify-email", env="FRONTEND_VERIFY_EMAIL_PATH")
-    FRONTEND_RESET_PASSWORD_PATH: str = Field(default="/reset-password", env="FRONTEND_RESET_PASSWORD_PATH")
+    FRONTEND_VERIFY_EMAIL_PATH: str = Field(
+        default="/verify-email", env="FRONTEND_VERIFY_EMAIL_PATH"
+    )
+    FRONTEND_RESET_PASSWORD_PATH: str = Field(
+        default="/reset-password", env="FRONTEND_RESET_PASSWORD_PATH"
+    )
 
     # 数据保护配置
     DATA_ENCRYPTION_KEY: str = Field(..., env="DATA_ENCRYPTION_KEY")
@@ -305,13 +352,16 @@ class Settings(BaseSettings):
         env_file_encoding = "utf-8"
         case_sensitive = True
 
+
 @lru_cache()
 def get_settings() -> Settings:
     """获取配置实例（带缓存）"""
     return Settings()
 
+
 # 全局配置实例
 settings = get_settings()
+
 
 # 配置验证
 def validate_config():
@@ -329,7 +379,9 @@ def validate_config():
         errors.append("DATA_ENCRYPTION_KEY is required")
 
     # JWT密钥检查
-    if settings.JWT_ALGORITHM.startswith("RS") and not (settings.JWT_PRIVATE_KEY or os.path.exists(settings.JWT_PRIVATE_KEY_PATH)):
+    if settings.JWT_ALGORITHM.startswith("RS") and not (
+        settings.JWT_PRIVATE_KEY or os.path.exists(settings.JWT_PRIVATE_KEY_PATH)
+    ):
         errors.append("JWT private key is required for RS algorithms")
 
     # 数据库URL检查
@@ -345,7 +397,11 @@ def validate_config():
         errors.append("RABBITMQ_URL is required")
 
     if errors:
-        raise ValueError(f"Configuration validation failed:\n" + "\n".join(f"- {error}" for error in errors))
+        raise ValueError(
+            f"Configuration validation failed:\n"
+            + "\n".join(f"- {error}" for error in errors)
+        )
+
 
 # 启动时验证配置
 if __name__ != "__main__":

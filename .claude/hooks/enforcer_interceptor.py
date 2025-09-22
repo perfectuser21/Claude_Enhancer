@@ -185,7 +185,7 @@ def main():
         result = interceptor.intercept_pre_tool_use(tool_name, tool_input)
 
         # 输出拦截结果
-        print(json.dumps(result, indent=2, ensure_ascii=False))
+    # print(json.dumps(result, indent=2, ensure_ascii=False))
 
         # 如果需要阻止执行，返回非零退出码
         if result.get("exit_with_error", False):
@@ -194,24 +194,24 @@ def main():
         # 如果需要重定向，输出新的执行计划
         if result.get("action") == "redirect":
             message = interceptor.generate_enforcement_message(result)
-            print("\n" + "=" * 60)
-            print(message)
-            print("=" * 60)
+    # print("\n" + "=" * 60)
+    # print(message)
+    # print("=" * 60)
 
             # 输出修正后的执行计划到特殊文件，供Claude Code读取
             modified_execution = interceptor.get_modified_execution(result)
             if modified_execution:
                 with open("/tmp/claude_enhancer_modified_execution.txt", "w") as f:
                     f.write(modified_execution)
-                print(f"\n修正后的执行计划已保存到: /tmp/claude_enhancer_modified_execution.txt")
+    # print(f"\n修正后的执行计划已保存到: /tmp/claude_enhancer_modified_execution.txt")
 
     elif event_type == "PostToolUse":
         # 后置处理
-        print(f"Claude Enhancer Post-tool processing for {tool_name}")
+    # print(f"Claude Enhancer Post-tool processing for {tool_name}")
 
     else:
         # 其他事件
-        print(f"Claude Enhancer 处理事件: {event_type}")
+    # print(f"Claude Enhancer 处理事件: {event_type}")
 
 
 if __name__ == "__main__":

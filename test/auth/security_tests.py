@@ -947,39 +947,39 @@ class TestSecurityAudit:
         audit_results["security_score"] = (passed_tests / total_tests) * 100
 
         # Generate audit report
-        print(f"\n🛡️ SECURITY AUDIT REPORT")
-        print("=" * 50)
-        print(f"Audit Date: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC")
-        print(f"Security Score: {audit_results['security_score']:.1f}%")
-        print()
-        print("PROTECTION MECHANISMS TESTED:")
-        print(f"✅ SQL Injection Protection: {'PASS' if audit_results['sql_injection_tests'] > 0 else 'FAIL'}")
-        print(f"✅ XSS Protection: {'PASS' if audit_results['xss_tests'] > 0 else 'FAIL'}")
-        print(f"✅ Brute Force Protection: {'PASS' if audit_results['brute_force_tests'] > 0 else 'FAIL'}")
-        print(f"✅ Token Security: {'PASS' if audit_results['token_security_tests'] > 0 else 'FAIL'}")
-        print(f"✅ Rate Limiting: {'PASS' if audit_results['rate_limiting_tests'] > 0 else 'FAIL'}")
-        print()
+    # print(f"\n🛡️ SECURITY AUDIT REPORT")
+    # print("=" * 50)
+    # print(f"Audit Date: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC")
+    # print(f"Security Score: {audit_results['security_score']:.1f}%")
+    # print()
+    # print("PROTECTION MECHANISMS TESTED:")
+    # print(f"✅ SQL Injection Protection: {'PASS' if audit_results['sql_injection_tests'] > 0 else 'FAIL'}")
+    # print(f"✅ XSS Protection: {'PASS' if audit_results['xss_tests'] > 0 else 'FAIL'}")
+    # print(f"✅ Brute Force Protection: {'PASS' if audit_results['brute_force_tests'] > 0 else 'FAIL'}")
+    # print(f"✅ Token Security: {'PASS' if audit_results['token_security_tests'] > 0 else 'FAIL'}")
+    # print(f"✅ Rate Limiting: {'PASS' if audit_results['rate_limiting_tests'] > 0 else 'FAIL'}")
+    # print()
 
         # Security logs analysis
         logs = security_service.get_security_logs()
-        print(f"SECURITY EVENTS DETECTED: {len(logs)}")
+    # print(f"SECURITY EVENTS DETECTED: {len(logs)}")
         event_types = {}
         for log in logs:
             event_type = log["event_type"]
             event_types[event_type] = event_types.get(event_type, 0) + 1
 
         for event_type, count in event_types.items():
-            print(f"  {event_type}: {count}")
+    # print(f"  {event_type}: {count}")
 
-        print("\nOVERALL SECURITY RATING:")
+    # print("\nOVERALL SECURITY RATING:")
         if audit_results["security_score"] >= 90:
-            print("🟢 EXCELLENT - Strong security posture")
+    # print("🟢 EXCELLENT - Strong security posture")
         elif audit_results["security_score"] >= 75:
-            print("🟡 GOOD - Minor security improvements needed")
+    # print("🟡 GOOD - Minor security improvements needed")
         elif audit_results["security_score"] >= 50:
-            print("🟠 FAIR - Significant security improvements required")
+    # print("🟠 FAIR - Significant security improvements required")
         else:
-            print("🔴 POOR - Critical security vulnerabilities present")
+    # print("🔴 POOR - Critical security vulnerabilities present")
 
         # Assertions for test validation
         assert audit_results["security_score"] >= 80, f"Security score too low: {audit_results['security_score']}%"
@@ -991,8 +991,8 @@ class TestSecurityAudit:
 # ============================================================================
 
 if __name__ == "__main__":
-    print("🛡️ Running Authentication Security Tests")
-    print("=" * 50)
+    # print("🛡️ Running Authentication Security Tests")
+    # print("=" * 50)
 
     # Run security tests
     pytest.main([

@@ -23,7 +23,9 @@ class TestCompleteAuthenticationWorkflows:
     """Test complete authentication workflows end-to-end"""
 
     @pytest.mark.asyncio
-    async def test_complete_user_registration_to_login_flow(self, integrated_test_environment):
+    async def test_complete_user_registration_to_login_flow(
+        self, integrated_test_environment
+    ):
         """✅ Test complete flow: Registration → Email Verification → Login → Access Protected Resource"""
         env = integrated_test_environment
         user_data = TestDataGenerator.generate_user().to_dict()
@@ -35,7 +37,9 @@ class TestCompleteAuthenticationWorkflows:
         assert registration_result["email_sent"] is True
 
         # Step 2: Verify email verification was sent
-        sent_emails = env.email_service.get_sent_emails(user_data["email"], "verification")
+        sent_emails = env.email_service.get_sent_emails(
+            user_data["email"], "verification"
+        )
         assert len(sent_emails) == 1
         assert sent_emails[0]["token"] == registration_result["verification_token"]
 
@@ -48,7 +52,7 @@ class TestCompleteAuthenticationWorkflows:
         login_result = await env.login_user(
             user_data["email"],
             user_data["password"],
-            {"user_agent": "TestBrowser/1.0", "ip_address": "192.168.1.100"}
+            {"user_agent": "TestBrowser/1.0", "ip_address": "192.168.1.100"},
         )
         assert login_result["success"] is True
         assert "token" in login_result
@@ -61,8 +65,7 @@ class TestCompleteAuthenticationWorkflows:
 
         # Step 6: Access protected resource (simulated)
         protected_access = await self._simulate_protected_resource_access(
-            login_result["token"],
-            env
+            login_result["token"], env
         )
         assert protected_access["authorized"] is True
 
@@ -84,7 +87,7 @@ class TestCompleteAuthenticationWorkflows:
         devices = [
             {"user_agent": "Chrome/100.0 Desktop", "ip_address": "192.168.1.100"},
             {"user_agent": "Safari/15.0 Mobile", "ip_address": "192.168.1.101"},
-            {"user_agent": "Firefox/90.0 Tablet", "ip_address": "192.168.1.102"}
+            {"user_agent": "Firefox/90.0 Tablet", "ip_address": "192.168.1.102"},
         ]
 
         login_results = []
@@ -92,9 +95,7 @@ class TestCompleteAuthenticationWorkflows:
         # Login from multiple devices
         for device in devices:
             login_result = await env.login_user(
-                user_data["email"],
-                user_data["password"],
-                device
+                user_data["email"], user_data["password"], device
             )
             assert login_result["success"] is True
             login_results.append(login_result)
@@ -130,13 +131,14 @@ class TestCompleteAuthenticationWorkflows:
         # Step 2: Request password reset
         reset_token = "password_reset_token_12345"
         reset_email_sent = await env.email_service.send_password_reset_email(
-            user_data["email"],
-            reset_token
+            user_data["email"], reset_token
         )
         assert reset_email_sent is True
 
         # Step 3: Verify password reset email
-        reset_emails = env.email_service.get_sent_emails(user_data["email"], "password_reset")
+        reset_emails = env.email_service.get_sent_emails(
+            user_data["email"], "password_reset"
+        )
         assert len(reset_emails) == 1
         assert reset_emails[0]["token"] == reset_token
 
@@ -153,11 +155,15 @@ class TestCompleteAuthenticationWorkflows:
         assert new_login["success"] is True
 
         # Step 7: Login with old password should fail
-        old_login_attempt = await env.login_user(user_data["email"], user_data["password"])
+        old_login_attempt = await env.login_user(
+            user_data["email"], user_data["password"]
+        )
         assert old_login_attempt["success"] is False
 
     @pytest.mark.asyncio
-    async def test_account_lockout_and_unlock_workflow(self, integrated_test_environment):
+    async def test_account_lockout_and_unlock_workflow(
+        self, integrated_test_environment
+    ):
         """🔒 Test account lockout after failed attempts and unlock process"""
         env = integrated_test_environment
         user_data = TestDataGenerator.generate_user().to_dict()
@@ -174,30 +180,32 @@ class TestCompleteAuthenticationWorkflows:
             assert failed_login["success"] is False
 
         # Step 2: Account should be locked
-        await env.database.update_user(user_data["email"], {
-            "is_locked": True,
-            "failed_attempts": 5,
-            "locked_at": datetime.utcnow()
-        })
+        await env.database.update_user(
+            user_data["email"],
+            {"is_locked": True, "failed_attempts": 5, "locked_at": datetime.utcnow()},
+        )
 
         # Step 3: Even correct password should fail when locked
-        locked_login_attempt = await env.login_user(user_data["email"], user_data["password"])
+        locked_login_attempt = await env.login_user(
+            user_data["email"], user_data["password"]
+        )
         assert locked_login_attempt["success"] is False
         assert "locked" in locked_login_attempt.get("error", "").lower()
 
         # Step 4: Simulate account unlock (admin action or time-based)
-        await env.database.update_user(user_data["email"], {
-            "is_locked": False,
-            "failed_attempts": 0,
-            "locked_at": None
-        })
+        await env.database.update_user(
+            user_data["email"],
+            {"is_locked": False, "failed_attempts": 0, "locked_at": None},
+        )
 
         # Step 5: Login should work after unlock
         unlocked_login = await env.login_user(user_data["email"], user_data["password"])
         assert unlocked_login["success"] is True
 
     @pytest.mark.asyncio
-    async def test_mfa_enabled_user_workflow(self, integrated_test_environment, mock_sms_service):
+    async def test_mfa_enabled_user_workflow(
+        self, integrated_test_environment, mock_sms_service
+    ):
         """📱 Test MFA-enabled user complete authentication workflow"""
         env = integrated_test_environment
         user_data = TestDataGenerator.generate_user().to_dict()
@@ -205,11 +213,10 @@ class TestCompleteAuthenticationWorkflows:
 
         # Setup MFA-enabled user
         await env.register_user(user_data)
-        await env.database.update_user(user_data["email"], {
-            "is_verified": True,
-            "mfa_enabled": True,
-            "phone": user_data["phone"]
-        })
+        await env.database.update_user(
+            user_data["email"],
+            {"is_verified": True, "mfa_enabled": True, "phone": user_data["phone"]},
+        )
 
         # Step 1: Initial login (should prompt for MFA)
         login_attempt = await env.login_user(user_data["email"], user_data["password"])
@@ -220,7 +227,9 @@ class TestCompleteAuthenticationWorkflows:
 
         # Step 2: Simulate MFA challenge
         mfa_code = "123456"
-        code_sent = await mock_sms_service.send_verification_code(user_data["phone"], mfa_code)
+        code_sent = await mock_sms_service.send_verification_code(
+            user_data["phone"], mfa_code
+        )
         assert code_sent is True
 
         # Step 3: Verify SMS was sent
@@ -237,7 +246,7 @@ class TestCompleteAuthenticationWorkflows:
         final_token = env.jwt_service.generate_token(
             user_id=str(hash(user_data["email"])),
             email=user_data["email"],
-            permissions=["read", "write", "mfa_verified"]
+            permissions=["read", "write", "mfa_verified"],
         )
 
         # Step 6: Verify final token includes MFA verification
@@ -275,7 +284,7 @@ class TestCompleteAuthenticationWorkflows:
         refreshed_token = env.jwt_service.generate_token(
             user_id=str(hash(user_data["email"])),
             email=user_data["email"],
-            permissions=["read", "write"]
+            permissions=["read", "write"],
         )
 
         # Step 5: Revoke old token
@@ -310,8 +319,12 @@ class TestCompleteAuthenticationWorkflows:
         await env.register_user(admin_data)
         await env.register_user(regular_user_data)
 
-        await env.database.update_user(admin_data["email"], {"is_verified": True, "role": "admin"})
-        await env.database.update_user(regular_user_data["email"], {"is_verified": True, "role": "user"})
+        await env.database.update_user(
+            admin_data["email"], {"is_verified": True, "role": "admin"}
+        )
+        await env.database.update_user(
+            regular_user_data["email"], {"is_verified": True, "role": "user"}
+        )
 
         # Step 1: Admin login
         admin_login = await env.login_user(admin_data["email"], admin_data["password"])
@@ -319,7 +332,9 @@ class TestCompleteAuthenticationWorkflows:
         admin_token = admin_login["token"]
 
         # Step 2: Regular user login
-        user_login = await env.login_user(regular_user_data["email"], regular_user_data["password"])
+        user_login = await env.login_user(
+            regular_user_data["email"], regular_user_data["password"]
+        )
         assert user_login["success"] is True
         user_token = user_login["token"]
 
@@ -337,7 +352,9 @@ class TestCompleteAuthenticationWorkflows:
         assert user_operations["can_manage_users"] is False
         assert user_operations["can_view_audit_logs"] is False
 
-    async def _simulate_protected_resource_access(self, token: str, env) -> Dict[str, Any]:
+    async def _simulate_protected_resource_access(
+        self, token: str, env
+    ) -> Dict[str, Any]:
         """Simulate accessing a protected resource"""
         token_validation = await env.verify_token(token)
 
@@ -352,7 +369,7 @@ class TestCompleteAuthenticationWorkflows:
             return {
                 "authorized": True,
                 "resource_data": {"id": 123, "name": "Protected Resource"},
-                "accessed_at": datetime.utcnow().isoformat()
+                "accessed_at": datetime.utcnow().isoformat(),
             }
         else:
             return {"authorized": False, "error": "Insufficient permissions"}
@@ -374,7 +391,7 @@ class TestCompleteAuthenticationWorkflows:
         return {
             "can_manage_users": is_admin,
             "can_view_audit_logs": is_admin,
-            "can_modify_system_settings": is_admin
+            "can_modify_system_settings": is_admin,
         }
 
 
@@ -404,8 +421,7 @@ class TestErrorRecoveryWorkflows:
 
         # Step 5: Resend verification email
         retry_result = await env.email_service.send_verification_email(
-            user_data["email"],
-            "retry_verification_token"
+            user_data["email"], "retry_verification_token"
         )
         assert retry_result is True
 
@@ -449,7 +465,9 @@ class TestErrorRecoveryWorkflows:
         assert recovery_result["success"] is True
 
     @pytest.mark.asyncio
-    async def test_concurrent_user_conflict_resolution(self, integrated_test_environment):
+    async def test_concurrent_user_conflict_resolution(
+        self, integrated_test_environment
+    ):
         """🔄 Test handling of concurrent user operations"""
         env = integrated_test_environment
 
@@ -462,15 +480,16 @@ class TestErrorRecoveryWorkflows:
 
         # Execute concurrent registrations
         results = await asyncio.gather(
-            register_user(),
-            register_user(),
-            register_user(),
-            return_exceptions=True
+            register_user(), register_user(), register_user(), return_exceptions=True
         )
 
         # Step 2: Only one should succeed
-        successful_registrations = [r for r in results if isinstance(r, dict) and r.get("success")]
-        failed_registrations = [r for r in results if isinstance(r, dict) and not r.get("success")]
+        successful_registrations = [
+            r for r in results if isinstance(r, dict) and r.get("success")
+        ]
+        failed_registrations = [
+            r for r in results if isinstance(r, dict) and not r.get("success")
+        ]
 
         assert len(successful_registrations) == 1
         assert len(failed_registrations) == 2
@@ -489,7 +508,9 @@ class TestPerformanceWorkflows:
         env = integrated_test_environment
 
         # Generate many users for concurrent registration
-        users = TestDataGenerator.generate_users_batch(50, UserRole.USER, TestScenario.HAPPY_PATH)
+        users = TestDataGenerator.generate_users_batch(
+            50, UserRole.USER, TestScenario.HAPPY_PATH
+        )
 
         start_time = time.time()
 
@@ -505,8 +526,7 @@ class TestPerformanceWorkflows:
 
         # Analysis
         successful_registrations = sum(
-            1 for r in results
-            if isinstance(r, dict) and r.get("success")
+            1 for r in results if isinstance(r, dict) and r.get("success")
         )
 
         # Assertions
@@ -517,7 +537,7 @@ class TestPerformanceWorkflows:
         registrations_per_second = successful_registrations / duration
         assert registrations_per_second > 1  # At least 1 registration per second
 
-        print(f"Performance: {successful_registrations} registrations in {duration:.2f}s ({registrations_per_second:.2f}/s)")
+    # print(f"Performance: {successful_registrations} registrations in {duration:.2f}s ({registrations_per_second:.2f}/s)")
 
     @pytest.mark.asyncio
     async def test_sustained_login_load(self, integrated_test_environment):
@@ -525,7 +545,9 @@ class TestPerformanceWorkflows:
         env = integrated_test_environment
 
         # Setup: Register users first
-        users = TestDataGenerator.generate_users_batch(20, UserRole.USER, TestScenario.HAPPY_PATH)
+        users = TestDataGenerator.generate_users_batch(
+            20, UserRole.USER, TestScenario.HAPPY_PATH
+        )
 
         for user in users:
             await env.register_user(user.to_dict())
@@ -556,17 +578,11 @@ class TestPerformanceWorkflows:
         stats = env.get_service_stats()
         assert stats["jwt_service"]["active_tokens"] > 0
 
-        print(f"Sustained load: {login_count} logins in 60 seconds")
+    # print(f"Sustained load: {login_count} logins in 60 seconds")
 
 
 if __name__ == "__main__":
-    print("🌐 Running End-to-End Authentication Tests")
-    print("=" * 50)
+    # print("🌐 Running End-to-End Authentication Tests")
+    # print("=" * 50)
 
-    pytest.main([
-        __file__,
-        "-v",
-        "--tb=short",
-        "--asyncio-mode=auto",
-        "--durations=10"
-    ])
+    pytest.main([__file__, "-v", "--tb=short", "--asyncio-mode=auto", "--durations=10"])

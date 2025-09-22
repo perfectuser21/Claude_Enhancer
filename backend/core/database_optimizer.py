@@ -18,22 +18,26 @@ from enum import Enum
 
 logger = logging.getLogger(__name__)
 
+
 class QueryType(Enum):
     """查询类型"""
+
     SELECT = "SELECT"
     INSERT = "INSERT"
     UPDATE = "UPDATE"
     DELETE = "DELETE"
     AGGREGATE = "AGGREGATE"
 
+
 @dataclass
 class QueryStats:
     """查询统计信息"""
+
     query_hash: str
     query_type: QueryType
     avg_duration: float = 0.0
     max_duration: float = 0.0
-    min_duration: float = float('inf')
+    min_duration: float = float("inf")
     total_executions: int = 0
     total_duration: float = 0.0
     last_executed: Optional[datetime] = None
@@ -41,9 +45,11 @@ class QueryStats:
     error_count: int = 0
     cached_hits: int = 0
 
+
 @dataclass
 class DatabaseConfig:
     """数据库配置"""
+
     url: str
     pool_size: int = 20
     max_overflow: int = 30
@@ -54,6 +60,7 @@ class DatabaseConfig:
     query_cache_ttl: int = 300  # 5分钟
     enable_prepared_statements: bool = True
     statement_cache_size: int = 100
+
 
 class DatabaseOptimizer:
     """数据库性能优化器"""
@@ -75,11 +82,11 @@ class DatabaseOptimizer:
                 max_size=self.config.pool_size,
                 command_timeout=self.config.pool_timeout,
                 server_settings={
-                    'application_name': 'perfect21_optimizer',
-                    'tcp_keepalives_idle': '300',
-                    'tcp_keepalives_interval': '30',
-                    'tcp_keepalives_count': '3',
-                }
+                    "application_name": "perfect21_optimizer",
+                    "tcp_keepalives_idle": "300",
+                    "tcp_keepalives_interval": "30",
+                    "tcp_keepalives_count": "3",
+                },
             )
 
             # 预热连接池
@@ -99,7 +106,7 @@ class DatabaseOptimizer:
 
     def _hash_query(self, query: str, params: tuple = None) -> str:
         """生成查询哈希"""
-        query_normalized = ' '.join(query.split())  # 标准化空格
+        query_normalized = " ".join(query.split())  # 标准化空格
         if params:
             query_with_params = f"{query_normalized}:{str(params)}"
         else:
@@ -109,32 +116,40 @@ class DatabaseOptimizer:
     def _detect_query_type(self, query: str) -> QueryType:
         """检测查询类型"""
         query_upper = query.strip().upper()
-        if query_upper.startswith('SELECT'):
-            if any(agg in query_upper for agg in ['COUNT(', 'SUM(', 'AVG(', 'MAX(', 'MIN(', 'GROUP BY']):
+        if query_upper.startswith("SELECT"):
+            if any(
+                agg in query_upper
+                for agg in ["COUNT(", "SUM(", "AVG(", "MAX(", "MIN(", "GROUP BY"]
+            ):
                 return QueryType.AGGREGATE
             return QueryType.SELECT
-        elif query_upper.startswith('INSERT'):
+        elif query_upper.startswith("INSERT"):
             return QueryType.INSERT
-        elif query_upper.startswith('UPDATE'):
+        elif query_upper.startswith("UPDATE"):
             return QueryType.UPDATE
-        elif query_upper.startswith('DELETE'):
+        elif query_upper.startswith("DELETE"):
             return QueryType.DELETE
         else:
             return QueryType.SELECT
 
-    async def execute_optimized(self, query: str, *args, fetch_type: str = "all") -> Any:
+    async def execute_optimized(
+        self, query: str, *args, fetch_type: str = "all"
+    ) -> Any:
         """执行优化的查询"""
         start_time = time.time()
         query_hash = self._hash_query(query, args)
         query_type = self._detect_query_type(query)
 
         # 检查查询缓存（仅对SELECT查询）
-        if (self.config.enable_query_cache and
-            query_type in [QueryType.SELECT, QueryType.AGGREGATE] and
-            query_hash in self.query_cache):
-
+        if (
+            self.config.enable_query_cache
+            and query_type in [QueryType.SELECT, QueryType.AGGREGATE]
+            and query_hash in self.query_cache
+        ):
             cached_result, cache_time = self.query_cache[query_hash]
-            if datetime.now() - cache_time < timedelta(seconds=self.config.query_cache_ttl):
+            if datetime.now() - cache_time < timedelta(
+                seconds=self.config.query_cache_ttl
+            ):
                 # 更新统计
                 await self._update_stats(query_hash, query_type, 0.001, cached=True)
                 logger.debug(f"🎯 查询缓存命中: {query_hash}")
@@ -161,9 +176,11 @@ class DatabaseOptimizer:
             duration = time.time() - start_time
 
             # 缓存SELECT查询结果
-            if (self.config.enable_query_cache and
-                query_type in [QueryType.SELECT, QueryType.AGGREGATE] and
-                duration < self.config.slow_query_threshold):  # 只缓存快速查询
+            if (
+                self.config.enable_query_cache
+                and query_type in [QueryType.SELECT, QueryType.AGGREGATE]
+                and duration < self.config.slow_query_threshold
+            ):  # 只缓存快速查询
                 self.query_cache[query_hash] = (result, datetime.now())
 
             # 更新统计
@@ -185,14 +202,19 @@ class DatabaseOptimizer:
             logger.error(f"❌ 查询执行失败: {e}, 查询: {query[:100]}...")
             raise
 
-    async def _update_stats(self, query_hash: str, query_type: QueryType,
-                          duration: float, cached: bool = False, error: bool = False):
+    async def _update_stats(
+        self,
+        query_hash: str,
+        query_type: QueryType,
+        duration: float,
+        cached: bool = False,
+        error: bool = False,
+    ):
         """更新查询统计"""
         async with self._lock:
             if query_hash not in self.query_stats:
                 self.query_stats[query_hash] = QueryStats(
-                    query_hash=query_hash,
-                    query_type=query_type
+                    query_hash=query_hash, query_type=query_type
                 )
 
             stats = self.query_stats[query_hash]
@@ -215,7 +237,9 @@ class DatabaseOptimizer:
             if duration > self.config.slow_query_threshold:
                 stats.slow_threshold_exceeded += 1
 
-    async def execute_batch_optimized(self, query: str, params_list: List[tuple]) -> List[Any]:
+    async def execute_batch_optimized(
+        self, query: str, params_list: List[tuple]
+    ) -> List[Any]:
         """批量执行优化查询"""
         if not params_list:
             return []
@@ -252,7 +276,9 @@ class DatabaseOptimizer:
             logger.error(f"❌ 批量查询失败: {e}")
             raise
 
-    async def execute_with_connection_optimization(self, queries: List[Tuple[str, tuple]]) -> List[Any]:
+    async def execute_with_connection_optimization(
+        self, queries: List[Tuple[str, tuple]]
+    ) -> List[Any]:
         """在单个连接中执行多个查询（减少连接开销）"""
         start_time = time.time()
         results = []
@@ -267,9 +293,7 @@ class DatabaseOptimizer:
             duration = time.time() - start_time
 
             logger.debug(
-                f"🔗 连接优化查询完成 - "
-                f"查询数: {len(queries)}, "
-                f"耗时: {duration:.3f}s"
+                f"🔗 连接优化查询完成 - " f"查询数: {len(queries)}, " f"耗时: {duration:.3f}s"
             )
 
             return results
@@ -292,7 +316,7 @@ class DatabaseOptimizer:
                         pg_size_pretty(pg_indexes_size($1)) as indexes_size
                 """
                 size_result = await conn.fetchrow(size_query, table_name)
-                analysis['size'] = dict(size_result) if size_result else {}
+                analysis["size"] = dict(size_result) if size_result else {}
 
                 # 索引使用分析
                 index_query = """
@@ -305,7 +329,7 @@ class DatabaseOptimizer:
                     WHERE relname = $1
                 """
                 index_results = await conn.fetch(index_query, table_name)
-                analysis['indexes'] = [dict(row) for row in index_results]
+                analysis["indexes"] = [dict(row) for row in index_results]
 
                 # 表统计信息
                 stats_query = """
@@ -324,24 +348,24 @@ class DatabaseOptimizer:
                     WHERE relname = $1
                 """
                 stats_result = await conn.fetchrow(stats_query, table_name)
-                analysis['stats'] = dict(stats_result) if stats_result else {}
+                analysis["stats"] = dict(stats_result) if stats_result else {}
 
                 # 建议优化
                 suggestions = []
                 if stats_result:
                     # 检查是否需要VACUUM
-                    if stats_result['n_dead_tup'] > stats_result['n_live_tup'] * 0.1:
+                    if stats_result["n_dead_tup"] > stats_result["n_live_tup"] * 0.1:
                         suggestions.append("建议执行VACUUM清理死元组")
 
                     # 检查索引效率
-                    if stats_result['seq_scan'] > stats_result['idx_scan'] * 2:
+                    if stats_result["seq_scan"] > stats_result["idx_scan"] * 2:
                         suggestions.append("考虑添加索引以减少顺序扫描")
 
-                analysis['suggestions'] = suggestions
+                analysis["suggestions"] = suggestions
 
         except Exception as e:
             logger.error(f"❌ 表性能分析失败: {e}")
-            analysis['error'] = str(e)
+            analysis["error"] = str(e)
 
         return analysis
 
@@ -351,45 +375,55 @@ class DatabaseOptimizer:
 
         for query_hash, stats in self.query_stats.items():
             if stats.slow_threshold_exceeded > 0:
-                slow_queries.append({
-                    'query_hash': query_hash,
-                    'query_type': stats.query_type.value,
-                    'avg_duration': stats.avg_duration,
-                    'max_duration': stats.max_duration,
-                    'total_executions': stats.total_executions,
-                    'slow_count': stats.slow_threshold_exceeded,
-                    'error_count': stats.error_count,
-                    'last_executed': stats.last_executed.isoformat() if stats.last_executed else None
-                })
+                slow_queries.append(
+                    {
+                        "query_hash": query_hash,
+                        "query_type": stats.query_type.value,
+                        "avg_duration": stats.avg_duration,
+                        "max_duration": stats.max_duration,
+                        "total_executions": stats.total_executions,
+                        "slow_count": stats.slow_threshold_exceeded,
+                        "error_count": stats.error_count,
+                        "last_executed": stats.last_executed.isoformat()
+                        if stats.last_executed
+                        else None,
+                    }
+                )
 
         # 按平均执行时间排序
-        slow_queries.sort(key=lambda x: x['avg_duration'], reverse=True)
+        slow_queries.sort(key=lambda x: x["avg_duration"], reverse=True)
         return slow_queries[:limit]
 
     async def get_database_stats(self) -> Dict[str, Any]:
         """获取数据库统计信息"""
         stats = {
-            'total_queries': len(self.query_stats),
-            'cache_hit_rate': 0.0,
-            'avg_query_time': 0.0,
-            'slow_query_count': 0,
-            'error_rate': 0.0,
-            'cache_size': len(self.query_cache)
+            "total_queries": len(self.query_stats),
+            "cache_hit_rate": 0.0,
+            "avg_query_time": 0.0,
+            "slow_query_count": 0,
+            "error_rate": 0.0,
+            "cache_size": len(self.query_cache),
         }
 
         if self.query_stats:
-            total_executions = sum(qs.total_executions for qs in self.query_stats.values())
+            total_executions = sum(
+                qs.total_executions for qs in self.query_stats.values()
+            )
             total_cached_hits = sum(qs.cached_hits for qs in self.query_stats.values())
             total_duration = sum(qs.total_duration for qs in self.query_stats.values())
             total_errors = sum(qs.error_count for qs in self.query_stats.values())
-            slow_queries = sum(1 for qs in self.query_stats.values() if qs.slow_threshold_exceeded > 0)
+            slow_queries = sum(
+                1 for qs in self.query_stats.values() if qs.slow_threshold_exceeded > 0
+            )
 
             if total_executions > 0:
-                stats['cache_hit_rate'] = (total_cached_hits / (total_executions + total_cached_hits)) * 100
-                stats['avg_query_time'] = total_duration / total_executions
-                stats['error_rate'] = (total_errors / total_executions) * 100
+                stats["cache_hit_rate"] = (
+                    total_cached_hits / (total_executions + total_cached_hits)
+                ) * 100
+                stats["avg_query_time"] = total_duration / total_executions
+                stats["error_rate"] = (total_errors / total_executions) * 100
 
-            stats['slow_query_count'] = slow_queries
+            stats["slow_query_count"] = slow_queries
 
         return stats
 
@@ -413,7 +447,8 @@ class DatabaseOptimizer:
         try:
             async with self.pool.acquire() as conn:
                 # 获取数据库统计信息
-                db_stats = await conn.fetch("""
+                db_stats = await conn.fetch(
+                    """
                     SELECT
                         datname,
                         numbackends,
@@ -428,11 +463,17 @@ class DatabaseOptimizer:
                         tup_deleted
                     FROM pg_stat_database
                     WHERE datname = current_database()
-                """)
+                """
+                )
 
                 if db_stats:
                     stats = dict(db_stats[0])
-                    buffer_hit_ratio = (stats['blks_hit'] / (stats['blks_hit'] + stats['blks_read'])) * 100 if (stats['blks_hit'] + stats['blks_read']) > 0 else 0
+                    buffer_hit_ratio = (
+                        (stats["blks_hit"] / (stats["blks_hit"] + stats["blks_read"]))
+                        * 100
+                        if (stats["blks_hit"] + stats["blks_read"]) > 0
+                        else 0
+                    )
 
                     logger.info(
                         f"📊 数据库性能分析 - "
@@ -459,7 +500,9 @@ class DatabaseOptimizer:
                 expired_keys = []
 
                 for key, (_, cache_time) in self.query_cache.items():
-                    if now - cache_time > timedelta(seconds=self.config.query_cache_ttl):
+                    if now - cache_time > timedelta(
+                        seconds=self.config.query_cache_ttl
+                    ):
                         expired_keys.append(key)
 
                 for key in expired_keys:
@@ -498,7 +541,7 @@ class DatabaseOptimizer:
 
                 stats = await self.get_database_stats()
 
-                if stats['total_queries'] > 0:
+                if stats["total_queries"] > 0:
                     logger.info(
                         f"📈 数据库性能摘要 - "
                         f"查询总数: {stats['total_queries']}, "
@@ -526,13 +569,15 @@ class DatabaseOptimizer:
             await self.pool.close()
             logger.info("📴 数据库连接池已关闭")
 
+
 def optimized_query(cache_ttl: int = 300, batch_size: Optional[int] = None):
     """查询优化装饰器"""
+
     def decorator(func):
         @wraps(func)
         async def wrapper(*args, **kwargs):
             # 获取数据库优化器实例
-            optimizer = getattr(wrapper, '_optimizer', None)
+            optimizer = getattr(wrapper, "_optimizer", None)
             if not optimizer:
                 return await func(*args, **kwargs)
 
@@ -540,7 +585,9 @@ def optimized_query(cache_ttl: int = 300, batch_size: Optional[int] = None):
             return await func(*args, **kwargs)
 
         return wrapper
+
     return decorator
+
 
 # 使用示例
 @optimized_query(cache_ttl=600)
@@ -549,9 +596,10 @@ async def get_user_by_id(user_id: int, optimizer: DatabaseOptimizer):
     query = "SELECT * FROM users WHERE id = $1"
     return await optimizer.execute_optimized(query, user_id, fetch_type="one")
 
+
 @optimized_query(batch_size=100)
 async def bulk_insert_logs(logs: List[dict], optimizer: DatabaseOptimizer):
     """批量插入日志（优化版本）"""
     query = "INSERT INTO logs (level, message, timestamp) VALUES ($1, $2, $3)"
-    params_list = [(log['level'], log['message'], log['timestamp']) for log in logs]
+    params_list = [(log["level"], log["message"], log["timestamp"]) for log in logs]
     return await optimizer.execute_batch_optimized(query, params_list)

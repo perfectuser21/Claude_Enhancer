@@ -37,11 +37,13 @@ async_redis_cluster: Optional[AsyncRedisCluster] = None
 
 class CacheConnectionError(Exception):
     """缓存连接错误"""
+
     pass
 
 
 class CacheSerializationError(Exception):
     """缓存序列化错误"""
+
     pass
 
 
@@ -157,7 +159,7 @@ def create_redis_client() -> redis.Redis:
             client = RedisCluster(
                 startup_nodes=nodes,
                 max_connections_per_node=config.max_connections_per_node,
-                **config.get_connection_kwargs()
+                **config.get_connection_kwargs(),
             )
         else:
             # 单机模式
@@ -166,7 +168,7 @@ def create_redis_client() -> redis.Redis:
                 port=config.port,
                 db=config.database,
                 max_connections=config.max_connections,
-                **config.get_connection_kwargs()
+                **config.get_connection_kwargs(),
             )
 
         # 测试连接
@@ -199,7 +201,7 @@ def create_async_redis_client() -> aioredis.Redis:
             client = AsyncRedisCluster(
                 startup_nodes=nodes,
                 max_connections_per_node=config.max_connections_per_node,
-                **config.get_connection_kwargs()
+                **config.get_connection_kwargs(),
             )
         else:
             # 异步单机模式
@@ -208,7 +210,7 @@ def create_async_redis_client() -> aioredis.Redis:
                 port=config.port,
                 db=config.database,
                 max_connections=config.max_connections,
-                **config.get_connection_kwargs()
+                **config.get_connection_kwargs(),
             )
 
         logger.info(f"创建异步Redis客户端: {config.host}:{config.port}")
@@ -371,11 +373,7 @@ class CacheOperations:
         self.key_manager = CacheKeyManager()
 
     async def set(
-        self,
-        key: str,
-        value: Any,
-        ttl: Optional[int] = None,
-        serializer: str = "json"
+        self, key: str, value: Any, ttl: Optional[int] = None, serializer: str = "json"
     ) -> bool:
         """
         设置缓存值
@@ -548,9 +546,7 @@ class CacheOperations:
 
 @asynccontextmanager
 async def distributed_lock(
-    key: str,
-    timeout: int = 10,
-    blocking_timeout: Optional[int] = None
+    key: str, timeout: int = 10, blocking_timeout: Optional[int] = None
 ):
     """
     分布式锁上下文管理器
@@ -567,11 +563,7 @@ async def distributed_lock(
     lock_key = CacheKeyManager.lock_key(key)
 
     # 创建锁
-    lock = client.lock(
-        lock_key,
-        timeout=timeout,
-        blocking_timeout=blocking_timeout
-    )
+    lock = client.lock(lock_key, timeout=timeout, blocking_timeout=blocking_timeout)
 
     try:
         # 获取锁
@@ -603,23 +595,23 @@ def cache_ttl(cache_type: str = "default") -> int:
 
 # 导出公共接口
 __all__ = [
-    'redis_client',
-    'async_redis_client',
-    'redis_cluster',
-    'async_redis_cluster',
-    'get_redis_client',
-    'get_async_redis_client',
-    'get_redis_cluster',
-    'get_async_redis_cluster',
-    'init_cache',
-    'close_cache',
-    'test_cache_connection',
-    'CacheOperations',
-    'CacheKeyManager',
-    'CacheSerializer',
-    'distributed_lock',
-    'cache_key',
-    'cache_ttl',
-    'CacheConnectionError',
-    'CacheSerializationError',
+    "redis_client",
+    "async_redis_client",
+    "redis_cluster",
+    "async_redis_cluster",
+    "get_redis_client",
+    "get_async_redis_client",
+    "get_redis_cluster",
+    "get_async_redis_cluster",
+    "init_cache",
+    "close_cache",
+    "test_cache_connection",
+    "CacheOperations",
+    "CacheKeyManager",
+    "CacheSerializer",
+    "distributed_lock",
+    "cache_key",
+    "cache_ttl",
+    "CacheConnectionError",
+    "CacheSerializationError",
 ]
