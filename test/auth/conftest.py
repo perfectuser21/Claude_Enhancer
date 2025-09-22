@@ -1,337 +1,612 @@
-# 🔧 Pytest Configuration & Test Fixtures
-# 测试配置：像搭建实验室环境一样准备测试所需的一切
+"""
+🔧 Authentication Test Configuration
+====================================
+
+Shared test fixtures and configuration for authentication test suite
+Provides common setup and teardown for all test modules
+
+Author: Test Configuration Agent
+"""
 
 import pytest
 import asyncio
-import asyncpg
-import redis.asyncio as redis
-from unittest.mock import AsyncMock, MagicMock
-from datetime import datetime, timedelta
-import bcrypt
-import jwt
+import tempfile
+import shutil
 import os
-from pathlib import Path
+from datetime import datetime
+from typing import Dict, Any, List
+import logging
 
-# Test database configuration
-TEST_DB_CONFIG = {
-    'host': os.getenv('TEST_DB_HOST', 'localhost'),
-    'port': int(os.getenv('TEST_DB_PORT', 5432)),
-    'database': os.getenv('TEST_DB_NAME', 'auth_test'),
-    'user': os.getenv('TEST_DB_USER', 'test_user'),
-    'password': os.getenv('TEST_DB_PASSWORD', 'test_password')
-}
+# Configure test logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 
-# Test configuration
-TEST_CONFIG = {
-    'jwt_secret': 'test-jwt-secret-key-for-testing-only',
-    'bcrypt_rounds': 4,  # Lower for faster tests
-    'rate_limit_window': 60,
-    'rate_limit_max': 100,
-    'password_min_length': 8
-}
+# Test environment configuration
+@pytest.fixture(scope="session")
+def test_config():
+    """Global test configuration"""
+    return {
+        "test_environment": "isolated",
+        "database_type": "memory",
+        "logging_level": "INFO",
+        "performance_monitoring": True,
+        "security_testing": True,
+        "cleanup_after_tests": True,
+        "test_data_retention": False,
+        "parallel_execution": False
+    }
 
+# Async event loop configuration
 @pytest.fixture(scope="session")
 def event_loop():
-    """Create an instance of the default event loop for the test session."""
+    """Create event loop for async tests"""
     loop = asyncio.get_event_loop_policy().new_event_loop()
     yield loop
     loop.close()
 
+# Temporary directory for test files
 @pytest.fixture(scope="session")
-async def test_db_pool():
-    """Create a test database connection pool."""
-    pool = await asyncpg.create_pool(**TEST_DB_CONFIG, min_size=1, max_size=5)
+def temp_test_dir():
+    """Create temporary directory for test files"""
+    temp_dir = tempfile.mkdtemp(prefix="auth_tests_")
+    yield temp_dir
+    shutil.rmtree(temp_dir, ignore_errors=True)
 
-    # Setup test schema
-    async with pool.acquire() as conn:
-        await conn.execute("""
-            CREATE SCHEMA IF NOT EXISTS auth;
-
-            CREATE TABLE IF NOT EXISTS auth.users (
-                id SERIAL PRIMARY KEY,
-                username VARCHAR(50) UNIQUE NOT NULL,
-                email VARCHAR(255) UNIQUE NOT NULL,
-                password_hash TEXT NOT NULL,
-                first_name VARCHAR(100),
-                last_name VARCHAR(100),
-                status VARCHAR(20) DEFAULT 'active',
-                email_verified BOOLEAN DEFAULT FALSE,
-                email_verification_token TEXT,
-                email_verification_expires_at TIMESTAMP,
-                failed_login_attempts INTEGER DEFAULT 0,
-                locked_until TIMESTAMP,
-                last_login_at TIMESTAMP,
-                last_login_ip INET,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );
-
-            CREATE TABLE IF NOT EXISTS auth.refresh_tokens (
-                id SERIAL PRIMARY KEY,
-                user_id INTEGER REFERENCES auth.users(id) ON DELETE CASCADE,
-                token_hash TEXT NOT NULL,
-                device_type VARCHAR(50),
-                user_agent TEXT,
-                ip_address INET,
-                expires_at TIMESTAMP NOT NULL,
-                revoked BOOLEAN DEFAULT FALSE,
-                revoked_at TIMESTAMP,
-                revoked_reason VARCHAR(100),
-                last_used_at TIMESTAMP,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );
-
-            CREATE INDEX IF NOT EXISTS idx_users_email ON auth.users(email);
-            CREATE INDEX IF NOT EXISTS idx_users_username ON auth.users(username);
-            CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user_id ON auth.refresh_tokens(user_id);
-            CREATE INDEX IF NOT EXISTS idx_refresh_tokens_token_hash ON auth.refresh_tokens(token_hash);
-        """)
-
-    yield pool
-    await pool.close()
-
+# Test data generators
 @pytest.fixture
-async def db_connection(test_db_pool):
-    """Provide a database connection for tests."""
-    async with test_db_pool.acquire() as conn:
-        # Start transaction for test isolation
-        tr = conn.transaction()
-        await tr.start()
-
-        yield conn
-
-        # Rollback transaction to clean up
-        await tr.rollback()
-
-@pytest.fixture
-def mock_redis():
-    """Mock Redis client for testing."""
-    redis_mock = AsyncMock()
-    redis_mock.set = AsyncMock(return_value=True)
-    redis_mock.get = AsyncMock(return_value=None)
-    redis_mock.setex = AsyncMock(return_value=True)
-    redis_mock.delete = AsyncMock(return_value=1)
-    redis_mock.exists = AsyncMock(return_value=False)
-    redis_mock.incr = AsyncMock(return_value=1)
-    redis_mock.expire = AsyncMock(return_value=True)
-
-    return redis_mock
-
-@pytest.fixture
-def test_user_data():
-    """Standard test user data."""
+def valid_user_data():
+    """Generate valid user data for testing"""
+    timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
     return {
-        'username': 'testuser',
-        'email': 'test@example.com',
-        'password': 'TestPassword123!',
-        'first_name': 'Test',
-        'last_name': 'User'
+        "email": f"testuser_{timestamp}@example.com",
+        "password": "SecureTestPassword123!",
+        "first_name": "Test",
+        "last_name": "User",
+        "phone": "+1234567890",
+        "country": "US",
+        "terms_accepted": True
     }
 
 @pytest.fixture
-def test_user_variations():
-    """Various test user data for edge cases."""
+def test_users_batch():
+    """Generate batch of test users for load testing"""
+    users = []
+    for i in range(100):
+        users.append({
+            "email": f"loadtest_{i}@example.com",
+            "password": f"LoadTestPassword{i}123!",
+            "first_name": f"LoadTest{i}",
+            "last_name": "User",
+            "phone": f"+123456{i:04d}",
+            "country": "US",
+            "terms_accepted": True
+        })
+    return users
+
+@pytest.fixture
+def mfa_test_data():
+    """Generate MFA test data"""
     return {
-        'valid_users': [
-            {
-                'username': 'user1',
-                'email': 'user1@example.com',
-                'password': 'ValidPass123!',
-                'first_name': 'User',
-                'last_name': 'One'
-            },
-            {
-                'username': 'user2',
-                'email': 'user2@example.com',
-                'password': 'AnotherValid123!',
-                'first_name': 'User',
-                'last_name': 'Two'
+        "valid_codes": ["123456", "789012", "345678"],
+        "invalid_codes": ["000000", "111111", "999999", "abcdef"],
+        "expired_codes": ["555555"],
+        "backup_codes": ["recovery1", "recovery2", "recovery3"]
+    }
+
+@pytest.fixture
+def invalid_user_data():
+    """Generate invalid user data for testing"""
+    return [
+        {"email": "invalid-email", "password": "ValidPassword123!"},
+        {"email": "valid@example.com", "password": "weak"},
+        {"email": "", "password": "ValidPassword123!"},
+        {"email": "valid@example.com", "password": ""},
+        {"email": "a" * 300 + "@example.com", "password": "ValidPassword123!"},
+        {"email": "valid@example.com", "password": "a" * 200}
+    ]
+
+# Security test data
+@pytest.fixture
+def sql_injection_payloads():
+    """Common SQL injection test payloads"""
+    return [
+        "admin' OR '1'='1",
+        "admin'; DROP TABLE users; --",
+        "admin' UNION SELECT * FROM passwords --",
+        "admin' OR 1=1 #",
+        "'; INSERT INTO admin VALUES('hacker', 'pass'); --",
+        "user' OR 'x'='x",
+        "admin' AND SLEEP(5) --",
+        "'; EXEC xp_cmdshell('dir'); --"
+    ]
+
+@pytest.fixture
+def xss_payloads():
+    """Common XSS test payloads"""
+    return [
+        "<script>alert('XSS')</script>",
+        "<img src=x onerror=alert('XSS')>",
+        "javascript:alert('XSS')",
+        "<iframe src='javascript:alert(1)'></iframe>",
+        "<svg onload=alert('XSS')>",
+        "<object data='javascript:alert(1)'></object>",
+        "<script src='http://evil.com/malware.js'></script>",
+        "<body onload=alert('XSS')>"
+    ]
+
+# Performance test configuration
+@pytest.fixture
+def performance_config():
+    """Performance test configuration"""
+    return {
+        "light_load_users": 10,
+        "medium_load_users": 50,
+        "heavy_load_users": 100,
+        "stress_test_users": 200,
+        "response_time_threshold_ms": 1000,
+        "concurrent_request_timeout_s": 30,
+        "memory_limit_mb": 512,
+        "cpu_limit_percent": 80
+    }
+
+# Test database fixtures
+@pytest.fixture
+async def test_database():
+    """Create isolated test database"""
+    # Mock database for testing
+    class TestDatabase:
+        def __init__(self):
+            self.users = {}
+            self.sessions = {}
+            self.audit_logs = []
+
+        async def create_user(self, user_data: Dict[str, Any]) -> bool:
+            email = user_data.get("email")
+            if email in self.users:
+                return False
+            self.users[email] = user_data
+            return True
+
+        async def get_user(self, email: str) -> Dict[str, Any]:
+            return self.users.get(email)
+
+        async def update_user(self, email: str, updates: Dict[str, Any]) -> bool:
+            if email in self.users:
+                self.users[email].update(updates)
+                return True
+            return False
+
+        async def delete_user(self, email: str) -> bool:
+            if email in self.users:
+                del self.users[email]
+                return True
+            return False
+
+        async def create_session(self, session_data: Dict[str, Any]) -> str:
+            import secrets
+            session_id = secrets.token_urlsafe(32)
+            self.sessions[session_id] = session_data
+            return session_id
+
+        async def get_session(self, session_id: str) -> Dict[str, Any]:
+            return self.sessions.get(session_id)
+
+        async def delete_session(self, session_id: str) -> bool:
+            if session_id in self.sessions:
+                del self.sessions[session_id]
+                return True
+            return False
+
+        async def log_audit_event(self, event: Dict[str, Any]):
+            self.audit_logs.append({
+                **event,
+                "timestamp": datetime.utcnow()
+            })
+
+        def cleanup(self):
+            self.users.clear()
+            self.sessions.clear()
+            self.audit_logs.clear()
+
+    db = TestDatabase()
+    yield db
+    db.cleanup()
+
+# Enhanced fixtures for comprehensive testing
+@pytest.fixture
+def jwt_test_tokens():
+    """Generate JWT test tokens for various scenarios"""
+    import jwt
+    import time
+    from datetime import timedelta
+
+    secret = "test_jwt_secret_key"
+    now = datetime.utcnow()
+
+    return {
+        "valid_token": jwt.encode({
+            "user_id": "user123",
+            "email": "test@example.com",
+            "exp": now + timedelta(hours=1),
+            "iat": now,
+            "permissions": ["read", "write"]
+        }, secret, algorithm="HS256"),
+
+        "expired_token": jwt.encode({
+            "user_id": "user123",
+            "email": "test@example.com",
+            "exp": now - timedelta(hours=1),
+            "iat": now - timedelta(hours=2)
+        }, secret, algorithm="HS256"),
+
+        "invalid_signature": jwt.encode({
+            "user_id": "user123",
+            "email": "test@example.com",
+            "exp": now + timedelta(hours=1),
+            "iat": now
+        }, "wrong_secret", algorithm="HS256"),
+
+        "malformed_token": "invalid.token.format"
+    }
+
+@pytest.fixture
+def api_test_client():
+    """Create test API client"""
+    from fastapi.testclient import TestClient
+    from backend.auth_service.main import app
+
+    return TestClient(app)
+
+# Authentication service fixtures
+@pytest.fixture
+async def auth_service(test_database):
+    """Create authentication service for testing"""
+    class TestAuthService:
+        def __init__(self, database):
+            self.db = database
+            self.jwt_secret = "test_secret_key"
+            self.password_pepper = "test_pepper"
+
+        async def register_user(self, email: str, password: str) -> Dict[str, Any]:
+            # Simulate user registration
+            user_data = {
+                "email": email,
+                "password_hash": self._hash_password(password),
+                "created_at": datetime.utcnow(),
+                "is_active": True,
+                "failed_login_attempts": 0
             }
-        ],
-        'invalid_users': [
-            {
-                'username': 'x',  # Too short
-                'email': 'invalid-email',
-                'password': '123',  # Too weak
-                'first_name': '',
-                'last_name': ''
-            },
-            {
-                'username': 'user_with_very_long_username_that_exceeds_limit',
-                'email': 'test@example.com',
-                'password': 'onlylowercase',  # Missing requirements
-                'first_name': 'Test',
-                'last_name': 'User'
+
+            success = await self.db.create_user(user_data)
+            if success:
+                await self.db.log_audit_event({
+                    "action": "user_registered",
+                    "email": email
+                })
+                return {"success": True, "user_id": hash(email)}
+            else:
+                return {"success": False, "error": "User already exists"}
+
+        async def authenticate_user(self, email: str, password: str) -> Dict[str, Any]:
+            user = await self.db.get_user(email)
+            if not user:
+                return {"success": False, "error": "Invalid credentials"}
+
+            if self._verify_password(password, user["password_hash"]):
+                # Create session
+                session_id = await self.db.create_session({
+                    "email": email,
+                    "created_at": datetime.utcnow(),
+                    "expires_at": datetime.utcnow()
+                })
+
+                token = self._generate_token(email)
+
+                await self.db.log_audit_event({
+                    "action": "user_login",
+                    "email": email
+                })
+
+                return {
+                    "success": True,
+                    "token": token,
+                    "session_id": session_id
+                }
+            else:
+                await self.db.log_audit_event({
+                    "action": "login_failed",
+                    "email": email
+                })
+                return {"success": False, "error": "Invalid credentials"}
+
+        async def validate_token(self, token: str) -> Dict[str, Any]:
+            # Simple token validation for testing
+            if token.startswith("valid_token_"):
+                email = token.replace("valid_token_", "")
+                return {"success": True, "email": email}
+            else:
+                return {"success": False, "error": "Invalid token"}
+
+        def _hash_password(self, password: str) -> str:
+            import hashlib
+            return hashlib.sha256((password + self.password_pepper).encode()).hexdigest()
+
+        def _verify_password(self, password: str, password_hash: str) -> bool:
+            return self._hash_password(password) == password_hash
+
+        def _generate_token(self, email: str) -> str:
+            return f"valid_token_{email}"
+
+    service = TestAuthService(test_database)
+    yield service
+
+# Test monitoring fixtures
+@pytest.fixture
+def test_monitor():
+    """Test execution monitoring"""
+    class TestMonitor:
+        def __init__(self):
+            self.start_time = None
+            self.metrics = {
+                "tests_executed": 0,
+                "tests_passed": 0,
+                "tests_failed": 0,
+                "total_duration": 0,
+                "performance_metrics": [],
+                "security_events": [],
+                "errors": []
             }
-        ]
-    }
 
-@pytest.fixture
-async def created_test_user(db_connection, test_user_data):
-    """Create a test user in the database."""
-    password_hash = bcrypt.hashpw(
-        test_user_data['password'].encode('utf-8'),
-        bcrypt.gensalt(rounds=TEST_CONFIG['bcrypt_rounds'])
-    ).decode('utf-8')
+        def start_test(self, test_name: str):
+            self.start_time = datetime.utcnow()
+            logging.info(f"Starting test: {test_name}")
 
-    result = await db_connection.fetchrow("""
-        INSERT INTO auth.users (username, email, password_hash, first_name, last_name)
-        VALUES ($1, $2, $3, $4, $5)
-        RETURNING id, username, email, status, created_at
-    """,
-        test_user_data['username'],
-        test_user_data['email'],
-        password_hash,
-        test_user_data['first_name'],
-        test_user_data['last_name']
-    )
+        def end_test(self, test_name: str, result: str):
+            if self.start_time:
+                duration = (datetime.utcnow() - self.start_time).total_seconds()
+                self.metrics["total_duration"] += duration
 
-    return dict(result)
+            self.metrics["tests_executed"] += 1
+            if result == "passed":
+                self.metrics["tests_passed"] += 1
+            else:
+                self.metrics["tests_failed"] += 1
 
-@pytest.fixture
-def jwt_tokens():
-    """Generate test JWT tokens."""
-    def _generate_tokens(user_id='test-user-123', token_type='access', **kwargs):
-        now = datetime.utcnow()
+            logging.info(f"Completed test: {test_name} - {result}")
 
-        if token_type == 'access':
-            payload = {
-                'sub': user_id,
-                'type': 'access',
-                'iat': now.timestamp(),
-                'exp': (now + timedelta(minutes=15)).timestamp(),
-                'aud': 'perfect21-app',
-                'iss': 'perfect21-auth',
-                **kwargs
+        def record_performance_metric(self, metric_name: str, value: float, unit: str):
+            self.metrics["performance_metrics"].append({
+                "name": metric_name,
+                "value": value,
+                "unit": unit,
+                "timestamp": datetime.utcnow()
+            })
+
+        def record_security_event(self, event_type: str, details: Dict[str, Any]):
+            self.metrics["security_events"].append({
+                "type": event_type,
+                "details": details,
+                "timestamp": datetime.utcnow()
+            })
+
+        def record_error(self, error_type: str, message: str):
+            self.metrics["errors"].append({
+                "type": error_type,
+                "message": message,
+                "timestamp": datetime.utcnow()
+            })
+
+        def get_summary(self) -> Dict[str, Any]:
+            return {
+                "total_tests": self.metrics["tests_executed"],
+                "passed": self.metrics["tests_passed"],
+                "failed": self.metrics["tests_failed"],
+                "success_rate": (self.metrics["tests_passed"] / max(self.metrics["tests_executed"], 1)) * 100,
+                "total_duration": self.metrics["total_duration"],
+                "performance_metrics_count": len(self.metrics["performance_metrics"]),
+                "security_events_count": len(self.metrics["security_events"]),
+                "errors_count": len(self.metrics["errors"])
             }
-        else:  # refresh
-            payload = {
-                'sub': user_id,
-                'type': 'refresh',
-                'iat': now.timestamp(),
-                'exp': (now + timedelta(days=7)).timestamp(),
-                'aud': 'perfect21-app',
-                'iss': 'perfect21-auth',
-                **kwargs
-            }
 
-        return jwt.encode(payload, TEST_CONFIG['jwt_secret'], algorithm='HS256')
+    monitor = TestMonitor()
+    yield monitor
 
-    return _generate_tokens
+    # Print summary at end
+    summary = monitor.get_summary()
+    logging.info(f"Test execution summary: {summary}")
 
-@pytest.fixture
-def malicious_payloads():
-    """SQL injection and other malicious payloads for security testing."""
-    return {
-        'sql_injection': [
-            "'; DROP TABLE users; --",
-            "' OR '1'='1",
-            "admin'; DELETE FROM users WHERE '1'='1",
-            "1'; INSERT INTO users (username, email) VALUES ('hacker', 'hack@evil.com'); --",
-            "' UNION SELECT * FROM users --"
-        ],
-        'xss_payloads': [
-            "<script>alert('xss')</script>",
-            "javascript:alert('xss')",
-            "<img src=x onerror=alert('xss')>",
-            "';alert('xss');//"
-        ],
-        'buffer_overflow': [
-            'A' * 10000,  # Very long string
-            'x' * 1000000,  # Extremely long string
-        ],
-        'invalid_tokens': [
-            "invalid.jwt.token",
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.invalid",
-            "",
-            None,
-            123,
-            [],
-            {}
-        ]
-    }
-
-@pytest.fixture
-def performance_test_data():
-    """Data for performance testing."""
-    return {
-        'concurrent_users': 50,
-        'max_response_time': 500,  # milliseconds
-        'max_registration_time': 1000,  # milliseconds
-        'stress_test_users': 1000
-    }
-
-@pytest.fixture
-def mock_email_service():
-    """Mock email service for testing."""
-    email_mock = MagicMock()
-    email_mock.send_verification_email = AsyncMock(return_value=True)
-    email_mock.send_password_reset_email = AsyncMock(return_value=True)
-    email_mock.send_security_alert = AsyncMock(return_value=True)
-
-    return email_mock
-
-@pytest.fixture
-def security_test_scenarios():
-    """Security testing scenarios."""
-    return {
-        'rate_limit_test': {
-            'window_seconds': 60,
-            'max_attempts': 10,
-            'test_attempts': 15
-        },
-        'brute_force_test': {
-            'max_failed_attempts': 5,
-            'lockout_duration': 1800,  # 30 minutes
-            'test_attempts': 10
-        },
-        'geo_location_test': {
-            'suspicious_distance': 10000,  # km
-            'time_threshold': 3600  # 1 hour
-        }
-    }
-
+# Cleanup fixtures
 @pytest.fixture(autouse=True)
-async def cleanup_test_data(db_connection):
-    """Auto-cleanup test data after each test."""
+def auto_cleanup(test_config):
+    """Automatic cleanup after each test"""
     yield
 
-    # Clean up test data (runs after each test)
-    await db_connection.execute("DELETE FROM auth.refresh_tokens WHERE user_agent LIKE '%test%'")
-    await db_connection.execute("DELETE FROM auth.users WHERE email LIKE '%test%' OR email LIKE '%example.com'")
+    if test_config["cleanup_after_tests"]:
+        # Perform any necessary cleanup
+        import gc
+        gc.collect()
 
-@pytest.fixture
-def test_app_client():
-    """FastAPI test client for API testing."""
-    # This would import your actual FastAPI app
-    # from your_app import app
-    # from fastapi.testclient import TestClient
-    # return TestClient(app)
-    pass
+# Test session reporting
+@pytest.fixture(scope="session", autouse=True)
+def test_session_setup(test_config):
+    """Setup and teardown for entire test session"""
+    print(f"\n🚀 Starting Authentication Test Suite")
+    print(f"Environment: {test_config['test_environment']}")
+    print(f"Database: {test_config['database_type']}")
+    print(f"Security Testing: {test_config['security_testing']}")
+    print(f"Performance Monitoring: {test_config['performance_monitoring']}")
+    print("-" * 60)
+
+    yield
+
+    print(f"\n✅ Authentication Test Suite Completed")
+    print("-" * 60)
 
 # Pytest configuration
-pytest_plugins = ["pytest_asyncio"]
-
 def pytest_configure(config):
-    """Configure pytest with custom markers."""
-    config.addinivalue_line("markers", "unit: Unit tests")
-    config.addinivalue_line("markers", "integration: Integration tests")
-    config.addinivalue_line("markers", "security: Security tests")
-    config.addinivalue_line("markers", "performance: Performance tests")
-    config.addinivalue_line("markers", "e2e: End-to-end tests")
-    config.addinivalue_line("markers", "slow: Slow running tests")
+    """Configure pytest with custom markers"""
+    config.addinivalue_line(
+        "markers", "unit: mark test as unit test"
+    )
+    config.addinivalue_line(
+        "markers", "integration: mark test as integration test"
+    )
+    config.addinivalue_line(
+        "markers", "security: mark test as security test"
+    )
+    config.addinivalue_line(
+        "markers", "performance: mark test as performance test"
+    )
+    config.addinivalue_line(
+        "markers", "boundary: mark test as boundary test"
+    )
+    config.addinivalue_line(
+        "markers", "slow: mark test as slow running"
+    )
 
 def pytest_collection_modifyitems(config, items):
-    """Automatically mark tests based on their location."""
+    """Modify test collection to add markers"""
     for item in items:
-        # Add markers based on file path
-        if "unit/" in str(item.fspath):
+        # Add markers based on test file names
+        if "unit_test" in item.nodeid:
             item.add_marker(pytest.mark.unit)
-        elif "integration/" in str(item.fspath):
+        elif "integration_test" in item.nodeid:
             item.add_marker(pytest.mark.integration)
-        elif "security/" in str(item.fspath):
+        elif "security_test" in item.nodeid:
             item.add_marker(pytest.mark.security)
-        elif "performance/" in str(item.fspath):
+        elif "performance_test" in item.nodeid:
             item.add_marker(pytest.mark.performance)
-        elif "e2e/" in str(item.fspath):
-            item.add_marker(pytest.mark.e2e)
+        elif "boundary_test" in item.nodeid:
+            item.add_marker(pytest.mark.boundary)
+
+def pytest_runtest_setup(item):
+    """Setup before each test"""
+    logging.info(f"Setting up test: {item.name}")
+
+def pytest_runtest_teardown(item):
+    """Teardown after each test"""
+    logging.info(f"Tearing down test: {item.name}")
+
+# Custom test result collection
+def pytest_runtest_makereport(item, call):
+    """Collect test results for reporting"""
+    if call.when == "call":
+        test_name = item.name
+        outcome = "passed" if call.excinfo is None else "failed"
+
+        # Store result for potential use by other fixtures
+        if not hasattr(item.session, 'test_results'):
+            item.session.test_results = []
+
+        item.session.test_results.append({
+            "name": test_name,
+            "outcome": outcome,
+            "duration": call.duration,
+            "timestamp": datetime.utcnow()
+        })
+
+# Load testing fixtures
+@pytest.fixture
+def load_test_config():
+    """Configuration for load testing"""
+    return {
+        "light_load": {"users": 10, "duration": 30},
+        "medium_load": {"users": 50, "duration": 60},
+        "heavy_load": {"users": 100, "duration": 90},
+        "stress_test": {"users": 200, "duration": 120},
+        "spike_test": {"users": 500, "duration": 10}
+    }
+
+@pytest.fixture
+async def test_database_with_users(test_database, test_users_batch):
+    """Database pre-populated with test users"""
+    for user in test_users_batch:
+        await test_database.create_user(user)
+    yield test_database
+    test_database.cleanup()
+
+# Security testing fixtures
+@pytest.fixture
+def security_test_payloads():
+    """Comprehensive security test payloads"""
+    return {
+        "sql_injection": [
+            "admin' OR '1'='1",
+            "'; DROP TABLE users; --",
+            "' UNION SELECT * FROM passwords --",
+            "admin' OR 1=1 #"
+        ],
+        "xss_payloads": [
+            "<script>alert('XSS')</script>",
+            "<img src=x onerror=alert('XSS')>",
+            "javascript:alert('XSS')",
+            "<iframe src='javascript:alert(1)'></iframe>"
+        ],
+        "command_injection": [
+            "; ls -la",
+            "&& cat /etc/passwd",
+            "| whoami",
+            "`id`",
+            "$(uname -a)"
+        ],
+        "path_traversal": [
+            "../../../etc/passwd",
+            "..\\..\\..\\windows\\system32\\config\\sam",
+            "%2e%2e%2f%2e%2e%2f%2e%2e%2fetc%2fpasswd"
+        ]
+    }
+
+# Async test utilities
+@pytest.fixture
+def async_test_helper():
+    """Helper utilities for async tests"""
+    class AsyncTestHelper:
+        @staticmethod
+        async def wait_for_condition(condition_func, timeout_seconds=5, check_interval=0.1):
+            """Wait for a condition to become true"""
+            import asyncio
+            end_time = asyncio.get_event_loop().time() + timeout_seconds
+
+            while asyncio.get_event_loop().time() < end_time:
+                if await condition_func() if asyncio.iscoroutinefunction(condition_func) else condition_func():
+                    return True
+                await asyncio.sleep(check_interval)
+
+            return False
+
+        @staticmethod
+        async def run_concurrent_tasks(tasks, max_concurrent=10):
+            """Run tasks concurrently with limit"""
+            import asyncio
+            semaphore = asyncio.Semaphore(max_concurrent)
+
+            async def run_with_semaphore(task):
+                async with semaphore:
+                    return await task
+
+            return await asyncio.gather(*[run_with_semaphore(task) for task in tasks])
+
+        @staticmethod
+        async def measure_response_time(async_func, *args, **kwargs):
+            """Measure async function response time"""
+            start_time = time.time()
+            result = await async_func(*args, **kwargs)
+            end_time = time.time()
+            return result, (end_time - start_time) * 1000  # Return result and time in ms
+
+        @staticmethod
+        def generate_concurrent_users(count, base_email="testuser", password="TestPass123!"):
+            """Generate concurrent test users"""
+            return [
+                {
+                    "email": f"{base_email}{i}@example.com",
+                    "password": f"{password}{i}",
+                    "first_name": f"Test{i}",
+                    "last_name": "User"
+                }
+                for i in range(count)
+            ]
+
+    return AsyncTestHelper()

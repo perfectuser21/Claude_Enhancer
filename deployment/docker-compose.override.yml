@@ -1,0 +1,64 @@
+# =============================================================================
+# Docker Compose Override for Perfect21 Claude Enhancer
+# Environment-specific overrides for local development
+# =============================================================================
+
+version: '3.8'
+
+services:
+  # Override for local development
+  claude-enhancer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    environment:
+      - CLAUDE_ENV=development
+      - DEBUG=true
+      - LOG_LEVEL=DEBUG
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      - "8080:8080"
+    command: uvicorn run_api:app --host 0.0.0.0 --port 8080 --reload
+
+  # Add development tools
+  postgres:
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=claude_enhancer_dev
+      - POSTGRES_USER=claude_dev
+      - POSTGRES_PASSWORD=dev_password_123
+
+  redis:
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+
+  # Add pgAdmin for database management
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: claude-enhancer-pgadmin
+    restart: unless-stopped
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@claude-enhancer.dev
+      - PGADMIN_DEFAULT_PASSWORD=admin123
+      - PGADMIN_LISTEN_PORT=80
+    ports:
+      - "8084:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - claude-enhancer-dev
+    depends_on:
+      - postgres
+
+volumes:
+  pgadmin_data:
+    driver: local
+
+networks:
+  claude-enhancer-dev:
+    external: false

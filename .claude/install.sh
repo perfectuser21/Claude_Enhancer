@@ -4,6 +4,24 @@
 echo "🚀 Claude Enhancer 安装"
 echo "========================"
 
+# 检查是否已有其他.claude配置
+if [ -f ".claude/settings.json" ] && [ ! -f ".claude/WORKFLOW.md" ]; then
+    echo "⚠️  检测到已存在其他.claude配置"
+    echo "是否要备份现有配置？(y/n)"
+    read -r response
+    if [[ "$response" == "y" ]]; then
+        mv .claude .claude.backup.$(date +%Y%m%d_%H%M%S)
+        echo "✅ 已备份到 .claude.backup.*"
+    else
+        echo "继续会覆盖现有配置，确定吗？(y/n)"
+        read -r confirm
+        if [[ "$confirm" != "y" ]]; then
+            echo "❌ 安装取消"
+            exit 1
+        fi
+    fi
+fi
+
 # 检查是否在git仓库
 if [ ! -d .git ]; then
     echo "⚠️  警告：当前不是git仓库，Git Hooks将不会安装"

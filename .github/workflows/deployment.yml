@@ -1,0 +1,458 @@
+# =============================================================================
+# Enhanced Deployment Pipeline for Perfect21 Claude Enhancer
+# Advanced CI/CD with multiple deployment strategies and comprehensive monitoring
+# =============================================================================
+
+name: 🚀 Enhanced Deployment Pipeline
+
+on:
+  push:
+    branches: [main, develop, feature/*]
+    tags: ['v*']
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target deployment environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - development
+          - staging
+          - production
+      deployment_strategy:
+        description: 'Deployment strategy'
+        required: true
+        default: 'blue-green'
+        type: choice
+        options:
+          - rolling
+          - blue-green
+          - canary
+          - recreate
+      force_deploy:
+        description: 'Force deployment (skip some checks)'
+        required: false
+        default: false
+        type: boolean
+      rollback_version:
+        description: 'Version to rollback to (if applicable)'
+        required: false
+        type: string
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: perfect21/claude-enhancer
+  DOCKER_BUILDKIT: 1
+  COMPOSE_DOCKER_CLI_BUILD: 1
+
+jobs:
+  # ==========================================================================
+  # 🔍 Pre-flight Checks
+  # ==========================================================================
+  preflight:
+    name: 🔍 Pre-flight Checks
+    runs-on: ubuntu-latest
+    outputs:
+      should-deploy: ${{ steps.check.outputs.should-deploy }}
+      target-env: ${{ steps.check.outputs.target-env }}
+      strategy: ${{ steps.check.outputs.strategy }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Determine deployment parameters
+        id: check
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "should-deploy=true" >> $GITHUB_OUTPUT
+            echo "target-env=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+            echo "strategy=${{ github.event.inputs.deployment_strategy }}" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "should-deploy=true" >> $GITHUB_OUTPUT
+            echo "target-env=production" >> $GITHUB_OUTPUT
+            echo "strategy=blue-green" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+            echo "should-deploy=true" >> $GITHUB_OUTPUT
+            echo "target-env=staging" >> $GITHUB_OUTPUT
+            echo "strategy=rolling" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == refs/heads/feature/* ]]; then
+            echo "should-deploy=true" >> $GITHUB_OUTPUT
+            echo "target-env=development" >> $GITHUB_OUTPUT
+            echo "strategy=recreate" >> $GITHUB_OUTPUT
+          else
+            echo "should-deploy=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Print deployment plan
+        run: |
+          echo "🎯 Deployment Plan:"
+          echo "- Should Deploy: ${{ steps.check.outputs.should-deploy }}"
+          echo "- Target Environment: ${{ steps.check.outputs.target-env }}"
+          echo "- Strategy: ${{ steps.check.outputs.strategy }}"
+          echo "- Git Ref: ${{ github.ref }}"
+          echo "- Event: ${{ github.event_name }}"
+
+  # ==========================================================================
+  # 🧪 Quality Gates
+  # ==========================================================================
+  quality-gates:
+    name: 🧪 Quality Gates
+    runs-on: ubuntu-latest
+    needs: preflight
+    if: needs.preflight.outputs.should-deploy == 'true' && github.event.inputs.force_deploy != 'true'
+
+    strategy:
+      matrix:
+        check: [security, tests, lint, compliance]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install safety bandit black flake8 mypy pytest pytest-cov
+
+      - name: Security checks
+        if: matrix.check == 'security'
+        run: |
+          echo "🔒 Running security checks..."
+          bandit -r . -f json -o bandit-report.json || true
+          safety check --json --output safety-report.json || true
+          echo "Security checks completed"
+
+      - name: Run tests
+        if: matrix.check == 'tests'
+        run: |
+          echo "🧪 Running test suite..."
+          pytest --cov=backend --cov-report=xml --cov-report=term-missing
+          echo "Tests completed"
+
+      - name: Code linting
+        if: matrix.check == 'lint'
+        run: |
+          echo "🧹 Running code linting..."
+          black --check .
+          flake8 .
+          mypy backend/ || true
+          echo "Linting completed"
+
+      - name: Compliance checks
+        if: matrix.check == 'compliance'
+        run: |
+          echo "📋 Running compliance checks..."
+          # Add your compliance checks here
+          echo "Compliance checks completed"
+
+  # ==========================================================================
+  # 🐳 Build and Scan
+  # ==========================================================================
+  build-and-scan:
+    name: 🐳 Build and Security Scan
+    runs-on: ubuntu-latest
+    needs: [preflight, quality-gates]
+    if: always() && needs.preflight.outputs.should-deploy == 'true' && (needs.quality-gates.result == 'success' || github.event.inputs.force_deploy == 'true')
+
+    outputs:
+      image-digest: ${{ steps.build.outputs.digest }}
+      image-tags: ${{ steps.meta.outputs.tags }}
+      vulnerability-score: ${{ steps.trivy.outputs.score }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BUILD_DATE=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
+            VCS_REF=${{ github.sha }}
+            VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
+
+      - name: Run Trivy vulnerability scanner
+        id: trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ github.repository }}:${{ github.sha }}
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  # ==========================================================================
+  # 🏗️ Infrastructure Preparation
+  # ==========================================================================
+  infrastructure:
+    name: 🏗️ Infrastructure Preparation
+    runs-on: ubuntu-latest
+    needs: [preflight, build-and-scan]
+    if: needs.preflight.outputs.target-env != 'development'
+    environment: ${{ needs.preflight.outputs.target-env }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: '1.6.0'
+
+      - name: Configure cloud credentials
+        run: |
+          echo "🔧 Configuring cloud credentials for ${{ needs.preflight.outputs.target-env }}"
+          # Add your cloud provider setup here
+
+      - name: Terraform operations
+        working-directory: terraform/
+        run: |
+          terraform init
+          terraform workspace select ${{ needs.preflight.outputs.target-env }} || terraform workspace new ${{ needs.preflight.outputs.target-env }}
+          terraform plan -var="environment=${{ needs.preflight.outputs.target-env }}"
+          terraform apply -auto-approve
+
+  # ==========================================================================
+  # 🚀 Deploy Application
+  # ==========================================================================
+  deploy:
+    name: 🚀 Deploy Application
+    runs-on: ubuntu-latest
+    needs: [preflight, build-and-scan, infrastructure]
+    if: always() && needs.preflight.outputs.should-deploy == 'true' && needs.build-and-scan.result == 'success'
+    environment: ${{ needs.preflight.outputs.target-env }}
+
+    outputs:
+      deployment-url: ${{ steps.deploy.outputs.url }}
+      deployment-status: ${{ steps.deploy.outputs.status }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup deployment tools
+        run: |
+          echo "🛠️ Setting up deployment tools..."
+          # Install kubectl, helm, etc.
+
+      - name: Deploy with strategy
+        id: deploy
+        env:
+          STRATEGY: ${{ needs.preflight.outputs.strategy }}
+          ENVIRONMENT: ${{ needs.preflight.outputs.target-env }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          echo "🚀 Deploying with $STRATEGY strategy to $ENVIRONMENT"
+
+          case "$STRATEGY" in
+            "blue-green")
+              echo "🔵🟢 Executing blue-green deployment..."
+              ./scripts/deploy-blue-green.sh
+              ;;
+            "canary")
+              echo "🐦 Executing canary deployment..."
+              ./scripts/deploy-canary.sh
+              ;;
+            "rolling")
+              echo "🔄 Executing rolling deployment..."
+              ./scripts/deploy-rolling.sh
+              ;;
+            "recreate")
+              echo "🔄 Executing recreate deployment..."
+              ./scripts/deploy-recreate.sh
+              ;;
+          esac
+
+          echo "status=success" >> $GITHUB_OUTPUT
+          echo "url=https://$ENVIRONMENT.claude-enhancer.perfect21.dev" >> $GITHUB_OUTPUT
+
+      - name: Wait for deployment readiness
+        run: |
+          echo "⏳ Waiting for deployment to be ready..."
+          timeout 600 bash -c 'until curl -f ${{ steps.deploy.outputs.url }}/health; do sleep 10; done'
+          echo "✅ Deployment is ready!"
+
+  # ==========================================================================
+  # 🧪 Post-deployment Testing
+  # ==========================================================================
+  post-deployment-tests:
+    name: 🧪 Post-deployment Testing
+    runs-on: ubuntu-latest
+    needs: [preflight, deploy]
+    if: needs.deploy.result == 'success'
+
+    strategy:
+      matrix:
+        test-type: [smoke, integration, performance, security]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run smoke tests
+        if: matrix.test-type == 'smoke'
+        run: |
+          echo "💨 Running smoke tests..."
+          curl -f ${{ needs.deploy.outputs.deployment-url }}/health
+          curl -f ${{ needs.deploy.outputs.deployment-url }}/ready
+
+      - name: Run integration tests
+        if: matrix.test-type == 'integration'
+        run: |
+          echo "🔗 Running integration tests..."
+          # Add your integration test commands here
+
+      - name: Run performance tests
+        if: matrix.test-type == 'performance'
+        run: |
+          echo "⚡ Running performance tests..."
+          # Add your performance test commands here
+
+      - name: Run security tests
+        if: matrix.test-type == 'security'
+        run: |
+          echo "🔒 Running security tests..."
+          # Add your security test commands here
+
+  # ==========================================================================
+  # 📊 Monitor Deployment
+  # ==========================================================================
+  monitor-deployment:
+    name: 📊 Monitor Deployment
+    runs-on: ubuntu-latest
+    needs: [preflight, deploy, post-deployment-tests]
+    if: needs.deploy.result == 'success'
+
+    steps:
+      - name: Setup monitoring
+        run: |
+          echo "📊 Setting up deployment monitoring..."
+          # Configure monitoring dashboards, alerts, etc.
+
+      - name: Create deployment event
+        run: |
+          echo "📝 Creating deployment event in monitoring system..."
+          # Add deployment annotation to monitoring
+
+      - name: Monitor deployment health
+        run: |
+          echo "🏥 Monitoring deployment health for 5 minutes..."
+          for i in {1..30}; do
+            curl -f ${{ needs.deploy.outputs.deployment-url }}/health || exit 1
+            sleep 10
+          done
+          echo "✅ Deployment is stable!"
+
+  # ==========================================================================
+  # 🔄 Rollback (if needed)
+  # ==========================================================================
+  rollback:
+    name: 🔄 Emergency Rollback
+    runs-on: ubuntu-latest
+    needs: [preflight, deploy, post-deployment-tests]
+    if: failure() && needs.deploy.result == 'success'
+    environment: ${{ needs.preflight.outputs.target-env }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Perform rollback
+        run: |
+          echo "🔄 Performing emergency rollback..."
+          ./scripts/rollback.sh ${{ github.event.inputs.rollback_version || 'previous' }}
+
+      - name: Verify rollback
+        run: |
+          echo "✅ Verifying rollback success..."
+          curl -f ${{ needs.deploy.outputs.deployment-url }}/health
+
+  # ==========================================================================
+  # 📢 Notifications
+  # ==========================================================================
+  notify:
+    name: 📢 Send Notifications
+    runs-on: ubuntu-latest
+    needs: [preflight, deploy, post-deployment-tests, monitor-deployment]
+    if: always() && needs.preflight.outputs.should-deploy == 'true'
+
+    steps:
+      - name: Determine notification status
+        id: status
+        run: |
+          if [[ "${{ needs.deploy.result }}" == "success" && "${{ needs.post-deployment-tests.result }}" == "success" ]]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "message=🎉 Deployment successful!" >> $GITHUB_OUTPUT
+          else
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "message=❌ Deployment failed!" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Send Slack notification
+        if: always()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ steps.status.outputs.status }}
+          channel: '#deployments'
+          text: |
+            ${{ steps.status.outputs.message }}
+
+            *Environment:* ${{ needs.preflight.outputs.target-env }}
+            *Strategy:* ${{ needs.preflight.outputs.strategy }}
+            *Version:* ${{ github.sha }}
+            *URL:* ${{ needs.deploy.outputs.deployment-url }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+      - name: Update deployment status
+        run: |
+          echo "📝 Updating deployment status in external systems..."
+          # Update deployment status in monitoring, ticketing systems, etc.

@@ -1,0 +1,164 @@
+# =============================================================================
+# Prometheus Configuration for Perfect21 Claude Enhancer
+# Comprehensive monitoring setup with multiple targets and alerting rules
+# =============================================================================
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'claude-enhancer'
+    environment: 'production'
+
+# Alerting configuration
+rule_files:
+  - "alert_rules.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    metrics_path: /metrics
+    scrape_interval: 30s
+
+  # Claude Enhancer Application
+  - job_name: 'claude-enhancer'
+    static_configs:
+      - targets: ['claude-enhancer:8080']
+    metrics_path: /metrics
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    honor_labels: true
+    params:
+      format: ['prometheus']
+
+  # Node Exporter (System metrics)
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 15s
+
+  # cAdvisor (Container metrics)
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+    scrape_interval: 15s
+    metrics_path: /metrics
+
+  # Redis metrics
+  - job_name: 'redis-exporter'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+    scrape_interval: 15s
+
+  # PostgreSQL metrics
+  - job_name: 'postgres-exporter'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+    scrape_interval: 15s
+
+  # NGINX metrics
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['nginx:8080']
+    metrics_path: /nginx_status
+    scrape_interval: 15s
+
+  # Blackbox monitoring (HTTP endpoints)
+  - job_name: 'blackbox-http'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+        - http://claude-enhancer:8080/health
+        - http://claude-enhancer:8080/ready
+        - http://nginx:80/health
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  # Blackbox monitoring (TCP endpoints)
+  - job_name: 'blackbox-tcp'
+    metrics_path: /probe
+    params:
+      module: [tcp_connect]
+    static_configs:
+      - targets:
+        - postgres:5432
+        - redis:6379
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  # AlertManager
+  - job_name: 'alertmanager'
+    static_configs:
+      - targets: ['alertmanager:9093']
+    scrape_interval: 30s
+
+  # Grafana
+  - job_name: 'grafana'
+    static_configs:
+      - targets: ['grafana:3000']
+    scrape_interval: 30s
+
+  # Docker daemon metrics (if exposed)
+  - job_name: 'docker'
+    static_configs:
+      - targets: ['host.docker.internal:9323']
+    scrape_interval: 30s
+
+# Recording rules for better performance
+recording_rules:
+  - name: claude_enhancer_rules
+    rules:
+      - record: claude_enhancer:request_duration_seconds_quantile
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))
+        labels:
+          quantile: "0.95"
+
+      - record: claude_enhancer:request_duration_seconds_quantile
+        expr: histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m]))
+        labels:
+          quantile: "0.99"
+
+      - record: claude_enhancer:request_rate
+        expr: rate(http_requests_total[5m])
+
+      - record: claude_enhancer:error_rate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m])
+
+  - name: system_rules
+    rules:
+      - record: node:cpu_utilization
+        expr: 1 - avg(rate(node_cpu_seconds_total{mode="idle"}[5m])) by (instance)
+
+      - record: node:memory_utilization
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes
+
+      - record: node:disk_utilization
+        expr: (node_filesystem_size_bytes - node_filesystem_avail_bytes) / node_filesystem_size_bytes
+
+# Remote storage (optional - for long-term storage)
+# remote_write:
+#   - url: "https://prometheus-us-central1.grafana.net/api/prom/push"
+#     basic_auth:
+#       username: "your-username"
+#       password: "your-api-key"

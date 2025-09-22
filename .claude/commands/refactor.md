@@ -1,1 +1,0 @@
-Refactor the selected code to improve readability, performance, and maintainability. Follow SOLID principles and the project's coding standards.

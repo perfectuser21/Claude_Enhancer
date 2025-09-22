@@ -1,0 +1,1090 @@
+openapi: 3.1.0
+info:
+  title: Perfect21 Authentication API
+  description: |
+    RESTful Authentication API for Perfect21 system
+
+    ## Features
+    - JWT-based authentication
+    - Secure user registration and login
+    - Token refresh mechanism
+    - Role-based access control
+    - Rate limiting and security headers
+
+    ## Security
+    - Password hashing with bcrypt
+    - JWT tokens with expiration
+    - CORS protection
+    - Request rate limiting
+    - Input validation and sanitization
+  version: 1.0.0
+  contact:
+    name: Perfect21 API Team
+    email: api@perfect21.dev
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.perfect21.dev/v1
+    description: Production server
+  - url: https://staging-api.perfect21.dev/v1
+    description: Staging server
+  - url: http://localhost:8000/v1
+    description: Development server
+
+security:
+  - BearerAuth: []
+
+paths:
+  /auth/register:
+    post:
+      operationId: registerUser
+      summary: Register a new user
+      description: |
+        Creates a new user account with email and password.
+
+        ## Security Features
+        - Email validation and uniqueness check
+        - Strong password requirements
+        - Rate limiting (5 attempts per hour per IP)
+        - Input sanitization
+
+        ## Password Requirements
+        - Minimum 8 characters
+        - At least one uppercase letter
+        - At least one lowercase letter
+        - At least one number
+        - At least one special character
+      tags:
+        - Authentication
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+            examples:
+              valid_user:
+                summary: Valid registration
+                value:
+                  email: "user@example.com"
+                  password: "SecurePass123!"
+                  first_name: "John"
+                  last_name: "Doe"
+              minimal_user:
+                summary: Minimal registration
+                value:
+                  email: "minimal@example.com"
+                  password: "MinPass123!"
+      responses:
+        '201':
+          description: User registered successfully
+          headers:
+            Location:
+              description: URL of the created user resource
+              schema:
+                type: string
+                format: uri
+              example: "/api/auth/profile"
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+              examples:
+                success:
+                  summary: Successful registration
+                  value:
+                    message: "User registered successfully"
+                    user:
+                      id: "550e8400-e29b-41d4-a716-446655440000"
+                      email: "user@example.com"
+                      first_name: "John"
+                      last_name: "Doe"
+                      role: "user"
+                      created_at: "2025-01-15T10:30:00Z"
+                      email_verified: false
+                    tokens:
+                      access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                      refresh_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                      token_type: "Bearer"
+                      expires_in: 3600
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /auth/login:
+    post:
+      operationId: loginUser
+      summary: User login
+      description: |
+        Authenticates a user with email and password, returns JWT tokens.
+
+        ## Security Features
+        - Bcrypt password verification
+        - Account lockout after 5 failed attempts
+        - Rate limiting (10 attempts per hour per IP)
+        - Secure token generation
+        - Login attempt logging
+
+        ## Token Information
+        - Access token expires in 1 hour
+        - Refresh token expires in 7 days
+        - Tokens are invalidated on logout
+      tags:
+        - Authentication
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            examples:
+              standard_login:
+                summary: Standard login
+                value:
+                  email: "user@example.com"
+                  password: "SecurePass123!"
+              remember_me:
+                summary: Login with remember me
+                value:
+                  email: "user@example.com"
+                  password: "SecurePass123!"
+                  remember_me: true
+      responses:
+        '200':
+          description: Login successful
+          headers:
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+              examples:
+                success:
+                  summary: Successful login
+                  value:
+                    message: "Login successful"
+                    user:
+                      id: "550e8400-e29b-41d4-a716-446655440000"
+                      email: "user@example.com"
+                      first_name: "John"
+                      last_name: "Doe"
+                      role: "user"
+                      last_login: "2025-01-15T10:30:00Z"
+                      email_verified: true
+                    tokens:
+                      access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                      refresh_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                      token_type: "Bearer"
+                      expires_in: 3600
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Invalid credentials or account locked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalid_credentials:
+                  summary: Invalid email or password
+                  value:
+                    error:
+                      code: "INVALID_CREDENTIALS"
+                      message: "Invalid email or password"
+                      details: "Please check your credentials and try again"
+                account_locked:
+                  summary: Account temporarily locked
+                  value:
+                    error:
+                      code: "ACCOUNT_LOCKED"
+                      message: "Account temporarily locked due to too many failed attempts"
+                      details: "Please try again in 30 minutes or reset your password"
+                      retry_after: 1800
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /auth/logout:
+    post:
+      operationId: logoutUser
+      summary: User logout
+      description: |
+        Logs out the current user by invalidating their tokens.
+
+        ## Security Features
+        - Invalidates both access and refresh tokens
+        - Clears server-side session data
+        - Records logout event for audit
+        - Supports logout from all devices
+
+        ## Options
+        - `logout_all`: Invalidates all user sessions across devices
+        - Default: Invalidates current session only
+      tags:
+        - Authentication
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogoutRequest'
+            examples:
+              simple_logout:
+                summary: Logout current session
+                value: {}
+              logout_all:
+                summary: Logout from all devices
+                value:
+                  logout_all: true
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+              examples:
+                success:
+                  summary: Successful logout
+                  value:
+                    message: "Logout successful"
+                    timestamp: "2025-01-15T10:30:00Z"
+                logout_all:
+                  summary: Logged out from all devices
+                  value:
+                    message: "Successfully logged out from all devices"
+                    sessions_invalidated: 3
+                    timestamp: "2025-01-15T10:30:00Z"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /auth/refresh:
+    post:
+      operationId: refreshToken
+      summary: Refresh access token
+      description: |
+        Generates a new access token using a valid refresh token.
+
+        ## Security Features
+        - Validates refresh token authenticity
+        - Checks token expiration and blacklist
+        - Generates new access token with updated claims
+        - Optional refresh token rotation
+        - Rate limiting for token refresh
+
+        ## Token Rotation
+        - When enabled, issues new refresh token
+        - Invalidates old refresh token
+        - Improves security against token theft
+      tags:
+        - Authentication
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+            examples:
+              standard_refresh:
+                summary: Standard token refresh
+                value:
+                  refresh_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+      responses:
+        '200':
+          description: Token refreshed successfully
+          headers:
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+              examples:
+                success:
+                  summary: Successful token refresh
+                  value:
+                    access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    token_type: "Bearer"
+                    expires_in: 3600
+                    issued_at: "2025-01-15T10:30:00Z"
+                with_rotation:
+                  summary: Token refresh with rotation
+                  value:
+                    access_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    refresh_token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    token_type: "Bearer"
+                    expires_in: 3600
+                    issued_at: "2025-01-15T10:30:00Z"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Invalid or expired refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalid_token:
+                  summary: Invalid refresh token
+                  value:
+                    error:
+                      code: "INVALID_REFRESH_TOKEN"
+                      message: "Invalid or malformed refresh token"
+                      details: "Please login again to get a new token"
+                expired_token:
+                  summary: Expired refresh token
+                  value:
+                    error:
+                      code: "REFRESH_TOKEN_EXPIRED"
+                      message: "Refresh token has expired"
+                      details: "Please login again to continue"
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /auth/profile:
+    get:
+      operationId: getUserProfile
+      summary: Get user profile
+      description: |
+        Retrieves the authenticated user's profile information.
+
+        ## Security Features
+        - Requires valid JWT access token
+        - Returns sanitized user data
+        - Excludes sensitive information
+        - Supports field selection
+
+        ## Query Parameters
+        - `fields`: Comma-separated list of fields to include
+        - Default: Returns all non-sensitive fields
+      tags:
+        - Authentication
+        - User Profile
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: fields
+          in: query
+          description: Comma-separated list of fields to include in response
+          required: false
+          schema:
+            type: string
+            example: "id,email,first_name,last_name,role"
+          style: form
+          explode: false
+      responses:
+        '200':
+          description: User profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+              examples:
+                full_profile:
+                  summary: Full user profile
+                  value:
+                    id: "550e8400-e29b-41d4-a716-446655440000"
+                    email: "user@example.com"
+                    first_name: "John"
+                    last_name: "Doe"
+                    role: "user"
+                    email_verified: true
+                    phone_verified: false
+                    two_factor_enabled: false
+                    created_at: "2025-01-10T08:15:30Z"
+                    updated_at: "2025-01-15T10:30:00Z"
+                    last_login: "2025-01-15T10:30:00Z"
+                    login_count: 15
+                    preferences:
+                      language: "en"
+                      timezone: "UTC"
+                      notifications: true
+                selected_fields:
+                  summary: Selected fields only
+                  value:
+                    id: "550e8400-e29b-41d4-a716-446655440000"
+                    email: "user@example.com"
+                    first_name: "John"
+                    last_name: "Doe"
+                    role: "user"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    put:
+      operationId: updateUserProfile
+      summary: Update user profile
+      description: |
+        Updates the authenticated user's profile information.
+
+        ## Security Features
+        - Requires valid JWT access token
+        - Validates input data
+        - Prevents privilege escalation
+        - Audit logs for profile changes
+
+        ## Updatable Fields
+        - first_name, last_name
+        - phone_number
+        - preferences
+        - Password change requires current password
+      tags:
+        - Authentication
+        - User Profile
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+            examples:
+              basic_update:
+                summary: Update basic information
+                value:
+                  first_name: "John"
+                  last_name: "Smith"
+                  phone_number: "+1234567890"
+              preferences_update:
+                summary: Update preferences
+                value:
+                  preferences:
+                    language: "es"
+                    timezone: "America/New_York"
+                    notifications: false
+      responses:
+        '200':
+          description: Profile updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT Bearer token authentication
+
+        Include the token in the Authorization header:
+        `Authorization: Bearer <your_jwt_token>`
+
+  headers:
+    X-RateLimit-Remaining:
+      description: Number of requests remaining in the current window
+      schema:
+        type: integer
+        minimum: 0
+      example: 45
+    X-RateLimit-Reset:
+      description: Unix timestamp when the rate limit window resets
+      schema:
+        type: integer
+        format: int64
+      example: 1642248000
+
+  schemas:
+    RegisterRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          description: User's email address (must be unique)
+          example: "user@example.com"
+          maxLength: 255
+        password:
+          type: string
+          description: |
+            User's password (min 8 chars, must contain uppercase, lowercase, number, and special character)
+          minLength: 8
+          maxLength: 128
+          pattern: "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]"
+          example: "SecurePass123!"
+        first_name:
+          type: string
+          description: User's first name
+          example: "John"
+          maxLength: 50
+        last_name:
+          type: string
+          description: User's last name
+          example: "Doe"
+          maxLength: 50
+        phone_number:
+          type: string
+          description: User's phone number (E.164 format)
+          pattern: "^\\+[1-9]\\d{1,14}$"
+          example: "+1234567890"
+        terms_accepted:
+          type: boolean
+          description: User acceptance of terms and conditions
+          example: true
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          description: User's email address
+          example: "user@example.com"
+          maxLength: 255
+        password:
+          type: string
+          description: User's password
+          example: "SecurePass123!"
+          maxLength: 128
+        remember_me:
+          type: boolean
+          description: Extend refresh token expiration
+          default: false
+          example: false
+
+    LogoutRequest:
+      type: object
+      properties:
+        logout_all:
+          type: boolean
+          description: Logout from all devices
+          default: false
+          example: false
+
+    RefreshTokenRequest:
+      type: object
+      required:
+        - refresh_token
+      properties:
+        refresh_token:
+          type: string
+          description: Valid refresh token
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+    UpdateProfileRequest:
+      type: object
+      properties:
+        first_name:
+          type: string
+          description: User's first name
+          example: "John"
+          maxLength: 50
+        last_name:
+          type: string
+          description: User's last name
+          example: "Smith"
+          maxLength: 50
+        phone_number:
+          type: string
+          description: User's phone number (E.164 format)
+          pattern: "^\\+[1-9]\\d{1,14}$"
+          example: "+1234567890"
+        preferences:
+          $ref: '#/components/schemas/UserPreferences'
+
+    UserPreferences:
+      type: object
+      properties:
+        language:
+          type: string
+          description: Preferred language (ISO 639-1)
+          example: "en"
+          pattern: "^[a-z]{2}$"
+        timezone:
+          type: string
+          description: User's timezone (IANA timezone)
+          example: "UTC"
+        notifications:
+          type: boolean
+          description: Enable notifications
+          example: true
+        theme:
+          type: string
+          enum: ["light", "dark", "auto"]
+          description: UI theme preference
+          example: "auto"
+
+    AuthResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Success message
+          example: "Login successful"
+        user:
+          $ref: '#/components/schemas/UserProfile'
+        tokens:
+          $ref: '#/components/schemas/TokenInfo'
+
+    TokenResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          description: JWT access token
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        refresh_token:
+          type: string
+          description: JWT refresh token (optional, when rotation is enabled)
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        token_type:
+          type: string
+          description: Token type
+          example: "Bearer"
+          enum: ["Bearer"]
+        expires_in:
+          type: integer
+          description: Access token expiration time in seconds
+          example: 3600
+          minimum: 1
+        issued_at:
+          type: string
+          format: date-time
+          description: Token issuance timestamp
+          example: "2025-01-15T10:30:00Z"
+
+    TokenInfo:
+      type: object
+      required:
+        - access_token
+        - refresh_token
+        - token_type
+        - expires_in
+      properties:
+        access_token:
+          type: string
+          description: JWT access token
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        refresh_token:
+          type: string
+          description: JWT refresh token
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        token_type:
+          type: string
+          description: Token type
+          example: "Bearer"
+          enum: ["Bearer"]
+        expires_in:
+          type: integer
+          description: Access token expiration time in seconds
+          example: 3600
+          minimum: 1
+
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique user identifier
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        email:
+          type: string
+          format: email
+          description: User's email address
+          example: "user@example.com"
+        first_name:
+          type: string
+          description: User's first name
+          example: "John"
+        last_name:
+          type: string
+          description: User's last name
+          example: "Doe"
+        phone_number:
+          type: string
+          description: User's phone number
+          example: "+1234567890"
+        role:
+          type: string
+          enum: ["admin", "user", "moderator"]
+          description: User's role
+          example: "user"
+        email_verified:
+          type: boolean
+          description: Email verification status
+          example: true
+        phone_verified:
+          type: boolean
+          description: Phone verification status
+          example: false
+        two_factor_enabled:
+          type: boolean
+          description: Two-factor authentication status
+          example: false
+        created_at:
+          type: string
+          format: date-time
+          description: Account creation timestamp
+          example: "2025-01-10T08:15:30Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Last profile update timestamp
+          example: "2025-01-15T10:30:00Z"
+        last_login:
+          type: string
+          format: date-time
+          description: Last login timestamp
+          example: "2025-01-15T10:30:00Z"
+        login_count:
+          type: integer
+          description: Total login count
+          example: 15
+          minimum: 0
+        preferences:
+          $ref: '#/components/schemas/UserPreferences'
+
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Response message
+          example: "Operation completed successfully"
+        timestamp:
+          type: string
+          format: date-time
+          description: Response timestamp
+          example: "2025-01-15T10:30:00Z"
+        sessions_invalidated:
+          type: integer
+          description: Number of sessions invalidated (for logout_all)
+          example: 3
+          minimum: 0
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorDetail'
+
+    ErrorDetail:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: Error code for programmatic handling
+          example: "VALIDATION_ERROR"
+          enum:
+            - "BAD_REQUEST"
+            - "VALIDATION_ERROR"
+            - "UNAUTHORIZED"
+            - "FORBIDDEN"
+            - "NOT_FOUND"
+            - "CONFLICT"
+            - "TOO_MANY_REQUESTS"
+            - "INTERNAL_SERVER_ERROR"
+            - "INVALID_CREDENTIALS"
+            - "ACCOUNT_LOCKED"
+            - "EMAIL_NOT_VERIFIED"
+            - "INVALID_REFRESH_TOKEN"
+            - "REFRESH_TOKEN_EXPIRED"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Validation failed for the provided data"
+        details:
+          type: string
+          description: Additional error details
+          example: "Email field is required and must be a valid email address"
+        field:
+          type: string
+          description: Field that caused the error (for validation errors)
+          example: "email"
+        retry_after:
+          type: integer
+          description: Seconds to wait before retrying (for rate limit errors)
+          example: 3600
+
+    ValidationErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: object
+          required:
+            - code
+            - message
+            - validation_errors
+          properties:
+            code:
+              type: string
+              example: "VALIDATION_ERROR"
+            message:
+              type: string
+              example: "Request validation failed"
+            validation_errors:
+              type: array
+              items:
+                $ref: '#/components/schemas/ValidationError'
+
+    ValidationError:
+      type: object
+      required:
+        - field
+        - message
+        - code
+      properties:
+        field:
+          type: string
+          description: Field name that failed validation
+          example: "email"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Email field is required"
+        code:
+          type: string
+          description: Validation error code
+          example: "REQUIRED_FIELD"
+          enum:
+            - "REQUIRED_FIELD"
+            - "INVALID_FORMAT"
+            - "TOO_SHORT"
+            - "TOO_LONG"
+            - "INVALID_VALUE"
+            - "DUPLICATE_VALUE"
+        rejected_value:
+          description: The value that was rejected
+          example: "invalid-email"
+
+  responses:
+    BadRequest:
+      description: Bad request - Invalid input parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            missing_field:
+              summary: Missing required field
+              value:
+                error:
+                  code: "BAD_REQUEST"
+                  message: "Required field is missing"
+                  details: "Email field is required"
+                  field: "email"
+            invalid_format:
+              summary: Invalid field format
+              value:
+                error:
+                  code: "BAD_REQUEST"
+                  message: "Invalid field format"
+                  details: "Email must be a valid email address"
+                  field: "email"
+
+    Unauthorized:
+      description: Unauthorized - Invalid or missing authentication
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            missing_token:
+              summary: Missing authentication token
+              value:
+                error:
+                  code: "UNAUTHORIZED"
+                  message: "Authentication required"
+                  details: "Please provide a valid authentication token"
+            invalid_token:
+              summary: Invalid authentication token
+              value:
+                error:
+                  code: "UNAUTHORIZED"
+                  message: "Invalid authentication token"
+                  details: "The provided token is invalid or expired"
+            expired_token:
+              summary: Expired authentication token
+              value:
+                error:
+                  code: "UNAUTHORIZED"
+                  message: "Authentication token has expired"
+                  details: "Please refresh your token or login again"
+
+    Forbidden:
+      description: Forbidden - Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            insufficient_permissions:
+              summary: Insufficient permissions
+              value:
+                error:
+                  code: "FORBIDDEN"
+                  message: "Insufficient permissions"
+                  details: "You don't have permission to access this resource"
+
+    NotFound:
+      description: Not found - Requested resource does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            user_not_found:
+              summary: User not found
+              value:
+                error:
+                  code: "NOT_FOUND"
+                  message: "User not found"
+                  details: "The requested user does not exist"
+
+    Conflict:
+      description: Conflict - Resource already exists
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            email_exists:
+              summary: Email already exists
+              value:
+                error:
+                  code: "CONFLICT"
+                  message: "Email already exists"
+                  details: "A user with this email address already exists"
+
+    ValidationError:
+      description: Validation error - Request data validation failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationErrorResponse'
+          examples:
+            multiple_errors:
+              summary: Multiple validation errors
+              value:
+                error:
+                  code: "VALIDATION_ERROR"
+                  message: "Request validation failed"
+                  validation_errors:
+                    - field: "email"
+                      message: "Email field is required"
+                      code: "REQUIRED_FIELD"
+                    - field: "password"
+                      message: "Password must be at least 8 characters long"
+                      code: "TOO_SHORT"
+                      rejected_value: "123"
+
+    TooManyRequests:
+      description: Too many requests - Rate limit exceeded
+      headers:
+        X-RateLimit-Remaining:
+          $ref: '#/components/headers/X-RateLimit-Remaining'
+        X-RateLimit-Reset:
+          $ref: '#/components/headers/X-RateLimit-Reset'
+        Retry-After:
+          description: Seconds to wait before making another request
+          schema:
+            type: integer
+          example: 3600
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            rate_limit_exceeded:
+              summary: Rate limit exceeded
+              value:
+                error:
+                  code: "TOO_MANY_REQUESTS"
+                  message: "Rate limit exceeded"
+                  details: "Too many requests. Please try again later."
+                  retry_after: 3600
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            server_error:
+              summary: Internal server error
+              value:
+                error:
+                  code: "INTERNAL_SERVER_ERROR"
+                  message: "An unexpected error occurred"
+                  details: "Please try again later or contact support if the problem persists"
+
+tags:
+  - name: Authentication
+    description: |
+      User authentication operations including registration, login, logout, and token management.
+
+      ## Security Features
+      - JWT-based authentication
+      - Secure password hashing
+      - Rate limiting and account lockout
+      - Token refresh mechanism
+      - Audit logging
+
+  - name: User Profile
+    description: |
+      User profile management operations for authenticated users.
+
+      ## Features
+      - Profile information retrieval
+      - Profile updates
+      - Preference management
+      - Field selection support

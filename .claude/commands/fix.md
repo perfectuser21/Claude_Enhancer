@@ -1,1 +1,0 @@
-Fix the current error or bug. Analyze the error message, understand the root cause, and implement a proper solution. Use debugging tools if needed and verify the fix works.

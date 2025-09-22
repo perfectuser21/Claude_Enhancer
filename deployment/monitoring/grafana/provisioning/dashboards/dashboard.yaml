@@ -1,0 +1,16 @@
+# =============================================================================
+# Grafana Dashboard Provisioning Configuration
+# Automatically provision dashboards for Perfect21 Claude Enhancer
+# =============================================================================
+
+apiVersion: 1
+
+providers:
+  - name: 'Claude Enhancer Dashboards'
+    orgId: 1
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards

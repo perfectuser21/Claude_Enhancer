@@ -1,0 +1,456 @@
+# Perfect21 企业级认证系统 - Docker Compose 部署配置
+# 包含完整的微服务架构和基础设施组件
+
+version: '3.8'
+
+networks:
+  perfect21-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  rabbitmq_data:
+    driver: local
+  mongodb_data:
+    driver: local
+  elasticsearch_data:
+    driver: local
+  grafana_data:
+    driver: local
+  prometheus_data:
+    driver: local
+
+services:
+  # ========================================
+  # 数据库层
+  # ========================================
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: perfect21-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: perfect21_auth
+      POSTGRES_USER: perfect21_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secure_postgres_password}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --locale=C"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    ports:
+      - "5432:5432"
+    networks:
+      perfect21-network:
+        ipv4_address: 172.20.1.10
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U perfect21_user -d perfect21_auth"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  redis-cluster:
+    image: redis:7-alpine
+    container_name: perfect21-redis
+    restart: unless-stopped
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD:-secure_redis_password}
+      --maxmemory 2gb
+      --maxmemory-policy allkeys-lru
+      --save 900 1
+      --save 300 10
+      --save 60 10000
+      --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      perfect21-network:
+        ipv4_address: 172.20.1.11
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # ========================================
+  # 消息队列
+  # ========================================
+
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: perfect21-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-perfect21}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-secure_rabbitmq_password}
+      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: -rabbit disk_free_limit 1000000000
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+      - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+      - ./rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      perfect21-network:
+        ipv4_address: 172.20.1.12
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # ========================================
+  # 微服务层
+  # ========================================
+
+  auth-service:
+    build:
+      context: ../backend/auth-service
+      dockerfile: Dockerfile
+    container_name: perfect21-auth-service
+    restart: unless-stopped
+    environment:
+      # 数据库配置
+      DATABASE_URL: postgresql://perfect21_user:${POSTGRES_PASSWORD:-secure_postgres_password}@postgres:5432/perfect21_auth
+
+      # Redis配置
+      REDIS_URL: redis://:${REDIS_PASSWORD:-secure_redis_password}@redis-cluster:6379/0
+
+      # RabbitMQ配置
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-perfect21}:${RABBITMQ_PASSWORD:-secure_rabbitmq_password}@rabbitmq:5672/
+
+      # JWT配置
+      JWT_PRIVATE_KEY_PATH: /secrets/jwt_private_key.pem
+      JWT_PUBLIC_KEY_PATH: /secrets/jwt_public_key.pem
+      JWT_ACCESS_TOKEN_TTL: 900
+      JWT_REFRESH_TOKEN_TTL: 604800
+
+      # 安全配置
+      SECRET_KEY: ${SECRET_KEY:-your-super-secret-key-change-in-production}
+      PASSWORD_PEPPER: ${PASSWORD_PEPPER:-your-password-pepper-change-in-production}
+      DATA_ENCRYPTION_KEY: ${DATA_ENCRYPTION_KEY:-your-encryption-key-32-chars-long}
+
+      # 邮件配置
+      EMAIL_SMTP_HOST: ${EMAIL_SMTP_HOST:-smtp.gmail.com}
+      EMAIL_SMTP_PORT: ${EMAIL_SMTP_PORT:-587}
+      EMAIL_SMTP_USERNAME: ${EMAIL_SMTP_USERNAME}
+      EMAIL_SMTP_PASSWORD: ${EMAIL_SMTP_PASSWORD}
+      EMAIL_FROM_ADDRESS: ${EMAIL_FROM_ADDRESS:-noreply@perfect21.com}
+
+      # 监控配置
+      JAEGER_ENDPOINT: http://jaeger-collector:14268/api/traces
+
+      # 应用配置
+      DEBUG: ${DEBUG:-false}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+
+    volumes:
+      - ./secrets:/secrets:ro
+      - ./logs:/var/log
+    ports:
+      - "8080:8080"
+      - "50051:50051"
+      - "8000:8000"
+    networks:
+      perfect21-network:
+        ipv4_address: 172.20.2.10
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis-cluster:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  user-service:
+    build:
+      context: ../backend/user-service
+      dockerfile: Dockerfile
+    container_name: perfect21-user-service
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://perfect21_user:${POSTGRES_PASSWORD:-secure_postgres_password}@postgres:5432/perfect21_auth
+      REDIS_URL: redis://:${REDIS_PASSWORD:-secure_redis_password}@redis-cluster:6379/1
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-perfect21}:${RABBITMQ_PASSWORD:-secure_rabbitmq_password}@rabbitmq:5672/
+      SECRET_KEY: ${SECRET_KEY:-your-super-secret-key-change-in-production}
+      JAEGER_ENDPOINT: http://jaeger-collector:14268/api/traces
+    ports:
+      - "8081:8080"
+      - "50052:50051"
+    networks:
+      perfect21-network:
+        ipv4_address: 172.20.2.11
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis-cluster:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  permission-service:
+    build:
+      context: ../backend/permission-service
+      dockerfile: Dockerfile
+    container_name: perfect21-permission-service
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://perfect21_user:${POSTGRES_PASSWORD:-secure_postgres_password}@postgres:5432/perfect21_auth
+      REDIS_URL: redis://:${REDIS_PASSWORD:-secure_redis_password}@redis-cluster:6379/2
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-perfect21}:${RABBITMQ_PASSWORD:-secure_rabbitmq_password}@rabbitmq:5672/
+      SECRET_KEY: ${SECRET_KEY:-your-super-secret-key-change-in-production}
+      JAEGER_ENDPOINT: http://jaeger-collector:14268/api/traces
+    ports:
+      - "8082:8080"
+      - "50053:50051"
+    networks:
+      perfect21-network:
+        ipv4_address: 172.20.2.12
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis-cluster:
+        condition: service_healthy
+
+  session-service:
+    build:
+      context: ../backend/session-service
+      dockerfile: Dockerfile
+    container_name: perfect21-session-service
+    restart: unless-stopped
+    environment:
+      REDIS_URL: redis://:${REDIS_PASSWORD:-secure_redis_password}@redis-cluster:6379/3
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-perfect21}:${RABBITMQ_PASSWORD:-secure_rabbitmq_password}@rabbitmq:5672/
+      SECRET_KEY: ${SECRET_KEY:-your-super-secret-key-change-in-production}
+      JAEGER_ENDPOINT: http://jaeger-collector:14268/api/traces
+      SESSION_TTL: 1800
+      MAX_SESSIONS_PER_USER: 5
+    ports:
+      - "8083:8080"
+    networks:
+      perfect21-network:
+        ipv4_address: 172.20.2.13
+    depends_on:
+      redis-cluster:
+        condition: service_healthy
+
+  notification-service:
+    build:
+      context: ../backend/notification-service
+      dockerfile: Dockerfile
+    container_name: perfect21-notification-service
+    restart: unless-stopped
+    environment:
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-perfect21}:${RABBITMQ_PASSWORD:-secure_rabbitmq_password}@rabbitmq:5672/
+      EMAIL_SMTP_HOST: ${EMAIL_SMTP_HOST:-smtp.gmail.com}
+      EMAIL_SMTP_PORT: ${EMAIL_SMTP_PORT:-587}
+      EMAIL_SMTP_USERNAME: ${EMAIL_SMTP_USERNAME}
+      EMAIL_SMTP_PASSWORD: ${EMAIL_SMTP_PASSWORD}
+      EMAIL_FROM_ADDRESS: ${EMAIL_FROM_ADDRESS:-noreply@perfect21.com}
+      SMS_API_KEY: ${SMS_API_KEY}
+      SMS_API_SECRET: ${SMS_API_SECRET}
+      JAEGER_ENDPOINT: http://jaeger-collector:14268/api/traces
+    ports:
+      - "8084:8080"
+    networks:
+      perfect21-network:
+        ipv4_address: 172.20.2.14
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  # ========================================
+  # API网关
+  # ========================================
+
+  api-gateway:
+    image: kong/kong-gateway:3.4
+    container_name: perfect21-api-gateway
+    restart: unless-stopped
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /kong/declarative/kong.yml
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001
+      KONG_ADMIN_GUI_URL: http://localhost:8002
+    volumes:
+      - ./kong/kong.yml:/kong/declarative/kong.yml:ro
+    ports:
+      - "80:8000"
+      - "443:8443"
+      - "8001:8001"
+      - "8002:8002"
+    networks:
+      perfect21-network:
+        ipv4_address: 172.20.3.10
+    depends_on:
+      - auth-service
+      - user-service
+      - permission-service
+      - session-service
+      - notification-service
+
+  # ========================================
+  # 监控和日志
+  # ========================================
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: perfect21-elasticsearch
+    restart: unless-stopped
+    environment:
+      discovery.type: single-node
+      ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+      xpack.security.enabled: "false"
+      xpack.security.enrollment.enabled: "false"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    networks:
+      perfect21-network:
+        ipv4_address: 172.20.4.10
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200/_cluster/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: perfect21-kibana
+    restart: unless-stopped
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    networks:
+      perfect21-network:
+        ipv4_address: 172.20.4.11
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+
+  prometheus:
+    image: prom/prometheus:v2.47.0
+    container_name: perfect21-prometheus
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=15d'
+      - '--web.enable-lifecycle'
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      perfect21-network:
+        ipv4_address: 172.20.4.12
+
+  grafana:
+    image: grafana/grafana-oss:10.2.0
+    container_name: perfect21-grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - "3000:3000"
+    networks:
+      perfect21-network:
+        ipv4_address: 172.20.4.13
+    depends_on:
+      - prometheus
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.51
+    container_name: perfect21-jaeger
+    restart: unless-stopped
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+    ports:
+      - "16686:16686"
+      - "14268:14268"
+      - "6831:6831/udp"
+    networks:
+      perfect21-network:
+        ipv4_address: 172.20.4.14
+
+  # ========================================
+  # 开发工具
+  # ========================================
+
+  adminer:
+    image: adminer:4.8.1
+    container_name: perfect21-adminer
+    restart: unless-stopped
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+      ADMINER_DESIGN: pepa-linha
+    ports:
+      - "8080:8080"
+    networks:
+      perfect21-network:
+        ipv4_address: 172.20.5.10
+    depends_on:
+      - postgres
+    profiles:
+      - dev
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: perfect21-redis-commander
+    restart: unless-stopped
+    environment:
+      REDIS_HOSTS: local:redis-cluster:6379:1:${REDIS_PASSWORD:-secure_redis_password}
+    ports:
+      - "8081:8081"
+    networks:
+      perfect21-network:
+        ipv4_address: 172.20.5.11
+    depends_on:
+      - redis-cluster
+    profiles:
+      - dev
+
+# ========================================
+# 健康检查配置
+# ========================================
+
+x-healthcheck-defaults: &healthcheck-defaults
+  interval: 30s
+  timeout: 10s
+  retries: 3
+  start_period: 60s

@@ -1,0 +1,290 @@
+# =============================================================================
+# Alert Rules for Perfect21 Claude Enhancer
+# Comprehensive alerting for application, infrastructure, and security
+# =============================================================================
+
+groups:
+  # ==========================================================================
+  # Application-level alerts
+  # ==========================================================================
+  - name: claude_enhancer_alerts
+    rules:
+      - alert: ClaudeEnhancerDown
+        expr: up{job="claude-enhancer"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: backend
+        annotations:
+          summary: "Claude Enhancer application is down"
+          description: "Claude Enhancer application has been down for more than 1 minute."
+
+      - alert: HighErrorRate
+        expr: claude_enhancer:error_rate > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value | humanizePercentage }} for the last 5 minutes."
+
+      - alert: HighResponseTime
+        expr: claude_enhancer:request_duration_seconds_quantile{quantile="0.95"} > 2
+        for: 5m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "High response time detected"
+          description: "95th percentile response time is {{ $value }}s for the last 5 minutes."
+
+      - alert: LowRequestRate
+        expr: claude_enhancer:request_rate < 0.1
+        for: 10m
+        labels:
+          severity: info
+          team: backend
+        annotations:
+          summary: "Low request rate detected"
+          description: "Request rate is {{ $value }} requests/second for the last 10 minutes."
+
+      - alert: HealthCheckFailed
+        expr: probe_success{job="blackbox-http"} == 0
+        for: 3m
+        labels:
+          severity: critical
+          team: backend
+        annotations:
+          summary: "Health check failed for {{ $labels.instance }}"
+          description: "Health check has been failing for {{ $labels.instance }} for more than 3 minutes."
+
+  # ==========================================================================
+  # Infrastructure alerts
+  # ==========================================================================
+  - name: infrastructure_alerts
+    rules:
+      - alert: HighCPUUsage
+        expr: node:cpu_utilization > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: "CPU usage is {{ $value | humanizePercentage }} for the last 5 minutes."
+
+      - alert: HighMemoryUsage
+        expr: node:memory_utilization > 0.9
+        for: 5m
+        labels:
+          severity: critical
+          team: infrastructure
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+          description: "Memory usage is {{ $value | humanizePercentage }} for the last 5 minutes."
+
+      - alert: DiskSpaceLow
+        expr: node:disk_utilization > 0.85
+        for: 10m
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: "Low disk space on {{ $labels.instance }}"
+          description: "Disk usage is {{ $value | humanizePercentage }} for {{ $labels.mountpoint }}."
+
+      - alert: DiskSpaceCritical
+        expr: node:disk_utilization > 0.95
+        for: 5m
+        labels:
+          severity: critical
+          team: infrastructure
+        annotations:
+          summary: "Critical disk space on {{ $labels.instance }}"
+          description: "Disk usage is {{ $value | humanizePercentage }} for {{ $labels.mountpoint }}. Immediate action required."
+
+  # ==========================================================================
+  # Database alerts
+  # ==========================================================================
+  - name: database_alerts
+    rules:
+      - alert: PostgreSQLDown
+        expr: up{job="postgres-exporter"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: database
+        annotations:
+          summary: "PostgreSQL is down"
+          description: "PostgreSQL database has been down for more than 1 minute."
+
+      - alert: PostgreSQLHighConnections
+        expr: pg_stat_database_numbackends / pg_settings_max_connections > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          team: database
+        annotations:
+          summary: "High number of PostgreSQL connections"
+          description: "PostgreSQL is using {{ $value | humanizePercentage }} of max connections."
+
+      - alert: PostgreSQLSlowQueries
+        expr: rate(pg_stat_activity_max_tx_duration[5m]) > 60
+        for: 10m
+        labels:
+          severity: warning
+          team: database
+        annotations:
+          summary: "PostgreSQL slow queries detected"
+          description: "Average query duration is {{ $value }}s for the last 10 minutes."
+
+      - alert: RedisDown
+        expr: up{job="redis-exporter"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: database
+        annotations:
+          summary: "Redis is down"
+          description: "Redis cache has been down for more than 1 minute."
+
+      - alert: RedisHighMemoryUsage
+        expr: redis_memory_used_bytes / redis_memory_max_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          team: database
+        annotations:
+          summary: "Redis high memory usage"
+          description: "Redis memory usage is {{ $value | humanizePercentage }}."
+
+  # ==========================================================================
+  # Container alerts
+  # ==========================================================================
+  - name: container_alerts
+    rules:
+      - alert: ContainerKilled
+        expr: time() - container_last_seen > 60
+        for: 0m
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: "Container killed"
+          description: "A container has disappeared for {{ $labels.name }}."
+
+      - alert: ContainerHighCPU
+        expr: (rate(container_cpu_usage_seconds_total[3m]) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: "Container high CPU usage"
+          description: "Container {{ $labels.name }} CPU usage is above 80%."
+
+      - alert: ContainerHighMemory
+        expr: (container_memory_usage_bytes / container_spec_memory_limit_bytes) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          team: infrastructure
+        annotations:
+          summary: "Container high memory usage"
+          description: "Container {{ $labels.name }} memory usage is above 80%."
+
+  # ==========================================================================
+  # Security alerts
+  # ==========================================================================
+  - name: security_alerts
+    rules:
+      - alert: TooManyFailedLogins
+        expr: increase(http_requests_total{endpoint="/api/v1/auth/login",status="401"}[5m]) > 10
+        for: 1m
+        labels:
+          severity: warning
+          team: security
+        annotations:
+          summary: "Too many failed login attempts"
+          description: "{{ $value }} failed login attempts in the last 5 minutes."
+
+      - alert: SuspiciousActivity
+        expr: increase(http_requests_total{status="403"}[5m]) > 20
+        for: 2m
+        labels:
+          severity: warning
+          team: security
+        annotations:
+          summary: "Suspicious activity detected"
+          description: "{{ $value }} forbidden requests in the last 5 minutes."
+
+      - alert: UnauthorizedAccess
+        expr: increase(http_requests_total{status="401"}[10m]) > 50
+        for: 5m
+        labels:
+          severity: critical
+          team: security
+        annotations:
+          summary: "High number of unauthorized access attempts"
+          description: "{{ $value }} unauthorized requests in the last 10 minutes."
+
+  # ==========================================================================
+  # Business logic alerts
+  # ==========================================================================
+  - name: business_alerts
+    rules:
+      - alert: LowActiveUsers
+        expr: claude_enhancer_active_users < 10
+        for: 30m
+        labels:
+          severity: info
+          team: product
+        annotations:
+          summary: "Low number of active users"
+          description: "Only {{ $value }} active users in the last 30 minutes."
+
+      - alert: HighTaskFailureRate
+        expr: rate(claude_enhancer_tasks_failed_total[5m]) / rate(claude_enhancer_tasks_total[5m]) > 0.1
+        for: 10m
+        labels:
+          severity: warning
+          team: product
+        annotations:
+          summary: "High task failure rate"
+          description: "Task failure rate is {{ $value | humanizePercentage }} for the last 10 minutes."
+
+  # ==========================================================================
+  # Monitoring system alerts
+  # ==========================================================================
+  - name: monitoring_alerts
+    rules:
+      - alert: PrometheusTargetDown
+        expr: up == 0
+        for: 5m
+        labels:
+          severity: warning
+          team: monitoring
+        annotations:
+          summary: "Prometheus target down"
+          description: "{{ $labels.job }} target is down for more than 5 minutes."
+
+      - alert: PrometheusConfigReloadFailed
+        expr: prometheus_config_last_reload_successful != 1
+        for: 5m
+        labels:
+          severity: warning
+          team: monitoring
+        annotations:
+          summary: "Prometheus configuration reload failed"
+          description: "Prometheus configuration reload has failed."
+
+      - alert: AlertmanagerDown
+        expr: up{job="alertmanager"} == 0
+        for: 5m
+        labels:
+          severity: critical
+          team: monitoring
+        annotations:
+          summary: "Alertmanager is down"
+          description: "Alertmanager has been down for more than 5 minutes."

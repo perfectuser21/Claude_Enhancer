@@ -94,11 +94,13 @@ ENV PATH="/opt/venv/bin:$PATH"
 WORKDIR /app
 
 # Copy application code (excluding unnecessary files)
-COPY main.py .
+COPY run_api.py .
 COPY backend/ ./backend/
 COPY database/ ./database/
 COPY .claude/ ./.claude/
+COPY test/ ./test/
 COPY monitoring/ ./monitoring/
+COPY requirements.txt .
 
 # Copy built frontend assets (when available)
 # COPY --from=node-builder /app/build ./auth-system/build
@@ -127,9 +129,9 @@ ENTRYPOINT ["dumb-init", "--"]
 
 # Start application with gunicorn (production) or uvicorn (development)
 CMD if [ "$CLAUDE_ENV" = "development" ]; then \
-        uvicorn main:app --host 0.0.0.0 --port 8080 --reload; \
+        uvicorn run_api:app --host 0.0.0.0 --port 8080 --reload; \
     else \
-        gunicorn --bind 0.0.0.0:8080 --workers $WORKERS --worker-class uvicorn.workers.UvicornWorker --access-logfile - --error-logfile - main:app; \
+        gunicorn --bind 0.0.0.0:8080 --workers $WORKERS --worker-class uvicorn.workers.UvicornWorker --access-logfile - --error-logfile - run_api:app; \
     fi
 
 # -----------------------------------------------------------------------------
@@ -155,4 +157,4 @@ RUN pip install pytest pytest-cov black flake8 mypy
 USER claude
 
 # Development command (with hot reload)
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080", "--reload"]
+CMD ["uvicorn", "run_api:app", "--host", "0.0.0.0", "--port", "8080", "--reload"]

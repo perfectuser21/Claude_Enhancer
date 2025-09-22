@@ -1,0 +1,227 @@
+# =============================================================================
+# AlertManager Configuration for Perfect21 Claude Enhancer
+# Comprehensive alert routing and notification management
+# =============================================================================
+
+global:
+  # Global SMTP configuration
+  smtp_smarthost: 'mailhog:1025'
+  smtp_from: 'alerts@claude-enhancer.perfect21.dev'
+  smtp_auth_username: ''
+  smtp_auth_password: ''
+  smtp_require_tls: false
+
+  # Slack global configuration
+  slack_api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+
+# Inhibition rules to suppress redundant alerts
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'cluster', 'service']
+
+  - source_match:
+      alertname: 'ClaudeEnhancerDown'
+    target_match_re:
+      alertname: 'ClaudeEnhancer.*'
+
+# Route tree for organizing alerts
+route:
+  group_by: ['alertname', 'cluster', 'service']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'default'
+
+  routes:
+    # Critical alerts - immediate notification
+    - match:
+        severity: critical
+      receiver: 'critical-alerts'
+      group_wait: 10s
+      repeat_interval: 5m
+      routes:
+        - match:
+            team: security
+          receiver: 'security-team'
+        - match:
+            team: infrastructure
+          receiver: 'infrastructure-team'
+        - match:
+            team: backend
+          receiver: 'backend-team'
+
+    # Warning alerts - batched notifications
+    - match:
+        severity: warning
+      receiver: 'warning-alerts'
+      group_wait: 30s
+      repeat_interval: 30m
+
+    # Info alerts - daily digest
+    - match:
+        severity: info
+      receiver: 'info-alerts'
+      group_wait: 5m
+      repeat_interval: 24h
+
+    # Business alerts
+    - match:
+        team: product
+      receiver: 'product-team'
+      group_wait: 1m
+      repeat_interval: 1h
+
+    # Monitoring system alerts
+    - match:
+        team: monitoring
+      receiver: 'monitoring-team'
+      group_wait: 2m
+      repeat_interval: 2h
+
+# Alert receivers configuration
+receivers:
+  - name: 'default'
+    email_configs:
+      - to: 'devops@perfect21.dev'
+        subject: '[Claude Enhancer] {{ .GroupLabels.alertname }}'
+        body: |
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Labels: {{ range .Labels.SortedPairs }}{{ .Name }}={{ .Value }} {{ end }}
+          {{ end }}
+
+  - name: 'critical-alerts'
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/YOUR/CRITICAL/WEBHOOK'
+        channel: '#alerts-critical'
+        title: '🚨 CRITICAL ALERT - Claude Enhancer'
+        text: |
+          {{ range .Alerts }}
+          *Alert:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          *Severity:* {{ .Labels.severity }}
+          *Team:* {{ .Labels.team }}
+          *Time:* {{ .StartsAt.Format "2006-01-02 15:04:05" }}
+          {{ end }}
+        send_resolved: true
+    email_configs:
+      - to: 'oncall@perfect21.dev'
+        subject: '🚨 CRITICAL: {{ .GroupLabels.alertname }}'
+        body: |
+          CRITICAL ALERT TRIGGERED
+
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Severity: {{ .Labels.severity }}
+          Team: {{ .Labels.team }}
+          Started: {{ .StartsAt.Format "2006-01-02 15:04:05 UTC" }}
+
+          Labels:
+          {{ range .Labels.SortedPairs }}  {{ .Name }}: {{ .Value }}
+          {{ end }}
+          {{ end }}
+
+  - name: 'warning-alerts'
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/YOUR/WARNING/WEBHOOK'
+        channel: '#alerts-warning'
+        title: '⚠️ Warning - Claude Enhancer'
+        text: |
+          {{ range .Alerts }}
+          *Alert:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          *Team:* {{ .Labels.team }}
+          {{ end }}
+        send_resolved: true
+
+  - name: 'info-alerts'
+    email_configs:
+      - to: 'team@perfect21.dev'
+        subject: 'ℹ️ Info Alert - {{ .GroupLabels.alertname }}'
+        body: |
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          {{ end }}
+
+  - name: 'security-team'
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/YOUR/SECURITY/WEBHOOK'
+        channel: '#security-alerts'
+        title: '🔒 Security Alert - Claude Enhancer'
+        text: |
+          {{ range .Alerts }}
+          *SECURITY ALERT*
+          *Alert:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          *Severity:* {{ .Labels.severity }}
+          *Time:* {{ .StartsAt.Format "2006-01-02 15:04:05" }}
+
+          @channel Please investigate immediately.
+          {{ end }}
+        send_resolved: true
+    email_configs:
+      - to: 'security@perfect21.dev'
+        subject: '🔒 SECURITY ALERT: {{ .GroupLabels.alertname }}'
+
+  - name: 'infrastructure-team'
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/YOUR/INFRA/WEBHOOK'
+        channel: '#infrastructure'
+        title: '🏗️ Infrastructure Alert - Claude Enhancer'
+        text: |
+          {{ range .Alerts }}
+          *Infrastructure Alert*
+          *Alert:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          *Severity:* {{ .Labels.severity }}
+          {{ end }}
+        send_resolved: true
+
+  - name: 'backend-team'
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/YOUR/BACKEND/WEBHOOK'
+        channel: '#backend-alerts'
+        title: '⚙️ Backend Alert - Claude Enhancer'
+        text: |
+          {{ range .Alerts }}
+          *Backend Alert*
+          *Alert:* {{ .Annotations.summary }}
+          *Description:* {{ .Annotations.description }}
+          *Severity:* {{ .Labels.severity }}
+          {{ end }}
+        send_resolved: true
+
+  - name: 'product-team'
+    email_configs:
+      - to: 'product@perfect21.dev'
+        subject: '📊 Product Alert: {{ .GroupLabels.alertname }}'
+        body: |
+          {{ range .Alerts }}
+          Product Metric Alert
+
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Time: {{ .StartsAt.Format "2006-01-02 15:04:05 UTC" }}
+          {{ end }}
+
+  - name: 'monitoring-team'
+    email_configs:
+      - to: 'monitoring@perfect21.dev'
+        subject: '📊 Monitoring System Alert: {{ .GroupLabels.alertname }}'
+        body: |
+          {{ range .Alerts }}
+          Monitoring System Alert
+
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          {{ end }}
+
+# Templates for custom alert formatting
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'

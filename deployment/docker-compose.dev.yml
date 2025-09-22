@@ -1,0 +1,154 @@
+# =============================================================================
+# Development Docker Compose for Perfect21 Claude Enhancer
+# Optimized for local development with hot reload and debugging
+# =============================================================================
+
+version: '3.8'
+
+# Development-specific network configuration
+networks:
+  claude-enhancer-dev:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# Development volumes for data persistence
+volumes:
+  postgres_data_dev:
+    driver: local
+  redis_data_dev:
+    driver: local
+  node_modules:
+    driver: local
+
+services:
+  # ==========================================================================
+  # Main Application (Development Configuration)
+  # ==========================================================================
+  claude-enhancer:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      target: development
+    container_name: claude-enhancer-dev
+    restart: unless-stopped
+    environment:
+      - CLAUDE_ENV=development
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=claude_enhancer_dev
+      - DB_USER=claude_dev
+      - DB_PASSWORD=dev_password_123
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_ACCESS_SECRET=dev_jwt_access_secret_for_development_only
+      - JWT_REFRESH_SECRET=dev_jwt_refresh_secret_for_development_only
+      - SECRET_KEY=dev_secret_key_for_development_only
+      - LOG_LEVEL=DEBUG
+      - WORKERS=1
+      - DEBUG=true
+    volumes:
+      - ..:/app
+      - /app/node_modules
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - claude-enhancer-dev
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    command: uvicorn run_api:app --host 0.0.0.0 --port 8080 --reload
+
+  # ==========================================================================
+  # Database (Development Configuration)
+  # ==========================================================================
+  postgres:
+    image: postgres:15-alpine
+    container_name: claude-enhancer-postgres-dev
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=claude_enhancer_dev
+      - POSTGRES_USER=claude_dev
+      - POSTGRES_PASSWORD=dev_password_123
+      - POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+      - ../database/init-scripts:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "5432:5432"
+    networks:
+      - claude-enhancer-dev
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U claude_dev -d claude_enhancer_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ==========================================================================
+  # Redis (Development Configuration)
+  # ==========================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: claude-enhancer-redis-dev
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data_dev:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - claude-enhancer-dev
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # ==========================================================================
+  # Development Tools
+  # ==========================================================================
+  adminer:
+    image: adminer:latest
+    container_name: claude-enhancer-adminer
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    networks:
+      - claude-enhancer-dev
+    depends_on:
+      - postgres
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: claude-enhancer-redis-commander
+    restart: unless-stopped
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8082:8081"
+    networks:
+      - claude-enhancer-dev
+    depends_on:
+      - redis
+
+  # ==========================================================================
+  # Development Monitoring
+  # ==========================================================================
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: claude-enhancer-mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"  # SMTP port
+      - "8025:8025"  # Web UI port
+    networks:
+      - claude-enhancer-dev
