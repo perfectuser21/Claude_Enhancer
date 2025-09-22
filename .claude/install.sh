@@ -32,9 +32,22 @@ if [ ! -d .git ]; then
     fi
 fi
 
+# 0. 清理垃圾文件（可选）
+echo "🧹 清理垃圾文件..."
+if [ -f ".claude/scripts/cleanup.sh" ]; then
+    bash .claude/scripts/cleanup.sh > /dev/null 2>&1
+    echo "  ✅ 垃圾文件已清理"
+else
+    # 基础清理
+    find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+    find . -type f -name "*.pyc" -delete 2>/dev/null || true
+    echo "  ✅ 基础清理完成"
+fi
+
 # 1. 确保hooks有执行权限
 echo "📝 设置执行权限..."
 chmod +x .claude/hooks/*.sh 2>/dev/null
+chmod +x .claude/scripts/*.sh 2>/dev/null
 
 # 2. 安装Git Hooks（可选）
 if [ -d .git ]; then

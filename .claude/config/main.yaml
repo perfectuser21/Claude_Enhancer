@@ -1,0 +1,345 @@
+# Perfect21 Unified Configuration Management System
+# Main configuration file - acts as the single source of truth
+
+metadata:
+  version: "1.0.0"
+  name: "Perfect21 Configuration System"
+  description: "Unified configuration management for Claude Enhancer with 8-Phase workflow"
+  last_updated: "2025-09-22"
+  schema_version: "1.0"
+
+# Core system configuration
+system:
+  name: "Perfect21 Claude Enhancer"
+  mode: "enforcement"  # advisory | warning | enforcement
+  version: "4.0.0"
+  description: "强制循环直到符合标准"
+
+# 8-Phase Workflow Configuration
+workflow:
+  phases:
+    phase_0:
+      name: "Git Branch Creation"
+      description: "Create feature branch and setup workspace"
+      hooks: ["branch_helper"]
+      required: true
+
+    phase_1:
+      name: "Requirements Analysis"
+      description: "Analyze and document requirements"
+      agents_min: 3
+      agents_max: 5
+      required: true
+
+    phase_2:
+      name: "Design Planning"
+      description: "System design and architecture planning"
+      agents_min: 4
+      agents_max: 6
+      required: true
+
+    phase_3:
+      name: "Implementation Development"
+      description: "Code implementation with agent strategy"
+      agents_min: 4
+      agents_max: 8
+      strategy: "4-6-8"  # Simple-Standard-Complex
+      execution_mode: "parallel"
+      required: true
+
+    phase_4:
+      name: "Local Testing"
+      description: "Local testing and validation"
+      agents_min: 3
+      agents_max: 5
+      required: true
+
+    phase_5:
+      name: "Code Commit"
+      description: "Git commit with quality gates"
+      hooks: ["pre-commit", "commit-msg"]
+      quality_gates: true
+      required: true
+
+    phase_6:
+      name: "Code Review"
+      description: "Pull request and code review"
+      hooks: ["pre-push"]
+      required: true
+
+    phase_7:
+      name: "Merge & Deploy"
+      description: "Final merge and deployment"
+      required: true
+
+# Agent Configuration (4-6-8 Strategy)
+agents:
+  strategy:
+    simple_tasks:
+      agent_count: 4
+      duration: "5-10 minutes"
+      description: "Basic development tasks"
+
+    standard_tasks:
+      agent_count: 6
+      duration: "15-20 minutes"
+      description: "Regular feature development"
+
+    complex_tasks:
+      agent_count: 8
+      duration: "25-30 minutes"
+      description: "Complex system implementations"
+
+  execution:
+    mode: "parallel"  # parallel | sequential | mixed
+    enforce_parallel: true
+    warn_sequential: true
+    block_on_violation: true
+    timeout: 30000  # milliseconds
+
+  selection:
+    auto_detect_task: true
+    suggest_combinations: true
+    enforce_minimum: true
+    show_recommendations: true
+
+# Task Type Definitions
+task_types:
+  authentication:
+    keywords: ["登录", "认证", "auth", "jwt", "oauth", "用户", "权限", "security"]
+    required_agents: ["backend-architect", "security-auditor", "test-engineer", "api-designer", "database-specialist"]
+    minimum_count: 5
+    complexity: "standard"
+
+  api_development:
+    keywords: ["api", "接口", "rest", "graphql", "endpoint", "route", "服务"]
+    required_agents: ["api-designer", "backend-architect", "test-engineer", "technical-writer"]
+    minimum_count: 4
+    complexity: "simple"
+
+  database_design:
+    keywords: ["数据库", "database", "schema", "sql", "mongodb", "redis", "表", "table"]
+    required_agents: ["database-specialist", "backend-architect", "performance-engineer"]
+    minimum_count: 3
+    complexity: "simple"
+
+  frontend_development:
+    keywords: ["前端", "frontend", "react", "vue", "ui", "界面", "组件", "页面"]
+    required_agents: ["frontend-specialist", "ux-designer", "test-engineer", "accessibility-auditor"]
+    minimum_count: 4
+    complexity: "standard"
+
+  testing:
+    keywords: ["测试", "test", "jest", "pytest", "e2e", "单元测试", "集成测试"]
+    required_agents: ["test-engineer", "e2e-test-specialist", "performance-tester", "security-auditor"]
+    minimum_count: 4
+    complexity: "standard"
+
+  fullstack:
+    keywords: ["全栈", "fullstack", "应用", "application", "系统", "平台"]
+    required_agents: ["fullstack-engineer", "backend-architect", "frontend-specialist", "database-specialist", "test-engineer", "devops-engineer"]
+    minimum_count: 6
+    complexity: "complex"
+
+  configuration:
+    keywords: ["配置", "config", "设置", "settings", "environment", "环境"]
+    required_agents: ["backend-architect", "infrastructure-engineer", "devops-engineer", "system-architect", "technical-writer", "security-auditor"]
+    minimum_count: 6
+    complexity: "standard"
+
+# Hook Configuration
+hooks:
+  enabled: true
+  enforcement_level: "strict"  # advisory | warning | strict
+
+  pre_tool_use:
+    - name: "smart_agent_selector"
+      command: "bash .claude/hooks/smart_agent_selector.sh"
+      description: "智能Agent选择器 - 4-6-8策略"
+      timeout: 5000
+      matcher: "Task"
+      enabled: true
+
+  user_prompt_submit:
+    - name: "branch_helper"
+      command: "bash .claude/hooks/branch_helper.sh"
+      description: "Branch检查和工作流提醒"
+      timeout: 1000
+      enabled: true
+
+  post_tool_use: []
+
+# Quality Gates
+quality_gates:
+  enabled: true
+  strict_mode: true
+
+  checks:
+    - name: "agent_count_validation"
+      description: "Verify minimum agent count"
+      blocking: true
+
+    - name: "parallel_execution_check"
+      description: "Ensure parallel agent execution"
+      blocking: false  # warning only
+
+    - name: "task_type_validation"
+      description: "Validate agent selection for task type"
+      blocking: true
+
+    - name: "code_quality_check"
+      description: "Code quality and security validation"
+      blocking: true
+
+# Environment Configuration
+environments:
+  development:
+    log_level: "DEBUG"
+    cache_enabled: true
+    performance_monitoring: true
+
+  testing:
+    log_level: "INFO"
+    cache_enabled: false
+    performance_monitoring: true
+
+  production:
+    log_level: "WARN"
+    cache_enabled: true
+    performance_monitoring: false
+
+# Logging Configuration
+logging:
+  enabled: true
+  level: "INFO"  # DEBUG | INFO | WARN | ERROR
+  file: "/tmp/perfect21-config.log"
+  rotate: true
+  max_size: "10MB"
+  max_files: 5
+
+  formats:
+    console: "[{timestamp}] {level}: {message}"
+    file: "[{timestamp}] [{level}] {module}: {message}"
+
+# Performance Configuration
+performance:
+  cache:
+    enabled: true
+    ttl: 300  # seconds
+    max_entries: 1000
+
+  parallel_execution:
+    max_concurrent_agents: 10
+    timeout: 30000  # milliseconds
+    retry_attempts: 3
+
+  monitoring:
+    track_agent_performance: true
+    track_hook_execution: true
+    generate_reports: true
+
+# Security Configuration
+security:
+  validation:
+    enabled: true
+    strict_mode: true
+
+  allowed_operations:
+    - "read_config"
+    - "write_config"
+    - "validate_config"
+    - "load_environment"
+
+  restricted_paths:
+    - "/etc/"
+    - "/root/"
+    - "~/.ssh/"
+
+  environment_variables:
+    allow_override: true
+    prefix: "PERFECT21_"
+
+# Integration Configuration
+integrations:
+  git_hooks:
+    enabled: true
+    auto_install: false
+    hooks: ["pre-commit", "commit-msg", "pre-push"]
+
+  claude_code:
+    enabled: true
+    override_defaults: true
+    priority: 100
+
+  external_tools:
+    enabled: true
+    timeout: 10000
+
+# Notification Configuration
+notifications:
+  enabled: true
+  formats: ["emoji", "plain", "detailed"]
+
+  events:
+    on_block: true
+    on_warning: true
+    on_success: false
+    on_error: true
+
+# Whitelist Configuration
+whitelist:
+  operations:
+    - "rollback"
+    - "hotfix"
+    - "emergency"
+    - "config_reload"
+
+  paths:
+    - "*.md"
+    - "*/test/*"
+    - "*/docs/*"
+    - "*/config/*"
+
+  task_types:
+    - "documentation"
+    - "emergency_fix"
+
+# Custom Rules (Extensible)
+custom_rules:
+  enabled: true
+  file: ".claude/config/custom_rules.yaml"
+
+  examples:
+    project_specific:
+      enabled: false
+      pattern: "custom_pattern"
+      action: "warn"
+      description: "Project-specific validation rule"
+
+# Configuration Schema Validation
+schema:
+  validation:
+    enabled: true
+    strict: true
+    on_load: true
+    on_change: true
+
+  required_sections:
+    - "metadata"
+    - "system"
+    - "workflow"
+    - "agents"
+    - "task_types"
+
+# Backward Compatibility
+compatibility:
+  legacy_configs:
+    - "settings.json"
+    - "config.yaml"
+    - "enhancer_config.yaml"
+    - "task_agent_mapping.yaml"
+
+  migration:
+    auto_migrate: true
+    backup_legacy: true
+    preserve_custom: true

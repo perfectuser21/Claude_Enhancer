@@ -46,12 +46,14 @@ safe_agents:
   - documentation-writer
 ```
 
-### ⚠️ 需要谨慎使用的Agent（可能调用其他Agent）
+### ⚠️ 特殊Agent说明（已修复）
 ```yaml
-risky_agents:
-  - orchestrator  # 可能协调其他agent
-  - claude_enhancer  # 可能调用多个agent
-  - fullstack-engineer  # 可能分解任务
+special_agents:
+  - orchestrator  # 只做规划，不能调用其他agent（已移除Task工具）
+  - claude_enhancer  # 只做分析，不能调用其他agent（已移除Task工具）
+
+# 注意：这两个Agent曾经有Task工具，现已修复
+# 它们现在只能分析和规划，实际调用由Claude Code执行
 ```
 
 ### 🔴 绝对不要在SubAgent中使用

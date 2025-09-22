@@ -39,6 +39,7 @@ determine_complexity() {
 get_agent_combination() {
     local complexity="$1"
     local task="$2"
+    local phase="$3"  # 添加phase参数
 
     case "$complexity" in
         simple)
@@ -47,6 +48,9 @@ get_agent_combination() {
             echo "  2. test-engineer - 验证测试"
             echo "  3. code-reviewer - 代码审查"
             echo "  4. technical-writer - 更新文档"
+            if [ "$phase" = "5" ] || [ "$phase" = "7" ]; then
+                echo "  + cleanup-specialist - 自动清理"
+            fi
             ;;
         complex)
             echo "8个Agent组合："
@@ -58,6 +62,9 @@ get_agent_combination() {
             echo "  6. test-engineer - 全面测试"
             echo "  7. performance-engineer - 性能优化"
             echo "  8. technical-writer - 完整文档"
+            if [ "$phase" = "5" ] || [ "$phase" = "7" ]; then
+                echo "  + cleanup-specialist - 自动清理"
+            fi
             ;;
         *)
             echo "6个Agent组合："
@@ -75,6 +82,9 @@ get_agent_combination() {
                 echo "  5. code-reviewer - 代码质量"
             fi
             echo "  6. technical-writer - 文档编写"
+            if [ "$phase" = "5" ] || [ "$phase" = "7" ]; then
+                echo "  + cleanup-specialist - 自动清理"
+            fi
             ;;
     esac
 }
@@ -112,8 +122,15 @@ if [ -n "$TASK_DESC" ]; then
 
     echo "" >&2
     echo "👥 推荐Agent组合:" >&2
-    get_agent_combination "$COMPLEXITY" "$TASK_LOWER" | sed 's/^/  /' >&2
+    get_agent_combination "$COMPLEXITY" "$TASK_LOWER" "$CURRENT_PHASE" | sed 's/^/  /' >&2
     echo "" >&2
+
+    # 检查是否需要cleanup-specialist
+    CURRENT_PHASE=$(echo "$INPUT" | grep -oP '"phase"\s*:\s*\d+' | grep -oP '\d+' || echo "")
+    if [ "$CURRENT_PHASE" = "5" ] || [ "$CURRENT_PHASE" = "7" ]; then
+        echo "🧹 清理专家: cleanup-specialist 已自动加入" >&2
+        echo "" >&2
+    fi
 
     # 工作流提醒
     echo "📋 工作流程 (8 Phases):" >&2
@@ -122,9 +139,9 @@ if [ -n "$TASK_DESC" ]; then
     echo "  Phase 2: 设计规划" >&2
     echo "  Phase 3: 实现开发 (多Agent并行)" >&2
     echo "  Phase 4: 本地测试" >&2
-    echo "  Phase 5: 代码提交" >&2
+    echo "  Phase 5: 代码提交 🧹" >&2
     echo "  Phase 6: 代码审查" >&2
-    echo "  Phase 7: 合并部署" >&2
+    echo "  Phase 7: 合并部署 🧹" >&2
     echo "" >&2
 
     echo "💡 Max 20X: 质量优先，Token不限" >&2

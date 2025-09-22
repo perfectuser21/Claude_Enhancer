@@ -1,0 +1,215 @@
+# Claude Enhancer 清理配置
+# 定义各个阶段的清理规则和行为
+
+version: 1.0
+description: "项目清理规则配置，用于cleanup-specialist自动化执行"
+
+# 全局设置
+global:
+  enabled: true
+  log_actions: true
+  log_file: "/tmp/claude_cleanup.log"
+  backup_before_clean: false  # 简单清理不需要备份
+
+# Phase 0: 环境准备清理
+phase_0:
+  name: "环境初始化清理"
+  enabled: true
+  tasks:
+    - name: "清理旧的临时文件"
+      patterns:
+        - "*.tmp"
+        - "*.temp"
+        - "*.bak"
+        - ".*.swp"
+      action: delete
+
+    - name: "清理构建缓存"
+      directories:
+        - "node_modules/.cache"
+        - "__pycache__"
+        - ".pytest_cache"
+      action: clean
+
+# Phase 5: 提交前清理
+phase_5:
+  name: "代码提交前清理"
+  enabled: true
+  priority: high
+  tasks:
+    - name: "删除临时文件"
+      patterns:
+        - "*.tmp"
+        - "*.temp"
+        - "*.bak"
+        - "*.orig"
+        - ".DS_Store"
+        - "Thumbs.db"
+        - "*.swp"
+        - "*.swo"
+        - "*~"
+      action: delete
+
+    - name: "清理调试代码"
+      code_patterns:
+        - pattern: "console\\.log\\("
+          languages: ["js", "ts", "jsx", "tsx"]
+          action: remove
+          exceptions:
+            - "// @keep"
+            - "// eslint-disable-line"
+
+        - pattern: "print\\("
+          languages: ["py"]
+          action: comment_out
+          exceptions:
+            - "# @keep"
+
+        - pattern: "debugger;"
+          languages: ["js", "ts"]
+          action: remove
+
+    - name: "移除TODO未关联ticket"
+      patterns:
+        - "TODO:"
+        - "FIXME:"
+        - "HACK:"
+      action: check_ticket_reference
+
+    - name: "格式化代码"
+      formatters:
+        javascript: "prettier"
+        typescript: "prettier"
+        python: "black"
+        go: "gofmt"
+      action: format
+
+    - name: "优化导入"
+      tasks:
+        - remove_unused_imports
+        - sort_imports
+      languages: ["js", "ts", "py", "go"]
+
+# Phase 7: 部署前清理
+phase_7:
+  name: "生产部署前深度清理"
+  enabled: true
+  priority: critical
+  tasks:
+    - name: "安全扫描"
+      checks:
+        - api_keys
+        - passwords
+        - private_keys
+        - tokens
+        - env_variables
+      action: scan_and_report
+      fail_on_detection: true
+
+    - name: "移除开发依赖"
+      package_managers:
+        - npm: "devDependencies"
+        - pip: "dev-requirements.txt"
+        - cargo: "dev-dependencies"
+      action: remove
+
+    - name: "优化资源文件"
+      resources:
+        - images:
+            compress: true
+            formats: ["jpg", "png", "svg"]
+        - css:
+            minify: true
+        - js:
+            minify: true
+            tree_shake: true
+
+    - name: "清理文档"
+      tasks:
+        - remove_draft_docs
+        - update_changelog
+        - generate_api_docs
+        - check_broken_links
+
+    - name: "生成部署包"
+      output:
+        format: "tar.gz"
+        exclude:
+          - ".git"
+          - ".env"
+          - "*.log"
+          - "test/"
+          - "tests/"
+          - "docs/drafts/"
+
+# 忽略规则
+ignore:
+  global:
+    - ".git/**"
+    - "node_modules/**"
+    - "vendor/**"
+    - "*.min.js"
+    - "*.min.css"
+
+  custom:
+    - "legacy/**"  # 遗留代码不清理
+    - "third_party/**"  # 第三方代码不修改
+
+# 保护规则
+preserve:
+  always:
+    - "README.md"
+    - "LICENSE"
+    - "package.json"
+    - "requirements.txt"
+    - ".gitignore"
+
+  phase_5:
+    - "debug.log"  # 提交时保留，部署时清理
+
+  phase_7:
+    - "deploy.log"  # 部署日志永远保留
+
+# 自定义规则（项目特定）
+custom_rules:
+  - name: "项目特定清理"
+    enabled: false  # 默认禁用，需要时启用
+    patterns:
+      - "*.sketch"
+      - "*.psd"
+      - "design_drafts/**"
+
+# 报告设置
+reporting:
+  format: "markdown"
+  include:
+    - files_cleaned
+    - space_saved
+    - security_issues
+    - code_quality_score
+
+  output:
+    console: true
+    file: ".claude/cleanup_report.md"
+
+# 执行模式
+execution_modes:
+  quick:
+    description: "快速清理（仅临时文件）"
+    phases: [5]
+    tasks: ["删除临时文件"]
+
+  standard:
+    description: "标准清理"
+    phases: [5]
+    tasks: all
+
+  deep:
+    description: "深度清理（部署前）"
+    phases: [7]
+    tasks: all
+
+  custom:
+    description: "自定义清理"
+    phases: [0, 5, 7]
+    tasks: custom_rules

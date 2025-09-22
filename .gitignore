@@ -1,49 +1,185 @@
-# Claude Enhancer .gitignore
+# =============================================================================
+# Claude Enhancer Enhanced Security .gitignore
+# Comprehensive protection against sensitive data exposure
+# =============================================================================
 
 # Temporary files
 *.tmp
 *.backup.*
 *.old
 .DS_Store
+*~
 
 # Test outputs (auto-generated)
 *test-report-*.json
 *test-report-*.md
 *test_output*.txt
 
-# Logs
+# Logs and debugging
 *.log
 /logs/
 /tmp/
+debug.log
+error.log
+access.log
 
 # Archive
 /docs/archive/*.old
 
-# Cache
+# Cache and bytecode
 .cache/
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.Python
+*.so
 
-# Environment
+# =============================================================================
+# SECURITY: Environment and Secrets
+# =============================================================================
+
+# Environment files (CRITICAL)
 .env
+.env.*
+!.env.example
+!.env.template
 .venv/
 venv/
+env/
 
-# IDE
-.vscode/
-.idea/
+# Secrets and credentials (CRITICAL)
+secrets/
+*.key
+*.pem
+*.crt
+*.csr
+*.p12
+*.pfx
+id_rsa*
+id_dsa*
+id_ecdsa*
+id_ed25519*
+*.pub
+config/credentials*
+config/master.key
+
+# Database dumps and backups (SENSITIVE)
+*.sql
+*.db
+*.sqlite
+*.sqlite3
+dump.rdb
+backup/
+*.backup
+
+# =============================================================================
+# SECURITY: API Keys and Tokens
+# =============================================================================
+
+# API keys and tokens (CRITICAL)
+*_token
+*_key
+*_secret
+api_keys.txt
+tokens.txt
+credentials.txt
+
+# Cloud provider credentials
+.aws/
+.gcp/
+.azure/
+gcloud/
+terraform.tfstate*
+terraform.tfvars*
+*.auto.tfvars
+
+# =============================================================================
+# SECURITY: Development Tools
+# =============================================================================
+
+# IDE configurations that may contain secrets
+.vscode/settings.json
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/datasources.xml
+.idea/dataSources.ids
 
 # Build outputs
 /build/
 /dist/
 *.egg-info/
+target/
+bin/
+obj/
+
+# Package managers
+node_modules/
+.npm/
+.yarn/
+package-lock.json
+yarn.lock
+Gemfile.lock
+composer.lock
+
+# =============================================================================
+# SECURITY: Docker and Containers
+# =============================================================================
+
+# Docker secrets
+docker-compose.override.yml
+.dockerignore.local
+Dockerfile.local
+
+# =============================================================================
+# SECURITY: Testing and CI/CD
+# =============================================================================
 
 # Coverage reports
 .coverage
 coverage.xml
 htmlcov/
+.pytest_cache/
+.tox/
+.nox/
+
+# CI/CD local files
+.github/workflows/local*.yml
+.gitlab-ci.local.yml
+
+# =============================================================================
+# SECURITY: Monitoring and Observability
+# =============================================================================
+
+# Monitoring credentials
+grafana/data/
+prometheus/data/
+alerts/
+
+# =============================================================================
+# SECURITY: Kubernetes and Orchestration
+# =============================================================================
+
+# Kubernetes secrets (DO NOT COMMIT)
+k8s/secrets.local.yaml
+k8s/*-secret.yaml
+helm/values.local.yaml
+kustomization.local.yaml
+
+# =============================================================================
+# APPLICATION SPECIFIC
+# =============================================================================
 
 # Keep important docs
 !README.md
 !CLAUDE.md
 !/docs/guides/*.md
+
+# Perfect21 specific
+.claude/phase_state.json.local
+.claude/settings.local.json
+.claude/user_config.json
+
+# =============================================================================
+# END OF ENHANCED SECURITY GITIGNORE
+# =============================================================================

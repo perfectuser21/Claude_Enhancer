@@ -3,7 +3,7 @@ name: project-wizard
 description: 交互式项目向导 - 通过对话引导用户快速启动项目开发
 category: assistant
 color: purple
-tools: Task
+tools: Read, Write, Edit, TodoWrite, Grep, Glob
 ---
 
 # Claude Enhancer 项目向导
