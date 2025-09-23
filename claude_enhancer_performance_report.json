@@ -1,0 +1,307 @@
+{
+  "timestamp": "2025-09-23T19:35:21.559902",
+  "system_info": {
+    "cpu_cores": 4,
+    "memory_mb": 7937,
+    "python_version": "3.10.12 (main, Aug 15 2025, 14:32:43) [GCC 11.4.0]",
+    "os": "Linux"
+  },
+  "test_results": {
+    "cleanup_scripts": {
+      ".claude/scripts/cleanup.sh": {
+        "description": "标准清理脚本",
+        "command": "bash /home/xx/dev/Perfect21/.claude/scripts/cleanup.sh",
+        "runs": 3,
+        "success_rate": 0.0,
+        "avg_time": 1.4162,
+        "min_time": 1.2713,
+        "max_time": 1.6887,
+        "all_times": [
+          1.6887,
+          1.2886,
+          1.2713
+        ]
+      },
+      ".claude/scripts/performance_optimized_cleanup.sh": {
+        "description": "性能优化清理脚本",
+        "command": "bash /home/xx/dev/Perfect21/.claude/scripts/performance_optimized_cleanup.sh",
+        "runs": 3,
+        "success_rate": 0.0,
+        "avg_time": 0.009,
+        "min_time": 0.0084,
+        "max_time": 0.0096,
+        "all_times": [
+          0.0084,
+          0.0096,
+          0.0091
+        ]
+      },
+      ".claude/scripts/ultra_optimized_cleanup.sh": {
+        "description": "超级优化清理脚本",
+        "command": "bash /home/xx/dev/Perfect21/.claude/scripts/ultra_optimized_cleanup.sh",
+        "runs": 3,
+        "success_rate": 0.0,
+        "avg_time": 1.3272,
+        "min_time": 1.2818,
+        "max_time": 1.3871,
+        "all_times": [
+          1.3871,
+          1.2818,
+          1.3128
+        ]
+      },
+      ".claude/scripts/safe_cleanup.sh": {
+        "description": "安全清理脚本",
+        "command": "bash /home/xx/dev/Perfect21/.claude/scripts/safe_cleanup.sh",
+        "runs": 3,
+        "success_rate": 0.0,
+        "avg_time": 0.0918,
+        "min_time": 0.0869,
+        "max_time": 0.0984,
+        "all_times": [
+          0.0869,
+          0.09,
+          0.0984
+        ]
+      }
+    },
+    "performance_scripts": {
+      ".claude/scripts/performance_benchmark.sh": {
+        "description": "性能基准测试",
+        "command": "bash /home/xx/dev/Perfect21/.claude/scripts/performance_benchmark.sh",
+        "runs": 3,
+        "success_rate": 0.0,
+        "avg_time": 1.1031,
+        "min_time": 1.0425,
+        "max_time": 1.2005,
+        "all_times": [
+          1.2005,
+          1.0425,
+          1.0664
+        ]
+      },
+      ".claude/scripts/ultra_performance_benchmark.sh": {
+        "description": "超级性能基准测试",
+        "command": "bash /home/xx/dev/Perfect21/.claude/scripts/ultra_performance_benchmark.sh",
+        "runs": 3,
+        "success_rate": 0.0,
+        "avg_time": 0.7351,
+        "min_time": 0.6964,
+        "max_time": 0.7641,
+        "all_times": [
+          0.7447,
+          0.7641,
+          0.6964
+        ]
+      },
+      ".claude/scripts/quick_performance_test.sh": {
+        "description": "快速性能测试",
+        "command": "bash /home/xx/dev/Perfect21/.claude/scripts/quick_performance_test.sh",
+        "runs": 3,
+        "success_rate": 1.0,
+        "avg_time": 0.3001,
+        "min_time": 0.2945,
+        "max_time": 0.3064,
+        "all_times": [
+          0.2992,
+          0.3064,
+          0.2945
+        ]
+      },
+      ".claude/scripts/performance_comparison.sh": {
+        "description": "性能对比测试",
+        "command": "bash /home/xx/dev/Perfect21/.claude/scripts/performance_comparison.sh",
+        "runs": 3,
+        "success_rate": 1.0,
+        "avg_time": 3.2147,
+        "min_time": 3.0397,
+        "max_time": 3.4023,
+        "all_times": [
+          3.0397,
+          3.4023,
+          3.2021
+        ]
+      },
+      ".claude/scripts/performance_monitor.sh": {
+        "description": "性能监控脚本",
+        "command": "bash /home/xx/dev/Perfect21/.claude/scripts/performance_monitor.sh",
+        "runs": 3,
+        "success_rate": 1.0,
+        "avg_time": 0.1069,
+        "min_time": 0.1033,
+        "max_time": 0.113,
+        "all_times": [
+          0.1033,
+          0.113,
+          0.1043
+        ]
+      }
+    },
+    "python_scripts": {
+      ".claude/hooks/parallel_execution_optimizer.py": {
+        "error": "文件不存在"
+      },
+      ".claude/hooks/performance_test.py": {
+        "error": "文件不存在"
+      },
+      ".claude/scripts/smart_document_loader.py": {
+        "description": "智能文档加载器",
+        "command": "python3 /home/xx/dev/Perfect21/.claude/scripts/smart_document_loader.py --test",
+        "runs": 3,
+        "success_rate": 1.0,
+        "avg_time": 0.078,
+        "min_time": 0.0721,
+        "max_time": 0.0882,
+        "all_times": [
+          0.0737,
+          0.0882,
+          0.0721
+        ]
+      }
+    },
+    "hook_system": {
+      ".claude/hooks/smart_agent_selector.sh": {
+        "description": "智能Agent选择器",
+        "command": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_agent_selector.sh --test",
+        "runs": 5,
+        "success_rate": 0.0,
+        "avg_time": 0.0036,
+        "min_time": 0.0035,
+        "max_time": 0.0039,
+        "all_times": [
+          0.0035,
+          0.0036,
+          0.0039,
+          0.0036,
+          0.0036
+        ]
+      },
+      ".claude/hooks/ultra_smart_agent_selector.sh": {
+        "error": "文件不存在"
+      },
+      ".claude/hooks/smart_dispatcher.py": {
+        "error": "文件不存在"
+      },
+      ".claude/hooks/enforcer.sh": {
+        "error": "文件不存在"
+      }
+    },
+    "system_startup": {
+      "source .claude/scripts/load_config.sh": {
+        "description": "配置加载",
+        "command": "source .claude/scripts/load_config.sh",
+        "runs": 3,
+        "success_rate": 0.0,
+        "avg_time": 0.0014,
+        "min_time": 0.0012,
+        "max_time": 0.0016,
+        "all_times": [
+          0.0013,
+          0.0012,
+          0.0016
+        ]
+      },
+      "bash .claude/install.sh --dry-run": {
+        "description": "安装脚本",
+        "command": "bash .claude/install.sh --dry-run",
+        "runs": 3,
+        "success_rate": 1.0,
+        "avg_time": 0.2887,
+        "min_time": 0.2039,
+        "max_time": 0.4138,
+        "all_times": [
+          0.2039,
+          0.2484,
+          0.4138
+        ]
+      },
+      "python3 .claude/scripts/config_validator.py": {
+        "description": "配置验证",
+        "command": "python3 .claude/scripts/config_validator.py",
+        "runs": 3,
+        "success_rate": 0.0,
+        "avg_time": 0.8025,
+        "min_time": 0.7293,
+        "max_time": 0.9105,
+        "all_times": [
+          0.7293,
+          0.7678,
+          0.9105
+        ]
+      }
+    },
+    "file_analysis": {
+      "total_files": 358,
+      "total_size_mb": 2.38,
+      "largest_files": [
+        [
+          "/home/xx/dev/Perfect21/.claude/agents/specialized/game-developer.md",
+          60478
+        ],
+        [
+          "/home/xx/dev/Perfect21/.claude/agents/specialized/ecommerce-expert.md",
+          55600
+        ],
+        [
+          "/home/xx/dev/Perfect21/.claude/agents/specialized/fintech-specialist.md",
+          54638
+        ],
+        [
+          "/home/xx/dev/Perfect21/.claude/agents/specialized/healthcare-dev.md",
+          51262
+        ],
+        [
+          "/home/xx/dev/Perfect21/.claude/agents/specialized/embedded-engineer.md",
+          51045
+        ],
+        [
+          "/home/xx/dev/Perfect21/.claude/agents/business/api-designer.md",
+          43137
+        ],
+        [
+          "/home/xx/dev/Perfect21/.claude/agents/business/technical-writer.md",
+          40253
+        ],
+        [
+          "/home/xx/dev/Perfect21/.claude/agents/quality/performance-tester.md",
+          37233
+        ],
+        [
+          "/home/xx/dev/Perfect21/.claude/agents/quality/accessibility-auditor.md",
+          36086
+        ],
+        [
+          "/home/xx/dev/Perfect21/.claude/agents/business/business-analyst.md",
+          34325
+        ]
+      ],
+      "file_types": {
+        ".md": 111,
+        ".yaml": 23,
+        ".json": 19,
+        ".sh": 159,
+        ".config": 1,
+        ".py": 39,
+        ".log": 2,
+        "": 4
+      }
+    }
+  },
+  "summary": {
+    "total_scripts_tested": 14,
+    "successful_scripts": 5,
+    "success_rate": 0.36,
+    "avg_execution_time": 0.677,
+    "fastest_script": 0.0014,
+    "slowest_script": 3.2147,
+    "total_test_duration": 9.48
+  },
+  "recommendations": [
+    {
+      "category": "Cleanup Scripts",
+      "issue": "最慢的cleanup脚本: .claude/scripts/cleanup.sh (1.4162s)",
+      "recommendation": "建议使用最快的脚本: .claude/scripts/performance_optimized_cleanup.sh (0.0090s)",
+      "priority": "medium"
+    }
+  ]
+}

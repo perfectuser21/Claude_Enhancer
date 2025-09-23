@@ -2,7 +2,7 @@
 
 ## 🎯 Testing Overview
 
-Comprehensive testing strategy for the Perfect21 Authentication API covering security, functionality, performance, and integration testing.
+Comprehensive testing strategy for the Claude Enhancer Authentication API covering security, functionality, performance, and integration testing.
 
 ## 📋 Test Categories
 

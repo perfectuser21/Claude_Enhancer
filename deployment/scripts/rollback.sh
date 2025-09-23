@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================================
-# Rollback Script for Perfect21 Claude Enhancer
+# Rollback Script for Claude Enhancer Claude Enhancer
 # Emergency rollback functionality with version management
 # =============================================================================
 
@@ -181,7 +181,7 @@ usage() {
     cat << EOF
 Usage: $0 [REVISION]
 
-Rollback Perfect21 Claude Enhancer deployment.
+Rollback Claude Enhancer Claude Enhancer deployment.
 
 Arguments:
   REVISION    Target revision number or 'previous' (default: previous)

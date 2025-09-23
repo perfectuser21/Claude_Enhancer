@@ -1,0 +1,294 @@
+# =============================================================================
+# Claude Enhancer 专用告警规则
+# =============================================================================
+
+groups:
+  # Hook性能告警
+  - name: claude_enhancer_hook_performance
+    interval: 30s
+    rules:
+      - alert: HookHighLatency
+        expr: claude_enhancer:hook_latency_p95 > 5
+        for: 2m
+        labels:
+          severity: warning
+          component: hook
+          team: claude-enhancer
+        annotations:
+          summary: "Hook延迟过高"
+          description: "Hook P95延迟 {{ $value }}s 超过5秒阈值，Hook: {{ $labels.hook_name }}"
+          runbook_url: "https://github.com/your-org/claude-enhancer/wiki/Hook-Latency-Troubleshooting"
+
+      - alert: HookVeryHighLatency
+        expr: claude_enhancer:hook_latency_p95 > 10
+        for: 1m
+        labels:
+          severity: critical
+          component: hook
+          team: claude-enhancer
+        annotations:
+          summary: "Hook延迟严重过高"
+          description: "Hook P95延迟 {{ $value }}s 超过10秒阈值，Hook: {{ $labels.hook_name }}"
+          runbook_url: "https://github.com/your-org/claude-enhancer/wiki/Hook-Latency-Troubleshooting"
+
+      - alert: HookHighErrorRate
+        expr: claude_enhancer:hook_error_rate > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          component: hook
+          team: claude-enhancer
+        annotations:
+          summary: "Hook错误率过高"
+          description: "Hook错误率 {{ $value | humanizePercentage }} 超过5%，Hook: {{ $labels.hook_name }}"
+
+      - alert: HookVeryHighErrorRate
+        expr: claude_enhancer:hook_error_rate > 0.20
+        for: 2m
+        labels:
+          severity: critical
+          component: hook
+          team: claude-enhancer
+        annotations:
+          summary: "Hook错误率严重过高"
+          description: "Hook错误率 {{ $value | humanizePercentage }} 超过20%，Hook: {{ $labels.hook_name }}"
+
+      - alert: HookExecutionFailure
+        expr: increase(claude_enhancer_hook_errors_total[5m]) > 3
+        for: 1m
+        labels:
+          severity: critical
+          component: hook
+          team: claude-enhancer
+        annotations:
+          summary: "Hook连续执行失败"
+          description: "Hook {{ $labels.hook_name }} 在5分钟内失败 {{ $value }} 次"
+
+      - alert: HookNotExecuting
+        expr: |
+          (
+            time() - max by (hook_name) (claude_enhancer_hook_executions_total)
+          ) > 3600
+        for: 5m
+        labels:
+          severity: warning
+          component: hook
+          team: claude-enhancer
+        annotations:
+          summary: "Hook长时间未执行"
+          description: "Hook {{ $labels.hook_name }} 超过1小时未执行"
+
+  # 系统资源告警
+  - name: claude_enhancer_system_resources
+    interval: 30s
+    rules:
+      - alert: HighCPUUsage
+        expr: claude_enhancer:system_cpu_usage > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+          team: claude-enhancer
+        annotations:
+          summary: "CPU使用率过高"
+          description: "CPU使用率 {{ $value }}% 持续5分钟超过80%"
+
+      - alert: VeryHighCPUUsage
+        expr: claude_enhancer:system_cpu_usage > 95
+        for: 2m
+        labels:
+          severity: critical
+          component: system
+          team: claude-enhancer
+        annotations:
+          summary: "CPU使用率严重过高"
+          description: "CPU使用率 {{ $value }}% 持续2分钟超过95%"
+
+      - alert: HighMemoryUsage
+        expr: claude_enhancer:system_memory_usage > 85
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+          team: claude-enhancer
+        annotations:
+          summary: "内存使用率过高"
+          description: "内存使用率 {{ $value }}% 持续5分钟超过85%"
+
+      - alert: VeryHighMemoryUsage
+        expr: claude_enhancer:system_memory_usage > 95
+        for: 2m
+        labels:
+          severity: critical
+          component: system
+          team: claude-enhancer
+        annotations:
+          summary: "内存使用率严重过高"
+          description: "内存使用率 {{ $value }}% 持续2分钟超过95%"
+
+      - alert: HighDiskUsage
+        expr: claude_enhancer_disk_usage_percent > 80
+        for: 10m
+        labels:
+          severity: warning
+          component: system
+          team: claude-enhancer
+        annotations:
+          summary: "磁盘使用率过高"
+          description: "磁盘使用率 {{ $value }}% 超过80%"
+
+      - alert: VeryHighDiskUsage
+        expr: claude_enhancer_disk_usage_percent > 90
+        for: 5m
+        labels:
+          severity: critical
+          component: system
+          team: claude-enhancer
+        annotations:
+          summary: "磁盘使用率严重过高"
+          description: "磁盘使用率 {{ $value }}% 超过90%"
+
+  # 服务可用性告警
+  - name: claude_enhancer_service_availability
+    interval: 30s
+    rules:
+      - alert: ClaudeEnhancerMonitorDown
+        expr: up{job="claude-enhancer-monitor"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: monitor
+          team: claude-enhancer
+        annotations:
+          summary: "Claude Enhancer监控服务宕机"
+          description: "Claude Enhancer监控服务已宕机超过1分钟"
+
+      - alert: PrometheusDown
+        expr: up{job="prometheus"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: prometheus
+          team: claude-enhancer
+        annotations:
+          summary: "Prometheus服务宕机"
+          description: "Prometheus服务已宕机超过2分钟"
+
+      - alert: GrafanaDown
+        expr: up{job="grafana"} == 0
+        for: 2m
+        labels:
+          severity: warning
+          component: grafana
+          team: claude-enhancer
+        annotations:
+          summary: "Grafana服务宕机"
+          description: "Grafana服务已宕机超过2分钟"
+
+      - alert: HealthCheckFailure
+        expr: probe_success{job="blackbox-http"} == 0
+        for: 3m
+        labels:
+          severity: critical
+          component: health-check
+          team: claude-enhancer
+        annotations:
+          summary: "服务健康检查失败"
+          description: "{{ $labels.instance }} 健康检查失败超过3分钟"
+
+  # Hook队列和吞吐量告警
+  - name: claude_enhancer_throughput
+    interval: 30s
+    rules:
+      - alert: HighHookQueueSize
+        expr: claude_enhancer:hook_queue_size > 50
+        for: 5m
+        labels:
+          severity: warning
+          component: queue
+          team: claude-enhancer
+        annotations:
+          summary: "Hook队列积压"
+          description: "Hook队列大小 {{ $value }} 超过50，可能存在处理瓶颈"
+
+      - alert: VeryHighHookQueueSize
+        expr: claude_enhancer:hook_queue_size > 100
+        for: 2m
+        labels:
+          severity: critical
+          component: queue
+          team: claude-enhancer
+        annotations:
+          summary: "Hook队列严重积压"
+          description: "Hook队列大小 {{ $value }} 超过100，系统可能过载"
+
+      - alert: LowHookThroughput
+        expr: claude_enhancer:hook_throughput_hourly < 10
+        for: 30m
+        labels:
+          severity: warning
+          component: throughput
+          team: claude-enhancer
+        annotations:
+          summary: "Hook执行吞吐量过低"
+          description: "过去1小时Hook执行次数仅 {{ $value }} 次，可能存在问题"
+
+      - alert: TooManyActiveHooks
+        expr: claude_enhancer:active_hooks_count > 10
+        for: 10m
+        labels:
+          severity: warning
+          component: concurrency
+          team: claude-enhancer
+        annotations:
+          summary: "并发Hook过多"
+          description: "当前活跃Hook数量 {{ $value }} 超过10个，可能影响性能"
+
+  # 数据异常告警
+  - name: claude_enhancer_data_anomalies
+    interval: 1m
+    rules:
+      - alert: MetricsCollectionStopped
+        expr: |
+          (
+            time() - max(timestamp(claude_enhancer_hook_executions_total))
+          ) > 300
+        for: 5m
+        labels:
+          severity: critical
+          component: metrics
+          team: claude-enhancer
+        annotations:
+          summary: "指标收集已停止"
+          description: "超过5分钟未收集到新的Hook执行指标"
+
+      - alert: UnusualHookLatencyPattern
+        expr: |
+          (
+            claude_enhancer:hook_latency_p95 -
+            claude_enhancer:hook_latency_p95 offset 1h
+          ) > 2
+        for: 10m
+        labels:
+          severity: warning
+          component: performance
+          team: claude-enhancer
+        annotations:
+          summary: "Hook延迟异常增长"
+          description: "Hook P95延迟比1小时前增长超过2秒，当前: {{ $value }}s"
+
+      - alert: HookPerformanceDegrading
+        expr: |
+          (
+            rate(claude_enhancer:hook_latency_p95[30m]) > 0.1
+          ) and (
+            claude_enhancer:hook_latency_p95 > 1
+          )
+        for: 15m
+        labels:
+          severity: warning
+          component: performance
+          team: claude-enhancer
+        annotations:
+          summary: "Hook性能持续下降"
+          description: "Hook延迟在过去30分钟持续增长，可能存在性能问题"

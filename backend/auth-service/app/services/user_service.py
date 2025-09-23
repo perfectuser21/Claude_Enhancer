@@ -1,5 +1,5 @@
 """
-Perfect21 用户服务
+Claude Enhancer 用户服务
 企业级用户注册、登录、管理服务
 """
 

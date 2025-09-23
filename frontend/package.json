@@ -1,5 +1,5 @@
 {
-  "name": "perfect21-frontend-auth",
+  "name": "claude-enhancer-frontend-auth",
   "version": "1.0.0",
   "description": "Complete React authentication system with JWT, MFA, and modern security features",
   "main": "auth/index.js",
@@ -51,18 +51,18 @@
     "auth",
     "login",
     "register",
-    "perfect21"
+    "claude-enhancer"
   ],
-  "author": "Perfect21 Team",
+  "author": "Claude Enhancer Team",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/perfect21/frontend-auth.git"
+    "url": "https://github.com/claude-enhancer/frontend-auth.git"
   },
   "bugs": {
-    "url": "https://github.com/perfect21/frontend-auth/issues"
+    "url": "https://github.com/claude-enhancer/frontend-auth/issues"
   },
-  "homepage": "https://github.com/perfect21/frontend-auth#readme",
+  "homepage": "https://github.com/claude-enhancer/frontend-auth#readme",
   "engines": {
     "node": ">=16.0.0",
     "npm": ">=8.0.0"

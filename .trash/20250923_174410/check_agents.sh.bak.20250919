@@ -1,0 +1,27 @@
+#!/bin/bash
+# Simple hook to check agent selection
+
+# This hook checks if Claude Code is using enough agents
+# It runs before Task tool execution
+
+# Read input from stdin
+INPUT=$(cat)
+
+# Count how many "subagent_type" parameters are in the input
+AGENT_COUNT=$(echo "$INPUT" | grep -o "subagent_type" | wc -l)
+
+if [ "$AGENT_COUNT" -lt 3 ] && [ "$AGENT_COUNT" -gt 0 ]; then
+    echo "⚠️ Claude Enhancer Rule: You're only using $AGENT_COUNT agent(s)" >&2
+    echo "📋 Requirement: Use at least 3-5 agents in parallel" >&2
+    echo "💡 Suggestion: Add more relevant agents for better results" >&2
+    echo "" >&2
+    echo "Examples of good agent combinations:" >&2
+    echo "  • API task: api-designer, backend-architect, test-engineer, technical-writer" >&2
+    echo "  • Auth task: backend-architect, security-auditor, test-engineer, api-designer" >&2
+    echo "  • Test task: test-engineer, e2e-test-specialist, performance-tester" >&2
+    exit 2  # Block execution
+fi
+
+# Pass through if check passes
+echo "$INPUT"
+exit 0

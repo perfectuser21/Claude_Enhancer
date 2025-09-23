@@ -1,0 +1,11 @@
+{
+  "total_tasks": 1,
+  "successful_tasks": 1,
+  "failed_tasks": 0,
+  "total_agents_used": 0,
+  "total_violations": 0,
+  "average_duration": 7.1e-05,
+  "phase_statistics": {},
+  "agent_statistics": {},
+  "last_updated": "2025-09-23T15:08:31.229440"
+}

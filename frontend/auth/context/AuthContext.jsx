@@ -140,7 +140,7 @@ export const AuthProvider = ({ children }) => {
       } catch (error) {
         // Token is invalid, clear it
         tokenManager.clearTokens();
-        // console.log('Token verification failed during initialization');
+        // // // console.log('Token verification failed during initialization');
       }
     };
 
@@ -256,7 +256,7 @@ export const AuthProvider = ({ children }) => {
       // Call logout API to invalidate tokens on server
       await authAPI.logout();
     } catch (error) {
-      // console.log('Logout API call failed, proceeding with local logout');
+      // // // console.log('Logout API call failed, proceeding with local logout');
     } finally {
       // Clear local tokens regardless of API call result
       tokenManager.clearTokens();

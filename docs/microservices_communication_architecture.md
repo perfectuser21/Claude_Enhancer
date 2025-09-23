@@ -1,7 +1,7 @@
-# 🔄 Perfect21 微服务通信架构设计
+# 🔄 Claude Enhancer 微服务通信架构设计
 
 ## 📋 文档信息
-- **项目名称**: Perfect21 微服务通信架构
+- **项目名称**: Claude Enhancer 微服务通信架构
 - **版本**: v1.0
 - **创建日期**: 2025-09-22
 - **架构师**: Middleware-Specialist + API-Designer
@@ -1664,7 +1664,7 @@ def start_metrics_server(port: int = 8000):
 
 ## 📋 总结
 
-这个微服务通信架构为Perfect21认证系统提供了以下核心能力：
+这个微服务通信架构为Claude Enhancer认证系统提供了以下核心能力：
 
 ### 🌟 架构特性
 
@@ -1694,4 +1694,4 @@ def start_metrics_server(port: int = 8000):
 - **容错性**: 自动故障恢复
 - **监控性**: 全链路可观测
 
-这个通信架构确保了Perfect21认证系统各服务间的高效、可靠、安全通信，为整体系统的稳定运行提供了坚实基础。
+这个通信架构确保了Claude Enhancer认证系统各服务间的高效、可靠、安全通信，为整体系统的稳定运行提供了坚实基础。

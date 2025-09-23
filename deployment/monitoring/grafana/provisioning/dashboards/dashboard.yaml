@@ -1,6 +1,6 @@
 # =============================================================================
 # Grafana Dashboard Provisioning Configuration
-# Automatically provision dashboards for Perfect21 Claude Enhancer
+# Automatically provision dashboards for Claude Enhancer Claude Enhancer
 # =============================================================================
 
 apiVersion: 1

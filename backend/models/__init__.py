@@ -34,5 +34,5 @@ __all__ = [
 
 # 版本信息
 __version__ = "1.0.0"
-__author__ = "Perfect21 Team"
+__author__ = "Claude Enhancer Team"
 __description__ = "SQLAlchemy ORM模型层 - 提供完整的数据模型定义"

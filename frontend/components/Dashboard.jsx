@@ -17,7 +17,7 @@ const Dashboard = () => {
     <div className="dashboard">
       <header className="dashboard-header">
         <div className="header-content">
-          <h1>Welcome to Perfect21</h1>
+          <h1>Welcome to Claude Enhancer</h1>
           <div className="user-info">
             <span>Hello, {user?.firstName} {user?.lastName}</span>
             <button onClick={handleLogout} className="logout-btn">

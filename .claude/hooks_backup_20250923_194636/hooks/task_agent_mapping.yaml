@@ -1,0 +1,147 @@
+# Claude Enhancer Task-Agent Mapping Rules
+# 定义每种任务类型所需的Agent组合
+
+task_types:
+  authentication:
+    description: "用户认证、登录、权限管理相关任务"
+    keywords:
+      - "认证"
+      - "登录"
+      - "用户"
+      - "权限"
+      - "auth"
+      - "login"
+      - "jwt"
+      - "oauth"
+      - "password"
+      - "security"
+      - "身份验证"
+    required_agents:
+      - backend-architect    # 系统架构设计
+      - security-auditor     # 安全审计
+      - api-designer         # API设计
+      - database-specialist  # 数据库设计
+      - test-engineer        # 测试策略
+    minimum_count: 5
+
+  api_development:
+    description: "API接口开发、RESTful服务设计"
+    keywords:
+      - "api"
+      - "接口"
+      - "rest"
+      - "graphql"
+      - "endpoint"
+      - "route"
+      - "服务"
+      - "swagger"
+    required_agents:
+      - api-designer         # API设计规范
+      - backend-architect    # 后端架构
+      - test-engineer        # 测试设计
+      - technical-writer     # 文档编写
+    minimum_count: 4
+
+  database_design:
+    description: "数据库设计、表结构、查询优化"
+    keywords:
+      - "数据库"
+      - "database"
+      - "表"
+      - "table"
+      - "schema"
+      - "sql"
+      - "postgres"
+      - "mysql"
+      - "mongodb"
+      - "redis"
+    required_agents:
+      - database-specialist   # 数据库专家
+      - backend-architect     # 系统架构
+      - performance-engineer  # 性能优化
+    minimum_count: 3
+
+  frontend_development:
+    description: "前端开发、UI实现、组件设计"
+    keywords:
+      - "前端"
+      - "界面"
+      - "页面"
+      - "组件"
+      - "frontend"
+      - "ui"
+      - "react"
+      - "vue"
+      - "angular"
+    required_agents:
+      - frontend-specialist   # 前端专家
+      - react-pro            # React专家
+      - ux-designer          # UX设计
+      - test-engineer        # 测试设计
+    minimum_count: 4
+
+  testing:
+    description: "测试策略、测试用例设计、质量保证"
+    keywords:
+      - "测试"
+      - "test"
+      - "单元测试"
+      - "集成测试"
+      - "e2e"
+      - "性能"
+      - "quality"
+    required_agents:
+      - test-engineer         # 测试工程师
+      - performance-tester    # 性能测试
+      - security-auditor      # 安全测试
+      - code-reviewer         # 代码审查
+    minimum_count: 4
+
+  fullstack:
+    description: "全栈应用开发、前后端一体化"
+    keywords:
+      - "全栈"
+      - "fullstack"
+      - "应用"
+      - "application"
+      - "系统"
+      - "平台"
+    required_agents:
+      - fullstack-engineer    # 全栈工程师
+      - backend-architect     # 后端架构
+      - frontend-specialist   # 前端专家
+      - database-specialist   # 数据库设计
+      - test-engineer         # 测试设计
+      - devops-engineer       # 部署运维
+    minimum_count: 6
+
+  general:
+    description: "一般开发任务"
+    keywords: []
+    required_agents:
+      - backend-architect     # 后端架构
+      - test-engineer         # 测试设计
+      - technical-writer      # 文档编写
+    minimum_count: 3
+
+# 执行模式配置
+execution_modes:
+  parallel:
+    description: "并行执行所有Agent"
+    when: "默认模式，适用于需要多角度分析的复杂任务"
+
+  sequential:
+    description: "顺序执行Agent"
+    when: "依赖关系明确，需要前置结果的任务"
+
+# 质量门禁
+quality_gates:
+  before_execution:
+    - check_agent_count      # 检查Agent数量
+    - verify_agent_types     # 验证Agent类型
+    - check_parallel_mode    # 确认并行模式
+
+  after_execution:
+    - validate_outputs       # 验证输出完整性
+    - check_consistency      # 检查一致性
+    - measure_quality        # 质量评估

@@ -1,0 +1,177 @@
+[
+  {
+    "timestamp": "2025-09-23T21:09:23.577523",
+    "results": [
+      {
+        "test_name": "cpu_intensive_calculation",
+        "category": "system",
+        "execution_time": 0.09570414992049336,
+        "memory_usage_mb": 0.0,
+        "cpu_percent": 23.1,
+        "success": true,
+        "timestamp": "2025-09-23T21:09:21.910160",
+        "metadata": {
+          "iterations": 1000000,
+          "calculation": "sum_of_squares"
+        }
+      },
+      {
+        "test_name": "memory_allocation",
+        "category": "system",
+        "execution_time": 0.0721212993375957,
+        "memory_usage_mb": 38.9921875,
+        "cpu_percent": 46.3,
+        "success": true,
+        "timestamp": "2025-09-23T21:09:22.100230",
+        "metadata": {
+          "list_size": 1000000,
+          "matrix_size": "1000x100"
+        }
+      },
+      {
+        "test_name": "disk_io_operations",
+        "category": "system",
+        "execution_time": 0.03588397614657879,
+        "memory_usage_mb": 0.0,
+        "cpu_percent": 42.5,
+        "success": true,
+        "timestamp": "2025-09-23T21:09:22.236971",
+        "metadata": {
+          "data_size_mb": 10,
+          "total_read_bytes": 10240000
+        }
+      },
+      {
+        "test_name": "hook_smart_agent_selector.sh",
+        "category": "hook_system",
+        "execution_time": 0.015233440790325403,
+        "memory_usage_mb": 0.0,
+        "cpu_percent": 41.0,
+        "success": true,
+        "timestamp": "2025-09-23T21:09:22.353224",
+        "metadata": {
+          "return_code": 0,
+          "stdout_length": 1,
+          "stderr_length": 0
+        }
+      },
+      {
+        "test_name": "hook_quality_gate.sh",
+        "category": "hook_system",
+        "execution_time": 0.012138165067881346,
+        "memory_usage_mb": 0.0,
+        "cpu_percent": 43.6,
+        "success": true,
+        "timestamp": "2025-09-23T21:09:22.466249",
+        "metadata": {
+          "return_code": 0,
+          "stdout_length": 1,
+          "stderr_length": 0
+        }
+      },
+      {
+        "test_name": "hook_performance_monitor.sh",
+        "category": "hook_system",
+        "execution_time": 0.011139289010316133,
+        "memory_usage_mb": 0.0,
+        "cpu_percent": 34.2,
+        "success": true,
+        "timestamp": "2025-09-23T21:09:22.578217",
+        "metadata": {
+          "return_code": 0,
+          "stdout_length": 0,
+          "stderr_length": 0
+        }
+      },
+      {
+        "test_name": "hook_error_handler.sh",
+        "category": "hook_system",
+        "execution_time": 0.008822738658636808,
+        "memory_usage_mb": 0.0,
+        "cpu_percent": 40.5,
+        "success": true,
+        "timestamp": "2025-09-23T21:09:22.688007",
+        "metadata": {
+          "return_code": 0,
+          "stdout_length": 0,
+          "stderr_length": 0
+        }
+      },
+      {
+        "test_name": "hook_task_type_detector.sh",
+        "category": "hook_system",
+        "execution_time": 0.019479162991046906,
+        "memory_usage_mb": 0.0,
+        "cpu_percent": 38.5,
+        "success": true,
+        "timestamp": "2025-09-23T21:09:22.808372",
+        "metadata": {
+          "return_code": 0,
+          "stdout_length": 7,
+          "stderr_length": 836
+        }
+      },
+      {
+        "test_name": "hook_concurrency",
+        "category": "hook_system",
+        "execution_time": 0.014845773112028837,
+        "memory_usage_mb": 0.25390625,
+        "cpu_percent": 15.4,
+        "success": true,
+        "timestamp": "2025-09-23T21:09:22.924178",
+        "metadata": {
+          "total_hooks": 2,
+          "successful_hooks": 2,
+          "success_rate": 1.0
+        }
+      },
+      {
+        "test_name": "cleanup_cleanup.sh",
+        "category": "performance_comparison",
+        "execution_time": 0.1791239259764552,
+        "memory_usage_mb": 0.0,
+        "cpu_percent": 20.0,
+        "success": false,
+        "timestamp": "2025-09-23T21:09:23.205312",
+        "metadata": {
+          "script_name": "cleanup.sh",
+          "return_code": 1,
+          "stdout_length": 525
+        }
+      },
+      {
+        "test_name": "cleanup_performance_optimized_cleanup.sh",
+        "category": "performance_comparison",
+        "execution_time": 0.0065153068862855434,
+        "memory_usage_mb": 0.0,
+        "cpu_percent": 15.4,
+        "success": false,
+        "timestamp": "2025-09-23T21:09:23.313705",
+        "metadata": {
+          "script_name": "performance_optimized_cleanup.sh",
+          "return_code": 1,
+          "stdout_length": 0
+        }
+      },
+      {
+        "test_name": "cleanup_ultra_optimized_cleanup.sh",
+        "category": "performance_comparison",
+        "execution_time": 0.16125278314575553,
+        "memory_usage_mb": 0.0,
+        "cpu_percent": 12.2,
+        "success": false,
+        "timestamp": "2025-09-23T21:09:23.576755",
+        "metadata": {
+          "script_name": "ultra_optimized_cleanup.sh",
+          "return_code": 1,
+          "stdout_length": 525
+        }
+      }
+    ],
+    "system_info": {
+      "cpu_count": 4,
+      "memory_total_gb": 7.751277923583984,
+      "python_version": "3.10.12 (main, Aug 15 2025, 14:32:43) [GCC 11.4.0]"
+    }
+  }
+]

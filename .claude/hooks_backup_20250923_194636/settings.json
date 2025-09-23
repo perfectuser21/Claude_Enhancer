@@ -1,0 +1,102 @@
+{
+  "version": "4.0.0",
+  "project": "Perfect21 - Secure Hook System",
+  "description": "安全优化的Hook系统，只保留必要功能",
+  "architecture": {
+    "version": "v2.0", 
+    "documentation": ".claude/ARCHITECTURE/INDEX.md",
+    "auto_load_docs": [
+      ".claude/ARCHITECTURE_LOADER.md",
+      ".claude/ARCHITECTURE/INDEX.md"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Task",
+        "type": "command",
+        "command": "bash .claude/hooks/smart_agent_selector.sh",
+        "description": "智能Agent选择建议 - 安全版本",
+        "timeout": 3000,
+        "blocking": false
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "type": "command",
+        "command": "bash .claude/hooks/code_writing_check.sh",
+        "description": "检查是否应该用Task而不是直接写代码",
+        "timeout": 2000,
+        "blocking": false
+      },
+      {
+        "matcher": ".*",
+        "type": "command",
+        "command": "bash .claude/hooks/quality_gate.sh",
+        "description": "质量门禁检查 - 建议性",
+        "timeout": 2000,
+        "blocking": false
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": ".*",
+        "type": "command",
+        "command": "bash .claude/hooks/performance_monitor.sh",
+        "description": "性能监控 - 非阻塞",
+        "timeout": 500,
+        "blocking": false
+      },
+      {
+        "matcher": ".*error.*",
+        "type": "command",
+        "command": "bash .claude/hooks/error_handler.sh",
+        "description": "错误处理助手 - 非阻塞",
+        "timeout": 500,
+        "blocking": false
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "type": "command",
+        "command": "bash .claude/hooks/task_type_detector.sh",
+        "description": "任务类型检测和工作流提醒",
+        "timeout": 1000,
+        "blocking": false
+      },
+      {
+        "type": "command",
+        "command": "bash .claude/hooks/smart_git_workflow.sh",
+        "description": "智能Git工作流助手",
+        "timeout": 2000,
+        "blocking": false
+      },
+      {
+        "type": "command",
+        "command": "bash .claude/hooks/smart_cleanup_advisor.sh",
+        "description": "智能清理顾问",
+        "timeout": 1500,
+        "blocking": false
+      }
+    ]
+  },
+  "security": {
+    "hook_security_enabled": true,
+    "forbidden_operations": [
+      "modify_user_input",
+      "block_execution", 
+      "hijack_workflow",
+      "infinite_loops"
+    ],
+    "allowed_hook_types": [
+      "advisory",
+      "validation",
+      "notification"
+    ]
+  },
+  "environment": {
+    "CLAUDE_ENHANCER_MODE": "advisory",
+    "MIN_AGENTS": "3",
+    "HOOK_SECURITY": "enabled",
+    "HOOK_BLOCKING": "false"
+  }
+}

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Perfect21 Performance Optimization Demo
+Claude Enhancer Performance Optimization Demo
 性能优化系统演示脚本
 """
 
@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 async def main():
     """主演示函数"""
-    # print("🚀 Perfect21 Performance Optimization System Demo")
+    # print("🚀 Claude Enhancer Performance Optimization System Demo")
     # print("=" * 60)
 
     try:

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-🚀 Perfect21 简化性能测试
+🚀 Claude Enhancer 简化性能测试
 ==========================================
 
 执行简化版本的性能测试，不依赖外部服务器
@@ -1178,7 +1178,7 @@ def print_console_summary(report: PerformanceReport):
 
 async def main():
     """主函数"""
-    # print("🚀 Perfect21 简化性能测试")
+    # print("🚀 Claude Enhancer 简化性能测试")
     # print("=" * 50)
 
     try:

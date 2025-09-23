@@ -212,9 +212,9 @@ Claude可以:
 | **pre-commit** | `git commit`前 | 代码质量检查 | Claude Enhancer |
 | **commit-msg** | 提交信息写入前 | 规范提交信息格式 | Claude Enhancer |
 | **pre-push** | `git push`前 | 运行测试，检查TODO | Claude Enhancer |
-| **post-commit** | 提交完成后 | 记录提交，更新Phase | Perfect21 |
-| **post-checkout** | 切换分支后 | 环境检查，依赖更新 | Perfect21 |
-| **post-merge** | 合并完成后 | 冲突检查，依赖同步 | Perfect21 |
+| **post-commit** | 提交完成后 | 记录提交，更新Phase | Claude Enhancer |
+| **post-checkout** | 切换分支后 | 环境检查，依赖更新 | Claude Enhancer |
+| **post-merge** | 合并完成后 | 冲突检查，依赖同步 | Claude Enhancer |
 
 ### Git Hooks执行流程
 

@@ -152,7 +152,7 @@ class TestSuiteOrchestrator:
             timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
             filename = f"auth_test_report_{timestamp}.json"
 
-        report_path = os.path.join("/home/xx/dev/Perfect21/test/auth", filename)
+        report_path = os.path.join("/home/xx/dev/Claude Enhancer/test/auth", filename)
 
         with open(report_path, 'w') as f:
             json.dump(report, f, indent=2, default=str)

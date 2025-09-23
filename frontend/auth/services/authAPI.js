@@ -154,7 +154,7 @@ export const authAPI = {
       }
     } catch (error) {
       // Don't throw error for logout - always succeed locally
-      console.warn('Logout API call failed:', error.message);
+      // // console.warn('Logout API call failed:', error.message);
     }
   },
 

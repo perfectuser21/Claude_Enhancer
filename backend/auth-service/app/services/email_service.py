@@ -1,5 +1,5 @@
 """
-Perfect21 邮件服务
+Claude Enhancer 邮件服务
 企业级邮件发送、模板管理和通知服务
 """
 

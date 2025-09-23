@@ -1,0 +1,164 @@
+# Claude Enhancer智能文档加载配置
+# 避免一次性加载所有文档，按需精准加载
+
+version: "1.0"
+enabled: true
+max_token_budget: 20000
+
+# P0级：核心文档（始终加载）
+core_documents:
+  - path: "CLAUDE.md"
+    priority: 0
+    estimated_tokens: 2000
+    always_load: true
+  - path: ".claude/settings.json"
+    priority: 0
+    estimated_tokens: 500
+    always_load: true
+
+# P1级：条件加载文档
+conditional_documents:
+  - path: ".claude/ARCHITECTURE/GROWTH-STRATEGY.md"
+    priority: 1
+    estimated_tokens: 6000
+    triggers:
+      keywords: ["新功能", "new feature", "添加", "add", "feature", "功能"]
+      task_types: ["feature_development", "new_feature"]
+      phases: [2, 3]
+
+  - path: ".claude/ARCHITECTURE/LAYER-DEFINITION.md"
+    priority: 1
+    estimated_tokens: 8000
+    triggers:
+      keywords: ["哪层", "layer", "层级", "放哪", "structure", "架构"]
+      task_types: ["refactoring", "architecture"]
+      phases: [1, 2]
+
+  - path: ".claude/ARCHITECTURE/NAMING-CONVENTIONS.md"
+    priority: 1
+    estimated_tokens: 4000
+    triggers:
+      keywords: ["命名", "naming", "文件名", "变量名", "规范"]
+      task_types: ["new_feature", "refactoring"]
+      phases: [3]
+
+  - path: ".claude/ARCHITECTURE/v2.0-FOUNDATION.md"
+    priority: 1
+    estimated_tokens: 5000
+    triggers:
+      keywords: ["架构", "architecture", "设计", "foundation", "核心"]
+      task_types: ["architecture_design", "system_design"]
+      phases: [1, 2]
+
+# P2级：特定场景文档
+specialized_documents:
+  - path: ".claude/ARCHITECTURE/decisions/*.md"
+    priority: 2
+    estimated_tokens: 2000
+    triggers:
+      keywords: ["为什么", "why", "决策", "decision", "理由"]
+      explicit_request: true
+
+  - path: ".claude/ARCHITECTURE/IMPLEMENTATION-STATUS.md"
+    priority: 2
+    estimated_tokens: 3000
+    triggers:
+      keywords: ["进度", "状态", "status", "progress", "实施"]
+      explicit_request: true
+
+  - path: ".claude/WORKFLOW.md"
+    priority: 2
+    estimated_tokens: 4000
+    triggers:
+      keywords: ["workflow", "工作流", "phase", "阶段"]
+      phases: [0, 1, 2, 3, 4, 5, 6, 7]
+
+  - path: ".claude/AGENT_STRATEGY.md"
+    priority: 2
+    estimated_tokens: 3000
+    triggers:
+      keywords: ["agent", "Agent", "4-6-8", "策略"]
+      task_types: ["complex_task"]
+
+# 任务类型定义
+task_types:
+  bug_fix:
+    name: "Bug修复"
+    max_tokens: 10000
+    load_priority: [0, 1]
+    skip_documents: ["GROWTH-STRATEGY.md", "decisions/"]
+
+  new_feature:
+    name: "新功能开发"
+    max_tokens: 20000
+    load_priority: [0, 1, 2]
+    required_documents: ["GROWTH-STRATEGY.md", "NAMING-CONVENTIONS.md"]
+
+  refactoring:
+    name: "代码重构"
+    max_tokens: 25000
+    load_priority: [0, 1, 2]
+    required_documents: ["LAYER-DEFINITION.md", "v2.0-FOUNDATION.md"]
+
+  architecture_design:
+    name: "架构设计"
+    max_tokens: 30000
+    load_priority: [0, 1, 2]
+    required_documents: ["v2.0-FOUNDATION.md", "LAYER-DEFINITION.md", "decisions/"]
+
+# Phase阶段配置
+phase_loading:
+  0: # Git分支创建
+    name: "Branch Creation"
+    documents: []
+
+  1: # 需求分析
+    name: "Requirement Analysis"
+    documents: ["v2.0-FOUNDATION.md"]
+
+  2: # 设计规划
+    name: "Design Planning"
+    documents: ["LAYER-DEFINITION.md", "v2.0-FOUNDATION.md"]
+
+  3: # 实现开发
+    name: "Implementation"
+    documents: ["GROWTH-STRATEGY.md", "NAMING-CONVENTIONS.md", "AGENT_STRATEGY.md"]
+
+  4: # 本地测试
+    name: "Local Testing"
+    documents: ["WORKFLOW.md"]
+
+  5: # 代码提交
+    name: "Code Commit"
+    documents: []
+
+  6: # 代码审查
+    name: "Code Review"
+    documents: []
+
+  7: # 合并部署
+    name: "Merge & Deploy"
+    documents: []
+
+# 加载策略
+loading_strategy:
+  # 当Token超预算时的降级策略
+  token_overflow_strategy: "skip_p2_p3"  # 可选: skip_p2_p3, summarize, ask_user
+
+  # 缓存策略
+  cache_loaded_documents: true
+  cache_duration_minutes: 30
+
+  # 智能识别
+  auto_detect_task_type: true
+  auto_detect_phase: true
+
+  # 用户控制
+  allow_user_override: true
+  show_loading_plan: true
+
+# 调试配置
+debug:
+  show_token_usage: true
+  log_loading_decisions: true
+  test_mode: false

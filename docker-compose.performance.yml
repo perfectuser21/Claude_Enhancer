@@ -1,4 +1,4 @@
-# Perfect21 Performance Optimization Stack
+# Claude Enhancer Performance Optimization Stack
 # Docker Compose配置 - 完整的性能优化基础设施
 
 version: '3.8'
@@ -128,7 +128,7 @@ services:
     networks:
       - performance_network
 
-  # Perfect21应用服务
+  # Claude Enhancer应用服务
   perfect21-app:
     build:
       context: .

@@ -41,7 +41,7 @@ spec:
         fsGroup: 1000
       initContainers:
       - name: db-migration
-        image: ghcr.io/perfect21/claude-enhancer:latest
+        image: ghcr.io/claude-enhancer/system:latest
         command: ["/bin/sh"]
         args:
         - -c
@@ -59,7 +59,7 @@ spec:
           mountPath: /app/logs
       containers:
       - name: claude-enhancer
-        image: ghcr.io/perfect21/claude-enhancer:latest
+        image: ghcr.io/claude-enhancer/system:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8080

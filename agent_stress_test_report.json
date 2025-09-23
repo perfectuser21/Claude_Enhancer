@@ -1,0 +1,387 @@
+{
+  "timestamp": "2025-09-23T19:03:14.363844",
+  "test_results": {
+    "parallel_simple": {
+      "scenario": "简单任务 - 4个Agent",
+      "iterations": 3,
+      "avg_execution_time": 0.8586305777231852,
+      "max_execution_time": 0.9940171241760254,
+      "min_execution_time": 0.7514479160308838,
+      "avg_success_rate": 1.0,
+      "details": [
+        {
+          "iteration": 1,
+          "agents_used": [
+            "performance-engineer",
+            "backend-architect",
+            "frontend-specialist",
+            "security-auditor"
+          ],
+          "total_time": 0.8304266929626465,
+          "success_rate": 1.0,
+          "avg_agent_time": 0.5926745533943176
+        },
+        {
+          "iteration": 2,
+          "agents_used": [
+            "devops-engineer",
+            "ux-designer",
+            "performance-engineer",
+            "test-engineer"
+          ],
+          "total_time": 0.7514479160308838,
+          "success_rate": 1.0,
+          "avg_agent_time": 0.5917384624481201
+        },
+        {
+          "iteration": 3,
+          "agents_used": [
+            "fullstack-engineer",
+            "code-reviewer",
+            "api-designer",
+            "database-specialist"
+          ],
+          "total_time": 0.9940171241760254,
+          "success_rate": 1.0,
+          "avg_agent_time": 0.8405834436416626
+        }
+      ]
+    },
+    "parallel_standard": {
+      "scenario": "标准任务 - 6个Agent",
+      "iterations": 3,
+      "avg_execution_time": 1.4703046480814617,
+      "max_execution_time": 1.49723482131958,
+      "min_execution_time": 1.4497437477111816,
+      "avg_success_rate": 0.888888888888889,
+      "details": [
+        {
+          "iteration": 1,
+          "agents_used": [
+            "ux-designer",
+            "technical-writer",
+            "api-designer",
+            "code-reviewer",
+            "backend-architect",
+            "fullstack-engineer"
+          ],
+          "total_time": 1.4497437477111816,
+          "success_rate": 0.8333333333333334,
+          "avg_agent_time": 1.2405059734980266
+        },
+        {
+          "iteration": 2,
+          "agents_used": [
+            "database-specialist",
+            "backend-architect",
+            "frontend-specialist",
+            "fullstack-engineer",
+            "performance-engineer",
+            "code-reviewer"
+          ],
+          "total_time": 1.463935375213623,
+          "success_rate": 0.8333333333333334,
+          "avg_agent_time": 1.0951919158299763
+        },
+        {
+          "iteration": 3,
+          "agents_used": [
+            "fullstack-engineer",
+            "backend-architect",
+            "database-specialist",
+            "ux-designer",
+            "api-designer",
+            "security-auditor"
+          ],
+          "total_time": 1.49723482131958,
+          "success_rate": 1.0,
+          "avg_agent_time": 1.2950926224390666
+        }
+      ]
+    },
+    "parallel_complex": {
+      "scenario": "复杂任务 - 8个Agent",
+      "iterations": 2,
+      "avg_execution_time": 2.4294607639312744,
+      "max_execution_time": 2.4558539390563965,
+      "min_execution_time": 2.4030675888061523,
+      "avg_success_rate": 0.9375,
+      "details": [
+        {
+          "iteration": 1,
+          "agents_used": [
+            "backend-architect",
+            "ux-designer",
+            "test-engineer",
+            "frontend-specialist",
+            "security-auditor",
+            "technical-writer",
+            "performance-engineer",
+            "devops-engineer"
+          ],
+          "total_time": 2.4558539390563965,
+          "success_rate": 0.875,
+          "avg_agent_time": 2.1251257359981537
+        },
+        {
+          "iteration": 2,
+          "agents_used": [
+            "fullstack-engineer",
+            "performance-engineer",
+            "security-auditor",
+            "technical-writer",
+            "ux-designer",
+            "devops-engineer",
+            "backend-architect",
+            "frontend-specialist"
+          ],
+          "total_time": 2.4030675888061523,
+          "success_rate": 1.0,
+          "avg_agent_time": 2.124381870031357
+        }
+      ]
+    },
+    "combinations": {
+      "认证系统": {
+        "agents": [
+          "backend-architect",
+          "security-auditor",
+          "database-specialist",
+          "api-designer",
+          "test-engineer"
+        ],
+        "agent_count": 5,
+        "total_time": 1.312908411026001,
+        "avg_time_per_agent": 0.2625816822052002,
+        "success_rate": 0.8
+      },
+      "API开发": {
+        "agents": [
+          "api-designer",
+          "backend-architect",
+          "test-engineer",
+          "technical-writer"
+        ],
+        "agent_count": 4,
+        "total_time": 1.4998037815093994,
+        "avg_time_per_agent": 0.37495094537734985,
+        "success_rate": 1.0
+      },
+      "前端开发": {
+        "agents": [
+          "frontend-specialist",
+          "ux-designer",
+          "test-engineer",
+          "accessibility-auditor"
+        ],
+        "agent_count": 4,
+        "total_time": 1.358323574066162,
+        "avg_time_per_agent": 0.3395808935165405,
+        "success_rate": 1.0
+      },
+      "全栈应用": {
+        "agents": [
+          "fullstack-engineer",
+          "backend-architect",
+          "frontend-specialist",
+          "database-specialist",
+          "devops-engineer",
+          "test-engineer"
+        ],
+        "agent_count": 6,
+        "total_time": 1.4801197052001953,
+        "avg_time_per_agent": 0.24668661753336588,
+        "success_rate": 0.8333333333333334
+      }
+    },
+    "error_recovery": {
+      "total_agents": 6,
+      "successful_agents": 6,
+      "success_rate": 1.0,
+      "avg_retries": 0.6666666666666666,
+      "retry_details": {
+        "frontend-specialist": 2,
+        "test-engineer": 1,
+        "technical-writer": 0,
+        "backend-architect": 1,
+        "security-auditor": 0,
+        "code-reviewer": 0
+      }
+    },
+    "load_patterns": {
+      "steady": {
+        "pattern": [
+          6,
+          6,
+          6,
+          6,
+          6
+        ],
+        "avg_time": 0.9317834377288818,
+        "avg_throughput": 6.462868120069852,
+        "details": [
+          {
+            "step": 1,
+            "load": 6,
+            "time": 0.9948933124542236,
+            "throughput": 6.03079739796328
+          },
+          {
+            "step": 2,
+            "load": 6,
+            "time": 0.9204638004302979,
+            "throughput": 6.518452976852673
+          },
+          {
+            "step": 3,
+            "load": 6,
+            "time": 0.9935250282287598,
+            "throughput": 6.039103021588397
+          },
+          {
+            "step": 4,
+            "load": 6,
+            "time": 0.8491709232330322,
+            "throughput": 7.065715318132084
+          },
+          {
+            "step": 5,
+            "load": 6,
+            "time": 0.9008641242980957,
+            "throughput": 6.660271885812828
+          }
+        ]
+      },
+      "spike": {
+        "pattern": [
+          4,
+          4,
+          10,
+          4,
+          4
+        ],
+        "avg_time": 0.7522528171539307,
+        "avg_throughput": 6.832964191730282,
+        "details": [
+          {
+            "step": 1,
+            "load": 4,
+            "time": 0.6528351306915283,
+            "throughput": 6.127121246926344
+          },
+          {
+            "step": 2,
+            "load": 4,
+            "time": 0.857053279876709,
+            "throughput": 4.667154416088832
+          },
+          {
+            "step": 3,
+            "load": 10,
+            "time": 0.8275699615478516,
+            "throughput": 12.083570531361996
+          },
+          {
+            "step": 4,
+            "load": 4,
+            "time": 0.7590413093566895,
+            "throughput": 5.269805412027075
+          },
+          {
+            "step": 5,
+            "load": 4,
+            "time": 0.664764404296875,
+            "throughput": 6.017169352247166
+          }
+        ]
+      },
+      "gradual": {
+        "pattern": [
+          2,
+          4,
+          6,
+          8,
+          10
+        ],
+        "avg_time": 0.9177136421203613,
+        "avg_throughput": 6.341383917540327,
+        "details": [
+          {
+            "step": 1,
+            "load": 2,
+            "time": 0.7257547378540039,
+            "throughput": 2.7557519030655353
+          },
+          {
+            "step": 2,
+            "load": 4,
+            "time": 0.9848806858062744,
+            "throughput": 4.061405668368238
+          },
+          {
+            "step": 3,
+            "load": 6,
+            "time": 0.9001548290252686,
+            "throughput": 6.665519982264708
+          },
+          {
+            "step": 4,
+            "load": 8,
+            "time": 0.9987568855285645,
+            "throughput": 8.009957293827538
+          },
+          {
+            "step": 5,
+            "load": 10,
+            "time": 0.9790210723876953,
+            "throughput": 10.214284740175612
+          }
+        ]
+      },
+      "random": {
+        "pattern": [
+          5,
+          8,
+          7,
+          6,
+          3
+        ],
+        "avg_time": 0.9261680603027344,
+        "avg_throughput": 6.256673170845678,
+        "details": [
+          {
+            "step": 1,
+            "load": 5,
+            "time": 0.8057742118835449,
+            "throughput": 6.205212237200051
+          },
+          {
+            "step": 2,
+            "load": 8,
+            "time": 0.9724290370941162,
+            "throughput": 8.226821387302653
+          },
+          {
+            "step": 3,
+            "load": 7,
+            "time": 1.0000824928283691,
+            "throughput": 6.999422597832954
+          },
+          {
+            "step": 4,
+            "load": 6,
+            "time": 0.891474723815918,
+            "throughput": 6.730420773252288
+          },
+          {
+            "step": 5,
+            "load": 3,
+            "time": 0.9610798358917236,
+            "throughput": 3.121488858640442
+          }
+        ]
+      }
+    }
+  },
+  "recommendations": []
+}

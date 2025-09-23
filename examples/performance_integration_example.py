@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Perfect21 Performance Optimization Integration Example
+Claude Enhancer Performance Optimization Integration Example
 性能优化系统集成使用示例
 """
 
@@ -31,7 +31,9 @@ performance_manager: PerformanceManager = None
 
 # 创建FastAPI应用
 app = FastAPI(
-    title="Perfect21 Performance Demo API", description="展示性能优化系统的完整集成", version="1.0.0"
+    title="Claude Enhancer Performance Demo API",
+    description="展示性能优化系统的完整集成",
+    version="1.0.0",
 )
 
 
@@ -71,7 +73,7 @@ async def shutdown_event():
 async def root():
     """根端点"""
     return {
-        "service": "Perfect21 Performance Demo API",
+        "service": "Claude Enhancer Performance Demo API",
         "status": "running",
         "timestamp": time.time(),
         "performance_enabled": performance_manager is not None,
@@ -358,7 +360,7 @@ async def performance_monitoring_middleware(request: Request, call_next):
 
 async def run_demo():
     """运行演示"""
-    # print("🚀 Perfect21 Performance Integration Demo")
+    # print("🚀 Claude Enhancer Performance Integration Demo")
     # print("=" * 50)
 
     # 等待服务启动
@@ -417,7 +419,7 @@ if __name__ == "__main__":
         asyncio.run(run_demo())
     else:
         # 启动服务器
-        # print("🚀 Starting Perfect21 Performance Demo API...")
+        # print("🚀 Starting Claude Enhancer Performance Demo API...")
         # print("📊 Performance Dashboard: http://localhost:8000/")
         # print("🌐 API Endpoint: http://localhost:8080/")
         # print("📈 API Stats: http://localhost:8080/api/stats")

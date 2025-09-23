@@ -1,0 +1,77 @@
+# Configuration Migration Mapping
+# Maps legacy config sections to unified config structure
+
+version: "2.0.0"
+description: "Migration mapping from legacy configs to unified structure"
+
+mappings:
+  # From config.yaml
+  config_yaml:
+    source: ".claude/hooks/config.yaml"
+    mappings:
+      "rules" -> "agents.validation"
+      "task_types" -> "task_types"
+      "logging" -> "logging"
+      "whitelist" -> "whitelist"
+
+  # From enhancer_config.yaml
+  enhancer_config_yaml:
+    source: ".claude/hooks/enhancer_config.yaml"
+    mappings:
+      "hooks" -> "hooks"
+      "task_types" -> "task_types" # merge with existing
+      "execution_modes" -> "agents.execution"
+      "quality_gates" -> "quality_gates"
+      "logging" -> "logging" # merge with existing
+      "performance" -> "performance"
+      "integrations" -> "integrations"
+      "notifications" -> "notifications"
+
+  # From task_agent_mapping.yaml
+  task_agent_mapping_yaml:
+    source: ".claude/hooks/task_agent_mapping.yaml"
+    mappings:
+      "task_types" -> "task_types" # merge with existing
+      "execution_modes" -> "agents.execution" # merge
+      "quality_gates" -> "quality_gates" # merge
+
+  # From settings.json
+  settings_json:
+    source: ".claude/settings.json"
+    mappings:
+      "hooks" -> "hooks" # merge with existing
+      "environment" -> "environments"
+
+conflicts:
+  # Task type conflicts - resolution strategy
+  task_types:
+    authentication:
+      resolution: "merge_comprehensive"
+      strategy: "take_highest_agent_count"
+
+    api_development:
+      resolution: "merge_comprehensive"
+      strategy: "take_highest_agent_count"
+
+  # Hook conflicts - resolution strategy
+  hooks:
+    smart_agent_selector:
+      resolution: "merge_configurations"
+      strategy: "preserve_all_features"
+
+merge_strategies:
+  agent_counts:
+    strategy: "take_maximum"
+    reason: "Safety and quality assurance"
+
+  quality_gates:
+    strategy: "merge_all"
+    reason: "Comprehensive quality checking"
+
+  integrations:
+    strategy: "preserve_all"
+    reason: "Maintain all existing integrations"
+
+  security_settings:
+    strategy: "take_most_restrictive"
+    reason: "Security best practices"

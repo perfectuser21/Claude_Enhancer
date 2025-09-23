@@ -326,7 +326,7 @@ async def config_handler(request):
         return web.json_response(cached_config)
 
     config = {
-        'app_name': 'Perfect21 Mock Server',
+        'app_name': 'Claude Enhancer Mock Server',
         'version': '1.0.0',
         'environment': 'test',
         'features': {
@@ -441,8 +441,8 @@ async def init_app():
 
 async def main():
     """主函数"""
-    # print("🚀 启动Perfect21模拟性能测试服务器")
-    # print("=" * 50)
+    print("🚀 启动Claude Enhancer模拟性能测试服务器")
+    print("=" * 50)
 
     app = await init_app()
 

@@ -1,6 +1,6 @@
 {
   "version": "3.0.0",
-  "project": "Perfect21 - Advisory Mode",
+  "project": "Claude Enhancer - Advisory Mode",
   "description": "Hooks提供建议但不阻止执行",
   "hooks": {
     "PreToolUse": [
@@ -24,7 +24,7 @@
     "UserPromptSubmit": [
       {
         "type": "command",
-        "command": "echo '🎯 Perfect21 Workflow Active (Advisory Mode)' >&2",
+        "command": "echo '🎯 Claude Enhancer Workflow Active (Advisory Mode)' >&2",
         "description": "Workflow提示",
         "timeout": 1000
       }

@@ -1,5 +1,5 @@
 """
-Perfect21 Performance Optimization Core Module
+Claude Enhancer Performance Optimization Core Module
 性能优化核心模块 - 统一导出所有性能优化组件
 """
 
@@ -65,8 +65,8 @@ __all__ = [
 
 # 版本信息
 __version__ = "1.0.0"
-__author__ = "Perfect21 Performance Team"
-__description__ = "Enterprise-grade performance optimization system for Perfect21"
+__author__ = "Claude Enhancer Performance Team"
+__description__ = "Enterprise-grade performance optimization system for Claude Enhancer"
 
 # 默认配置
 DEFAULT_CONFIG = {
@@ -231,7 +231,7 @@ async def quick_start(
         # 获取性能管理器
         manager = await get_performance_manager(service_name, config_file)
 
-        # print(f"✅ Perfect21 Performance System started for {service_name}")
+        # print(f"✅ Claude Enhancer Performance System started for {service_name}")
         # print(f"📊 Dashboard available at: http://localhost:8000/ (if enabled)")
         # print(f"📈 Metrics export: {manager.config.metrics.export_file}")
         # print(f"🎯 Performance score calculation: Active")

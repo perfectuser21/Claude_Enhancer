@@ -1,0 +1,33 @@
+{
+  "version": "4.0.0",
+  "project": "Claude Enhancer - Enforcement Loop System",
+  "description": "\u5f3a\u5236\u5faa\u73af\u76f4\u5230\u7b26\u5408\u6807\u51c6",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Task",
+        "type": "command",
+        "command": "bash .claude/hooks/smart_agent_selector.sh",
+        "description": "智能Agent选择器 - 4-6-8策略",
+        "timeout": 5000
+      }
+    ],
+    "PostToolUse": [],
+    "UserPromptSubmit": [
+      {
+        "type": "command",
+        "command": "bash .claude/hooks/branch_helper.sh",
+        "description": "Branch检查和工作流提醒",
+        "timeout": 1000
+      }
+    ]
+  },
+  "environment": {
+    "CLAUDE_ENHANCER_MODE": "enforcement",
+    "MIN_AGENTS": "3",
+    "MAX_RETRIES": "3",
+    "ENFORCE_PARALLEL": "true",
+    "CLAUDE_ENHANCER_BACKEND": "new",
+    "CLAUDE_ENHANCER_API_MODE": "integrated"
+  }
+}

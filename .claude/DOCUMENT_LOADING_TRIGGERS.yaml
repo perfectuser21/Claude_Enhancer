@@ -1,0 +1,349 @@
+# 📋 Claude Enhancer文档智能加载触发器配置
+# 定义什么情况下加载哪些文档，避免上下文污染
+
+# 🎯 核心原则
+# P0: 必须加载（每次任务）- 核心工作流文档
+# P1: 高频加载（大部分任务）- 常用策略文档
+# P2: 条件加载（特定场景）- 架构和专业文档
+# P3: 罕见加载（故障排查）- 问题解决文档
+
+# =====================================
+# 📊 Priority Level 0 - 必须加载
+# =====================================
+P0_CRITICAL:
+  trigger_condition: "ALWAYS"  # 任何任务都加载
+  max_tokens: 5000
+  documents:
+    WORKFLOW.md:
+      description: "8-Phase工作流框架"
+      size_tokens: 2000
+      categories: ["workflow", "core", "phase"]
+      always_load: true
+
+    AGENT_STRATEGY.md:
+      description: "4-6-8 Agent策略"
+      size_tokens: 1500
+      categories: ["agent", "strategy", "core"]
+      always_load: true
+
+    SAFETY_RULES.md:
+      description: "安全规则和限制"
+      size_tokens: 1200
+      categories: ["safety", "rules", "protection"]
+      always_load: true
+
+# =====================================
+# 📈 Priority Level 1 - 高频加载
+# =====================================
+P1_HIGH_FREQUENCY:
+  trigger_condition: "phase >= 1 OR complexity != 'simple'"
+  max_tokens: 8000
+  documents:
+    PHASE_AGENT_STRATEGY.md:
+      description: "Phase与Agent映射策略"
+      size_tokens: 1800
+      categories: ["phase", "agent", "mapping"]
+      triggers:
+        phases: [1, 2, 3]
+        task_types: ["新功能开发", "标准任务"]
+
+    SELF_CHECK_MECHANISM.md:
+      description: "自检机制和质量控制"
+      size_tokens: 1000
+      categories: ["quality", "check", "validation"]
+      triggers:
+        phases: [3, 4, 5]
+        keywords: ["质量", "检查", "验证"]
+
+    OUTPUT_CONTROL_STRATEGY.md:
+      description: "输出长度和格式控制"
+      size_tokens: 800
+      categories: ["output", "control", "format"]
+      triggers:
+        always_after_phase: 2
+
+# =====================================
+# 🏗️ Priority Level 2 - 架构条件加载
+# =====================================
+P2_ARCHITECTURE:
+  trigger_condition: "architecture_needs = true"
+  max_tokens: 15000
+  documents:
+    ARCHITECTURE/v2.0-FOUNDATION.md:
+      description: "四层架构基础定义"
+      size_tokens: 3000
+      categories: ["architecture", "foundation", "design"]
+      triggers:
+        keywords: ["架构", "重构", "设计", "系统", "基础"]
+        task_types: ["架构设计", "重构优化", "新功能开发"]
+        complexity: ["标准", "复杂"]
+
+    ARCHITECTURE/LAYER-DEFINITION.md:
+      description: "L0-L3层详细定义"
+      size_tokens: 2500
+      categories: ["architecture", "layers", "dependencies"]
+      triggers:
+        keywords: ["分层", "L0", "L1", "L2", "L3", "依赖", "层级"]
+        task_types: ["架构设计", "重构优化"]
+        conditions:
+          - "new_module = true"
+          - "layer_decision = true"
+
+    ARCHITECTURE/GROWTH-STRATEGY.md:
+      description: "Feature分级和成长策略"
+      size_tokens: 2000
+      categories: ["architecture", "growth", "features"]
+      triggers:
+        keywords: ["新功能", "feature", "分级", "basic", "standard", "advanced"]
+        task_types: ["新功能开发"]
+        conditions:
+          - "new_feature = true"
+          - "feature_classification = true"
+
+    ARCHITECTURE/NAMING-CONVENTIONS.md:
+      description: "命名规范和约定"
+      size_tokens: 1500
+      categories: ["architecture", "naming", "conventions"]
+      triggers:
+        keywords: ["命名", "规范", "约定", "文件名", "变量"]
+        phases: [2, 3]
+        task_types: ["新功能开发", "重构优化"]
+
+# =====================================
+# 🤖 Priority Level 2 - 专业Agent加载
+# =====================================
+P2_AGENT_SPECIALISTS:
+  trigger_condition: "tech_stack_detected OR phase = 3"
+  max_tokens: 6000
+
+  # 后端技术栈
+  backend_stack:
+    triggers:
+      tech_keywords: ["python", "golang", "java", "backend", "api", "数据库"]
+      task_types: ["新功能开发", "Bug修复", "性能优化"]
+    documents:
+      - "agents/backend-architect.md"
+      - "agents/backend-engineer.md"
+      - "agents/database-specialist.md"
+
+  # 前端技术栈
+  frontend_stack:
+    triggers:
+      tech_keywords: ["react", "vue", "angular", "frontend", "ui", "界面"]
+      task_types: ["新功能开发", "Bug修复", "UI优化"]
+    documents:
+      - "agents/frontend-engineer.md"
+      - "agents/react-pro.md"
+      - "agents/vue-specialist.md"
+
+  # 测试相关
+  testing_stack:
+    triggers:
+      tech_keywords: ["测试", "test", "unit", "integration", "e2e"]
+      task_types: ["测试相关", "质量保证"]
+      phases: [4, 5]
+    documents:
+      - "agents/test-engineer.md"
+      - "agents/e2e-test-specialist.md"
+      - "agents/performance-tester.md"
+
+  # 安全相关
+  security_stack:
+    triggers:
+      tech_keywords: ["安全", "security", "权限", "认证", "加密"]
+      task_types: ["安全审计", "新功能开发"]
+      security_needs: true
+    documents:
+      - "agents/security-auditor.md"
+
+  # DevOps相关
+  devops_stack:
+    triggers:
+      tech_keywords: ["部署", "docker", "kubernetes", "CI/CD", "运维"]
+      task_types: ["部署运维", "性能优化"]
+    documents:
+      - "agents/devops-engineer.md"
+      - "agents/kubernetes-expert.md"
+      - "agents/deployment-manager.md"
+
+# =====================================
+# 🚨 Priority Level 3 - 罕见加载
+# =====================================
+P3_RARE_CASES:
+  trigger_condition: "explicit_request OR troubleshooting = true"
+  max_tokens: 5000
+  documents:
+    ISSUES_AND_SOLUTIONS.md:
+      description: "问题排查和解决方案"
+      size_tokens: 1800
+      categories: ["troubleshooting", "problems", "solutions"]
+      triggers:
+        keywords: ["问题", "错误", "故障", "排查", "解决", "issue"]
+        task_types: ["Bug修复", "故障排查"]
+        explicit_request: true
+
+    CLEANUP_STRATEGY.md:
+      description: "清理策略和维护"
+      size_tokens: 1200
+      categories: ["cleanup", "maintenance", "optimization"]
+      triggers:
+        keywords: ["清理", "维护", "cleanup", "optimize"]
+        phases: [0, 5, 7]  # 开始、提交、部署阶段
+        explicit_request: true
+
+    CONSISTENCY_ISSUES.md:
+      description: "一致性问题处理"
+      size_tokens: 1000
+      categories: ["consistency", "conflicts", "resolution"]
+      triggers:
+        keywords: ["一致性", "冲突", "consistency", "conflict"]
+        explicit_request: true
+
+# =====================================
+# 🎮 智能触发规则
+# =====================================
+SMART_TRIGGERS:
+  # Phase-based触发
+  phase_triggers:
+    phase_0:  # 分支创建
+      required: ["WORKFLOW.md", "AGENT_STRATEGY.md"]
+      optional: ["CLEANUP_STRATEGY.md"]
+
+    phase_1:  # 需求分析
+      required: ["WORKFLOW.md", "AGENT_STRATEGY.md", "PHASE_AGENT_STRATEGY.md"]
+      conditional:
+        - if: "complex_task"
+          then: ["ARCHITECTURE/GROWTH-STRATEGY.md"]
+
+    phase_2:  # 设计规划
+      required: ["WORKFLOW.md", "AGENT_STRATEGY.md", "PHASE_AGENT_STRATEGY.md"]
+      conditional:
+        - if: "new_feature OR architecture_change"
+          then: ["ARCHITECTURE/v2.0-FOUNDATION.md", "ARCHITECTURE/LAYER-DEFINITION.md"]
+        - if: "naming_decisions"
+          then: ["ARCHITECTURE/NAMING-CONVENTIONS.md"]
+
+    phase_3:  # 实现开发
+      required: ["WORKFLOW.md", "AGENT_STRATEGY.md", "SAFETY_RULES.md"]
+      conditional:
+        - if: "tech_stack_detected"
+          then: "load_relevant_agent_docs"
+        - if: "security_sensitive"
+          then: ["agents/security-auditor.md"]
+
+    phase_4:  # 本地测试
+      required: ["WORKFLOW.md", "SELF_CHECK_MECHANISM.md"]
+      conditional:
+        - if: "testing_focus"
+          then: ["agents/test-engineer.md", "agents/e2e-test-specialist.md"]
+
+    phase_5:  # 代码提交
+      required: ["WORKFLOW.md", "SAFETY_RULES.md", "OUTPUT_CONTROL_STRATEGY.md"]
+      optional: ["CLEANUP_STRATEGY.md"]
+
+  # 任务类型触发
+  task_type_triggers:
+    "新功能开发":
+      priority_docs: ["ARCHITECTURE/GROWTH-STRATEGY.md", "ARCHITECTURE/LAYER-DEFINITION.md"]
+      agent_categories: ["backend", "frontend", "testing"]
+
+    "Bug修复":
+      priority_docs: ["ISSUES_AND_SOLUTIONS.md"]
+      agent_categories: ["testing", "debugging"]
+      complexity_override: "simple"  # 通常使用4个Agent
+
+    "重构优化":
+      priority_docs: ["ARCHITECTURE/v2.0-FOUNDATION.md", "ARCHITECTURE/LAYER-DEFINITION.md"]
+      agent_categories: ["backend", "architecture"]
+
+    "安全审计":
+      priority_docs: ["SAFETY_RULES.md"]
+      agent_categories: ["security"]
+      required_agents: ["security-auditor"]
+
+  # 关键词触发映射
+  keyword_triggers:
+    architecture_keywords:
+      words: ["架构", "重构", "设计", "分层", "模块"]
+      docs: ["ARCHITECTURE/v2.0-FOUNDATION.md", "ARCHITECTURE/LAYER-DEFINITION.md"]
+
+    security_keywords:
+      words: ["安全", "权限", "认证", "加密", "漏洞"]
+      docs: ["SAFETY_RULES.md", "agents/security-auditor.md"]
+
+    performance_keywords:
+      words: ["性能", "优化", "缓存", "慢查询", "内存"]
+      docs: ["agents/performance-engineer.md", "CLEANUP_STRATEGY.md"]
+
+    testing_keywords:
+      words: ["测试", "test", "单元测试", "集成测试"]
+      docs: ["agents/test-engineer.md", "agents/e2e-test-specialist.md"]
+
+# =====================================
+# 🔧 加载优化配置
+# =====================================
+LOADING_OPTIMIZATION:
+  # Token限制
+  token_limits:
+    simple_task: 15000      # 简单任务Token限制
+    standard_task: 30000    # 标准任务Token限制
+    complex_task: 50000     # 复杂任务Token限制
+    architecture_task: 60000 # 架构任务Token限制
+
+  # 缓存策略
+  cache_strategy:
+    permanent_cache:        # 永久缓存（除非文档更新）
+      - "WORKFLOW.md"
+      - "AGENT_STRATEGY.md"
+      - "SAFETY_RULES.md"
+
+    session_cache:          # 会话期间缓存
+      - "PHASE_AGENT_STRATEGY.md"
+      - "SELF_CHECK_MECHANISM.md"
+      - "OUTPUT_CONTROL_STRATEGY.md"
+
+    temporary_cache:        # 临时缓存（用完即清）
+      - "ISSUES_AND_SOLUTIONS.md"
+      - "CLEANUP_STRATEGY.md"
+      - "agents/*.md"
+
+  # 预加载策略
+  preload_strategy:
+    phase_prediction:       # 根据Phase预测下个阶段需要的文档
+      enabled: true
+      lookahead: 1          # 预测下1个Phase
+
+    pattern_learning:       # 根据历史使用模式学习
+      enabled: true
+      confidence_threshold: 0.8
+
+# =====================================
+# 📊 监控和统计
+# =====================================
+MONITORING:
+  metrics:
+    - "documents_loaded_per_task"
+    - "token_usage_per_task"
+    - "cache_hit_rate"
+    - "loading_time_ms"
+    - "user_satisfaction_score"
+
+  optimization_triggers:
+    - "token_usage > limit"
+    - "cache_miss_rate > 30%"
+    - "loading_time > 1000ms"
+    - "satisfaction_score < 0.8"
+
+# =====================================
+# 🚀 未来扩展点
+# =====================================
+FUTURE_EXTENSIONS:
+  ai_driven_optimization:
+    - "自动学习最佳文档组合"
+    - "动态调整触发条件"
+    - "预测用户需求"
+
+  contextual_compression:
+    - "智能文档摘要"
+    - "关键信息提取"
+    - "动态内容过滤"

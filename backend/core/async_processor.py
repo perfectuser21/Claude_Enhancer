@@ -438,7 +438,7 @@ class AsyncProcessor:
                     json=payload,
                     headers={
                         "Content-Type": "application/json",
-                        "User-Agent": "Perfect21-AsyncProcessor/1.0",
+                        "User-Agent": "Claude Enhancer-AsyncProcessor/1.0",
                         **headers,
                     },
                 ) as response:

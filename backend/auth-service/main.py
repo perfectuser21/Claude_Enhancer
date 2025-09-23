@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Perfect21 认证服务 - 主入口文件
+Claude Enhancer 认证服务 - 主入口文件
 企业级认证系统的核心服务
 """
 
@@ -61,7 +61,7 @@ async def startup_event():
     """应用启动事件"""
     global database_manager, cache_manager, message_publisher, metrics_collector, grpc_server
 
-    logger.info("🚀 Starting Perfect21 Auth Service...")
+    logger.info("🚀 Starting Claude Enhancer Auth Service...")
 
     try:
         # 1. 初始化数据库连接
@@ -107,7 +107,7 @@ async def startup_event():
 
 async def shutdown_event():
     """应用关闭事件"""
-    logger.info("🛑 Shutting down Perfect21 Auth Service...")
+    logger.info("🛑 Shutting down Claude Enhancer Auth Service...")
 
     try:
         # 关闭gRPC服务器
@@ -134,7 +134,7 @@ async def shutdown_event():
 
 # 创建FastAPI应用
 app = FastAPI(
-    title="Perfect21 Authentication Service",
+    title="Claude Enhancer Authentication Service",
     description="企业级认证系统 - 提供JWT认证、多因子认证、权限管理等功能",
     version="2.0.0",
     docs_url="/docs" if settings.DEBUG else None,
@@ -298,7 +298,7 @@ async def get_metrics():
 async def root():
     """根端点"""
     return {
-        "service": "Perfect21 Authentication Service",
+        "service": "Claude Enhancer Authentication Service",
         "version": "2.0.0",
         "status": "running",
         "timestamp": datetime.utcnow().isoformat(),

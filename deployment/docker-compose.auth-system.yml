@@ -1,4 +1,4 @@
-# Perfect21 企业级认证系统 - Docker Compose 部署配置
+# Claude Enhancer 企业级认证系统 - Docker Compose 部署配置
 # 包含完整的微服务架构和基础设施组件
 
 version: '3.8'

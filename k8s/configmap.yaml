@@ -1,5 +1,5 @@
 # =============================================================================
-# ConfigMap for Perfect21 Claude Enhancer
+# ConfigMap for Claude Enhancer Claude Enhancer
 # Contains non-sensitive configuration data
 # =============================================================================
 apiVersion: v1

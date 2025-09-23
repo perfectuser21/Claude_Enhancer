@@ -1,0 +1,31 @@
+# Claude Enhancer 智能文档加载配置
+# 根据任务自动判断需要加载的文档
+
+smart_loading:
+  enabled: true
+  default_docs:
+    - "CLAUDE.md"  # 项目配置（始终加载）
+
+  trigger_patterns:
+    architecture:
+      keywords: ["架构", "重构", "设计", "architecture", "design"]
+      load_docs: ["ARCHITECTURE.md"]
+
+    workflow:
+      keywords: ["工作流", "phase", "流程", "workflow"]
+      load_docs: ["WORKFLOW.md"]
+
+    agents:
+      keywords: ["agent", "智能", "ai", "并行"]
+      load_docs: ["AGENTS.md"]
+
+    troubleshooting:
+      keywords: ["问题", "错误", "调试", "fix", "debug", "troubleshoot"]
+      load_docs: ["TROUBLESHOOTING.md"]
+
+    full_system:
+      keywords: ["新功能", "系统", "完整", "全面"]
+      load_docs: ["README.md", "ARCHITECTURE.md", "WORKFLOW.md"]
+
+  max_context_size: 100000  # 最大上下文大小
+  cache_duration: 3600      # 缓存时间（秒）

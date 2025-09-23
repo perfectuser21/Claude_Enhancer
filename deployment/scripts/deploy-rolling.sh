@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================================
-# Rolling Deployment Script for Perfect21 Claude Enhancer
+# Rolling Deployment Script for Claude Enhancer Claude Enhancer
 # Standard Kubernetes rolling update with health verification
 # =============================================================================
 

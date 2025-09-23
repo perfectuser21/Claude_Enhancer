@@ -1,4 +1,4 @@
-# Perfect21 认证服务依赖包
+# Claude Enhancer 认证服务依赖包
 # 企业级认证系统所需的核心依赖
 
 # Web框架

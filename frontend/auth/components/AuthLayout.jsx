@@ -52,7 +52,7 @@ const AuthLayout = ({ initialView = 'login' }) => {
           <div className="auth-container">
             <div className="auth-brand">
               <div className="brand-logo">
-                <h1>Perfect21</h1>
+                <h1>Claude Enhancer</h1>
               </div>
               <div className="brand-tagline">
                 <p>Secure authentication for modern applications</p>

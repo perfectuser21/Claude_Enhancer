@@ -9,15 +9,15 @@ Git Worktree允许你同时在多个分支上工作，无需频繁切换分支�
 当需要同时处理多个功能时，自动创建worktree：
 ```bash
 # 主仓库：feature/auth
-# Worktree 1：feature/api → ../Perfect21-api
-# Worktree 2：feature/test → ../Perfect21-test
+# Worktree 1：feature/api → ../Claude Enhancer-api
+# Worktree 2：feature/test → ../Claude Enhancer-test
 ```
 
 ### 2. 紧急修复
 在开发功能时需要紧急修复bug：
 ```bash
 # 自动创建hotfix worktree
-git worktree add ../Perfect21-hotfix hotfix/critical-bug
+git worktree add ../Claude Enhancer-hotfix hotfix/critical-bug
 # 修复完成后自动清理
 ```
 
@@ -25,7 +25,7 @@ git worktree add ../Perfect21-hotfix hotfix/critical-bug
 审查PR时不影响当前工作：
 ```bash
 # 创建review worktree
-git worktree add ../Perfect21-review origin/pr/123
+git worktree add ../Claude Enhancer-review origin/pr/123
 ```
 
 ## 智能提示
@@ -48,10 +48,10 @@ Claude Enhancer会在以下情况提醒使用worktree：
 git worktree list
 
 # 添加新worktree
-git worktree add ../Perfect21-[branch-name] [branch]
+git worktree add ../Claude Enhancer-[branch-name] [branch]
 
 # 删除worktree
-git worktree remove ../Perfect21-[branch-name]
+git worktree remove ../Claude Enhancer-[branch-name]
 
 # 清理废弃worktree
 git worktree prune

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Perfect21 Configuration Migration Tool
+Claude Enhancer Configuration Migration Tool
 =====================================
 
 Migrates legacy configuration files to the new unified format.
@@ -10,7 +10,7 @@ Supports migration from:
 - enhancer_config.yaml (Enhancer-specific settings)
 - task_agent_mapping.yaml (Task-agent mappings)
 
-Author: Perfect21 System (DevOps Engineer & System Architect)
+Author: Claude Enhancer System (DevOps Engineer & System Architect)
 Version: 1.0.0
 """
 
@@ -165,13 +165,13 @@ class ConfigMigrator:
         return {
             "metadata": {
                 "version": "1.0.0",
-                "name": "Perfect21 Configuration System",
+                "name": "Claude Enhancer Configuration System",
                 "description": "Migrated from legacy configuration files",
                 "last_updated": datetime.now().isoformat(),
                 "schema_version": "1.0"
             },
             "system": {
-                "name": "Perfect21 Claude Enhancer",
+                "name": "Claude Enhancer Claude Enhancer",
                 "mode": "enforcement",
                 "version": "4.0.0",
                 "description": "强制循环直到符合标准"
@@ -558,7 +558,7 @@ def main():
     """CLI interface for migration tool."""
     import argparse
 
-    parser = argparse.ArgumentParser(description="Perfect21 Configuration Migration Tool")
+    parser = argparse.ArgumentParser(description="Claude Enhancer Configuration Migration Tool")
     parser.add_argument("--project-root", help="Project root directory")
     parser.add_argument("--no-backup", action="store_true", help="Skip backing up original files")
     parser.add_argument("--cleanup", action="store_true", help="Clean up legacy files after migration")

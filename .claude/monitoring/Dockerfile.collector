@@ -1,0 +1,30 @@
+# =============================================================================
+# Claude Enhancer Performance Collector Docker镜像
+# =============================================================================
+
+FROM python:3.11-slim
+
+# 设置工作目录
+WORKDIR /app
+
+# 安装系统依赖
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# 安装Python依赖
+COPY requirements.collector.txt .
+RUN pip install --no-cache-dir -r requirements.collector.txt
+
+# 复制收集器应用
+COPY performance_collector.py .
+
+# 创建必要目录
+RUN mkdir -p /app/.claude/logs /app/.claude/data
+
+# 设置环境变量
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+
+# 启动收集器
+CMD ["python", "performance_collector.py"]

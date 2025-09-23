@@ -1,5 +1,5 @@
 """
-Perfect21 认证API依赖注入
+Claude Enhancer 认证API依赖注入
 提供认证和授权相关的依赖项
 """
 

@@ -1,8 +1,8 @@
-# Perfect21 Authentication API Quick Start Guide
+# Claude Enhancer Authentication API Quick Start Guide
 
 ## 🚀 Quick Start
 
-This guide helps you get started with the Perfect21 Authentication API in 5 minutes.
+This guide helps you get started with the Claude Enhancer Authentication API in 5 minutes.
 
 ## 📋 Prerequisites
 

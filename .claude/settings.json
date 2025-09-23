@@ -1,33 +1,132 @@
 {
   "version": "4.0.0",
-  "project": "Claude Enhancer - Enforcement Loop System",
-  "description": "\u5f3a\u5236\u5faa\u73af\u76f4\u5230\u7b26\u5408\u6807\u51c6",
+  "project": "Perfect21 - Secure Hook System",
+  "description": "\u5b89\u5168\u4f18\u5316\u7684Hook\u7cfb\u7edf\uff0c\u53ea\u4fdd\u7559\u5fc5\u8981\u529f\u80fd",
+  "architecture": {
+    "version": "v2.0",
+    "documentation": ".claude/ARCHITECTURE/INDEX.md",
+    "auto_load_docs": [
+      ".claude/ARCHITECTURE_LOADER.md",
+      ".claude/ARCHITECTURE/INDEX.md"
+    ]
+  },
   "hooks": {
     "PreToolUse": [
       {
         "matcher": "Task",
         "type": "command",
         "command": "bash .claude/hooks/smart_agent_selector.sh",
-        "description": "智能Agent选择器 - 4-6-8策略",
-        "timeout": 5000
+        "description": "\u667a\u80fdAgent\u9009\u62e9\u5efa\u8bae - \u5b89\u5168\u7248\u672c",
+        "timeout": 3000,
+        "blocking": false
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "type": "command",
+        "command": "bash .claude/hooks/code_writing_check.sh",
+        "description": "\u68c0\u67e5\u662f\u5426\u5e94\u8be5\u7528Task\u800c\u4e0d\u662f\u76f4\u63a5\u5199\u4ee3\u7801",
+        "timeout": 2000,
+        "blocking": false
+      },
+      {
+        "matcher": ".*",
+        "type": "command",
+        "command": "bash .claude/hooks/quality_gate.sh",
+        "description": "\u8d28\u91cf\u95e8\u7981\u68c0\u67e5 - \u5efa\u8bae\u6027",
+        "timeout": 2000,
+        "blocking": false
       }
     ],
-    "PostToolUse": [],
+    "PostToolUse": [
+      {
+        "matcher": ".*",
+        "type": "command",
+        "command": "bash .claude/hooks/performance_monitor.sh",
+        "description": "\u6027\u80fd\u76d1\u63a7 - \u975e\u963b\u585e",
+        "timeout": 500,
+        "blocking": false
+      },
+      {
+        "matcher": ".*error.*",
+        "type": "command",
+        "command": "bash .claude/hooks/error_handler.sh",
+        "description": "\u9519\u8bef\u5904\u7406\u52a9\u624b - \u975e\u963b\u585e",
+        "timeout": 500,
+        "blocking": false
+      }
+    ],
     "UserPromptSubmit": [
       {
         "type": "command",
-        "command": "bash .claude/hooks/branch_helper.sh",
-        "description": "Branch检查和工作流提醒",
-        "timeout": 1000
+        "command": "bash .claude/hooks/task_type_detector.sh",
+        "description": "\u4efb\u52a1\u7c7b\u578b\u68c0\u6d4b\u548c\u5de5\u4f5c\u6d41\u63d0\u9192",
+        "timeout": 1000,
+        "blocking": false
+      },
+      {
+        "type": "command",
+        "command": "bash .claude/hooks/smart_git_workflow.sh",
+        "description": "\u667a\u80fdGit\u5de5\u4f5c\u6d41\u52a9\u624b",
+        "timeout": 2000,
+        "blocking": false
+      },
+      {
+        "type": "command",
+        "command": "bash .claude/hooks/smart_cleanup_advisor.sh",
+        "description": "\u667a\u80fd\u6e05\u7406\u987e\u95ee",
+        "timeout": 1500,
+        "blocking": false
       }
+    ],
+    "performance_monitor": {
+      "script": "optimized_performance_monitor.sh",
+      "blocking": false,
+      "timeout": 100,
+      "enabled": true
+    },
+    "agent_selector": {
+      "script": "ultra_fast_agent_selector.sh",
+      "blocking": false,
+      "timeout": 50,
+      "enabled": true
+    },
+    "error_recovery": {
+      "script": "smart_error_recovery.sh",
+      "blocking": false,
+      "timeout": 200,
+      "enabled": true
+    },
+    "concurrent_optimizer": {
+      "script": "concurrent_optimizer.sh",
+      "blocking": false,
+      "timeout": 150,
+      "enabled": true
+    }
+  },
+  "security": {
+    "hook_security_enabled": true,
+    "forbidden_operations": [
+      "modify_user_input",
+      "block_execution",
+      "hijack_workflow",
+      "infinite_loops"
+    ],
+    "allowed_hook_types": [
+      "advisory",
+      "validation",
+      "notification"
     ]
   },
   "environment": {
-    "CLAUDE_ENHANCER_MODE": "enforcement",
+    "CLAUDE_ENHANCER_MODE": "advisory",
     "MIN_AGENTS": "3",
-    "MAX_RETRIES": "3",
-    "ENFORCE_PARALLEL": "true",
-    "CLAUDE_ENHANCER_BACKEND": "new",
-    "CLAUDE_ENHANCER_API_MODE": "integrated"
+    "HOOK_SECURITY": "enabled",
+    "HOOK_BLOCKING": "false"
+  },
+  "performance": {
+    "max_concurrent_hooks": 4,
+    "hook_timeout_ms": 200,
+    "enable_caching": true,
+    "enable_parallel_execution": true
   }
 }

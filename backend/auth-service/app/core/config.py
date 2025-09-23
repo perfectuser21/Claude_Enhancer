@@ -1,5 +1,5 @@
 """
-Perfect21 认证服务配置模块
+Claude Enhancer 认证服务配置模块
 统一管理所有配置参数
 """
 
@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     """应用配置"""
 
     # 应用基础配置
-    APP_NAME: str = "Perfect21 Auth Service"
+    APP_NAME: str = "Claude Enhancer Auth Service"
     VERSION: str = "2.0.0"
     DEBUG: bool = Field(default=False, env="DEBUG")
     SECRET_KEY: str = Field(..., env="SECRET_KEY")
@@ -78,7 +78,7 @@ class Settings(BaseSettings):
     PASSWORD_BCRYPT_ROUNDS: int = Field(default=12, env="PASSWORD_BCRYPT_ROUNDS")
 
     # MFA配置
-    MFA_TOTP_ISSUER: str = Field(default="Perfect21", env="MFA_TOTP_ISSUER")
+    MFA_TOTP_ISSUER: str = Field(default="Claude Enhancer", env="MFA_TOTP_ISSUER")
     MFA_TOTP_WINDOW: int = Field(default=1, env="MFA_TOTP_WINDOW")  # ±30秒
     MFA_BACKUP_CODES_COUNT: int = Field(default=10, env="MFA_BACKUP_CODES_COUNT")
     MFA_SMS_VALID_MINUTES: int = Field(default=5, env="MFA_SMS_VALID_MINUTES")
@@ -122,7 +122,7 @@ class Settings(BaseSettings):
     EMAIL_FROM_ADDRESS: str = Field(
         default="noreply@perfect21.com", env="EMAIL_FROM_ADDRESS"
     )
-    EMAIL_FROM_NAME: str = Field(default="Perfect21", env="EMAIL_FROM_NAME")
+    EMAIL_FROM_NAME: str = Field(default="Claude Enhancer", env="EMAIL_FROM_NAME")
     EMAIL_VERIFICATION_TTL: int = Field(
         default=3600, env="EMAIL_VERIFICATION_TTL"
     )  # 1小时

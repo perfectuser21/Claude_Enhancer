@@ -1,0 +1,619 @@
+# Claude Enhancer Unified Configuration Management System (v2.0)
+# Complete unified configuration - single source of truth
+# Replaces: config.yaml, enhancer_config.yaml, task_agent_mapping.yaml, settings.json
+
+metadata:
+  version: "2.0.0"
+  name: "Claude Enhancer Unified Configuration System"
+  description: "Complete unified configuration management for Claude Enhancer with 8-Phase workflow"
+  last_updated: "2025-09-22"
+  schema_version: "2.0"
+  migration_from:
+    - ".claude/hooks/config.yaml"
+    - ".claude/hooks/enhancer_config.yaml"
+    - ".claude/hooks/task_agent_mapping.yaml"
+    - ".claude/settings.json"
+
+# Core system configuration (merged from all sources)
+system:
+  name: "Claude Enhancer Claude Enhancer"
+  mode: "enforcement"  # advisory | warning | enforcement
+  version: "4.0.0"
+  description: "强制循环直到符合标准 - 统一配置管理"
+  debug: false
+
+# 8-Phase Workflow Configuration (enhanced)
+workflow:
+  enabled: true
+  description: "Complete 8-phase development workflow from branch creation to deployment"
+
+  phases:
+    phase_0:
+      name: "Git Branch Creation"
+      description: "Create feature branch and setup workspace"
+      hooks: ["branch_helper"]
+      required: true
+      auto_trigger: true
+
+    phase_1:
+      name: "Requirements Analysis"
+      description: "Analyze and document requirements"
+      agents_min: 3
+      agents_max: 5
+      required: true
+      quality_checks: ["requirement_completeness"]
+
+    phase_2:
+      name: "Design Planning"
+      description: "System design and architecture planning"
+      agents_min: 4
+      agents_max: 6
+      required: true
+      quality_checks: ["design_review", "architecture_validation"]
+
+    phase_3:
+      name: "Implementation Development"
+      description: "Code implementation with agent strategy"
+      agents_min: 4
+      agents_max: 8
+      strategy: "4-6-8"  # Simple-Standard-Complex
+      execution_mode: "parallel"
+      required: true
+      quality_checks: ["code_quality", "security_scan"]
+
+    phase_4:
+      name: "Local Testing"
+      description: "Local testing and validation"
+      agents_min: 3
+      agents_max: 5
+      required: true
+      quality_checks: ["test_coverage", "performance_test"]
+
+    phase_5:
+      name: "Code Commit"
+      description: "Git commit with quality gates"
+      hooks: ["pre-commit", "commit-msg"]
+      quality_gates: true
+      required: true
+      auto_cleanup: true
+
+    phase_6:
+      name: "Code Review"
+      description: "Pull request and code review"
+      hooks: ["pre-push"]
+      required: true
+      automated_checks: true
+
+    phase_7:
+      name: "Merge & Deploy"
+      description: "Final merge and deployment"
+      required: true
+      deployment_validation: true
+
+# Agent Configuration (4-6-8 Strategy) - merged from all sources
+agents:
+  strategy:
+    simple_tasks:
+      agent_count: 4
+      duration: "5-10 minutes"
+      description: "Basic development tasks"
+      complexity_threshold: 20
+
+    standard_tasks:
+      agent_count: 6
+      duration: "15-20 minutes"
+      description: "Regular feature development"
+      complexity_threshold: 60
+
+    complex_tasks:
+      agent_count: 8
+      duration: "25-30 minutes"
+      description: "Complex system implementations"
+      complexity_threshold: 100
+
+  execution:
+    mode: "parallel"  # parallel | sequential | mixed
+    enforce_parallel: true
+    warn_sequential: true
+    block_on_violation: true
+    timeout: 30000  # milliseconds
+    max_retries: 3
+
+  selection:
+    auto_detect_task: true
+    suggest_combinations: true
+    enforce_minimum: true
+    show_recommendations: true
+    dynamic_selection: true
+
+  validation:
+    min_agents: 3
+    max_agents: 10
+    require_role_diversity: true
+    prevent_duplicate_roles: true
+
+# Complete Task Type Definitions (merged and enhanced)
+task_types:
+  # Authentication & Security
+  authentication:
+    keywords: ["登录", "认证", "auth", "jwt", "oauth", "用户", "权限", "security", "身份验证", "授权"]
+    required_agents: ["backend-architect", "security-auditor", "test-engineer", "api-designer", "database-specialist"]
+    recommended_agents: ["compliance-officer", "infrastructure-engineer"]
+    minimum_count: 5
+    complexity: "standard"
+    security_level: "high"
+    test_requirements: ["security_tests", "penetration_tests", "auth_flow_tests"]
+    compliance_requirements: ["gdpr", "oauth2", "security_audit"]
+
+  # API Development
+  api_development:
+    keywords: ["api", "接口", "rest", "graphql", "endpoint", "route", "服务", "swagger", "openapi"]
+    required_agents: ["api-designer", "backend-architect", "test-engineer", "technical-writer"]
+    recommended_agents: ["performance-engineer", "security-auditor"]
+    minimum_count: 4
+    complexity: "simple"
+    test_requirements: ["api_tests", "contract_tests", "load_tests"]
+    documentation_required: true
+
+  # Database Design
+  database_design:
+    keywords: ["数据库", "database", "schema", "sql", "mongodb", "redis", "表", "table", "migration"]
+    required_agents: ["database-specialist", "backend-architect", "performance-engineer"]
+    recommended_agents: ["security-auditor", "data-architect"]
+    minimum_count: 3
+    complexity: "simple"
+    test_requirements: ["migration_tests", "performance_tests", "data_integrity_tests"]
+
+  # Frontend Development
+  frontend_development:
+    keywords: ["前端", "frontend", "react", "vue", "ui", "界面", "组件", "页面", "angular", "svelte"]
+    required_agents: ["frontend-specialist", "ux-designer", "test-engineer", "accessibility-auditor"]
+    recommended_agents: ["performance-engineer", "react-pro"]
+    minimum_count: 4
+    complexity: "standard"
+    test_requirements: ["unit_tests", "e2e_tests", "accessibility_tests", "visual_regression_tests"]
+
+  # Testing & Quality
+  testing:
+    keywords: ["测试", "test", "jest", "pytest", "e2e", "单元测试", "集成测试", "quality", "coverage"]
+    required_agents: ["test-engineer", "e2e-test-specialist", "performance-tester", "security-auditor"]
+    recommended_agents: ["automation-engineer", "code-reviewer"]
+    minimum_count: 4
+    complexity: "standard"
+    test_requirements: ["test_coverage", "test_automation", "test_reporting"]
+
+  # Full-stack Development
+  fullstack:
+    keywords: ["全栈", "fullstack", "应用", "application", "系统", "平台", "web应用"]
+    required_agents: ["fullstack-engineer", "backend-architect", "frontend-specialist", "database-specialist", "test-engineer", "devops-engineer"]
+    recommended_agents: ["security-auditor", "performance-engineer"]
+    minimum_count: 6
+    complexity: "complex"
+    test_requirements: ["integration_tests", "e2e_tests", "performance_tests", "security_tests"]
+
+  # Configuration Management
+  configuration:
+    keywords: ["配置", "config", "设置", "settings", "environment", "环境", "deployment", "部署"]
+    required_agents: ["backend-architect", "infrastructure-engineer", "devops-engineer", "system-architect", "technical-writer", "security-auditor"]
+    recommended_agents: ["compliance-officer", "performance-engineer"]
+    minimum_count: 6
+    complexity: "standard"
+    test_requirements: ["config_validation", "deployment_tests", "rollback_tests"]
+
+  # Performance Optimization
+  performance:
+    keywords: ["性能", "performance", "优化", "optimize", "缓存", "cache", "速度", "负载"]
+    required_agents: ["performance-engineer", "backend-architect", "database-specialist", "test-engineer"]
+    recommended_agents: ["infrastructure-engineer", "monitoring-specialist"]
+    minimum_count: 4
+    complexity: "standard"
+    test_requirements: ["load_tests", "stress_tests", "benchmark_tests"]
+
+  # DevOps & Infrastructure
+  devops:
+    keywords: ["devops", "部署", "deployment", "docker", "kubernetes", "ci/cd", "pipeline"]
+    required_agents: ["devops-engineer", "infrastructure-engineer", "system-architect", "security-auditor"]
+    recommended_agents: ["monitoring-specialist", "backend-architect"]
+    minimum_count: 4
+    complexity: "standard"
+    test_requirements: ["deployment_tests", "infrastructure_tests", "security_scan"]
+
+  # General Development
+  general:
+    keywords: ["开发", "development", "功能", "feature", "修复", "fix"]
+    required_agents: ["backend-architect", "test-engineer", "technical-writer"]
+    recommended_agents: ["frontend-specialist", "security-auditor"]
+    minimum_count: 3
+    complexity: "simple"
+
+# Hook Configuration (unified from all sources)
+hooks:
+  enabled: true
+  enforcement_level: "strict"  # advisory | warning | strict
+  version: "2.0"
+
+  # Pre-tool use hooks
+  pre_tool_use:
+    - name: "smart_agent_selector"
+      command: "bash .claude/hooks/smart_agent_selector.sh"
+      description: "智能Agent选择器 - 4-6-8策略"
+      timeout: 5000
+      matcher: "Task"
+      enabled: true
+      strict: true
+      config_path: ".claude/config/unified_main.yaml"
+
+    - name: "task_analyzer"
+      command: "bash .claude/hooks/task_analyzer.sh"
+      description: "任务类型分析和Agent推荐"
+      timeout: 3000
+      enabled: true
+      config_path: ".claude/config/unified_main.yaml"
+
+  # User prompt submit hooks
+  user_prompt_submit:
+    - name: "branch_helper"
+      command: "bash .claude/hooks/branch_helper.sh"
+      description: "Branch检查和工作流提醒"
+      timeout: 1000
+      enabled: true
+      phase: 0
+
+    - name: "workflow_tracker"
+      command: "bash .claude/hooks/workflow_tracker.sh"
+      description: "8-Phase工作流跟踪"
+      timeout: 2000
+      enabled: true
+
+  # Post-tool use hooks
+  post_tool_use:
+    - name: "quality_validator"
+      command: "bash .claude/hooks/quality_validator.sh"
+      description: "质量检查和验证"
+      timeout: 5000
+      enabled: true
+      phase: [3, 4, 5]
+
+# Quality Gates (enhanced from all sources)
+quality_gates:
+  enabled: true
+  strict_mode: true
+  version: "2.0"
+
+  checks:
+    - name: "agent_count_validation"
+      description: "Verify minimum agent count based on task complexity"
+      blocking: true
+      phase: [1, 2, 3, 4]
+      threshold:
+        simple: 3
+        standard: 4
+        complex: 6
+
+    - name: "parallel_execution_check"
+      description: "Ensure parallel agent execution when required"
+      blocking: false  # warning only
+      phase: [3]
+
+    - name: "task_type_validation"
+      description: "Validate agent selection matches task requirements"
+      blocking: true
+      phase: [1, 2, 3]
+
+    - name: "code_quality_check"
+      description: "Code quality and security validation"
+      blocking: true
+      phase: [5]
+      tools: ["eslint", "pylint", "sonarqube"]
+
+    - name: "test_coverage_check"
+      description: "Test coverage validation"
+      blocking: true
+      phase: [4, 5]
+      minimum_coverage: 80
+
+    - name: "security_audit"
+      description: "Security vulnerability scan"
+      blocking: true
+      phase: [5, 6]
+      tools: ["semgrep", "bandit", "npm-audit"]
+
+    - name: "performance_check"
+      description: "Performance regression detection"
+      blocking: false
+      phase: [4, 6]
+      baseline_required: true
+
+# Environment Configuration (enhanced)
+environments:
+  development:
+    extends: "env/development.yaml"
+    log_level: "DEBUG"
+    cache_enabled: false
+    strict_mode: false
+
+  testing:
+    extends: "env/testing.yaml"
+    log_level: "INFO"
+    cache_enabled: true
+    strict_mode: false
+
+  production:
+    extends: "env/production.yaml"
+    log_level: "WARN"
+    cache_enabled: true
+    strict_mode: true
+
+# Logging Configuration (unified)
+logging:
+  enabled: true
+  level: "INFO"  # DEBUG | INFO | WARN | ERROR
+  file: "/tmp/perfect21-unified.log"
+  rotate: true
+  max_size: "10MB"
+  max_files: 5
+
+  formats:
+    console: "[{timestamp}] {level}: {message}"
+    file: "[{timestamp}] [{level}] {module}: {message}"
+    audit: "[{timestamp}] {user} {action} {resource} {result}"
+
+  categories:
+    agent_execution: "INFO"
+    hook_execution: "DEBUG"
+    quality_gates: "WARN"
+    security: "ERROR"
+    performance: "INFO"
+
+# Performance Configuration (enhanced)
+performance:
+  cache:
+    enabled: true
+    ttl: 300  # seconds
+    max_entries: 1000
+    strategy: "lru"
+
+  parallel_execution:
+    max_concurrent_agents: 10
+    timeout: 30000  # milliseconds
+    retry_attempts: 3
+    backoff_strategy: "exponential"
+
+  monitoring:
+    track_agent_performance: true
+    track_hook_execution: true
+    generate_reports: true
+    alert_thresholds:
+      agent_timeout: 30000
+      hook_timeout: 5000
+      quality_gate_failure: 3
+
+# Security Configuration (enhanced)
+security:
+  validation:
+    enabled: true
+    strict_mode: true
+
+  encryption:
+    config_encryption: false  # For development
+    log_encryption: false
+    sensitive_data_masking: true
+
+  allowed_operations:
+    - "read_config"
+    - "write_config"
+    - "validate_config"
+    - "load_environment"
+    - "execute_hooks"
+    - "run_quality_gates"
+
+  restricted_paths:
+    - "/etc/"
+    - "/root/"
+    - "~/.ssh/"
+    - "/var/secrets/"
+
+  environment_variables:
+    allow_override: true
+    prefix: "PERFECT21_"
+    required_vars: ["PERFECT21_ENV", "PERFECT21_MODE"]
+
+# Integration Configuration (enhanced)
+integrations:
+  git_hooks:
+    enabled: true
+    auto_install: false  # Manual installation preferred
+    hooks: ["pre-commit", "commit-msg", "pre-push"]
+    config_path: ".claude/config/unified_main.yaml"
+
+  claude_code:
+    enabled: true
+    override_defaults: true
+    priority: 100
+    config_path: ".claude/config/unified_main.yaml"
+
+  external_tools:
+    enabled: true
+    timeout: 10000
+    tools:
+      linter: ["eslint", "pylint", "golangci-lint"]
+      formatter: ["prettier", "black", "gofmt"]
+      security: ["semgrep", "bandit", "gosec"]
+      test: ["jest", "pytest", "go test"]
+
+# Notification Configuration (enhanced)
+notifications:
+  enabled: true
+  formats: ["emoji", "plain", "detailed"]
+
+  channels:
+    console: true
+    file: true
+    webhook: false
+
+  events:
+    on_block: true
+    on_warning: true
+    on_success: false
+    on_error: true
+    on_phase_complete: true
+    on_workflow_complete: true
+
+  templates:
+    block: "❌ {message} - {reason}"
+    warning: "⚠️  {message}"
+    success: "✅ {message}"
+    error: "🚨 {message}"
+
+# Whitelist Configuration (unified)
+whitelist:
+  operations:
+    - "rollback"
+    - "hotfix"
+    - "emergency"
+    - "config_reload"
+    - "debug"
+
+  paths:
+    - "*.md"
+    - "*/test/*"
+    - "*/tests/*"
+    - "*/docs/*"
+    - "*/config/*"
+    - "*/scripts/*"
+
+  task_types:
+    - "documentation"
+    - "emergency_fix"
+    - "config_update"
+
+  file_extensions:
+    - ".md"
+    - ".txt"
+    - ".json"
+    - ".yaml"
+    - ".yml"
+
+# Custom Rules (extensible)
+custom_rules:
+  enabled: true
+  file: ".claude/config/custom_rules.yaml"
+
+  builtin_rules:
+    require_tests:
+      enabled: true
+      pattern: ".*\\.(js|ts|py|go)$"
+      action: "require_test_file"
+      description: "Require test files for code changes"
+
+    security_keywords:
+      enabled: true
+      pattern: "(password|secret|key|token)"
+      action: "security_review"
+      description: "Flag security-sensitive changes"
+
+    performance_critical:
+      enabled: true
+      pattern: "(database|query|cache|performance)"
+      action: "performance_review"
+      description: "Require performance review for critical changes"
+
+# Configuration Schema Validation
+schema:
+  validation:
+    enabled: true
+    strict: true
+    on_load: true
+    on_change: true
+    schema_file: ".claude/config/schemas/unified_schema.yaml"
+
+  required_sections:
+    - "metadata"
+    - "system"
+    - "workflow"
+    - "agents"
+    - "task_types"
+    - "hooks"
+    - "quality_gates"
+
+# Backward Compatibility and Migration
+compatibility:
+  version: "2.0"
+
+  legacy_configs:
+    settings.json:
+      path: ".claude/settings.json"
+      format: "json"
+      mapping: "claude_code_hooks"
+      deprecated: true
+
+    config.yaml:
+      path: ".claude/hooks/config.yaml"
+      format: "yaml"
+      mapping: "core_rules"
+      deprecated: true
+
+    enhancer_config.yaml:
+      path: ".claude/hooks/enhancer_config.yaml"
+      format: "yaml"
+      mapping: "hook_behavior"
+      deprecated: true
+
+    task_agent_mapping.yaml:
+      path: ".claude/hooks/task_agent_mapping.yaml"
+      format: "yaml"
+      mapping: "task_types"
+      deprecated: true
+
+  migration:
+    auto_migrate: true
+    backup_legacy: true
+    preserve_custom: true
+    migration_log: ".claude/config/migration.log"
+
+# Configuration Management
+config_management:
+  reload:
+    enabled: true
+    watch_files: true
+    hot_reload: false  # Restart required for major changes
+
+  validation:
+    on_startup: true
+    on_change: true
+    schema_validation: true
+
+  backup:
+    enabled: true
+    frequency: "daily"
+    retention: 7
+    path: ".claude/config/backups/"
+
+# Phase-specific configurations
+phase_configs:
+  phase_0:
+    hooks: ["branch_helper"]
+    auto_trigger: true
+
+  phase_3:
+    hooks: ["smart_agent_selector", "task_analyzer"]
+    parallel_execution: true
+
+  phase_5:
+    hooks: ["pre-commit", "commit-msg"]
+    quality_gates: ["code_quality_check", "test_coverage_check", "security_audit"]
+    cleanup: true
+
+  phase_6:
+    hooks: ["pre-push"]
+    quality_gates: ["performance_check"]
+
+# Advanced Features
+features:
+  auto_phase_detection: true
+  intelligent_agent_selection: true
+  adaptive_quality_gates: true
+  performance_optimization: true
+  security_enhancement: true
+  compliance_tracking: true
+  workflow_analytics: true

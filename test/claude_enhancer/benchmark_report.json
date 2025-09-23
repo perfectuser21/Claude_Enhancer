@@ -1,0 +1,223 @@
+{
+  "timestamp": "2025-09-23T21:09:23.578905",
+  "benchmark_results": [
+    {
+      "test_name": "cpu_intensive_calculation",
+      "category": "system",
+      "execution_time": 0.09570414992049336,
+      "memory_usage_mb": 0.0,
+      "cpu_percent": 23.1,
+      "success": true,
+      "timestamp": "2025-09-23T21:09:21.910160",
+      "metadata": {
+        "iterations": 1000000,
+        "calculation": "sum_of_squares"
+      }
+    },
+    {
+      "test_name": "memory_allocation",
+      "category": "system",
+      "execution_time": 0.0721212993375957,
+      "memory_usage_mb": 38.9921875,
+      "cpu_percent": 46.3,
+      "success": true,
+      "timestamp": "2025-09-23T21:09:22.100230",
+      "metadata": {
+        "list_size": 1000000,
+        "matrix_size": "1000x100"
+      }
+    },
+    {
+      "test_name": "disk_io_operations",
+      "category": "system",
+      "execution_time": 0.03588397614657879,
+      "memory_usage_mb": 0.0,
+      "cpu_percent": 42.5,
+      "success": true,
+      "timestamp": "2025-09-23T21:09:22.236971",
+      "metadata": {
+        "data_size_mb": 10,
+        "total_read_bytes": 10240000
+      }
+    },
+    {
+      "test_name": "hook_smart_agent_selector.sh",
+      "category": "hook_system",
+      "execution_time": 0.015233440790325403,
+      "memory_usage_mb": 0.0,
+      "cpu_percent": 41.0,
+      "success": true,
+      "timestamp": "2025-09-23T21:09:22.353224",
+      "metadata": {
+        "return_code": 0,
+        "stdout_length": 1,
+        "stderr_length": 0
+      }
+    },
+    {
+      "test_name": "hook_quality_gate.sh",
+      "category": "hook_system",
+      "execution_time": 0.012138165067881346,
+      "memory_usage_mb": 0.0,
+      "cpu_percent": 43.6,
+      "success": true,
+      "timestamp": "2025-09-23T21:09:22.466249",
+      "metadata": {
+        "return_code": 0,
+        "stdout_length": 1,
+        "stderr_length": 0
+      }
+    },
+    {
+      "test_name": "hook_performance_monitor.sh",
+      "category": "hook_system",
+      "execution_time": 0.011139289010316133,
+      "memory_usage_mb": 0.0,
+      "cpu_percent": 34.2,
+      "success": true,
+      "timestamp": "2025-09-23T21:09:22.578217",
+      "metadata": {
+        "return_code": 0,
+        "stdout_length": 0,
+        "stderr_length": 0
+      }
+    },
+    {
+      "test_name": "hook_error_handler.sh",
+      "category": "hook_system",
+      "execution_time": 0.008822738658636808,
+      "memory_usage_mb": 0.0,
+      "cpu_percent": 40.5,
+      "success": true,
+      "timestamp": "2025-09-23T21:09:22.688007",
+      "metadata": {
+        "return_code": 0,
+        "stdout_length": 0,
+        "stderr_length": 0
+      }
+    },
+    {
+      "test_name": "hook_task_type_detector.sh",
+      "category": "hook_system",
+      "execution_time": 0.019479162991046906,
+      "memory_usage_mb": 0.0,
+      "cpu_percent": 38.5,
+      "success": true,
+      "timestamp": "2025-09-23T21:09:22.808372",
+      "metadata": {
+        "return_code": 0,
+        "stdout_length": 7,
+        "stderr_length": 836
+      }
+    },
+    {
+      "test_name": "hook_concurrency",
+      "category": "hook_system",
+      "execution_time": 0.014845773112028837,
+      "memory_usage_mb": 0.25390625,
+      "cpu_percent": 15.4,
+      "success": true,
+      "timestamp": "2025-09-23T21:09:22.924178",
+      "metadata": {
+        "total_hooks": 2,
+        "successful_hooks": 2,
+        "success_rate": 1.0
+      }
+    },
+    {
+      "test_name": "cleanup_cleanup.sh",
+      "category": "performance_comparison",
+      "execution_time": 0.1791239259764552,
+      "memory_usage_mb": 0.0,
+      "cpu_percent": 20.0,
+      "success": false,
+      "timestamp": "2025-09-23T21:09:23.205312",
+      "metadata": {
+        "script_name": "cleanup.sh",
+        "return_code": 1,
+        "stdout_length": 525
+      }
+    },
+    {
+      "test_name": "cleanup_performance_optimized_cleanup.sh",
+      "category": "performance_comparison",
+      "execution_time": 0.0065153068862855434,
+      "memory_usage_mb": 0.0,
+      "cpu_percent": 15.4,
+      "success": false,
+      "timestamp": "2025-09-23T21:09:23.313705",
+      "metadata": {
+        "script_name": "performance_optimized_cleanup.sh",
+        "return_code": 1,
+        "stdout_length": 0
+      }
+    },
+    {
+      "test_name": "cleanup_ultra_optimized_cleanup.sh",
+      "category": "performance_comparison",
+      "execution_time": 0.16125278314575553,
+      "memory_usage_mb": 0.0,
+      "cpu_percent": 12.2,
+      "success": false,
+      "timestamp": "2025-09-23T21:09:23.576755",
+      "metadata": {
+        "script_name": "ultra_optimized_cleanup.sh",
+        "return_code": 1,
+        "stdout_length": 525
+      }
+    }
+  ],
+  "performance_report": {
+    "summary": {
+      "total_tests": 12,
+      "successful_tests": 9,
+      "failed_tests": 3,
+      "success_rate": 0.75
+    },
+    "performance_metrics": {
+      "execution_times": {
+        "mean": 0.031707555003878146,
+        "median": 0.015233440790325403,
+        "min": 0.008822738658636808,
+        "max": 0.09570414992049336,
+        "std_dev": 0.031187450384864375
+      },
+      "memory_usage": {
+        "mean": 4.360677083333333,
+        "median": 0.0,
+        "min": 0.0,
+        "max": 38.9921875
+      },
+      "cpu_usage": {
+        "mean": 36.12222222222222,
+        "median": 40.5,
+        "min": 15.4,
+        "max": 46.3
+      }
+    },
+    "category_analysis": {
+      "system": {
+        "test_count": 3,
+        "avg_time": 0.06790314180155595,
+        "total_time": 0.20370942540466785
+      },
+      "hook_system": {
+        "test_count": 6,
+        "avg_time": 0.013609761605039239,
+        "total_time": 0.08165856963023543
+      }
+    },
+    "recommendations": [
+      {
+        "category": "Reliability",
+        "priority": "HIGH",
+        "issue": "基准测试成功率较低: 75.0%",
+        "recommendation": "调查失败的测试用例，修复潜在的稳定性问题"
+      }
+    ]
+  },
+  "trend_analysis": {
+    "message": "需要至少2次基准测试数据来分析趋势"
+  },
+  "data_file": "/home/xx/dev/Perfect21/test/claude_enhancer/benchmark_data.json"
+}

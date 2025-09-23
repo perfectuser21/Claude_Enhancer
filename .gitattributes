@@ -1,0 +1,35 @@
+# Git属性配置文件
+
+# 文本文件标准化
+* text=auto
+
+# 特定文件类型
+*.md text
+*.txt text
+*.yaml text
+*.yml text
+*.json text
+*.py text
+*.sh text eol=lf
+*.bat text eol=crlf
+
+# 二进制文件
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+
+# Claude Enhancer架构文档保护
+.claude/ARCHITECTURE/** linguist-documentation
+.claude/ARCHITECTURE/** -diff
+.claude/ARCHITECTURE/README.md linguist-documentation=critical
+.claude/ARCHITECTURE/v2.0-FOUNDATION.md linguist-documentation=critical
+.claude/ARCHITECTURE/decisions/*.md linguist-documentation=critical
+
+# 标记语言类型
+*.py linguist-language=Python
+*.sh linguist-language=Shell
+*.yaml linguist-language=YAML
+*.yml linguist-language=YAML

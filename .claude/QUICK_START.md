@@ -4,7 +4,7 @@
 
 ```bash
 # 1. 复制.claude文件夹到你的项目
-cp -r /path/to/Perfect21/.claude /your/project/
+cp -r /path/to/Claude Enhancer/.claude /your/project/
 
 # 2. 进入项目目录
 cd /your/project/

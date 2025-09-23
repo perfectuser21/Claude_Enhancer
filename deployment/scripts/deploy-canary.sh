@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================================
-# Canary Deployment Script for Perfect21 Claude Enhancer
+# Canary Deployment Script for Claude Enhancer Claude Enhancer
 # Gradual traffic shifting with automatic rollback on failure
 # =============================================================================
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Perfect21 Claude Enhancer - Main API Entry Point
+Claude Enhancer Claude Enhancer - Main API Entry Point
 Enterprise-grade todo application with enhanced Claude integration
 """
 
@@ -67,7 +67,7 @@ async def startup_event():
     """Application startup event"""
     global database_manager, cache_manager
 
-    logger.info("🚀 Starting Perfect21 Claude Enhancer API...")
+    logger.info("🚀 Starting Claude Enhancer Claude Enhancer API...")
 
     try:
         # Initialize basic components
@@ -98,7 +98,7 @@ async def startup_event():
 
 async def shutdown_event():
     """Application shutdown event"""
-    logger.info("🛑 Shutting down Perfect21 Claude Enhancer API...")
+    logger.info("🛑 Shutting down Claude Enhancer Claude Enhancer API...")
 
     try:
         # Close cache connection
@@ -117,7 +117,7 @@ async def shutdown_event():
 
 # Create FastAPI application
 app = FastAPI(
-    title="Perfect21 Claude Enhancer",
+    title="Claude Enhancer Claude Enhancer",
     description="Enhanced todo application with Claude AI integration",
     version="2.0.0",
     docs_url="/docs",
@@ -278,7 +278,7 @@ async def get_metrics():
 async def root():
     """Root endpoint"""
     return {
-        "service": "Perfect21 Claude Enhancer",
+        "service": "Claude Enhancer Claude Enhancer",
         "version": "2.0.0",
         "status": "running",
         "timestamp": datetime.utcnow().isoformat(),

@@ -1,5 +1,5 @@
 """
-Perfect21 Authentication API Module
+Claude Enhancer Authentication API Module
 提供完整的认证服务API端点
 """
 

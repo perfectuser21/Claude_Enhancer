@@ -1,0 +1,269 @@
+# =============================================================================
+# Claude Enhancer 监控系统配置
+# =============================================================================
+
+monitoring:
+  # 监控系统基本配置
+  enabled: true
+  log_level: INFO
+  data_retention_days: 7
+  metrics_interval: 5  # 秒
+
+  # 数据库配置
+  database:
+    path: ".claude/data/metrics.db"
+    backup_interval: 3600  # 秒
+    max_size_mb: 100
+
+  # Web Dashboard配置
+  dashboard:
+    enabled: true
+    host: "localhost"
+    port: 8091
+    auto_refresh_interval: 5000  # 毫秒
+
+  # Prometheus配置
+  prometheus:
+    enabled: true
+    port: 9091
+    metrics_path: "/metrics"
+
+# Hook监控配置
+hooks:
+  # 监控的Hook列表
+  monitored_hooks:
+    - smart_agent_selector.sh
+    - performance_monitor.sh
+    - quality_gate.sh
+    - error_handler.sh
+    - task_type_detector.sh
+    - smart_git_workflow.sh
+    - smart_cleanup_advisor.sh
+
+  # 性能阈值
+  performance_thresholds:
+    # 执行时间阈值(秒)
+    slow_threshold: 1.0
+    very_slow_threshold: 3.0
+    timeout_threshold: 5.0
+
+    # 错误率阈值
+    error_rate_warning: 0.05    # 5%
+    error_rate_critical: 0.20   # 20%
+
+    # 连续失败阈值
+    consecutive_failures: 3
+
+# 系统资源监控配置
+system:
+  # CPU监控
+  cpu:
+    warning_threshold: 80.0    # %
+    critical_threshold: 95.0   # %
+    sampling_interval: 5       # 秒
+
+  # 内存监控
+  memory:
+    warning_threshold: 85.0    # %
+    critical_threshold: 95.0   # %
+
+  # 磁盘监控
+  disk:
+    warning_threshold: 80.0    # %
+    critical_threshold: 90.0   # %
+
+  # 网络监控
+  network:
+    monitor_enabled: true
+    alert_on_high_traffic: false
+
+# 告警配置
+alerts:
+  # 告警级别
+  severity_levels:
+    - info
+    - warning
+    - critical
+
+  # 告警通道
+  channels:
+    console:
+      enabled: true
+      level: info
+
+    log_file:
+      enabled: true
+      level: warning
+      path: ".claude/logs/alerts.log"
+
+    webhook:
+      enabled: false
+      url: ""
+      level: critical
+
+    email:
+      enabled: false
+      smtp_server: ""
+      smtp_port: 587
+      username: ""
+      password: ""
+      to_addresses: []
+      level: critical
+
+  # 告警规则
+  rules:
+    - name: "high_hook_latency"
+      condition: "hook_p95_latency > 5.0"
+      severity: "warning"
+      message: "Hook P95延迟超过5秒"
+      cooldown: 300  # 秒
+
+    - name: "very_high_hook_latency"
+      condition: "hook_p95_latency > 10.0"
+      severity: "critical"
+      message: "Hook P95延迟超过10秒"
+      cooldown: 300
+
+    - name: "high_error_rate"
+      condition: "hook_error_rate > 0.05"
+      severity: "warning"
+      message: "Hook错误率超过5%"
+      cooldown: 600
+
+    - name: "very_high_error_rate"
+      condition: "hook_error_rate > 0.20"
+      severity: "critical"
+      message: "Hook错误率超过20%"
+      cooldown: 300
+
+    - name: "high_cpu_usage"
+      condition: "system_cpu_percent > 80.0"
+      severity: "warning"
+      message: "CPU使用率超过80%"
+      cooldown: 300
+
+    - name: "high_memory_usage"
+      condition: "system_memory_percent > 85.0"
+      severity: "warning"
+      message: "内存使用率超过85%"
+      cooldown: 300
+
+    - name: "performance_degrading"
+      condition: "performance_trend == 'degrading'"
+      severity: "warning"
+      message: "系统性能正在下降"
+      cooldown: 1800
+
+    - name: "hook_consecutive_failures"
+      condition: "hook_consecutive_failures >= 3"
+      severity: "critical"
+      message: "Hook连续失败超过3次"
+      cooldown: 60
+
+# 性能分析配置
+performance:
+  # 延迟分析
+  latency:
+    enable_percentiles: true
+    percentiles: [50, 75, 90, 95, 99]
+    buckets: [0.001, 0.01, 0.1, 0.5, 1, 2, 5, 10]
+
+  # 趋势分析
+  trend_analysis:
+    enabled: true
+    window_size: 100        # 样本数量
+    sensitivity: 0.1        # 10%变化认为是趋势
+    min_samples: 10         # 最小样本数量
+
+  # 异常检测
+  anomaly_detection:
+    enabled: true
+    algorithm: "statistical"  # statistical, ml
+    threshold_multiplier: 2.0 # 标准差倍数
+    min_samples: 50
+
+# 报告配置
+reporting:
+  # 性能报告
+  performance_report:
+    enabled: true
+    interval: 3600          # 秒(1小时)
+    include_charts: true
+    email_recipients: []
+
+  # 每日摘要
+  daily_summary:
+    enabled: true
+    time: "09:00"          # 生成时间
+    include_trends: true
+    include_alerts: true
+
+  # 导出配置
+  export:
+    formats: ["json", "csv", "html"]
+    retention_days: 30
+
+# 集成配置
+integrations:
+  # Grafana集成
+  grafana:
+    enabled: false
+    url: "http://localhost:3001"
+    api_key: ""
+    dashboard_uid: ""
+
+  # Prometheus集成
+  prometheus_remote:
+    enabled: false
+    url: ""
+    basic_auth:
+      username: ""
+      password: ""
+
+  # Slack集成
+  slack:
+    enabled: false
+    webhook_url: ""
+    channel: "#monitoring"
+    username: "claude-enhancer-monitor"
+
+  # Discord集成
+  discord:
+    enabled: false
+    webhook_url: ""
+
+# 开发和调试配置
+debug:
+  # 调试模式
+  enabled: false
+  verbose_logging: false
+  save_raw_data: false
+
+  # 测试模式
+  test_mode: false
+  mock_data: false
+  simulation_speed: 1.0
+
+# 高级配置
+advanced:
+  # 并发控制
+  max_concurrent_hooks: 10
+  hook_timeout: 5.0
+
+  # 缓存配置
+  cache:
+    enabled: true
+    max_entries: 1000
+    ttl: 300  # 秒
+
+  # 压缩配置
+  compression:
+    enabled: true
+    algorithm: "gzip"
+    level: 6
+
+  # 加密配置
+  encryption:
+    enabled: false
+    algorithm: "AES-256"
+    key_rotation_days: 30

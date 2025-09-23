@@ -190,11 +190,11 @@ class AuthTestRunner:
             
             # 显示结果
             if result.returncode == 0:
-    # print(f"✅ {module}: 测试通过 ({test_result['passed']} passed)")
+                print(f"✅ {module}: 测试通过 ({test_result['passed']} passed)")
             else:
-    # print(f"❌ {module}: 测试失败 ({test_result['failed']} failed, {test_result['errors']} errors)")
+                print(f"❌ {module}: 测试失败 ({test_result['failed']} failed, {test_result['errors']} errors)")
                 if verbose and result.stderr:
-    # print(f"错误信息: {result.stderr[:500]}")
+                    print(f"错误信息: {result.stderr[:500]}")
             
             return test_result
             
@@ -349,7 +349,7 @@ class AuthTestRunner:
 <body>
     <div class="container">
         <div class="header">
-            <h1>🔐 Perfect21 认证系统测试报告</h1>
+            <h1>🔐 Claude Enhancer 认证系统测试报告</h1>
             <p class="timestamp">生成时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
         </div>
         
@@ -558,7 +558,7 @@ def main():
     import argparse
     
     parser = argparse.ArgumentParser(
-        description="Perfect21 认证系统测试运行器",
+        description="Claude Enhancer 认证系统测试运行器",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 示例:

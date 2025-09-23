@@ -1,5 +1,5 @@
 """
-Perfect21 JWT Token管理服务
+Claude Enhancer JWT Token管理服务
 企业级JWT Token生成、验证、管理
 """
 

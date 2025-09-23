@@ -1,6 +1,6 @@
-# Perfect21 Installation Guide
+# Claude Enhancer Installation Guide
 
-> Complete setup guide for the Perfect21 AI-driven development workflow system
+> Complete setup guide for the Claude Enhancer AI-driven development workflow system
 
 ## 📋 Table of Contents
 
@@ -22,7 +22,7 @@
 
 ### Recommended Setup
 - **RAM**: 8GB minimum, 16GB recommended
-- **Storage**: 2GB free space for Perfect21 and dependencies
+- **Storage**: 2GB free space for Claude Enhancer and dependencies
 - **Network**: Stable internet for Claude API calls
 - **Terminal**: Modern terminal with Unicode support
 
@@ -40,8 +40,8 @@
 For experienced users who want to get started immediately:
 
 ```bash
-# Clone or copy Perfect21 to your project
-cp -r /path/to/Perfect21/.claude ./
+# Clone or copy Claude Enhancer to your project
+cp -r /path/to/Claude Enhancer/.claude ./
 
 # Run the installer
 bash .claude/install.sh
@@ -50,7 +50,7 @@ bash .claude/install.sh
 bash .claude/hooks/smart_agent_selector.sh < /dev/null
 ```
 
-**That's it!** Perfect21 is now installed and ready to use.
+**That's it!** Claude Enhancer is now installed and ready to use.
 
 ## 📖 Step-by-Step Setup
 
@@ -77,9 +77,9 @@ if [ -d .claude ]; then
 fi
 ```
 
-### Step 2: Install Perfect21
+### Step 2: Install Claude Enhancer
 
-#### 2.1 Copy Perfect21 Framework
+#### 2.1 Copy Claude Enhancer Framework
 ```bash
 # Option A: Copy from another project
 cp -r /path/to/perfect21-project/.claude ./
@@ -332,7 +332,7 @@ nano .claude/git-hooks/pre-commit
 # Set up recommended branch structure
 git checkout -b feature/setup-perfect21
 git add .claude/
-git commit -m "feat: setup Perfect21 workflow system
+git commit -m "feat: setup Claude Enhancer workflow system
 
 - Install Claude Enhancer framework
 - Configure 8-phase workflow
@@ -342,21 +342,21 @@ git commit -m "feat: setup Perfect21 workflow system
 
 ### 2. Configure Team Settings
 ```bash
-# Share Perfect21 configuration with team
+# Share Claude Enhancer configuration with team
 echo ".claude/" >> .gitignore  # Don't ignore - share with team
 git add .gitignore
 
 # Document for team
-echo "Perfect21 is configured for this project" >> README.md
+echo "Claude Enhancer is configured for this project" >> README.md
 echo "Run: bash .claude/install.sh after cloning" >> README.md
 ```
 
 ### 3. Test Full Workflow
 ```bash
 # Test complete workflow
-echo "Let's test Perfect21 with a simple task" > test-perfect21.md
+echo "Let's test Claude Enhancer with a simple task" > test-perfect21.md
 git add test-perfect21.md
-git commit -m "test: validate Perfect21 installation"
+git commit -m "test: validate Claude Enhancer installation"
 
 # This should trigger:
 # 1. Branch helper (Phase 0)
@@ -390,7 +390,7 @@ echo "0 0 * * 0 find .claude/logs -name '*.log' -mtime +7 -delete" | crontab -
 ```bash
 # Run comprehensive health check
 bash << 'EOF'
-echo "🏥 Perfect21 Health Check"
+echo "🏥 Claude Enhancer Health Check"
 echo "========================"
 
 # Check git
@@ -415,7 +415,7 @@ echo "✅ Available agents: $AGENT_COUNT"
 
 echo "========================"
 if [ -f .claude/settings.json ] && [ -d .claude/agents ] && [ $AGENT_COUNT -gt 50 ]; then
-    echo "🎉 Perfect21 is ready!"
+    echo "🎉 Claude Enhancer is ready!"
 else
     echo "⚠️  Installation may be incomplete"
 fi
@@ -477,4 +477,4 @@ After successful installation, you should be able to:
 ✅ **Smart Automation**: Cleanup and optimization happen automatically
 ✅ **Team Collaboration**: Consistent workflow across all team members
 
-Perfect21 is now ready to accelerate your development with AI-driven workflows! 🚀
+Claude Enhancer is now ready to accelerate your development with AI-driven workflows! 🚀

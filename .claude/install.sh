@@ -5,7 +5,7 @@ echo "🚀 Claude Enhancer 安装"
 echo "========================"
 
 # 检查是否已有其他.claude配置
-if [ -f ".claude/settings.json" ] && [ ! -f ".claude/WORKFLOW.md" ]; then
+if [ -f ".claude/config/unified_main.yaml" ] && [ ! -f ".claude/WORKFLOW.md" ]; then
     echo "⚠️  检测到已存在其他.claude配置"
     echo "是否要备份现有配置？(y/n)"
     read -r response
@@ -76,7 +76,7 @@ if [ -d .git ]; then
 fi
 
 # 3. 创建配置软链接（可选）
-if [ ! -f .claude/settings.json ]; then
+if [ ! -f .claude/config/unified_main.yaml ]; then
     echo "⚠️  未找到settings.json，跳过"
 else
     echo "✅ Claude配置已就绪"

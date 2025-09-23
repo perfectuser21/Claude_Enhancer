@@ -1,5 +1,5 @@
 """
-Perfect21 认证API路由
+Claude Enhancer 认证API路由
 提供完整的RESTful认证服务端点
 """
 

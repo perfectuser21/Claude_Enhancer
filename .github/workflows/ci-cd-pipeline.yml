@@ -1,4 +1,4 @@
-name: Perfect21 CI/CD Pipeline
+name: Claude Enhancer CI/CD Pipeline
 
 on:
   push:
@@ -473,7 +473,7 @@ jobs:
       if: success()
       with:
         status: success
-        text: "✅ Perfect21 successfully deployed to production!"
+        text: "✅ Claude Enhancer successfully deployed to production!"
       env:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
@@ -482,7 +482,7 @@ jobs:
       if: failure()
       with:
         status: failure
-        text: "❌ Perfect21 deployment to production failed!"
+        text: "❌ Claude Enhancer deployment to production failed!"
       env:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 

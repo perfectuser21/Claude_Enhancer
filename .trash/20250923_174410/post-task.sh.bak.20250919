@@ -1,0 +1,30 @@
+#!/bin/bash
+# Claude Code Post-task Hook - 任务执行后检查
+
+echo "📊 Claude Enhancer任务后检查..."
+
+# 使用Rule Guardian检查执行结果
+python3 -c "
+import sys
+import json
+sys.path.insert(0, '/home/xx/dev/Claude Enhancer')
+
+try:
+    from features.guardian.rule_guardian import get_rule_guardian
+
+    guardian = get_rule_guardian()
+    status = guardian.get_current_status()
+
+    if status['health_score'] < 80:
+        print(f'⚠️ 健康分数偏低: {status[\"health_score\"]}/100')
+        print(f'  违规次数: {status[\"violations\"]}')
+        print(f'  关键违规: {status[\"critical_violations\"]}')
+        print('建议检查并修正违规项')
+    else:
+        print(f'✅ 健康分数良好: {status[\"health_score\"]}/100')
+
+except Exception as e:
+    print(f'Guardian检查跳过: {e}')
+"
+
+exit 0

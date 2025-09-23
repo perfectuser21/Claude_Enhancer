@@ -3,7 +3,7 @@
 =====================================
 
 Comprehensive testing framework for user authentication system
-Following Perfect21 8-Phase methodology with multi-agent approach
+Following Claude Enhancer 8-Phase methodology with multi-agent approach
 
 Author: Claude Code Test Engineering Team
 Version: 1.0.0

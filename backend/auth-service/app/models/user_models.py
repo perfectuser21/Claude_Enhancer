@@ -1,5 +1,5 @@
 """
-Perfect21 用户数据模型
+Claude Enhancer 用户数据模型
 企业级用户相关数据模型定义
 """
 

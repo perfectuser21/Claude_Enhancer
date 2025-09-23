@@ -74,7 +74,7 @@ Create a `.env` file:
 
 ```env
 REACT_APP_API_URL=http://localhost:8000/api
-REACT_APP_APP_NAME=Perfect21
+REACT_APP_APP_NAME=Claude Enhancer
 ```
 
 ## Components

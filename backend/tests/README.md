@@ -1,6 +1,6 @@
-# Perfect21 认证系统单元测试套件
+# Claude Enhancer 认证系统单元测试套件
 
-这是为 Perfect21 企业级认证系统开发的综合单元测试套件，涵盖了认证系统的所有核心组件。
+这是为 Claude Enhancer 企业级认证系统开发的综合单元测试套件，涵盖了认证系统的所有核心组件。
 
 ## 📋 测试组件概览
 
@@ -51,7 +51,7 @@ pip install -r requirements.txt
 
 2. **配置环境变量**：
 ```bash
-export PYTHONPATH="${PYTHONPATH}:/path/to/Perfect21"
+export PYTHONPATH="${PYTHONPATH}:/path/to/Claude Enhancer"
 ```
 
 ### 运行测试
@@ -291,7 +291,7 @@ class Test组件名称:
 
 1. **导入错误**
    ```bash
-   export PYTHONPATH="${PYTHONPATH}:/path/to/Perfect21"
+   export PYTHONPATH="${PYTHONPATH}:/path/to/Claude Enhancer"
    ```
 
 2. **依赖缺失**

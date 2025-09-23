@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================================
-# Blue-Green Deployment Script for Perfect21 Claude Enhancer
+# Blue-Green Deployment Script for Claude Enhancer Claude Enhancer
 # Zero-downtime deployment with automatic rollback capability
 # =============================================================================
 

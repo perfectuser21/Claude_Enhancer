@@ -1,7 +1,7 @@
-# Perfect21 Performance Optimization Configuration
+# Claude Enhancer Performance Optimization Configuration
 # 性能优化配置文件
 
-service_name: "perfect21"
+service_name: "claude-enhancer"
 environment: "production"  # development, staging, production
 debug_mode: false
 log_level: "INFO"
@@ -52,7 +52,7 @@ async_processor:
   smtp_username: null
   smtp_password: null
   smtp_use_tls: true
-  email_from: "noreply@perfect21.com"
+  email_from: "noreply@claude-enhancer.dev"
 
   # 消息队列配置
   rabbitmq_url: "amqp://localhost"
@@ -87,7 +87,7 @@ metrics:
   alert_check_interval: 30.0
   export_interval: 60.0
   export_format: "prometheus"  # prometheus, json
-  export_file: "/tmp/perfect21_metrics.txt"
+  export_file: "/tmp/claude_enhancer_metrics.txt"
 
 # 性能阈值配置
 thresholds:

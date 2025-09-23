@@ -1,0 +1,253 @@
+# =============================================================================
+# Claude Enhancer 专用监控栈
+# 专门为Claude Enhancer Hook系统设计的轻量级监控解决方案
+# =============================================================================
+
+version: '3.8'
+
+networks:
+  claude-enhancer-monitoring:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.23.0.0/16
+
+volumes:
+  claude_prometheus_data:
+    driver: local
+  claude_grafana_data:
+    driver: local
+  claude_alertmanager_data:
+    driver: local
+  claude_loki_data:
+    driver: local
+
+services:
+  # ==========================================================================
+  # Claude Enhancer 监控应用
+  # ==========================================================================
+  claude-enhancer-monitor:
+    build:
+      context: .
+      dockerfile: Dockerfile.monitor
+    container_name: claude-enhancer-monitor
+    restart: unless-stopped
+    ports:
+      - "8091:8091"  # Web Dashboard
+      - "9091:9091"  # Prometheus Metrics
+    volumes:
+      - ../.claude:/app/.claude:ro
+      - ../data:/app/data
+      - ./monitoring_config.yaml:/app/config.yaml:ro
+    environment:
+      - PYTHONPATH=/app
+      - CONFIG_FILE=/app/config.yaml
+      - LOG_LEVEL=INFO
+    networks:
+      - claude-enhancer-monitoring
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8091/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ==========================================================================
+  # Performance Collector
+  # ==========================================================================
+  performance-collector:
+    build:
+      context: .
+      dockerfile: Dockerfile.collector
+    container_name: claude-performance-collector
+    restart: unless-stopped
+    volumes:
+      - ../.claude:/app/.claude
+      - ../data:/app/data
+    environment:
+      - PYTHONPATH=/app
+      - LOG_LEVEL=INFO
+    networks:
+      - claude-enhancer-monitoring
+    depends_on:
+      - claude-enhancer-monitor
+
+  # ==========================================================================
+  # Prometheus - 指标收集
+  # ==========================================================================
+  prometheus:
+    image: prom/prometheus:v2.45.0
+    container_name: claude-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - claude_prometheus_data:/prometheus
+      - ./prometheus.claude.yml:/etc/prometheus/prometheus.yml:ro
+      - ./alert_rules.claude.yml:/etc/prometheus/alert_rules.yml:ro
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=7d'
+      - '--storage.tsdb.retention.size=1GB'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      - '--web.enable-admin-api'
+      - '--log.level=info'
+    networks:
+      - claude-enhancer-monitoring
+    depends_on:
+      - claude-enhancer-monitor
+
+  # ==========================================================================
+  # Grafana - 可视化
+  # ==========================================================================
+  grafana:
+    image: grafana/grafana:10.0.0
+    container_name: claude-grafana
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    volumes:
+      - claude_grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+      - GF_SERVER_ROOT_URL=http://localhost:3001
+      - GF_ANALYTICS_REPORTING_ENABLED=false
+      - GF_ANALYTICS_CHECK_FOR_UPDATES=false
+      - GF_LOG_LEVEL=info
+    networks:
+      - claude-enhancer-monitoring
+    depends_on:
+      - prometheus
+
+  # ==========================================================================
+  # AlertManager - 告警管理
+  # ==========================================================================
+  alertmanager:
+    image: prom/alertmanager:v0.25.0
+    container_name: claude-alertmanager
+    restart: unless-stopped
+    ports:
+      - "9093:9093"
+    volumes:
+      - claude_alertmanager_data:/alertmanager
+      - ./alertmanager.claude.yml:/etc/alertmanager/alertmanager.yml:ro
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--web.external-url=http://localhost:9093'
+      - '--log.level=info'
+    networks:
+      - claude-enhancer-monitoring
+
+  # ==========================================================================
+  # Loki - 日志聚合
+  # ==========================================================================
+  loki:
+    image: grafana/loki:2.8.0
+    container_name: claude-loki
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    volumes:
+      - claude_loki_data:/loki
+      - ./loki.claude.yml:/etc/loki/local-config.yaml:ro
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - claude-enhancer-monitoring
+
+  # ==========================================================================
+  # Promtail - 日志收集
+  # ==========================================================================
+  promtail:
+    image: grafana/promtail:2.8.0
+    container_name: claude-promtail
+    restart: unless-stopped
+    volumes:
+      - ./promtail.claude.yml:/etc/promtail/config.yml:ro
+      - ../.claude/logs:/var/log/claude:ro
+      - ../logs:/var/log/app:ro
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - claude-enhancer-monitoring
+    depends_on:
+      - loki
+
+  # ==========================================================================
+  # Node Exporter - 系统监控
+  # ==========================================================================
+  node-exporter:
+    image: prom/node-exporter:v1.6.0
+    container_name: claude-node-exporter
+    restart: unless-stopped
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+      - '--collector.filesystem.fs-types-exclude=^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$$'
+    networks:
+      - claude-enhancer-monitoring
+
+  # ==========================================================================
+  # cAdvisor - 容器监控
+  # ==========================================================================
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.47.0
+    container_name: claude-cadvisor
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    privileged: true
+    devices:
+      - /dev/kmsg
+    networks:
+      - claude-enhancer-monitoring
+
+  # ==========================================================================
+  # Blackbox Exporter - 端点监控
+  # ==========================================================================
+  blackbox-exporter:
+    image: prom/blackbox-exporter:v0.24.0
+    container_name: claude-blackbox-exporter
+    restart: unless-stopped
+    ports:
+      - "9115:9115"
+    volumes:
+      - ./blackbox.claude.yml:/etc/blackbox_exporter/config.yml:ro
+    networks:
+      - claude-enhancer-monitoring
+
+  # ==========================================================================
+  # 轻量级日志查看器
+  # ==========================================================================
+  log-viewer:
+    image: goharbor/harbor-log:v2.8.0
+    container_name: claude-log-viewer
+    restart: unless-stopped
+    ports:
+      - "8092:8080"
+    volumes:
+      - ../.claude/logs:/logs:ro
+    environment:
+      - LOG_DIR=/logs
+    networks:
+      - claude-enhancer-monitoring

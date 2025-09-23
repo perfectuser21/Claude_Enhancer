@@ -1,6 +1,12 @@
-# Perfect21 API Reference
+# 🔌 Claude Enhancer API参考文档
 
-> Complete reference for Perfect21 hooks, agents, configuration options, and integration interfaces
+> Claude Enhancer系统的完整API参考，包括Hook接口、Agent系统、配置选项和集成接口
+
+## 📚 文档版本信息
+- **版本**: v4.1.0
+- **更新日期**: 2024年1月
+- **状态**: 生产就绪
+- **兼容性**: 向后兼容v4.0.x
 
 ## 📋 Table of Contents
 
@@ -17,7 +23,7 @@
 
 ### Overview
 
-Perfect21 uses Claude Code's hook system to intercept and enhance development workflows. All hooks follow a standardized interface pattern.
+Claude Enhancer uses Claude Code's hook system to intercept and enhance development workflows. All hooks follow a standardized interface pattern.
 
 ### Hook Types
 
@@ -44,7 +50,7 @@ echo "user input text" | bash .claude/hooks/branch_helper.sh
 INPUT=$(cat)
 
 # Process and provide guidance
-echo "🎯 Perfect21 Workflow Guidance:" >&2
+echo "🎯 Claude Enhancer Workflow Guidance:" >&2
 echo "  Current Phase: Analysis" >&2
 echo "  Next Phase: Design Planning" >&2
 
@@ -380,7 +386,7 @@ get_agent_combination() {
 
 **Complete Schema:**
 ```typescript
-interface Perfect21Configuration {
+interface Claude EnhancerConfiguration {
   version: string;                    // Semantic version
   project: string;                    // Project name
   description: string;                // Project description
@@ -446,7 +452,7 @@ interface HookDefinition {
 ```json
 {
   "version": "4.0.0",
-  "project": "Perfect21 Enhanced Development",
+  "project": "Claude Enhancer Enhanced Development",
   "description": "AI-driven development with quality enforcement",
 
   "hooks": {
@@ -595,7 +601,7 @@ export CLAUDE_ENHANCER_LOG_FILE="/var/log/perfect21.log"
 
 ### Git Hook Integration
 
-Perfect21 integrates with Git hooks for quality enforcement.
+Claude Enhancer integrates with Git hooks for quality enforcement.
 
 **Pre-commit Hook API:**
 ```bash
@@ -661,7 +667,7 @@ User Input → Claude Code → PreToolUse Hook → Agent Selection → Tool Exec
 
 **Shell Command Integration:**
 ```bash
-# Perfect21 can be triggered from any shell environment
+# Claude Enhancer can be triggered from any shell environment
 
 # Direct hook invocation
 echo '{"prompt": "task description"}' | bash .claude/hooks/smart_agent_selector.sh
@@ -699,7 +705,7 @@ perfect21_validate_commit() {
 ### Installation Commands
 
 ```bash
-# Install Perfect21 system
+# Install Claude Enhancer system
 bash .claude/install.sh
 
 # Install with custom options
@@ -758,10 +764,10 @@ bash .claude/scripts/profile_performance.sh
 
 ### Event Types
 
-Perfect21 generates events for monitoring and integration:
+Claude Enhancer generates events for monitoring and integration:
 
 ```typescript
-interface Perfect21Event {
+interface Claude EnhancerEvent {
   timestamp: string;
   type: EventType;
   source: string;
@@ -1004,7 +1010,7 @@ curl -X POST http://localhost:8080/api/perfect21/quality-check \
 
 ## 🔄 API Versioning
 
-Perfect21 follows semantic versioning for its APIs:
+Claude Enhancer follows semantic versioning for its APIs:
 
 - **Major Version**: Breaking changes to hook interfaces
 - **Minor Version**: New features, backward compatible
@@ -1020,4 +1026,4 @@ Current API Version: `4.0.0`
 - Log files may contain task descriptions and file paths
 - Network calls from hooks should use authentication
 
-Perfect21 provides comprehensive APIs for integration, customization, and monitoring. All interfaces are designed for stability and backward compatibility. 🚀
+Claude Enhancer provides comprehensive APIs for integration, customization, and monitoring. All interfaces are designed for stability and backward compatibility. 🚀

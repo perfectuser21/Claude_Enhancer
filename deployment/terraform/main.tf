@@ -1,5 +1,5 @@
 # =============================================================================
-# Terraform Configuration for Perfect21 Claude Enhancer Infrastructure
+# Terraform Configuration for Claude Enhancer Claude Enhancer Infrastructure
 # Multi-cloud infrastructure as code with AWS EKS primary deployment
 # =============================================================================
 
@@ -111,7 +111,7 @@ locals {
   name_prefix = "claude-enhancer-${var.environment}"
 
   common_tags = {
-    Project     = "Perfect21"
+    Project     = "Claude Enhancer"
     Application = "Claude-Enhancer"
     Environment = var.environment
     ManagedBy   = "Terraform"

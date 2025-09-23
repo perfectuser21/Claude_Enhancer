@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
-  title: Perfect21 Authentication API
+  title: Claude Enhancer Authentication API
   description: |
-    RESTful Authentication API for Perfect21 system
+    RESTful Authentication API for Claude Enhancer system
 
     ## Features
     - JWT-based authentication
@@ -19,16 +19,16 @@ info:
     - Input validation and sanitization
   version: 1.0.0
   contact:
-    name: Perfect21 API Team
-    email: api@perfect21.dev
+    name: Claude Enhancer API Team
+    email: api@claude-enhancer.dev
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
 
 servers:
-  - url: https://api.perfect21.dev/v1
+  - url: https://api.claude-enhancer.dev/v1
     description: Production server
-  - url: https://staging-api.perfect21.dev/v1
+  - url: https://staging-api.claude-enhancer.dev/v1
     description: Staging server
   - url: http://localhost:8000/v1
     description: Development server

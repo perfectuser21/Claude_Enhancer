@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Perfect21 性能测试执行器
+Claude Enhancer 性能测试执行器
 自动启动模拟服务器并执行完整的性能测试套件
 """
 
@@ -195,18 +195,18 @@ class PerformanceTestRunner:
 
     def print_console_summary(self, report):
         """打印控制台摘要"""
-    # print("\n" + "="*80)
-    # print("🎯 PERFECT21 性能测试报告")
-    # print("="*80)
+        print("\n" + "="*80)
+        print("🎯 PERFECT21 性能测试报告")
+        print("="*80)
 
         # 整体评分
         score_color = "🟢" if report.overall_score >= 80 else "🟡" if report.overall_score >= 60 else "🔴"
-    # print(f"{score_color} 整体性能评分: {report.overall_score:.1f}/100")
+        print(f"{score_color} 整体性能评分: {report.overall_score:.1f}/100")
 
         # 测试结果概览
-    # print(f"\n📊 测试结果概览:")
-    # print(f"  测试时间: {report.timestamp.strftime('%Y-%m-%d %H:%M:%S')}")
-    # print(f"  测试项目: {len(report.test_results)}个")
+        print(f"\n📊 测试结果概览:")
+        print(f"  测试时间: {report.timestamp.strftime('%Y-%m-%d %H:%M:%S')}")
+        print(f"  测试项目: {len(report.test_results)}个")
     # print(f"  系统信息: {report.system_info['cpu_count']}核CPU, {report.system_info['total_memory_gb']:.1f}GB内存")
 
         # 详细测试结果
@@ -251,7 +251,7 @@ class PerformanceTestRunner:
 
 async def main():
     """主函数"""
-    # print("🚀 Perfect21 性能测试执行器")
+    # print("🚀 Claude Enhancer 性能测试执行器")
     # print("=" * 50)
 
     runner = PerformanceTestRunner()

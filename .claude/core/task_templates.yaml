@@ -1,0 +1,231 @@
+# Claude Enhancer任务模板
+# 为不同类型的任务定义标准执行模式
+
+version: "1.0"
+
+# 任务模板定义
+task_templates:
+  bug_fix:
+    name: "Bug修复"
+    description: "修复系统中的错误和问题"
+    phase_sequence: [1, 3, 4, 5]
+    min_agents: 4
+    recommended_agents:
+      - error-detective     # 错误侦探
+      - test-engineer       # 测试工程师
+      - backend-architect   # 后端架构师
+      - code-reviewer       # 代码审查
+    optional_agents:
+      - security-auditor    # 如果涉及安全
+      - performance-engineer # 如果涉及性能
+    execution_time: "5-10分钟"
+    git_branch_pattern: "fix/{issue-id}-{description}"
+    commit_message_pattern: "fix: {description}"
+
+  new_feature:
+    name: "新功能开发"
+    description: "添加新的功能或特性"
+    phase_sequence: [0, 1, 2, 3, 4, 5, 6]
+    min_agents: 6
+    recommended_agents:
+      - requirements-analyst # 需求分析师
+      - backend-architect    # 后端架构师
+      - frontend-specialist  # 前端专家
+      - api-designer        # API设计师
+      - test-engineer       # 测试工程师
+      - technical-writer    # 技术文档
+    optional_agents:
+      - ux-designer         # UI/UX设计
+      - database-specialist # 数据库专家
+      - devops-engineer    # DevOps工程师
+    execution_time: "15-20分钟"
+    git_branch_pattern: "feature/{feature-name}"
+    commit_message_pattern: "feat: {description}"
+
+  refactoring:
+    name: "代码重构"
+    description: "改善代码结构而不改变功能"
+    phase_sequence: [1, 2, 3, 4, 5]
+    min_agents: 6
+    recommended_agents:
+      - backend-architect    # 架构设计
+      - code-reviewer       # 代码审查
+      - performance-engineer # 性能优化
+      - test-engineer       # 确保功能不变
+      - workflow-optimizer  # 工作流优化
+      - cleanup-specialist  # 清理专家
+    execution_time: "15-20分钟"
+    git_branch_pattern: "refactor/{area}-{description}"
+    commit_message_pattern: "refactor: {description}"
+
+  architecture_design:
+    name: "架构设计"
+    description: "系统架构设计和规划"
+    phase_sequence: [0, 1, 2, 3, 4, 5, 6, 7]
+    min_agents: 8
+    recommended_agents:
+      - backend-architect    # 后端架构
+      - cloud-architect     # 云架构
+      - database-specialist # 数据库设计
+      - api-designer        # API设计
+      - security-auditor    # 安全审计
+      - performance-engineer # 性能规划
+      - devops-engineer     # 部署架构
+      - technical-writer    # 架构文档
+    execution_time: "25-30分钟"
+    git_branch_pattern: "arch/{project-name}"
+    commit_message_pattern: "arch: {description}"
+
+  performance_optimization:
+    name: "性能优化"
+    description: "提升系统性能和响应速度"
+    phase_sequence: [1, 2, 3, 4, 5]
+    min_agents: 5
+    recommended_agents:
+      - performance-engineer # 性能工程师
+      - performance-tester  # 性能测试
+      - backend-architect   # 架构优化
+      - database-specialist # 数据库优化
+      - monitoring-specialist # 监控专家
+    execution_time: "15-20分钟"
+    git_branch_pattern: "perf/{target}-optimization"
+    commit_message_pattern: "perf: {description}"
+
+  security_audit:
+    name: "安全审计"
+    description: "安全漏洞检查和修复"
+    phase_sequence: [1, 3, 4, 5, 6]
+    min_agents: 5
+    recommended_agents:
+      - security-auditor    # 安全审计
+      - code-reviewer       # 代码审查
+      - test-engineer       # 安全测试
+      - backend-architect   # 安全架构
+      - incident-responder  # 事件响应
+    execution_time: "15-20分钟"
+    git_branch_pattern: "security/{vulnerability-type}"
+    commit_message_pattern: "security: {description}"
+
+  documentation:
+    name: "文档编写"
+    description: "编写或更新文档"
+    phase_sequence: [1, 3, 5]
+    min_agents: 4
+    recommended_agents:
+      - technical-writer    # 技术写作
+      - documentation-writer # 文档专家
+      - api-designer        # API文档
+      - ux-designer         # 用户文档
+    execution_time: "5-10分钟"
+    git_branch_pattern: "docs/{doc-type}"
+    commit_message_pattern: "docs: {description}"
+
+  deployment:
+    name: "部署配置"
+    description: "部署和发布相关任务"
+    phase_sequence: [1, 2, 3, 4, 5, 6, 7]
+    min_agents: 6
+    recommended_agents:
+      - deployment-manager  # 部署管理
+      - devops-engineer    # DevOps
+      - kubernetes-expert  # K8s专家
+      - cloud-architect    # 云架构
+      - monitoring-specialist # 监控
+      - incident-responder # 事件响应
+    execution_time: "20-25分钟"
+    git_branch_pattern: "deploy/{environment}"
+    commit_message_pattern: "deploy: {description}"
+
+# Agent组合策略
+agent_combinations:
+  frontend_heavy:
+    description: "前端密集型任务"
+    agents:
+      - frontend-specialist
+      - react-pro
+      - vue-specialist
+      - ux-designer
+      - accessibility-auditor
+      - e2e-test-specialist
+
+  backend_heavy:
+    description: "后端密集型任务"
+    agents:
+      - backend-architect
+      - backend-engineer
+      - database-specialist
+      - api-designer
+      - performance-engineer
+      - security-auditor
+
+  full_stack:
+    description: "全栈开发任务"
+    agents:
+      - fullstack-engineer
+      - backend-architect
+      - frontend-specialist
+      - database-specialist
+      - api-designer
+      - test-engineer
+      - devops-engineer
+      - technical-writer
+
+  data_intensive:
+    description: "数据密集型任务"
+    agents:
+      - data-engineer
+      - data-scientist
+      - database-specialist
+      - analytics-engineer
+      - mlops-engineer
+      - performance-engineer
+
+  mobile_app:
+    description: "移动应用开发"
+    agents:
+      - mobile-developer
+      - ux-designer
+      - api-designer
+      - test-engineer
+      - performance-tester
+
+# 执行规则
+execution_rules:
+  parallel_execution:
+    description: "并行执行规则"
+    max_parallel_agents: 8
+    timeout_minutes: 30
+    retry_on_failure: true
+    max_retries: 2
+
+  sequential_phases:
+    description: "Phase顺序规则"
+    enforce_order: true
+    allow_skip: false
+    require_completion: true
+
+  quality_gates:
+    description: "质量关卡"
+    require_tests: true
+    require_review: true
+    require_documentation: true
+    min_code_coverage: 70
+
+# 智能匹配规则
+matching_rules:
+  - pattern: "(bug|fix|error|issue)"
+    template: bug_fix
+  - pattern: "(new|add|feature|功能)"
+    template: new_feature
+  - pattern: "(refactor|重构|optimize)"
+    template: refactoring
+  - pattern: "(architecture|架构|design)"
+    template: architecture_design
+  - pattern: "(performance|性能|speed)"
+    template: performance_optimization
+  - pattern: "(security|安全|vulnerability)"
+    template: security_audit
+  - pattern: "(doc|document|文档)"
+    template: documentation
+  - pattern: "(deploy|部署|release)"
+    template: deployment

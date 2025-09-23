@@ -1,5 +1,5 @@
 """
-Perfect21 认证API异常定义
+Claude Enhancer 认证API异常定义
 定义认证相关的自定义异常类
 """
 

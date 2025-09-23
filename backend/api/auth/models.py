@@ -1,5 +1,5 @@
 """
-Perfect21 认证API数据模型
+Claude Enhancer 认证API数据模型
 定义所有认证相关的请求和响应模型
 """
 
@@ -342,7 +342,7 @@ class MFASetupResponse(BaseModel):
                 "message": "MFA设置成功，请使用验证器扫描二维码",
                 "method": "totp",
                 "secret_key": "JBSWY3DPEHPK3PXP",
-                "qr_code_url": "otpauth://totp/Perfect21:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Perfect21",
+                "qr_code_url": "otpauth://totp/Claude Enhancer:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Claude Enhancer",
                 "backup_codes": ["12345678", "87654321", "11111111"],
                 "verification_required": True,
             }

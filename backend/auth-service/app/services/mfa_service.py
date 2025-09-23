@@ -1,5 +1,5 @@
 """
-Perfect21 多因子认证服务
+Claude Enhancer 多因子认证服务
 TOTP、SMS、邮件验证码和备用码管理
 """
 
@@ -465,7 +465,7 @@ class MFAService:
         # 这里应该集成SMS服务发送验证码
         # 为了演示，我们只记录日志
 
-    # print(f"SMS验证码（仅用于演示）: {verification_code}")
+        print(f"SMS验证码（仅用于演示）: {verification_code}")
 
     async def _send_email_code(self, user_id: str, challenge_id: str):
         """发送邮件验证码（简化实现）"""
@@ -482,7 +482,7 @@ class MFAService:
         # 这里应该集成邮件服务发送验证码
         # 为了演示，我们只记录日志
 
-    # print(f"邮件验证码（仅用于演示）: {verification_code}")
+        print(f"邮件验证码（仅用于演示）: {verification_code}")
 
     async def _verify_sms_code(self, challenge_id: str, code: str) -> bool:
         """验证SMS验证码"""

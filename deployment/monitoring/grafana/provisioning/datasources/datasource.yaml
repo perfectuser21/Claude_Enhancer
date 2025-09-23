@@ -1,6 +1,6 @@
 # =============================================================================
 # Grafana Datasource Provisioning Configuration
-# Automatically provision datasources for Perfect21 Claude Enhancer
+# Automatically provision datasources for Claude Enhancer Claude Enhancer
 # =============================================================================
 
 apiVersion: 1

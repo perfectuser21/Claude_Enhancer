@@ -1,53 +1,57 @@
-# Perfect21 - AI-Driven Development Workflow System
+# Claude Enhancer - AI-Driven Development Workflow System
 
-## 🎯 Overview
+## 🎯 系统概览
 
-Perfect21 (Claude Enhancer) is an intelligent development workflow system designed for Claude Code Max 20X users. It provides a comprehensive framework for managing complex software development projects using AI-driven multi-agent collaboration.
+Claude Enhancer是专为Claude Code Max 20X用户设计的智能开发工作流系统，提供完整的AI驱动多Agent协作框架。
 
-### Key Features
+### 核心特性
+- **8-Phase开发工作流** - 完整项目生命周期管理
+- **智能Agent选择** - 从56+专业AI Agent中选择4-6-8个
+- **质量保证门禁** - 自动化安全、性能和代码质量检查
+- **Git工作流集成** - 自动化分支管理和提交验证
+- **并行执行** - 多Agent协作实现快速交付
 
-- **8-Phase Development Workflow** - Complete project lifecycle management
-- **Smart Agent Selection** - 4-6-8 strategy from 56+ specialized AI agents
-- **Quality Assurance Gates** - Automated security, performance, and code quality checks
-- **Git Workflow Integration** - Automated branch management and commit validation
-- **Parallel Execution** - Multi-agent collaboration for faster delivery
+## 🚀 快速开始
 
-## 🏗️ System Architecture
+### 安装
+```bash
+# 1. 复制.claude配置到项目
+cp -r .claude /your/project/
 
-### Core Components
+# 2. 安装Git Hooks
+cd /your/project && ./.claude/install.sh
 
-```
-Perfect21 System Architecture
-├── .claude/                        # Configuration & Control Layer
-│   ├── settings.json               # Main configuration
-│   ├── agents/                     # 56+ Specialized AI Agents
-│   │   ├── development/            # Core development agents
-│   │   ├── quality/               # QA and testing agents
-│   │   ├── infrastructure/        # DevOps and deployment agents
-│   │   └── specialized/           # Domain-specific agents
-│   └── hooks/                     # Workflow Control System
-│       ├── smart_agent_selector.sh
-│       ├── dynamic_task_analyzer.sh
-│       └── ...
-├── docs/                          # Comprehensive Documentation
-├── test/                          # Test Suites & Validation
-└── backend/                       # System Backend Components
+# 3. 开始开发
+# 系统将自动提供8-Phase工作流支持
 ```
 
-### Agent Categories (56+ Specialists)
+### 基本使用
+1. **Phase 0**: 创建Git分支（系统提醒）
+2. **Phase 1-2**: 需求分析和设计规划
+3. **Phase 3**: 实现开发（4-6-8 Agent并行）
+4. **Phase 4**: 本地测试
+5. **Phase 5**: 代码提交（Git Hooks质量检查）
+6. **Phase 6**: 代码审查（PR Review）
+7. **Phase 7**: 合并部署
 
-| Category | Count | Examples |
-|----------|-------|----------|
-| **Development** | 16 | backend-architect, frontend-specialist, api-designer |
-| **Infrastructure** | 7 | devops-engineer, cloud-architect, kubernetes-expert |
-| **Quality Assurance** | 7 | test-engineer, security-auditor, performance-tester |
-| **Data & AI** | 6 | data-scientist, ai-engineer, mlops-engineer |
-| **Business** | 6 | requirements-analyst, ux-designer, technical-writer |
-| **Specialized** | 14+ | fintech-specialist, healthcare-dev, blockchain-developer |
+## 📚 文档导航
+- [架构设计](ARCHITECTURE.md) - 系统架构和设计原理
+- [工作流程](WORKFLOW.md) - 8-Phase详细说明
+- [Agent指南](AGENTS.md) - 56+专业Agent使用
+- [问题解决](TROUBLESHOOTING.md) - 常见问题和解决方案
 
-## 🚀 Quick Start
+## 🔗 相关链接
+- [API参考](api-specification/) - REST API文档
+- [部署指南](deployment/) - 生产环境部署
+- [测试策略](test/) - 测试方法和用例
 
-### 1. Installation
+## 📞 支持
+- 问题反馈：GitHub Issues
+- 技术讨论：团队内部沟通
+- 文档贡献：欢迎提交PR
+
+---
+*本系统遵循Max 20X理念：追求最佳结果，Token消耗不是问题*
 
 ```bash
 # Clone to your project
@@ -239,7 +243,7 @@ Multi-agent collaboration with:
 
 ## 🛠️ Supported Project Types
 
-Perfect21 handles diverse project requirements:
+Claude Enhancer handles diverse project requirements:
 
 ### Web Applications
 - Full-stack web applications
@@ -345,7 +349,7 @@ For best results:
 
 ## 💡 Max 20X Philosophy
 
-Perfect21 is designed for Claude Code Max 20X users who prioritize:
+Claude Enhancer is designed for Claude Code Max 20X users who prioritize:
 
 - **Quality over Speed**: Comprehensive solutions over quick fixes
 - **Intelligence over Automation**: Smart decisions over blind automation
@@ -383,7 +387,7 @@ The system supports custom integrations through:
 
 ### Contributing
 
-Perfect21 is designed to be extended and customized:
+Claude Enhancer is designed to be extended and customized:
 - Add custom agents for specialized domains
 - Create project templates for common use cases
 - Contribute quality gates and validation rules
@@ -395,6 +399,6 @@ MIT License - See LICENSE file for details
 
 ---
 
-**Perfect21** - Where AI-driven development meets enterprise-grade quality standards.
+**Claude Enhancer** - Where AI-driven development meets enterprise-grade quality standards.
 
 *Built for Claude Code Max 20X users who demand excellence in every line of code.*

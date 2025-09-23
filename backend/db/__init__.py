@@ -99,5 +99,5 @@ __all__ = [
 
 # 版本信息
 __version__ = "1.0.0"
-__author__ = "Perfect21 Team"
+__author__ = "Claude Enhancer Team"
 __description__ = "数据库访问层 - 提供完整的数据库连接、缓存和事务管理功能"

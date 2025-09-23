@@ -1,9 +1,9 @@
-# Perfect21 Configuration Schema
+# Claude Enhancer Configuration Schema
 # JSON Schema definition for configuration validation
 
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Perfect21 Configuration Schema"
-description: "Schema validation for Perfect21 unified configuration system"
+title: "Claude Enhancer Configuration Schema"
+description: "Schema validation for Claude Enhancer unified configuration system"
 version: "1.0.0"
 
 type: object

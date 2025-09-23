@@ -1,5 +1,5 @@
 # =============================================================================
-# Multi-stage Dockerfile for Perfect21 Claude Enhancer
+# Multi-stage Dockerfile for Claude Enhancer Claude Enhancer
 # Optimized for production with security and performance
 # =============================================================================
 
@@ -19,7 +19,7 @@ LABEL org.opencontainers.image.created=$BUILD_DATE \
       org.opencontainers.image.source="https://github.com/perfect21/claude-enhancer" \
       org.opencontainers.image.version=$VERSION \
       org.opencontainers.image.revision=$VCS_REF \
-      org.opencontainers.image.vendor="Perfect21" \
+      org.opencontainers.image.vendor="Claude Enhancer" \
       org.opencontainers.image.title="Claude Enhancer" \
       org.opencontainers.image.description="AI-driven development workflow system"
 

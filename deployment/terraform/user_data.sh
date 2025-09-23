@@ -2,7 +2,7 @@
 
 # =============================================================================
 # EKS Node Group User Data Script
-# Optimized configuration for Perfect21 Claude Enhancer worker nodes
+# Optimized configuration for Claude Enhancer Claude Enhancer worker nodes
 # =============================================================================
 
 set -euo pipefail

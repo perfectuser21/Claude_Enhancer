@@ -1,7 +1,7 @@
-# 🏗️ Perfect21 企业级认证系统后端架构设计
+# 🏗️ Claude Enhancer 企业级认证系统后端架构设计
 
 ## 📋 文档信息
-- **项目名称**: Perfect21 企业级认证系统
+- **项目名称**: Claude Enhancer 企业级认证系统
 - **架构版本**: v2.0
 - **创建日期**: 2025-09-22
 - **架构师**: 8-Agent协同设计团队
@@ -383,7 +383,7 @@ class MFAService:
 
     def __init__(self):
         self.redis_client = redis.Redis(host='redis-cluster', port=6379)
-        self.issuer = "Perfect21"
+        self.issuer = "Claude Enhancer"
 
     async def enable_totp(self, user_id: str, user_email: str) -> Dict[str, Any]:
         """启用TOTP认证"""
@@ -1506,14 +1506,14 @@ class EmailService {
         const html = template({
             userName: userInfo.firstName || userInfo.email,
             verificationUrl,
-            companyName: 'Perfect21',
+            companyName: 'Claude Enhancer',
             supportEmail: config.email.supportAddress
         });
 
         const mailOptions = {
             from: config.email.fromAddress,
             to: email,
-            subject: 'Perfect21 - 请验证您的邮箱地址',
+            subject: 'Claude Enhancer - 请验证您的邮箱地址',
             html
         };
 
@@ -1532,14 +1532,14 @@ class EmailService {
             userName: userInfo.firstName || userInfo.email,
             resetUrl,
             expirationTime: '1小时',
-            companyName: 'Perfect21',
+            companyName: 'Claude Enhancer',
             supportEmail: config.email.supportAddress
         });
 
         const mailOptions = {
             from: config.email.fromAddress,
             to: email,
-            subject: 'Perfect21 - 密码重置请求',
+            subject: 'Claude Enhancer - 密码重置请求',
             html
         };
 
@@ -1561,14 +1561,14 @@ class EmailService {
             location: alertInfo.location,
             deviceInfo: alertInfo.deviceInfo,
             actionUrl: `${config.frontend.url}/security`,
-            companyName: 'Perfect21',
+            companyName: 'Claude Enhancer',
             supportEmail: config.email.supportAddress
         });
 
         const mailOptions = {
             from: config.email.fromAddress,
             to: email,
-            subject: 'Perfect21 - 安全警告',
+            subject: 'Claude Enhancer - 安全警告',
             html,
             priority: 'high'
         };
@@ -1590,12 +1590,12 @@ class EmailService {
             deviceInfo: loginInfo.deviceInfo,
             wasSuccessful: loginInfo.successful,
             actionUrl: `${config.frontend.url}/security`,
-            companyName: 'Perfect21'
+            companyName: 'Claude Enhancer'
         });
 
         const subject = loginInfo.successful
-            ? 'Perfect21 - 登录通知'
-            : 'Perfect21 - 登录尝试失败警告';
+            ? 'Claude Enhancer - 登录通知'
+            : 'Claude Enhancer - 登录尝试失败警告';
 
         const mailOptions = {
             from: config.email.fromAddress,
@@ -1674,7 +1674,7 @@ class WebSocketService {
 
         // 发送欢迎消息
         socket.emit('connected', {
-            message: 'Connected to Perfect21 notification service',
+            message: 'Connected to Claude Enhancer notification service',
             timestamp: new Date().toISOString()
         });
     }
@@ -2362,7 +2362,7 @@ data:
   dashboard.json: |
     {
       "dashboard": {
-        "title": "Perfect21 Authentication System",
+        "title": "Claude Enhancer Authentication System",
         "panels": [
           {
             "title": "Login Success Rate",
@@ -3195,4 +3195,4 @@ class SecureQueryBuilder:
 - **可用性**: 99.9%
 - **扩展能力**: 支持水平扩展到100万用户
 
-这个架构设计确保了Perfect21认证系统能够满足企业级的安全性、性能和可扩展性要求，为现代应用提供可靠的身份认证和授权服务。
+这个架构设计确保了Claude Enhancer认证系统能够满足企业级的安全性、性能和可扩展性要求，为现代应用提供可靠的身份认证和授权服务。

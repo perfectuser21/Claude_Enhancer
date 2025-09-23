@@ -1,16 +1,16 @@
-# Perfect21 Unified Configuration Management System
+# Claude Enhancer Unified Configuration Management System
 # Main configuration file - acts as the single source of truth
 
 metadata:
   version: "1.0.0"
-  name: "Perfect21 Configuration System"
+  name: "Claude Enhancer Configuration System"
   description: "Unified configuration management for Claude Enhancer with 8-Phase workflow"
   last_updated: "2025-09-22"
   schema_version: "1.0"
 
 # Core system configuration
 system:
-  name: "Perfect21 Claude Enhancer"
+  name: "Claude Enhancer Claude Enhancer"
   mode: "enforcement"  # advisory | warning | enforcement
   version: "4.0.0"
   description: "强制循环直到符合标准"

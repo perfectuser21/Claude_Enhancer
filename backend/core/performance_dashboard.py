@@ -572,7 +572,7 @@ class PerformanceDashboard:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perfect21 Performance Dashboard</title>
+    <title>Claude Enhancer Performance Dashboard</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
@@ -597,7 +597,7 @@ class PerformanceDashboard:
 </head>
 <body>
     <div class="header">
-        <h1>🚀 Perfect21 Performance Dashboard</h1>
+        <h1>🚀 Claude Enhancer Performance Dashboard</h1>
         <div id="systemStatus">
             <span class="status-indicator healthy"></span>
             <span>System Status: <strong id="overallHealth">Healthy</strong></span>

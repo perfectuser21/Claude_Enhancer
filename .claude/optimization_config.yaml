@@ -1,0 +1,25 @@
+# Claude Enhancer优化配置
+version: "1.0"
+optimizations:
+  enabled: true
+
+  performance:
+    hook_caching: true
+    cache_ttl: 300
+    parallel_execution: true
+    max_workers: 10
+
+  error_handling:
+    auto_retry: true
+    max_retries: 2
+    retry_delay: 500
+
+  monitoring:
+    async_logging: true
+    performance_tracking: true
+    error_tracking: true
+
+  git_hooks:
+    parallel_checks: true
+    timeout: 2000
+    skip_on_failure: true

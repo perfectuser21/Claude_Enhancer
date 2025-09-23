@@ -1,6 +1,15 @@
 # Claude Enhancer - 智能开发工作流系统
 
+## 🏗️ v2.0架构文档（重要！）
+**Claude Code执行任务时应读取这些架构文档：**
+- `ARCHITECTURE/INDEX.md` - 📚 架构文档索引入口
+- `ARCHITECTURE/v2.0-FOUNDATION.md` - 🎯 四层架构定义
+- `ARCHITECTURE/LAYER-DEFINITION.md` - 📊 层级详细说明
+- `ARCHITECTURE/GROWTH-STRATEGY.md` - 🚀 Feature成长策略
+- `ARCHITECTURE_LOADER.md` - 🔄 文档加载指南
+
 ## 🎯 核心理念
+- **四层架构** - Core/Framework/Services/Features智能分层
 - **框架固定，内容灵活** - 8个Phase的工作流程
 - **4-6-8 Agent策略** - 根据任务复杂度智能选择
 - **三层质量保证** - Workflow + Claude Hooks + Git Hooks
@@ -8,10 +17,17 @@
 ## 📁 文件结构
 ```
 .claude/
-├── README.md                  # 本文档
-├── settings.json             # Claude Code配置
-├── WORKFLOW.md               # 8 Phase工作流说明
-├── AGENT_STRATEGY.md         # 4-6-8 Agent策略
+├── ARCHITECTURE/             # 🔒 架构文档（永久保护）
+│   ├── INDEX.md             # 文档索引
+│   ├── v2.0-FOUNDATION.md   # 核心架构
+│   ├── LAYER-DEFINITION.md  # 层级定义
+│   ├── GROWTH-STRATEGY.md   # 成长策略
+│   └── decisions/           # 架构决策记录
+├── README.md                 # 本文档
+├── settings.json            # Claude Code配置
+├── ARCHITECTURE_LOADER.md   # 架构加载器
+├── WORKFLOW.md              # 8 Phase工作流说明
+├── AGENT_STRATEGY.md        # 4-6-8 Agent策略
 ├── hooks/
 │   ├── smart_agent_selector.sh  # 智能Agent选择(核心)
 │   ├── test_reminder.sh         # 测试提醒

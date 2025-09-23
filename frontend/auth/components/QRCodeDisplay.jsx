@@ -83,7 +83,7 @@ const QRCodeDisplay = ({ qrCode, manualCode }) => {
                 <li>Select "Add account" or "+" button</li>
                 <li>Choose "Enter setup key manually"</li>
                 <li>Enter the code above</li>
-                <li>Set account name to "Perfect21" or your preference</li>
+                <li>Set account name to "Claude Enhancer" or your preference</li>
               </ol>
             </div>
           </div>

@@ -1,0 +1,183 @@
+# =============================================================================
+# Claude Enhancer 专用 Prometheus 配置
+# =============================================================================
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'claude-enhancer'
+    environment: 'development'
+
+# 告警规则文件
+rule_files:
+  - "alert_rules.claude.yml"
+
+# 告警管理器配置
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+# 数据抓取配置
+scrape_configs:
+  # Prometheus 自身
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    scrape_interval: 30s
+
+  # Claude Enhancer 监控应用
+  - job_name: 'claude-enhancer-monitor'
+    static_configs:
+      - targets: ['claude-enhancer-monitor:9091']
+    scrape_interval: 5s
+    metrics_path: /metrics
+    honor_labels: true
+
+  # Claude Enhancer Hook指标
+  - job_name: 'claude-enhancer-hooks'
+    static_configs:
+      - targets: ['claude-enhancer-monitor:9091']
+    scrape_interval: 5s
+    metrics_path: /hook-metrics
+    honor_labels: true
+
+  # 系统指标
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 15s
+
+  # 容器指标
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+    scrape_interval: 15s
+
+  # 黑盒监控 - HTTP端点
+  - job_name: 'blackbox-http'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+        - http://claude-enhancer-monitor:8091/health
+        - http://claude-enhancer-monitor:8091/
+        - http://grafana:3000/api/health
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  # 告警管理器
+  - job_name: 'alertmanager'
+    static_configs:
+      - targets: ['alertmanager:9093']
+    scrape_interval: 30s
+
+  # Grafana
+  - job_name: 'grafana'
+    static_configs:
+      - targets: ['grafana:3000']
+    scrape_interval: 30s
+
+# 记录规则 - 预计算常用指标
+recording_rules:
+  - name: claude_enhancer_recording_rules
+    interval: 30s
+    rules:
+      # Hook执行速率
+      - record: claude_enhancer:hook_execution_rate
+        expr: rate(claude_enhancer_hook_executions_total[5m])
+        labels:
+          metric_type: "hook_rate"
+
+      # Hook错误率
+      - record: claude_enhancer:hook_error_rate
+        expr: |
+          rate(claude_enhancer_hook_executions_total{status="error"}[5m])
+          /
+          rate(claude_enhancer_hook_executions_total[5m])
+        labels:
+          metric_type: "error_rate"
+
+      # Hook成功率
+      - record: claude_enhancer:hook_success_rate
+        expr: |
+          rate(claude_enhancer_hook_executions_total{status="success"}[5m])
+          /
+          rate(claude_enhancer_hook_executions_total[5m])
+        labels:
+          metric_type: "success_rate"
+
+      # Hook P95延迟
+      - record: claude_enhancer:hook_latency_p95
+        expr: |
+          histogram_quantile(0.95,
+            rate(claude_enhancer_hook_duration_seconds_bucket[5m])
+          )
+        labels:
+          quantile: "0.95"
+
+      # Hook P99延迟
+      - record: claude_enhancer:hook_latency_p99
+        expr: |
+          histogram_quantile(0.99,
+            rate(claude_enhancer_hook_duration_seconds_bucket[5m])
+          )
+        labels:
+          quantile: "0.99"
+
+      # 系统CPU使用率
+      - record: claude_enhancer:system_cpu_usage
+        expr: |
+          100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)
+        labels:
+          metric_type: "cpu_usage"
+
+      # 系统内存使用率
+      - record: claude_enhancer:system_memory_usage
+        expr: |
+          (
+            (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes)
+            /
+            node_memory_MemTotal_bytes
+          ) * 100
+        labels:
+          metric_type: "memory_usage"
+
+      # Hook吞吐量(按小时)
+      - record: claude_enhancer:hook_throughput_hourly
+        expr: |
+          increase(claude_enhancer_hook_executions_total[1h])
+        labels:
+          metric_type: "throughput_hourly"
+
+      # 活跃Hook数量
+      - record: claude_enhancer:active_hooks_count
+        expr: claude_enhancer_active_hooks
+        labels:
+          metric_type: "active_count"
+
+      # Hook队列大小
+      - record: claude_enhancer:hook_queue_size
+        expr: claude_enhancer_queue_size
+        labels:
+          metric_type: "queue_size"
+
+# 远程写入配置(可选 - 用于长期存储)
+# remote_write:
+#   - url: "http://long-term-storage:9201/write"
+#     queue_config:
+#       max_samples_per_send: 1000
+#       max_shards: 200
+#       capacity: 2500
+
+# 远程读取配置(可选)
+# remote_read:
+#   - url: "http://long-term-storage:9201/read"

@@ -46,7 +46,7 @@ class QRCodeGenerator:
     def generate_totp_qr(
         secret: str,
         user_email: str,
-        issuer: str = "Perfect21",
+        issuer: str = "Claude Enhancer",
         algorithm: str = "SHA1",
         digits: int = 6,
         period: int = 30,
@@ -142,7 +142,7 @@ class MFAService:
         qr_code_url = QRCodeGenerator.generate_totp_qr(
             secret=secret,
             user_email=f"user_{user_id}@perfect21.com",
-            issuer="Perfect21",
+            issuer="Claude Enhancer",
         )
 
         return {

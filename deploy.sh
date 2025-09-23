@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================================
-# Deployment Script for Perfect21 Claude Enhancer
+# Deployment Script for Claude Enhancer Claude Enhancer
 # Supports Docker Compose and Kubernetes deployment
 # =============================================================================
 
@@ -38,7 +38,7 @@ log_error() {
 
 show_help() {
     cat << EOF
-Perfect21 Claude Enhancer Deployment Script
+Claude Enhancer Claude Enhancer Deployment Script
 
 Usage: $0 [OPTIONS] COMMAND
 

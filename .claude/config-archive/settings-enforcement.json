@@ -1,6 +1,6 @@
 {
   "version": "4.0.0",
-  "project": "Perfect21 - Enforcement Loop System",
+  "project": "Claude Enhancer - Enforcement Loop System",
   "description": "强制循环直到符合标准",
   "hooks": {
     "PreToolUse": [
@@ -24,7 +24,7 @@
     "UserPromptSubmit": [
       {
         "type": "command",
-        "command": "echo '🎯 Perfect21 Enforcement Active - Quality Standards Will Be Enforced' >&2",
+        "command": "echo '🎯 Claude Enhancer Enforcement Active - Quality Standards Will Be Enforced' >&2",
         "description": "系统提醒",
         "timeout": 1000
       }

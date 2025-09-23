@@ -1,5 +1,5 @@
 """
-Perfect21 认证API工具函数
+Claude Enhancer 认证API工具函数
 提供认证相关的实用工具和辅助函数
 """
 
@@ -436,7 +436,7 @@ class QRCodeGenerator:
     def generate_totp_qr(
         secret: str,
         user_email: str,
-        issuer: str = "Perfect21",
+        issuer: str = "Claude Enhancer",
         algorithm: str = "SHA1",
         digits: int = 6,
         period: int = 30,

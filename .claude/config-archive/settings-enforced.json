@@ -1,7 +1,7 @@
 {
   "version": "3.0.0",
-  "project": "Perfect21 - Enforced Mode with Pre-Check",
-  "description": "强制执行Perfect21规则，提供预检查指导",
+  "project": "Claude Enhancer - Enforced Mode with Pre-Check",
+  "description": "强制执行Claude Enhancer规则，提供预检查指导",
   "hooks": {
     "UserPromptSubmit": [
       {

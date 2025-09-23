@@ -1,5 +1,5 @@
 """
-Perfect21 安全模块
+Claude Enhancer 安全模块
 企业级安全中间件、认证处理和安全策略
 """
 
@@ -47,7 +47,7 @@ class SecurityHeaders:
             # 权限策略
             "Permissions-Policy": "geolocation=(), microphone=(), camera=()",
             # 清除服务器信息
-            "Server": "Perfect21-Auth",
+            "Server": "Claude Enhancer-Auth",
             # 缓存控制
             "Cache-Control": "no-cache, no-store, must-revalidate",
             "Pragma": "no-cache",

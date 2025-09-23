@@ -1,7 +1,7 @@
-# Perfect21 综合测试工作流
+# Claude Enhancer 综合测试工作流
 # 企业级CI/CD测试管道 - 确保每一行代码都经过严格验证
 
-name: Perfect21 Comprehensive Testing
+name: Claude Enhancer Comprehensive Testing
 
 on:
   push:
@@ -667,7 +667,7 @@ jobs:
         <!DOCTYPE html>
         <html>
         <head>
-            <title>Perfect21 综合测试报告</title>
+            <title>Claude Enhancer 综合测试报告</title>
             <style>
                 body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
                 .container { max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
@@ -688,7 +688,7 @@ jobs:
         <body>
             <div class="container">
                 <div class="header">
-                    <h1>🧪 Perfect21 综合测试报告</h1>
+                    <h1>🧪 Claude Enhancer 综合测试报告</h1>
                     <p>生成时间: $(date '+%Y-%m-%d %H:%M:%S UTC')</p>
                     <p>提交: ${{ github.sha }}</p>
                     <p>分支: ${{ github.ref_name }}</p>
@@ -863,11 +863,11 @@ jobs:
     - name: 准备通知消息
       run: |
         if [ "${{ needs.quality-gate.result }}" == "success" ]; then
-          echo "NOTIFICATION_TITLE=✅ Perfect21 测试全部通过" >> $GITHUB_ENV
+          echo "NOTIFICATION_TITLE=✅ Claude Enhancer 测试全部通过" >> $GITHUB_ENV
           echo "NOTIFICATION_COLOR=success" >> $GITHUB_ENV
           echo "NOTIFICATION_MESSAGE=所有质量检查已通过，代码已准备好部署。" >> $GITHUB_ENV
         else
-          echo "NOTIFICATION_TITLE=❌ Perfect21 测试发现问题" >> $GITHUB_ENV
+          echo "NOTIFICATION_TITLE=❌ Claude Enhancer 测试发现问题" >> $GITHUB_ENV
           echo "NOTIFICATION_COLOR=failure" >> $GITHUB_ENV
           echo "NOTIFICATION_MESSAGE=测试执行发现问题，请查看详细报告并修复。" >> $GITHUB_ENV
         fi

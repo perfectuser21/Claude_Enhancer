@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Perfect21 Configuration Manager
+Claude Enhancer Configuration Manager
 ==============================
 
-CLI tool for managing Perfect21 unified configuration system.
+CLI tool for managing Claude Enhancer unified configuration system.
 Provides commands for:
 - Loading and validating configurations
 - Managing environment-specific settings
@@ -11,7 +11,7 @@ Provides commands for:
 - Configuration health checks
 - Environment switching
 
-Author: Perfect21 System (Technical Writer & System Architect)
+Author: Claude Enhancer System (Technical Writer & System Architect)
 Version: 1.0.0
 """
 
@@ -343,7 +343,7 @@ class ConfigManager:
 def main():
     """CLI interface."""
     parser = argparse.ArgumentParser(
-        description="Perfect21 Configuration Manager",
+        description="Claude Enhancer Configuration Manager",
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
 

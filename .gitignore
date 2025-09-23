@@ -175,10 +175,14 @@ kustomization.local.yaml
 !CLAUDE.md
 !/docs/guides/*.md
 
-# Perfect21 specific
+# Claude Enhancer specific
 .claude/phase_state.json.local
 .claude/settings.local.json
 .claude/user_config.json
+
+# Claude Enhancer架构文档永久保护
+!.claude/ARCHITECTURE/
+!.claude/ARCHITECTURE/**
 
 # =============================================================================
 # END OF ENHANCED SECURITY GITIGNORE
