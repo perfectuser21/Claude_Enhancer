@@ -1,0 +1,52 @@
+{
+  "name": "perfect21",
+  "version": "2.0.0",
+  "description": "Perfect21 - AI-Driven Development Workflow Management System",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node test/test_runner.js",
+    "test:e2e": "playwright test",
+    "test:accessibility": "node test/accessibility/test_runner.js",
+    "lint": "echo 'Running linter...'",
+    "build": "echo 'Building project...'",
+    "install:hooks": "bash .claude/install.sh"
+  },
+  "keywords": [
+    "ai",
+    "development",
+    "workflow",
+    "automation",
+    "perfect21",
+    "claude"
+  ],
+  "author": "Perfect21 Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "dependencies": {
+    "@axe-core/playwright": "^4.10.2",
+    "axe-core": "^4.10.3",
+    "chalk": "^4.1.2",
+    "cli-table3": "^0.6.3",
+    "commander": "^9.4.0",
+    "crypto-js": "^4.1.1",
+    "inquirer": "^8.2.4",
+    "jsdom": "^27.0.0",
+    "ora": "^5.4.1",
+    "playwright": "^1.55.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.5.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/perfect21/perfect21.git"
+  },
+  "bugs": {
+    "url": "https://github.com/perfect21/perfect21/issues"
+  },
+  "homepage": "https://github.com/perfect21/perfect21#readme"
+}

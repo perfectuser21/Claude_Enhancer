@@ -1,0 +1,42 @@
+{
+  "name": "@claude-enhancer/recovery-system",
+  "version": "2.0.0",
+  "description": "Comprehensive error recovery system for Claude Enhancer Plus",
+  "main": "index.js",
+  "bin": {
+    "phase-controller": "./cli/recovery-cli.js"
+  },
+  "scripts": {
+    "test": "node test/test-runner.js",
+    "start": "node cli/recovery-cli.js",
+    "health-check": "node cli/recovery-cli.js status --health",
+    "create-checkpoint": "node cli/recovery-cli.js checkpoint --create",
+    "recover": "node cli/recovery-cli.js recover --auto",
+    "diagnostics": "node cli/recovery-cli.js diagnose --full"
+  },
+  "keywords": [
+    "error-recovery",
+    "checkpoint",
+    "retry",
+    "diagnostics",
+    "claude-enhancer"
+  ],
+  "author": "Claude Enhancer Team",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^9.4.1",
+    "chalk": "^4.1.2"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "supertest": "^6.3.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "files": [
+    "*.js",
+    "cli/",
+    "test/"
+  ]
+}

@@ -145,7 +145,7 @@ class SystemBenchmarks:
 class HookSystemBenchmarks:
     """Hook系统基准测试"""
 
-    def __init__(self, claude_dir: str = "/home/xx/dev/Perfect21/.claude"):
+    def __init__(self, claude_dir: str = "/home/xx/dev/Claude_Enhancer/.claude"):
         self.claude_dir = Path(claude_dir)
         self.results: List[BenchmarkResult] = []
 
@@ -309,7 +309,7 @@ class HookSystemBenchmarks:
 class PerformanceComparisonBenchmarks:
     """性能对比基准测试"""
 
-    def __init__(self, claude_dir: str = "/home/xx/dev/Perfect21/.claude"):
+    def __init__(self, claude_dir: str = "/home/xx/dev/Claude_Enhancer/.claude"):
         self.claude_dir = Path(claude_dir)
         self.results: List[BenchmarkResult] = []
 
@@ -649,7 +649,7 @@ class BenchmarkAnalyzer:
 class ComprehensiveBenchmarkSuite:
     """综合基准测试套件"""
 
-    def __init__(self, claude_dir: str = "/home/xx/dev/Perfect21/.claude"):
+    def __init__(self, claude_dir: str = "/home/xx/dev/Claude_Enhancer/.claude"):
         self.claude_dir = claude_dir
         self.system_bench = SystemBenchmarks()
         self.hook_bench = HookSystemBenchmarks(claude_dir)

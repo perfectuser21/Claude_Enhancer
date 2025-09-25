@@ -1,0 +1,129 @@
+{
+  "benchmark_suite": "Claude Enhancer Plus P3",
+  "timestamp": 1758773398.8141837,
+  "results": [
+    {
+      "name": "phase_transition",
+      "duration": 4.902435140684247e-05,
+      "memory_peak": 0.2578125,
+      "cpu_percent": 140.2856,
+      "throughput": 20398.02610953925,
+      "success": true,
+      "iterations": 1000,
+      "metadata": {
+        "min_duration": 3.1221192330121994e-05,
+        "max_duration": 0.00248620193451643,
+        "std_duration": 0.00011073575172179121,
+        "p95_duration": 6.8149552680552e-05
+      }
+    },
+    {
+      "name": "agent_selection",
+      "duration": 4.567962372675538e-05,
+      "memory_peak": 0.0,
+      "cpu_percent": 73.57905,
+      "throughput": 21891.598888418204,
+      "success": true,
+      "iterations": 2000,
+      "metadata": {
+        "min_duration": 3.381911665201187e-05,
+        "max_duration": 0.0032805190421640873,
+        "std_duration": 8.548502803113529e-05,
+        "p95_duration": 6.458945572376251e-05
+      }
+    },
+    {
+      "name": "validation_operations",
+      "duration": 3.9054815657436845e-05,
+      "memory_peak": 0.0,
+      "cpu_percent": 125.57546666666667,
+      "throughput": 25605.03700161696,
+      "success": true,
+      "iterations": 1500,
+      "metadata": {
+        "min_duration": 3.058789297938347e-05,
+        "max_duration": 0.0003649718128144741,
+        "std_duration": 1.89575690380381e-05,
+        "p95_duration": 6.205246318131685e-05
+      }
+    },
+    {
+      "name": "cache_operations",
+      "duration": 6.0459595173597335e-05,
+      "memory_peak": 0.0,
+      "cpu_percent": 87.54560000000001,
+      "throughput": 16539.971813054734,
+      "success": true,
+      "iterations": 500,
+      "metadata": {
+        "min_duration": 5.216104909777641e-05,
+        "max_duration": 0.0002969270572066307,
+        "std_duration": 2.2958497922900884e-05,
+        "p95_duration": 8.409130387008191e-05
+      }
+    },
+    {
+      "name": "file_operations",
+      "duration": 3.510812297463417e-05,
+      "memory_peak": 0.0,
+      "cpu_percent": 62.5655,
+      "throughput": 28483.43674546503,
+      "success": true,
+      "iterations": 1000,
+      "metadata": {
+        "min_duration": 3.0949246138334274e-05,
+        "max_duration": 0.0003323410637676716,
+        "std_duration": 1.695365707260588e-05,
+        "p95_duration": 4.814588464796543e-05
+      }
+    },
+    {
+      "name": "memory_operations",
+      "duration": 0.00018469817005097866,
+      "memory_peak": 0.0,
+      "cpu_percent": 55.74,
+      "throughput": 5414.238807693598,
+      "success": true,
+      "iterations": 200,
+      "metadata": {
+        "min_duration": 0.0001696459949016571,
+        "max_duration": 0.00037384405732154846,
+        "std_duration": 2.7350510442772927e-05,
+        "p95_duration": 0.00022928202524781228
+      }
+    },
+    {
+      "name": "parallel_operations",
+      "duration": 0.0012181495036929846,
+      "memory_peak": 0.0703125,
+      "cpu_percent": 133.772,
+      "throughput": 820.917298712814,
+      "success": true,
+      "iterations": 50,
+      "metadata": {
+        "min_duration": 0.0009231828153133392,
+        "max_duration": 0.003846103325486183,
+        "std_duration": 0.0004198274929406981,
+        "p95_duration": 0.001714405999518931
+      }
+    },
+    {
+      "name": "benchmark_async_workflow",
+      "duration": 0.0014663717802613973,
+      "memory_peak": 0.0,
+      "cpu_percent": 20.3,
+      "throughput": 681.955295008295,
+      "success": true,
+      "iterations": 100,
+      "metadata": {
+        "total_time": 0.14663717802613974
+      }
+    }
+  ],
+  "summary_metrics": {
+    "total_benchmarks": 8,
+    "avg_duration_ms": 0.38731824536807835,
+    "total_throughput": 119835.1819595089,
+    "peak_memory_mb": 0.2578125
+  }
+}

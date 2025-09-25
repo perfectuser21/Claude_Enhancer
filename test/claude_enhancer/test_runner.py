@@ -29,7 +29,7 @@ except ImportError as e:
 class TestOrchestrator:
     """测试编排器 - 统一管理所有测试套件"""
 
-    def __init__(self, claude_dir: str = "/home/xx/dev/Perfect21/.claude"):
+    def __init__(self, claude_dir: str = "/home/xx/dev/Claude_Enhancer/.claude"):
         self.claude_dir = Path(claude_dir)
         self.project_dir = self.claude_dir.parent
         self.test_dir = self.project_dir / "test" / "claude_enhancer"
@@ -602,7 +602,7 @@ def main():
     """主函数"""
     parser = argparse.ArgumentParser(description="Claude Enhancer 测试框架")
     parser.add_argument(
-        "--claude-dir", default="/home/xx/dev/Perfect21/.claude", help="Claude目录路径"
+        "--claude-dir", default="/home/xx/dev/Claude_Enhancer/.claude", help="Claude目录路径"
     )
     parser.add_argument("--quick", action="store_true", help="只运行快速验证测试")
     parser.add_argument("--no-stress", action="store_true", help="跳过压力测试")

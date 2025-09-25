@@ -1,0 +1,75 @@
+{
+  "timestamp": "2025-09-25 12:12:42",
+  "system_info": {
+    "cpu_count": 4,
+    "memory_total_gb": 7.751277923583984,
+    "python_version": "3.10.12",
+    "platform": "linux"
+  },
+  "startup_performance": {
+    "startup_time": {
+      "avg_ms": 0.5894740112125874,
+      "min_ms": 0.47226669266819954,
+      "max_ms": 0.9174030274152756,
+      "std_dev": 0.12052319056653037
+    },
+    "memory_usage": {
+      "avg_mb": 0,
+      "max_mb": 0,
+      "min_mb": 0
+    },
+    "cpu_usage": {
+      "avg_percent": 84.22666666666667,
+      "max_percent": 1263.4
+    },
+    "iterations": 15
+  },
+  "component_loading": {
+    "phase_loading": {
+      "avg_ms": 0.004632049240171909,
+      "total_phases": 8,
+      "max_ms": 0.016534700989723206,
+      "min_ms": 0.0021313317120075226
+    },
+    "agent_metadata_loading": {
+      "avg_ms": 0.0012839833895365398,
+      "total_agents": 6,
+      "max_ms": 0.005652662366628647,
+      "min_ms": 0.0003059394657611847
+    }
+  },
+  "cache_efficiency": {
+    "engine_cache": {
+      "hit_rate": "0.0%",
+      "cached_operations_time_ms": 0.01385388895869255
+    },
+    "orchestrator_cache": {
+      "hit_rate": "50.0%",
+      "cached_selections_time_ms": 0.00950600951910019
+    }
+  },
+  "parallel_execution": {
+    "sequential_execution_ms": 6.532326806336641,
+    "parallel_execution_ms": 4.060006700456142,
+    "speedup_factor": 1.6089448339094448,
+    "agents_executed": 6,
+    "parallel_efficiency": "26.8%"
+  },
+  "memory_efficiency": {
+    "initial_memory_mb": 21.28125,
+    "peak_memory_mb": 21.5390625,
+    "final_memory_mb": 21.5390625,
+    "memory_growth_mb": 0.2578125,
+    "memory_recovered_mb": 0.0,
+    "instances_created": 10,
+    "avg_memory_per_instance_mb": 0.02578125
+  },
+  "overall_performance": {
+    "startup_improvement_percent": 98.82105197757483,
+    "target_achieved": true,
+    "recommendation": "Excellent",
+    "actual_startup_ms": 0.5894740112125874,
+    "baseline_startup_ms": 50
+  },
+  "benchmark_duration_seconds": 1.5395793914794922
+}

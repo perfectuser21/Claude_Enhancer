@@ -1,0 +1,49 @@
+{
+  "timestamp": 1758773494.1674905,
+  "total_duration": 1.0643352707847953,
+  "performance_target_met": true,
+  "coverage_target_met": false,
+  "success_rate": 0.0,
+  "overall_success": false,
+  "successful_categories": 0,
+  "total_categories": 3,
+  "test_results": {
+    "unit": {
+      "category": "unit_tests",
+      "success": false,
+      "duration": 0.0038219341076910496,
+      "error": "[Errno 2] No such file or directory: 'python'",
+      "return_code": 1
+    },
+    "integration": {
+      "category": "integration_tests",
+      "success": false,
+      "duration": 0.003559226170182228,
+      "error": "[Errno 2] No such file or directory: 'python'",
+      "return_code": 1
+    },
+    "performance": {
+      "category": "performance_tests",
+      "success": false,
+      "duration": 1.0567088429816067,
+      "error": "An asyncio.Future, a coroutine or an awaitable is required",
+      "return_code": 1
+    },
+    "coverage": {
+      "success": false,
+      "duration": 0.0012119743041694164,
+      "error": "[Errno 2] No such file or directory: 'python'",
+      "return_code": 1
+    }
+  },
+  "configuration": {
+    "max_execution_time": 10.0,
+    "target_coverage": 0.8,
+    "parallel_workers": 4,
+    "memory_limit_mb": 1000.0
+  },
+  "system_info": {
+    "cpu_count": 4,
+    "memory_gb": 7.751277923583984
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "timestamp": "2025-09-25T08:31:14.137Z",
+  "testSuite": "Performance Test Framework Validation",
+  "results": {
+    "passed": 1,
+    "failed": 4,
+    "total": 5,
+    "successRate": 20
+  },
+  "errors": [
+    "Recovery speed: errorRecovery.recoverFromError is not a function",
+    "Checkpoint performance: checkpointManager.restoreCheckpoint is not a function",
+    "Memory usage: errorRecovery.recoverFromError is not a function",
+    "Concurrent operations: Concurrent test failed: 0/5 successful, 1ms"
+  ],
+  "environment": {
+    "nodeVersion": "v20.19.4",
+    "platform": "linux",
+    "memory": {
+      "rss": 45957120,
+      "heapTotal": 6266880,
+      "heapUsed": 4684936,
+      "external": 1702036,
+      "arrayBuffers": 17259
+    }
+  },
+  "recommendations": [
+    "Review and fix failed test cases before running full performance tests",
+    "Run performance tests in a controlled environment for consistent results",
+    "Monitor system resources during performance testing"
+  ]
+}

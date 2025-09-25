@@ -147,7 +147,7 @@ class SystemResourceMonitor:
 class HookStressTest:
     """Hook系统压力测试"""
 
-    def __init__(self, claude_dir: str = "/home/xx/dev/Perfect21/.claude"):
+    def __init__(self, claude_dir: str = "/home/xx/dev/Claude_Enhancer/.claude"):
         self.claude_dir = Path(claude_dir)
         self.hooks_dir = self.claude_dir / "hooks"
 
@@ -472,7 +472,7 @@ exit 0
 class FileSystemStressTest:
     """文件系统压力测试"""
 
-    def __init__(self, claude_dir: str = "/home/xx/dev/Perfect21/.claude"):
+    def __init__(self, claude_dir: str = "/home/xx/dev/Claude_Enhancer/.claude"):
         self.claude_dir = Path(claude_dir)
 
     def rapid_file_operations_test(self, duration: float = 30.0) -> StressTestResult:
@@ -565,7 +565,7 @@ class FileSystemStressTest:
 class ProcessStressTest:
     """进程压力测试"""
 
-    def __init__(self, claude_dir: str = "/home/xx/dev/Perfect21/.claude"):
+    def __init__(self, claude_dir: str = "/home/xx/dev/Claude_Enhancer/.claude"):
         self.claude_dir = Path(claude_dir)
 
     def process_spawn_stress_test(
@@ -660,7 +660,7 @@ class ProcessStressTest:
 class ComprehensiveStressTestSuite:
     """综合压力测试套件"""
 
-    def __init__(self, claude_dir: str = "/home/xx/dev/Perfect21/.claude"):
+    def __init__(self, claude_dir: str = "/home/xx/dev/Claude_Enhancer/.claude"):
         self.claude_dir = claude_dir
         self.hook_stress = HookStressTest(claude_dir)
         self.fs_stress = FileSystemStressTest(claude_dir)

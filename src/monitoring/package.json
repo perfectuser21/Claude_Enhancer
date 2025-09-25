@@ -1,0 +1,57 @@
+{
+  "name": "claude-enhancer-monitoring",
+  "version": "1.0.0",
+  "description": "Comprehensive monitoring dashboard for Claude Enhancer Plus",
+  "main": "Dashboard.js",
+  "scripts": {
+    "start": "node Dashboard.js",
+    "web": "node WebDashboard.js",
+    "collector": "node MetricsCollector.js",
+    "alerts": "node AlertManager.js",
+    "test": "npm run test:dashboard && npm run test:metrics && npm run test:alerts",
+    "test:dashboard": "node test/dashboard.test.js",
+    "test:metrics": "node test/metrics.test.js",
+    "test:alerts": "node test/alerts.test.js",
+    "install-deps": "npm install",
+    "dev": "nodemon WebDashboard.js",
+    "build": "echo 'No build step required for Node.js application'",
+    "lint": "eslint *.js",
+    "format": "prettier --write *.js"
+  },
+  "dependencies": {
+    "blessed": "^0.1.81",
+    "blessed-contrib": "^4.11.0",
+    "express": "^4.18.2",
+    "ws": "^8.14.2",
+    "chart.js": "^4.4.0",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1",
+    "eslint": "^8.52.0",
+    "prettier": "^3.0.3"
+  },
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  },
+  "keywords": [
+    "monitoring",
+    "dashboard",
+    "metrics",
+    "alerting",
+    "observability",
+    "claude-enhancer",
+    "performance"
+  ],
+  "author": "Claude Code",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/claude-enhancer-plus.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-org/claude-enhancer-plus/issues"
+  },
+  "homepage": "https://github.com/your-org/claude-enhancer-plus#readme"
+}

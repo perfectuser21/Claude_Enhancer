@@ -22,7 +22,7 @@
 10. ✅ 创建运维脚本
 
 ### 🤖 Agent执行策略
-按照Perfect21的8-Agent复杂任务执行模式，本次任务使用了：
+按照Claude Enhancer的8-Agent复杂任务执行模式，本次任务使用了：
 
 - **Technical Writer** - 主导文档编写和结构设计
 - **DevOps Engineer** - 负责部署脚本和流程设计

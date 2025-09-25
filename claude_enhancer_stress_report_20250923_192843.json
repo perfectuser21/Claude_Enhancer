@@ -18,7 +18,7 @@
       "metrics": [
         {
           "timestamp": 1758626819.0911624,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/error_ha",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/error_ha",
           "duration_ms": 9.96255874633789,
           "cpu_percent": 36.0,
           "memory_mb": 0.0,
@@ -32,7 +32,7 @@
         },
         {
           "timestamp": 1758626819.201797,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/error_ha",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/error_ha",
           "duration_ms": 9.424209594726562,
           "cpu_percent": 22.7,
           "memory_mb": 0.0,
@@ -46,7 +46,7 @@
         },
         {
           "timestamp": 1758626819.2116003,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/error_ha",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/error_ha",
           "duration_ms": 9.359359741210938,
           "cpu_percent": 25.0,
           "memory_mb": 0.0,
@@ -60,7 +60,7 @@
         },
         {
           "timestamp": 1758626819.2213502,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/error_ha",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/error_ha",
           "duration_ms": 9.071826934814453,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -74,7 +74,7 @@
         },
         {
           "timestamp": 1758626819.2308953,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/error_ha",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/error_ha",
           "duration_ms": 9.656906127929688,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -88,7 +88,7 @@
         },
         {
           "timestamp": 1758626819.2410014,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/error_ha",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/error_ha",
           "duration_ms": 10.770559310913086,
           "cpu_percent": 25.0,
           "memory_mb": 0.0,
@@ -102,7 +102,7 @@
         },
         {
           "timestamp": 1758626819.2521834,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/error_ha",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/error_ha",
           "duration_ms": 9.66024398803711,
           "cpu_percent": 60.0,
           "memory_mb": 0.0,
@@ -116,7 +116,7 @@
         },
         {
           "timestamp": 1758626819.2622144,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/error_ha",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/error_ha",
           "duration_ms": 10.403871536254883,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -130,7 +130,7 @@
         },
         {
           "timestamp": 1758626819.2729688,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/error_ha",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/error_ha",
           "duration_ms": 10.635852813720703,
           "cpu_percent": 60.0,
           "memory_mb": 0.0,
@@ -144,7 +144,7 @@
         },
         {
           "timestamp": 1758626819.2840436,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/error_ha",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/error_ha",
           "duration_ms": 9.556055068969727,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -158,7 +158,7 @@
         },
         {
           "timestamp": 1758626819.294171,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/error_ha",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/error_ha",
           "duration_ms": 15.903472900390625,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -172,7 +172,7 @@
         },
         {
           "timestamp": 1758626819.4106586,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/error_ha",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/error_ha",
           "duration_ms": 9.607553482055664,
           "cpu_percent": 20.0,
           "memory_mb": 0.0,
@@ -186,7 +186,7 @@
         },
         {
           "timestamp": 1758626819.4206061,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/error_ha",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/error_ha",
           "duration_ms": 9.11259651184082,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -200,7 +200,7 @@
         },
         {
           "timestamp": 1758626819.4300199,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/error_ha",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/error_ha",
           "duration_ms": 8.969306945800781,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -214,7 +214,7 @@
         },
         {
           "timestamp": 1758626819.4393206,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/error_ha",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/error_ha",
           "duration_ms": 8.525609970092773,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -228,7 +228,7 @@
         },
         {
           "timestamp": 1758626819.4482865,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/error_ha",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/error_ha",
           "duration_ms": 11.812210083007812,
           "cpu_percent": 0.0,
           "memory_mb": 0.0,
@@ -242,7 +242,7 @@
         },
         {
           "timestamp": 1758626819.4603972,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/error_ha",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/error_ha",
           "duration_ms": 8.891820907592773,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -256,7 +256,7 @@
         },
         {
           "timestamp": 1758626819.4696507,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/error_ha",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/error_ha",
           "duration_ms": 9.174585342407227,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -270,7 +270,7 @@
         },
         {
           "timestamp": 1758626819.479128,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/error_ha",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/error_ha",
           "duration_ms": 10.037660598754883,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -284,7 +284,7 @@
         },
         {
           "timestamp": 1758626819.4894764,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/error_ha",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/error_ha",
           "duration_ms": 10.526180267333984,
           "cpu_percent": 40.0,
           "memory_mb": 0.0,
@@ -298,7 +298,7 @@
         },
         {
           "timestamp": 1758626819.5013473,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/auto_cle",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/auto_cle",
           "duration_ms": 42.821645736694336,
           "cpu_percent": 37.5,
           "memory_mb": 0.0,
@@ -312,7 +312,7 @@
         },
         {
           "timestamp": 1758626819.6446786,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/auto_cle",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/auto_cle",
           "duration_ms": 44.07906532287598,
           "cpu_percent": 24.6,
           "memory_mb": 0.0,
@@ -326,7 +326,7 @@
         },
         {
           "timestamp": 1758626819.6890683,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/auto_cle",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/auto_cle",
           "duration_ms": 42.4647331237793,
           "cpu_percent": 47.1,
           "memory_mb": 0.0,
@@ -340,7 +340,7 @@
         },
         {
           "timestamp": 1758626819.7318363,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/auto_cle",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/auto_cle",
           "duration_ms": 38.847923278808594,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -354,7 +354,7 @@
         },
         {
           "timestamp": 1758626819.7710311,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/auto_cle",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/auto_cle",
           "duration_ms": 39.1993522644043,
           "cpu_percent": 46.7,
           "memory_mb": 0.0,
@@ -368,7 +368,7 @@
         },
         {
           "timestamp": 1758626819.8106265,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/auto_cle",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/auto_cle",
           "duration_ms": 45.26019096374512,
           "cpu_percent": 42.9,
           "memory_mb": 0.0,
@@ -382,7 +382,7 @@
         },
         {
           "timestamp": 1758626819.8562684,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/auto_cle",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/auto_cle",
           "duration_ms": 39.422035217285156,
           "cpu_percent": 40.0,
           "memory_mb": 0.0,
@@ -396,7 +396,7 @@
         },
         {
           "timestamp": 1758626819.8960245,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/auto_cle",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/auto_cle",
           "duration_ms": 36.02719306945801,
           "cpu_percent": 38.5,
           "memory_mb": 0.0,
@@ -410,7 +410,7 @@
         },
         {
           "timestamp": 1758626819.9323556,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/auto_cle",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/auto_cle",
           "duration_ms": 34.35707092285156,
           "cpu_percent": 38.5,
           "memory_mb": 0.0,
@@ -424,7 +424,7 @@
         },
         {
           "timestamp": 1758626819.9670825,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/auto_cle",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/auto_cle",
           "duration_ms": 37.67228126525879,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -438,7 +438,7 @@
         },
         {
           "timestamp": 1758626820.0050673,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/auto_cle",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/auto_cle",
           "duration_ms": 43.40004920959473,
           "cpu_percent": 38.9,
           "memory_mb": 0.0,
@@ -452,7 +452,7 @@
         },
         {
           "timestamp": 1758626820.1490672,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/auto_cle",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/auto_cle",
           "duration_ms": 40.11845588684082,
           "cpu_percent": 24.6,
           "memory_mb": 0.0,
@@ -466,7 +466,7 @@
         },
         {
           "timestamp": 1758626820.1895568,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/auto_cle",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/auto_cle",
           "duration_ms": 36.74817085266113,
           "cpu_percent": 42.9,
           "memory_mb": 0.0,
@@ -480,7 +480,7 @@
         },
         {
           "timestamp": 1758626820.2267725,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/auto_cle",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/auto_cle",
           "duration_ms": 40.0087833404541,
           "cpu_percent": 40.0,
           "memory_mb": 0.0,
@@ -494,7 +494,7 @@
         },
         {
           "timestamp": 1758626820.2670958,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/auto_cle",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/auto_cle",
           "duration_ms": 36.83114051818848,
           "cpu_percent": 40.0,
           "memory_mb": 0.0,
@@ -508,7 +508,7 @@
         },
         {
           "timestamp": 1758626820.304257,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/auto_cle",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/auto_cle",
           "duration_ms": 42.54293441772461,
           "cpu_percent": 38.9,
           "memory_mb": 0.0,
@@ -522,7 +522,7 @@
         },
         {
           "timestamp": 1758626820.347662,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/auto_cle",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/auto_cle",
           "duration_ms": 33.141374588012695,
           "cpu_percent": 46.7,
           "memory_mb": 0.0,
@@ -536,7 +536,7 @@
         },
         {
           "timestamp": 1758626820.381187,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/auto_cle",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/auto_cle",
           "duration_ms": 35.86745262145996,
           "cpu_percent": 35.7,
           "memory_mb": 0.0,
@@ -550,7 +550,7 @@
         },
         {
           "timestamp": 1758626820.4174612,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/auto_cle",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/auto_cle",
           "duration_ms": 35.76374053955078,
           "cpu_percent": 35.7,
           "memory_mb": 0.0,
@@ -564,7 +564,7 @@
         },
         {
           "timestamp": 1758626820.453538,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/auto_cle",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/auto_cle",
           "duration_ms": 37.31989860534668,
           "cpu_percent": 46.7,
           "memory_mb": 0.0,
@@ -578,12 +578,12 @@
         },
         {
           "timestamp": 1758626820.491991,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 9.668111801147461,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
           "success": false,
-          "error_message": "/home/xx/dev/Perfect21/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
+          "error_message": "/home/xx/dev/Claude_Enhancer/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
           "additional_data": {
             "stdout_length": 0,
             "stderr_length": 118,
@@ -592,12 +592,12 @@
         },
         {
           "timestamp": 1758626820.60219,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 4.7512054443359375,
           "cpu_percent": 17.1,
           "memory_mb": 0.0,
           "success": false,
-          "error_message": "/home/xx/dev/Perfect21/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
+          "error_message": "/home/xx/dev/Claude_Enhancer/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
           "additional_data": {
             "stdout_length": 0,
             "stderr_length": 118,
@@ -606,12 +606,12 @@
         },
         {
           "timestamp": 1758626820.6072643,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 3.9825439453125,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
           "success": false,
-          "error_message": "/home/xx/dev/Perfect21/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
+          "error_message": "/home/xx/dev/Claude_Enhancer/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
           "additional_data": {
             "stdout_length": 0,
             "stderr_length": 118,
@@ -620,12 +620,12 @@
         },
         {
           "timestamp": 1758626820.611595,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 3.922700881958008,
           "cpu_percent": 0.0,
           "memory_mb": 0.0,
           "success": false,
-          "error_message": "/home/xx/dev/Perfect21/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
+          "error_message": "/home/xx/dev/Claude_Enhancer/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
           "additional_data": {
             "stdout_length": 0,
             "stderr_length": 118,
@@ -634,12 +634,12 @@
         },
         {
           "timestamp": 1758626820.615843,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 5.051612854003906,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
           "success": false,
-          "error_message": "/home/xx/dev/Perfect21/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
+          "error_message": "/home/xx/dev/Claude_Enhancer/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
           "additional_data": {
             "stdout_length": 0,
             "stderr_length": 118,
@@ -648,12 +648,12 @@
         },
         {
           "timestamp": 1758626820.6211958,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 5.11479377746582,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
           "success": false,
-          "error_message": "/home/xx/dev/Perfect21/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
+          "error_message": "/home/xx/dev/Claude_Enhancer/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
           "additional_data": {
             "stdout_length": 0,
             "stderr_length": 118,
@@ -662,12 +662,12 @@
         },
         {
           "timestamp": 1758626820.6267378,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 3.971576690673828,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
           "success": false,
-          "error_message": "/home/xx/dev/Perfect21/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
+          "error_message": "/home/xx/dev/Claude_Enhancer/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
           "additional_data": {
             "stdout_length": 0,
             "stderr_length": 118,
@@ -676,12 +676,12 @@
         },
         {
           "timestamp": 1758626820.6309817,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 4.791259765625,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
           "success": false,
-          "error_message": "/home/xx/dev/Perfect21/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
+          "error_message": "/home/xx/dev/Claude_Enhancer/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
           "additional_data": {
             "stdout_length": 0,
             "stderr_length": 118,
@@ -690,12 +690,12 @@
         },
         {
           "timestamp": 1758626820.6360724,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 4.412651062011719,
           "cpu_percent": 0.0,
           "memory_mb": 0.0,
           "success": false,
-          "error_message": "/home/xx/dev/Perfect21/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
+          "error_message": "/home/xx/dev/Claude_Enhancer/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
           "additional_data": {
             "stdout_length": 0,
             "stderr_length": 118,
@@ -704,12 +704,12 @@
         },
         {
           "timestamp": 1758626820.6408432,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 4.290342330932617,
           "cpu_percent": 0.0,
           "memory_mb": 0.0,
           "success": false,
-          "error_message": "/home/xx/dev/Perfect21/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
+          "error_message": "/home/xx/dev/Claude_Enhancer/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
           "additional_data": {
             "stdout_length": 0,
             "stderr_length": 118,
@@ -718,12 +718,12 @@
         },
         {
           "timestamp": 1758626820.6454387,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 3.394603729248047,
           "cpu_percent": 100.0,
           "memory_mb": 0.0,
           "success": false,
-          "error_message": "/home/xx/dev/Perfect21/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
+          "error_message": "/home/xx/dev/Claude_Enhancer/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
           "additional_data": {
             "stdout_length": 0,
             "stderr_length": 118,
@@ -732,12 +732,12 @@
         },
         {
           "timestamp": 1758626820.7493072,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 4.602909088134766,
           "cpu_percent": 11.9,
           "memory_mb": 0.0,
           "success": false,
-          "error_message": "/home/xx/dev/Perfect21/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
+          "error_message": "/home/xx/dev/Claude_Enhancer/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
           "additional_data": {
             "stdout_length": 0,
             "stderr_length": 118,
@@ -746,12 +746,12 @@
         },
         {
           "timestamp": 1758626820.7543144,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 4.747629165649414,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
           "success": false,
-          "error_message": "/home/xx/dev/Perfect21/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
+          "error_message": "/home/xx/dev/Claude_Enhancer/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
           "additional_data": {
             "stdout_length": 0,
             "stderr_length": 118,
@@ -760,12 +760,12 @@
         },
         {
           "timestamp": 1758626820.7594132,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 4.7168731689453125,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
           "success": false,
-          "error_message": "/home/xx/dev/Perfect21/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
+          "error_message": "/home/xx/dev/Claude_Enhancer/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
           "additional_data": {
             "stdout_length": 0,
             "stderr_length": 118,
@@ -774,12 +774,12 @@
         },
         {
           "timestamp": 1758626820.7644615,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 4.0130615234375,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
           "success": false,
-          "error_message": "/home/xx/dev/Perfect21/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
+          "error_message": "/home/xx/dev/Claude_Enhancer/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
           "additional_data": {
             "stdout_length": 0,
             "stderr_length": 118,
@@ -788,12 +788,12 @@
         },
         {
           "timestamp": 1758626820.768745,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 3.7713050842285156,
           "cpu_percent": 0.0,
           "memory_mb": 0.0,
           "success": false,
-          "error_message": "/home/xx/dev/Perfect21/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
+          "error_message": "/home/xx/dev/Claude_Enhancer/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
           "additional_data": {
             "stdout_length": 0,
             "stderr_length": 118,
@@ -802,12 +802,12 @@
         },
         {
           "timestamp": 1758626820.772949,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 5.439043045043945,
           "cpu_percent": 0.0,
           "memory_mb": 0.0,
           "success": false,
-          "error_message": "/home/xx/dev/Perfect21/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
+          "error_message": "/home/xx/dev/Claude_Enhancer/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
           "additional_data": {
             "stdout_length": 0,
             "stderr_length": 118,
@@ -816,12 +816,12 @@
         },
         {
           "timestamp": 1758626820.7788727,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 5.529642105102539,
           "cpu_percent": 66.7,
           "memory_mb": 0.0,
           "success": false,
-          "error_message": "/home/xx/dev/Perfect21/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
+          "error_message": "/home/xx/dev/Claude_Enhancer/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
           "additional_data": {
             "stdout_length": 0,
             "stderr_length": 118,
@@ -830,12 +830,12 @@
         },
         {
           "timestamp": 1758626820.7847657,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 3.912687301635742,
           "cpu_percent": 0.0,
           "memory_mb": 0.0,
           "success": false,
-          "error_message": "/home/xx/dev/Perfect21/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
+          "error_message": "/home/xx/dev/Claude_Enhancer/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
           "additional_data": {
             "stdout_length": 0,
             "stderr_length": 118,
@@ -844,12 +844,12 @@
         },
         {
           "timestamp": 1758626820.7889414,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 3.756284713745117,
           "cpu_percent": 0.0,
           "memory_mb": 0.0,
           "success": false,
-          "error_message": "/home/xx/dev/Perfect21/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
+          "error_message": "/home/xx/dev/Claude_Enhancer/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
           "additional_data": {
             "stdout_length": 0,
             "stderr_length": 118,
@@ -858,7 +858,7 @@
         },
         {
           "timestamp": 1758626820.7932136,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/fix_git_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/fix_git_",
           "duration_ms": 22.028207778930664,
           "cpu_percent": 44.4,
           "memory_mb": 0.0,
@@ -872,7 +872,7 @@
         },
         {
           "timestamp": 1758626820.9158306,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/fix_git_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/fix_git_",
           "duration_ms": 24.919986724853516,
           "cpu_percent": 23.5,
           "memory_mb": 0.0,
@@ -886,7 +886,7 @@
         },
         {
           "timestamp": 1758626820.9410632,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/fix_git_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/fix_git_",
           "duration_ms": 18.11695098876953,
           "cpu_percent": 37.5,
           "memory_mb": 0.0,
@@ -900,7 +900,7 @@
         },
         {
           "timestamp": 1758626820.959586,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/fix_git_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/fix_git_",
           "duration_ms": 20.775318145751953,
           "cpu_percent": 37.5,
           "memory_mb": 0.0,
@@ -914,7 +914,7 @@
         },
         {
           "timestamp": 1758626820.9807105,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/fix_git_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/fix_git_",
           "duration_ms": 18.30148696899414,
           "cpu_percent": 42.9,
           "memory_mb": 0.0,
@@ -928,7 +928,7 @@
         },
         {
           "timestamp": 1758626820.9993374,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/fix_git_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/fix_git_",
           "duration_ms": 20.270109176635742,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -942,7 +942,7 @@
         },
         {
           "timestamp": 1758626821.019923,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/fix_git_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/fix_git_",
           "duration_ms": 19.06132698059082,
           "cpu_percent": 28.6,
           "memory_mb": 0.0,
@@ -956,7 +956,7 @@
         },
         {
           "timestamp": 1758626821.039428,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/fix_git_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/fix_git_",
           "duration_ms": 20.159244537353516,
           "cpu_percent": 16.7,
           "memory_mb": 0.0,
@@ -970,7 +970,7 @@
         },
         {
           "timestamp": 1758626821.0600488,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/fix_git_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/fix_git_",
           "duration_ms": 19.935131072998047,
           "cpu_percent": 66.7,
           "memory_mb": 0.0,
@@ -984,7 +984,7 @@
         },
         {
           "timestamp": 1758626821.080294,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/fix_git_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/fix_git_",
           "duration_ms": 18.491744995117188,
           "cpu_percent": 42.9,
           "memory_mb": 0.0,
@@ -998,7 +998,7 @@
         },
         {
           "timestamp": 1758626821.0991066,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/fix_git_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/fix_git_",
           "duration_ms": 20.45154571533203,
           "cpu_percent": 44.4,
           "memory_mb": 0.0,
@@ -1012,7 +1012,7 @@
         },
         {
           "timestamp": 1758626821.2200825,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/fix_git_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/fix_git_",
           "duration_ms": 28.085708618164062,
           "cpu_percent": 22.0,
           "memory_mb": 0.0,
@@ -1026,7 +1026,7 @@
         },
         {
           "timestamp": 1758626821.2484715,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/fix_git_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/fix_git_",
           "duration_ms": 18.912076950073242,
           "cpu_percent": 42.9,
           "memory_mb": 0.0,
@@ -1040,7 +1040,7 @@
         },
         {
           "timestamp": 1758626821.2677023,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/fix_git_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/fix_git_",
           "duration_ms": 19.471406936645508,
           "cpu_percent": 44.4,
           "memory_mb": 0.0,
@@ -1054,7 +1054,7 @@
         },
         {
           "timestamp": 1758626821.2876706,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/fix_git_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/fix_git_",
           "duration_ms": 19.936084747314453,
           "cpu_percent": 44.4,
           "memory_mb": 0.0,
@@ -1068,7 +1068,7 @@
         },
         {
           "timestamp": 1758626821.3079123,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/fix_git_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/fix_git_",
           "duration_ms": 23.26822280883789,
           "cpu_percent": 37.5,
           "memory_mb": 0.0,
@@ -1082,7 +1082,7 @@
         },
         {
           "timestamp": 1758626821.3316512,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/fix_git_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/fix_git_",
           "duration_ms": 22.792339324951172,
           "cpu_percent": 37.5,
           "memory_mb": 0.0,
@@ -1096,7 +1096,7 @@
         },
         {
           "timestamp": 1758626821.3548996,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/fix_git_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/fix_git_",
           "duration_ms": 20.212173461914062,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -1110,7 +1110,7 @@
         },
         {
           "timestamp": 1758626821.375772,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/fix_git_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/fix_git_",
           "duration_ms": 23.201465606689453,
           "cpu_percent": 25.0,
           "memory_mb": 0.0,
@@ -1124,7 +1124,7 @@
         },
         {
           "timestamp": 1758626821.3994389,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/fix_git_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/fix_git_",
           "duration_ms": 19.713878631591797,
           "cpu_percent": 55.6,
           "memory_mb": 0.0,
@@ -1138,7 +1138,7 @@
         },
         {
           "timestamp": 1758626821.420337,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_c",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_c",
           "duration_ms": 10.725975036621094,
           "cpu_percent": 40.0,
           "memory_mb": 0.0,
@@ -1152,7 +1152,7 @@
         },
         {
           "timestamp": 1758626821.5318391,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_c",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_c",
           "duration_ms": 10.547637939453125,
           "cpu_percent": 38.6,
           "memory_mb": 0.0,
@@ -1166,7 +1166,7 @@
         },
         {
           "timestamp": 1758626821.542882,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_c",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_c",
           "duration_ms": 13.150215148925781,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -1180,7 +1180,7 @@
         },
         {
           "timestamp": 1758626821.5564456,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_c",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_c",
           "duration_ms": 9.42683219909668,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -1194,7 +1194,7 @@
         },
         {
           "timestamp": 1758626821.56622,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_c",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_c",
           "duration_ms": 9.148359298706055,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -1208,7 +1208,7 @@
         },
         {
           "timestamp": 1758626821.5757987,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_c",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_c",
           "duration_ms": 9.473085403442383,
           "cpu_percent": 40.0,
           "memory_mb": 0.0,
@@ -1222,7 +1222,7 @@
         },
         {
           "timestamp": 1758626821.5857131,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_c",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_c",
           "duration_ms": 10.536670684814453,
           "cpu_percent": 25.0,
           "memory_mb": 0.0,
@@ -1236,7 +1236,7 @@
         },
         {
           "timestamp": 1758626821.5967126,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_c",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_c",
           "duration_ms": 11.302947998046875,
           "cpu_percent": 25.0,
           "memory_mb": 0.0,
@@ -1250,7 +1250,7 @@
         },
         {
           "timestamp": 1758626821.6084137,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_c",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_c",
           "duration_ms": 9.835481643676758,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -1264,7 +1264,7 @@
         },
         {
           "timestamp": 1758626821.6187975,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_c",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_c",
           "duration_ms": 9.279251098632812,
           "cpu_percent": 60.0,
           "memory_mb": 0.31640625,
@@ -1278,7 +1278,7 @@
         },
         {
           "timestamp": 1758626821.6283832,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_c",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_c",
           "duration_ms": 10.160446166992188,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -1292,7 +1292,7 @@
         },
         {
           "timestamp": 1758626821.739194,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_c",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_c",
           "duration_ms": 13.16213607788086,
           "cpu_percent": 13.3,
           "memory_mb": 0.0,
@@ -1306,7 +1306,7 @@
         },
         {
           "timestamp": 1758626821.7527595,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_c",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_c",
           "duration_ms": 8.01992416381836,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -1320,7 +1320,7 @@
         },
         {
           "timestamp": 1758626821.7611308,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_c",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_c",
           "duration_ms": 9.588956832885742,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -1334,7 +1334,7 @@
         },
         {
           "timestamp": 1758626821.7710416,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_c",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_c",
           "duration_ms": 8.663654327392578,
           "cpu_percent": 25.0,
           "memory_mb": 0.0,
@@ -1348,7 +1348,7 @@
         },
         {
           "timestamp": 1758626821.7800508,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_c",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_c",
           "duration_ms": 8.98432731628418,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -1362,7 +1362,7 @@
         },
         {
           "timestamp": 1758626821.7893522,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_c",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_c",
           "duration_ms": 7.016658782958984,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -1376,7 +1376,7 @@
         },
         {
           "timestamp": 1758626821.796673,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_c",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_c",
           "duration_ms": 7.4329376220703125,
           "cpu_percent": 66.7,
           "memory_mb": 0.0,
@@ -1390,7 +1390,7 @@
         },
         {
           "timestamp": 1758626821.8043947,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_c",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_c",
           "duration_ms": 11.46245002746582,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -1404,7 +1404,7 @@
         },
         {
           "timestamp": 1758626821.8162615,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_c",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_c",
           "duration_ms": 8.936882019042969,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -1418,7 +1418,7 @@
         },
         {
           "timestamp": 1758626821.8258111,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 19.59371566772461,
           "cpu_percent": 28.6,
           "memory_mb": 0.0,
@@ -1432,7 +1432,7 @@
         },
         {
           "timestamp": 1758626821.945954,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 20.749568939208984,
           "cpu_percent": 19.1,
           "memory_mb": 0.0,
@@ -1446,7 +1446,7 @@
         },
         {
           "timestamp": 1758626821.967048,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 22.09639549255371,
           "cpu_percent": 45.5,
           "memory_mb": 0.0,
@@ -1460,7 +1460,7 @@
         },
         {
           "timestamp": 1758626821.9894676,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 15.954732894897461,
           "cpu_percent": 42.9,
           "memory_mb": 0.0,
@@ -1474,7 +1474,7 @@
         },
         {
           "timestamp": 1758626822.0057788,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 14.962434768676758,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -1488,7 +1488,7 @@
         },
         {
           "timestamp": 1758626822.0211697,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 25.264978408813477,
           "cpu_percent": 40.0,
           "memory_mb": 0.0,
@@ -1502,7 +1502,7 @@
         },
         {
           "timestamp": 1758626822.046896,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 22.513866424560547,
           "cpu_percent": 37.5,
           "memory_mb": 0.0,
@@ -1516,7 +1516,7 @@
         },
         {
           "timestamp": 1758626822.0697224,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 25.59185028076172,
           "cpu_percent": 45.5,
           "memory_mb": 0.0,
@@ -1530,7 +1530,7 @@
         },
         {
           "timestamp": 1758626822.0957432,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 17.841577529907227,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -1544,7 +1544,7 @@
         },
         {
           "timestamp": 1758626822.1139927,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 15.51198959350586,
           "cpu_percent": 62.5,
           "memory_mb": 0.0,
@@ -1558,7 +1558,7 @@
         },
         {
           "timestamp": 1758626822.1299691,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 22.745132446289062,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -1572,7 +1572,7 @@
         },
         {
           "timestamp": 1758626822.2533164,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 20.879745483398438,
           "cpu_percent": 12.8,
           "memory_mb": 0.0,
@@ -1586,7 +1586,7 @@
         },
         {
           "timestamp": 1758626822.2747014,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 17.761707305908203,
           "cpu_percent": 62.5,
           "memory_mb": 0.0,
@@ -1600,7 +1600,7 @@
         },
         {
           "timestamp": 1758626822.292806,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 14.465808868408203,
           "cpu_percent": 20.0,
           "memory_mb": 0.0,
@@ -1614,7 +1614,7 @@
         },
         {
           "timestamp": 1758626822.307632,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 15.23900032043457,
           "cpu_percent": 40.0,
           "memory_mb": 0.0,
@@ -1628,7 +1628,7 @@
         },
         {
           "timestamp": 1758626822.3231971,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 19.843578338623047,
           "cpu_percent": 55.6,
           "memory_mb": 0.0,
@@ -1642,7 +1642,7 @@
         },
         {
           "timestamp": 1758626822.3433683,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 19.86551284790039,
           "cpu_percent": 37.5,
           "memory_mb": 0.0,
@@ -1656,7 +1656,7 @@
         },
         {
           "timestamp": 1758626822.363641,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 25.298595428466797,
           "cpu_percent": 40.0,
           "memory_mb": 0.0,
@@ -1670,7 +1670,7 @@
         },
         {
           "timestamp": 1758626822.3893943,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 14.907598495483398,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -1684,7 +1684,7 @@
         },
         {
           "timestamp": 1758626822.404747,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 21.845102310180664,
           "cpu_percent": 28.6,
           "memory_mb": 0.0,
@@ -1698,7 +1698,7 @@
         },
         {
           "timestamp": 1758626822.4275727,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 23.52595329284668,
           "cpu_percent": 44.4,
           "memory_mb": 0.0,
@@ -1712,7 +1712,7 @@
         },
         {
           "timestamp": 1758626822.5524862,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 18.552541732788086,
           "cpu_percent": 20.4,
           "memory_mb": 0.0,
@@ -1726,7 +1726,7 @@
         },
         {
           "timestamp": 1758626822.5713787,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 22.96161651611328,
           "cpu_percent": 44.4,
           "memory_mb": 0.0,
@@ -1740,7 +1740,7 @@
         },
         {
           "timestamp": 1758626822.5947313,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 18.35918426513672,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -1754,7 +1754,7 @@
         },
         {
           "timestamp": 1758626822.6134834,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 17.36593246459961,
           "cpu_percent": 40.0,
           "memory_mb": 0.0,
@@ -1768,7 +1768,7 @@
         },
         {
           "timestamp": 1758626822.6311555,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 21.465539932250977,
           "cpu_percent": 54.5,
           "memory_mb": 0.0,
@@ -1782,7 +1782,7 @@
         },
         {
           "timestamp": 1758626822.652975,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 17.011642456054688,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -1796,7 +1796,7 @@
         },
         {
           "timestamp": 1758626822.670296,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 19.27971839904785,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -1810,7 +1810,7 @@
         },
         {
           "timestamp": 1758626822.6899297,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 19.426345825195312,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -1824,7 +1824,7 @@
         },
         {
           "timestamp": 1758626822.709665,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 19.199371337890625,
           "cpu_percent": 42.9,
           "memory_mb": 0.0,
@@ -1838,7 +1838,7 @@
         },
         {
           "timestamp": 1758626822.7291734,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 17.51852035522461,
           "cpu_percent": 57.1,
           "memory_mb": 0.0,
@@ -1852,7 +1852,7 @@
         },
         {
           "timestamp": 1758626822.84729,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 19.83642578125,
           "cpu_percent": 19.1,
           "memory_mb": 0.0,
@@ -1866,7 +1866,7 @@
         },
         {
           "timestamp": 1758626822.8674886,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 23.588895797729492,
           "cpu_percent": 60.0,
           "memory_mb": 0.0,
@@ -1880,7 +1880,7 @@
         },
         {
           "timestamp": 1758626822.8914218,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 19.804716110229492,
           "cpu_percent": 37.5,
           "memory_mb": 0.0,
@@ -1894,7 +1894,7 @@
         },
         {
           "timestamp": 1758626822.9117415,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 18.160104751586914,
           "cpu_percent": 42.9,
           "memory_mb": 0.0,
@@ -1908,7 +1908,7 @@
         },
         {
           "timestamp": 1758626822.930343,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 21.509408950805664,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -1922,7 +1922,7 @@
         },
         {
           "timestamp": 1758626822.9521608,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 22.145986557006836,
           "cpu_percent": 37.5,
           "memory_mb": 0.0,
@@ -1936,7 +1936,7 @@
         },
         {
           "timestamp": 1758626822.9747334,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 16.294002532958984,
           "cpu_percent": 57.1,
           "memory_mb": 0.0,
@@ -1950,7 +1950,7 @@
         },
         {
           "timestamp": 1758626822.991488,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 19.632339477539062,
           "cpu_percent": 55.6,
           "memory_mb": 0.0,
@@ -1964,7 +1964,7 @@
         },
         {
           "timestamp": 1758626823.0115294,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 21.547317504882812,
           "cpu_percent": 28.6,
           "memory_mb": 0.0,
@@ -1978,7 +1978,7 @@
         },
         {
           "timestamp": 1758626823.0343277,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/quality_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/quality_",
           "duration_ms": 17.862558364868164,
           "cpu_percent": 37.5,
           "memory_mb": 0.0,
@@ -1992,7 +1992,7 @@
         },
         {
           "timestamp": 1758626823.1527536,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/quality_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/quality_",
           "duration_ms": 16.1895751953125,
           "cpu_percent": 19.6,
           "memory_mb": 0.0,
@@ -2006,7 +2006,7 @@
         },
         {
           "timestamp": 1758626823.1692905,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/quality_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/quality_",
           "duration_ms": 16.497373580932617,
           "cpu_percent": 42.9,
           "memory_mb": 0.0,
@@ -2020,7 +2020,7 @@
         },
         {
           "timestamp": 1758626823.1862235,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/quality_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/quality_",
           "duration_ms": 10.218143463134766,
           "cpu_percent": 60.0,
           "memory_mb": 0.0,
@@ -2034,7 +2034,7 @@
         },
         {
           "timestamp": 1758626823.196754,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/quality_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/quality_",
           "duration_ms": 10.410547256469727,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -2048,7 +2048,7 @@
         },
         {
           "timestamp": 1758626823.2076397,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/quality_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/quality_",
           "duration_ms": 22.116422653198242,
           "cpu_percent": 37.5,
           "memory_mb": 0.0,
@@ -2062,7 +2062,7 @@
         },
         {
           "timestamp": 1758626823.2300687,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/quality_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/quality_",
           "duration_ms": 20.833730697631836,
           "cpu_percent": 55.6,
           "memory_mb": 0.0,
@@ -2076,7 +2076,7 @@
         },
         {
           "timestamp": 1758626823.2512493,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/quality_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/quality_",
           "duration_ms": 17.06528663635254,
           "cpu_percent": 71.4,
           "memory_mb": 0.0,
@@ -2090,7 +2090,7 @@
         },
         {
           "timestamp": 1758626823.2687216,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/quality_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/quality_",
           "duration_ms": 10.07843017578125,
           "cpu_percent": 60.0,
           "memory_mb": 0.0,
@@ -2104,7 +2104,7 @@
         },
         {
           "timestamp": 1758626823.2790973,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/quality_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/quality_",
           "duration_ms": 10.693550109863281,
           "cpu_percent": 25.0,
           "memory_mb": 0.0,
@@ -2118,7 +2118,7 @@
         },
         {
           "timestamp": 1758626823.2901692,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/quality_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/quality_",
           "duration_ms": 28.863191604614258,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -2132,7 +2132,7 @@
         },
         {
           "timestamp": 1758626823.4196498,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/quality_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/quality_",
           "duration_ms": 17.303943634033203,
           "cpu_percent": 18.8,
           "memory_mb": 0.0,
@@ -2146,7 +2146,7 @@
         },
         {
           "timestamp": 1758626823.4372585,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/quality_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/quality_",
           "duration_ms": 15.836000442504883,
           "cpu_percent": 42.9,
           "memory_mb": 0.0,
@@ -2160,7 +2160,7 @@
         },
         {
           "timestamp": 1758626823.4535236,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/quality_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/quality_",
           "duration_ms": 9.888887405395508,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -2174,7 +2174,7 @@
         },
         {
           "timestamp": 1758626823.463736,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/quality_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/quality_",
           "duration_ms": 9.494781494140625,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -2188,7 +2188,7 @@
         },
         {
           "timestamp": 1758626823.473536,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/quality_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/quality_",
           "duration_ms": 18.805742263793945,
           "cpu_percent": 37.5,
           "memory_mb": 0.0,
@@ -2202,7 +2202,7 @@
         },
         {
           "timestamp": 1758626823.4928184,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/quality_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/quality_",
           "duration_ms": 15.35654067993164,
           "cpu_percent": 57.1,
           "memory_mb": 0.0,
@@ -2216,7 +2216,7 @@
         },
         {
           "timestamp": 1758626823.508486,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/quality_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/quality_",
           "duration_ms": 16.682147979736328,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -2230,7 +2230,7 @@
         },
         {
           "timestamp": 1758626823.525505,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/quality_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/quality_",
           "duration_ms": 10.035514831542969,
           "cpu_percent": 40.0,
           "memory_mb": 0.0,
@@ -2244,7 +2244,7 @@
         },
         {
           "timestamp": 1758626823.5358446,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/quality_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/quality_",
           "duration_ms": 9.739160537719727,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -2258,7 +2258,7 @@
         },
         {
           "timestamp": 1758626823.546829,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/branch_h",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/branch_h",
           "duration_ms": 8.630514144897461,
           "cpu_percent": 66.7,
           "memory_mb": 0.0,
@@ -2272,7 +2272,7 @@
         },
         {
           "timestamp": 1758626823.656055,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/branch_h",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/branch_h",
           "duration_ms": 10.830163955688477,
           "cpu_percent": 15.6,
           "memory_mb": 0.0,
@@ -2286,7 +2286,7 @@
         },
         {
           "timestamp": 1758626823.667202,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/branch_h",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/branch_h",
           "duration_ms": 9.13548469543457,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -2300,7 +2300,7 @@
         },
         {
           "timestamp": 1758626823.6766605,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/branch_h",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/branch_h",
           "duration_ms": 7.296085357666016,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -2314,7 +2314,7 @@
         },
         {
           "timestamp": 1758626823.6843622,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/branch_h",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/branch_h",
           "duration_ms": 8.136749267578125,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -2328,7 +2328,7 @@
         },
         {
           "timestamp": 1758626823.6929324,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/branch_h",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/branch_h",
           "duration_ms": 7.729530334472656,
           "cpu_percent": 25.0,
           "memory_mb": 0.0,
@@ -2342,7 +2342,7 @@
         },
         {
           "timestamp": 1758626823.7010791,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/branch_h",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/branch_h",
           "duration_ms": 7.550716400146484,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -2356,7 +2356,7 @@
         },
         {
           "timestamp": 1758626823.70906,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/branch_h",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/branch_h",
           "duration_ms": 8.59832763671875,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -2370,7 +2370,7 @@
         },
         {
           "timestamp": 1758626823.7180798,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/branch_h",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/branch_h",
           "duration_ms": 7.9517364501953125,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -2384,7 +2384,7 @@
         },
         {
           "timestamp": 1758626823.7265394,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/branch_h",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/branch_h",
           "duration_ms": 8.259057998657227,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -2398,7 +2398,7 @@
         },
         {
           "timestamp": 1758626823.7352662,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/branch_h",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/branch_h",
           "duration_ms": 9.771108627319336,
           "cpu_percent": 60.0,
           "memory_mb": 0.0,
@@ -2412,7 +2412,7 @@
         },
         {
           "timestamp": 1758626823.845729,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/branch_h",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/branch_h",
           "duration_ms": 8.466243743896484,
           "cpu_percent": 34.1,
           "memory_mb": 0.0,
@@ -2426,7 +2426,7 @@
         },
         {
           "timestamp": 1758626823.854778,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/branch_h",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/branch_h",
           "duration_ms": 8.471012115478516,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -2440,7 +2440,7 @@
         },
         {
           "timestamp": 1758626823.863747,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/branch_h",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/branch_h",
           "duration_ms": 9.306669235229492,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -2454,7 +2454,7 @@
         },
         {
           "timestamp": 1758626823.873492,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/branch_h",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/branch_h",
           "duration_ms": 9.285688400268555,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -2468,7 +2468,7 @@
         },
         {
           "timestamp": 1758626823.8832302,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/branch_h",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/branch_h",
           "duration_ms": 8.985757827758789,
           "cpu_percent": 25.0,
           "memory_mb": 0.0,
@@ -2482,7 +2482,7 @@
         },
         {
           "timestamp": 1758626823.8926551,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/branch_h",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/branch_h",
           "duration_ms": 8.44883918762207,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -2496,7 +2496,7 @@
         },
         {
           "timestamp": 1758626823.9015365,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/branch_h",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/branch_h",
           "duration_ms": 8.676767349243164,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -2510,7 +2510,7 @@
         },
         {
           "timestamp": 1758626823.9105556,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/branch_h",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/branch_h",
           "duration_ms": 8.157968521118164,
           "cpu_percent": 66.7,
           "memory_mb": 0.0,
@@ -2524,7 +2524,7 @@
         },
         {
           "timestamp": 1758626823.9190104,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/branch_h",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/branch_h",
           "duration_ms": 7.893085479736328,
           "cpu_percent": 66.7,
           "memory_mb": 0.0,
@@ -2538,7 +2538,7 @@
         },
         {
           "timestamp": 1758626823.9281754,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/agent_er",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/agent_er",
           "duration_ms": 6.093502044677734,
           "cpu_percent": 66.7,
           "memory_mb": 0.0,
@@ -2552,7 +2552,7 @@
         },
         {
           "timestamp": 1758626824.0354564,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/agent_er",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/agent_er",
           "duration_ms": 5.544900894165039,
           "cpu_percent": 36.4,
           "memory_mb": 0.0,
@@ -2566,7 +2566,7 @@
         },
         {
           "timestamp": 1758626824.041301,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/agent_er",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/agent_er",
           "duration_ms": 3.780364990234375,
           "cpu_percent": 0.0,
           "memory_mb": 0.0,
@@ -2580,7 +2580,7 @@
         },
         {
           "timestamp": 1758626824.045398,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/agent_er",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/agent_er",
           "duration_ms": 4.072904586791992,
           "cpu_percent": 0.0,
           "memory_mb": 0.0,
@@ -2594,7 +2594,7 @@
         },
         {
           "timestamp": 1758626824.0499063,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/agent_er",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/agent_er",
           "duration_ms": 4.736900329589844,
           "cpu_percent": 0.0,
           "memory_mb": 0.0,
@@ -2608,7 +2608,7 @@
         },
         {
           "timestamp": 1758626824.0550838,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/agent_er",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/agent_er",
           "duration_ms": 4.282474517822266,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -2622,7 +2622,7 @@
         },
         {
           "timestamp": 1758626824.0598595,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/agent_er",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/agent_er",
           "duration_ms": 4.007816314697266,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -2636,7 +2636,7 @@
         },
         {
           "timestamp": 1758626824.0642285,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/agent_er",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/agent_er",
           "duration_ms": 3.8874149322509766,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -2650,7 +2650,7 @@
         },
         {
           "timestamp": 1758626824.068474,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/agent_er",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/agent_er",
           "duration_ms": 4.153251647949219,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -2664,7 +2664,7 @@
         },
         {
           "timestamp": 1758626824.0729456,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/agent_er",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/agent_er",
           "duration_ms": 4.799365997314453,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -2678,7 +2678,7 @@
         },
         {
           "timestamp": 1758626824.0781868,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/agent_er",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/agent_er",
           "duration_ms": 5.404233932495117,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -2692,7 +2692,7 @@
         },
         {
           "timestamp": 1758626824.1840916,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/agent_er",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/agent_er",
           "duration_ms": 4.375934600830078,
           "cpu_percent": 14.6,
           "memory_mb": 0.0,
@@ -2706,7 +2706,7 @@
         },
         {
           "timestamp": 1758626824.1888335,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/agent_er",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/agent_er",
           "duration_ms": 3.6640167236328125,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -2720,7 +2720,7 @@
         },
         {
           "timestamp": 1758626824.1927834,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/agent_er",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/agent_er",
           "duration_ms": 3.7899017333984375,
           "cpu_percent": 0.0,
           "memory_mb": 0.0,
@@ -2734,7 +2734,7 @@
         },
         {
           "timestamp": 1758626824.1969101,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/agent_er",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/agent_er",
           "duration_ms": 3.753185272216797,
           "cpu_percent": 0.0,
           "memory_mb": 0.0,
@@ -2748,7 +2748,7 @@
         },
         {
           "timestamp": 1758626824.2009525,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/agent_er",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/agent_er",
           "duration_ms": 4.758596420288086,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -2762,7 +2762,7 @@
         },
         {
           "timestamp": 1758626824.2060273,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/agent_er",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/agent_er",
           "duration_ms": 3.796100616455078,
           "cpu_percent": 0.0,
           "memory_mb": 0.0,
@@ -2776,7 +2776,7 @@
         },
         {
           "timestamp": 1758626824.2101376,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/agent_er",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/agent_er",
           "duration_ms": 3.9017200469970703,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -2790,7 +2790,7 @@
         },
         {
           "timestamp": 1758626824.2143264,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/agent_er",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/agent_er",
           "duration_ms": 3.5898685455322266,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -2804,7 +2804,7 @@
         },
         {
           "timestamp": 1758626824.218193,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/agent_er",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/agent_er",
           "duration_ms": 3.754854202270508,
           "cpu_percent": 0.0,
           "memory_mb": 0.0,
@@ -2818,7 +2818,7 @@
         },
         {
           "timestamp": 1758626824.2228596,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_cl",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_cl",
           "duration_ms": 398.5137939453125,
           "cpu_percent": 38.4,
           "memory_mb": 0.0,
@@ -2832,7 +2832,7 @@
         },
         {
           "timestamp": 1758626824.7219741,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_cl",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_cl",
           "duration_ms": 395.48802375793457,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -2846,7 +2846,7 @@
         },
         {
           "timestamp": 1758626825.1179352,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_cl",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_cl",
           "duration_ms": 405.40075302124023,
           "cpu_percent": 38.6,
           "memory_mb": 0.0,
@@ -2860,7 +2860,7 @@
         },
         {
           "timestamp": 1758626825.5236588,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_cl",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_cl",
           "duration_ms": 411.73481941223145,
           "cpu_percent": 37.3,
           "memory_mb": 0.0,
@@ -2874,7 +2874,7 @@
         },
         {
           "timestamp": 1758626825.9357774,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_cl",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_cl",
           "duration_ms": 481.01210594177246,
           "cpu_percent": 39.4,
           "memory_mb": 0.25390625,
@@ -2888,7 +2888,7 @@
         },
         {
           "timestamp": 1758626826.4171436,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_cl",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_cl",
           "duration_ms": 422.3334789276123,
           "cpu_percent": 39.2,
           "memory_mb": 0.0,
@@ -2902,7 +2902,7 @@
         },
         {
           "timestamp": 1758626826.8398468,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_cl",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_cl",
           "duration_ms": 445.8882808685303,
           "cpu_percent": 40.1,
           "memory_mb": 0.0,
@@ -2916,7 +2916,7 @@
         },
         {
           "timestamp": 1758626827.2862103,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_cl",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_cl",
           "duration_ms": 409.25025939941406,
           "cpu_percent": 36.6,
           "memory_mb": 0.0,
@@ -2930,7 +2930,7 @@
         },
         {
           "timestamp": 1758626827.695964,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_cl",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_cl",
           "duration_ms": 412.43672370910645,
           "cpu_percent": 37.0,
           "memory_mb": 0.0,
@@ -2944,7 +2944,7 @@
         },
         {
           "timestamp": 1758626828.1087325,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_cl",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_cl",
           "duration_ms": 384.4776153564453,
           "cpu_percent": 38.5,
           "memory_mb": 0.0,
@@ -2958,7 +2958,7 @@
         },
         {
           "timestamp": 1758626828.493528,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_cl",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_cl",
           "duration_ms": 375.2458095550537,
           "cpu_percent": 36.9,
           "memory_mb": 0.0,
@@ -2972,7 +2972,7 @@
         },
         {
           "timestamp": 1758626828.9692836,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_cl",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_cl",
           "duration_ms": 419.7835922241211,
           "cpu_percent": 30.5,
           "memory_mb": 0.0,
@@ -2986,7 +2986,7 @@
         },
         {
           "timestamp": 1758626829.389489,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_cl",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_cl",
           "duration_ms": 393.02945137023926,
           "cpu_percent": 38.2,
           "memory_mb": 0.0,
@@ -3000,7 +3000,7 @@
         },
         {
           "timestamp": 1758626829.7829747,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_cl",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_cl",
           "duration_ms": 367.9177761077881,
           "cpu_percent": 38.0,
           "memory_mb": 0.0,
@@ -3014,7 +3014,7 @@
         },
         {
           "timestamp": 1758626830.1512113,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_cl",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_cl",
           "duration_ms": 409.63125228881836,
           "cpu_percent": 42.7,
           "memory_mb": 0.0,
@@ -3028,7 +3028,7 @@
         },
         {
           "timestamp": 1758626830.5611992,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_cl",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_cl",
           "duration_ms": 389.64200019836426,
           "cpu_percent": 36.1,
           "memory_mb": 0.0,
@@ -3042,7 +3042,7 @@
         },
         {
           "timestamp": 1758626830.951151,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_cl",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_cl",
           "duration_ms": 405.2393436431885,
           "cpu_percent": 37.3,
           "memory_mb": 0.0,
@@ -3056,7 +3056,7 @@
         },
         {
           "timestamp": 1758626831.3568091,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_cl",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_cl",
           "duration_ms": 364.2256259918213,
           "cpu_percent": 36.1,
           "memory_mb": 0.0,
@@ -3070,7 +3070,7 @@
         },
         {
           "timestamp": 1758626831.7214794,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_cl",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_cl",
           "duration_ms": 371.66666984558105,
           "cpu_percent": 38.3,
           "memory_mb": 0.0,
@@ -3084,7 +3084,7 @@
         },
         {
           "timestamp": 1758626832.0934663,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_cl",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_cl",
           "duration_ms": 392.11511611938477,
           "cpu_percent": 36.2,
           "memory_mb": 0.0,
@@ -3098,7 +3098,7 @@
         },
         {
           "timestamp": 1758626832.486604,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/install.",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/install.",
           "duration_ms": 7.349967956542969,
           "cpu_percent": 0.0,
           "memory_mb": 0.0,
@@ -3112,7 +3112,7 @@
         },
         {
           "timestamp": 1758626832.5944247,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/install.",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/install.",
           "duration_ms": 8.872509002685547,
           "cpu_percent": 17.8,
           "memory_mb": 0.0,
@@ -3126,7 +3126,7 @@
         },
         {
           "timestamp": 1758626832.6036627,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/install.",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/install.",
           "duration_ms": 7.923364639282227,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -3140,7 +3140,7 @@
         },
         {
           "timestamp": 1758626832.6118994,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/install.",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/install.",
           "duration_ms": 8.684158325195312,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -3154,7 +3154,7 @@
         },
         {
           "timestamp": 1758626832.6208727,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/install.",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/install.",
           "duration_ms": 8.518457412719727,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -3168,7 +3168,7 @@
         },
         {
           "timestamp": 1758626832.6297278,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/install.",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/install.",
           "duration_ms": 8.129119873046875,
           "cpu_percent": 25.0,
           "memory_mb": 0.0,
@@ -3182,7 +3182,7 @@
         },
         {
           "timestamp": 1758626832.6381624,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/install.",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/install.",
           "duration_ms": 8.121728897094727,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -3196,7 +3196,7 @@
         },
         {
           "timestamp": 1758626832.646668,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/install.",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/install.",
           "duration_ms": 9.111642837524414,
           "cpu_percent": 60.0,
           "memory_mb": 0.0,
@@ -3210,7 +3210,7 @@
         },
         {
           "timestamp": 1758626832.6562095,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/install.",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/install.",
           "duration_ms": 7.596492767333984,
           "cpu_percent": 0.0,
           "memory_mb": 0.0,
@@ -3224,7 +3224,7 @@
         },
         {
           "timestamp": 1758626832.6641157,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/install.",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/install.",
           "duration_ms": 12.729883193969727,
           "cpu_percent": 40.0,
           "memory_mb": 0.0,
@@ -3238,7 +3238,7 @@
         },
         {
           "timestamp": 1758626832.6772,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/install.",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/install.",
           "duration_ms": 8.188486099243164,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -3252,7 +3252,7 @@
         },
         {
           "timestamp": 1758626832.7859356,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/install.",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/install.",
           "duration_ms": 10.286808013916016,
           "cpu_percent": 19.1,
           "memory_mb": 0.0,
@@ -3266,7 +3266,7 @@
         },
         {
           "timestamp": 1758626832.7965264,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/install.",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/install.",
           "duration_ms": 8.075714111328125,
           "cpu_percent": 0.0,
           "memory_mb": 0.0,
@@ -3280,7 +3280,7 @@
         },
         {
           "timestamp": 1758626832.8048935,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/install.",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/install.",
           "duration_ms": 8.422613143920898,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -3294,7 +3294,7 @@
         },
         {
           "timestamp": 1758626832.8136868,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/install.",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/install.",
           "duration_ms": 7.668018341064453,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -3308,7 +3308,7 @@
         },
         {
           "timestamp": 1758626832.8217058,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/install.",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/install.",
           "duration_ms": 8.213520050048828,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -3322,7 +3322,7 @@
         },
         {
           "timestamp": 1758626832.830212,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/install.",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/install.",
           "duration_ms": 8.00943374633789,
           "cpu_percent": 25.0,
           "memory_mb": 0.0,
@@ -3336,7 +3336,7 @@
         },
         {
           "timestamp": 1758626832.8386216,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/install.",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/install.",
           "duration_ms": 8.800029754638672,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -3350,7 +3350,7 @@
         },
         {
           "timestamp": 1758626832.8477416,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/install.",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/install.",
           "duration_ms": 8.048772811889648,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -3364,7 +3364,7 @@
         },
         {
           "timestamp": 1758626832.8560917,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/install.",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/install.",
           "duration_ms": 7.9174041748046875,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -3378,7 +3378,7 @@
         },
         {
           "timestamp": 1758626832.8647974,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 12.76087760925293,
           "cpu_percent": 0.0,
           "memory_mb": 0.0,
@@ -3392,7 +3392,7 @@
         },
         {
           "timestamp": 1758626832.9780326,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 15.077590942382812,
           "cpu_percent": 15.6,
           "memory_mb": 0.0,
@@ -3406,7 +3406,7 @@
         },
         {
           "timestamp": 1758626832.9934773,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 15.655040740966797,
           "cpu_percent": 20.0,
           "memory_mb": 0.0,
@@ -3420,7 +3420,7 @@
         },
         {
           "timestamp": 1758626833.0094357,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 14.264106750488281,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -3434,7 +3434,7 @@
         },
         {
           "timestamp": 1758626833.0240018,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 17.203330993652344,
           "cpu_percent": 28.6,
           "memory_mb": 0.0,
@@ -3448,7 +3448,7 @@
         },
         {
           "timestamp": 1758626833.04151,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 12.525796890258789,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -3462,7 +3462,7 @@
         },
         {
           "timestamp": 1758626833.0543375,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 12.436151504516602,
           "cpu_percent": 40.0,
           "memory_mb": 0.0,
@@ -3476,7 +3476,7 @@
         },
         {
           "timestamp": 1758626833.0670927,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 11.764049530029297,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -3490,7 +3490,7 @@
         },
         {
           "timestamp": 1758626833.0792456,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 13.999700546264648,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -3504,7 +3504,7 @@
         },
         {
           "timestamp": 1758626833.093549,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 16.132354736328125,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -3518,7 +3518,7 @@
         },
         {
           "timestamp": 1758626833.1100976,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 17.49563217163086,
           "cpu_percent": 55.6,
           "memory_mb": 0.0,
@@ -3532,7 +3532,7 @@
         },
         {
           "timestamp": 1758626833.2281115,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 15.896797180175781,
           "cpu_percent": 17.0,
           "memory_mb": 0.0,
@@ -3546,7 +3546,7 @@
         },
         {
           "timestamp": 1758626833.2443235,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 14.456748962402344,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -3560,7 +3560,7 @@
         },
         {
           "timestamp": 1758626833.259112,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 12.907028198242188,
           "cpu_percent": 66.7,
           "memory_mb": 0.0,
@@ -3574,7 +3574,7 @@
         },
         {
           "timestamp": 1758626833.272348,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 14.55998420715332,
           "cpu_percent": 40.0,
           "memory_mb": 0.0,
@@ -3588,7 +3588,7 @@
         },
         {
           "timestamp": 1758626833.287385,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 15.589237213134766,
           "cpu_percent": 40.0,
           "memory_mb": 0.0,
@@ -3602,7 +3602,7 @@
         },
         {
           "timestamp": 1758626833.3033946,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 16.221284866333008,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -3616,7 +3616,7 @@
         },
         {
           "timestamp": 1758626833.320008,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 16.57724380493164,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -3630,7 +3630,7 @@
         },
         {
           "timestamp": 1758626833.3369608,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 15.143394470214844,
           "cpu_percent": 42.9,
           "memory_mb": 0.0,
@@ -3644,7 +3644,7 @@
         },
         {
           "timestamp": 1758626833.3524296,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 15.528202056884766,
           "cpu_percent": 20.0,
           "memory_mb": 0.0,
@@ -3658,7 +3658,7 @@
         },
         {
           "timestamp": 1758626833.368985,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/code_wri",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/code_wri",
           "duration_ms": 18.404006958007812,
           "cpu_percent": 44.4,
           "memory_mb": 0.0,
@@ -3672,7 +3672,7 @@
         },
         {
           "timestamp": 1758626833.4880886,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/code_wri",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/code_wri",
           "duration_ms": 20.203590393066406,
           "cpu_percent": 17.0,
           "memory_mb": 0.0,
@@ -3686,7 +3686,7 @@
         },
         {
           "timestamp": 1758626833.5087101,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/code_wri",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/code_wri",
           "duration_ms": 19.3021297454834,
           "cpu_percent": 40.0,
           "memory_mb": 0.0,
@@ -3700,7 +3700,7 @@
         },
         {
           "timestamp": 1758626833.5283272,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/code_wri",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/code_wri",
           "duration_ms": 20.04837989807129,
           "cpu_percent": 42.9,
           "memory_mb": 0.0,
@@ -3714,7 +3714,7 @@
         },
         {
           "timestamp": 1758626833.5488262,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/code_wri",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/code_wri",
           "duration_ms": 21.421194076538086,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -3728,7 +3728,7 @@
         },
         {
           "timestamp": 1758626833.5707536,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/code_wri",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/code_wri",
           "duration_ms": 17.09604263305664,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -3742,7 +3742,7 @@
         },
         {
           "timestamp": 1758626833.5881648,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/code_wri",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/code_wri",
           "duration_ms": 19.506454467773438,
           "cpu_percent": 37.5,
           "memory_mb": 0.0,
@@ -3756,7 +3756,7 @@
         },
         {
           "timestamp": 1758626833.6081095,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/code_wri",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/code_wri",
           "duration_ms": 17.752408981323242,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -3770,7 +3770,7 @@
         },
         {
           "timestamp": 1758626833.6262982,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/code_wri",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/code_wri",
           "duration_ms": 20.80059051513672,
           "cpu_percent": 55.6,
           "memory_mb": 0.0,
@@ -3784,7 +3784,7 @@
         },
         {
           "timestamp": 1758626833.6474469,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/code_wri",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/code_wri",
           "duration_ms": 17.901182174682617,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -3798,7 +3798,7 @@
         },
         {
           "timestamp": 1758626833.6657555,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/code_wri",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/code_wri",
           "duration_ms": 15.980958938598633,
           "cpu_percent": 42.9,
           "memory_mb": 0.0,
@@ -3812,7 +3812,7 @@
         },
         {
           "timestamp": 1758626833.7823613,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/code_wri",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/code_wri",
           "duration_ms": 16.761302947998047,
           "cpu_percent": 11.1,
           "memory_mb": 0.0,
@@ -3826,7 +3826,7 @@
         },
         {
           "timestamp": 1758626833.7994592,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/code_wri",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/code_wri",
           "duration_ms": 16.111373901367188,
           "cpu_percent": 42.9,
           "memory_mb": 0.0,
@@ -3840,7 +3840,7 @@
         },
         {
           "timestamp": 1758626833.8160896,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/code_wri",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/code_wri",
           "duration_ms": 16.585588455200195,
           "cpu_percent": 42.9,
           "memory_mb": 0.0,
@@ -3854,7 +3854,7 @@
         },
         {
           "timestamp": 1758626833.833035,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/code_wri",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/code_wri",
           "duration_ms": 17.153263092041016,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -3868,7 +3868,7 @@
         },
         {
           "timestamp": 1758626833.85055,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/code_wri",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/code_wri",
           "duration_ms": 16.880035400390625,
           "cpu_percent": 62.5,
           "memory_mb": 0.0,
@@ -3882,7 +3882,7 @@
         },
         {
           "timestamp": 1758626833.867867,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/code_wri",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/code_wri",
           "duration_ms": 18.262624740600586,
           "cpu_percent": 42.9,
           "memory_mb": 0.0,
@@ -3896,7 +3896,7 @@
         },
         {
           "timestamp": 1758626833.8864422,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/code_wri",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/code_wri",
           "duration_ms": 17.774581909179688,
           "cpu_percent": 42.9,
           "memory_mb": 0.0,
@@ -3910,7 +3910,7 @@
         },
         {
           "timestamp": 1758626833.9045298,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/code_wri",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/code_wri",
           "duration_ms": 21.422624588012695,
           "cpu_percent": 44.4,
           "memory_mb": 0.0,
@@ -3924,7 +3924,7 @@
         },
         {
           "timestamp": 1758626833.9262629,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/code_wri",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/code_wri",
           "duration_ms": 20.824909210205078,
           "cpu_percent": 44.4,
           "memory_mb": 0.0,
@@ -3938,7 +3938,7 @@
         },
         {
           "timestamp": 1758626833.9479835,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 10.764598846435547,
           "cpu_percent": 25.0,
           "memory_mb": 0.0,
@@ -3952,7 +3952,7 @@
         },
         {
           "timestamp": 1758626834.059353,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 12.5579833984375,
           "cpu_percent": 19.6,
           "memory_mb": 0.0,
@@ -3966,7 +3966,7 @@
         },
         {
           "timestamp": 1758626834.0723174,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 11.73257827758789,
           "cpu_percent": 25.0,
           "memory_mb": 0.0,
@@ -3980,7 +3980,7 @@
         },
         {
           "timestamp": 1758626834.084483,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 10.730743408203125,
           "cpu_percent": 40.0,
           "memory_mb": 0.0,
@@ -3994,7 +3994,7 @@
         },
         {
           "timestamp": 1758626834.0957036,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 11.533737182617188,
           "cpu_percent": 60.0,
           "memory_mb": 0.0,
@@ -4008,7 +4008,7 @@
         },
         {
           "timestamp": 1758626834.107665,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 10.522127151489258,
           "cpu_percent": 0.0,
           "memory_mb": 0.2578125,
@@ -4022,7 +4022,7 @@
         },
         {
           "timestamp": 1758626834.1186166,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 12.032508850097656,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -4036,7 +4036,7 @@
         },
         {
           "timestamp": 1758626834.1310172,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 11.693477630615234,
           "cpu_percent": 40.0,
           "memory_mb": 0.0,
@@ -4050,7 +4050,7 @@
         },
         {
           "timestamp": 1758626834.1430905,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 11.07168197631836,
           "cpu_percent": 25.0,
           "memory_mb": 0.0,
@@ -4064,7 +4064,7 @@
         },
         {
           "timestamp": 1758626834.1545935,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 9.748458862304688,
           "cpu_percent": 40.0,
           "memory_mb": 0.0,
@@ -4078,7 +4078,7 @@
         },
         {
           "timestamp": 1758626834.1646562,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 9.953737258911133,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -4092,7 +4092,7 @@
         },
         {
           "timestamp": 1758626834.2751474,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 13.297319412231445,
           "cpu_percent": 25.0,
           "memory_mb": 0.0,
@@ -4106,7 +4106,7 @@
         },
         {
           "timestamp": 1758626834.2888095,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 13.458251953125,
           "cpu_percent": 40.0,
           "memory_mb": 0.0,
@@ -4120,7 +4120,7 @@
         },
         {
           "timestamp": 1758626834.3027503,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 9.852170944213867,
           "cpu_percent": 60.0,
           "memory_mb": 0.0,
@@ -4134,7 +4134,7 @@
         },
         {
           "timestamp": 1758626834.3129046,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 10.716676712036133,
           "cpu_percent": 25.0,
           "memory_mb": 0.0,
@@ -4148,7 +4148,7 @@
         },
         {
           "timestamp": 1758626834.3240068,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 10.651588439941406,
           "cpu_percent": 40.0,
           "memory_mb": 0.0,
@@ -4162,7 +4162,7 @@
         },
         {
           "timestamp": 1758626834.3349721,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 10.605335235595703,
           "cpu_percent": 40.0,
           "memory_mb": 0.0,
@@ -4176,7 +4176,7 @@
         },
         {
           "timestamp": 1758626834.3458548,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 10.018110275268555,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -4190,7 +4190,7 @@
         },
         {
           "timestamp": 1758626834.3561997,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 10.01429557800293,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -4204,7 +4204,7 @@
         },
         {
           "timestamp": 1758626834.3666627,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 9.636163711547852,
           "cpu_percent": 40.0,
           "memory_mb": 0.0,
@@ -4218,7 +4218,7 @@
         },
         {
           "timestamp": 1758626834.377362,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/task_typ",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/task_typ",
           "duration_ms": 18.413305282592773,
           "cpu_percent": 37.5,
           "memory_mb": 0.0,
@@ -4232,7 +4232,7 @@
         },
         {
           "timestamp": 1758626834.4962854,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/task_typ",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/task_typ",
           "duration_ms": 16.438961029052734,
           "cpu_percent": 15.2,
           "memory_mb": 0.0,
@@ -4246,7 +4246,7 @@
         },
         {
           "timestamp": 1758626834.513149,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/task_typ",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/task_typ",
           "duration_ms": 13.702869415283203,
           "cpu_percent": 42.9,
           "memory_mb": 0.0,
@@ -4260,7 +4260,7 @@
         },
         {
           "timestamp": 1758626834.5271893,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/task_typ",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/task_typ",
           "duration_ms": 22.676944732666016,
           "cpu_percent": 28.6,
           "memory_mb": 0.0,
@@ -4274,7 +4274,7 @@
         },
         {
           "timestamp": 1758626834.5502136,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/task_typ",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/task_typ",
           "duration_ms": 14.17088508605957,
           "cpu_percent": 57.1,
           "memory_mb": 0.0,
@@ -4288,7 +4288,7 @@
         },
         {
           "timestamp": 1758626834.5647833,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/task_typ",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/task_typ",
           "duration_ms": 18.396377563476562,
           "cpu_percent": 28.6,
           "memory_mb": 0.0,
@@ -4302,7 +4302,7 @@
         },
         {
           "timestamp": 1758626834.5837786,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/task_typ",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/task_typ",
           "duration_ms": 12.867212295532227,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -4316,7 +4316,7 @@
         },
         {
           "timestamp": 1758626834.5969791,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/task_typ",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/task_typ",
           "duration_ms": 15.961885452270508,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -4330,7 +4330,7 @@
         },
         {
           "timestamp": 1758626834.6132855,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/task_typ",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/task_typ",
           "duration_ms": 19.556045532226562,
           "cpu_percent": 44.4,
           "memory_mb": 0.0,
@@ -4344,7 +4344,7 @@
         },
         {
           "timestamp": 1758626834.633262,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/task_typ",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/task_typ",
           "duration_ms": 12.736082077026367,
           "cpu_percent": 25.0,
           "memory_mb": 0.0,
@@ -4358,7 +4358,7 @@
         },
         {
           "timestamp": 1758626834.64631,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/task_typ",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/task_typ",
           "duration_ms": 18.505573272705078,
           "cpu_percent": 55.6,
           "memory_mb": 0.0,
@@ -4372,7 +4372,7 @@
         },
         {
           "timestamp": 1758626834.7653527,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/task_typ",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/task_typ",
           "duration_ms": 12.862682342529297,
           "cpu_percent": 8.9,
           "memory_mb": 0.0,
@@ -4386,7 +4386,7 @@
         },
         {
           "timestamp": 1758626834.7786121,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/task_typ",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/task_typ",
           "duration_ms": 12.27879524230957,
           "cpu_percent": 40.0,
           "memory_mb": 0.0,
@@ -4400,7 +4400,7 @@
         },
         {
           "timestamp": 1758626834.791186,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/task_typ",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/task_typ",
           "duration_ms": 21.669626235961914,
           "cpu_percent": 37.5,
           "memory_mb": 0.0,
@@ -4414,7 +4414,7 @@
         },
         {
           "timestamp": 1758626834.8131971,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/task_typ",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/task_typ",
           "duration_ms": 15.375375747680664,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -4428,7 +4428,7 @@
         },
         {
           "timestamp": 1758626834.8288755,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/task_typ",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/task_typ",
           "duration_ms": 18.92852783203125,
           "cpu_percent": 42.9,
           "memory_mb": 0.0,
@@ -4442,7 +4442,7 @@
         },
         {
           "timestamp": 1758626834.8481834,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/task_typ",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/task_typ",
           "duration_ms": 19.278764724731445,
           "cpu_percent": 44.4,
           "memory_mb": 0.0,
@@ -4456,7 +4456,7 @@
         },
         {
           "timestamp": 1758626834.867803,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/task_typ",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/task_typ",
           "duration_ms": 15.368223190307617,
           "cpu_percent": 40.0,
           "memory_mb": 0.0,
@@ -4470,7 +4470,7 @@
         },
         {
           "timestamp": 1758626834.883546,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/task_typ",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/task_typ",
           "duration_ms": 21.396160125732422,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -4484,7 +4484,7 @@
         },
         {
           "timestamp": 1758626834.9055555,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/task_typ",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/task_typ",
           "duration_ms": 15.113592147827148,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -4498,7 +4498,7 @@
         },
         {
           "timestamp": 1758626834.9215796,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/git_stat",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/git_stat",
           "duration_ms": 27.196645736694336,
           "cpu_percent": 45.5,
           "memory_mb": 0.0,
@@ -4512,7 +4512,7 @@
         },
         {
           "timestamp": 1758626835.049355,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/git_stat",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/git_stat",
           "duration_ms": 30.310630798339844,
           "cpu_percent": 18.0,
           "memory_mb": 0.0,
@@ -4526,7 +4526,7 @@
         },
         {
           "timestamp": 1758626835.0799825,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/git_stat",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/git_stat",
           "duration_ms": 28.352737426757812,
           "cpu_percent": 36.4,
           "memory_mb": 0.0,
@@ -4540,7 +4540,7 @@
         },
         {
           "timestamp": 1758626835.108743,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/git_stat",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/git_stat",
           "duration_ms": 25.1009464263916,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -4554,7 +4554,7 @@
         },
         {
           "timestamp": 1758626835.1341875,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/git_stat",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/git_stat",
           "duration_ms": 24.501800537109375,
           "cpu_percent": 45.5,
           "memory_mb": 0.0,
@@ -4568,7 +4568,7 @@
         },
         {
           "timestamp": 1758626835.1591947,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/git_stat",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/git_stat",
           "duration_ms": 28.847694396972656,
           "cpu_percent": 41.7,
           "memory_mb": 0.0,
@@ -4582,7 +4582,7 @@
         },
         {
           "timestamp": 1758626835.188347,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/git_stat",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/git_stat",
           "duration_ms": 23.827314376831055,
           "cpu_percent": 45.5,
           "memory_mb": 0.0,
@@ -4596,7 +4596,7 @@
         },
         {
           "timestamp": 1758626835.2125392,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/git_stat",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/git_stat",
           "duration_ms": 24.848461151123047,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -4610,7 +4610,7 @@
         },
         {
           "timestamp": 1758626835.2377238,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/git_stat",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/git_stat",
           "duration_ms": 27.454614639282227,
           "cpu_percent": 45.5,
           "memory_mb": 0.0,
@@ -4624,7 +4624,7 @@
         },
         {
           "timestamp": 1758626835.265517,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/git_stat",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/git_stat",
           "duration_ms": 26.659727096557617,
           "cpu_percent": 36.4,
           "memory_mb": 0.0,
@@ -4638,7 +4638,7 @@
         },
         {
           "timestamp": 1758626835.2925274,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/git_stat",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/git_stat",
           "duration_ms": 28.810977935791016,
           "cpu_percent": 41.7,
           "memory_mb": 0.0,
@@ -4652,7 +4652,7 @@
         },
         {
           "timestamp": 1758626835.4218855,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/git_stat",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/git_stat",
           "duration_ms": 26.106595993041992,
           "cpu_percent": 21.6,
           "memory_mb": 0.0,
@@ -4666,7 +4666,7 @@
         },
         {
           "timestamp": 1758626835.4483728,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/git_stat",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/git_stat",
           "duration_ms": 30.408859252929688,
           "cpu_percent": 30.0,
           "memory_mb": 0.0,
@@ -4680,7 +4680,7 @@
         },
         {
           "timestamp": 1758626835.4791973,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/git_stat",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/git_stat",
           "duration_ms": 26.871204376220703,
           "cpu_percent": 36.4,
           "memory_mb": 0.0,
@@ -4694,7 +4694,7 @@
         },
         {
           "timestamp": 1758626835.5064025,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/git_stat",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/git_stat",
           "duration_ms": 25.810718536376953,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -4708,7 +4708,7 @@
         },
         {
           "timestamp": 1758626835.5326304,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/git_stat",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/git_stat",
           "duration_ms": 29.330015182495117,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -4722,7 +4722,7 @@
         },
         {
           "timestamp": 1758626835.5622745,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/git_stat",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/git_stat",
           "duration_ms": 27.164459228515625,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -4736,7 +4736,7 @@
         },
         {
           "timestamp": 1758626835.5898097,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/git_stat",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/git_stat",
           "duration_ms": 25.959491729736328,
           "cpu_percent": 36.4,
           "memory_mb": 0.0,
@@ -4750,7 +4750,7 @@
         },
         {
           "timestamp": 1758626835.6161394,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/git_stat",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/git_stat",
           "duration_ms": 23.878097534179688,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -4764,7 +4764,7 @@
         },
         {
           "timestamp": 1758626835.6403556,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/git_stat",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/git_stat",
           "duration_ms": 26.066064834594727,
           "cpu_percent": 30.0,
           "memory_mb": 0.0,
@@ -4778,7 +4778,7 @@
         },
         {
           "timestamp": 1758626835.6675842,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 9.685754776000977,
           "cpu_percent": 40.0,
           "memory_mb": 0.0,
@@ -4792,7 +4792,7 @@
         },
         {
           "timestamp": 1758626835.7778277,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 6.978750228881836,
           "cpu_percent": 9.8,
           "memory_mb": 0.0,
@@ -4806,7 +4806,7 @@
         },
         {
           "timestamp": 1758626835.7851584,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 6.452083587646484,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -4820,7 +4820,7 @@
         },
         {
           "timestamp": 1758626835.7920554,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 5.7525634765625,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -4834,7 +4834,7 @@
         },
         {
           "timestamp": 1758626835.798215,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 5.406618118286133,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -4848,7 +4848,7 @@
         },
         {
           "timestamp": 1758626835.8039162,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 5.042076110839844,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -4862,7 +4862,7 @@
         },
         {
           "timestamp": 1758626835.8093271,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 5.262136459350586,
           "cpu_percent": 0.0,
           "memory_mb": 0.0,
@@ -4876,7 +4876,7 @@
         },
         {
           "timestamp": 1758626835.8149128,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 5.855321884155273,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -4890,7 +4890,7 @@
         },
         {
           "timestamp": 1758626835.8211234,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 5.509138107299805,
           "cpu_percent": 0.0,
           "memory_mb": 0.0,
@@ -4904,7 +4904,7 @@
         },
         {
           "timestamp": 1758626835.8270257,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 5.575895309448242,
           "cpu_percent": 66.7,
           "memory_mb": 0.0,
@@ -4918,7 +4918,7 @@
         },
         {
           "timestamp": 1758626835.8329382,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 8.970260620117188,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -4932,7 +4932,7 @@
         },
         {
           "timestamp": 1758626835.9425035,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 6.0787200927734375,
           "cpu_percent": 7.3,
           "memory_mb": 0.0,
@@ -4946,7 +4946,7 @@
         },
         {
           "timestamp": 1758626835.9489884,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 6.117105484008789,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -4960,7 +4960,7 @@
         },
         {
           "timestamp": 1758626835.9554467,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 5.789518356323242,
           "cpu_percent": 0.0,
           "memory_mb": 0.0,
@@ -4974,7 +4974,7 @@
         },
         {
           "timestamp": 1758626835.9615448,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 6.089210510253906,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
@@ -4988,7 +4988,7 @@
         },
         {
           "timestamp": 1758626835.9679408,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 7.158517837524414,
           "cpu_percent": 66.7,
           "memory_mb": 0.0,
@@ -5002,7 +5002,7 @@
         },
         {
           "timestamp": 1758626835.975448,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 5.877256393432617,
           "cpu_percent": 0.0,
           "memory_mb": 0.0,
@@ -5016,7 +5016,7 @@
         },
         {
           "timestamp": 1758626835.981599,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 5.645275115966797,
           "cpu_percent": 66.7,
           "memory_mb": 0.0,
@@ -5030,7 +5030,7 @@
         },
         {
           "timestamp": 1758626835.9876242,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 5.842924118041992,
           "cpu_percent": 0.0,
           "memory_mb": 0.0,
@@ -5044,7 +5044,7 @@
         },
         {
           "timestamp": 1758626835.9938004,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/performa",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/performa",
           "duration_ms": 5.701303482055664,
           "cpu_percent": 75.0,
           "memory_mb": 0.0,
@@ -5058,7 +5058,7 @@
         },
         {
           "timestamp": 1758626836.0004797,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_gi",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_gi",
           "duration_ms": 49.01123046875,
           "cpu_percent": 45.0,
           "memory_mb": 0.0,
@@ -5072,7 +5072,7 @@
         },
         {
           "timestamp": 1758626836.1500988,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_gi",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_gi",
           "duration_ms": 45.6240177154541,
           "cpu_percent": 26.7,
           "memory_mb": 0.0,
@@ -5086,7 +5086,7 @@
         },
         {
           "timestamp": 1758626836.1960597,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_gi",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_gi",
           "duration_ms": 49.46255683898926,
           "cpu_percent": 42.1,
           "memory_mb": 0.0,
@@ -5100,7 +5100,7 @@
         },
         {
           "timestamp": 1758626836.2458282,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_gi",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_gi",
           "duration_ms": 47.64914512634277,
           "cpu_percent": 52.4,
           "memory_mb": 0.0,
@@ -5114,7 +5114,7 @@
         },
         {
           "timestamp": 1758626836.2938397,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_gi",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_gi",
           "duration_ms": 47.99342155456543,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -5128,7 +5128,7 @@
         },
         {
           "timestamp": 1758626836.3421543,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_gi",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_gi",
           "duration_ms": 46.29969596862793,
           "cpu_percent": 45.0,
           "memory_mb": 0.0,
@@ -5142,7 +5142,7 @@
         },
         {
           "timestamp": 1758626836.3887591,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_gi",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_gi",
           "duration_ms": 45.78042030334473,
           "cpu_percent": 42.1,
           "memory_mb": 0.0,
@@ -5156,7 +5156,7 @@
         },
         {
           "timestamp": 1758626836.4351966,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_gi",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_gi",
           "duration_ms": 52.032470703125,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -5170,7 +5170,7 @@
         },
         {
           "timestamp": 1758626836.487566,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_gi",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_gi",
           "duration_ms": 46.5700626373291,
           "cpu_percent": 47.4,
           "memory_mb": 0.0,
@@ -5184,7 +5184,7 @@
         },
         {
           "timestamp": 1758626836.5345666,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_gi",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_gi",
           "duration_ms": 46.525001525878906,
           "cpu_percent": 38.9,
           "memory_mb": 0.0,
@@ -5198,7 +5198,7 @@
         },
         {
           "timestamp": 1758626836.5814216,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_gi",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_gi",
           "duration_ms": 49.96085166931152,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -5212,7 +5212,7 @@
         },
         {
           "timestamp": 1758626836.7320688,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_gi",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_gi",
           "duration_ms": 51.48601531982422,
           "cpu_percent": 21.7,
           "memory_mb": 0.0,
@@ -5226,7 +5226,7 @@
         },
         {
           "timestamp": 1758626836.783887,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_gi",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_gi",
           "duration_ms": 48.922061920166016,
           "cpu_percent": 47.4,
           "memory_mb": 0.0,
@@ -5240,7 +5240,7 @@
         },
         {
           "timestamp": 1758626836.8331826,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_gi",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_gi",
           "duration_ms": 44.61336135864258,
           "cpu_percent": 47.4,
           "memory_mb": 0.0,
@@ -5254,7 +5254,7 @@
         },
         {
           "timestamp": 1758626836.8781354,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_gi",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_gi",
           "duration_ms": 48.79570007324219,
           "cpu_percent": 42.1,
           "memory_mb": 0.0,
@@ -5268,7 +5268,7 @@
         },
         {
           "timestamp": 1758626836.9272614,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_gi",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_gi",
           "duration_ms": 48.70462417602539,
           "cpu_percent": 44.4,
           "memory_mb": 0.0,
@@ -5282,7 +5282,7 @@
         },
         {
           "timestamp": 1758626836.9762802,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_gi",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_gi",
           "duration_ms": 53.82800102233887,
           "cpu_percent": 31.6,
           "memory_mb": 0.0,
@@ -5296,7 +5296,7 @@
         },
         {
           "timestamp": 1758626837.0304883,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_gi",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_gi",
           "duration_ms": 55.44734001159668,
           "cpu_percent": 45.5,
           "memory_mb": 0.0,
@@ -5310,7 +5310,7 @@
         },
         {
           "timestamp": 1758626837.086254,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_gi",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_gi",
           "duration_ms": 47.56331443786621,
           "cpu_percent": 50.0,
           "memory_mb": 0.0,
@@ -5324,7 +5324,7 @@
         },
         {
           "timestamp": 1758626837.1341631,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_gi",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_gi",
           "duration_ms": 51.329612731933594,
           "cpu_percent": 40.0,
           "memory_mb": 0.0,
@@ -5340,7 +5340,7 @@
       "peak_memory_mb": 20.8671875,
       "avg_cpu_percent": 0.0,
       "error_summary": {
-        "/home/xx/dev/Perfect21/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n": 20,
+        "/home/xx/dev/Claude_Enhancer/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n": 20,
         "cat: '': No such file or directory\n": 20,
         "chmod: cannot access 'claude_enhancer_*.sh': No such file or directory\n": 20
       },
@@ -10426,12 +10426,12 @@
       "metrics": [
         {
           "timestamp": 1758626842.3002343,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 10.907411575317383,
           "cpu_percent": 23.3,
           "memory_mb": 0.0,
           "success": false,
-          "error_message": "/home/xx/dev/Perfect21/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
+          "error_message": "/home/xx/dev/Claude_Enhancer/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
           "additional_data": {
             "stdout_length": 0,
             "stderr_length": 118,
@@ -10441,12 +10441,12 @@
         },
         {
           "timestamp": 1758626842.3057942,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 10.519266128540039,
           "cpu_percent": 24.4,
           "memory_mb": 0.0,
           "success": false,
-          "error_message": "/home/xx/dev/Perfect21/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
+          "error_message": "/home/xx/dev/Claude_Enhancer/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
           "additional_data": {
             "stdout_length": 0,
             "stderr_length": 118,
@@ -10456,7 +10456,7 @@
         },
         {
           "timestamp": 1758626842.2995,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/fix_git_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/fix_git_",
           "duration_ms": 28.892993927001953,
           "cpu_percent": 41.4,
           "memory_mb": 0.0,
@@ -10471,7 +10471,7 @@
         },
         {
           "timestamp": 1758626842.304042,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/auto_cle",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/auto_cle",
           "duration_ms": 41.54086112976074,
           "cpu_percent": 37.8,
           "memory_mb": 0.0,
@@ -10486,7 +10486,7 @@
         },
         {
           "timestamp": 1758626842.3049147,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/auto_cle",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/auto_cle",
           "duration_ms": 50.292253494262695,
           "cpu_percent": 35.7,
           "memory_mb": 0.0,
@@ -10501,12 +10501,12 @@
         },
         {
           "timestamp": 1758626842.3566585,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 21.139144897460938,
           "cpu_percent": 70.0,
           "memory_mb": 0.2578125,
           "success": false,
-          "error_message": "/home/xx/dev/Perfect21/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
+          "error_message": "/home/xx/dev/Claude_Enhancer/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
           "additional_data": {
             "stdout_length": 0,
             "stderr_length": 118,
@@ -10516,7 +10516,7 @@
         },
         {
           "timestamp": 1758626842.3572462,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_c",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_c",
           "duration_ms": 22.006988525390625,
           "cpu_percent": 65.0,
           "memory_mb": 0.2578125,
@@ -10531,7 +10531,7 @@
         },
         {
           "timestamp": 1758626842.3582919,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/error_ha",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/error_ha",
           "duration_ms": 23.77152442932129,
           "cpu_percent": 75.0,
           "memory_mb": 0.0,
@@ -10546,7 +10546,7 @@
         },
         {
           "timestamp": 1758626842.3574767,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/fix_git_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/fix_git_",
           "duration_ms": 48.81787300109863,
           "cpu_percent": 74.3,
           "memory_mb": 0.0,
@@ -10561,7 +10561,7 @@
         },
         {
           "timestamp": 1758626842.378974,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_c",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_c",
           "duration_ms": 27.18353271484375,
           "cpu_percent": 0.0,
           "memory_mb": 0.0,
@@ -10576,7 +10576,7 @@
         },
         {
           "timestamp": 1758626842.3674054,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/fix_git_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/fix_git_",
           "duration_ms": 50.942182540893555,
           "cpu_percent": 49.4,
           "memory_mb": 0.0,
@@ -10591,7 +10591,7 @@
         },
         {
           "timestamp": 1758626842.3569553,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/auto_cle",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/auto_cle",
           "duration_ms": 84.69247817993164,
           "cpu_percent": 81.6,
           "memory_mb": 0.2578125,
@@ -10606,7 +10606,7 @@
         },
         {
           "timestamp": 1758626842.3590138,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/auto_cle",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/auto_cle",
           "duration_ms": 85.33549308776855,
           "cpu_percent": 51.5,
           "memory_mb": 0.0,
@@ -10621,7 +10621,7 @@
         },
         {
           "timestamp": 1758626842.370162,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/auto_cle",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/auto_cle",
           "duration_ms": 80.14488220214844,
           "cpu_percent": 56.8,
           "memory_mb": 0.0,
@@ -10636,7 +10636,7 @@
         },
         {
           "timestamp": 1758626842.380984,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/auto_cle",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/auto_cle",
           "duration_ms": 75.06990432739258,
           "cpu_percent": 86.2,
           "memory_mb": 0.0,
@@ -10653,7 +10653,7 @@
       "peak_memory_mb": 23.11328125,
       "avg_cpu_percent": 0.0,
       "error_summary": {
-        "/home/xx/dev/Perfect21/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n": 3,
+        "/home/xx/dev/Claude_Enhancer/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n": 3,
         "cat: '': No such file or directory\n": 2
       },
       "performance_percentiles": {
@@ -13076,12 +13076,12 @@
         },
         {
           "timestamp": 1758626854.3536098,
-          "operation": "python3 /home/xx/dev/Perfect21/.claude/config/conf",
+          "operation": "python3 /home/xx/dev/Claude_Enhancer/.claude/config/conf",
           "duration_ms": 123.9614486694336,
           "cpu_percent": 31.9,
           "memory_mb": 0.0,
           "success": false,
-          "error_message": "  File \"/home/xx/dev/Perfect21/.claude/config/config_manager.py\", line 85\n    return True\nIndentationError: expected an indented block after 'for' statement on line 82\n",
+          "error_message": "  File \"/home/xx/dev/Claude_Enhancer/.claude/config/config_manager.py\", line 85\n    return True\nIndentationError: expected an indented block after 'for' statement on line 82\n",
           "additional_data": {
             "stdout_length": 0,
             "stderr_length": 168,
@@ -13091,12 +13091,12 @@
         },
         {
           "timestamp": 1758626854.4779603,
-          "operation": "python3 /home/xx/dev/Perfect21/.claude/config/conf",
+          "operation": "python3 /home/xx/dev/Claude_Enhancer/.claude/config/conf",
           "duration_ms": 118.66164207458496,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
           "success": false,
-          "error_message": "  File \"/home/xx/dev/Perfect21/.claude/config/config_manager.py\", line 85\n    return True\nIndentationError: expected an indented block after 'for' statement on line 82\n",
+          "error_message": "  File \"/home/xx/dev/Claude_Enhancer/.claude/config/config_manager.py\", line 85\n    return True\nIndentationError: expected an indented block after 'for' statement on line 82\n",
           "additional_data": {
             "stdout_length": 0,
             "stderr_length": 168,
@@ -13106,12 +13106,12 @@
         },
         {
           "timestamp": 1758626854.5969698,
-          "operation": "python3 /home/xx/dev/Perfect21/.claude/config/conf",
+          "operation": "python3 /home/xx/dev/Claude_Enhancer/.claude/config/conf",
           "duration_ms": 155.23099899291992,
           "cpu_percent": 34.4,
           "memory_mb": 0.0,
           "success": false,
-          "error_message": "  File \"/home/xx/dev/Perfect21/.claude/config/config_manager.py\", line 85\n    return True\nIndentationError: expected an indented block after 'for' statement on line 82\n",
+          "error_message": "  File \"/home/xx/dev/Claude_Enhancer/.claude/config/config_manager.py\", line 85\n    return True\nIndentationError: expected an indented block after 'for' statement on line 82\n",
           "additional_data": {
             "stdout_length": 0,
             "stderr_length": 168,
@@ -13121,12 +13121,12 @@
         },
         {
           "timestamp": 1758626854.7526305,
-          "operation": "python3 /home/xx/dev/Perfect21/.claude/config/conf",
+          "operation": "python3 /home/xx/dev/Claude_Enhancer/.claude/config/conf",
           "duration_ms": 128.21364402770996,
           "cpu_percent": 33.3,
           "memory_mb": 0.0,
           "success": false,
-          "error_message": "  File \"/home/xx/dev/Perfect21/.claude/config/config_manager.py\", line 85\n    return True\nIndentationError: expected an indented block after 'for' statement on line 82\n",
+          "error_message": "  File \"/home/xx/dev/Claude_Enhancer/.claude/config/config_manager.py\", line 85\n    return True\nIndentationError: expected an indented block after 'for' statement on line 82\n",
           "additional_data": {
             "stdout_length": 0,
             "stderr_length": 168,
@@ -13136,12 +13136,12 @@
         },
         {
           "timestamp": 1758626854.8811896,
-          "operation": "python3 /home/xx/dev/Perfect21/.claude/config/conf",
+          "operation": "python3 /home/xx/dev/Claude_Enhancer/.claude/config/conf",
           "duration_ms": 129.807710647583,
           "cpu_percent": 38.9,
           "memory_mb": 0.0,
           "success": false,
-          "error_message": "  File \"/home/xx/dev/Perfect21/.claude/config/config_manager.py\", line 85\n    return True\nIndentationError: expected an indented block after 'for' statement on line 82\n",
+          "error_message": "  File \"/home/xx/dev/Claude_Enhancer/.claude/config/config_manager.py\", line 85\n    return True\nIndentationError: expected an indented block after 'for' statement on line 82\n",
           "additional_data": {
             "stdout_length": 0,
             "stderr_length": 168,
@@ -13151,12 +13151,12 @@
         },
         {
           "timestamp": 1758626855.0114248,
-          "operation": "python3 /home/xx/dev/Perfect21/.claude/config/conf",
+          "operation": "python3 /home/xx/dev/Claude_Enhancer/.claude/config/conf",
           "duration_ms": 134.27138328552246,
           "cpu_percent": 41.5,
           "memory_mb": 0.0,
           "success": false,
-          "error_message": "  File \"/home/xx/dev/Perfect21/.claude/config/config_manager.py\", line 85\n    return True\nIndentationError: expected an indented block after 'for' statement on line 82\n",
+          "error_message": "  File \"/home/xx/dev/Claude_Enhancer/.claude/config/config_manager.py\", line 85\n    return True\nIndentationError: expected an indented block after 'for' statement on line 82\n",
           "additional_data": {
             "stdout_length": 0,
             "stderr_length": 168,
@@ -13166,12 +13166,12 @@
         },
         {
           "timestamp": 1758626855.146048,
-          "operation": "python3 /home/xx/dev/Perfect21/.claude/config/conf",
+          "operation": "python3 /home/xx/dev/Claude_Enhancer/.claude/config/conf",
           "duration_ms": 126.60980224609375,
           "cpu_percent": 32.7,
           "memory_mb": 0.0,
           "success": false,
-          "error_message": "  File \"/home/xx/dev/Perfect21/.claude/config/config_manager.py\", line 85\n    return True\nIndentationError: expected an indented block after 'for' statement on line 82\n",
+          "error_message": "  File \"/home/xx/dev/Claude_Enhancer/.claude/config/config_manager.py\", line 85\n    return True\nIndentationError: expected an indented block after 'for' statement on line 82\n",
           "additional_data": {
             "stdout_length": 0,
             "stderr_length": 168,
@@ -13181,12 +13181,12 @@
         },
         {
           "timestamp": 1758626855.2729747,
-          "operation": "python3 /home/xx/dev/Perfect21/.claude/config/conf",
+          "operation": "python3 /home/xx/dev/Claude_Enhancer/.claude/config/conf",
           "duration_ms": 138.20552825927734,
           "cpu_percent": 32.7,
           "memory_mb": 0.0,
           "success": false,
-          "error_message": "  File \"/home/xx/dev/Perfect21/.claude/config/config_manager.py\", line 85\n    return True\nIndentationError: expected an indented block after 'for' statement on line 82\n",
+          "error_message": "  File \"/home/xx/dev/Claude_Enhancer/.claude/config/config_manager.py\", line 85\n    return True\nIndentationError: expected an indented block after 'for' statement on line 82\n",
           "additional_data": {
             "stdout_length": 0,
             "stderr_length": 168,
@@ -13196,12 +13196,12 @@
         },
         {
           "timestamp": 1758626855.4115856,
-          "operation": "python3 /home/xx/dev/Perfect21/.claude/config/conf",
+          "operation": "python3 /home/xx/dev/Claude_Enhancer/.claude/config/conf",
           "duration_ms": 131.4990520477295,
           "cpu_percent": 34.0,
           "memory_mb": 0.0,
           "success": false,
-          "error_message": "  File \"/home/xx/dev/Perfect21/.claude/config/config_manager.py\", line 85\n    return True\nIndentationError: expected an indented block after 'for' statement on line 82\n",
+          "error_message": "  File \"/home/xx/dev/Claude_Enhancer/.claude/config/config_manager.py\", line 85\n    return True\nIndentationError: expected an indented block after 'for' statement on line 82\n",
           "additional_data": {
             "stdout_length": 0,
             "stderr_length": 168,
@@ -13211,12 +13211,12 @@
         },
         {
           "timestamp": 1758626855.543474,
-          "operation": "python3 /home/xx/dev/Perfect21/.claude/config/conf",
+          "operation": "python3 /home/xx/dev/Claude_Enhancer/.claude/config/conf",
           "duration_ms": 128.83377075195312,
           "cpu_percent": 36.0,
           "memory_mb": 0.0,
           "success": false,
-          "error_message": "  File \"/home/xx/dev/Perfect21/.claude/config/config_manager.py\", line 85\n    return True\nIndentationError: expected an indented block after 'for' statement on line 82\n",
+          "error_message": "  File \"/home/xx/dev/Claude_Enhancer/.claude/config/config_manager.py\", line 85\n    return True\nIndentationError: expected an indented block after 'for' statement on line 82\n",
           "additional_data": {
             "stdout_length": 0,
             "stderr_length": 168,
@@ -13228,7 +13228,7 @@
       "peak_memory_mb": 23.1640625,
       "avg_cpu_percent": 0.0,
       "error_summary": {
-        "  File \"/home/xx/dev/Perfect21/.claude/config/config_manager.py\", line 85\n    return True\nIndentationError: expected an indented block after 'for' statement on line 82\n": 10
+        "  File \"/home/xx/dev/Claude_Enhancer/.claude/config/config_manager.py\", line 85\n    return True\nIndentationError: expected an indented block after 'for' statement on line 82\n": 10
       },
       "performance_percentiles": {
         "p50": 83.5108757019043,
@@ -16300,7 +16300,7 @@
       "metrics": [
         {
           "timestamp": 1758626862.4535573,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_gi",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_gi",
           "duration_ms": 45.37487030029297,
           "cpu_percent": 25.4,
           "memory_mb": 0.0,
@@ -16376,7 +16376,7 @@
         },
         {
           "timestamp": 1758626868.7015102,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/auto_cle",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/auto_cle",
           "duration_ms": 32.034873962402344,
           "cpu_percent": 11.6,
           "memory_mb": 0.0,
@@ -16410,12 +16410,12 @@
         },
         {
           "timestamp": 1758626872.6066494,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 5.805015563964844,
           "cpu_percent": 13.5,
           "memory_mb": 0.0,
           "success": false,
-          "error_message": "/home/xx/dev/Perfect21/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
+          "error_message": "/home/xx/dev/Claude_Enhancer/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n",
           "additional_data": {
             "stdout_length": 0,
             "stderr_length": 118,
@@ -16434,7 +16434,7 @@
         },
         {
           "timestamp": 1758626874.1051016,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/git_stat",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/git_stat",
           "duration_ms": 28.297901153564453,
           "cpu_percent": 10.4,
           "memory_mb": 0.0,
@@ -16492,7 +16492,7 @@
         },
         {
           "timestamp": 1758626878.0787084,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 21.26455307006836,
           "cpu_percent": 11.9,
           "memory_mb": 0.0,
@@ -16520,7 +16520,7 @@
         },
         {
           "timestamp": 1758626880.4718008,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 16.08443260192871,
           "cpu_percent": 14.0,
           "memory_mb": 0.0,
@@ -16534,7 +16534,7 @@
         },
         {
           "timestamp": 1758626882.251673,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/code_wri",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/code_wri",
           "duration_ms": 16.629695892333984,
           "cpu_percent": 15.0,
           "memory_mb": 0.0,
@@ -16634,7 +16634,7 @@
         },
         {
           "timestamp": 1758626888.9548345,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/branch_h",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/branch_h",
           "duration_ms": 7.564783096313477,
           "cpu_percent": 12.0,
           "memory_mb": 0.0,
@@ -16648,7 +16648,7 @@
         },
         {
           "timestamp": 1758626890.2994683,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_ag",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_ag",
           "duration_ms": 11.434555053710938,
           "cpu_percent": 12.5,
           "memory_mb": 0.0,
@@ -16868,7 +16868,7 @@
         },
         {
           "timestamp": 1758626913.7458625,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_p",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_p",
           "duration_ms": 14.48202133178711,
           "cpu_percent": 14.4,
           "memory_mb": 0.0,
@@ -16906,7 +16906,7 @@
         },
         {
           "timestamp": 1758626918.705816,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/fix_git_",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/fix_git_",
           "duration_ms": 23.060321807861328,
           "cpu_percent": 14.1,
           "memory_mb": 0.0,
@@ -16934,7 +16934,7 @@
         },
         {
           "timestamp": 1758626920.194054,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/code_wri",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/code_wri",
           "duration_ms": 19.891977310180664,
           "cpu_percent": 15.0,
           "memory_mb": 0.0,
@@ -16948,7 +16948,7 @@
         },
         {
           "timestamp": 1758626921.4206133,
-          "operation": "bash /home/xx/dev/Perfect21/.claude/hooks/code_wri",
+          "operation": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/code_wri",
           "duration_ms": 19.970417022705078,
           "cpu_percent": 13.4,
           "memory_mb": 0.0,
@@ -16964,7 +16964,7 @@
       "peak_memory_mb": 163.41796875,
       "avg_cpu_percent": 0.0,
       "error_summary": {
-        "/home/xx/dev/Perfect21/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n": 1
+        "/home/xx/dev/Claude_Enhancer/.claude/hooks/smart_agent_selector.sh: line 165: unexpected EOF while looking for matching `\"'\n": 1
       },
       "performance_percentiles": {
         "p50": 17.482757568359375,

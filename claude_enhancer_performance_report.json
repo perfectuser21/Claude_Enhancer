@@ -10,7 +10,7 @@
     "cleanup_scripts": {
       ".claude/scripts/cleanup.sh": {
         "description": "标准清理脚本",
-        "command": "bash /home/xx/dev/Perfect21/.claude/scripts/cleanup.sh",
+        "command": "bash /home/xx/dev/Claude_Enhancer/.claude/scripts/cleanup.sh",
         "runs": 3,
         "success_rate": 0.0,
         "avg_time": 1.4162,
@@ -24,7 +24,7 @@
       },
       ".claude/scripts/performance_optimized_cleanup.sh": {
         "description": "性能优化清理脚本",
-        "command": "bash /home/xx/dev/Perfect21/.claude/scripts/performance_optimized_cleanup.sh",
+        "command": "bash /home/xx/dev/Claude_Enhancer/.claude/scripts/performance_optimized_cleanup.sh",
         "runs": 3,
         "success_rate": 0.0,
         "avg_time": 0.009,
@@ -38,7 +38,7 @@
       },
       ".claude/scripts/ultra_optimized_cleanup.sh": {
         "description": "超级优化清理脚本",
-        "command": "bash /home/xx/dev/Perfect21/.claude/scripts/ultra_optimized_cleanup.sh",
+        "command": "bash /home/xx/dev/Claude_Enhancer/.claude/scripts/ultra_optimized_cleanup.sh",
         "runs": 3,
         "success_rate": 0.0,
         "avg_time": 1.3272,
@@ -52,7 +52,7 @@
       },
       ".claude/scripts/safe_cleanup.sh": {
         "description": "安全清理脚本",
-        "command": "bash /home/xx/dev/Perfect21/.claude/scripts/safe_cleanup.sh",
+        "command": "bash /home/xx/dev/Claude_Enhancer/.claude/scripts/safe_cleanup.sh",
         "runs": 3,
         "success_rate": 0.0,
         "avg_time": 0.0918,
@@ -68,7 +68,7 @@
     "performance_scripts": {
       ".claude/scripts/performance_benchmark.sh": {
         "description": "性能基准测试",
-        "command": "bash /home/xx/dev/Perfect21/.claude/scripts/performance_benchmark.sh",
+        "command": "bash /home/xx/dev/Claude_Enhancer/.claude/scripts/performance_benchmark.sh",
         "runs": 3,
         "success_rate": 0.0,
         "avg_time": 1.1031,
@@ -82,7 +82,7 @@
       },
       ".claude/scripts/ultra_performance_benchmark.sh": {
         "description": "超级性能基准测试",
-        "command": "bash /home/xx/dev/Perfect21/.claude/scripts/ultra_performance_benchmark.sh",
+        "command": "bash /home/xx/dev/Claude_Enhancer/.claude/scripts/ultra_performance_benchmark.sh",
         "runs": 3,
         "success_rate": 0.0,
         "avg_time": 0.7351,
@@ -96,7 +96,7 @@
       },
       ".claude/scripts/quick_performance_test.sh": {
         "description": "快速性能测试",
-        "command": "bash /home/xx/dev/Perfect21/.claude/scripts/quick_performance_test.sh",
+        "command": "bash /home/xx/dev/Claude_Enhancer/.claude/scripts/quick_performance_test.sh",
         "runs": 3,
         "success_rate": 1.0,
         "avg_time": 0.3001,
@@ -110,7 +110,7 @@
       },
       ".claude/scripts/performance_comparison.sh": {
         "description": "性能对比测试",
-        "command": "bash /home/xx/dev/Perfect21/.claude/scripts/performance_comparison.sh",
+        "command": "bash /home/xx/dev/Claude_Enhancer/.claude/scripts/performance_comparison.sh",
         "runs": 3,
         "success_rate": 1.0,
         "avg_time": 3.2147,
@@ -124,7 +124,7 @@
       },
       ".claude/scripts/performance_monitor.sh": {
         "description": "性能监控脚本",
-        "command": "bash /home/xx/dev/Perfect21/.claude/scripts/performance_monitor.sh",
+        "command": "bash /home/xx/dev/Claude_Enhancer/.claude/scripts/performance_monitor.sh",
         "runs": 3,
         "success_rate": 1.0,
         "avg_time": 0.1069,
@@ -146,7 +146,7 @@
       },
       ".claude/scripts/smart_document_loader.py": {
         "description": "智能文档加载器",
-        "command": "python3 /home/xx/dev/Perfect21/.claude/scripts/smart_document_loader.py --test",
+        "command": "python3 /home/xx/dev/Claude_Enhancer/.claude/scripts/smart_document_loader.py --test",
         "runs": 3,
         "success_rate": 1.0,
         "avg_time": 0.078,
@@ -162,7 +162,7 @@
     "hook_system": {
       ".claude/hooks/smart_agent_selector.sh": {
         "description": "智能Agent选择器",
-        "command": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_agent_selector.sh --test",
+        "command": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_agent_selector.sh --test",
         "runs": 5,
         "success_rate": 0.0,
         "avg_time": 0.0036,
@@ -235,43 +235,43 @@
       "total_size_mb": 2.38,
       "largest_files": [
         [
-          "/home/xx/dev/Perfect21/.claude/agents/specialized/game-developer.md",
+          "/home/xx/dev/Claude_Enhancer/.claude/agents/specialized/game-developer.md",
           60478
         ],
         [
-          "/home/xx/dev/Perfect21/.claude/agents/specialized/ecommerce-expert.md",
+          "/home/xx/dev/Claude_Enhancer/.claude/agents/specialized/ecommerce-expert.md",
           55600
         ],
         [
-          "/home/xx/dev/Perfect21/.claude/agents/specialized/fintech-specialist.md",
+          "/home/xx/dev/Claude_Enhancer/.claude/agents/specialized/fintech-specialist.md",
           54638
         ],
         [
-          "/home/xx/dev/Perfect21/.claude/agents/specialized/healthcare-dev.md",
+          "/home/xx/dev/Claude_Enhancer/.claude/agents/specialized/healthcare-dev.md",
           51262
         ],
         [
-          "/home/xx/dev/Perfect21/.claude/agents/specialized/embedded-engineer.md",
+          "/home/xx/dev/Claude_Enhancer/.claude/agents/specialized/embedded-engineer.md",
           51045
         ],
         [
-          "/home/xx/dev/Perfect21/.claude/agents/business/api-designer.md",
+          "/home/xx/dev/Claude_Enhancer/.claude/agents/business/api-designer.md",
           43137
         ],
         [
-          "/home/xx/dev/Perfect21/.claude/agents/business/technical-writer.md",
+          "/home/xx/dev/Claude_Enhancer/.claude/agents/business/technical-writer.md",
           40253
         ],
         [
-          "/home/xx/dev/Perfect21/.claude/agents/quality/performance-tester.md",
+          "/home/xx/dev/Claude_Enhancer/.claude/agents/quality/performance-tester.md",
           37233
         ],
         [
-          "/home/xx/dev/Perfect21/.claude/agents/quality/accessibility-auditor.md",
+          "/home/xx/dev/Claude_Enhancer/.claude/agents/quality/accessibility-auditor.md",
           36086
         ],
         [
-          "/home/xx/dev/Perfect21/.claude/agents/business/business-analyst.md",
+          "/home/xx/dev/Claude_Enhancer/.claude/agents/business/business-analyst.md",
           34325
         ]
       ],

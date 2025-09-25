@@ -1,0 +1,77 @@
+{
+  "name": "claude-enhancer-git-optimizer",
+  "version": "1.0.0",
+  "description": "Claude Enhancer Plus Git Operations Optimizer - High-performance Git operations with intelligent caching and batching",
+  "main": "GitIntegration.js",
+  "bin": {
+    "git-optimizer": "./git-optimizer-cli.js"
+  },
+  "scripts": {
+    "start": "node GitIntegration.js",
+    "test": "node git-optimizer-cli.js test",
+    "benchmark": "node git-optimizer-cli.js benchmark --save",
+    "init": "node git-optimizer-cli.js init",
+    "status": "node git-optimizer-cli.js status",
+    "health": "node git-optimizer-cli.js health",
+    "cleanup": "node git-optimizer-cli.js cleanup",
+    "install-hooks": "node -e \"require('./GitIntegration.js')\"",
+    "performance-test": "node git-optimizer-cli.js benchmark --iterations 50"
+  },
+  "keywords": [
+    "git",
+    "optimization",
+    "performance",
+    "caching",
+    "batching",
+    "hooks",
+    "claude-enhancer"
+  ],
+  "author": "Claude Enhancer Plus",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "files": [
+    "GitOptimizer.js",
+    "GitStatusCache.js",
+    "OptimizedHooks.js",
+    "GitPerformanceMonitor.js",
+    "GitIntegration.js",
+    "git-optimizer-cli.js",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "Perfect21"
+  },
+  "bugs": {
+    "url": "Perfect21/issues"
+  },
+  "homepage": "Perfect21#readme",
+  "config": {
+    "optimization": {
+      "enableCaching": true,
+      "enableMonitoring": true,
+      "enableOptimizedHooks": true,
+      "enableBatching": true,
+      "cacheMaxAge": 30000,
+      "watchFiles": true,
+      "maxConcurrentOps": 5,
+      "batchInterval": 100
+    },
+    "performance": {
+      "fastThreshold": 100,
+      "mediumThreshold": 500,
+      "slowThreshold": 1000,
+      "verySlowThreshold": 3000
+    },
+    "monitoring": {
+      "enableRealTimeMonitoring": true,
+      "maxRecentOperations": 100,
+      "maxCacheSize": 1000,
+      "logLevel": "info"
+    }
+  }
+}

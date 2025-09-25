@@ -1,0 +1,70 @@
+{
+  "timestamp": 1758773349.6018717,
+  "suite_name": "OptimizedTestSuite",
+  "total_duration": 0.06162881199270487,
+  "total_tests": 7,
+  "successful_tests": 6,
+  "failed_tests": 1,
+  "success_rate": 0.8571428571428571,
+  "average_coverage": 0.7042857142857144,
+  "performance_target_met": true,
+  "coverage_target_met": false,
+  "test_results": [
+    {
+      "name": "test_validation_engine",
+      "success": false,
+      "duration": 0.0,
+      "coverage": 0.0,
+      "error": ""
+    },
+    {
+      "name": "test_core_phase_manager",
+      "success": true,
+      "duration": 2843996.690091446,
+      "coverage": 0.85,
+      "error": null
+    },
+    {
+      "name": "test_smart_agent_selector",
+      "success": true,
+      "duration": 0.03,
+      "coverage": 0.88,
+      "error": null
+    },
+    {
+      "name": "test_file_operations",
+      "success": true,
+      "duration": 0.01,
+      "coverage": 0.8,
+      "error": null
+    },
+    {
+      "name": "test_cache_manager",
+      "success": true,
+      "duration": 0.005,
+      "coverage": 0.95,
+      "error": null
+    },
+    {
+      "name": "test_execution_engine_parallel",
+      "success": true,
+      "duration": 0.05,
+      "coverage": 0.75,
+      "error": null
+    },
+    {
+      "name": "test_async_workflow",
+      "success": true,
+      "duration": 0.010449497029185295,
+      "coverage": 0.7,
+      "error": null
+    }
+  ],
+  "optimization_metrics": {
+    "parallel_execution": true,
+    "async_support": true,
+    "memory_optimized": true,
+    "cache_enabled": true,
+    "workers_used": 4
+  }
+}

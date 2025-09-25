@@ -1,0 +1,21 @@
+{
+  "timestamp": 1758789923321,
+  "status": "healthy",
+  "components": {
+    "resources": {
+      "status": "healthy",
+      "memory": 0.0005952820635807655,
+      "disk": 0.5
+    },
+    "errorRecovery": {
+      "status": "healthy",
+      "errorRate": 0,
+      "averageRecoveryTime": 0
+    },
+    "circuitBreakers": {
+      "status": "healthy",
+      "breakers": {}
+    }
+  },
+  "metrics": {}
+}

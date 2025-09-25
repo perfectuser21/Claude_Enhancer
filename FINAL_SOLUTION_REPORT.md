@@ -1,4 +1,4 @@
-# 🔧 Perfect21工作流强制执行 - 最终解决方案
+# 🔧 Claude Enhancer工作流强制执行 - 最终解决方案
 
 ## 一、问题根因
 
@@ -131,8 +131,8 @@ Hook3：推荐6个Agent
 ## 九、监控机制
 
 所有违规行为会记录到：
-- `/tmp/perfect21_violations.log` - 违规记录
-- `/tmp/perfect21_tasks.log` - 任务检测记录
+- `/tmp/claude-enhancer_violations.log` - 违规记录
+- `/tmp/claude-enhancer_tasks.log` - 任务检测记录
 - `/tmp/claude_agent_selection.log` - Agent选择记录
 
 ## 十、总结
@@ -141,7 +141,7 @@ Hook3：推荐6个Agent
 
 **解决方案**：扩大Hook覆盖范围，从多个角度拦截错误行为，引导正确流程。
 
-**最终目标**：让Perfect21工作流成为我的本能反应，而不是可选项。
+**最终目标**：让Claude Enhancer工作流成为我的本能反应，而不是可选项。
 
 ---
 

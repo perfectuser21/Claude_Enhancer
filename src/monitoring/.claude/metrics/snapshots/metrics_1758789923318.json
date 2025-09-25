@@ -1,0 +1,62 @@
+{
+  "timestamp": 1758789923318,
+  "metrics": {
+    "errors_total": {
+      "value": 0,
+      "timestamp": 1758789918316,
+      "labels": {}
+    },
+    "recoveries_total": {
+      "value": 0,
+      "timestamp": 1758789918316,
+      "labels": {}
+    },
+    "recovery_success_rate": {
+      "value": 0,
+      "timestamp": 1758789918316,
+      "labels": {}
+    },
+    "average_recovery_time": {
+      "value": 0,
+      "timestamp": 1758789918316,
+      "labels": {}
+    },
+    "circuit_breaker_trips": {
+      "value": 0,
+      "timestamp": 1758789918316,
+      "labels": {}
+    },
+    "checkpoints_created": {
+      "value": 0,
+      "timestamp": 1758789918316,
+      "labels": {}
+    },
+    "checkpoints_restored": {
+      "value": 0,
+      "timestamp": 1758789918316,
+      "labels": {}
+    },
+    "pattern_detections": {
+      "value": 0,
+      "timestamp": 1758789918316,
+      "labels": {}
+    },
+    "graceful_degradations": {
+      "value": 0,
+      "timestamp": 1758789918316,
+      "labels": {}
+    },
+    "resource_usage": {
+      "value": 0,
+      "timestamp": 1758789918316,
+      "labels": {}
+    }
+  },
+  "performance": {
+    "errorRate": 0,
+    "averageRecoveryTime": 0,
+    "throughput": 0,
+    "circuitBreakerStatus": {}
+  },
+  "health": "healthy"
+}

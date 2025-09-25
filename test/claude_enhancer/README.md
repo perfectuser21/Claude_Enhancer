@@ -44,7 +44,7 @@ test/claude_enhancer/
 
 ### 1. 安装依赖
 ```bash
-cd /home/xx/dev/Perfect21/test/claude_enhancer
+cd /home/xx/dev/Claude Enhancer/test/claude_enhancer
 pip install -r requirements.txt
 ```
 

@@ -9,7 +9,7 @@
 
 ## 🎯 统一目标
 
-将项目中所有 `Perfect21`/`perfect21` 品牌引用统一为 `Claude Enhancer` 相关标识，确保品牌一致性。
+将项目中所有 `Claude Enhancer`/`claude-enhancer` 品牌引用统一为 `Claude Enhancer` 相关标识，确保品牌一致性。
 
 ## 📊 处理统计
 
@@ -34,19 +34,19 @@
 
 | 原文本 | 替换为 | 适用场景 |
 |--------|--------|----------|
-| Perfect21 | Claude Enhancer | 品牌名称 |
-| perfect21 | claude-enhancer | 技术标识符 |
-| perfect21.com | claude-enhancer.dev | 域名 |
-| perfect21.dev | claude-enhancer.dev | 域名 |
-| perfect21/claude-enhancer | claude-enhancer/system | 容器镜像 |
-| perfect21_test | claude_enhancer_test | 数据库/服务名 |
-| PERFECT21_ROOT | CLAUDE_ENHANCER_ROOT | 环境变量 |
+| Claude Enhancer | Claude Enhancer | 品牌名称 |
+| claude-enhancer | claude-enhancer | 技术标识符 |
+| claude-enhancer.com | claude-enhancer.dev | 域名 |
+| claude-enhancer.dev | claude-enhancer.dev | 域名 |
+| claude-enhancer/claude-enhancer | claude-enhancer/system | 容器镜像 |
+| claude-enhancer_test | claude_enhancer_test | 数据库/服务名 |
+| CLAUDE_ENHANCER_ROOT | CLAUDE_ENHANCER_ROOT | 环境变量 |
 
 ## ⚠️ 重要保留项
 
 以下内容**保持不变**以确保系统正常运行：
 
-- ✅ **项目目录路径**: `/home/xx/dev/Perfect21` （实际目录名）
+- ✅ **项目目录路径**: `/home/xx/dev/Claude Enhancer` （实际目录名）
 - ✅ **Git仓库历史**: 完整保留所有提交记录
 - ✅ **配置文件功能**: 所有配置保持向后兼容
 
@@ -63,13 +63,13 @@
 ### 当前品牌分布
 ```bash
 # 实际验证结果：
-grep -r "Claude Enhancer" /home/xx/dev/Perfect21 --exclude-dir=.git | wc -l
+grep -r "Claude Enhancer" /home/xx/dev/Claude Enhancer --exclude-dir=.git | wc -l
 # 结果：1153 处 Claude Enhancer 引用
 
-grep -r "Perfect21" /home/xx/dev/Perfect21 --exclude-dir=.git | wc -l
+grep -r "Claude Enhancer" /home/xx/dev/Claude Enhancer --exclude-dir=.git | wc -l
 # 结果：345 处（主要是路径引用和Git日志）
 
-grep -r "perfect21" /home/xx/dev/Perfect21 --exclude-dir=.git | wc -l
+grep -r "claude-enhancer" /home/xx/dev/Claude Enhancer --exclude-dir=.git | wc -l
 # 结果：513 处（需要进一步处理）
 ```
 

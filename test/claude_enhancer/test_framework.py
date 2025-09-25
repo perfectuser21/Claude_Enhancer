@@ -124,7 +124,7 @@ class SystemMonitor:
 class AccurateTestRunner:
     """准确的测试运行器"""
 
-    def __init__(self, claude_dir: str = "/home/xx/dev/Perfect21/.claude"):
+    def __init__(self, claude_dir: str = "/home/xx/dev/Claude_Enhancer/.claude"):
         self.claude_dir = Path(claude_dir)
         self.project_dir = self.claude_dir.parent
         self.temp_dir = None
@@ -472,7 +472,7 @@ class AccurateTestRunner:
 class ComprehensiveTestSuite:
     """综合测试套件"""
 
-    def __init__(self, claude_dir: str = "/home/xx/dev/Perfect21/.claude"):
+    def __init__(self, claude_dir: str = "/home/xx/dev/Claude_Enhancer/.claude"):
         self.runner = AccurateTestRunner(claude_dir)
         self.results = {
             "timestamp": datetime.now().isoformat(),

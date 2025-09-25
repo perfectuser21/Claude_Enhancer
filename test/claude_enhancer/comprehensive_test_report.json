@@ -135,7 +135,7 @@
         "execution_time": 0.0022368249483406544,
         "memory_peak": 2691.90234375,
         "cpu_percent": 20.0,
-        "stdout": "/home/xx/dev/Perfect21\n",
+        "stdout": "/home/xx/dev/Claude_Enhancer\n",
         "stderr": "",
         "return_code": 0,
         "metadata": {
@@ -1541,7 +1541,7 @@
       "memory_peak": 2642.125,
       "cpu_percent": 12.8,
       "stdout": "🚀 推送前检查...\n✅ 推送检查通过\n",
-      "stderr": "/home/xx/dev/Perfect21/.claude/hooks/simple_pre_push.sh: line 25: [: 0\n0: integer expression expected\n",
+      "stderr": "/home/xx/dev/Claude_Enhancer/.claude/hooks/simple_pre_push.sh: line 25: [: 0\n0: integer expression expected\n",
       "return_code": 0,
       "metadata": {
         "cpu_percent_avg": 12.8,
@@ -1569,7 +1569,7 @@
       "memory_peak": 2642.33984375,
       "cpu_percent": 19.5,
       "stdout": "🚀 推送前检查...\n✅ 推送检查通过\n",
-      "stderr": "/home/xx/dev/Perfect21/.claude/hooks/simple_pre_push.sh: line 25: [: 0\n0: integer expression expected\n",
+      "stderr": "/home/xx/dev/Claude_Enhancer/.claude/hooks/simple_pre_push.sh: line 25: [: 0\n0: integer expression expected\n",
       "return_code": 0,
       "metadata": {
         "cpu_percent_avg": 19.5,
@@ -1597,7 +1597,7 @@
       "memory_peak": 2642.08984375,
       "cpu_percent": 12.8,
       "stdout": "🚀 推送前检查...\n✅ 推送检查通过\n",
-      "stderr": "/home/xx/dev/Perfect21/.claude/hooks/simple_pre_push.sh: line 25: [: 0\n0: integer expression expected\n",
+      "stderr": "/home/xx/dev/Claude_Enhancer/.claude/hooks/simple_pre_push.sh: line 25: [: 0\n0: integer expression expected\n",
       "return_code": 0,
       "metadata": {
         "cpu_percent_avg": 12.8,
@@ -1624,7 +1624,7 @@
       "execution_time": 0.008320085238665342,
       "memory_peak": 2642.33203125,
       "cpu_percent": 19.5,
-      "stdout": "🚀 Claude Enhancer - 高性能Hook引擎启动器\n=================================================\nClaude Enhancer 高性能引擎管理工具\n\n用法: /home/xx/dev/Perfect21/.claude/hooks/start_high_performance_engine.sh [命令]\n\n命令:\n  start, setup    设置并启动高性能引擎 (默认)\n  test           仅测试环境和配置\n  monitor        显示性能监控信息\n  restore        恢复到原始配置\n  help           显示此帮助信息\n",
+      "stdout": "🚀 Claude Enhancer - 高性能Hook引擎启动器\n=================================================\nClaude Enhancer 高性能引擎管理工具\n\n用法: /home/xx/dev/Claude_Enhancer/.claude/hooks/start_high_performance_engine.sh [命令]\n\n命令:\n  start, setup    设置并启动高性能引擎 (默认)\n  test           仅测试环境和配置\n  monitor        显示性能监控信息\n  restore        恢复到原始配置\n  help           显示此帮助信息\n",
       "stderr": "",
       "return_code": 0,
       "metadata": {
@@ -1652,7 +1652,7 @@
       "execution_time": 0.0075212749652564526,
       "memory_peak": 2641.8359375,
       "cpu_percent": 15.4,
-      "stdout": "🚀 Claude Enhancer - 高性能Hook引擎启动器\n=================================================\n❌ 未知命令: --test\n使用 '/home/xx/dev/Perfect21/.claude/hooks/start_high_performance_engine.sh help' 查看可用命令\n",
+      "stdout": "🚀 Claude Enhancer - 高性能Hook引擎启动器\n=================================================\n❌ 未知命令: --test\n使用 '/home/xx/dev/Claude_Enhancer/.claude/hooks/start_high_performance_engine.sh help' 查看可用命令\n",
       "stderr": "",
       "return_code": 1,
       "metadata": {
@@ -1680,7 +1680,7 @@
       "execution_time": 0.006561066955327988,
       "memory_peak": 2642.078125,
       "cpu_percent": 14.6,
-      "stdout": "🚀 Claude Enhancer - 高性能Hook引擎启动器\n=================================================\n❌ 未知命令: --dry-run\n使用 '/home/xx/dev/Perfect21/.claude/hooks/start_high_performance_engine.sh help' 查看可用命令\n",
+      "stdout": "🚀 Claude Enhancer - 高性能Hook引擎启动器\n=================================================\n❌ 未知命令: --dry-run\n使用 '/home/xx/dev/Claude_Enhancer/.claude/hooks/start_high_performance_engine.sh help' 查看可用命令\n",
       "stderr": "",
       "return_code": 1,
       "metadata": {
@@ -1709,7 +1709,7 @@
       "memory_peak": 2642.078125,
       "cpu_percent": 19.0,
       "stdout": "",
-      "stderr": "/home/xx/dev/Perfect21/.claude/hooks/smart_agent_selector_fixed.sh: line 168: unexpected EOF while looking for matching `\"'\n",
+      "stderr": "/home/xx/dev/Claude_Enhancer/.claude/hooks/smart_agent_selector_fixed.sh: line 168: unexpected EOF while looking for matching `\"'\n",
       "return_code": 2,
       "metadata": {
         "cpu_percent_avg": 19.0,
@@ -1737,7 +1737,7 @@
       "memory_peak": 2642.04296875,
       "cpu_percent": 20.9,
       "stdout": "",
-      "stderr": "/home/xx/dev/Perfect21/.claude/hooks/smart_agent_selector_fixed.sh: line 168: unexpected EOF while looking for matching `\"'\n",
+      "stderr": "/home/xx/dev/Claude_Enhancer/.claude/hooks/smart_agent_selector_fixed.sh: line 168: unexpected EOF while looking for matching `\"'\n",
       "return_code": 2,
       "metadata": {
         "cpu_percent_avg": 20.9,
@@ -1765,7 +1765,7 @@
       "memory_peak": 2642.265625,
       "cpu_percent": 10.5,
       "stdout": "",
-      "stderr": "/home/xx/dev/Perfect21/.claude/hooks/smart_agent_selector_fixed.sh: line 168: unexpected EOF while looking for matching `\"'\n",
+      "stderr": "/home/xx/dev/Claude_Enhancer/.claude/hooks/smart_agent_selector_fixed.sh: line 168: unexpected EOF while looking for matching `\"'\n",
       "return_code": 2,
       "metadata": {
         "cpu_percent_avg": 10.5,
@@ -2241,7 +2241,7 @@
       "memory_peak": 2642.57421875,
       "cpu_percent": 15.0,
       "stdout": "--test\n",
-      "stderr": "╔═══════════════════════════════════════════════════╗\n║     🎯 Perfect21 智能工作流引导系统 🎯           ║\n╚═══════════════════════════════════════════════════╝\n\n📝 任务分析：检测到【开发任务】\n\n📊 复杂度评估：🟡 标准任务（需要4-6个Agent）\n\n🤖 推荐Agent组合：\n   1️⃣ backend-architect - 方案设计\n   2️⃣ backend-engineer - 功能实现\n   3️⃣ test-engineer - 测试保证\n   4️⃣ code-reviewer - 代码审查\n\n📋 强制执行的8-Phase工作流：\n   Phase 0: 创建分支 → git checkout -b feature/xxx\n   Phase 1: 需求分析 → 使用Task调用分析Agent\n   Phase 2: 设计规划 → 使用Task调用设计Agent\n   Phase 3: 并行开发 → 【关键】多Agent并行实现\n   Phase 4: 本地测试 → 运行测试套件\n   Phase 5: 代码提交 → git commit（触发hooks）\n   Phase 6: 代码审查 → 创建PR\n   Phase 7: 合并部署 → 完成任务\n\n⚠️  重要提醒：\n   • 不要直接写代码！使用Task工具调用Agent\n   • 所有Agent必须在同一个function_calls块中并行调用\n   • 这是Perfect21的核心要求，不是可选项\n\n💡 正确的第一步：\n   使用Task工具：Task(subagent_type=\"...\", prompt=\"...\")\n═══════════════════════════════════════════════════\n",
+      "stderr": "╔═══════════════════════════════════════════════════╗\n║     🎯 Claude Enhancer 智能工作流引导系统 🎯           ║\n╚═══════════════════════════════════════════════════╝\n\n📝 任务分析：检测到【开发任务】\n\n📊 复杂度评估：🟡 标准任务（需要4-6个Agent）\n\n🤖 推荐Agent组合：\n   1️⃣ backend-architect - 方案设计\n   2️⃣ backend-engineer - 功能实现\n   3️⃣ test-engineer - 测试保证\n   4️⃣ code-reviewer - 代码审查\n\n📋 强制执行的8-Phase工作流：\n   Phase 0: 创建分支 → git checkout -b feature/xxx\n   Phase 1: 需求分析 → 使用Task调用分析Agent\n   Phase 2: 设计规划 → 使用Task调用设计Agent\n   Phase 3: 并行开发 → 【关键】多Agent并行实现\n   Phase 4: 本地测试 → 运行测试套件\n   Phase 5: 代码提交 → git commit（触发hooks）\n   Phase 6: 代码审查 → 创建PR\n   Phase 7: 合并部署 → 完成任务\n\n⚠️  重要提醒：\n   • 不要直接写代码！使用Task工具调用Agent\n   • 所有Agent必须在同一个function_calls块中并行调用\n   • 这是Claude Enhancer的核心要求，不是可选项\n\n💡 正确的第一步：\n   使用Task工具：Task(subagent_type=\"...\", prompt=\"...\")\n═══════════════════════════════════════════════════\n",
       "return_code": 0,
       "metadata": {
         "cpu_percent_avg": 15.0,
@@ -2465,7 +2465,7 @@
       "memory_peak": 2640.2890625,
       "cpu_percent": 20.9,
       "stdout": "\u001b[0;34m🔄 Git工作流智能助手\u001b[0m\n════════════════════════════════════════\n📊 当前状态:\n  • 分支: \u001b[0;32mfix/claude-enhancer-optimization-20250922\u001b[0m\n  • 修改: \u001b[1;33m365\u001b[0m 个文件\n  • 未跟踪: \u001b[1;33m158\u001b[0m 个文件\n\n\u001b[0;31m🔴 大量修改（365 个文件）\u001b[0m\n\n⚠️ 建议操作:\n  1. 先备份当前工作:\n     git stash\n     git stash branch backup-20250923\n\n  2. 或分类提交:\n     📂 按类型统计:\n        • .20250919: 4 个文件\n        • .Dockerfile: 1 个文件\n        • .claude/ARCHITECTURE/: 1 个文件\n        • .claude/core/: 1 个文件\n        • .claude/features/: 1 个文件\n\n  3. 建议操作序列:\n     # 先提交核心功能\n     git add .claude/core .claude/hooks\n     git commit -m \"feat: 核心功能优化\"\n\n     # 再提交配置\n     git add .claude/config .claude/settings.json\n     git commit -m \"config: 更新配置\"\n\n     # 最后提交文档\n     git add *.md\n     git commit -m \"docs: 更新文档\"\n\n════════════════════════════════════════\n🚀 快捷命令:\n  查看: git status | git diff | git log --oneline -5\n  提交: git add -A && git commit -m '...'\n  推送: git push origin fix/claude-enhancer-optimization-20250922\n",
-      "stderr": "/home/xx/dev/Perfect21/.claude/hooks/smart_git_workflow.sh: line 47: [: 0\n0: integer expression expected\n",
+      "stderr": "/home/xx/dev/Claude_Enhancer/.claude/hooks/smart_git_workflow.sh: line 47: [: 0\n0: integer expression expected\n",
       "return_code": 0,
       "metadata": {
         "cpu_percent_avg": 20.9,
@@ -2493,7 +2493,7 @@
       "memory_peak": 2641.015625,
       "cpu_percent": 30.0,
       "stdout": "\u001b[0;34m🔄 Git工作流智能助手\u001b[0m\n════════════════════════════════════════\n📊 当前状态:\n  • 分支: \u001b[0;32mfix/claude-enhancer-optimization-20250922\u001b[0m\n  • 修改: \u001b[1;33m365\u001b[0m 个文件\n  • 未跟踪: \u001b[1;33m158\u001b[0m 个文件\n\n\u001b[0;31m🔴 大量修改（365 个文件）\u001b[0m\n\n⚠️ 建议操作:\n  1. 先备份当前工作:\n     git stash\n     git stash branch backup-20250923\n\n  2. 或分类提交:\n     📂 按类型统计:\n        • .20250919: 4 个文件\n        • .Dockerfile: 1 个文件\n        • .claude/ARCHITECTURE/: 1 个文件\n        • .claude/core/: 1 个文件\n        • .claude/features/: 1 个文件\n\n  3. 建议操作序列:\n     # 先提交核心功能\n     git add .claude/core .claude/hooks\n     git commit -m \"feat: 核心功能优化\"\n\n     # 再提交配置\n     git add .claude/config .claude/settings.json\n     git commit -m \"config: 更新配置\"\n\n     # 最后提交文档\n     git add *.md\n     git commit -m \"docs: 更新文档\"\n\n════════════════════════════════════════\n🚀 快捷命令:\n  查看: git status | git diff | git log --oneline -5\n  提交: git add -A && git commit -m '...'\n  推送: git push origin fix/claude-enhancer-optimization-20250922\n",
-      "stderr": "/home/xx/dev/Perfect21/.claude/hooks/smart_git_workflow.sh: line 47: [: 0\n0: integer expression expected\n",
+      "stderr": "/home/xx/dev/Claude_Enhancer/.claude/hooks/smart_git_workflow.sh: line 47: [: 0\n0: integer expression expected\n",
       "return_code": 0,
       "metadata": {
         "cpu_percent_avg": 30.0,
@@ -2521,7 +2521,7 @@
       "memory_peak": 2641.26171875,
       "cpu_percent": 28.9,
       "stdout": "\u001b[0;34m🔄 Git工作流智能助手\u001b[0m\n════════════════════════════════════════\n📊 当前状态:\n  • 分支: \u001b[0;32mfix/claude-enhancer-optimization-20250922\u001b[0m\n  • 修改: \u001b[1;33m365\u001b[0m 个文件\n  • 未跟踪: \u001b[1;33m158\u001b[0m 个文件\n\n\u001b[0;31m🔴 大量修改（365 个文件）\u001b[0m\n\n⚠️ 建议操作:\n  1. 先备份当前工作:\n     git stash\n     git stash branch backup-20250923\n\n  2. 或分类提交:\n     📂 按类型统计:\n        • .20250919: 4 个文件\n        • .Dockerfile: 1 个文件\n        • .claude/ARCHITECTURE/: 1 个文件\n        • .claude/core/: 1 个文件\n        • .claude/features/: 1 个文件\n\n  3. 建议操作序列:\n     # 先提交核心功能\n     git add .claude/core .claude/hooks\n     git commit -m \"feat: 核心功能优化\"\n\n     # 再提交配置\n     git add .claude/config .claude/settings.json\n     git commit -m \"config: 更新配置\"\n\n     # 最后提交文档\n     git add *.md\n     git commit -m \"docs: 更新文档\"\n\n════════════════════════════════════════\n🚀 快捷命令:\n  查看: git status | git diff | git log --oneline -5\n  提交: git add -A && git commit -m '...'\n  推送: git push origin fix/claude-enhancer-optimization-20250922\n",
-      "stderr": "/home/xx/dev/Perfect21/.claude/hooks/smart_git_workflow.sh: line 47: [: 0\n0: integer expression expected\n",
+      "stderr": "/home/xx/dev/Claude_Enhancer/.claude/hooks/smart_git_workflow.sh: line 47: [: 0\n0: integer expression expected\n",
       "return_code": 0,
       "metadata": {
         "cpu_percent_avg": 28.9,
@@ -2830,7 +2830,7 @@
       "execution_time": 16.144032208248973,
       "memory_peak": 2708.390625,
       "cpu_percent": 60.133125,
-      "stdout": "\u001b[1m\u001b[0;36m┌──────────────────────────────────────────────────────────────────┐\u001b[0m\n\u001b[1m\u001b[0;36m│              Claude Enhancer 性能测试套件 v3.0                   │\u001b[0m\n\u001b[1m\u001b[0;36m└──────────────────────────────────────────────────────────────────┘\u001b[0m\n🔍 开始全面性能测试...\n\u001b[0;32m📄 性能测试报告已生成: /home/xx/dev/Perfect21/.claude/performance_results/performance_test_report_20250923_210741.md\u001b[0m\n\n\u001b[0;32m🎉 性能测试完成!\u001b[0m\n",
+      "stdout": "\u001b[1m\u001b[0;36m┌──────────────────────────────────────────────────────────────────┐\u001b[0m\n\u001b[1m\u001b[0;36m│              Claude Enhancer 性能测试套件 v3.0                   │\u001b[0m\n\u001b[1m\u001b[0;36m└──────────────────────────────────────────────────────────────────┘\u001b[0m\n🔍 开始全面性能测试...\n\u001b[0;32m📄 性能测试报告已生成: /home/xx/dev/Claude_Enhancer/.claude/performance_results/performance_test_report_20250923_210741.md\u001b[0m\n\n\u001b[0;32m🎉 性能测试完成!\u001b[0m\n",
       "stderr": "",
       "return_code": 0,
       "metadata": {
