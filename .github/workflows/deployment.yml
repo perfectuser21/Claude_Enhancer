@@ -44,7 +44,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: perfect21/claude-enhancer
+  IMAGE_NAME: claude-enhancer/claude-enhancer
   DOCKER_BUILDKIT: 1
   COMPOSE_DOCKER_CLI_BUILD: 1
 
@@ -312,7 +312,7 @@ jobs:
           esac
 
           echo "status=success" >> $GITHUB_OUTPUT
-          echo "url=https://$ENVIRONMENT.claude-enhancer.perfect21.dev" >> $GITHUB_OUTPUT
+          echo "url=https://$ENVIRONMENT.claude-enhancer.claude-enhancer.dev" >> $GITHUB_OUTPUT
 
       - name: Wait for deployment readiness
         run: |

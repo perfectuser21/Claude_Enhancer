@@ -89,9 +89,9 @@ graph TB
 // proto/auth_service.proto
 syntax = "proto3";
 
-package perfect21.auth;
+package claude-enhancer.auth;
 
-option go_package = "github.com/perfect21/proto/auth";
+option go_package = "github.com/claude-enhancer/proto/auth";
 
 // 认证服务
 service AuthService {
@@ -139,7 +139,7 @@ message TokenClaims {
 // proto/user_service.proto
 syntax = "proto3";
 
-package perfect21.user;
+package claude-enhancer.user;
 
 service UserService {
     // 获取用户信息
@@ -199,7 +199,7 @@ enum UserStatus {
 // proto/permission_service.proto
 syntax = "proto3";
 
-package perfect21.permission;
+package claude-enhancer.permission;
 
 service PermissionService {
     // 检查单个权限
@@ -261,7 +261,7 @@ import (
     "google.golang.org/grpc"
     "google.golang.org/grpc/credentials/insecure"
     "google.golang.org/grpc/keepalive"
-    "github.com/perfect21/proto/auth"
+    "github.com/claude-enhancer/proto/auth"
 )
 
 type AuthClient struct {
@@ -660,7 +660,7 @@ class MessagePublisher:
         async def get_connection():
             return await aio_pika.connect_robust(
                 self.rabbitmq_url,
-                client_properties={"connection_name": "perfect21-publisher"}
+                client_properties={"connection_name": "claude-enhancer-publisher"}
             )
 
         self.connection_pool = Pool(get_connection, max_size=10)
@@ -723,7 +723,7 @@ class MessagePublisher:
         # 发布消息
         async with self.channel_pool.acquire() as channel:
             exchange = await channel.declare_exchange(
-                "perfect21.events",
+                "claude-enhancer.events",
                 aio_pika.ExchangeType.TOPIC,
                 durable=True
             )
@@ -881,7 +881,7 @@ class MessageConsumer:
         """初始化连接"""
         self.connection = await aio_pika.connect_robust(
             self.rabbitmq_url,
-            client_properties={"connection_name": f"perfect21-{self.service_name}"}
+            client_properties={"connection_name": f"claude-enhancer-{self.service_name}"}
         )
 
         self.channel = await self.connection.channel()
@@ -889,7 +889,7 @@ class MessageConsumer:
 
         # 声明交换机
         self.exchange = await self.channel.declare_exchange(
-            "perfect21.events",
+            "claude-enhancer.events",
             aio_pika.ExchangeType.TOPIC,
             durable=True
         )
@@ -1080,7 +1080,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: auth-service
-  namespace: perfect21-auth
+  namespace: claude-enhancer-auth
   labels:
     app: auth-service
     version: v1
@@ -1103,7 +1103,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: auth-service-headless
-  namespace: perfect21-auth
+  namespace: claude-enhancer-auth
 spec:
   clusterIP: None
   selector:
@@ -1119,10 +1119,10 @@ apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
   name: auth-service-vs
-  namespace: perfect21-auth
+  namespace: claude-enhancer-auth
 spec:
   hosts:
-  - auth-service.perfect21-auth.svc.cluster.local
+  - auth-service.claude-enhancer-auth.svc.cluster.local
   http:
   - match:
     - headers:
@@ -1130,7 +1130,7 @@ spec:
           regex: "application/grpc.*"
     route:
     - destination:
-        host: auth-service.perfect21-auth.svc.cluster.local
+        host: auth-service.claude-enhancer-auth.svc.cluster.local
         port:
           number: 50051
       weight: 100
@@ -1144,7 +1144,7 @@ spec:
       perTryTimeout: 1s
   - route:
     - destination:
-        host: auth-service.perfect21-auth.svc.cluster.local
+        host: auth-service.claude-enhancer-auth.svc.cluster.local
         port:
           number: 80
       weight: 100
@@ -1156,9 +1156,9 @@ apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
   name: auth-service-dr
-  namespace: perfect21-auth
+  namespace: claude-enhancer-auth
 spec:
-  host: auth-service.perfect21-auth.svc.cluster.local
+  host: auth-service.claude-enhancer-auth.svc.cluster.local
   trafficPolicy:
     connectionPool:
       tcp:
@@ -1488,43 +1488,43 @@ from functools import wraps
 
 # 定义指标
 REQUEST_COUNT = Counter(
-    'perfect21_requests_total',
+    'claude-enhancer_requests_total',
     'Total number of requests',
     ['service', 'method', 'endpoint', 'status']
 )
 
 REQUEST_DURATION = Histogram(
-    'perfect21_request_duration_seconds',
+    'claude-enhancer_request_duration_seconds',
     'Request duration in seconds',
     ['service', 'method', 'endpoint']
 )
 
 ACTIVE_CONNECTIONS = Gauge(
-    'perfect21_active_connections',
+    'claude-enhancer_active_connections',
     'Number of active connections',
     ['service']
 )
 
 AUTH_EVENTS = Counter(
-    'perfect21_auth_events_total',
+    'claude-enhancer_auth_events_total',
     'Authentication events',
     ['event_type', 'result']
 )
 
 TOKEN_OPERATIONS = Counter(
-    'perfect21_token_operations_total',
+    'claude-enhancer_token_operations_total',
     'Token operations',
     ['operation', 'result']
 )
 
 PERMISSION_CHECKS = Counter(
-    'perfect21_permission_checks_total',
+    'claude-enhancer_permission_checks_total',
     'Permission checks',
     ['resource', 'action', 'result']
 )
 
 SESSION_OPERATIONS = Counter(
-    'perfect21_session_operations_total',
+    'claude-enhancer_session_operations_total',
     'Session operations',
     ['operation', 'result']
 )

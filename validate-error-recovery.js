@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Claude Enhancer Plus - Error Recovery System Validation
+ * Claude Enhancer 5.0 - Error Recovery System Validation
  * Quick validation script to ensure all components are working correctly
  */
 

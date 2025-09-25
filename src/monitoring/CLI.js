@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Claude Enhancer Plus - Monitoring CLI
+ * Claude Enhancer 5.0 - Monitoring CLI
  *
  * Command-line interface for managing the monitoring system:
  * - Start/stop dashboard components
@@ -35,7 +35,7 @@ class MonitoringCLI {
     setupCommands() {
         this.program
             .name('claude-monitor')
-            .description('Claude Enhancer Plus Monitoring System')
+            .description('Claude Enhancer 5.0 Monitoring System')
             .version(pkg.version);
 
         // Dashboard commands
@@ -72,7 +72,7 @@ class MonitoringCLI {
             .option('-d, --data-retention <hours>', 'Data retention in hours', '24')
             .action(async (options) => {
                 try {
-                    console.log('🚀 Starting Claude Enhancer Plus CLI Dashboard...\n');
+                    console.log('🚀 Starting Claude Enhancer 5.0 CLI Dashboard...\n');
 
                     const dashboardOptions = {
                         refreshRate: parseInt(options.refresh),
@@ -98,7 +98,7 @@ class MonitoringCLI {
             .option('-r, --refresh <ms>', 'Refresh rate in milliseconds', '1000')
             .action(async (options) => {
                 try {
-                    console.log('🌐 Starting Claude Enhancer Plus Web Dashboard...\n');
+                    console.log('🌐 Starting Claude Enhancer 5.0 Web Dashboard...\n');
 
                     const webDashboard = new WebDashboard({
                         port: parseInt(options.port),

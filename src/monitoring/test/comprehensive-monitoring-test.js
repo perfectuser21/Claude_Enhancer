@@ -1,5 +1,5 @@
 /**
- * Claude Enhancer Plus - Comprehensive Monitoring System Test Suite
+ * Claude Enhancer 5.0 - Comprehensive Monitoring System Test Suite
  * Tests all monitoring components and their integration
  */
 

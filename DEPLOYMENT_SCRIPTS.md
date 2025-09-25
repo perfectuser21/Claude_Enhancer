@@ -43,7 +43,7 @@ set -euo pipefail
 
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly PROJECT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
-readonly LOG_FILE="/var/log/perfect21/deployment.log"
+readonly LOG_FILE="/var/log/claude-enhancer/deployment.log"
 
 source "$SCRIPT_DIR/../config/common.sh"
 
@@ -278,7 +278,7 @@ set -euo pipefail
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly PROJECT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 readonly BACKUP_DIR="/backups/$(date +%Y%m%d_%H%M%S)"
-readonly LOG_FILE="/var/log/perfect21/deployment.log"
+readonly LOG_FILE="/var/log/claude-enhancer/deployment.log"
 
 source "$SCRIPT_DIR/../config/common.sh"
 
@@ -534,7 +534,7 @@ set -euo pipefail
 
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly PROJECT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
-readonly LOG_FILE="/var/log/perfect21/deployment.log"
+readonly LOG_FILE="/var/log/claude-enhancer/deployment.log"
 
 source "$SCRIPT_DIR/../config/common.sh"
 
@@ -757,11 +757,11 @@ update_system_configuration() {
     fi
 
     # 配置日志轮转
-    if [ ! -f "/etc/logrotate.d/perfect21" ]; then
+    if [ ! -f "/etc/logrotate.d/claude-enhancer" ]; then
         log_info "📄 配置日志轮转..."
 
-        sudo tee /etc/logrotate.d/perfect21 > /dev/null << EOF
-/var/log/perfect21/*.log {
+        sudo tee /etc/logrotate.d/claude-enhancer > /dev/null << EOF
+/var/log/claude-enhancer/*.log {
     daily
     missingok
     rotate 14
@@ -835,7 +835,7 @@ set -euo pipefail
 
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly DEPLOYMENT_SCRIPTS_DIR="$(cd "$SCRIPT_DIR/../scripts" && pwd)"
-readonly LOG_FILE="/var/log/perfect21/deployment.log"
+readonly LOG_FILE="/var/log/claude-enhancer/deployment.log"
 
 # 部署配置
 ENVIRONMENT="${1:-production}"

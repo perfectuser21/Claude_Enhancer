@@ -70,7 +70,7 @@ __description__ = "Enterprise-grade performance optimization system for Claude E
 
 # 默认配置
 DEFAULT_CONFIG = {
-    "service_name": "perfect21",
+    "service_name": "claude-enhancer",
     "environment": "production",
     "debug_mode": False,
     "performance_config_file": "performance.yaml",
@@ -164,7 +164,7 @@ def validate_environment():
 
 
 # 性能优化工具函数
-def create_optimized_app(app_name: str = "perfect21", config_file: str = None):
+def create_optimized_app(app_name: str = "claude-enhancer", config_file: str = None):
     """创建性能优化的应用实例"""
     import asyncio
 
@@ -222,7 +222,7 @@ def setup_performance_middleware(app, performance_manager: PerformanceManager):
 
 # 快速启动函数
 async def quick_start(
-    service_name: str = "perfect21",
+    service_name: str = "claude-enhancer",
     config_file: str = None,
     enable_dashboard: bool = True,
 ) -> PerformanceManager:

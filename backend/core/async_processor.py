@@ -84,7 +84,7 @@ class ProcessorConfig:
     smtp_username: Optional[str] = None
     smtp_password: Optional[str] = None
     smtp_use_tls: bool = True
-    email_from: str = "noreply@perfect21.com"
+    email_from: str = "noreply@claude-enhancer.com"
 
     # 消息队列配置
     rabbitmq_url: str = "amqp://localhost"
@@ -146,11 +146,11 @@ class AsyncProcessor:
 
             # 声明队列
             await self.rabbitmq_channel.declare_queue(
-                "perfect21.notifications", durable=True
+                "claude-enhancer.notifications", durable=True
             )
-            await self.rabbitmq_channel.declare_queue("perfect21.emails", durable=True)
+            await self.rabbitmq_channel.declare_queue("claude-enhancer.emails", durable=True)
             await self.rabbitmq_channel.declare_queue(
-                "perfect21.webhooks", durable=True
+                "claude-enhancer.webhooks", durable=True
             )
 
             logger.info("✅ RabbitMQ连接建立成功")
@@ -418,7 +418,7 @@ class AsyncProcessor:
                         json.dumps(notification_data).encode(),
                         delivery_mode=aio_pika.DeliveryMode.PERSISTENT,
                     ),
-                    routing_key="perfect21.notifications",
+                    routing_key="claude-enhancer.notifications",
                 )
 
             logger.info(f"🔔 通知发送成功 - 用户: {user_id}, 类型: {notification_type}")

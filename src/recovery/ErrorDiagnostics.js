@@ -1,5 +1,5 @@
 /**
- * Claude Enhancer Plus - Advanced Error Diagnostics System
+ * Claude Enhancer 5.0 - Advanced Error Diagnostics System
  * Provides comprehensive error analysis, pattern detection, and root cause analysis
  */
 

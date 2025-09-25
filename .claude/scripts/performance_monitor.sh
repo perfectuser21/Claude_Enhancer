@@ -5,7 +5,7 @@
 set -e
 
 # Configuration
-MONITOR_DIR="/tmp/perfect21_monitor"
+MONITOR_DIR="/tmp/claude-enhancer_monitor"
 LOG_FILE="$MONITOR_DIR/performance.log"
 METRICS_FILE="$MONITOR_DIR/metrics.json"
 ALERT_THRESHOLD_MS=${ALERT_THRESHOLD_MS:-1000}
@@ -245,7 +245,7 @@ suggest_optimizations() {
                 echo "  🧹 清理脚本优化:"
                 echo "    • 使用Ultra优化版本"
                 echo "    • 增加并行度: PARALLEL_JOBS=$(nproc)"
-                echo "    • 启用缓存: CACHE_DIR=/tmp/perfect21_cache"
+                echo "    • 启用缓存: CACHE_DIR=/tmp/claude-enhancer_cache"
                 ;;
             "agent_avg")
                 echo "  🤖 Agent选择优化:"

@@ -1,5 +1,5 @@
 /**
- * Claude Enhancer Plus - Advanced Error Recovery System (SECURITY HARDENED)
+ * Claude Enhancer 5.0 - Advanced Error Recovery System (SECURITY HARDENED)
  * Provides comprehensive error recovery, checkpoint management, and retry logic
  * ✅ SECURITY AUDIT PASSED - Phase 5 Production Ready
  */

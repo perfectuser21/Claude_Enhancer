@@ -1,5 +1,5 @@
 /**
- * Claude Enhancer Plus - Git Status Caching System
+ * Claude Enhancer 5.0 - Git Status Caching System
  *
  * Intelligent caching system for Git status operations
  * Reduces redundant Git calls by 80% through smart invalidation

@@ -141,7 +141,7 @@ class MFAService:
         # 生成二维码
         qr_code_url = QRCodeGenerator.generate_totp_qr(
             secret=secret,
-            user_email=f"user_{user_id}@perfect21.com",
+            user_email=f"user_{user_id}@claude-enhancer.com",
             issuer="Claude Enhancer",
         )
 

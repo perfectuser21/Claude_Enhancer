@@ -100,7 +100,7 @@ class ConfigurationLoader:
 
     def _setup_logging(self) -> logging.Logger:
         """Setup logging for configuration loader."""
-        logger = logging.getLogger("perfect21.config")
+        logger = logging.getLogger("claude-enhancer.config")
 
         if not logger.handlers:
             handler = logging.StreamHandler()

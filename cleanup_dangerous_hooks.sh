@@ -66,7 +66,7 @@ DANGEROUS_HOOKS=(
     "misc/git-bridge.sh"
     "misc/intelligent_control.sh"
     "misc/max_quality.sh"
-    "misc/perfect21_active_control.sh"
+    "misc/claude-enhancer_active_control.sh"
     "misc/pre-task.sh"
     "misc/quality-gates.sh"
     "misc/task-type-detector.sh"
@@ -228,7 +228,7 @@ security:
 
 # 审计设置
 audit:
-  log_file: "/tmp/perfect21_hooks.log"
+  log_file: "/tmp/claude-enhancer_hooks.log"
   log_level: "INFO"
 HOOK_CONFIG
 

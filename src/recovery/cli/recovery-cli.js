@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Claude Enhancer Plus - Recovery CLI Commands
+ * Claude Enhancer 5.0 - Recovery CLI Commands
  * Command-line interface for error recovery operations
  */
 
@@ -32,7 +32,7 @@ class RecoveryCLI {
     setupCommands() {
         this.program
             .name('phase-controller')
-            .description('Claude Enhancer Plus Recovery Controller')
+            .description('Claude Enhancer 5.0 Recovery Controller')
             .version('2.0.0');
         
         // Recovery commands

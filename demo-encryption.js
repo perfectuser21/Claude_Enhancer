@@ -6,7 +6,7 @@
 const CheckpointManager = require('./src/recovery/CheckpointManager');
 
 async function demonstrateEncryption() {
-    console.log('🔐 Perfect21 Checkpoint Encryption Demo');
+    console.log('🔐 Claude Enhancer 5.0 Checkpoint Encryption Demo');
     console.log('======================================\n');
 
     // Set up encryption key
@@ -48,7 +48,7 @@ async function demonstrateEncryption() {
                 critical: true,
                 metadata: {
                     author: 'claude-code',
-                    project: 'perfect21-demo',
+                    project: 'claude-enhancer-demo',
                     environment: 'development'
                 }
             }

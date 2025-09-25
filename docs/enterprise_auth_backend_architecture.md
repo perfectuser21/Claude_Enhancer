@@ -172,8 +172,8 @@ class JWTTokenManager:
         self.access_token_ttl = 900  # 15分钟
         self.refresh_token_ttl = 604800  # 7天
         self.algorithm = "RS256"
-        self.issuer = "perfect21-auth"
-        self.audience = "perfect21-api"
+        self.issuer = "claude-enhancer-auth"
+        self.audience = "claude-enhancer-api"
 
     async def generate_token_pair(self, user_id: str, permissions: List[str],
                                 device_info: Dict[str, Any]) -> Dict[str, Any]:
@@ -1124,11 +1124,11 @@ import (
     "os"
 
     "github.com/gin-gonic/gin"
-    "github.com/perfect21/session-service/internal/config"
-    "github.com/perfect21/session-service/internal/handler"
-    "github.com/perfect21/session-service/internal/middleware"
-    "github.com/perfect21/session-service/internal/service"
-    "github.com/perfect21/session-service/internal/storage"
+    "github.com/claude-enhancer/session-service/internal/config"
+    "github.com/claude-enhancer/session-service/internal/handler"
+    "github.com/claude-enhancer/session-service/internal/middleware"
+    "github.com/claude-enhancer/session-service/internal/service"
+    "github.com/claude-enhancer/session-service/internal/storage"
 )
 
 func main() {
@@ -1232,9 +1232,9 @@ import (
     "time"
 
     "github.com/google/uuid"
-    "github.com/perfect21/session-service/internal/config"
-    "github.com/perfect21/session-service/internal/model"
-    "github.com/perfect21/session-service/internal/storage"
+    "github.com/claude-enhancer/session-service/internal/config"
+    "github.com/claude-enhancer/session-service/internal/model"
+    "github.com/claude-enhancer/session-service/internal/storage"
 )
 
 type SessionService struct {
@@ -1753,12 +1753,12 @@ module.exports = new WebSocketService();
 
 ```sql
 -- 创建数据库和用户
-CREATE DATABASE perfect21_auth;
-CREATE USER perfect21_user WITH PASSWORD 'secure_password';
-GRANT ALL PRIVILEGES ON DATABASE perfect21_auth TO perfect21_user;
+CREATE DATABASE claude-enhancer_auth;
+CREATE USER claude-enhancer_user WITH PASSWORD 'secure_password';
+GRANT ALL PRIVILEGES ON DATABASE claude-enhancer_auth TO claude-enhancer_user;
 
 -- 连接到数据库
-\c perfect21_auth;
+\c claude-enhancer_auth;
 
 -- 启用UUID扩展
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -2084,20 +2084,20 @@ spec:
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: perfect21-auth
+  name: claude-enhancer-auth
   labels:
-    name: perfect21-auth
+    name: claude-enhancer-auth
 
 ---
 # k8s/secrets.yaml
 apiVersion: v1
 kind: Secret
 metadata:
-  name: perfect21-secrets
-  namespace: perfect21-auth
+  name: claude-enhancer-secrets
+  namespace: claude-enhancer-auth
 type: Opaque
 stringData:
-  database-url: "postgresql://perfect21_user:secure_password@postgres:5432/perfect21_auth"
+  database-url: "postgresql://claude-enhancer_user:secure_password@postgres:5432/claude-enhancer_auth"
   redis-password: "redis_secure_password"
   jwt-private-key: |
     -----BEGIN PRIVATE KEY-----
@@ -2116,7 +2116,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: auth-service
-  namespace: perfect21-auth
+  namespace: claude-enhancer-auth
 spec:
   replicas: 3
   selector:
@@ -2129,29 +2129,29 @@ spec:
     spec:
       containers:
       - name: auth-service
-        image: perfect21/auth-service:latest
+        image: claude-enhancer/auth-service:latest
         ports:
         - containerPort: 8080
         env:
         - name: DATABASE_URL
           valueFrom:
             secretKeyRef:
-              name: perfect21-secrets
+              name: claude-enhancer-secrets
               key: database-url
         - name: REDIS_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: perfect21-secrets
+              name: claude-enhancer-secrets
               key: redis-password
         - name: JWT_PRIVATE_KEY
           valueFrom:
             secretKeyRef:
-              name: perfect21-secrets
+              name: claude-enhancer-secrets
               key: jwt-private-key
         - name: JWT_PUBLIC_KEY
           valueFrom:
             secretKeyRef:
-              name: perfect21-secrets
+              name: claude-enhancer-secrets
               key: jwt-public-key
         resources:
           requests:
@@ -2178,7 +2178,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: auth-service
-  namespace: perfect21-auth
+  namespace: claude-enhancer-auth
 spec:
   selector:
     app: auth-service
@@ -2192,8 +2192,8 @@ spec:
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
 metadata:
-  name: perfect21-gateway
-  namespace: perfect21-auth
+  name: claude-enhancer-gateway
+  namespace: claude-enhancer-auth
 spec:
   selector:
     istio: ingressgateway
@@ -2204,15 +2204,15 @@ spec:
       protocol: HTTPS
     tls:
       mode: SIMPLE
-      credentialName: perfect21-tls
+      credentialName: claude-enhancer-tls
     hosts:
-    - api.perfect21.com
+    - api.claude-enhancer.com
   - port:
       number: 80
       name: http
       protocol: HTTP
     hosts:
-    - api.perfect21.com
+    - api.claude-enhancer.com
     redirect:
       httpsRedirect: true
 
@@ -2220,20 +2220,20 @@ spec:
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: perfect21-vs
-  namespace: perfect21-auth
+  name: claude-enhancer-vs
+  namespace: claude-enhancer-auth
 spec:
   hosts:
-  - api.perfect21.com
+  - api.claude-enhancer.com
   gateways:
-  - perfect21-gateway
+  - claude-enhancer-gateway
   http:
   - match:
     - uri:
         prefix: /api/auth/
     route:
     - destination:
-        host: auth-service.perfect21-auth.svc.cluster.local
+        host: auth-service.claude-enhancer-auth.svc.cluster.local
         port:
           number: 80
     timeout: 30s
@@ -2245,7 +2245,7 @@ spec:
         prefix: /api/users/
     route:
     - destination:
-        host: user-service.perfect21-auth.svc.cluster.local
+        host: user-service.claude-enhancer-auth.svc.cluster.local
         port:
           number: 80
   - match:
@@ -2253,7 +2253,7 @@ spec:
         prefix: /api/permissions/
     route:
     - destination:
-        host: permission-service.perfect21-auth.svc.cluster.local
+        host: permission-service.claude-enhancer-auth.svc.cluster.local
         port:
           number: 80
   - match:
@@ -2261,7 +2261,7 @@ spec:
         prefix: /api/sessions/
     route:
     - destination:
-        host: session-service.perfect21-auth.svc.cluster.local
+        host: session-service.claude-enhancer-auth.svc.cluster.local
         port:
           number: 80
 ```
@@ -2287,29 +2287,29 @@ data:
     scrape_configs:
     - job_name: 'auth-service'
       static_configs:
-      - targets: ['auth-service.perfect21-auth:8080']
+      - targets: ['auth-service.claude-enhancer-auth:8080']
       metrics_path: /metrics
       scrape_interval: 10s
 
     - job_name: 'user-service'
       static_configs:
-      - targets: ['user-service.perfect21-auth:8080']
+      - targets: ['user-service.claude-enhancer-auth:8080']
 
     - job_name: 'permission-service'
       static_configs:
-      - targets: ['permission-service.perfect21-auth:8080']
+      - targets: ['permission-service.claude-enhancer-auth:8080']
 
     - job_name: 'session-service'
       static_configs:
-      - targets: ['session-service.perfect21-auth:8083']
+      - targets: ['session-service.claude-enhancer-auth:8083']
 
     - job_name: 'redis'
       static_configs:
-      - targets: ['redis-exporter.perfect21-auth:9121']
+      - targets: ['redis-exporter.claude-enhancer-auth:9121']
 
     - job_name: 'postgres'
       static_configs:
-      - targets: ['postgres-exporter.perfect21-auth:9187']
+      - targets: ['postgres-exporter.claude-enhancer-auth:9187']
 
   auth_alerts.yml: |
     groups:

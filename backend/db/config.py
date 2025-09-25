@@ -31,7 +31,7 @@ class DatabaseConfig(BaseSettings):
     port: int = 5432
     username: str = "postgres"
     password: str = ""
-    database: str = "perfect21"
+    database: str = "claude-enhancer"
 
     # SSL配置
     ssl_mode: str = "prefer"  # disable, allow, prefer, require, verify-ca, verify-full

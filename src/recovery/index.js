@@ -1,7 +1,7 @@
 const { SecureLogger } = require('../utils/SecureLogger');
 const logger = new SecureLogger('RecoverySystem');
 /**
- * Claude Enhancer Plus - Recovery System Main Export
+ * Claude Enhancer 5.0 - Recovery System Main Export
  * Comprehensive error recovery, checkpoint management, and diagnostics
  */
 

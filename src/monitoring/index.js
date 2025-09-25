@@ -1,5 +1,5 @@
 /**
- * Claude Enhancer Plus - Complete Monitoring System Integration
+ * Claude Enhancer 5.0 - Complete Monitoring System Integration
  * Main entry point for all monitoring and observability components
  */
 

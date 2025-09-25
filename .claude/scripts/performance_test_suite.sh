@@ -1,5 +1,5 @@
 #!/bin/bash
-# Claude Enhancer 性能测试套件 v3.0
+# Claude Enhancer 性能测试套件 5.0
 # 全面测试所有优化组件的性能提升
 
 set -e
@@ -286,7 +286,7 @@ generate_performance_report() {
     mkdir -p "$RESULTS_DIR"
 
     cat > "$REPORT_FILE" << EOF
-# Claude Enhancer 性能测试报告 v3.0
+# Claude Enhancer 性能测试报告 5.0
 
 **测试时间**: $(date)
 **测试环境**: $(uname -a)
@@ -398,7 +398,7 @@ EOF
 - **迭代次数**: $TEST_ITERATIONS
 - **超时限制**: ${TIMEOUT_SECONDS}s
 - **测试目录**: /tmp/test_env
-- **缓存目录**: /dev/shm/perfect21_*
+- **缓存目录**: /dev/shm/claude-enhancer_*
 
 **生成时间**: $(date)
 **报告文件**: $REPORT_FILE
@@ -410,7 +410,7 @@ EOF
 # ==================== 主执行函数 ====================
 main() {
     echo -e "${C_BOLD}${C_CYAN}┌──────────────────────────────────────────────────────────────────┐${C_RESET}"
-    echo -e "${C_BOLD}${C_CYAN}│              Claude Enhancer 性能测试套件 v3.0                   │${C_RESET}"
+    echo -e "${C_BOLD}${C_CYAN}│              Claude Enhancer 性能测试套件 5.0                   │${C_RESET}"
     echo -e "${C_BOLD}${C_CYAN}└──────────────────────────────────────────────────────────────────┘${C_RESET}"
 
     local test_type="${1:-all}"
@@ -438,7 +438,7 @@ main() {
             generate_performance_report "${all_results[@]}"
             ;;
         "help"|"-h"|"--help")
-            echo "Claude Enhancer 性能测试套件 v3.0"
+            echo "Claude Enhancer 性能测试套件 5.0"
             echo ""
             echo "用法: $0 [test_type]"
             echo ""

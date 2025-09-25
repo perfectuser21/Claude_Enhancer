@@ -512,7 +512,7 @@ services:
   api-test:
     build: .
     environment:
-      - DATABASE_URL=postgresql://test:test@postgres-test:5432/perfect21_test
+      - DATABASE_URL=postgresql://test:test@postgres-test:5432/claude-enhancer_test
       - REDIS_URL=redis://redis-test:6379
       - JWT_SECRET_KEY=test-secret-key-for-testing-only
     depends_on:
@@ -522,7 +522,7 @@ services:
   postgres-test:
     image: postgres:15
     environment:
-      - POSTGRES_DB=perfect21_test
+      - POSTGRES_DB=claude-enhancer_test
       - POSTGRES_USER=test
       - POSTGRES_PASSWORD=test
 
@@ -547,7 +547,7 @@ jobs:
         image: postgres:15
         env:
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: perfect21_test
+          POSTGRES_DB: claude-enhancer_test
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -581,7 +581,7 @@ jobs:
     - name: Run integration tests
       run: pytest tests/integration/ -v
       env:
-        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/perfect21_test
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/claude-enhancer_test
         REDIS_URL: redis://localhost:6379
 
     - name: Run security tests
@@ -612,7 +612,7 @@ def event_loop():
 @pytest.fixture(scope="session")
 async def test_db():
     """Create test database"""
-    engine = create_async_engine("postgresql+asyncpg://test:test@localhost/perfect21_test")
+    engine = create_async_engine("postgresql+asyncpg://test:test@localhost/claude-enhancer_test")
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)

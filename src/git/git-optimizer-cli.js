@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Claude Enhancer Plus - Git Optimizer CLI
+ * Claude Enhancer 5.0 - Git Optimizer CLI
  *
  * Command-line interface for managing Git optimizations
  * Usage: node git-optimizer-cli.js [command] [options]
@@ -54,7 +54,7 @@ class GitOptimizerCLI {
      * 初始化Git优化器
      */
     async initOptimizer(options = {}) {
-        console.log('🚀 初始化Claude Enhancer Plus Git优化器...');
+        console.log('🚀 初始化Claude Enhancer 5.0 Git优化器...');
 
         const gitIntegration = new GitIntegration(process.cwd(), {
             enableCaching: !options.noCache,
@@ -90,7 +90,7 @@ class GitOptimizerCLI {
     async showStatus(options = {}) {
         await this.ensureInitialized(options);
 
-        console.log('📊 Claude Enhancer Plus Git优化器状态\n');
+        console.log('📊 Claude Enhancer 5.0 Git优化器状态\n');
 
         const report = this.gitIntegration.getPerformanceReport();
 
@@ -413,7 +413,7 @@ class GitOptimizerCLI {
      */
     async showHelp() {
         console.log(`
-🚀 Claude Enhancer Plus Git优化器CLI
+🚀 Claude Enhancer 5.0 Git优化器CLI
 
 用法: node git-optimizer-cli.js [命令] [选项]
 
@@ -562,7 +562,7 @@ ${report.monitor?.summary ? `
 ${suggestions.length > 0 ? suggestions.map((s, i) => `${i + 1}. **[${s.priority || 'normal'}]** ${s.message}`).join('\n') : '暂无优化建议'}
 
 ---
-*报告由Claude Enhancer Plus Git优化器生成*
+*报告由Claude Enhancer 5.0 Git优化器生成*
 `;
     }
 }

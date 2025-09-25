@@ -56,8 +56,8 @@ class Settings(BaseSettings):
     JWT_REFRESH_TOKEN_TTL: int = Field(
         default=604800, env="JWT_REFRESH_TOKEN_TTL"
     )  # 7天
-    JWT_ISSUER: str = Field(default="perfect21-auth", env="JWT_ISSUER")
-    JWT_AUDIENCE: str = Field(default="perfect21-api", env="JWT_AUDIENCE")
+    JWT_ISSUER: str = Field(default="claude-enhancer-auth", env="JWT_ISSUER")
+    JWT_AUDIENCE: str = Field(default="claude-enhancer-api", env="JWT_AUDIENCE")
     JWT_KEY_ROTATION_INTERVAL: int = Field(
         default=86400, env="JWT_KEY_ROTATION_INTERVAL"
     )  # 24小时
@@ -120,7 +120,7 @@ class Settings(BaseSettings):
     EMAIL_SMTP_PASSWORD: Optional[str] = Field(default=None, env="EMAIL_SMTP_PASSWORD")
     EMAIL_SMTP_TLS: bool = Field(default=True, env="EMAIL_SMTP_TLS")
     EMAIL_FROM_ADDRESS: str = Field(
-        default="noreply@perfect21.com", env="EMAIL_FROM_ADDRESS"
+        default="noreply@claude-enhancer.com", env="EMAIL_FROM_ADDRESS"
     )
     EMAIL_FROM_NAME: str = Field(default="Claude Enhancer", env="EMAIL_FROM_NAME")
     EMAIL_VERIFICATION_TTL: int = Field(
@@ -140,7 +140,7 @@ class Settings(BaseSettings):
 
     # RabbitMQ配置
     RABBITMQ_URL: str = Field(..., env="RABBITMQ_URL")
-    RABBITMQ_EXCHANGE: str = Field(default="perfect21.events", env="RABBITMQ_EXCHANGE")
+    RABBITMQ_EXCHANGE: str = Field(default="claude-enhancer.events", env="RABBITMQ_EXCHANGE")
     RABBITMQ_QUEUE_PREFIX: str = Field(
         default="auth-service", env="RABBITMQ_QUEUE_PREFIX"
     )
@@ -214,7 +214,7 @@ class Settings(BaseSettings):
     )
 
     # 前端配置
-    FRONTEND_URL: str = Field(default="https://app.perfect21.com", env="FRONTEND_URL")
+    FRONTEND_URL: str = Field(default="https://app.claude-enhancer.com", env="FRONTEND_URL")
     FRONTEND_VERIFY_EMAIL_PATH: str = Field(
         default="/verify-email", env="FRONTEND_VERIFY_EMAIL_PATH"
     )

@@ -220,7 +220,7 @@ cleanup_parallel() {
 #!/bin/bash
 # 智能缓存系统
 
-CACHE_DIR="/tmp/perfect21_cache"
+CACHE_DIR="/tmp/claude-enhancer_cache"
 CACHE_TTL=300  # 5分钟缓存
 
 # 缓存函数
@@ -263,7 +263,7 @@ get_agent_selection() {
 #!/bin/bash
 # 高性能日志系统
 
-LOG_DIR="/tmp/perfect21_logs"
+LOG_DIR="/tmp/claude-enhancer_logs"
 MAX_LOG_SIZE=10485760  # 10MB
 MAX_LOG_FILES=5
 
@@ -275,10 +275,10 @@ log_async() {
 
     # 异步写入，不阻塞主流程
     {
-        echo "[$timestamp] [$level] $message" >> "$LOG_DIR/perfect21.log"
+        echo "[$timestamp] [$level] $message" >> "$LOG_DIR/claude-enhancer.log"
 
         # 日志轮转检查
-        if [ $(stat -c%s "$LOG_DIR/perfect21.log") -gt $MAX_LOG_SIZE ]; then
+        if [ $(stat -c%s "$LOG_DIR/claude-enhancer.log") -gt $MAX_LOG_SIZE ]; then
             rotate_logs
         fi
     } &
@@ -288,10 +288,10 @@ log_async() {
 rotate_logs() {
     cd "$LOG_DIR"
     for i in $(seq $((MAX_LOG_FILES-1)) -1 1); do
-        [ -f "perfect21.log.$i" ] && mv "perfect21.log.$i" "perfect21.log.$((i+1))"
+        [ -f "claude-enhancer.log.$i" ] && mv "claude-enhancer.log.$i" "claude-enhancer.log.$((i+1))"
     done
-    mv "perfect21.log" "perfect21.log.1"
-    touch "perfect21.log"
+    mv "claude-enhancer.log" "claude-enhancer.log.1"
+    touch "claude-enhancer.log"
 }
 ```
 

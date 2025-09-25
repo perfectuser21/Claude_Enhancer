@@ -46,7 +46,7 @@ async def startup_event():
 
     # 初始化性能管理器
     performance_manager = await get_performance_manager(
-        service_name="perfect21-demo-api", config_file="performance.yaml"
+        service_name="claude-enhancer-demo-api", config_file="performance.yaml"
     )
 
     # 设置性能监控中间件
@@ -101,7 +101,7 @@ async def get_user(user_id: int):
         user_data = {
             "id": user_id,
             "name": f"User {user_id}",
-            "email": f"user{user_id}@perfect21.com",
+            "email": f"user{user_id}@claude-enhancer.com",
             "created_at": time.time(),
         }
 

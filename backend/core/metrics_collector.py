@@ -688,10 +688,10 @@ async def example_usage():
     config = MetricsConfig(
         collection_interval=5.0,
         enable_system_metrics=True,
-        export_file="/tmp/perfect21_metrics.txt",
+        export_file="/tmp/claude-enhancer_metrics.txt",
     )
 
-    collector = MetricsCollector("perfect21-auth", config)
+    collector = MetricsCollector("claude-enhancer-auth", config)
 
     # 添加告警处理器
     collector.add_alert_handler(email_alert_handler)

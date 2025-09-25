@@ -1,5 +1,5 @@
 /**
- * Claude Enhancer Plus - Error Recovery Performance Test Suite
+ * Claude Enhancer 5.0 - Error Recovery Performance Test Suite
  * Comprehensive performance testing for error recovery system
  *
  * Tests:

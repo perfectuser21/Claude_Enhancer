@@ -22,7 +22,7 @@ LEVEL1_CACHE=$(find . -type d -name "__pycache__" 2>/dev/null | wc -l)
 LEVEL1_TOTAL=$((LEVEL1_TEMP + LEVEL1_LOGS + LEVEL1_CACHE))
 
 # Level 2: 临时文件（低风险）
-LEVEL2_TMP=$(find /tmp -name "*claude*" -o -name "*perfect21*" 2>/dev/null | wc -l)
+LEVEL2_TMP=$(find /tmp -name "*claude*" -o -name "*claude-enhancer*" 2>/dev/null | wc -l)
 LEVEL2_TEST=$(ls -1 *test*.sh *diagnostic*.py *validation*.sh 2>/dev/null | wc -l)
 LEVEL2_DEMO=$(ls -1 *demo*.* *example*.* *sample*.* 2>/dev/null | wc -l)
 LEVEL2_TOTAL=$((LEVEL2_TMP + LEVEL2_TEST + LEVEL2_DEMO))

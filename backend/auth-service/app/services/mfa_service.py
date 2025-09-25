@@ -76,7 +76,7 @@ class MFAService:
         kdf = PBKDF2HMAC(
             algorithm=hashes.SHA256(),
             length=32,
-            salt=b"perfect21_mfa_salt",
+            salt=b"claude-enhancer_mfa_salt",
             iterations=100000,
         )
         key = base64.urlsafe_b64encode(

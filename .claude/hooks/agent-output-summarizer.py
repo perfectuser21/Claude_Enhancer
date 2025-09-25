@@ -19,7 +19,7 @@ class AgentOutputSummarizer:
     """Agent输出收集和汇总器"""
 
     def __init__(self):
-        self.project_root = os.environ.get('CLAUDE_PROJECT_DIR', '/home/xx/dev/Perfect21')
+        self.project_root = os.environ.get('CLAUDE_PROJECT_DIR', '/home/xx/dev/Claude Enhancer 5.0')
         self.cache_dir = Path(self.project_root) / '.claude' / 'agent_outputs'
         self.cache_dir.mkdir(parents=True, exist_ok=True)
 

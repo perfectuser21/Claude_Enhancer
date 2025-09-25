@@ -64,7 +64,7 @@ spec:
     spec:
       containers:
       - name: $APP_NAME
-        image: ghcr.io/perfect21/claude-enhancer:$IMAGE_TAG
+        image: ghcr.io/claude-enhancer/claude-enhancer:$IMAGE_TAG
         ports:
         - containerPort: 8080
         env:
@@ -128,7 +128,7 @@ metadata:
     nginx.ingress.kubernetes.io/canary-by-header-value: "true"
 spec:
   rules:
-  - host: claude-enhancer.perfect21.dev
+  - host: claude-enhancer.claude-enhancer.dev
     http:
       paths:
       - path: /
@@ -154,7 +154,7 @@ monitor_canary() {
 
     while [[ $(date +%s) -lt $end_time ]]; do
         # Test canary endpoint directly
-        if curl -sf -H "X-Canary: true" "http://claude-enhancer.perfect21.dev$HEALTH_CHECK_URL" > /dev/null; then
+        if curl -sf -H "X-Canary: true" "http://claude-enhancer.claude-enhancer.dev$HEALTH_CHECK_URL" > /dev/null; then
             ((success_count++))
         else
             ((error_count++))
@@ -222,7 +222,7 @@ rollback_canary() {
 # Main deployment function
 main() {
     log "🐦 Starting Canary deployment for $APP_NAME"
-    log "📦 Image: ghcr.io/perfect21/claude-enhancer:$IMAGE_TAG"
+    log "📦 Image: ghcr.io/claude-enhancer/claude-enhancer:$IMAGE_TAG"
     log "📊 Initial canary traffic: ${CANARY_PERCENTAGE}%"
 
     # Deploy canary

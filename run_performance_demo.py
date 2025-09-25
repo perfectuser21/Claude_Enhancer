@@ -29,7 +29,7 @@ async def main():
         # 1. 启动性能系统
     # print("\n📋 Phase 1: 启动性能优化系统")
         performance_manager = await quick_start(
-            service_name="perfect21-demo",
+            service_name="claude-enhancer-demo",
             config_file="performance.yaml"
         )
 

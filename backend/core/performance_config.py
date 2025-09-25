@@ -90,7 +90,7 @@ class AsyncProcessorConfig:
     smtp_username: Optional[str] = None
     smtp_password: Optional[str] = None
     smtp_use_tls: bool = True
-    email_from: str = "noreply@perfect21.com"
+    email_from: str = "noreply@claude-enhancer.com"
 
     # 消息队列配置
     rabbitmq_url: str = "amqp://localhost"
@@ -217,7 +217,7 @@ class PerformanceConfig:
     optimization: OptimizationSettings = field(default_factory=OptimizationSettings)
 
     # 全局设置
-    service_name: str = "perfect21"
+    service_name: str = "claude-enhancer"
     environment: str = "production"  # development, staging, production
     debug_mode: bool = False
     log_level: str = "INFO"
@@ -398,7 +398,7 @@ class PerformanceConfigManager:
     async def _create_default_config_file(self):
         """创建默认配置文件"""
         default_config = {
-            "service_name": "perfect21",
+            "service_name": "claude-enhancer",
             "environment": "production",
             "debug_mode": False,
             "log_level": "INFO",

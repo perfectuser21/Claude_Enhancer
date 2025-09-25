@@ -1,5 +1,5 @@
 /**
- * Claude Enhancer Plus - Error Recovery Stress Test Runner
+ * Claude Enhancer 5.0 - Error Recovery Stress Test Runner
  * Specialized stress testing for error recovery system under extreme conditions
  */
 

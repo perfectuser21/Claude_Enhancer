@@ -16,7 +16,7 @@ This guide helps you get started with the Claude Enhancer Authentication API in 
 ### 1. Clone and Install
 
 ```bash
-git clone https://github.com/perfect21/auth-api.git
+git clone https://github.com/claude-enhancer/auth-api.git
 cd auth-api
 pip install -r requirements.txt
 ```
@@ -29,7 +29,7 @@ cp .env.example .env
 
 # Edit .env file
 JWT_SECRET_KEY=your-super-secret-key-minimum-32-characters
-DATABASE_URL=postgresql://user:password@localhost:5432/perfect21
+DATABASE_URL=postgresql://user:password@localhost:5432/claude-enhancer
 REDIS_URL=redis://localhost:6379/0
 CORS_ORIGINS=http://localhost:3000,http://localhost:8080
 ```
@@ -38,7 +38,7 @@ CORS_ORIGINS=http://localhost:3000,http://localhost:8080
 
 ```bash
 # Create database
-createdb perfect21
+createdb claude-enhancer
 
 # Run migrations
 alembic upgrade head
@@ -174,7 +174,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql://postgres:password@postgres:5432/perfect21
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/claude-enhancer
       - REDIS_URL=redis://redis:6379/0
       - JWT_SECRET_KEY=your-docker-secret-key
     depends_on:
@@ -184,7 +184,7 @@ services:
   postgres:
     image: postgres:15
     environment:
-      - POSTGRES_DB=perfect21
+      - POSTGRES_DB=claude-enhancer
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
     volumes:
@@ -620,7 +620,7 @@ if __name__ == "__main__":
 pg_isready -h localhost -p 5432
 
 # Check connection string
-psql "postgresql://user:password@localhost:5432/perfect21"
+psql "postgresql://user:password@localhost:5432/claude-enhancer"
 ```
 
 ### 2. Redis Connection Errors

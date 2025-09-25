@@ -25,7 +25,7 @@ echo "$INPUT"  # 缺少闭合引号导致脚本解析失败
 ### 2. **关键问题：并发资源竞争**
 **发现：** 多个Hook同时访问相同资源时发生竞争
 - 同时写入 `/tmp/claude_agent_selection.log`
-- 同时写入 `/tmp/perfect21_tasks.log`
+- 同时写入 `/tmp/claude-enhancer_tasks.log`
 - 没有文件锁机制保护
 
 **影响：**

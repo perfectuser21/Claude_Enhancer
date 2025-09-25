@@ -154,8 +154,8 @@ Access Token (短期 - 15分钟):
   "alg": "RS256",        // 非对称加密
   "kid": "key-20241201", // 密钥轮换ID
   "payload": {
-    "iss": "perfect21-auth",
-    "aud": "perfect21-api",
+    "iss": "claude-enhancer-auth",
+    "aud": "claude-enhancer-api",
     "sub": "user_12345",
     "exp": 1640995200,
     "jti": "access_uuid_123",
@@ -168,7 +168,7 @@ Refresh Token (长期 - 7天):
 {
   "alg": "HS256",        // 对称加密
   "payload": {
-    "iss": "perfect21-auth",
+    "iss": "claude-enhancer-auth",
     "sub": "user_12345",
     "exp": 1641600000,
     "jti": "refresh_uuid_456",
@@ -309,7 +309,7 @@ CREATE INDEX CONCURRENTLY idx_permissions_resource_action ON permissions(resourc
 
 ```yaml
 RabbitMQ 消息路由:
-Exchange: perfect21.events (Topic)
+Exchange: claude-enhancer.events (Topic)
 ├─ user.events.*
 │  ├─ user.events.registered → 用户注册事件
 │  ├─ user.events.login → 用户登录事件
@@ -418,7 +418,7 @@ Exchange: perfect21.events (Topic)
 Container 架构:
 ┌─────────────────────────────────────────┐
 │ Kubernetes 集群                         │
-│ ├─ Namespace: perfect21-auth            │
+│ ├─ Namespace: claude-enhancer-auth            │
 │ ├─ Pods: 5个微服务 × 3副本 = 15个Pod    │
 │ ├─ Services: 5个ClusterIP服务           │
 │ ├─ Ingress: Istio Gateway              │

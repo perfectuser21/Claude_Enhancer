@@ -322,9 +322,9 @@ class TestCacheOperations:
         session_key = CacheKeyManager.session_key(session_id)
         custom_key = CacheKeyManager.custom_key("test", "cache", "key")
 
-        assert user_key == f"perfect21:user:{user_id}"
-        assert session_key == f"perfect21:session:{session_id}"
-        assert custom_key == "perfect21:test:cache:key"
+        assert user_key == f"claude-enhancer:user:{user_id}"
+        assert session_key == f"claude-enhancer:session:{session_id}"
+        assert custom_key == "claude-enhancer:test:cache:key"
 
     @pytest.mark.asyncio
     async def test_cache_serialization(self):

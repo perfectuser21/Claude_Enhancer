@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Claude Enhancer Plus - Advanced Recovery CLI
+ * Claude Enhancer 5.0 - Advanced Recovery CLI
  * Comprehensive command-line interface for error recovery and system management
  */
 

@@ -1,8 +1,8 @@
-# Perfect21 Authentication System
+# Claude Enhancer 5.0 Authentication System
 
 ## Overview
 
-The Perfect21 Authentication System is a comprehensive, enterprise-grade authentication solution built with FastAPI and React. It provides secure user authentication, authorization, multi-factor authentication (MFA), and session management with industry-standard security practices.
+The Claude Enhancer 5.0 Authentication System is a comprehensive, enterprise-grade authentication solution built with FastAPI and React. It provides secure user authentication, authorization, multi-factor authentication (MFA), and session management with industry-standard security practices.
 
 ## 🚀 Quick Start
 
@@ -121,8 +121,8 @@ REDIS_URL=redis://localhost:6379/0
 JWT_ALGORITHM=RS256
 JWT_ACCESS_TOKEN_TTL=900       # 15 minutes
 JWT_REFRESH_TOKEN_TTL=604800   # 7 days
-JWT_ISSUER=perfect21-auth
-JWT_AUDIENCE=perfect21-api
+JWT_ISSUER=claude-enhancer-auth
+JWT_AUDIENCE=claude-enhancer-api
 
 # Security
 PASSWORD_MIN_LENGTH=12
@@ -136,7 +136,7 @@ EMAIL_SMTP_USERNAME=your-email@gmail.com
 EMAIL_SMTP_PASSWORD=your-app-password
 
 # MFA (optional)
-MFA_TOTP_ISSUER=Perfect21
+MFA_TOTP_ISSUER=Claude Enhancer 5.0
 SMS_PROVIDER=twilio
 SMS_API_KEY=your-twilio-key
 ```
@@ -296,4 +296,4 @@ For questions or issues:
 
 **Version**: 2.0.0
 **Last Updated**: 2025-01-24
-**Maintainer**: Perfect21 Development Team
+**Maintainer**: Claude Enhancer 5.0 Development Team

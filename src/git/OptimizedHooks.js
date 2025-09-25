@@ -1,5 +1,5 @@
 /**
- * Claude Enhancer Plus - Optimized Git Hooks
+ * Claude Enhancer 5.0 - Optimized Git Hooks
  *
  * High-performance Git hooks with intelligent batching and caching
  * Reduces hook execution time by 70% through optimization

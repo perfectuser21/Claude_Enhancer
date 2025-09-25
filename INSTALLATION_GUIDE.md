@@ -82,10 +82,10 @@ fi
 #### 2.1 Copy Claude Enhancer Framework
 ```bash
 # Option A: Copy from another project
-cp -r /path/to/perfect21-project/.claude ./
+cp -r /path/to/claude-enhancer-project/.claude ./
 
 # Option B: Download from repository
-git clone https://github.com/your-org/perfect21-framework.git temp
+git clone https://github.com/your-org/claude-enhancer-framework.git temp
 cp -r temp/.claude ./
 rm -rf temp
 ```
@@ -330,7 +330,7 @@ nano .claude/git-hooks/pre-commit
 ### 1. Create Initial Branch Structure
 ```bash
 # Set up recommended branch structure
-git checkout -b feature/setup-perfect21
+git checkout -b feature/setup-claude-enhancer
 git add .claude/
 git commit -m "feat: setup Claude Enhancer workflow system
 
@@ -354,8 +354,8 @@ echo "Run: bash .claude/install.sh after cloning" >> README.md
 ### 3. Test Full Workflow
 ```bash
 # Test complete workflow
-echo "Let's test Claude Enhancer with a simple task" > test-perfect21.md
-git add test-perfect21.md
+echo "Let's test Claude Enhancer with a simple task" > test-claude-enhancer.md
+git add test-claude-enhancer.md
 git commit -m "test: validate Claude Enhancer installation"
 
 # This should trigger:

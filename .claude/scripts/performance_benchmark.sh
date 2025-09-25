@@ -5,7 +5,7 @@
 set -e
 
 # 测试配置
-BENCHMARK_DIR="/tmp/perfect21_benchmark"
+BENCHMARK_DIR="/tmp/claude-enhancer_benchmark"
 RESULTS_FILE="$BENCHMARK_DIR/benchmark_results.json"
 ITERATIONS=5
 
@@ -282,7 +282,7 @@ benchmark_parallel_execution() {
 benchmark_cache_system() {
     echo -e "${CYAN}📊 测试缓存系统性能${NC}"
 
-    local cache_dir="/tmp/perfect21_benchmark_cache"
+    local cache_dir="/tmp/claude-enhancer_benchmark_cache"
     mkdir -p "$cache_dir"
 
     # 无缓存执行

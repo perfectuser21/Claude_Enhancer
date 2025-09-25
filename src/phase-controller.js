@@ -1,6 +1,6 @@
 /**
  * Phase Controller with Lazy Loading Optimization
- * Claude Enhancer Plus - Performance Optimized Version
+ * Claude Enhancer 5.0 - Performance Optimized Version
  *
  * Key Features:
  * - Lazy loading for all major components

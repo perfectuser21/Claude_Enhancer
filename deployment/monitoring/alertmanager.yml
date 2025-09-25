@@ -6,7 +6,7 @@
 global:
   # Global SMTP configuration
   smtp_smarthost: 'mailhog:1025'
-  smtp_from: 'alerts@claude-enhancer.perfect21.dev'
+  smtp_from: 'alerts@claude-enhancer.claude-enhancer.dev'
   smtp_auth_username: ''
   smtp_auth_password: ''
   smtp_require_tls: false
@@ -85,7 +85,7 @@ route:
 receivers:
   - name: 'default'
     email_configs:
-      - to: 'devops@perfect21.dev'
+      - to: 'devops@claude-enhancer.dev'
         subject: '[Claude Enhancer] {{ .GroupLabels.alertname }}'
         body: |
           {{ range .Alerts }}
@@ -109,7 +109,7 @@ receivers:
           {{ end }}
         send_resolved: true
     email_configs:
-      - to: 'oncall@perfect21.dev'
+      - to: 'oncall@claude-enhancer.dev'
         subject: '🚨 CRITICAL: {{ .GroupLabels.alertname }}'
         body: |
           CRITICAL ALERT TRIGGERED
@@ -141,7 +141,7 @@ receivers:
 
   - name: 'info-alerts'
     email_configs:
-      - to: 'team@perfect21.dev'
+      - to: 'team@claude-enhancer.dev'
         subject: 'ℹ️ Info Alert - {{ .GroupLabels.alertname }}'
         body: |
           {{ range .Alerts }}
@@ -166,7 +166,7 @@ receivers:
           {{ end }}
         send_resolved: true
     email_configs:
-      - to: 'security@perfect21.dev'
+      - to: 'security@claude-enhancer.dev'
         subject: '🔒 SECURITY ALERT: {{ .GroupLabels.alertname }}'
 
   - name: 'infrastructure-team'
@@ -199,7 +199,7 @@ receivers:
 
   - name: 'product-team'
     email_configs:
-      - to: 'product@perfect21.dev'
+      - to: 'product@claude-enhancer.dev'
         subject: '📊 Product Alert: {{ .GroupLabels.alertname }}'
         body: |
           {{ range .Alerts }}
@@ -212,7 +212,7 @@ receivers:
 
   - name: 'monitoring-team'
     email_configs:
-      - to: 'monitoring@perfect21.dev'
+      - to: 'monitoring@claude-enhancer.dev'
         subject: '📊 Monitoring System Alert: {{ .GroupLabels.alertname }}'
         body: |
           {{ range .Alerts }}

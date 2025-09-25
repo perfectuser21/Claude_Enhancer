@@ -321,7 +321,7 @@ cp .claude/config/unified_main.yaml .claude/config/backups/unified_main_$(date +
 
 ### 日志文件
 - **迁移日志**: `.claude/config/migration.log`
-- **运行日志**: `/tmp/perfect21-unified.log`
+- **运行日志**: `/tmp/claude-enhancer-unified.log`
 - **验证日志**: 配置验证器输出
 
 ---

@@ -56,9 +56,9 @@ Claude Enhancer用户认证系统是一个现代化、安全、可扩展的身�
     "kid": "auth-key-2024"    // 密钥ID，支持密钥轮换
   },
   "payload": {
-    "iss": "perfect21-auth",   // 发行者
+    "iss": "claude-enhancer-auth",   // 发行者
     "sub": "user_12345",       // 用户唯一标识
-    "aud": "perfect21-api",    // 目标受众
+    "aud": "claude-enhancer-api",    // 目标受众
     "exp": 1640995200,         // 过期时间 (15分钟后)
     "iat": 1640994300,         // 签发时间
     "jti": "token_uuid_123",   // Token唯一标识
@@ -79,7 +79,7 @@ Claude Enhancer用户认证系统是一个现代化、安全、可扩展的身�
     "typ": "JWT"
   },
   "payload": {
-    "iss": "perfect21-auth",
+    "iss": "claude-enhancer-auth",
     "sub": "user_12345",
     "exp": 1641600000,        // 过期时间 (7天后)
     "iat": 1640994300,
@@ -1406,7 +1406,7 @@ services:
   auth-service:
     build: ./auth-service
     environment:
-      - DATABASE_URL=postgresql://perfect21:password@postgres:5432/perfect21_auth
+      - DATABASE_URL=postgresql://claude-enhancer:password@postgres:5432/claude-enhancer_auth
       - REDIS_URL=redis://redis:6379
       - JWT_PRIVATE_KEY_PATH=/secrets/jwt_private_key.pem
       - JWT_PUBLIC_KEY_PATH=/secrets/jwt_public_key.pem
@@ -1416,41 +1416,41 @@ services:
       - postgres
       - redis
     networks:
-      - perfect21-network
+      - claude-enhancer-network
 
   user-service:
     build: ./user-service
     environment:
-      - DATABASE_URL=postgresql://perfect21:password@postgres:5432/perfect21_users
+      - DATABASE_URL=postgresql://claude-enhancer:password@postgres:5432/claude-enhancer_users
       - REDIS_URL=redis://redis:6379
     depends_on:
       - postgres
       - redis
     networks:
-      - perfect21-network
+      - claude-enhancer-network
 
   permission-service:
     build: ./permission-service
     environment:
-      - DATABASE_URL=postgresql://perfect21:password@postgres:5432/perfect21_permissions
+      - DATABASE_URL=postgresql://claude-enhancer:password@postgres:5432/claude-enhancer_permissions
       - REDIS_URL=redis://redis:6379
     depends_on:
       - postgres
       - redis
     networks:
-      - perfect21-network
+      - claude-enhancer-network
 
   postgres:
     image: postgres:15
     environment:
-      - POSTGRES_DB=perfect21
-      - POSTGRES_USER=perfect21
+      - POSTGRES_DB=claude-enhancer
+      - POSTGRES_USER=claude-enhancer
       - POSTGRES_PASSWORD=password
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init-scripts:/docker-entrypoint-initdb.d
     networks:
-      - perfect21-network
+      - claude-enhancer-network
 
   redis:
     image: redis:7-alpine
@@ -1458,7 +1458,7 @@ services:
     volumes:
       - redis_data:/data
     networks:
-      - perfect21-network
+      - claude-enhancer-network
 
   api-gateway:
     image: nginx:alpine
@@ -1473,14 +1473,14 @@ services:
       - user-service
       - permission-service
     networks:
-      - perfect21-network
+      - claude-enhancer-network
 
 volumes:
   postgres_data:
   redis_data:
 
 networks:
-  perfect21-network:
+  claude-enhancer-network:
     driver: bridge
 ```
 
@@ -1490,8 +1490,8 @@ networks:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: perfect21-auth-service
-  namespace: perfect21
+  name: claude-enhancer-auth-service
+  namespace: claude-enhancer
 spec:
   replicas: 3
   selector:
@@ -1504,19 +1504,19 @@ spec:
     spec:
       containers:
       - name: auth-service
-        image: perfect21/auth-service:latest
+        image: claude-enhancer/auth-service:latest
         ports:
         - containerPort: 8080
         env:
         - name: DATABASE_URL
           valueFrom:
             secretKeyRef:
-              name: perfect21-secrets
+              name: claude-enhancer-secrets
               key: database-url
         - name: REDIS_URL
           valueFrom:
             secretKeyRef:
-              name: perfect21-secrets
+              name: claude-enhancer-secrets
               key: redis-url
         - name: JWT_PRIVATE_KEY
           valueFrom:
@@ -1547,7 +1547,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: auth-service
-  namespace: perfect21
+  namespace: claude-enhancer
 spec:
   selector:
     app: auth-service

@@ -1,5 +1,5 @@
 /**
- * Claude Enhancer Plus - Git Operations Optimizer
+ * Claude Enhancer 5.0 - Git Operations Optimizer
  *
  * High-performance Git operations with intelligent caching and batching
  * Target: 60% performance improvement through optimized Git operations

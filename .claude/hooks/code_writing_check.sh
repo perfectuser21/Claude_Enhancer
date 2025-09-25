@@ -43,7 +43,7 @@ if echo "$INPUT" | grep -qE "$COMPLEX_PATTERNS"; then
     echo "════════════════════════════════════════" >&2
 
     # 记录违规
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] VIOLATION: Direct coding instead of Task usage - $FILE_PATH" >> /tmp/perfect21_violations.log
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] VIOLATION: Direct coding instead of Task usage - $FILE_PATH" >> /tmp/claude-enhancer_violations.log
 fi
 
 # 检测是否应该先创建分支

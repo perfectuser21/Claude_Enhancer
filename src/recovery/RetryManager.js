@@ -1,5 +1,5 @@
 /**
- * Claude Enhancer Plus - Intelligent Retry Management System
+ * Claude Enhancer 5.0 - Intelligent Retry Management System
  * Provides exponential backoff, jitter, and context-aware retry logic
  */
 

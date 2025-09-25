@@ -6,8 +6,8 @@ set -e
 
 # 性能配置
 PARALLEL_JOBS=${PARALLEL_JOBS:-4}
-CACHE_DIR="/tmp/perfect21_cache"
-PERF_LOG="/tmp/perfect21_perf.log"
+CACHE_DIR="/tmp/claude-enhancer_cache"
+PERF_LOG="/tmp/claude-enhancer_perf.log"
 
 # 颜色定义
 RED='\033[0;31m'

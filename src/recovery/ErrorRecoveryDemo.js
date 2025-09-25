@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Claude Enhancer Plus - Error Recovery System Demo
+ * Claude Enhancer 5.0 - Error Recovery System Demo
  * Comprehensive demonstration of the advanced error recovery capabilities
  */
 
@@ -38,7 +38,7 @@ class ErrorRecoveryDemo {
      */
     async run() {
         this.cliLogger.info('Starting Error Recovery System Demo',
-            chalk.bold.cyan('🚀 Claude Enhancer Plus - Error Recovery System Demo\n'));
+            chalk.bold.cyan('🚀 Claude Enhancer 5.0 - Error Recovery System Demo\n'));
 
         const demoStartTime = this.cliLogger.operationStart('Error Recovery Demo');
 

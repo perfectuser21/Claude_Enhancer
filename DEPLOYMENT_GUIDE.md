@@ -1,8 +1,8 @@
-# 🚀 Claude Enhancer Claude Enhancer - Complete Deployment Guide
+# 🚀 Claude Enhancer 5.0 - Complete Deployment Guide
 
 ## 📋 Overview
 
-This comprehensive deployment guide covers all aspects of deploying the Claude Enhancer Claude Enhancer application using modern DevOps practices including:
+This comprehensive deployment guide covers all aspects of deploying the Claude Enhancer 5.0 application using modern DevOps practices including:
 
 - Multi-stage Docker builds
 - Docker Compose for local development
@@ -59,7 +59,7 @@ jq
 
 ```bash
 # Clone the repository
-git clone https://github.com/perfect21/claude-enhancer.git
+git clone https://github.com/claude-enhancer/claude-enhancer.git
 cd claude-enhancer
 
 # Set up environment variables
@@ -512,4 +512,4 @@ kubectl get --raw /metrics
 
 ---
 
-**Note**: This deployment guide provides comprehensive instructions for deploying Claude Enhancer Claude Enhancer. Always test deployments in non-production environments first and follow your organization's security and compliance requirements.
+**Note**: This deployment guide provides comprehensive instructions for deploying Claude Enhancer 5.0. Always test deployments in non-production environments first and follow your organization's security and compliance requirements.

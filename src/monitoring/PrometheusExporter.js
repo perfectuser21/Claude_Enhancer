@@ -1,5 +1,5 @@
 /**
- * Claude Enhancer Plus - Prometheus Metrics Exporter
+ * Claude Enhancer 5.0 - Prometheus Metrics Exporter
  * Exports error recovery metrics in Prometheus format for monitoring
  */
 

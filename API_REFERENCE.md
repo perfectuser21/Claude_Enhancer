@@ -594,7 +594,7 @@ export CLAUDE_ENHANCER_TIMEOUT=60
 export CLAUDE_ENHANCER_FAST_MODE=true
 
 # Custom log file
-export CLAUDE_ENHANCER_LOG_FILE="/var/log/perfect21.log"
+export CLAUDE_ENHANCER_LOG_FILE="/var/log/claude-enhancer.log"
 ```
 
 ## 🔧 Integration APIs
@@ -685,16 +685,16 @@ fi
 ```bash
 # Convenience functions for integration
 
-perfect21_analyze_task() {
+claude-enhancer_analyze_task() {
     local task="$1"
     echo "{\"prompt\": \"$task\"}" | bash .claude/hooks/smart_agent_selector.sh
 }
 
-perfect21_check_quality() {
+claude-enhancer_check_quality() {
     bash .git/hooks/pre-commit
 }
 
-perfect21_validate_commit() {
+claude-enhancer_validate_commit() {
     local message="$1"
     echo "$message" | bash .git/hooks/commit-msg /dev/stdin
 }
@@ -956,7 +956,7 @@ curl -X POST "$WEBHOOK_URL" \
 
 ```bash
 # Simple task
-curl -X POST http://localhost:8080/api/perfect21/analyze \
+curl -X POST http://localhost:8080/api/claude-enhancer/analyze \
   -H "Content-Type: application/json" \
   -d '{
     "prompt": "fix typo in documentation",
@@ -975,7 +975,7 @@ curl -X POST http://localhost:8080/api/perfect21/analyze \
 
 ```bash
 # Custom agent selection with constraints
-curl -X POST http://localhost:8080/api/perfect21/analyze \
+curl -X POST http://localhost:8080/api/claude-enhancer/analyze \
   -H "Content-Type: application/json" \
   -d '{
     "prompt": "implement OAuth2 authentication",
@@ -992,7 +992,7 @@ curl -X POST http://localhost:8080/api/perfect21/analyze \
 
 ```bash
 # Run quality checks via API
-curl -X POST http://localhost:8080/api/perfect21/quality-check \
+curl -X POST http://localhost:8080/api/claude-enhancer/quality-check \
   -H "Content-Type: application/json"
   -d '{
     "files": ["src/auth.py", "tests/test_auth.py"],

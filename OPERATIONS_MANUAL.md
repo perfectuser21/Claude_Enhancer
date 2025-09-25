@@ -57,7 +57,7 @@ netstat -an | grep :8080
 
 # 8. 错误日志检查
 echo "📄 检查昨日错误日志..."
-grep ERROR /var/log/perfect21/*.log | tail -20
+grep ERROR /var/log/claude-enhancer/*.log | tail -20
 
 echo "✅ 每日晨检完成!"
 ```
@@ -79,7 +79,7 @@ ls -la /backups/$(date +%Y%m%d)* || echo "⚠️ 今日备份未找到"
 
 # 3. 安全事件检查
 echo "🛡️ 检查今日安全事件..."
-grep -i "security\|authentication\|unauthorized" /var/log/perfect21/*.log
+grep -i "security\|authentication\|unauthorized" /var/log/claude-enhancer/*.log
 
 # 4. 用户活动统计
 echo "👥 统计今日用户活动..."
@@ -127,7 +127,7 @@ redis-cli MEMORY PURGE
 
 # 3. 日志轮转
 echo "📄 执行日志轮转..."
-logrotate /etc/logrotate.d/perfect21
+logrotate /etc/logrotate.d/claude-enhancer
 
 # 4. 系统清理
 echo "🧹 执行系统清理..."
@@ -241,7 +241,7 @@ echo "描述: $INCIDENT_DESCRIPTION"
 
 # 创建故障记录
 create_incident_record() {
-    cat > "/var/log/perfect21/incidents/${INCIDENT_ID}.json" << EOF
+    cat > "/var/log/claude-enhancer/incidents/${INCIDENT_ID}.json" << EOF
 {
   "incident_id": "$INCIDENT_ID",
   "level": "$INCIDENT_LEVEL",
@@ -273,7 +273,7 @@ collect_system_info() {
     netstat -tlnp > "/tmp/${INCIDENT_ID}_network.txt"
 
     # 最近日志
-    tail -1000 /var/log/perfect21/error.log > "/tmp/${INCIDENT_ID}_error_logs.txt"
+    tail -1000 /var/log/claude-enhancer/error.log > "/tmp/${INCIDENT_ID}_error_logs.txt"
 }
 
 # 自动修复尝试
@@ -332,7 +332,7 @@ main() {
     send_notifications
 
     echo "✅ 故障响应完成: $INCIDENT_ID"
-    echo "📋 请查看故障记录: /var/log/perfect21/incidents/${INCIDENT_ID}.json"
+    echo "📋 请查看故障记录: /var/log/claude-enhancer/incidents/${INCIDENT_ID}.json"
 }
 
 main "$@"
@@ -433,7 +433,7 @@ fi
 # 备份日志文件
 echo "📄 备份重要日志..."
 tar -czf "$BACKUP_DIR/logs_$(date +%Y%m%d_%H%M%S).tar.gz" \
-  -C "/var/log" perfect21/
+  -C "/var/log" claude-enhancer/
 
 echo "✅ 应用数据备份完成"
 ```
@@ -515,7 +515,7 @@ echo "✅ 数据库恢复完成"
 # 文件: scripts/performance_monitor.sh
 
 INTERVAL=10
-LOG_FILE="/var/log/perfect21/performance.log"
+LOG_FILE="/var/log/claude-enhancer/performance.log"
 
 echo "📊 启动性能监控 (间隔: ${INTERVAL}秒)..."
 
@@ -767,7 +767,7 @@ if __name__ == "__main__":
 #!/bin/bash
 # 文件: scripts/security_monitor.sh
 
-SECURITY_LOG="/var/log/perfect21/security.log"
+SECURITY_LOG="/var/log/claude-enhancer/security.log"
 ALERT_EMAIL="security@company.com"
 
 echo "🛡️ 启动安全监控..."
@@ -775,7 +775,7 @@ echo "🛡️ 启动安全监控..."
 # 监控登录异常
 monitor_login_anomalies() {
     # 检查短时间内的多次失败登录
-    FAILED_LOGINS=$(grep "authentication failed" /var/log/perfect21/auth.log | grep "$(date +%Y-%m-%d)" | wc -l)
+    FAILED_LOGINS=$(grep "authentication failed" /var/log/claude-enhancer/auth.log | grep "$(date +%Y-%m-%d)" | wc -l)
 
     if [ "$FAILED_LOGINS" -gt 10 ]; then
         echo "$(date -Iseconds): 检测到异常登录尝试: $FAILED_LOGINS 次失败" >> "$SECURITY_LOG"
@@ -799,7 +799,7 @@ monitor_file_integrity() {
     for file in "${CRITICAL_FILES[@]}"; do
         if [ -f "$file" ]; then
             CURRENT_HASH=$(sha256sum "$file" | cut -d' ' -f1)
-            STORED_HASH_FILE="/var/lib/perfect21/hashes/$(basename "$file").hash"
+            STORED_HASH_FILE="/var/lib/claude-enhancer/hashes/$(basename "$file").hash"
 
             if [ -f "$STORED_HASH_FILE" ]; then
                 STORED_HASH=$(cat "$STORED_HASH_FILE")
@@ -901,7 +901,7 @@ logpath = /var/log/auth.log
 enabled = true
 port = 8080
 filter = claude-enhancer
-logpath = /var/log/perfect21/access.log
+logpath = /var/log/claude-enhancer/access.log
 maxretry = 5
 EOF
 
@@ -1141,7 +1141,7 @@ def main():
     print(report)
 
     # 保存报告
-    with open(f"/var/log/perfect21/capacity_report_{datetime.date.today()}.txt", "w") as f:
+    with open(f"/var/log/claude-enhancer/capacity_report_{datetime.date.today()}.txt", "w") as f:
         f.write(report)
 
 if __name__ == "__main__":

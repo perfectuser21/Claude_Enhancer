@@ -198,9 +198,9 @@ Comprehensive CSS framework providing:
 </div>
 ```
 
-## 🔧 Integration with Perfect21
+## 🔧 Integration with Claude Enhancer 5.0
 
-This accessibility framework integrates seamlessly with Perfect21's error recovery system:
+This accessibility framework integrates seamlessly with Claude Enhancer 5.0's error recovery system:
 
 ### Hook Integration
 ```bash

@@ -72,8 +72,8 @@ if echo "$INPUT_LOWER" | grep -qE "$DEV_KEYWORDS"; then
     # 记录任务检测 (使用文件锁)
     {
         flock -x 200
-        echo "[$(date '+%Y-%m-%d %H:%M:%S')] Detected dev task: ${USER_INPUT:0:100}" >> /tmp/perfect21_tasks.log
-    } 200>/tmp/perfect21_tasks.log.lock 2>/dev/null || true
+        echo "[$(date '+%Y-%m-%d %H:%M:%S')] Detected dev task: ${USER_INPUT:0:100}" >> /tmp/claude-enhancer_tasks.log
+    } 200>/tmp/claude-enhancer_tasks.log.lock 2>/dev/null || true
 fi
 
 # 检查是否需要清理

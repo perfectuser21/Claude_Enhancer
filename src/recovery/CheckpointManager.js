@@ -1,5 +1,5 @@
 /**
- * Claude Enhancer Plus - Checkpoint Management System
+ * Claude Enhancer 5.0 - Checkpoint Management System
  * Handles state saving, restoration, and checkpoint lifecycle
  */
 
@@ -395,7 +395,7 @@ class CheckpointManager extends EventEmitter {
 
             // Create cipher using the modern API
             const cipher = crypto.createCipheriv('aes-256-gcm', derivedKey, iv);
-            cipher.setAAD(Buffer.from('perfect21-checkpoint'));
+            cipher.setAAD(Buffer.from('claude-enhancer-checkpoint'));
 
             // Encrypt data
             const encrypted = Buffer.concat([
@@ -479,7 +479,7 @@ class CheckpointManager extends EventEmitter {
 
             // Create decipher using modern API
             const decipher = crypto.createDecipheriv('aes-256-gcm', derivedKey, Buffer.from(iv, 'hex'));
-            decipher.setAAD(Buffer.from('perfect21-checkpoint'));
+            decipher.setAAD(Buffer.from('claude-enhancer-checkpoint'));
             if (authTag) {
                 decipher.setAuthTag(Buffer.from(authTag, 'hex'));
             }

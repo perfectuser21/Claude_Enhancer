@@ -121,7 +121,7 @@ jobs:
         image: postgres:15
         env:
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: perfect21_test
+          POSTGRES_DB: claude-enhancer_test
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -164,7 +164,7 @@ jobs:
 
     - name: Run integration tests
       env:
-        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/perfect21_test
+        DATABASE_URL: postgresql://postgres:postgres@localhost:5432/claude-enhancer_test
         REDIS_URL: redis://localhost:6379/0
         JWT_SECRET_KEY: test-secret-key
       run: |
@@ -308,7 +308,7 @@ jobs:
         echo "JWT_SECRET_KEY=test-secret-key" > .env
         echo "POSTGRES_PASSWORD=test-password" >> .env
         echo "GRAFANA_PASSWORD=test-password" >> .env
-        docker-compose up -d perfect21-api postgres redis
+        docker-compose up -d claude-enhancer-api postgres redis
         sleep 30
 
     - name: Wait for application to be ready
@@ -389,7 +389,7 @@ jobs:
     if: github.ref == 'refs/heads/develop'
     environment:
       name: staging
-      url: https://staging.perfect21.example.com
+      url: https://staging.claude-enhancer.example.com
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -407,15 +407,15 @@ jobs:
     - name: Deploy to staging
       run: |
         export KUBECONFIG=kubeconfig
-        kubectl set image deployment/perfect21-api \
-          perfect21-api=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
-          -n perfect21-staging
-        kubectl rollout status deployment/perfect21-api -n perfect21-staging --timeout=300s
+        kubectl set image deployment/claude-enhancer-api \
+          claude-enhancer-api=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+          -n claude-enhancer-staging
+        kubectl rollout status deployment/claude-enhancer-api -n claude-enhancer-staging --timeout=300s
 
     - name: Run smoke tests
       run: |
         sleep 30
-        curl -f https://staging.perfect21.example.com/health
+        curl -f https://staging.claude-enhancer.example.com/health
 
   # ================== DEPLOY TO PRODUCTION ==================
   deploy-production:
@@ -425,7 +425,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     environment:
       name: production
-      url: https://perfect21.example.com
+      url: https://claude-enhancer.example.com
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -445,28 +445,28 @@ jobs:
         export KUBECONFIG=kubeconfig
 
         # Create new deployment with different label
-        kubectl patch deployment perfect21-api \
+        kubectl patch deployment claude-enhancer-api \
           -p '{"spec":{"template":{"metadata":{"labels":{"version":"green"}}}}}' \
-          -n perfect21
+          -n claude-enhancer
 
         # Update image
-        kubectl set image deployment/perfect21-api \
-          perfect21-api=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
-          -n perfect21
+        kubectl set image deployment/claude-enhancer-api \
+          claude-enhancer-api=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+          -n claude-enhancer
 
         # Wait for rollout
-        kubectl rollout status deployment/perfect21-api -n perfect21 --timeout=600s
+        kubectl rollout status deployment/claude-enhancer-api -n claude-enhancer --timeout=600s
 
         # Switch traffic
-        kubectl patch service perfect21-api-service \
+        kubectl patch service claude-enhancer-api-service \
           -p '{"spec":{"selector":{"version":"green"}}}' \
-          -n perfect21
+          -n claude-enhancer
 
     - name: Run production smoke tests
       run: |
         sleep 30
-        curl -f https://perfect21.example.com/health
-        curl -f https://perfect21.example.com/metrics
+        curl -f https://claude-enhancer.example.com/health
+        curl -f https://claude-enhancer.example.com/metrics
 
     - name: Notify deployment success
       uses: 8398a7/action-slack@v3

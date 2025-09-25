@@ -235,7 +235,7 @@ class DatabaseConfig:
     port: int = 5432
     username: str = "postgres"
     password: str = ""
-    database: str = "perfect21"
+    database: str = "claude-enhancer"
 
     # 连接池配置
     pool_size: int = 10

@@ -1,5 +1,5 @@
 /**
- * Claude Enhancer Plus - Advanced Error Analytics System
+ * Claude Enhancer 5.0 - Advanced Error Analytics System
  * Provides machine learning-based error analysis, prediction, and insights
  */
 

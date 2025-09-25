@@ -1,5 +1,5 @@
 /**
- * Claude Enhancer Plus - Git Integration Layer
+ * Claude Enhancer 5.0 - Git Integration Layer
  *
  * Unified interface for all Git optimizations
  * Integrates GitOptimizer, GitStatusCache, OptimizedHooks, and GitPerformanceMonitor
@@ -41,7 +41,7 @@ class GitIntegration extends EventEmitter {
 
     async init() {
         try {
-            console.log('🚀 初始化Claude Enhancer Plus Git优化系统...');
+            console.log('🚀 初始化Claude Enhancer 5.0 Git优化系统...');
 
             // 1. 初始化Git优化器
             this.gitOptimizer = new GitOptimizer({

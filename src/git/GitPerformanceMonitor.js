@@ -1,5 +1,5 @@
 /**
- * Claude Enhancer Plus - Git Performance Monitor
+ * Claude Enhancer 5.0 - Git Performance Monitor
  *
  * Real-time monitoring and optimization suggestions for Git operations
  * Provides insights into Git performance bottlenecks

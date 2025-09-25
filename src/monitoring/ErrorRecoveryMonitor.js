@@ -1,5 +1,5 @@
 /**
- * Claude Enhancer Plus - Error Recovery Monitoring System
+ * Claude Enhancer 5.0 - Error Recovery Monitoring System
  * Comprehensive monitoring and observability for error recovery operations
  */
 

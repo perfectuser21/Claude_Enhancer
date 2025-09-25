@@ -261,7 +261,7 @@ export PERFECT21_ENV=production
    python3 .claude/scripts/config_validator.py .claude/config/unified_main.yaml
 
    # 查看错误日志
-   tail -f /tmp/perfect21-unified.log
+   tail -f /tmp/claude-enhancer-unified.log
    ```
 
 3. **配置回滚**

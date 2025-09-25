@@ -4,7 +4,7 @@
 set -e
 
 # Configuration
-TEST_DIR="/tmp/perfect21_quick_test"
+TEST_DIR="/tmp/claude-enhancer_quick_test"
 ITERATIONS=3
 
 # Colors

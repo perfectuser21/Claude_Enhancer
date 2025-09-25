@@ -113,7 +113,7 @@ spec:
     spec:
       containers:
       - name: $APP_NAME
-        image: ghcr.io/perfect21/claude-enhancer:$IMAGE_TAG
+        image: ghcr.io/claude-enhancer/claude-enhancer:$IMAGE_TAG
         ports:
         - containerPort: 8080
         env:
@@ -281,7 +281,7 @@ rollback() {
 # Main deployment function
 main() {
     log "🚀 Starting Blue-Green deployment for $APP_NAME"
-    log "📦 Image: ghcr.io/perfect21/claude-enhancer:$IMAGE_TAG"
+    log "📦 Image: ghcr.io/claude-enhancer/claude-enhancer:$IMAGE_TAG"
 
     check_prerequisites
     ensure_main_service

@@ -5,7 +5,7 @@
  * - Visual console output for user interaction (preserved formatting)
  * - Secure logging for audit trails and monitoring
  *
- * Perfect21 Security Standards Compliant
+ * Claude Enhancer 5.0 Security Standards Compliant
  */
 
 const { logger } = require('./SecureLogger');

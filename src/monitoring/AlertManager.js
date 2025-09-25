@@ -1,5 +1,5 @@
 /**
- * Claude Enhancer Plus - Advanced Alert Manager
+ * Claude Enhancer 5.0 - Advanced Alert Manager
  * Multi-channel alerting system for error recovery monitoring
  */
 

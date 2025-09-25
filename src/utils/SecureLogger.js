@@ -8,7 +8,7 @@
  * - Performance optimized
  * - Memory leak protection
  *
- * Perfect21 Security Standards Compliant
+ * Claude Enhancer 5.0 Security Standards Compliant
  */
 
 class SecureLogger {

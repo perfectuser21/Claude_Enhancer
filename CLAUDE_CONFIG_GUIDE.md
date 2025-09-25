@@ -8,7 +8,7 @@
 # 我的个人偏好和记忆
 - 我是非技术人员，需要详细解释
 - 我偏好看到决策选项而不是直接执行
-- 我的常用项目：Perfect21, Claude Enhancer
+- 我的常用项目：Claude Enhancer 5.0, Claude Enhancer
 - 记住：我是Max 20X用户，不在乎Token
 
 # 我的工作习惯

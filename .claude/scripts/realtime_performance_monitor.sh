@@ -1,5 +1,5 @@
 #!/bin/bash
-# Claude Enhancer 实时性能监控系统 v3.0
+# Claude Enhancer 实时性能监控系统 5.0
 # 实时监控系统资源、清理性能、Hook执行等
 
 set -e
@@ -8,8 +8,8 @@ set -e
 MONITOR_INTERVAL=0.1  # 100ms 采样间隔
 DASHBOARD_REFRESH=1   # 1秒 仪表板刷新
 MAX_HISTORY=1000      # 最大历史记录数
-PERFORMANCE_LOG="/dev/shm/perfect21_realtime_perf.log"
-DASHBOARD_CACHE="/dev/shm/perfect21_dashboard_cache"
+PERFORMANCE_LOG="/dev/shm/claude-enhancer_realtime_perf.log"
+DASHBOARD_CACHE="/dev/shm/claude-enhancer_dashboard_cache"
 
 # 系统配置
 CORES=$(nproc)
@@ -190,7 +190,7 @@ analyze_performance_data() {
 generate_realtime_dashboard() {
     clear
     echo -e "${C_BOLD}${C_CYAN}┌─────────────────────────────────────────────────────────────────┐${C_RESET}"
-    echo -e "${C_BOLD}${C_CYAN}│              Claude Enhancer 实时性能仪表板 v3.0                │${C_RESET}"
+    echo -e "${C_BOLD}${C_CYAN}│              Claude Enhancer 实时性能仪表板 5.0                │${C_RESET}"
     echo -e "${C_BOLD}${C_CYAN}└─────────────────────────────────────────────────────────────────┘${C_RESET}"
 
     local current_time=$(date '+%Y-%m-%d %H:%M:%S')
@@ -428,7 +428,7 @@ main() {
             run_performance_benchmark "$iterations" "$script"
             ;;
         "help"|"-h"|"--help")
-            echo "Claude Enhancer 实时性能监控 v3.0"
+            echo "Claude Enhancer 实时性能监控 5.0"
             echo ""
             echo "用法: $0 <command> [options]"
             echo ""

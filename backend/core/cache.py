@@ -122,7 +122,7 @@ class CacheManager:
 
     def _generate_key(self, namespace: str, key: str) -> str:
         """生成缓存键"""
-        return f"perfect21:{namespace}:{key}"
+        return f"claude-enhancer:{namespace}:{key}"
 
     async def get(self, namespace: str, key: str, default: Any = None) -> Any:
         """获取缓存值"""

@@ -24,8 +24,8 @@ ENABLE_PARALLEL = True
 ENABLE_SMART_CACHE = True
 
 # 缓存目录
-CACHE_DIR = Path("/dev/shm/perfect21_config_cache")
-PERF_LOG = Path("/dev/shm/perfect21_config_perf.log")
+CACHE_DIR = Path("/dev/shm/claude-enhancer_config_cache")
+PERF_LOG = Path("/dev/shm/claude-enhancer_config_perf.log")
 
 
 class PerformanceTimer:

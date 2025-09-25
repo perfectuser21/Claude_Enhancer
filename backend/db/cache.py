@@ -56,7 +56,7 @@ class CacheKeyManager:
     """
 
     # 键前缀
-    PREFIX = "perfect21"
+    PREFIX = "claude-enhancer"
 
     # 键分隔符
     SEPARATOR = ":"

@@ -45,7 +45,7 @@ Recovery System
 ## 🛠️ Installation
 
 ```bash
-cd /home/xx/dev/Perfect21/src/recovery
+cd /home/xx/dev/Claude Enhancer 5.0/src/recovery
 npm install
 
 # Make CLI globally available

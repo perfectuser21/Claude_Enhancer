@@ -85,7 +85,7 @@ spec:
         fsGroup: 1000
       containers:
       - name: claude-enhancer
-        image: ghcr.io/perfect21/claude-enhancer:latest
+        image: ghcr.io/claude-enhancer/claude-enhancer:latest
         imagePullPolicy: Always
         ports:
         - name: http
@@ -342,10 +342,10 @@ metadata:
 spec:
   tls:
   - hosts:
-    - claude-enhancer.perfect21.dev
+    - claude-enhancer.claude-enhancer.dev
     secretName: claude-enhancer-tls
   rules:
-  - host: claude-enhancer.perfect21.dev
+  - host: claude-enhancer.claude-enhancer.dev
     http:
       paths:
       - path: /

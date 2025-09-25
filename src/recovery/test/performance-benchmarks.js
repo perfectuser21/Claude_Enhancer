@@ -1,5 +1,5 @@
 /**
- * Claude Enhancer Plus - Performance Benchmarking Utilities
+ * Claude Enhancer 5.0 - Performance Benchmarking Utilities
  * Specialized benchmarking tools for error recovery system components
  */
 

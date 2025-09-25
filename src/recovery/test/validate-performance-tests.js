@@ -1,5 +1,5 @@
 /**
- * Claude Enhancer Plus - Performance Test Validation
+ * Claude Enhancer 5.0 - Performance Test Validation
  * Quick validation script to test the performance testing framework
  */
 

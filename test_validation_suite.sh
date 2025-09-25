@@ -18,7 +18,7 @@ PASSED_TESTS=0
 FAILED_TESTS=0
 
 # Logging
-LOG_FILE="/tmp/perfect21_validation.log"
+LOG_FILE="/tmp/claude-enhancer_validation.log"
 exec 3>&1 4>&2
 exec 1> >(tee -a "$LOG_FILE")
 exec 2> >(tee -a "$LOG_FILE" >&2)
@@ -70,13 +70,13 @@ test_path_cleanup() {
     fi
 }
 
-test_perfect21_branding() {
+test_claude-enhancer_branding() {
     # Check if Claude Enhancer branding is consistent
-    local perfect21_refs
-    perfect21_refs=$(find /home/xx/dev/Claude Enhancer -type f -name "*.sh" -o -name "*.md" | xargs grep -l "Claude Enhancer" 2>/dev/null | wc -l)
+    local claude-enhancer_refs
+    claude-enhancer_refs=$(find /home/xx/dev/Claude Enhancer -type f -name "*.sh" -o -name "*.md" | xargs grep -l "Claude Enhancer" 2>/dev/null | wc -l)
 
-    if [ "$perfect21_refs" -gt 0 ]; then
-        echo "Found Claude Enhancer branding in $perfect21_refs files"
+    if [ "$claude-enhancer_refs" -gt 0 ]; then
+        echo "Found Claude Enhancer branding in $claude-enhancer_refs files"
         return 0
     else
         echo "No Claude Enhancer branding found"
@@ -371,7 +371,7 @@ main() {
 
     print_section "PATH CLEANUP VERIFICATION"
     run_test "Check for Claude Enhancer remnants" "test_path_cleanup"
-    run_test "Verify Claude Enhancer branding" "test_perfect21_branding"
+    run_test "Verify Claude Enhancer branding" "test_claude-enhancer_branding"
 
     print_section "PERMISSION VERIFICATION"
     run_test "Check script permissions" "test_script_permissions"

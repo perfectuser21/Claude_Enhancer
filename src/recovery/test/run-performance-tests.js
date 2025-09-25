@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Claude Enhancer Plus - Performance Test Orchestrator
+ * Claude Enhancer 5.0 - Performance Test Orchestrator
  * Main entry point for running comprehensive performance tests
  */
 
@@ -65,7 +65,7 @@ class PerformanceTestOrchestrator {
      * Main orchestrator method - runs all performance tests
      */
     async runAllPerformanceTests() {
-        console.log('🚀 Claude Enhancer Plus - Performance Test Suite');
+        console.log('🚀 Claude Enhancer 5.0 - Performance Test Suite');
         console.log('='.repeat(60));
         console.log(`📅 Started: ${new Date().toISOString()}`);
         console.log(`⚙️  Configuration: ${JSON.stringify(this.config, null, 2)}`);
@@ -458,7 +458,7 @@ class PerformanceTestOrchestrator {
     async generateFinalReport() {
         const report = {
             metadata: {
-                testSuite: 'Claude Enhancer Plus - Error Recovery Performance Tests',
+                testSuite: 'Claude Enhancer 5.0 - Error Recovery Performance Tests',
                 version: '2.0',
                 timestamp: new Date().toISOString(),
                 duration: this.testResults.orchestrator.totalDuration,
@@ -500,7 +500,7 @@ class PerformanceTestOrchestrator {
      */
     async generateExecutiveSummary(report, reportPath) {
         const summary = `
-Claude Enhancer Plus - Error Recovery Performance Test Report
+Claude Enhancer 5.0 - Error Recovery Performance Test Report
 ============================================================
 
 Executive Summary

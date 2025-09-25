@@ -122,7 +122,7 @@ Claude Enhancer性能优化系统是一套企业级的高性能优化解决方�
 ### 统一配置文件 (`performance.yaml`)
 ```yaml
 # 环境配置
-service_name: "perfect21"
+service_name: "claude-enhancer"
 environment: "production"
 
 # Redis缓存配置
@@ -234,7 +234,7 @@ db_results = await tester.benchmark_database(100)
 from backend.core import quick_start
 
 # 启动性能系统
-manager = await quick_start("perfect21")
+manager = await quick_start("claude-enhancer")
 
 # 使用性能上下文
 async with manager.performance_context("user_operation"):

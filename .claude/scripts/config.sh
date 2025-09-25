@@ -15,7 +15,7 @@ export GIT_HOOKS_DIR="$PERFECT21_ROOT/.git/hooks"
 
 # Log configuration
 export LOG_DIR="$CLAUDE_DIR/logs"
-export LOG_FILE="$LOG_DIR/perfect21.log"
+export LOG_FILE="$LOG_DIR/claude-enhancer.log"
 
 # Performance settings
 export MAX_PARALLEL_AGENTS=8

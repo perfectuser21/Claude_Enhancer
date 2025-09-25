@@ -212,7 +212,7 @@ environments:
 logging:
   enabled: true
   level: "INFO"  # DEBUG | INFO | WARN | ERROR
-  file: "/tmp/perfect21-config.log"
+  file: "/tmp/claude-enhancer-config.log"
   rotate: true
   max_size: "10MB"
   max_files: 5

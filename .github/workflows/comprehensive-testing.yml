@@ -328,7 +328,7 @@ jobs:
       with:
         files: test-results/coverage/coverage.xml
         flags: unittests
-        name: perfect21-coverage
+        name: claude-enhancer-coverage
         fail_ci_if_error: true
 
   # ==========================================
@@ -602,7 +602,7 @@ jobs:
         # 用户注册流程测试
         REGISTER_RESPONSE=$(curl -s -X POST http://localhost:3000/api/v1/auth/register \
           -H "Content-Type: application/json" \
-          -d '{"email":"e2e-test@perfect21.com","password":"E2ETest123!","firstName":"E2E","lastName":"Test"}' || echo '{"error":"service_unavailable"}')
+          -d '{"email":"e2e-test@claude-enhancer.com","password":"E2ETest123!","firstName":"E2E","lastName":"Test"}' || echo '{"error":"service_unavailable"}')
 
         echo "$REGISTER_RESPONSE" > e2e-results/register-test.json
 

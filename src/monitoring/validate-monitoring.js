@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Claude Enhancer Plus - Monitoring System Validation Script
+ * Claude Enhancer 5.0 - Monitoring System Validation Script
  * Phase 4 Production Readiness Validation
  */
 

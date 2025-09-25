@@ -1,5 +1,5 @@
 /**
- * Claude Enhancer Plus - Error Recovery Dashboard
+ * Claude Enhancer 5.0 - Error Recovery Dashboard
  * Real-time dashboard for monitoring error recovery system
  */
 

@@ -137,7 +137,7 @@ async def status_handler(request):
     await asyncio.sleep(random.uniform(0.005, 0.015))
 
     return web.json_response({
-        'service': 'perfect21-mock',
+        'service': 'claude-enhancer-mock',
         'version': '1.0.0',
         'status': 'running',
         'timestamp': datetime.now().isoformat()

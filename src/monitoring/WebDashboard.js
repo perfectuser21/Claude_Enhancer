@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Claude Enhancer Plus - Web Dashboard Server
+ * Claude Enhancer 5.0 - Web Dashboard Server
  *
  * Provides a web-based monitoring interface with:
  * - Real-time updates via WebSocket
@@ -621,7 +621,7 @@ class WebDashboard {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Claude Enhancer Plus - Monitoring Dashboard</title>
+    <title>Claude Enhancer 5.0 - Monitoring Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/index.min.js"></script>
     <style>
@@ -864,7 +864,7 @@ class WebDashboard {
 </head>
 <body>
     <div class="header">
-        <h1>Claude Enhancer Plus - Monitoring Dashboard</h1>
+        <h1>Claude Enhancer 5.0 - Monitoring Dashboard</h1>
         <div class="status-indicator">
             <div class="status-dot"></div>
             <span id="statusText">System Active</span>

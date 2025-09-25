@@ -60,7 +60,7 @@ docker exec postgres-container pg_isready -h localhost -p 5432
 bash .claude/scripts/quick_functionality_test.sh
 
 # 4. 日志错误检查
-tail -n 100 /var/log/perfect21/error.log | grep -E "ERROR|FATAL"
+tail -n 100 /var/log/claude-enhancer/error.log | grep -E "ERROR|FATAL"
 ```
 
 ### Phase 2: 回滚决策 (2-3分钟)

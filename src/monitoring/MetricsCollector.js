@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Claude Enhancer Plus - Metrics Collection Engine
+ * Claude Enhancer 5.0 - Metrics Collection Engine
  *
  * Responsible for:
  * - Real-time metrics collection from various sources

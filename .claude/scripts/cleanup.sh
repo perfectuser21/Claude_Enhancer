@@ -28,8 +28,8 @@ done
 # Performance Configuration
 PARALLEL_JOBS=${PARALLEL_JOBS:-$(nproc)}
 MAX_MEMORY_MB=${MAX_MEMORY_MB:-512}
-CACHE_DIR="/tmp/perfect21_ultra_cache"
-PERF_LOG="/tmp/perfect21_ultra_perf.log"
+CACHE_DIR="/tmp/claude-enhancer_ultra_cache"
+PERF_LOG="/tmp/claude-enhancer_ultra_perf.log"
 CLEANUP_BATCH_SIZE=${CLEANUP_BATCH_SIZE:-100}
 
 # Advanced Color Definitions
@@ -381,7 +381,7 @@ phase_intelligent_cleanup() {
                 # 清理Node.js缓存
                 [[ -d "node_modules/.cache" ]] && rm -rf node_modules/.cache
                 # 清理系统临时文件
-                find /tmp -name "perfect21_*" -mtime +1 -exec rm -rf {} + 2>/dev/null || true
+                find /tmp -name "claude-enhancer_*" -mtime +1 -exec rm -rf {} + 2>/dev/null || true
             } &
             wait
             ;;

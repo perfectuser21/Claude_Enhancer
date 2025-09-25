@@ -28,8 +28,8 @@
 .claude/scripts/performance_test_suite.sh
 
 # 输出位置
-# - 测试结果: /tmp/perfect21_perf_results.json
-# - 分析报告: /tmp/perfect21_performance_analysis.md
+# - 测试结果: /tmp/claude-enhancer_perf_results.json
+# - 分析报告: /tmp/claude-enhancer_performance_analysis.md
 ```
 
 ### 3. 实时性能监控
@@ -50,8 +50,8 @@
 .claude/scripts/benchmark_runner.sh
 
 # 输出位置
-# - 结果: /tmp/perfect21_benchmark_suite/results/
-# - 报告: /tmp/perfect21_benchmark_suite/reports/
+# - 结果: /tmp/claude-enhancer_benchmark_suite/results/
+# - 报告: /tmp/claude-enhancer_benchmark_suite/reports/
 ```
 
 ## ⚙️ 性能调优参数
@@ -108,13 +108,13 @@ PARALLEL_JOBS=12 BATCH_SIZE=1500 .claude/scripts/hyper_performance_cleanup.sh
 ### 性能数据位置
 ```bash
 # 实时监控日志
-/tmp/perfect21_performance.log
+/tmp/claude-enhancer_performance.log
 
 # 基准测试结果
-/tmp/perfect21_benchmark_suite/
+/tmp/claude-enhancer_benchmark_suite/
 
 # 性能分析报告
-/tmp/perfect21_performance_analysis.md
+/tmp/claude-enhancer_performance_analysis.md
 ```
 
 ## 🔧 故障排除
@@ -201,7 +201,7 @@ crontab -e
 # 添加: 0 2 * * 1 /path/to/benchmark_runner.sh
 
 # 监控性能趋势
-tail -f /tmp/perfect21_performance.log
+tail -f /tmp/claude-enhancer_performance.log
 ```
 
 ### 3. 自定义优化

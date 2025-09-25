@@ -82,7 +82,7 @@ class DatabaseOptimizer:
                 max_size=self.config.pool_size,
                 command_timeout=self.config.pool_timeout,
                 server_settings={
-                    "application_name": "perfect21_optimizer",
+                    "application_name": "claude-enhancer_optimizer",
                     "tcp_keepalives_idle": "300",
                     "tcp_keepalives_interval": "30",
                     "tcp_keepalives_count": "3",

@@ -580,7 +580,7 @@ async def get_current_user(
 JWT_SECRET_KEY=your-super-secret-key-minimum-32-characters
 JWT_ALGORITHM=HS256
 BCRYPT_ROUNDS=12
-DATABASE_URL=postgresql://user:pass@localhost/perfect21
+DATABASE_URL=postgresql://user:pass@localhost/claude-enhancer
 REDIS_URL=redis://localhost:6379
 CORS_ORIGINS=https://yourdomain.com,https://app.yourdomain.com
 ```

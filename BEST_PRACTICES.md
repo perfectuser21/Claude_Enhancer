@@ -267,7 +267,7 @@ set -euo pipefail
 # 全局变量使用大写
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly CONFIG_FILE="${SCRIPT_DIR}/../config/settings.json"
-readonly LOG_FILE="/var/log/perfect21/script.log"
+readonly LOG_FILE="/var/log/claude-enhancer/script.log"
 
 # 函数命名使用小写+下划线
 log_info() {
@@ -304,7 +304,7 @@ cleanup_on_exit() {
         log_error "脚本异常退出，退出码：$exit_code"
     fi
     # 清理临时文件
-    rm -f /tmp/perfect21_*
+    rm -f /tmp/claude-enhancer_*
 }
 
 # 注册退出处理
@@ -671,7 +671,7 @@ timeout 5 bash -c '
 }
 
 # 缓存机制
-CACHE_FILE="/tmp/perfect21_cache_$(echo "$INPUT" | md5sum | cut -d' ' -f1)"
+CACHE_FILE="/tmp/claude-enhancer_cache_$(echo "$INPUT" | md5sum | cut -d' ' -f1)"
 CACHE_TTL=3600  # 1小时
 
 if [[ -f "$CACHE_FILE" && $(($(date +%s) - $(stat -c %Y "$CACHE_FILE"))) -lt $CACHE_TTL ]]; then

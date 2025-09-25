@@ -90,7 +90,7 @@ class WebSocketManager:
 class PerformanceDashboard:
     """性能监控仪表板"""
 
-    def __init__(self, service_name: str = "perfect21"):
+    def __init__(self, service_name: str = "claude-enhancer"):
         self.service_name = service_name
         self.metrics: Dict[str, DashboardMetric] = {}
         self.system_status = SystemStatus()
@@ -786,7 +786,7 @@ class PerformanceDashboard:
 
 
 # 使用示例
-async def create_dashboard(service_name: str = "perfect21") -> PerformanceDashboard:
+async def create_dashboard(service_name: str = "claude-enhancer") -> PerformanceDashboard:
     """创建仪表板实例"""
     dashboard = PerformanceDashboard(service_name)
     await dashboard.initialize()

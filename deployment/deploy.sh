@@ -14,7 +14,7 @@ set -euo pipefail
 # 脚本配置
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-readonly LOG_FILE="/var/log/perfect21/deployment.log"
+readonly LOG_FILE="/var/log/claude-enhancer/deployment.log"
 
 # 部署参数
 ENVIRONMENT="${1:-production}"

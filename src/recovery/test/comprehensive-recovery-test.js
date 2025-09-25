@@ -1,5 +1,5 @@
 /**
- * Claude Enhancer Plus - Comprehensive Error Recovery Test Suite
+ * Claude Enhancer 5.0 - Comprehensive Error Recovery Test Suite
  * Tests all aspects of the advanced error recovery system
  */
 

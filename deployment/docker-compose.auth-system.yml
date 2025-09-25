@@ -4,7 +4,7 @@
 version: '3.8'
 
 networks:
-  perfect21-network:
+  claude-enhancer-network:
     driver: bridge
     ipam:
       config:
@@ -33,11 +33,11 @@ services:
 
   postgres:
     image: postgres:15-alpine
-    container_name: perfect21-postgres
+    container_name: claude-enhancer-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: perfect21_auth
-      POSTGRES_USER: perfect21_user
+      POSTGRES_DB: claude-enhancer_auth
+      POSTGRES_USER: claude-enhancer_user
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secure_postgres_password}
       POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --locale=C"
     volumes:
@@ -46,10 +46,10 @@ services:
     ports:
       - "5432:5432"
     networks:
-      perfect21-network:
+      claude-enhancer-network:
         ipv4_address: 172.20.1.10
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U perfect21_user -d perfect21_auth"]
+      test: ["CMD-SHELL", "pg_isready -U claude-enhancer_user -d claude-enhancer_auth"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -61,7 +61,7 @@ services:
 
   redis-cluster:
     image: redis:7-alpine
-    container_name: perfect21-redis
+    container_name: claude-enhancer-redis
     restart: unless-stopped
     command: >
       redis-server
@@ -77,7 +77,7 @@ services:
     ports:
       - "6379:6379"
     networks:
-      perfect21-network:
+      claude-enhancer-network:
         ipv4_address: 172.20.1.11
     healthcheck:
       test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
@@ -91,10 +91,10 @@ services:
 
   rabbitmq:
     image: rabbitmq:3.12-management-alpine
-    container_name: perfect21-rabbitmq
+    container_name: claude-enhancer-rabbitmq
     restart: unless-stopped
     environment:
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-perfect21}
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-claude-enhancer}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-secure_rabbitmq_password}
       RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: -rabbit disk_free_limit 1000000000
     volumes:
@@ -105,7 +105,7 @@ services:
       - "5672:5672"
       - "15672:15672"
     networks:
-      perfect21-network:
+      claude-enhancer-network:
         ipv4_address: 172.20.1.12
     healthcheck:
       test: ["CMD", "rabbitmqctl", "status"]
@@ -121,17 +121,17 @@ services:
     build:
       context: ../backend/auth-service
       dockerfile: Dockerfile
-    container_name: perfect21-auth-service
+    container_name: claude-enhancer-auth-service
     restart: unless-stopped
     environment:
       # 数据库配置
-      DATABASE_URL: postgresql://perfect21_user:${POSTGRES_PASSWORD:-secure_postgres_password}@postgres:5432/perfect21_auth
+      DATABASE_URL: postgresql://claude-enhancer_user:${POSTGRES_PASSWORD:-secure_postgres_password}@postgres:5432/claude-enhancer_auth
 
       # Redis配置
       REDIS_URL: redis://:${REDIS_PASSWORD:-secure_redis_password}@redis-cluster:6379/0
 
       # RabbitMQ配置
-      RABBITMQ_URL: amqp://${RABBITMQ_USER:-perfect21}:${RABBITMQ_PASSWORD:-secure_rabbitmq_password}@rabbitmq:5672/
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-claude-enhancer}:${RABBITMQ_PASSWORD:-secure_rabbitmq_password}@rabbitmq:5672/
 
       # JWT配置
       JWT_PRIVATE_KEY_PATH: /secrets/jwt_private_key.pem
@@ -149,7 +149,7 @@ services:
       EMAIL_SMTP_PORT: ${EMAIL_SMTP_PORT:-587}
       EMAIL_SMTP_USERNAME: ${EMAIL_SMTP_USERNAME}
       EMAIL_SMTP_PASSWORD: ${EMAIL_SMTP_PASSWORD}
-      EMAIL_FROM_ADDRESS: ${EMAIL_FROM_ADDRESS:-noreply@perfect21.com}
+      EMAIL_FROM_ADDRESS: ${EMAIL_FROM_ADDRESS:-noreply@claude-enhancer.com}
 
       # 监控配置
       JAEGER_ENDPOINT: http://jaeger-collector:14268/api/traces
@@ -166,7 +166,7 @@ services:
       - "50051:50051"
       - "8000:8000"
     networks:
-      perfect21-network:
+      claude-enhancer-network:
         ipv4_address: 172.20.2.10
     depends_on:
       postgres:
@@ -186,19 +186,19 @@ services:
     build:
       context: ../backend/user-service
       dockerfile: Dockerfile
-    container_name: perfect21-user-service
+    container_name: claude-enhancer-user-service
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://perfect21_user:${POSTGRES_PASSWORD:-secure_postgres_password}@postgres:5432/perfect21_auth
+      DATABASE_URL: postgresql://claude-enhancer_user:${POSTGRES_PASSWORD:-secure_postgres_password}@postgres:5432/claude-enhancer_auth
       REDIS_URL: redis://:${REDIS_PASSWORD:-secure_redis_password}@redis-cluster:6379/1
-      RABBITMQ_URL: amqp://${RABBITMQ_USER:-perfect21}:${RABBITMQ_PASSWORD:-secure_rabbitmq_password}@rabbitmq:5672/
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-claude-enhancer}:${RABBITMQ_PASSWORD:-secure_rabbitmq_password}@rabbitmq:5672/
       SECRET_KEY: ${SECRET_KEY:-your-super-secret-key-change-in-production}
       JAEGER_ENDPOINT: http://jaeger-collector:14268/api/traces
     ports:
       - "8081:8080"
       - "50052:50051"
     networks:
-      perfect21-network:
+      claude-enhancer-network:
         ipv4_address: 172.20.2.11
     depends_on:
       postgres:
@@ -212,19 +212,19 @@ services:
     build:
       context: ../backend/permission-service
       dockerfile: Dockerfile
-    container_name: perfect21-permission-service
+    container_name: claude-enhancer-permission-service
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://perfect21_user:${POSTGRES_PASSWORD:-secure_postgres_password}@postgres:5432/perfect21_auth
+      DATABASE_URL: postgresql://claude-enhancer_user:${POSTGRES_PASSWORD:-secure_postgres_password}@postgres:5432/claude-enhancer_auth
       REDIS_URL: redis://:${REDIS_PASSWORD:-secure_redis_password}@redis-cluster:6379/2
-      RABBITMQ_URL: amqp://${RABBITMQ_USER:-perfect21}:${RABBITMQ_PASSWORD:-secure_rabbitmq_password}@rabbitmq:5672/
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-claude-enhancer}:${RABBITMQ_PASSWORD:-secure_rabbitmq_password}@rabbitmq:5672/
       SECRET_KEY: ${SECRET_KEY:-your-super-secret-key-change-in-production}
       JAEGER_ENDPOINT: http://jaeger-collector:14268/api/traces
     ports:
       - "8082:8080"
       - "50053:50051"
     networks:
-      perfect21-network:
+      claude-enhancer-network:
         ipv4_address: 172.20.2.12
     depends_on:
       postgres:
@@ -236,11 +236,11 @@ services:
     build:
       context: ../backend/session-service
       dockerfile: Dockerfile
-    container_name: perfect21-session-service
+    container_name: claude-enhancer-session-service
     restart: unless-stopped
     environment:
       REDIS_URL: redis://:${REDIS_PASSWORD:-secure_redis_password}@redis-cluster:6379/3
-      RABBITMQ_URL: amqp://${RABBITMQ_USER:-perfect21}:${RABBITMQ_PASSWORD:-secure_rabbitmq_password}@rabbitmq:5672/
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-claude-enhancer}:${RABBITMQ_PASSWORD:-secure_rabbitmq_password}@rabbitmq:5672/
       SECRET_KEY: ${SECRET_KEY:-your-super-secret-key-change-in-production}
       JAEGER_ENDPOINT: http://jaeger-collector:14268/api/traces
       SESSION_TTL: 1800
@@ -248,7 +248,7 @@ services:
     ports:
       - "8083:8080"
     networks:
-      perfect21-network:
+      claude-enhancer-network:
         ipv4_address: 172.20.2.13
     depends_on:
       redis-cluster:
@@ -258,22 +258,22 @@ services:
     build:
       context: ../backend/notification-service
       dockerfile: Dockerfile
-    container_name: perfect21-notification-service
+    container_name: claude-enhancer-notification-service
     restart: unless-stopped
     environment:
-      RABBITMQ_URL: amqp://${RABBITMQ_USER:-perfect21}:${RABBITMQ_PASSWORD:-secure_rabbitmq_password}@rabbitmq:5672/
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-claude-enhancer}:${RABBITMQ_PASSWORD:-secure_rabbitmq_password}@rabbitmq:5672/
       EMAIL_SMTP_HOST: ${EMAIL_SMTP_HOST:-smtp.gmail.com}
       EMAIL_SMTP_PORT: ${EMAIL_SMTP_PORT:-587}
       EMAIL_SMTP_USERNAME: ${EMAIL_SMTP_USERNAME}
       EMAIL_SMTP_PASSWORD: ${EMAIL_SMTP_PASSWORD}
-      EMAIL_FROM_ADDRESS: ${EMAIL_FROM_ADDRESS:-noreply@perfect21.com}
+      EMAIL_FROM_ADDRESS: ${EMAIL_FROM_ADDRESS:-noreply@claude-enhancer.com}
       SMS_API_KEY: ${SMS_API_KEY}
       SMS_API_SECRET: ${SMS_API_SECRET}
       JAEGER_ENDPOINT: http://jaeger-collector:14268/api/traces
     ports:
       - "8084:8080"
     networks:
-      perfect21-network:
+      claude-enhancer-network:
         ipv4_address: 172.20.2.14
     depends_on:
       rabbitmq:
@@ -285,7 +285,7 @@ services:
 
   api-gateway:
     image: kong/kong-gateway:3.4
-    container_name: perfect21-api-gateway
+    container_name: claude-enhancer-api-gateway
     restart: unless-stopped
     environment:
       KONG_DATABASE: "off"
@@ -304,7 +304,7 @@ services:
       - "8001:8001"
       - "8002:8002"
     networks:
-      perfect21-network:
+      claude-enhancer-network:
         ipv4_address: 172.20.3.10
     depends_on:
       - auth-service
@@ -319,7 +319,7 @@ services:
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
-    container_name: perfect21-elasticsearch
+    container_name: claude-enhancer-elasticsearch
     restart: unless-stopped
     environment:
       discovery.type: single-node
@@ -331,7 +331,7 @@ services:
     ports:
       - "9200:9200"
     networks:
-      perfect21-network:
+      claude-enhancer-network:
         ipv4_address: 172.20.4.10
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9200/_cluster/health"]
@@ -341,14 +341,14 @@ services:
 
   kibana:
     image: docker.elastic.co/kibana/kibana:8.11.0
-    container_name: perfect21-kibana
+    container_name: claude-enhancer-kibana
     restart: unless-stopped
     environment:
       ELASTICSEARCH_HOSTS: http://elasticsearch:9200
     ports:
       - "5601:5601"
     networks:
-      perfect21-network:
+      claude-enhancer-network:
         ipv4_address: 172.20.4.11
     depends_on:
       elasticsearch:
@@ -356,7 +356,7 @@ services:
 
   prometheus:
     image: prom/prometheus:v2.47.0
-    container_name: perfect21-prometheus
+    container_name: claude-enhancer-prometheus
     restart: unless-stopped
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
@@ -371,12 +371,12 @@ services:
     ports:
       - "9090:9090"
     networks:
-      perfect21-network:
+      claude-enhancer-network:
         ipv4_address: 172.20.4.12
 
   grafana:
     image: grafana/grafana-oss:10.2.0
-    container_name: perfect21-grafana
+    container_name: claude-enhancer-grafana
     restart: unless-stopped
     environment:
       GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
@@ -389,14 +389,14 @@ services:
     ports:
       - "3000:3000"
     networks:
-      perfect21-network:
+      claude-enhancer-network:
         ipv4_address: 172.20.4.13
     depends_on:
       - prometheus
 
   jaeger:
     image: jaegertracing/all-in-one:1.51
-    container_name: perfect21-jaeger
+    container_name: claude-enhancer-jaeger
     restart: unless-stopped
     environment:
       COLLECTOR_OTLP_ENABLED: "true"
@@ -405,7 +405,7 @@ services:
       - "14268:14268"
       - "6831:6831/udp"
     networks:
-      perfect21-network:
+      claude-enhancer-network:
         ipv4_address: 172.20.4.14
 
   # ========================================
@@ -414,7 +414,7 @@ services:
 
   adminer:
     image: adminer:4.8.1
-    container_name: perfect21-adminer
+    container_name: claude-enhancer-adminer
     restart: unless-stopped
     environment:
       ADMINER_DEFAULT_SERVER: postgres
@@ -422,7 +422,7 @@ services:
     ports:
       - "8080:8080"
     networks:
-      perfect21-network:
+      claude-enhancer-network:
         ipv4_address: 172.20.5.10
     depends_on:
       - postgres
@@ -431,14 +431,14 @@ services:
 
   redis-commander:
     image: rediscommander/redis-commander:latest
-    container_name: perfect21-redis-commander
+    container_name: claude-enhancer-redis-commander
     restart: unless-stopped
     environment:
       REDIS_HOSTS: local:redis-cluster:6379:1:${REDIS_PASSWORD:-secure_redis_password}
     ports:
       - "8081:8081"
     networks:
-      perfect21-network:
+      claude-enhancer-network:
         ipv4_address: 172.20.5.11
     depends_on:
       - redis-cluster

@@ -5,7 +5,7 @@
 set -e
 
 # Configuration
-BENCHMARK_DIR="/tmp/perfect21_ultra_benchmark"
+BENCHMARK_DIR="/tmp/claude-enhancer_ultra_benchmark"
 RESULTS_FILE="$BENCHMARK_DIR/ultra_benchmark_results.json"
 ITERATIONS=${ITERATIONS:-5}
 WARMUP_ITERATIONS=${WARMUP_ITERATIONS:-2}
@@ -540,7 +540,7 @@ benchmark_cache_performance() {
     echo -e "${CYAN}📊 缓存系统性能分析${NC}"
     echo "========================================"
 
-    local cache_dir="/tmp/perfect21_benchmark_cache"
+    local cache_dir="/tmp/claude-enhancer_benchmark_cache"
     mkdir -p "$cache_dir"
 
     # Test cache write performance

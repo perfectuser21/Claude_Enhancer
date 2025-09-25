@@ -136,7 +136,7 @@ wait  # 等待所有流完成
 
 ### 2. 智能缓存系统
 ```bash
-CACHE_DIR="/tmp/perfect21_cache"
+CACHE_DIR="/tmp/claude-enhancer_cache"
 CACHE_TTL=300  # 5分钟
 
 cache_get() {

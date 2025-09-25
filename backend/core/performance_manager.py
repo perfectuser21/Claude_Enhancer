@@ -42,7 +42,7 @@ class PerformanceManager:
     """统一性能管理器 - 企业级性能优化系统的中央控制器"""
 
     def __init__(
-        self, service_name: str = "perfect21", config_file: Optional[str] = None
+        self, service_name: str = "claude-enhancer", config_file: Optional[str] = None
     ):
         self.service_name = service_name
         self.config_manager = PerformanceConfigManager(config_file)
@@ -657,7 +657,7 @@ _performance_manager: Optional[PerformanceManager] = None
 
 
 async def get_performance_manager(
-    service_name: str = "perfect21", config_file: Optional[str] = None
+    service_name: str = "claude-enhancer", config_file: Optional[str] = None
 ) -> PerformanceManager:
     """获取性能管理器实例（单例模式）"""
     global _performance_manager

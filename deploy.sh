@@ -15,7 +15,7 @@ NC='\033[0m' # No Color
 
 # Configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_NAME="perfect21-claude-enhancer"
+PROJECT_NAME="claude-enhancer-claude-enhancer"
 VERSION="${VERSION:-latest}"
 ENVIRONMENT="${ENVIRONMENT:-development}"
 

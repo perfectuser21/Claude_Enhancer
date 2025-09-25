@@ -807,7 +807,7 @@ class ComprehensiveErrorRecoveryTester:
 
 def main():
     """Main test runner"""
-    print("🎯 Perfect21 Error Recovery System - Phase 4 Testing")
+    print("🎯 Claude Enhancer 5.0 Error Recovery System - Phase 4 Testing")
     print(f"Test started at: {datetime.now().isoformat()}")
 
     tester = ComprehensiveErrorRecoveryTester()

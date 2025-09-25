@@ -32,10 +32,10 @@ success() {
 
 # Update deployment image
 update_deployment() {
-    log "🔄 Updating deployment image to: ghcr.io/perfect21/claude-enhancer:$IMAGE_TAG"
+    log "🔄 Updating deployment image to: ghcr.io/claude-enhancer/claude-enhancer:$IMAGE_TAG"
 
     kubectl set image deployment/"$APP_NAME" \
-        "$APP_NAME"=ghcr.io/perfect21/claude-enhancer:"$IMAGE_TAG" \
+        "$APP_NAME"=ghcr.io/claude-enhancer/claude-enhancer:"$IMAGE_TAG" \
         -n "$NAMESPACE"
 
     success "Deployment image updated"
@@ -90,7 +90,7 @@ verify_deployment() {
 # Main function
 main() {
     log "🚀 Starting rolling deployment for $APP_NAME"
-    log "📦 Target image: ghcr.io/perfect21/claude-enhancer:$IMAGE_TAG"
+    log "📦 Target image: ghcr.io/claude-enhancer/claude-enhancer:$IMAGE_TAG"
 
     # Check if deployment exists
     if ! kubectl get deployment "$APP_NAME" -n "$NAMESPACE" &> /dev/null; then
@@ -117,7 +117,7 @@ main() {
     fi
 
     success "🎉 Rolling deployment completed successfully!"
-    log "✅ $APP_NAME is now running with image: ghcr.io/perfect21/claude-enhancer:$IMAGE_TAG"
+    log "✅ $APP_NAME is now running with image: ghcr.io/claude-enhancer/claude-enhancer:$IMAGE_TAG"
 }
 
 # Handle interruption

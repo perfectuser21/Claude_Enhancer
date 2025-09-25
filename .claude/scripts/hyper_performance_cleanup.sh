@@ -1,5 +1,5 @@
 #!/bin/bash
-# Claude Enhancer 超高性能清理系统 v3.0
+# Claude Enhancer 超高性能清理系统 5.0
 # 目标：比当前最快版本再提升10x性能
 # 优化策略：SIMD操作模拟、内存池、无锁并发、零拷贝I/O
 
@@ -11,8 +11,8 @@ CORES=$(nproc)
 MEMORY_GB=$(free -g | awk '/^Mem:/{print $2}')
 PARALLEL_JOBS=$((CORES * 2))
 MAX_MEMORY_MB=$((MEMORY_GB * 256))  # 适当提高内存限制
-CACHE_DIR="/dev/shm/perfect21_hyper_cache"  # 使用内存文件系统
-PERF_LOG="/dev/shm/perfect21_hyper_perf.log"
+CACHE_DIR="/dev/shm/claude-enhancer_hyper_cache"  # 使用内存文件系统
+PERF_LOG="/dev/shm/claude-enhancer_hyper_perf.log"
 CLEANUP_BATCH_SIZE=500  # 增大批处理大小
 
 # 高级性能开关
@@ -419,7 +419,7 @@ hyper_format() {
 # ==================== 主清理编排器 ====================
 # 超高性能并行清理编排器
 hyper_parallel_orchestrator() {
-    echo -e "${C_CYAN}🚀 Claude Enhancer 超高性能清理系统 v3.0${C_RESET}"
+    echo -e "${C_CYAN}🚀 Claude Enhancer 超高性能清理系统 5.0${C_RESET}"
     echo -e "${C_BLUE}⚡ 核心数: ${CORES} | 并行度: ${PARALLEL_JOBS} | 内存限制: ${MAX_MEMORY_MB}MB${C_RESET}"
     echo -e "${C_YELLOW}🔧 SIMD模拟: $ENABLE_SIMD_SIMULATION | 内存池: $ENABLE_MEMORY_POOL | 无锁: $ENABLE_LOCK_FREE${C_RESET}"
     echo "======================================================================"
@@ -507,7 +507,7 @@ generate_hyper_performance_report() {
     local memory_efficiency=$((start_memory > 0 ? (start_memory - end_memory) * 100 / start_memory : 0))
 
     cat > "/home/xx/dev/Claude_Enhancer/.claude/hyper_performance_report.md" << EOF
-# Claude Enhancer 超高性能清理报告 v3.0
+# Claude Enhancer 超高性能清理报告 5.0
 
 **执行时间**: ${total_time}ms ($(echo "scale=3; $total_time / 1000" | bc 2>/dev/null || echo "N/A")s)
 **系统配置**: ${CORES}核心 | ${MEMORY_GB}GB内存 | ${PARALLEL_JOBS}并行度
@@ -599,8 +599,8 @@ phase_aware_hyper_cleanup() {
             # 环境优化
             {
                 [[ -d "node_modules/.cache" ]] && rm -rf node_modules/.cache &
-                find /tmp -name "perfect21_*" -mtime +1 -exec rm -rf {} + 2>/dev/null &
-                find /dev/shm -name "perfect21_*" -mtime +1 -exec rm -rf {} + 2>/dev/null &
+                find /tmp -name "claude-enhancer_*" -mtime +1 -exec rm -rf {} + 2>/dev/null &
+                find /dev/shm -name "claude-enhancer_*" -mtime +1 -exec rm -rf {} + 2>/dev/null &
             }
             wait
             ;;
@@ -670,7 +670,7 @@ cleanup_resources() {
     echo -e "${C_GREEN}🚀 超高性能清理完成!${C_RESET}"
     echo -e "${C_GREEN}⚡ 总耗时: ${total_duration}ms ($(echo "scale=3; $total_duration / 1000" | bc 2>/dev/null || echo "N/A")s)${C_RESET}"
     echo -e "${C_GREEN}💾 内存峰值: ${memory_peak}KB${C_RESET}"
-    echo -e "${C_GREEN}🎯 性能等级: Ultra High Performance (v3.0)${C_RESET}"
+    echo -e "${C_GREEN}🎯 性能等级: Ultra High Performance (5.0)${C_RESET}"
     echo -e "${C_CYAN}📊 预估性能提升: 1000x+ vs 原始版本${C_RESET}"
 }
 

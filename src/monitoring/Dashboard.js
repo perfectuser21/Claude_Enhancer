@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Claude Enhancer Plus - Real-time Monitoring Dashboard
+ * Claude Enhancer 5.0 - Real-time Monitoring Dashboard
  *
  * Features:
  * - Real-time phase progression tracking
@@ -55,7 +55,7 @@ class ClaudeEnhancerDashboard extends EventEmitter {
     initializeScreen() {
         this.screen = blessed.screen({
             smartCSR: true,
-            title: 'Claude Enhancer Plus - Monitoring Dashboard',
+            title: 'Claude Enhancer 5.0 - Monitoring Dashboard',
             debug: true,
             dockBorders: true,
             cursor: {
@@ -181,7 +181,7 @@ class ClaudeEnhancerDashboard extends EventEmitter {
         // Status Bar (bottom)
         this.statusBar = this.grid.set(9, 0, 1, 12, blessed.box, {
             label: 'Status',
-            content: 'Dashboard started - Monitoring Claude Enhancer Plus',
+            content: 'Dashboard started - Monitoring Claude Enhancer 5.0',
             border: { type: 'line', fg: 'white' },
             style: { fg: 'white', border: { fg: 'white' } }
         });
@@ -831,7 +831,7 @@ class ClaudeEnhancerDashboard extends EventEmitter {
      */
     showHelp() {
         const helpContent = `
-{bold}Claude Enhancer Plus - Monitoring Dashboard Help{/bold}
+{bold}Claude Enhancer 5.0 - Monitoring Dashboard Help{/bold}
 
 {bold}Keyboard Controls:{/bold}
   q, ESC, Ctrl+C  - Quit dashboard
