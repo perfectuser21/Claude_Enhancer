@@ -473,7 +473,7 @@ run_benchmark_suite() {
     printf "========================================\n\n"
 
     local dataset_scales=("small" "medium" "large")
-    local script_base_path="/home/xx/dev/Perfect21/.claude/scripts"
+    local script_base_path="/home/xx/dev/Claude_Enhancer/.claude/scripts"
 
     # Create datasets
     local datasets=()

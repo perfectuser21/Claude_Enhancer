@@ -100,7 +100,7 @@ cp .claude/config/main.yaml .claude/settings.json
 
 **症状**:
 ```bash
-Permission denied: /home/xx/dev/Perfect21/.claude/hooks/smart_agent_selector.sh
+Permission denied: /home/xx/dev/Claude Enhancer/.claude/hooks/smart_agent_selector.sh
 ```
 
 **解决方案**:

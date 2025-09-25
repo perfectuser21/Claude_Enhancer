@@ -134,7 +134,7 @@ def _private_helper():
 ### 变量
 ```bash
 # 大写下划线
-PROJECT_ROOT="/home/xx/dev/Perfect21"
+PROJECT_ROOT="/home/xx/dev/Claude Enhancer"
 AGENT_COUNT=6
 IS_VERBOSE=false
 

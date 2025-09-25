@@ -1,4 +1,4 @@
-# Perfect21 自我强制执行解决方案
+# Claude Enhancer 自我强制执行解决方案
 
 ## 问题诊断
 
@@ -83,7 +83,7 @@ KEYWORDS="压力测试|性能|优化|重构|新功能|架构|设计|实现|开�
 
 if echo "$USER_INPUT" | grep -qE "$KEYWORDS"; then
     echo "═════════════════════════════════════" >&2
-    echo "🚨 Perfect21工作流提醒" >&2
+    echo "🚨 Claude Enhancer工作流提醒" >&2
     echo "═════════════════════════════════════" >&2
     echo "" >&2
     echo "检测到开发任务，必须遵循：" >&2
@@ -152,4 +152,4 @@ fi
 - 我尝试Write代码 → PreToolUse Hook触发 → 阻止并提醒
 - 最终被迫使用Task → smart_agent_selector触发 → 正确流程
 
-这样形成三重保险，确保不会再跳过Perfect21工作流！
+这样形成三重保险，确保不会再跳过Claude Enhancer工作流！

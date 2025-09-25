@@ -12,7 +12,7 @@ from datetime import datetime
 
 
 class DocumentConsolidator:
-    def __init__(self, project_root="/home/xx/dev/Perfect21"):
+    def __init__(self, project_root="/home/xx/dev/Claude_Enhancer"):
         self.project_root = Path(project_root)
         self.backup_dir = (
             self.project_root
@@ -897,7 +897,7 @@ cp .claude/config/main.yaml .claude/settings.json
 
 **症状**:
 ```bash
-Permission denied: /home/xx/dev/Perfect21/.claude/hooks/smart_agent_selector.sh
+Permission denied: /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_agent_selector.sh
 ```
 
 **解决方案**:
@@ -1346,7 +1346,7 @@ grep ERROR .claude/execution.log | tail -20
 
 set -e
 
-PROJECT_ROOT="/home/xx/dev/Perfect21"
+PROJECT_ROOT="/home/xx/dev/Claude_Enhancer"
 BACKUP_DIR="${PROJECT_ROOT}/docs_backup_$(date +%Y%m%d_%H%M%S)"
 TEMP_DIR="${PROJECT_ROOT}/docs_migration_temp"
 

@@ -12,7 +12,7 @@
   "hooks": [
     {
       "name": "ultra_fast_agent_selector",
-      "command": "bash /home/xx/dev/Perfect21/.claude/hooks/ultra_fast_agent_selector.sh",
+      "command": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/ultra_fast_agent_selector.sh",
       "timeout": 0.5,
       "priority": 10,
       "max_retries": 1,
@@ -23,7 +23,7 @@
     },
     {
       "name": "optimized_performance_monitor",
-      "command": "bash /home/xx/dev/Perfect21/.claude/hooks/optimized_performance_monitor.sh",
+      "command": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/optimized_performance_monitor.sh",
       "timeout": 0.1,
       "priority": 9,
       "max_retries": 0,
@@ -34,18 +34,18 @@
     },
     {
       "name": "smart_error_recovery",
-      "command": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_error_recovery.sh",
+      "command": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_error_recovery.sh",
       "timeout": 0.2,
       "priority": 8,
       "max_retries": 2,
       "cache_ttl": 120,
       "circuit_breaker_threshold": 3,
       "async_mode": true,
-      "fallback_command": "bash /home/xx/dev/Perfect21/.claude/hooks/simple_error_recovery.sh"
+      "fallback_command": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/simple_error_recovery.sh"
     },
     {
       "name": "concurrent_optimizer",
-      "command": "bash /home/xx/dev/Perfect21/.claude/hooks/concurrent_optimizer.sh",
+      "command": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/concurrent_optimizer.sh",
       "timeout": 0.15,
       "priority": 7,
       "max_retries": 1,
@@ -56,7 +56,7 @@
     },
     {
       "name": "quality_gate_fast",
-      "command": "bash /home/xx/dev/Perfect21/.claude/hooks/quality_gate_fast.sh",
+      "command": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/quality_gate_fast.sh",
       "timeout": 0.3,
       "priority": 6,
       "max_retries": 1,
@@ -67,7 +67,7 @@
     },
     {
       "name": "task_type_detector_fast",
-      "command": "bash /home/xx/dev/Perfect21/.claude/hooks/task_type_detector_fast.sh",
+      "command": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/task_type_detector_fast.sh",
       "timeout": 0.2,
       "priority": 5,
       "max_retries": 1,
@@ -78,7 +78,7 @@
     },
     {
       "name": "git_workflow_optimizer",
-      "command": "bash /home/xx/dev/Perfect21/.claude/hooks/git_workflow_optimizer.sh",
+      "command": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/git_workflow_optimizer.sh",
       "timeout": 0.4,
       "priority": 4,
       "max_retries": 1,
@@ -89,7 +89,7 @@
     },
     {
       "name": "cleanup_advisor_fast",
-      "command": "bash /home/xx/dev/Perfect21/.claude/hooks/cleanup_advisor_fast.sh",
+      "command": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/cleanup_advisor_fast.sh",
       "timeout": 0.25,
       "priority": 3,
       "max_retries": 0,

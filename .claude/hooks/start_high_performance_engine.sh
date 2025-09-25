@@ -5,7 +5,7 @@
 set -euo pipefail
 
 # 配置路径
-CLAUDE_DIR="/home/xx/dev/Perfect21/.claude"
+CLAUDE_DIR="/home/xx/dev/Claude_Enhancer/.claude"
 OLD_SETTINGS="$CLAUDE_DIR/settings.json"
 NEW_SETTINGS="$CLAUDE_DIR/settings_high_performance.json"
 BACKUP_SETTINGS="$CLAUDE_DIR/settings_backup_$(date +%Y%m%d_%H%M%S).json"

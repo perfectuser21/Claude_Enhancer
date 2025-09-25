@@ -5,7 +5,7 @@ chmod +x "$0"
 
 # =============================================================================
 # Claude Enhancer Brand Unification Script
-# 将所有Perfect21/perfect21引用统一为Claude Enhancer
+# 将所有Claude Enhancer/claude-enhancer引用统一为Claude Enhancer
 # =============================================================================
 
 set -euo pipefail
@@ -20,7 +20,7 @@ CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 # 项目根目录
-PROJECT_ROOT="/home/xx/dev/Perfect21"
+PROJECT_ROOT="/home/xx/dev/Claude_Enhancer"
 BACKUP_DIR="$PROJECT_ROOT/.brand-unification-backup-$(date +%Y%m%d_%H%M%S)"
 REPORT_FILE="$PROJECT_ROOT/BRAND_UNIFICATION_REPORT.md"
 
@@ -89,14 +89,14 @@ analyze_brand_usage() {
 
     local claude_enhancer_count=$(find "$PROJECT_ROOT" -type f \( -name "*.md" -o -name "*.json" -o -name "*.yaml" -o -name "*.yml" -o -name "*.sh" -o -name "*.py" -o -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" \) -not -path "*/.git/*" -not -path "*/$BACKUP_DIR/*" -exec grep -l "Claude Enhancer" {} \; 2>/dev/null | wc -l)
 
-    local perfect21_count=$(find "$PROJECT_ROOT" -type f \( -name "*.md" -o -name "*.json" -o -name "*.yaml" -o -name "*.yml" -o -name "*.sh" -o -name "*.py" -o -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" \) -not -path "*/.git/*" -not -path "*/$BACKUP_DIR/*" -exec grep -l "Perfect21" {} \; 2>/dev/null | wc -l)
+    local claude-enhancer_count=$(find "$PROJECT_ROOT" -type f \( -name "*.md" -o -name "*.json" -o -name "*.yaml" -o -name "*.yml" -o -name "*.sh" -o -name "*.py" -o -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" \) -not -path "*/.git/*" -not -path "*/$BACKUP_DIR/*" -exec grep -l "Claude Enhancer" {} \; 2>/dev/null | wc -l)
 
-    local perfect21_lower_count=$(find "$PROJECT_ROOT" -type f \( -name "*.md" -o -name "*.json" -o -name "*.yaml" -o -name "*.yml" -o -name "*.sh" -o -name "*.py" -o -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" \) -not -path "*/.git/*" -not -path "*/$BACKUP_DIR/*" -exec grep -l "perfect21" {} \; 2>/dev/null | wc -l)
+    local claude-enhancer_lower_count=$(find "$PROJECT_ROOT" -type f \( -name "*.md" -o -name "*.json" -o -name "*.yaml" -o -name "*.yml" -o -name "*.sh" -o -name "*.py" -o -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" \) -not -path "*/.git/*" -not -path "*/$BACKUP_DIR/*" -exec grep -l "claude-enhancer" {} \; 2>/dev/null | wc -l)
 
     echo "当前品牌使用统计:"
     echo "- Claude Enhancer: $claude_enhancer_count 个文件"
-    echo "- Perfect21: $perfect21_count 个文件"
-    echo "- perfect21: $perfect21_lower_count 个文件"
+    echo "- Claude Enhancer: $claude-enhancer_count 个文件"
+    echo "- claude-enhancer: $claude-enhancer_lower_count 个文件"
     echo
 }
 
@@ -110,42 +110,42 @@ unify_branding() {
     # 定义替换规则
     declare -A replacements=(
         # 基本品牌替换
-        ["Perfect21"]="Claude Enhancer"
-        ["perfect21"]="claude-enhancer"
+        ["Claude Enhancer"]="Claude Enhancer"
+        ["claude-enhancer"]="claude-enhancer"
 
         # 特殊上下文替换
-        ["Perfect21 - AI-Driven Development"]="Claude Enhancer - AI-Driven Development"
-        ["Perfect21 System"]="Claude Enhancer System"
-        ["Perfect21 Framework"]="Claude Enhancer Framework"
-        ["Perfect21 Workflow"]="Claude Enhancer Workflow"
-        ["Perfect21 Agent"]="Claude Enhancer Agent"
-        ["Perfect21工作流"]="Claude Enhancer工作流"
-        ["Perfect21系统"]="Claude Enhancer系统"
+        ["Claude Enhancer - AI-Driven Development"]="Claude Enhancer - AI-Driven Development"
+        ["Claude Enhancer System"]="Claude Enhancer System"
+        ["Claude Enhancer Framework"]="Claude Enhancer Framework"
+        ["Claude Enhancer Workflow"]="Claude Enhancer Workflow"
+        ["Claude Enhancer Agent"]="Claude Enhancer Agent"
+        ["Claude Enhancer工作流"]="Claude Enhancer工作流"
+        ["Claude Enhancer系统"]="Claude Enhancer系统"
 
         # 技术术语替换
-        ["perfect21-api"]="claude-enhancer-api"
-        ["perfect21-demo"]="claude-enhancer-demo"
-        ["perfect21-test"]="claude-enhancer-test"
-        ["perfect21.com"]="claude-enhancer.dev"
-        ["perfect21.dev"]="claude-enhancer.dev"
-        ["perfect21.example.com"]="claude-enhancer.example.com"
+        ["claude-enhancer-api"]="claude-enhancer-api"
+        ["claude-enhancer-demo"]="claude-enhancer-demo"
+        ["claude-enhancer-test"]="claude-enhancer-test"
+        ["claude-enhancer.com"]="claude-enhancer.dev"
+        ["claude-enhancer.dev"]="claude-enhancer.dev"
+        ["claude-enhancer.example.com"]="claude-enhancer.example.com"
 
         # 数据库和服务名
-        ["perfect21_test"]="claude_enhancer_test"
-        ["perfect21_demo"]="claude_enhancer_demo"
-        ["perfect21_db"]="claude_enhancer_db"
+        ["claude-enhancer_test"]="claude_enhancer_test"
+        ["claude-enhancer_demo"]="claude_enhancer_demo"
+        ["claude-enhancer_db"]="claude_enhancer_db"
 
         # 镜像和容器名
-        ["perfect21/claude-enhancer"]="claude-enhancer/system"
+        ["claude-enhancer/claude-enhancer"]="claude-enhancer/system"
 
-        # 路径和目录相关（但保留实际目录名 Perfect21）
-        ["cd /home/xx/dev/Claude Enhancer"]="cd /home/xx/dev/Perfect21"
-        ["/home/xx/dev/Claude Enhancer"]="/home/xx/dev/Perfect21"
-        ["git clone https://github.com/perfect21/"]="git clone https://github.com/claude-enhancer/"
+        # 路径和目录相关（但保留实际目录名 Claude Enhancer）
+        ["cd /home/xx/dev/Claude Enhancer"]="cd /home/xx/dev/Claude_Enhancer"
+        ["/home/xx/dev/Claude Enhancer"]="/home/xx/dev/Claude_Enhancer"
+        ["git clone https://github.com/claude-enhancer/"]="git clone https://github.com/claude-enhancer/"
 
         # 配置和环境变量
-        ["PERFECT21_ROOT"]="CLAUDE_ENHANCER_ROOT"
-        ["perfect21-coverage"]="claude-enhancer-coverage"
+        ["CLAUDE_ENHANCER_ROOT"]="CLAUDE_ENHANCER_ROOT"
+        ["claude-enhancer-coverage"]="claude-enhancer-coverage"
     )
 
     # 查找需要处理的文件
@@ -210,10 +210,10 @@ unify_branding() {
 fix_directory_paths() {
     log_header "修复目录路径引用"
 
-    # 确保目录路径引用正确（保持 Perfect21 作为目录名）
-    find "$PROJECT_ROOT" -type f \( -name "*.sh" -o -name "*.py" -o -name "*.md" -o -name "*.json" -o -name "*.yaml" -o -name "*.yml" \) -not -path "*/.git/*" -not -path "*/$BACKUP_DIR/*" -exec sed -i 's|/home/xx/dev/claude-enhancer|/home/xx/dev/Perfect21|g' {} \; 2>/dev/null || true
+    # 确保目录路径引用正确（保持 Claude Enhancer 作为目录名）
+    find "$PROJECT_ROOT" -type f \( -name "*.sh" -o -name "*.py" -o -name "*.md" -o -name "*.json" -o -name "*.yaml" -o -name "*.yml" \) -not -path "*/.git/*" -not -path "*/$BACKUP_DIR/*" -exec sed -i 's|/home/xx/dev/claude-enhancer|/home/xx/dev/Claude_Enhancer|g' {} \; 2>/dev/null || true
 
-    find "$PROJECT_ROOT" -type f \( -name "*.sh" -o -name "*.py" -o -name "*.md" -o -name "*.json" -o -name "*.yaml" -o -name "*.yml" \) -not -path "*/.git/*" -not -path "*/$BACKUP_DIR/*" -exec sed -i 's|cd /home/xx/dev/claude-enhancer|cd /home/xx/dev/Perfect21|g' {} \; 2>/dev/null || true
+    find "$PROJECT_ROOT" -type f \( -name "*.sh" -o -name "*.py" -o -name "*.md" -o -name "*.json" -o -name "*.yaml" -o -name "*.yml" \) -not -path "*/.git/*" -not -path "*/$BACKUP_DIR/*" -exec sed -i 's|cd /home/xx/dev/claude-enhancer|cd /home/xx/dev/Claude_Enhancer|g' {} \; 2>/dev/null || true
 
     log_success "目录路径引用已修复"
 }
@@ -222,33 +222,33 @@ fix_directory_paths() {
 validate_replacement() {
     log_header "验证替换结果"
 
-    local remaining_perfect21=$(find "$PROJECT_ROOT" -type f \( -name "*.md" -o -name "*.json" -o -name "*.yaml" -o -name "*.yml" -o -name "*.sh" -o -name "*.py" -o -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" \) -not -path "*/.git/*" -not -path "*/$BACKUP_DIR/*" -exec grep -l "Perfect21" {} \; 2>/dev/null | wc -l)
+    local remaining_claude-enhancer=$(find "$PROJECT_ROOT" -type f \( -name "*.md" -o -name "*.json" -o -name "*.yaml" -o -name "*.yml" -o -name "*.sh" -o -name "*.py" -o -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" \) -not -path "*/.git/*" -not -path "*/$BACKUP_DIR/*" -exec grep -l "Claude Enhancer" {} \; 2>/dev/null | wc -l)
 
-    local remaining_perfect21_lower=$(find "$PROJECT_ROOT" -type f \( -name "*.md" -o -name "*.json" -o -name "*.yaml" -o -name "*.yml" -o -name "*.sh" -o -name "*.py" -o -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" \) -not -path "*/.git/*" -not -path "*/$BACKUP_DIR/*" -exec grep -l "perfect21" {} \; 2>/dev/null | wc -l)
+    local remaining_claude-enhancer_lower=$(find "$PROJECT_ROOT" -type f \( -name "*.md" -o -name "*.json" -o -name "*.yaml" -o -name "*.yml" -o -name "*.sh" -o -name "*.py" -o -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" \) -not -path "*/.git/*" -not -path "*/$BACKUP_DIR/*" -exec grep -l "claude-enhancer" {} \; 2>/dev/null | wc -l)
 
     local claude_enhancer_count=$(find "$PROJECT_ROOT" -type f \( -name "*.md" -o -name "*.json" -o -name "*.yaml" -o -name "*.yml" -o -name "*.sh" -o -name "*.py" -o -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" \) -not -path "*/.git/*" -not -path "*/$BACKUP_DIR/*" -exec grep -l "Claude Enhancer" {} \; 2>/dev/null | wc -l)
 
     echo "验证结果:"
-    echo "- 剩余 Perfect21: $remaining_perfect21 个文件"
-    echo "- 剩余 perfect21: $remaining_perfect21_lower 个文件"
+    echo "- 剩余 Claude Enhancer: $remaining_claude-enhancer 个文件"
+    echo "- 剩余 claude-enhancer: $remaining_claude-enhancer_lower 个文件"
     echo "- Claude Enhancer: $claude_enhancer_count 个文件"
     echo
 
-    # 显示剩余的Perfect21引用
-    if [ "$remaining_perfect21" -gt 0 ] || [ "$remaining_perfect21_lower" -gt 0 ]; then
-        log_warning "发现剩余的Perfect21引用，需要手动检查:"
+    # 显示剩余的Claude Enhancer引用
+    if [ "$remaining_claude-enhancer" -gt 0 ] || [ "$remaining_claude-enhancer_lower" -gt 0 ]; then
+        log_warning "发现剩余的Claude Enhancer引用，需要手动检查:"
 
-        if [ "$remaining_perfect21" -gt 0 ]; then
-            echo -e "\n${YELLOW}Perfect21 引用:${NC}"
-            find "$PROJECT_ROOT" -type f \( -name "*.md" -o -name "*.json" -o -name "*.yaml" -o -name "*.yml" -o -name "*.sh" -o -name "*.py" -o -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" \) -not -path "*/.git/*" -not -path "*/$BACKUP_DIR/*" -exec grep -l "Perfect21" {} \; 2>/dev/null | head -10
+        if [ "$remaining_claude-enhancer" -gt 0 ]; then
+            echo -e "\n${YELLOW}Claude Enhancer 引用:${NC}"
+            find "$PROJECT_ROOT" -type f \( -name "*.md" -o -name "*.json" -o -name "*.yaml" -o -name "*.yml" -o -name "*.sh" -o -name "*.py" -o -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" \) -not -path "*/.git/*" -not -path "*/$BACKUP_DIR/*" -exec grep -l "Claude Enhancer" {} \; 2>/dev/null | head -10
         fi
 
-        if [ "$remaining_perfect21_lower" -gt 0 ]; then
-            echo -e "\n${YELLOW}perfect21 引用:${NC}"
-            find "$PROJECT_ROOT" -type f \( -name "*.md" -o -name "*.json" -o -name "*.yaml" -o -name "*.yml" -o -name "*.sh" -o -name "*.py" -o -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" \) -not -path "*/.git/*" -not -path "*/$BACKUP_DIR/*" -exec grep -l "perfect21" {} \; 2>/dev/null | head -10
+        if [ "$remaining_claude-enhancer_lower" -gt 0 ]; then
+            echo -e "\n${YELLOW}claude-enhancer 引用:${NC}"
+            find "$PROJECT_ROOT" -type f \( -name "*.md" -o -name "*.json" -o -name "*.yaml" -o -name "*.yml" -o -name "*.sh" -o -name "*.py" -o -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" \) -not -path "*/.git/*" -not -path "*/$BACKUP_DIR/*" -exec grep -l "claude-enhancer" {} \; 2>/dev/null | head -10
         fi
     else
-        log_success "所有Perfect21引用已成功替换！"
+        log_success "所有Claude Enhancer引用已成功替换！"
     fi
 }
 
@@ -261,13 +261,13 @@ generate_report() {
 
 ## 📋 执行摘要
 
-本次品牌统一操作成功将项目中的所有 `Perfect21`/`perfect21` 引用统一为 `Claude Enhancer`，确保品牌一致性。
+本次品牌统一操作成功将项目中的所有 `Claude Enhancer`/`claude-enhancer` 引用统一为 `Claude Enhancer`，确保品牌一致性。
 
 ## 🎯 统一目标
 
-- **统一品牌名称**: 将 Perfect21/perfect21 统一为 Claude Enhancer
+- **统一品牌名称**: 将 Claude Enhancer/claude-enhancer 统一为 Claude Enhancer
 - **保持技术一致性**: 确保所有文档、配置和代码中的品牌引用一致
-- **保留目录结构**: 保持 `/home/xx/dev/Perfect21` 作为项目根目录
+- **保留目录结构**: 保持 `/home/xx/dev/Claude_Enhancer` 作为项目根目录
 
 ## 📊 替换统计
 
@@ -276,26 +276,26 @@ EOF
     # 添加统计信息
     local claude_enhancer_final=$(find "$PROJECT_ROOT" -type f \( -name "*.md" -o -name "*.json" -o -name "*.yaml" -o -name "*.yml" -o -name "*.sh" -o -name "*.py" -o -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" \) -not -path "*/.git/*" -not -path "*/$BACKUP_DIR/*" -exec grep -l "Claude Enhancer" {} \; 2>/dev/null | wc -l)
 
-    local perfect21_remaining=$(find "$PROJECT_ROOT" -type f \( -name "*.md" -o -name "*.json" -o -name "*.yaml" -o -name "*.yml" -o -name "*.sh" -o -name "*.py" -o -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" \) -not -path "*/.git/*" -not -path "*/$BACKUP_DIR/*" -exec grep -l "Perfect21\|perfect21" {} \; 2>/dev/null | wc -l)
+    local claude-enhancer_remaining=$(find "$PROJECT_ROOT" -type f \( -name "*.md" -o -name "*.json" -o -name "*.yaml" -o -name "*.yml" -o -name "*.sh" -o -name "*.py" -o -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" \) -not -path "*/.git/*" -not -path "*/$BACKUP_DIR/*" -exec grep -l "Claude Enhancer\|claude-enhancer" {} \; 2>/dev/null | wc -l)
 
     cat >> "$REPORT_FILE" << EOF
 
 ### 最终品牌分布
 
 - **Claude Enhancer**: $claude_enhancer_final 个文件
-- **Perfect21/perfect21 剩余**: $perfect21_remaining 个文件
+- **Claude Enhancer/claude-enhancer 剩余**: $claude-enhancer_remaining 个文件
 
 ## 🔄 主要替换规则
 
 | 原文本 | 替换为 |
 |--------|--------|
-| Perfect21 | Claude Enhancer |
-| perfect21 | claude-enhancer |
-| Perfect21 System | Claude Enhancer System |
-| Perfect21 Workflow | Claude Enhancer Workflow |
-| perfect21.com | claude-enhancer.dev |
-| perfect21-api | claude-enhancer-api |
-| PERFECT21_ROOT | CLAUDE_ENHANCER_ROOT |
+| Claude Enhancer | Claude Enhancer |
+| claude-enhancer | claude-enhancer |
+| Claude Enhancer System | Claude Enhancer System |
+| Claude Enhancer Workflow | Claude Enhancer Workflow |
+| claude-enhancer.com | claude-enhancer.dev |
+| claude-enhancer-api | claude-enhancer-api |
+| CLAUDE_ENHANCER_ROOT | CLAUDE_ENHANCER_ROOT |
 
 ## 📁 处理的文件类型
 
@@ -308,7 +308,7 @@ EOF
 
 ## ⚠️ 注意事项
 
-1. **目录路径保留**: `/home/xx/dev/Perfect21` 保持不变作为项目根目录
+1. **目录路径保留**: `/home/xx/dev/Claude_Enhancer` 保持不变作为项目根目录
 2. **Git历史保留**: 所有更改作为正常提交处理，保留完整历史
 3. **备份创建**: 自动备份位于 \`$BACKUP_DIR\`
 4. **分支操作**: 在当前分支上执行，建议在feature分支中操作
@@ -318,11 +318,11 @@ EOF
 执行以下命令验证品牌统一效果：
 
 \`\`\`bash
-# 检查剩余的Perfect21引用
-grep -r "Perfect21\|perfect21" /home/xx/dev/Perfect21 --exclude-dir=.git --exclude-dir=.brand-unification-backup-*
+# 检查剩余的Claude Enhancer引用
+grep -r "Claude Enhancer\|claude-enhancer" /home/xx/dev/Claude_Enhancer --exclude-dir=.git --exclude-dir=.brand-unification-backup-*
 
 # 统计Claude Enhancer使用情况
-grep -r "Claude Enhancer" /home/xx/dev/Perfect21 --exclude-dir=.git --exclude-dir=.brand-unification-backup-* | wc -l
+grep -r "Claude Enhancer" /home/xx/dev/Claude_Enhancer --exclude-dir=.git --exclude-dir=.brand-unification-backup-* | wc -l
 \`\`\`
 
 ## ✅ 质量检查
@@ -364,7 +364,7 @@ main() {
     ╔═══════════════════════════════════════════════════╗
     ║         Claude Enhancer 品牌统一脚本             ║
     ║                                                   ║
-    ║   统一所有 Perfect21/perfect21 为 Claude Enhancer ║
+    ║   统一所有 Claude Enhancer/claude-enhancer 为 Claude Enhancer ║
     ╚═══════════════════════════════════════════════════╝
 EOF
     echo -e "${NC}"

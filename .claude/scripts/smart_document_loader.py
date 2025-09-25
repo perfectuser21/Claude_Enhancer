@@ -42,7 +42,7 @@ class LoadingPlan:
 
 
 class SmartDocumentLoader:
-    def __init__(self, claude_dir: str = "/home/xx/dev/Perfect21/.claude"):
+    def __init__(self, claude_dir: str = "/home/xx/dev/Claude_Enhancer/.claude"):
         self.claude_dir = Path(claude_dir)
         self.cache = {}
         self.session_cache = {}

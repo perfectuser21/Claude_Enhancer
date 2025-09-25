@@ -1,10 +1,10 @@
 #!/bin/bash
-# Perfect21 安全Hook重建脚本
+# Claude Enhancer 安全Hook重建脚本
 # 创建安全、简洁的Hook替代方案
 
 set -e
 
-HOOKS_DIR="/home/xx/dev/Perfect21/.claude/hooks"
+HOOKS_DIR="/home/xx/dev/Claude_Enhancer/.claude/hooks"
 LOG_FILE="/tmp/safe_hooks_creation_$(date +%Y%m%d_%H%M%S).log"
 
 # 颜色定义
@@ -21,7 +21,7 @@ create_quality_gate_hook() {
     
     cat > "$HOOKS_DIR/quality_gate.sh" << 'QUALITY_GATE'
 #!/bin/bash
-# Perfect21 质量门禁 - 安全的质量检查
+# Claude Enhancer 质量门禁 - 安全的质量检查
 
 set -e
 
@@ -90,7 +90,7 @@ create_workflow_advisor() {
     
     cat > "$HOOKS_DIR/workflow_advisor.sh" << 'WORKFLOW_ADVISOR'
 #!/bin/bash
-# Perfect21 工作流顾问 - 友好的流程建议
+# Claude Enhancer 工作流顾问 - 友好的流程建议
 
 set -e
 
@@ -101,7 +101,7 @@ INPUT=$(cat)
 provide_workflow_advice() {
     local task="$1"
     
-    echo "💡 Perfect21 工作流建议:" >&2
+    echo "💡 Claude Enhancer 工作流建议:" >&2
     echo "═══════════════════════════════════════════" >&2
     
     # 根据任务类型给出建议
@@ -165,7 +165,7 @@ create_security_checker() {
     
     cat > "$HOOKS_DIR/security_checker.sh" << 'SECURITY_CHECKER'
 #!/bin/bash
-# Perfect21 安全检查器 - 检查潜在安全风险
+# Claude Enhancer 安全检查器 - 检查潜在安全风险
 
 set -e
 
@@ -228,7 +228,7 @@ update_hook_installer() {
     
     cat > "$HOOKS_DIR/install.sh" << 'INSTALLER'
 #!/bin/bash
-# Perfect21 安全Hook安装器
+# Claude Enhancer 安全Hook安装器
 
 set -e
 
@@ -243,7 +243,7 @@ BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-echo -e "${BLUE}Perfect21 安全Hook安装器${NC}"
+echo -e "${BLUE}Claude Enhancer 安全Hook安装器${NC}"
 echo "═══════════════════════════════════════"
 
 # 检查Git仓库
@@ -280,7 +280,7 @@ create_hook_config() {
     echo "⚙️ 创建Hook配置..."
     
     cat > "$HOOKS_DIR/.hook_config" << 'CONFIG'
-# Perfect21 Hook配置
+# Claude Enhancer Hook配置
 HOOKS_ENABLED=true
 QUALITY_GATE_ENABLED=true
 WORKFLOW_ADVISOR_ENABLED=true
@@ -322,7 +322,7 @@ create_hook_config
 verify_installation
 
 echo ""
-echo -e "${GREEN}🎉 Perfect21 Hook安装完成！${NC}"
+echo -e "${GREEN}🎉 Claude Enhancer Hook安装完成！${NC}"
 echo ""
 echo "安全特性:"
 echo "  🛡️ 质量门禁 - 代码质量检查"
@@ -334,7 +334,7 @@ echo ""
 echo "使用方法:"
 echo "  - Hook会自动在适当时机运行"
 echo "  - 所有建议都是友好提醒，不会阻止操作"
-echo "  - 查看日志: /tmp/perfect21_hooks.log"
+echo "  - 查看日志: /tmp/claude-enhancer_hooks.log"
 INSTALLER
 
     chmod +x "$HOOKS_DIR/install.sh"
@@ -345,11 +345,11 @@ create_documentation() {
     log "📚 创建Hook文档..."
     
     cat > "$HOOKS_DIR/README.md" << 'DOCUMENTATION'
-# Perfect21 安全Hook系统
+# Claude Enhancer 安全Hook系统
 
 ## 概览
 
-Perfect21使用精简、安全的Hook系统，提供友好的建议和质量保证，而不会干扰用户的正常工作流程。
+Claude Enhancer使用精简、安全的Hook系统，提供友好的建议和质量保证，而不会干扰用户的正常工作流程。
 
 ## 安全原则
 
@@ -432,7 +432,7 @@ SECURITY_CHECKER_ENABLED=true
 ### 日志查看
 ```bash
 # Hook执行日志
-tail -f /tmp/perfect21_hooks.log
+tail -f /tmp/claude-enhancer_hooks.log
 
 # Agent选择日志
 tail -f /tmp/claude_agent_selection.log
@@ -448,7 +448,7 @@ tail -f /tmp/claude_agent_selection.log
 ### 禁用某个Hook
 ```bash
 # 临时禁用
-export PERFECT21_HOOKS_DISABLED=true
+export CLAUDE_ENHANCER_HOOKS_DISABLED=true
 
 # 永久禁用 - 编辑配置文件
 vim .claude/hooks/.hook_config
@@ -466,7 +466,7 @@ vim .claude/hooks/.hook_config
 ### 代码模板
 ```bash
 #!/bin/bash
-# Perfect21 Hook Template
+# Claude Enhancer Hook Template
 
 set -e
 
@@ -489,7 +489,7 @@ exit 0
 
 ## 安全承诺
 
-Perfect21 Hook系统承诺：
+Claude Enhancer Hook系统承诺：
 - ❌ 绝不修改用户输入
 - ❌ 绝不阻止合法操作
 - ❌ 绝不收集敏感信息
@@ -499,14 +499,14 @@ Perfect21 Hook系统承诺：
 - ✅ 尊重用户选择
 
 ---
-*Perfect21 - AI-Driven Development for Non-Programmers*
+*Claude Enhancer - AI-Driven Development for Non-Programmers*
 DOCUMENTATION
 
     log "✅ Hook文档创建完成"
 }
 
 main() {
-    echo -e "${BLUE}Perfect21 安全Hook重建${NC}"
+    echo -e "${BLUE}Claude Enhancer 安全Hook重建${NC}"
     echo "═══════════════════════════════════════════"
     
     log "🚀 开始创建安全Hook系统..."

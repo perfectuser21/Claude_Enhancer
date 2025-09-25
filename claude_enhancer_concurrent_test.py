@@ -15,7 +15,7 @@ import random
 
 class ConcurrentStressTest:
     def __init__(self):
-        self.project_root = Path("/home/xx/dev/Perfect21")
+        self.project_root = Path("/home/xx/dev/Claude_Enhancer")
         self.claude_dir = self.project_root / ".claude"
         self.hooks_dir = self.claude_dir / "hooks"
         self.lock = threading.Lock()

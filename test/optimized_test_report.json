@@ -1,45 +1,45 @@
 {
-  "timestamp": 1758773494.1674905,
-  "total_duration": 1.0643352707847953,
+  "timestamp": 1758797336.092976,
+  "total_duration": 0.005269477143883705,
   "performance_target_met": true,
   "coverage_target_met": false,
-  "success_rate": 0.0,
+  "success_rate": 0.3333333333333333,
   "overall_success": false,
-  "successful_categories": 0,
+  "successful_categories": 1,
   "total_categories": 3,
   "test_results": {
     "unit": {
       "category": "unit_tests",
       "success": false,
-      "duration": 0.0038219341076910496,
+      "duration": 0.0018644873052835464,
       "error": "[Errno 2] No such file or directory: 'python'",
       "return_code": 1
     },
     "integration": {
       "category": "integration_tests",
       "success": false,
-      "duration": 0.003559226170182228,
+      "duration": 0.001665379386395216,
       "error": "[Errno 2] No such file or directory: 'python'",
       "return_code": 1
     },
     "performance": {
       "category": "performance_tests",
-      "success": false,
-      "duration": 1.0567088429816067,
-      "error": "An asyncio.Future, a coroutine or an awaitable is required",
-      "return_code": 1
+      "success": true,
+      "duration": 0.0,
+      "message": "Skipped (disabled in config)",
+      "return_code": 0
     },
     "coverage": {
       "success": false,
-      "duration": 0.0012119743041694164,
+      "duration": 0.0011092829518020153,
       "error": "[Errno 2] No such file or directory: 'python'",
       "return_code": 1
     }
   },
   "configuration": {
-    "max_execution_time": 10.0,
+    "max_execution_time": 8.0,
     "target_coverage": 0.8,
-    "parallel_workers": 4,
+    "parallel_workers": 2,
     "memory_limit_mb": 1000.0
   },
   "system_info": {

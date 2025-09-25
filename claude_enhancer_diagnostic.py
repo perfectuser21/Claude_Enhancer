@@ -171,7 +171,7 @@ class ClaudeEnhancerDiagnostic:
         # 检查品牌名称
         # 统一后的品牌检查
         brand_names = ["Claude Enhancer"]  # 已统一为 Claude Enhancer
-        legacy_brands = ["Perfect21", "perfect21", "claude enhancer"]  # 遗留品牌检查
+        legacy_brands = ["Claude Enhancer", "perfect21", "claude enhancer"]  # 遗留品牌检查
         brand_count = defaultdict(int)
 
         for root, dirs, files in os.walk("."):

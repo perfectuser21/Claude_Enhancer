@@ -12,7 +12,7 @@
 
 ### 1. 战略规划文档
 ```
-/home/xx/dev/Perfect21/.claude/SMART_LOADING_STRATEGY.md
+/home/xx/dev/Claude Enhancer/.claude/SMART_LOADING_STRATEGY.md
 ```
 - **内容**: 完整的智能加载设计策略
 - **特色**: 4层优先级系统 (P0-P3)
@@ -20,7 +20,7 @@
 
 ### 2. 触发器配置文件
 ```
-/home/xx/dev/Perfect21/.claude/DOCUMENT_LOADING_TRIGGERS.yaml
+/home/xx/dev/Claude Enhancer/.claude/DOCUMENT_LOADING_TRIGGERS.yaml
 ```
 - **内容**: 详细的触发条件和规则配置
 - **特色**: YAML格式，易于维护和扩展
@@ -28,7 +28,7 @@
 
 ### 3. Python实现脚本
 ```
-/home/xx/dev/Perfect21/.claude/scripts/smart_document_loader.py
+/home/xx/dev/Claude Enhancer/.claude/scripts/smart_document_loader.py
 ```
 - **内容**: 完整的智能加载器实现
 - **特色**: 面向对象设计，支持学习和优化
@@ -36,7 +36,7 @@
 
 ### 4. 使用指南
 ```
-/home/xx/dev/Perfect21/.claude/SMART_LOADING_USAGE_GUIDE.md
+/home/xx/dev/Claude Enhancer/.claude/SMART_LOADING_USAGE_GUIDE.md
 ```
 - **内容**: 详细的使用方法和最佳实践
 - **特色**: 场景化示例，覆盖常见用例
@@ -44,7 +44,7 @@
 
 ### 5. 快速启动脚本
 ```
-/home/xx/dev/Perfect21/.claude/scripts/quick_doc_loader.sh
+/home/xx/dev/Claude Enhancer/.claude/scripts/quick_doc_loader.sh
 ```
 - **内容**: 命令行快速加载工具
 - **特色**: 简单参数，智能分析

@@ -1,7 +1,7 @@
 # Claude Enhancer 性能测试报告 v3.0
 
 **测试时间**: Tue Sep 23 21:07:57 CST 2025
-**测试环境**: Linux Perfect21-VPS 5.15.0-152-generic #162-Ubuntu SMP Wed Jul 23 09:48:42 UTC 2025 x86_64 x86_64 x86_64 GNU/Linux
+**测试环境**: Linux Claude Enhancer-VPS 5.15.0-152-generic #162-Ubuntu SMP Wed Jul 23 09:48:42 UTC 2025 x86_64 x86_64 x86_64 GNU/Linux
 **CPU核心**: 4
 **内存总量**: 7937MB
 **测试迭代**: 10 次
@@ -24,7 +24,7 @@
 - **迭代次数**: 10
 - **超时限制**: 30s
 - **测试目录**: /tmp/test_env
-- **缓存目录**: /dev/shm/perfect21_*
+- **缓存目录**: /dev/shm/claude-enhancer_*
 
 **生成时间**: Tue Sep 23 21:07:57 CST 2025
-**报告文件**: /home/xx/dev/Perfect21/.claude/performance_results/performance_test_report_20250923_210741.md
+**报告文件**: /home/xx/dev/Claude Enhancer/.claude/performance_results/performance_test_report_20250923_210741.md

@@ -1,0 +1,150 @@
+{
+  "lazy_loading": {
+    "enabled": true,
+    "version": "1.0.0",
+    "description": "Lazy loading configuration for 50% startup time reduction",
+    "target_improvement": 50
+  },
+
+  "startup_optimization": {
+    "quick_init_only": true,
+    "defer_heavy_imports": true,
+    "background_preloading": true,
+    "preload_delay_ms": 200,
+    "max_startup_time_ms": 100
+  },
+
+  "component_loading": {
+    "phases": {
+      "load_on_demand": true,
+      "cache_handlers": true,
+      "preload_common": [0, 1, 3, 5],
+      "cache_size": 16
+    },
+    "agents": {
+      "load_on_demand": true,
+      "metadata_only_init": true,
+      "preload_common": [
+        "backend-architect",
+        "test-engineer",
+        "security-auditor",
+        "code-reviewer",
+        "api-designer",
+        "frontend-specialist"
+      ],
+      "max_loaded_agents": 20
+    },
+    "validation_rules": {
+      "load_per_phase": true,
+      "cache_rules": true,
+      "fallback_enabled": true
+    },
+    "cli_commands": {
+      "load_on_invoke": true,
+      "command_cache_size": 10
+    }
+  },
+
+  "caching_strategy": {
+    "enabled": true,
+    "cache_size": 100,
+    "ttl_seconds": 300,
+    "lru_eviction": true,
+    "preload_hints": true,
+    "background_cleanup": true
+  },
+
+  "memory_optimization": {
+    "weak_references": true,
+    "lazy_imports": true,
+    "deferred_initialization": true,
+    "gc_hints": true,
+    "max_memory_growth_mb": 50
+  },
+
+  "performance_monitoring": {
+    "enabled": true,
+    "track_load_times": true,
+    "track_cache_hits": true,
+    "track_memory_usage": true,
+    "alert_on_regression": true,
+    "metrics_retention_hours": 24
+  },
+
+  "preloading_strategy": {
+    "common_phases": {
+      "enabled": true,
+      "delay_ms": 100,
+      "phases": [0, 1, 3, 5],
+      "background_thread": true
+    },
+    "popular_agents": {
+      "enabled": true,
+      "delay_ms": 200,
+      "max_agents": 8,
+      "priority_based": true
+    },
+    "validation_rules": {
+      "enabled": true,
+      "delay_ms": 300,
+      "common_rules": ["agent-count", "parallel-execution"]
+    }
+  },
+
+  "fallback_strategy": {
+    "enabled": true,
+    "timeout_ms": 1000,
+    "provide_minimal_functionality": true,
+    "log_failures": true,
+    "graceful_degradation": true
+  },
+
+  "development_settings": {
+    "debug_lazy_loading": false,
+    "log_component_loads": true,
+    "benchmark_on_startup": false,
+    "validate_improvements": true,
+    "strict_mode": false
+  },
+
+  "integration": {
+    "hook_system": {
+      "lazy_hook_loading": true,
+      "preload_critical_hooks": ["smart_agent_selector", "quality_gate"],
+      "hook_cache_size": 20
+    },
+    "phase_controller": {
+      "use_lazy_engine": true,
+      "use_lazy_orchestrator": true,
+      "maintain_compatibility": true
+    },
+    "cli_interface": {
+      "lazy_command_loading": true,
+      "preload_help_system": false,
+      "command_discovery_delay": true
+    }
+  },
+
+  "performance_targets": {
+    "startup_time_reduction_percent": 50,
+    "memory_usage_increase_limit_percent": 10,
+    "cache_hit_rate_target_percent": 80,
+    "component_load_time_max_ms": 10,
+    "parallel_efficiency_target_percent": 75
+  },
+
+  "monitoring_endpoints": {
+    "performance_metrics": "/api/performance/metrics",
+    "cache_stats": "/api/cache/stats",
+    "component_status": "/api/components/status",
+    "benchmark_results": "/api/benchmark/results"
+  },
+
+  "feature_flags": {
+    "enable_async_loading": true,
+    "enable_predictive_preloading": true,
+    "enable_usage_analytics": true,
+    "enable_adaptive_caching": true,
+    "enable_smart_gc": true
+  }
+}

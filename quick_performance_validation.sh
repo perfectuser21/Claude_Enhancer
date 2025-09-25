@@ -51,9 +51,9 @@ echo "✅ Test environment created: $(find . -type f | wc -l) files"
 
 # Test each script
 SCRIPTS=(
-    "/home/xx/dev/Perfect21/.claude/scripts/cleanup.sh:Original"
-    "/home/xx/dev/Perfect21/.claude/scripts/ultra_optimized_cleanup.sh:Ultra"
-    "/home/xx/dev/Perfect21/.claude/scripts/hyper_performance_cleanup.sh:Hyper"
+    "/home/xx/dev/Claude_Enhancer/.claude/scripts/cleanup.sh:Original"
+    "/home/xx/dev/Claude_Enhancer/.claude/scripts/ultra_optimized_cleanup.sh:Ultra"
+    "/home/xx/dev/Claude_Enhancer/.claude/scripts/hyper_performance_cleanup.sh:Hyper"
 )
 
 echo ""

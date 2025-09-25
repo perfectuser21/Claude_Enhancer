@@ -165,7 +165,7 @@ class ClaudeEnhancerStressTest:
         }
 
         # 项目路径配置
-        self.project_root = Path("/home/xx/dev/Perfect21")
+        self.project_root = Path("/home/xx/dev/Claude_Enhancer")
         self.hook_dir = self.project_root / ".claude" / "hooks"
         self.config_dir = self.project_root / ".claude" / "config"
         self.agents_dir = self.project_root / ".claude" / "agents"

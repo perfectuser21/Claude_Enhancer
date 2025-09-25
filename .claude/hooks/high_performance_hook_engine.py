@@ -206,7 +206,7 @@ class HighPerformanceHookEngine:
 
     def __init__(
         self,
-        config_path: str = "/home/xx/dev/Perfect21/.claude/hooks/engine_config.json",
+        config_path: str = "/home/xx/dev/Claude_Enhancer/.claude/hooks/engine_config.json",
     ):
         self.config_path = config_path
         self.hooks: Dict[str, HookConfig] = {}
@@ -251,7 +251,7 @@ class HighPerformanceHookEngine:
         default_hooks = [
             {
                 "name": "smart_agent_selector",
-                "command": "bash /home/xx/dev/Perfect21/.claude/hooks/ultra_fast_agent_selector.sh",
+                "command": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/ultra_fast_agent_selector.sh",
                 "timeout": 0.5,
                 "priority": 8,
                 "async_mode": True,
@@ -259,7 +259,7 @@ class HighPerformanceHookEngine:
             },
             {
                 "name": "performance_monitor",
-                "command": "bash /home/xx/dev/Perfect21/.claude/hooks/optimized_performance_monitor.sh",
+                "command": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/optimized_performance_monitor.sh",
                 "timeout": 0.1,
                 "priority": 10,
                 "async_mode": True,
@@ -267,7 +267,7 @@ class HighPerformanceHookEngine:
             },
             {
                 "name": "error_recovery",
-                "command": "bash /home/xx/dev/Perfect21/.claude/hooks/smart_error_recovery.sh",
+                "command": "bash /home/xx/dev/Claude_Enhancer/.claude/hooks/smart_error_recovery.sh",
                 "timeout": 0.2,
                 "priority": 9,
                 "async_mode": True,

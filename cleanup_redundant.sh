@@ -6,7 +6,7 @@
 set -euo pipefail
 
 # 配置
-PROJECT_ROOT="/home/xx/dev/Perfect21"
+PROJECT_ROOT="/home/xx/dev/Claude_Enhancer"
 TRASH_DIR="${PROJECT_ROOT}/.trash/cleanup_$(date +%Y%m%d_%H%M%S)"
 REPORT_FILE="${PROJECT_ROOT}/cleanup_report_$(date +%Y%m%d_%H%M%S).md"
 

@@ -6,7 +6,7 @@
 
 set -e
 
-cd /home/xx/dev/Perfect21
+cd /home/xx/dev/Claude_Enhancer
 
 echo "🚀 开始执行 Claude Enhancer 品牌统一..."
 

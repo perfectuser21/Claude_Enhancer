@@ -1,11 +1,11 @@
 #!/bin/bash
-# Perfect21 Hook Security Cleanup Script
+# Claude Enhancer Hook Security Cleanup Script
 # 安全清理脚本 - 移除危险Hook，保留安全核心
 
 set -e
 
-HOOKS_DIR="/home/xx/dev/Perfect21/.claude/hooks"
-BACKUP_DIR="/home/xx/dev/Perfect21/.claude/hooks_backup_$(date +%Y%m%d_%H%M%S)"
+HOOKS_DIR="/home/xx/dev/Claude_Enhancer/.claude/hooks"
+BACKUP_DIR="/home/xx/dev/Claude_Enhancer/.claude/hooks_backup_$(date +%Y%m%d_%H%M%S)"
 LOG_FILE="/tmp/hook_cleanup_$(date +%Y%m%d_%H%M%S).log"
 
 # 颜色定义
@@ -22,7 +22,7 @@ log() {
 print_header() {
     echo -e "${BLUE}"
     echo "═══════════════════════════════════════════"
-    echo "  Perfect21 Hook Security Cleanup"
+    echo "  Claude Enhancer Hook Security Cleanup"
     echo "═══════════════════════════════════════════"
     echo -e "${NC}"
 }
@@ -175,7 +175,7 @@ create_new_hook_config() {
     log "⚙️  创建新的Hook配置..."
     
     cat > "$HOOKS_DIR/config.yaml" << 'HOOK_CONFIG'
-# Perfect21 安全Hook配置
+# Claude Enhancer 安全Hook配置
 # 只保留必要的、安全的Hook
 
 hooks:

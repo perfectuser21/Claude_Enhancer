@@ -12,7 +12,7 @@ from pathlib import Path
 
 def test_hook_performance():
     """测试优化后的Hook性能"""
-    hooks_dir = Path("/home/xx/dev/Perfect21/.claude/hooks")
+    hooks_dir = Path("/home/xx/dev/Claude_Enhancer/.claude/hooks")
 
     test_hooks = [
         "performance_monitor.sh",
@@ -35,7 +35,7 @@ def test_hook_performance():
                         ["bash", str(hook_path)],
                         capture_output=True,
                         timeout=1,
-                        cwd="/home/xx/dev/Perfect21",
+                        cwd="/home/xx/dev/Claude_Enhancer",
                     )
                     times.append((time.time() - start) * 1000)
                 except:
@@ -50,7 +50,7 @@ def test_hook_performance():
 
 def test_settings_load():
     """测试settings.json加载和解析"""
-    settings_path = Path("/home/xx/dev/Perfect21/.claude/settings.json")
+    settings_path = Path("/home/xx/dev/Claude_Enhancer/.claude/settings.json")
 
     print("\n📋 验证settings.json配置...")
 

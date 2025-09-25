@@ -1,5 +1,5 @@
 #!/bin/bash
-# Perfect21 代码编写检查器
+# Claude Enhancer 代码编写检查器
 # 防止直接写代码，强制使用Task工具和多Agent
 
 set -e
@@ -16,7 +16,7 @@ COMPLEX_PATTERNS="stress_test|performance|benchmark|agent_test|optimization|refa
 
 if echo "$INPUT" | grep -qE "$COMPLEX_PATTERNS"; then
     echo "╔════════════════════════════════════════╗" >&2
-    echo "║   🚨 Perfect21 工作流违规警告 🚨      ║" >&2
+    echo "║   🚨 Claude Enhancer 工作流违规警告 🚨      ║" >&2
     echo "╚════════════════════════════════════════╝" >&2
     echo "" >&2
     echo "❌ 检测到复杂任务，但你在直接写代码！" >&2
@@ -39,7 +39,7 @@ if echo "$INPUT" | grep -qE "$COMPLEX_PATTERNS"; then
     echo "   停止直接编码，改用Task工具：" >&2
     echo '   Task(subagent_type="performance-engineer",...)' >&2
     echo "" >&2
-    echo "⚠️  这不是建议，是Perfect21的强制要求！" >&2
+    echo "⚠️  这不是建议，是Claude Enhancer的强制要求！" >&2
     echo "════════════════════════════════════════" >&2
 
     # 记录违规

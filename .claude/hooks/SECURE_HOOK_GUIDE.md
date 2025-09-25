@@ -1,8 +1,8 @@
-# Perfect21 安全Hook系统使用指南
+# Claude Enhancer 安全Hook系统使用指南
 
 ## 🛡️ 安全原则
 
-Perfect21的Hook系统基于以下安全原则设计：
+Claude Enhancer的Hook系统基于以下安全原则设计：
 - **只读原则**: Hook不修改用户输入
 - **建议原则**: 提供友好建议，不强制执行
 - **透明原则**: 所有操作对用户可见
@@ -96,7 +96,7 @@ Perfect21的Hook系统基于以下安全原则设计：
 
 ### 临时禁用所有Hook
 ```bash
-export PERFECT21_HOOKS_DISABLED=true
+export CLAUDE_ENHANCER_HOOKS_DISABLED=true
 ```
 
 ### 调整Hook超时
@@ -119,7 +119,7 @@ export PERFECT21_HOOKS_DISABLED=true
 ### Hook不显示输出
 1. 检查Hook文件权限: `ls -la .claude/hooks/`
 2. 检查settings.json配置
-3. 查看错误日志: `tail -f /tmp/perfect21_hooks.log`
+3. 查看错误日志: `tail -f /tmp/claude-enhancer_hooks.log`
 
 ### Hook执行缓慢
 1. 检查网络连接 
@@ -143,7 +143,7 @@ export PERFECT21_HOOKS_DISABLED=true
 
 ## ✅ 安全承诺
 
-Perfect21 Hook系统承诺：
+Claude Enhancer Hook系统承诺：
 1. **尊重用户选择** - 永远以用户意图为准
 2. **透明操作** - 所有Hook行为对用户可见
 3. **安全边界** - 严格限制Hook权限范围
@@ -154,9 +154,9 @@ Perfect21 Hook系统承诺：
 
 如果遇到Hook相关问题：
 1. 查看本指南的故障排除部分
-2. 检查 `/tmp/perfect21_hooks.log` 日志
+2. 检查 `/tmp/claude-enhancer_hooks.log` 日志
 3. 临时禁用Hook系统隔离问题
 4. 重置为默认安全配置
 
 ---
-**安全第一，用户至上** - Perfect21 Hook System
+**安全第一，用户至上** - Claude Enhancer Hook System

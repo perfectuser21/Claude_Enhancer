@@ -1,5 +1,5 @@
 #!/bin/bash
-# Perfect21 质量门禁 - 安全的质量检查
+# Claude Enhancer 质量门禁 - 安全的质量检查
 
 set -e
 

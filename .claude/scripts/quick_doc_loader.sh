@@ -4,7 +4,7 @@
 
 set -e
 
-CLAUDE_DIR="/home/xx/dev/Perfect21/.claude"
+CLAUDE_DIR="/home/xx/dev/Claude_Enhancer/.claude"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # 颜色定义

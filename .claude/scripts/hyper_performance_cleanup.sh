@@ -506,7 +506,7 @@ generate_hyper_performance_report() {
     local end_memory=${PERF_MEMORY["temp_end"]:-0}
     local memory_efficiency=$((start_memory > 0 ? (start_memory - end_memory) * 100 / start_memory : 0))
 
-    cat > "/home/xx/dev/Perfect21/.claude/hyper_performance_report.md" << EOF
+    cat > "/home/xx/dev/Claude_Enhancer/.claude/hyper_performance_report.md" << EOF
 # Claude Enhancer 超高性能清理报告 v3.0
 
 **执行时间**: ${total_time}ms ($(echo "scale=3; $total_time / 1000" | bc 2>/dev/null || echo "N/A")s)

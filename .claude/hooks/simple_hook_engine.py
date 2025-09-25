@@ -67,7 +67,7 @@ class SimpleHookEngine:
 
     def __init__(self):
         self.cache = SimpleHookCache()
-        self.hooks_dir = Path("/home/xx/dev/Perfect21/.claude/hooks")
+        self.hooks_dir = Path("/home/xx/dev/Claude_Enhancer/.claude/hooks")
         self.timeout = 1.0  # 1秒超时
 
     def execute_hook(self, hook_name, context=None):

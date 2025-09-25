@@ -3,7 +3,7 @@
 
 set -e
 
-PROJECT_ROOT="/home/xx/dev/Perfect21"
+PROJECT_ROOT="/home/xx/dev/Claude_Enhancer"
 BACKUP_DIR="${PROJECT_ROOT}/docs_backup_$(date +%Y%m%d_%H%M%S)"
 
 echo "🚀 开始Claude Enhancer文档迁移..."

@@ -268,7 +268,7 @@ python3 test_smart_loading.py --demo
 
 ```bash
 # 克隆并切换到项目目录
-cd /home/xx/dev/Perfect21/.claude/scripts
+cd /home/xx/dev/Claude Enhancer/.claude/scripts
 
 # 运行演示
 python3 test_smart_loading.py --demo

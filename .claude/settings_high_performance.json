@@ -1,6 +1,6 @@
 {
   "version": "5.0.0-high-performance",
-  "project": "Perfect21 - 高性能Hook引擎系统",
+  "project": "Claude Enhancer - 高性能Hook引擎系统",
   "description": "基于压力测试结果完全重构的高性能Hook系统",
   "architecture": {
     "version": "v2.0",

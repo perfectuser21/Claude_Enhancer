@@ -7,7 +7,7 @@ set -e
 # ==================== 配置区 ====================
 TEST_ITERATIONS=10
 TIMEOUT_SECONDS=30
-RESULTS_DIR="/home/xx/dev/Perfect21/.claude/performance_results"
+RESULTS_DIR="/home/xx/dev/Claude_Enhancer/.claude/performance_results"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 REPORT_FILE="$RESULTS_DIR/performance_test_report_$TIMESTAMP.md"
 
@@ -21,14 +21,14 @@ readonly C_BOLD='\033[1m'
 readonly C_RESET='\033[0m'
 
 # ==================== 测试组件路径 ====================
-CLEANUP_ORIGINAL="/home/xx/dev/Perfect21/.claude/scripts/cleanup.sh"
-CLEANUP_OPTIMIZED="/home/xx/dev/Perfect21/.claude/scripts/performance_optimized_cleanup.sh"
-CLEANUP_HYPER="/home/xx/dev/Perfect21/.claude/scripts/hyper_performance_cleanup.sh"
+CLEANUP_ORIGINAL="/home/xx/dev/Claude_Enhancer/.claude/scripts/cleanup.sh"
+CLEANUP_OPTIMIZED="/home/xx/dev/Claude_Enhancer/.claude/scripts/performance_optimized_cleanup.sh"
+CLEANUP_HYPER="/home/xx/dev/Claude_Enhancer/.claude/scripts/hyper_performance_cleanup.sh"
 
-CONFIG_VALIDATOR_ORIGINAL="/home/xx/dev/Perfect21/.claude/config/config_validator_fixed.py"
-CONFIG_VALIDATOR_HYPER="/home/xx/dev/Perfect21/.claude/config/hyper_config_validator.py"
+CONFIG_VALIDATOR_ORIGINAL="/home/xx/dev/Claude_Enhancer/.claude/config/config_validator_fixed.py"
+CONFIG_VALIDATOR_HYPER="/home/xx/dev/Claude_Enhancer/.claude/config/hyper_config_validator.py"
 
-PERFORMANCE_MONITOR="/home/xx/dev/Perfect21/.claude/scripts/realtime_performance_monitor.sh"
+PERFORMANCE_MONITOR="/home/xx/dev/Claude_Enhancer/.claude/scripts/realtime_performance_monitor.sh"
 
 # ==================== 测试工具函数 ====================
 create_test_environment() {

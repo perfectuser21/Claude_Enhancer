@@ -1,0 +1,23 @@
+{
+  "id": "perf-test-2",
+  "version": "2.0",
+  "timestamp": "2025-09-25T10:35:52.758Z",
+  "description": "Performance test checkpoint 2",
+  "tags": [
+    "performance",
+    "test"
+  ],
+  "parentCheckpoint": null,
+  "critical": false,
+  "retentionOverride": null,
+  "metadata": {
+    "size": 102,
+    "hash": "a2cdef73f91ff141a4b7cc756f4b942e329f443f1e30fc5f31e72c4b80b7a89e",
+    "creator": "root",
+    "nodeVersion": "v20.19.4",
+    "platform": "linux"
+  },
+  "state": "{\"encrypted\":\"ea8804e0c1460a3cbb9235276e8c288044953822b701687d8bb8807548fc01b25dd597c5f4bdb735cbc4789036498ae28b73cad4d13b5758d0824d3e4d94e3188b6b941be15354dd13570073c9a638d57b592be8899c2779eb5ba2fbe7568f9028ea83bd5452\",\"salt\":\"217c77b123f43eacdb627d799684b04a\",\"iv\":\"cf96ae938d743636b9cff9c607582acc\",\"authTag\":\"82f0a7a505aed71e046f84f63fd6a8f1\",\"algorithm\":\"aes-256-gcm\",\"timestamp\":1758796552830}",
+  "encrypted": true,
+  "encryptionVersion": "2.0"
+}

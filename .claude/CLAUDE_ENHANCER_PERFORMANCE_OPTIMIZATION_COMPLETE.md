@@ -33,7 +33,7 @@
 # 系统配置
 CORES=$(nproc)
 PARALLEL_JOBS=$((CORES * 2))
-CACHE_DIR="/dev/shm/perfect21_hyper_cache"  # 内存文件系统
+CACHE_DIR="/dev/shm/claude-enhancer_hyper_cache"  # 内存文件系统
 CLEANUP_BATCH_SIZE=500                       # 大批量处理
 
 # 优化策略
@@ -101,7 +101,7 @@ TIMEOUT_SECONDS=30      # 超时保护
 ### 1. 内存优化策略
 ```bash
 # 使用内存文件系统
-CACHE_DIR="/dev/shm/perfect21_hyper_cache"
+CACHE_DIR="/dev/shm/claude-enhancer_hyper_cache"
 
 # 内存池管理
 init_memory_pool() {
@@ -177,15 +177,15 @@ vectorized_pattern_match() {
 ```python
 class SmartCache:
     def __init__(self):
-        self.cache_dir = Path("/dev/shm/perfect21_config_cache")
+        self.cache_dir = Path("/dev/shm/claude-enhancer_config_cache")
         # 内存映射缓存
 ```
 
 ### 3. 零拷贝I/O
 ```bash
 # 内存文件系统
-PERFORMANCE_LOG="/dev/shm/perfect21_hyper_perf.log"
-CACHE_DIR="/dev/shm/perfect21_hyper_cache"
+PERFORMANCE_LOG="/dev/shm/claude-enhancer_hyper_perf.log"
+CACHE_DIR="/dev/shm/claude-enhancer_hyper_cache"
 ```
 
 ### 4. 智能算法优化
@@ -250,7 +250,7 @@ python3 ./.claude/config/hyper_config_validator.py cleanup
 所有组件都包含详细的性能报告生成：
 - **hyper_performance_report.md**: 清理脚本性能分析
 - **performance_test_report_[timestamp].md**: 综合性能测试报告
-- **实时性能日志**: /dev/shm/perfect21_*_perf.log
+- **实时性能日志**: /dev/shm/claude-enhancer_*_perf.log
 
 ### 2. 性能指标
 - **执行时间**: 纳秒级精度测量
@@ -339,10 +339,10 @@ Claude Enhancer v3.0 超高性能优化成功实现了：
 这是一次全面的性能工程实践，展示了如何通过系统性的优化策略将传统脚本的性能提升到极致水平。所有优化都经过精心设计，既保证了性能，又确保了可靠性和可维护性。
 
 **项目文件路径**:
-- `/home/xx/dev/Perfect21/.claude/scripts/hyper_performance_cleanup.sh`
-- `/home/xx/dev/Perfect21/.claude/config/hyper_config_validator.py`
-- `/home/xx/dev/Perfect21/.claude/scripts/realtime_performance_monitor.sh`
-- `/home/xx/dev/Perfect21/.claude/scripts/performance_test_suite.sh`
+- `/home/xx/dev/Claude Enhancer/.claude/scripts/hyper_performance_cleanup.sh`
+- `/home/xx/dev/Claude Enhancer/.claude/config/hyper_config_validator.py`
+- `/home/xx/dev/Claude Enhancer/.claude/scripts/realtime_performance_monitor.sh`
+- `/home/xx/dev/Claude Enhancer/.claude/scripts/performance_test_suite.sh`
 
 ---
 

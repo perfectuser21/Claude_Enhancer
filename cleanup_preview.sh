@@ -6,7 +6,7 @@
 set -euo pipefail
 
 # 配置
-PROJECT_ROOT="/home/xx/dev/Perfect21"
+PROJECT_ROOT="/home/xx/dev/Claude_Enhancer"
 
 # 颜色定义
 RED='\033[0;31m'

@@ -1,0 +1,16 @@
+{
+  "id": "ts-generic-cp",
+  "timestamp": "2025-09-25T08:25:51.423Z",
+  "data": {
+    "userId": 12345,
+    "sessionId": "abc-123",
+    "preferences": {
+      "theme": "dark",
+      "notifications": true
+    }
+  },
+  "metadata": {
+    "type": "UserState"
+  },
+  "version": "1.0"
+}

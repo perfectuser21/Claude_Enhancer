@@ -30,7 +30,7 @@ class QuickStressTest:
 
     def __init__(self, minimal=False):
         self.minimal = minimal
-        self.project_root = Path("/home/xx/dev/Perfect21")
+        self.project_root = Path("/home/xx/dev/Claude_Enhancer")
         self.hook_dir = self.project_root / ".claude" / "hooks"
 
         # 测试配置
