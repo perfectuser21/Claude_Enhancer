@@ -1,0 +1,155 @@
+# Claude Enhancer 统一配置
+# Version: 5.1.0
+# 单一配置源，取代分散的settings.json
+
+version: "5.1.0"
+project: "Claude Enhancer"
+
+# 并行限制（阶段上限）
+parallel_limits:
+  P1: 4  # 需求分析
+  P2: 6  # 架构设计
+  P3: 8  # 功能开发（最高）
+  P4: 6  # 测试验证
+  P5: 4  # 代码提交
+  P6: 2  # 代码审查（最低）
+
+# 自适应节流
+autotune:
+  enabled: true
+  strategy: "quality_first"  # 质量优先
+  increase_threshold: 2      # 连续2次全绿则+2
+  decrease_threshold: 2      # 连续2次红则-2
+  min_parallel: 2           # 最低并行数
+  max_increase: 2           # 单次最多增加2
+  max_decrease: 2           # 单次最多减少2
+
+# Hook并发
+hooks:
+  max_concurrent: 4         # 全局统一为4
+  timeout_ms: 100          # Hook超时
+  retry_times: 2           # 自动重试次数
+  blocking_mode: "git_only" # 只有Git Hooks阻断
+
+# 缓存配置
+cache:
+  enabled: true
+  ttl_seconds: 300         # 5分钟TTL
+  max_size_mb: 100         # 最大100MB
+  strategy: "lru"          # LRU淘汰
+  key_pattern: "{phase}:{ticket}:{file_hash}"
+
+# 测试配置
+testing:
+  unit:
+    required: true
+    timeout: 300           # 5分钟
+    min_coverage: 80       # 最低80%覆盖率
+  integration:
+    required: true
+    timeout: 600           # 10分钟
+  smoke:
+    required: true
+    timeout: 120           # 2分钟
+  boundary:
+    required: false        # P4阶段开启
+    timeout: 300
+
+# 合并策略
+merge:
+  strategy: "squash"       # Squash merge
+  auto_merge: true         # Gate全过自动合并
+  require_pr_review: false # 无需人工review（Gate足够）
+  delete_branch: true      # 合并后删除分支
+  tag_strategy: "semantic" # 语义化版本
+
+# 健康检查与回滚
+healthcheck:
+  enabled: true
+  smoke_test_on_merge: true
+  auto_rollback: true      # 失败自动回滚
+  max_rollback_attempts: 1 # 最多回滚1次
+  alert_on_failure: true   # 失败时报警
+
+# 监控与指标
+metrics:
+  enabled: true
+  output: ".workflow/metrics.jsonl"
+  sample_rate: 1.0         # 100%采样
+  indicators:
+    - validate_ms          # validate耗时
+    - cache_hit_ratio      # 缓存命中率
+    - hook_concurrency     # Hook并发数
+    - tickets_active       # 活跃工单
+    - phase_transitions    # 阶段转换
+    - rollback_count       # 回滚次数
+
+# 文件监听（inotify）
+watcher:
+  enabled: true
+  debounce_ms: 100        # 100ms防抖
+  paths:
+    - "docs/**"
+    - "src/**"
+    - "tests/**"
+    - ".tickets/**"
+    - ".phase/current"
+    - ".gates/**"
+  ignore:
+    - "**/__pycache__/**"
+    - "**/*.pyc"
+    - "**/node_modules/**"
+    - "**/.git/**"
+
+# 子代理调用规则
+agent_rules:
+  max_sub_agents: 8        # 最多8个子代理
+  allow_nested: false      # 禁止嵌套调用
+  orchestrator_only: true  # 只允许主orchestrator调度
+
+# 工单管理
+tickets:
+  max_active: 8            # 最多8个活跃工单
+  auto_retry: 2            # 失败自动重试2次
+  block_on_third_fail: true # 第3次失败阻断
+  report_format: "markdown"
+
+# 路径白名单（按阶段）
+path_whitelist:
+  P1:
+    - "docs/PLAN.md"
+    - "docs/requirements/**"
+  P2:
+    - "docs/DESIGN.md"
+    - "docs/architecture/**"
+  P3:
+    - "src/**"
+    - "lib/**"
+    - "packages/**"
+  P4:
+    - "tests/**"
+    - "test/**"
+    - "spec/**"
+  P5:
+    - ".gitignore"
+    - "CHANGELOG.md"
+  P6:
+    - "docs/REVIEW.md"
+    - ".github/pull_request_template.md"
+
+# 提交前缀规范
+commit_prefixes:
+  P1: "[P1][analysis]"
+  P2: "[P2][design]"
+  P3: "[P3][feat]"
+  P4: "[P4][test]"
+  P5: "[P5][commit]"
+  P6: "[P6][review]"
+
+# 环境变量
+environment:
+  CLAUDE_ENHANCER_MODE: "production"
+  PYTHON_PATH: ".workflow/executor"
+  CACHE_DIR: ".workflow/executor/cache"
+  METRICS_FILE: ".workflow/metrics.jsonl"
+  LOG_LEVEL: "INFO"

@@ -1,7 +1,7 @@
 {
   "version": "5.1.0",
   "project": "Claude Enhancer 5.1 - Self-Optimization System",
-  "description": "自检优化系统，智能错误恢复和性能监控，支持8-Phase开发生命周期",
+  "description": "\u81ea\u68c0\u4f18\u5316\u7cfb\u7edf\uff0c\u667a\u80fd\u9519\u8bef\u6062\u590d\u548c\u6027\u80fd\u76d1\u63a7\uff0c\u652f\u63018-Phase\u5f00\u53d1\u751f\u547d\u5468\u671f",
   "architecture": {
     "version": "v2.1",
     "lazy_loading": true,
@@ -18,162 +18,204 @@
       {
         "matcher": ".*",
         "type": "command",
-        "command": "bash .claude/hooks/workflow_phase_detector.sh",
-        "description": "P1-P6 工作流阶段检测和建议",
-        "timeout": 1500,
-        "blocking": false,
-        "phase": "workflow_check"
-      },
-      {
-        "matcher": "Task",
-        "type": "command",
-        "command": "bash .claude/hooks/smart_agent_selector.sh",
-        "description": "4-6-8 Agent策略选择 - P3专用",
-        "timeout": 3000,
-        "blocking": false,
-        "phase": "P3_implementation"
-      },
-      {
-        "matcher": "Write|Edit|MultiEdit",
-        "type": "command",
-        "command": "bash .claude/hooks/code_quality_advisor.sh",
-        "description": "代码质量预检查 - P3/P4阶段",
-        "timeout": 2000,
-        "blocking": false,
-        "phase": "P3_P4_quality"
-      },
-      {
-        "matcher": "Bash.*git",
-        "type": "command",
-        "command": "bash .claude/hooks/git_workflow_advisor.sh",
-        "description": "Git工作流建议 - P5/P6阶段",
-        "timeout": 2000,
-        "blocking": false,
-        "phase": "P5_P6_git"
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "Task",
-        "type": "command",
-        "command": "python3 .claude/hooks/agent-output-summarizer.py",
-        "description": "Agent输出汇总 - P3阶段专用",
-        "timeout": 1000,
-        "blocking": false,
-        "phase": "P3_summary"
+        "command": "bash .claude/hooks/workflow_enforcer.sh",
+        "description": "\u5de5\u4f5c\u6d41\u5f3a\u5236\u6267\u884c\u5668 - \u786e\u4fdd\u63098-Phase\u6267\u884c",
+        "timeout": 500,
+        "blocking": true,
+        "phase": "workflow_enforcement",
+        "priority": 0,
+        "tags": [
+          "workflow",
+          "enforcement",
+          "blocking",
+          "phase-control"
+        ]
       },
       {
         "matcher": ".*",
         "type": "command",
-        "command": "bash .claude/hooks/workflow_progress_tracker.sh",
-        "description": "工作流进度跟踪 - 跨P1-P6阶段",
-        "timeout": 800,
+        "command": "bash .claude/hooks/unified_workflow_orchestrator.sh",
+        "description": "\u7edf\u4e00\u5de5\u4f5c\u6d41\u8c03\u5ea6\u5668 - \u667a\u80fdHook\u6279\u5904\u7406",
+        "timeout": 400,
         "blocking": false,
-        "phase": "progress_tracking"
-      },
+        "phase": "unified_orchestration",
+        "priority": 1,
+        "tags": [
+          "workflow",
+          "orchestration",
+          "batch-processing",
+          "smart-routing"
+        ]
+      }
+    ],
+    "PostToolUse": [
       {
-        "matcher": "Write|Edit|MultiEdit",
+        "matcher": ".*",
         "type": "command",
-        "command": "bash .claude/hooks/code_completion_validator.sh",
-        "description": "代码完成度验证 - P3/P4阶段",
-        "timeout": 1500,
+        "command": "bash .claude/hooks/unified_post_processor.sh",
+        "description": "\u7edf\u4e00\u540e\u5904\u7406\u5668 - \u667a\u80fd\u7ed3\u679c\u5206\u6790\u4e0e\u8fdb\u5ea6\u8ddf\u8e2a",
+        "timeout": 300,
         "blocking": false,
-        "phase": "P3_P4_validation"
-      },
-      {
-        "matcher": "Bash.*test",
-        "type": "command",
-        "command": "bash .claude/hooks/test_results_analyzer.sh",
-        "description": "测试结果分析 - P4阶段",
-        "timeout": 2000,
-        "blocking": false,
-        "phase": "P4_testing"
-      },
-      {
-        "matcher": ".*error.*",
-        "type": "command",
-        "command": "bash .claude/hooks/error_handler.sh",
-        "description": "错误处理助手 - 全阶段支持",
-        "timeout": 500,
-        "blocking": false,
-        "phase": "error_handling"
+        "phase": "unified_post_processing",
+        "priority": 1,
+        "tags": [
+          "post-processing",
+          "analysis",
+          "progress-tracking",
+          "optimization"
+        ]
       }
     ],
     "UserPromptSubmit": [
       {
         "type": "command",
-        "command": "bash .claude/hooks/p1_requirements_analyzer.sh",
-        "description": "P1: 需求分析和理解检查",
+        "command": "bash .claude/hooks/task_type_detector.sh",
+        "description": "P1: \u4efb\u52a1\u7c7b\u578b\u68c0\u6d4b\u548c\u9700\u6c42\u5206\u6790",
         "timeout": 2000,
         "blocking": false,
-        "phase": "P1_requirements"
+        "phase": "P1_requirements",
+        "tags": [
+          "requirements",
+          "P1",
+          "task-detection",
+          "user-input",
+          "analysis"
+        ]
       },
       {
         "type": "command",
-        "command": "bash .claude/hooks/workflow_phase_initializer.sh",
-        "description": "工作流阶段初始化 - 确定当前P阶段",
-        "timeout": 1500,
-        "blocking": false,
-        "phase": "workflow_init"
-      },
-      {
-        "type": "command",
-        "command": "bash .claude/hooks/branch_status_checker.sh",
-        "description": "P0: 分支状态检查和建议",
+        "command": "bash .claude/hooks/branch_helper.sh",
+        "description": "P0: \u5206\u652f\u72b6\u6001\u68c0\u67e5\u548c\u521b\u5efa\u5efa\u8bae",
         "timeout": 1000,
         "blocking": false,
-        "phase": "P0_branch"
+        "phase": "P0_branch",
+        "tags": [
+          "branch",
+          "P0",
+          "git",
+          "status-check",
+          "initialization"
+        ]
+      },
+      {
+        "type": "command",
+        "command": "bash .claude/hooks/smart_agent_selector.sh",
+        "description": "Agent\u9009\u62e9\u7b56\u7565\u521d\u59cb\u5316 - 4-6-8\u7b56\u7565\u51c6\u5907",
+        "timeout": 1500,
+        "blocking": false,
+        "phase": "agent_preparation",
+        "tags": [
+          "agent-strategy",
+          "4-6-8",
+          "initialization",
+          "P3-preparation"
+        ]
       }
     ],
     "workflow_phases": {
       "P0_branch_creation": {
         "script": "branch_helper.sh",
-        "description": "分支创建和环境准备",
+        "description": "\u5206\u652f\u521b\u5efa\u548c\u73af\u5883\u51c6\u5907",
         "blocking": false,
         "timeout": 1000,
-        "enabled": true
+        "enabled": true,
+        "tags": [
+          "P0",
+          "branch",
+          "git",
+          "initialization"
+        ]
       },
       "P1_requirements": {
         "script": "requirements_validator.sh",
-        "description": "需求分析和验证",
+        "description": "\u9700\u6c42\u5206\u6790\u548c\u9a8c\u8bc1",
         "blocking": false,
         "timeout": 1500,
-        "enabled": true
+        "enabled": true,
+        "tags": [
+          "P1",
+          "requirements",
+          "analysis",
+          "validation"
+        ]
       },
       "P2_design": {
         "script": "design_advisor.sh",
-        "description": "设计规划和架构建议",
+        "description": "\u8bbe\u8ba1\u89c4\u5212\u548c\u67b6\u6784\u5efa\u8bae",
         "blocking": false,
         "timeout": 2000,
-        "enabled": true
+        "enabled": true,
+        "tags": [
+          "P2",
+          "design",
+          "architecture",
+          "planning"
+        ]
       },
       "P3_implementation": {
         "script": "implementation_orchestrator.sh",
-        "description": "4-6-8 Agent实现策略",
+        "description": "4-6-8 Agent\u5b9e\u73b0\u7b56\u7565",
         "blocking": false,
         "timeout": 2500,
-        "enabled": true
+        "enabled": true,
+        "tags": [
+          "P3",
+          "implementation",
+          "4-6-8-strategy",
+          "agent-orchestration"
+        ]
       },
       "P4_testing": {
         "script": "testing_coordinator.sh",
-        "description": "本地测试和验证",
+        "description": "\u672c\u5730\u6d4b\u8bd5\u548c\u9a8c\u8bc1",
         "blocking": false,
         "timeout": 1500,
-        "enabled": true
+        "enabled": true,
+        "tags": [
+          "P4",
+          "testing",
+          "validation",
+          "quality-assurance"
+        ]
       },
       "P5_commit": {
         "script": "commit_quality_gate.sh",
-        "description": "代码提交质量检查",
+        "description": "\u4ee3\u7801\u63d0\u4ea4\u8d28\u91cf\u68c0\u67e5",
         "blocking": false,
         "timeout": 1000,
-        "enabled": true
+        "enabled": true,
+        "tags": [
+          "P5",
+          "commit",
+          "git",
+          "quality-gate"
+        ]
       },
       "P6_review": {
         "script": "review_preparation.sh",
-        "description": "代码审查准备",
+        "description": "\u4ee3\u7801\u5ba1\u67e5\u51c6\u5907",
         "blocking": false,
         "timeout": 800,
-        "enabled": true
+        "enabled": true,
+        "tags": [
+          "P6",
+          "review",
+          "code-review",
+          "pr-preparation"
+        ]
+      },
+      "P7_deployment": {
+        "script": "deployment_preparation.sh",
+        "description": "\u5408\u5e76\u90e8\u7f72\u51c6\u5907",
+        "blocking": false,
+        "timeout": 1000,
+        "enabled": true,
+        "tags": [
+          "P7",
+          "deployment",
+          "merge",
+          "production-ready"
+        ]
       }
     },
     "performance_monitor": {
@@ -215,26 +257,25 @@
     "STANDARD_AGENTS": "6",
     "COMPLEX_AGENTS": "8",
     "HOOK_SECURITY": "enabled",
-    "HOOK_BLOCKING": "false",
+    "HOOK_BLOCKING": "enabled",
     "PHASE_TRACKING": "enabled",
-    "MAX_20X_MODE": "true"
+    "MAX_20X_MODE": "true",
+    "WORKFLOW_ENFORCEMENT": "strict"
   },
   "performance": {
-    "max_concurrent_hooks": 12,
-    "hook_timeout_ms": 500,
-    "enable_caching": true,
-    "enable_parallel_execution": true,
-    "workflow_optimization": true,
-    "phase_transition_delay": 30,
-    "lazy_loading": true,
-    "auto_scaling": true,
-    "memory_optimization": true
+    "max_concurrent_hooks": 6,
+    "hook_timeout_ms": 200,
+    "smart_hook_batching": true,
+    "adaptive_timeout": true,
+    "hook_prioritization": true,
+    "cache_enabled": true,
+    "cache_ttl_seconds": 300
   },
   "workflow_config": {
     "phases": {
       "P0": {
         "name": "Branch Creation",
-        "description": "创建feature分支，准备开发环境",
+        "description": "\u521b\u5efafeature\u5206\u652f\uff0c\u51c6\u5907\u5f00\u53d1\u73af\u5883",
         "required_tools": [
           "Bash"
         ],
@@ -245,7 +286,7 @@
       },
       "P1": {
         "name": "Requirements Analysis",
-        "description": "理解要做什么，为什么要做",
+        "description": "\u7406\u89e3\u8981\u505a\u4ec0\u4e48\uff0c\u4e3a\u4ec0\u4e48\u8981\u505a",
         "required_tools": [
           "Read",
           "Grep"
@@ -257,7 +298,7 @@
       },
       "P2": {
         "name": "Design Planning",
-        "description": "如何实现，技术选型，架构设计",
+        "description": "\u5982\u4f55\u5b9e\u73b0\uff0c\u6280\u672f\u9009\u578b\uff0c\u67b6\u6784\u8bbe\u8ba1",
         "required_tools": [
           "Read",
           "Write"
@@ -269,7 +310,7 @@
       },
       "P3": {
         "name": "Implementation",
-        "description": "编写代码，实现功能 - 4-6-8 Agent策略",
+        "description": "\u7f16\u5199\u4ee3\u7801\uff0c\u5b9e\u73b0\u529f\u80fd - 4-6-8 Agent\u7b56\u7565",
         "required_tools": [
           "Task",
           "Write",
@@ -282,7 +323,7 @@
       },
       "P4": {
         "name": "Local Testing",
-        "description": "单元测试，集成测试，功能验证",
+        "description": "\u5355\u5143\u6d4b\u8bd5\uff0c\u96c6\u6210\u6d4b\u8bd5\uff0c\u529f\u80fd\u9a8c\u8bc1",
         "required_tools": [
           "Bash",
           "Read"
@@ -294,7 +335,7 @@
       },
       "P5": {
         "name": "Code Commit",
-        "description": "Git提交，触发质量检查",
+        "description": "Git\u63d0\u4ea4\uff0c\u89e6\u53d1\u8d28\u91cf\u68c0\u67e5",
         "required_tools": [
           "Bash"
         ],
@@ -305,7 +346,7 @@
       },
       "P6": {
         "name": "Code Review",
-        "description": "创建PR，团队review，反馈修改",
+        "description": "\u521b\u5efaPR\uff0c\u56e2\u961freview\uff0c\u53cd\u9988\u4fee\u6539",
         "required_tools": [
           "Bash"
         ],
@@ -318,7 +359,7 @@
     "agent_strategies": {
       "simple_task": {
         "agent_count": 4,
-        "duration_estimate": "5-10分钟",
+        "duration_estimate": "5-10\u5206\u949f",
         "complexity": "low",
         "recommended_agents": [
           "backend-architect",
@@ -329,7 +370,7 @@
       },
       "standard_task": {
         "agent_count": 6,
-        "duration_estimate": "15-20分钟",
+        "duration_estimate": "15-20\u5206\u949f",
         "complexity": "medium",
         "recommended_agents": [
           "backend-architect",
@@ -342,7 +383,7 @@
       },
       "complex_task": {
         "agent_count": 8,
-        "duration_estimate": "25-30分钟",
+        "duration_estimate": "25-30\u5206\u949f",
         "complexity": "high",
         "recommended_agents": [
           "backend-architect",
@@ -394,5 +435,18 @@
     "auto_scaling": true,
     "adaptive_performance": true,
     "intelligent_error_recovery": true
+  },
+  "workflow_enforcement": {
+    "enabled": true,
+    "strict_mode": true,
+    "auto_phase_detection": true,
+    "block_non_workflow_tasks": true,
+    "require_plan_first": true,
+    "enforce_agent_strategy": true,
+    "min_agents": {
+      "simple": 4,
+      "standard": 6,
+      "complex": 8
+    }
   }
 }

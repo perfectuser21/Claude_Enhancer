@@ -1,0 +1,99 @@
+#!/bin/bash
+# Git pre-commit hook - 硬闸门检查
+
+echo "🔒 Pre-commit Gate: 正在执行质量检查..."
+
+# 检查当前阶段
+CURRENT_PHASE=$(cat .phase/current 2>/dev/null || echo "P1")
+
+if [[ "$CURRENT_PHASE" < "P5" ]]; then
+    echo "❌ 当前在$CURRENT_PHASE阶段，还不能提交代码"
+    echo "📝 请先完成P1-P4阶段"
+    exit 1
+fi
+
+# 运行lint检查
+echo "🔍 代码格式检查..."
+
+# Python文件
+if git diff --cached --name-only | grep -q '\.py$'; then
+    # 检查black是否存在
+    if command -v black &> /dev/null; then
+        git diff --cached --name-only --diff-filter=ACM | grep '\.py$' | xargs black --check --quiet
+        if [ $? -ne 0 ]; then
+            echo "⚠️  Python代码格式不符合规范，请运行: black ."
+            exit 1
+        fi
+    fi
+    
+    # 检查flake8
+    if command -v flake8 &> /dev/null; then
+        git diff --cached --name-only --diff-filter=ACM | grep '\.py$' | xargs flake8
+        if [ $? -ne 0 ]; then
+            echo "⚠️  Python代码有语法问题"
+            exit 1
+        fi
+    fi
+fi
+
+# JavaScript/TypeScript文件
+if git diff --cached --name-only | grep -E '\.(js|jsx|ts|tsx)$'; then
+    if command -v eslint &> /dev/null; then
+        git diff --cached --name-only --diff-filter=ACM | grep -E '\.(js|jsx|ts|tsx)$' | xargs eslint
+        if [ $? -ne 0 ]; then
+            echo "⚠️  JavaScript/TypeScript代码有问题"
+            exit 1
+        fi
+    fi
+fi
+
+# 安全检查 - 避免提交敏感信息
+echo "🔐 安全检查..."
+
+# 检查常见的敏感模式
+SENSITIVE_PATTERNS=(
+    "password.*=.*['\"]\w"
+    "api[_-]?key.*=.*['\"]\w"
+    "secret.*=.*['\"]\w"
+    "token.*=.*['\"]\w"
+    "BEGIN RSA PRIVATE KEY"
+    "BEGIN DSA PRIVATE KEY"
+    "BEGIN EC PRIVATE KEY"
+    "BEGIN OPENSSH PRIVATE KEY"
+    "AWS[A-Z0-9]{16,}"
+)
+
+for pattern in "${SENSITIVE_PATTERNS[@]}"; do
+    if git diff --cached | grep -iE "$pattern"; then
+        echo "🚫 检测到可能的敏感信息: $pattern"
+        echo "💡 如果这是测试数据，请使用环境变量或配置文件"
+        exit 1
+    fi
+done
+
+# 文件大小检查
+echo "📁 文件大小检查..."
+MAX_FILE_SIZE=10485760  # 10MB
+
+for file in $(git diff --cached --name-only); do
+    if [ -f "$file" ]; then
+        file_size=$(stat -f%z "$file" 2>/dev/null || stat -c%s "$file" 2>/dev/null)
+        if [ "$file_size" -gt "$MAX_FILE_SIZE" ]; then
+            echo "❌ 文件 $file 超过10MB限制"
+            echo "💡 请使用Git LFS或压缩文件"
+            exit 1
+        fi
+    fi
+done
+
+# 执行validate
+echo "✅ 验证当前阶段..."
+python .workflow/executor/executor.py validate --phase "$CURRENT_PHASE" >/dev/null 2>&1
+if [ $? -ne 0 ]; then
+    echo "❌ $CURRENT_PHASE 阶段验证未通过"
+    echo "💡 请运行: python .workflow/executor/executor.py validate"
+    exit 1
+fi
+
+echo "✅ Pre-commit 检查通过"
+exit 0

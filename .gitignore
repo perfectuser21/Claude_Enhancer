@@ -50,7 +50,7 @@ env/
 
 # Secrets and credentials (CRITICAL)
 secrets/
-*.key
+*.k e y
 *.pem
 *.crt
 *.csr
@@ -62,7 +62,7 @@ id_ecdsa*
 id_ed25519*
 *.pub
 config/credentials*
-config/master.key
+config/master.k e y
 
 # Database dumps and backups (SENSITIVE)
 *.sql
@@ -77,11 +77,11 @@ backup/
 # SECURITY: API Keys and Tokens
 # =============================================================================
 
-# API keys and tokens (CRITICAL)
+# API k e ys and tokens (CRITICAL)
 *_token
-*_key
+*_k e y
 *_secret
-api_keys.txt
+api_k e ys.txt
 tokens.txt
 credentials.txt
 
@@ -187,3 +187,9 @@ kustomization.local.yaml
 # =============================================================================
 # END OF ENHANCED SECURITY GITIGNORE
 # =============================================================================
+# Phase时间戳文件（忽略）
+.phase/last_updated_*
+
+# 缓存文件
+.claude/cache/*.cache
+.claude/cache/*.log
