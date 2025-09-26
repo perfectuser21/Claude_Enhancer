@@ -26,13 +26,11 @@ import logging
 # 设置日志
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('cicd_verification.log'),
-        logging.StreamHandler()
-    ]
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.FileHandler("cicd_verification.log"), logging.StreamHandler()],
 )
 logger = logging.getLogger(__name__)
+
 
 class CICDVerificationReport:
     """CI/CD验证报告生成器"""
@@ -49,7 +47,7 @@ class CICDVerificationReport:
             "部署准备": {},
             "回滚机制": {},
             "总体评估": {},
-            "改进建议": []
+            "改进建议": [],
         }
         self.score = 0
         self.max_score = 0
@@ -62,7 +60,7 @@ class CICDVerificationReport:
         self.results[category][item] = {
             "状态": status,
             "时间": datetime.now().strftime("%H:%M:%S"),
-            "详情": details or {}
+            "详情": details or {},
         }
 
         # 计分
@@ -93,6 +91,7 @@ class CICDVerificationReport:
 
         return json.dumps(self.results, ensure_ascii=False, indent=2)
 
+
 class CICDVerifier:
     """CI/CD验证器"""
 
@@ -107,53 +106,59 @@ class CICDVerifier:
         # 1. 检查Dockerfile
         dockerfile_path = self.project_root / "Dockerfile"
         if dockerfile_path.exists():
-            with open(dockerfile_path, 'r') as f:
+            with open(dockerfile_path, "r") as f:
                 content = f.read()
 
             # 验证多阶段构建
             if "FROM" in content and "as" in content:
-                self.report.add_check("构建状态", "多阶段构建", "✅ 通过",
-                    {"描述": "使用多阶段构建优化镜像大小"})
+                self.report.add_check("构建状态", "多阶段构建", "✅ 通过", {"描述": "使用多阶段构建优化镜像大小"})
             else:
-                self.report.add_check("构建状态", "多阶段构建", "⚠️ 警告",
-                    {"描述": "未使用多阶段构建"})
+                self.report.add_check("构建状态", "多阶段构建", "⚠️ 警告", {"描述": "未使用多阶段构建"})
 
             # 验证安全配置
             if "USER" in content and "claude" in content:
-                self.report.add_check("构建状态", "安全用户", "✅ 通过",
-                    {"描述": "使用非root用户运行应用"})
+                self.report.add_check("构建状态", "安全用户", "✅ 通过", {"描述": "使用非root用户运行应用"})
             else:
-                self.report.add_check("构建状态", "安全用户", "❌ 失败",
-                    {"描述": "应该使用非root用户运行应用"})
+                self.report.add_check("构建状态", "安全用户", "❌ 失败", {"描述": "应该使用非root用户运行应用"})
 
             # 验证健康检查
             if "HEALTHCHECK" in content:
-                self.report.add_check("构建状态", "健康检查", "✅ 通过",
-                    {"描述": "配置了容器健康检查"})
+                self.report.add_check("构建状态", "健康检查", "✅ 通过", {"描述": "配置了容器健康检查"})
             else:
-                self.report.add_check("构建状态", "健康检查", "⚠️ 警告",
-                    {"描述": "建议添加健康检查配置"})
+                self.report.add_check("构建状态", "健康检查", "⚠️ 警告", {"描述": "建议添加健康检查配置"})
 
         # 2. 检查docker-compose配置
         compose_files = list(self.project_root.glob("docker-compose*.yml"))
         if compose_files:
-            self.report.add_check("构建状态", "容器编排", "✅ 通过",
-                {"描述": f"找到 {len(compose_files)} 个docker-compose配置文件"})
+            self.report.add_check(
+                "构建状态",
+                "容器编排",
+                "✅ 通过",
+                {"描述": f"找到 {len(compose_files)} 个docker-compose配置文件"},
+            )
         else:
-            self.report.add_check("构建状态", "容器编排", "⚠️ 警告",
-                {"描述": "未找到docker-compose配置文件"})
+            self.report.add_check(
+                "构建状态", "容器编排", "⚠️ 警告", {"描述": "未找到docker-compose配置文件"}
+            )
 
         # 3. 检查requirements.txt
         requirements_path = self.project_root / "requirements.txt"
         if requirements_path.exists():
-            with open(requirements_path, 'r') as f:
+            with open(requirements_path, "r") as f:
                 deps = f.readlines()
 
-            self.report.add_check("构建状态", "依赖管理", "✅ 通过",
-                {"描述": f"定义了 {len([d for d in deps if d.strip() and not d.startswith('#')])} 个依赖包"})
+            self.report.add_check(
+                "构建状态",
+                "依赖管理",
+                "✅ 通过",
+                {
+                    "描述": f"定义了 {len([d for d in deps if d.strip() and not d.startswith('#')])} 个依赖包"
+                },
+            )
         else:
-            self.report.add_check("构建状态", "依赖管理", "❌ 失败",
-                {"描述": "未找到requirements.txt文件"})
+            self.report.add_check(
+                "构建状态", "依赖管理", "❌ 失败", {"描述": "未找到requirements.txt文件"}
+            )
 
     def verify_test_automation(self):
         """验证测试自动化"""
@@ -163,31 +168,46 @@ class CICDVerifier:
         workflows_dir = self.project_root / ".github" / "workflows"
         if workflows_dir.exists():
             workflow_files = list(workflows_dir.glob("*.yml"))
-            self.report.add_check("测试结果", "CI工作流", "✅ 通过",
-                {"描述": f"配置了 {len(workflow_files)} 个GitHub Actions工作流"})
+            self.report.add_check(
+                "测试结果",
+                "CI工作流",
+                "✅ 通过",
+                {"描述": f"配置了 {len(workflow_files)} 个GitHub Actions工作流"},
+            )
 
             # 分析工作流内容
             for workflow_file in workflow_files:
-                with open(workflow_file, 'r') as f:
+                with open(workflow_file, "r") as f:
                     content = f.read()
 
                 # 检查测试步骤
                 if "pytest" in content or "test" in content.lower():
-                    self.report.add_check("测试结果", f"测试步骤-{workflow_file.name}", "✅ 通过",
-                        {"描述": "包含自动化测试步骤"})
+                    self.report.add_check(
+                        "测试结果",
+                        f"测试步骤-{workflow_file.name}",
+                        "✅ 通过",
+                        {"描述": "包含自动化测试步骤"},
+                    )
 
                 # 检查安全扫描
-                if "security" in content.lower() or "bandit" in content or "safety" in content:
-                    self.report.add_check("测试结果", f"安全扫描-{workflow_file.name}", "✅ 通过",
-                        {"描述": "包含安全扫描步骤"})
+                if (
+                    "security" in content.lower()
+                    or "bandit" in content
+                    or "safety" in content
+                ):
+                    self.report.add_check(
+                        "测试结果", f"安全扫描-{workflow_file.name}", "✅ 通过", {"描述": "包含安全扫描步骤"}
+                    )
 
                 # 检查覆盖率
                 if "coverage" in content or "cov" in content:
-                    self.report.add_check("测试结果", f"覆盖率检查-{workflow_file.name}", "✅ 通过",
-                        {"描述": "包含覆盖率检查"})
+                    self.report.add_check(
+                        "测试结果", f"覆盖率检查-{workflow_file.name}", "✅ 通过", {"描述": "包含覆盖率检查"}
+                    )
         else:
-            self.report.add_check("测试结果", "CI工作流", "❌ 失败",
-                {"描述": "未找到GitHub Actions工作流配置"})
+            self.report.add_check(
+                "测试结果", "CI工作流", "❌ 失败", {"描述": "未找到GitHub Actions工作流配置"}
+            )
 
         # 2. 检查测试文件
         test_files = []
@@ -195,23 +215,23 @@ class CICDVerifier:
             test_files.extend(list(self.project_root.rglob(pattern)))
 
         if test_files:
-            self.report.add_check("测试结果", "测试文件", "✅ 通过",
-                {"描述": f"找到 {len(test_files)} 个测试文件"})
+            self.report.add_check(
+                "测试结果", "测试文件", "✅ 通过", {"描述": f"找到 {len(test_files)} 个测试文件"}
+            )
         else:
-            self.report.add_check("测试结果", "测试文件", "⚠️ 警告",
-                {"描述": "未找到测试文件"})
+            self.report.add_check("测试结果", "测试文件", "⚠️ 警告", {"描述": "未找到测试文件"})
 
         # 3. 检查pytest配置
-        pytest_configs = list(self.project_root.glob("pytest.ini")) + \
-                         list(self.project_root.glob("pyproject.toml")) + \
-                         list(self.project_root.glob("setup.cfg"))
+        pytest_configs = (
+            list(self.project_root.glob("pytest.ini"))
+            + list(self.project_root.glob("pyproject.toml"))
+            + list(self.project_root.glob("setup.cfg"))
+        )
 
         if pytest_configs:
-            self.report.add_check("测试结果", "测试配置", "✅ 通过",
-                {"描述": "配置了pytest测试框架"})
+            self.report.add_check("测试结果", "测试配置", "✅ 通过", {"描述": "配置了pytest测试框架"})
         else:
-            self.report.add_check("测试结果", "测试配置", "⚠️ 警告",
-                {"描述": "建议配置pytest测试框架"})
+            self.report.add_check("测试结果", "测试配置", "⚠️ 警告", {"描述": "建议配置pytest测试框架"})
 
     def verify_code_quality(self):
         """验证代码质量检查"""
@@ -222,36 +242,41 @@ class CICDVerifier:
             "Black配置": ["pyproject.toml", ".black"],
             "Flake8配置": [".flake8", "setup.cfg"],
             "MyPy配置": ["mypy.ini", "pyproject.toml"],
-            "isort配置": [".isort.cfg", "pyproject.toml"]
+            "isort配置": [".isort.cfg", "pyproject.toml"],
         }
 
         for tool, config_files in quality_tools.items():
             found = any((self.project_root / cf).exists() for cf in config_files)
             if found:
-                self.report.add_check("质量检查", tool, "✅ 通过",
-                    {"描述": "配置了代码质量工具"})
+                self.report.add_check("质量检查", tool, "✅ 通过", {"描述": "配置了代码质量工具"})
             else:
-                self.report.add_check("质量检查", tool, "⚠️ 警告",
-                    {"描述": "建议配置代码质量工具"})
+                self.report.add_check("质量检查", tool, "⚠️ 警告", {"描述": "建议配置代码质量工具"})
 
         # 2. 检查pre-commit hooks
         precommit_config = self.project_root / ".pre-commit-config.yaml"
         if precommit_config.exists():
-            self.report.add_check("质量检查", "Pre-commit Hooks", "✅ 通过",
-                {"描述": "配置了pre-commit hooks"})
+            self.report.add_check(
+                "质量检查", "Pre-commit Hooks", "✅ 通过", {"描述": "配置了pre-commit hooks"}
+            )
         else:
-            self.report.add_check("质量检查", "Pre-commit Hooks", "⚠️ 警告",
-                {"描述": "建议配置pre-commit hooks"})
+            self.report.add_check(
+                "质量检查", "Pre-commit Hooks", "⚠️ 警告", {"描述": "建议配置pre-commit hooks"}
+            )
 
         # 3. 检查Claude Enhancer hooks
         claude_hooks_dir = self.project_root / ".claude" / "hooks"
         if claude_hooks_dir.exists():
             hook_files = list(claude_hooks_dir.glob("*.sh"))
-            self.report.add_check("质量检查", "Claude Hooks", "✅ 通过",
-                {"描述": f"配置了 {len(hook_files)} 个Claude Enhancer hooks"})
+            self.report.add_check(
+                "质量检查",
+                "Claude Hooks",
+                "✅ 通过",
+                {"描述": f"配置了 {len(hook_files)} 个Claude Enhancer hooks"},
+            )
         else:
-            self.report.add_check("质量检查", "Claude Hooks", "⚠️ 警告",
-                {"描述": "未找到Claude Enhancer hooks配置"})
+            self.report.add_check(
+                "质量检查", "Claude Hooks", "⚠️ 警告", {"描述": "未找到Claude Enhancer hooks配置"}
+            )
 
     def verify_security_scanning(self):
         """验证安全扫描"""
@@ -263,7 +288,7 @@ class CICDVerifier:
 
         if workflows_dir.exists():
             for workflow_file in workflows_dir.glob("*.yml"):
-                with open(workflow_file, 'r') as f:
+                with open(workflow_file, "r") as f:
                     content = f.read().lower()
 
                 if "bandit" in content:
@@ -278,52 +303,73 @@ class CICDVerifier:
                     security_tools_found.add("Snyk")
 
         if security_tools_found:
-            self.report.add_check("安全扫描", "静态安全分析", "✅ 通过",
-                {"描述": f"配置了安全扫描工具: {', '.join(security_tools_found)}"})
+            self.report.add_check(
+                "安全扫描",
+                "静态安全分析",
+                "✅ 通过",
+                {"描述": f"配置了安全扫描工具: {', '.join(security_tools_found)}"},
+            )
         else:
-            self.report.add_check("安全扫描", "静态安全分析", "❌ 失败",
-                {"描述": "未配置安全扫描工具"})
+            self.report.add_check("安全扫描", "静态安全分析", "❌ 失败", {"描述": "未配置安全扫描工具"})
 
         # 2. 检查依赖安全
         requirements_path = self.project_root / "requirements.txt"
         if requirements_path.exists():
             # 简单检查是否有版本锁定
-            with open(requirements_path, 'r') as f:
+            with open(requirements_path, "r") as f:
                 content = f.read()
 
-            versioned_deps = len([line for line in content.split('\n')
-                                if '==' in line or '>=' in line])
-            total_deps = len([line for line in content.split('\n')
-                            if line.strip() and not line.startswith('#')])
+            versioned_deps = len(
+                [line for line in content.split("\n") if "==" in line or ">=" in line]
+            )
+            total_deps = len(
+                [
+                    line
+                    for line in content.split("\n")
+                    if line.strip() and not line.startswith("#")
+                ]
+            )
 
             if versioned_deps / max(total_deps, 1) > 0.8:
-                self.report.add_check("安全扫描", "依赖版本锁定", "✅ 通过",
-                    {"描述": f"{versioned_deps}/{total_deps} 个依赖已锁定版本"})
+                self.report.add_check(
+                    "安全扫描",
+                    "依赖版本锁定",
+                    "✅ 通过",
+                    {"描述": f"{versioned_deps}/{total_deps} 个依赖已锁定版本"},
+                )
             else:
-                self.report.add_check("安全扫描", "依赖版本锁定", "⚠️ 警告",
-                    {"描述": "建议锁定更多依赖版本"})
+                self.report.add_check("安全扫描", "依赖版本锁定", "⚠️ 警告", {"描述": "建议锁定更多依赖版本"})
 
         # 3. 检查容器安全配置
         dockerfile_path = self.project_root / "Dockerfile"
         if dockerfile_path.exists():
-            with open(dockerfile_path, 'r') as f:
+            with open(dockerfile_path, "r") as f:
                 content = f.read()
 
             security_checks = {
-                "非root用户": "USER" in content and "root" not in content.split("USER")[-1],
+                "非root用户": "USER" in content
+                and "root" not in content.split("USER")[-1],
                 "只读文件系统": "read_only" in content or "readonly" in content,
-                "安全选项": "security_opt" in content or "no-new-privileges" in content
+                "安全选项": "security_opt" in content or "no-new-privileges" in content,
             }
 
             passed_checks = sum(security_checks.values())
             total_checks = len(security_checks)
 
             if passed_checks >= 2:
-                self.report.add_check("安全扫描", "容器安全", "✅ 通过",
-                    {"描述": f"通过了 {passed_checks}/{total_checks} 项安全检查"})
+                self.report.add_check(
+                    "安全扫描",
+                    "容器安全",
+                    "✅ 通过",
+                    {"描述": f"通过了 {passed_checks}/{total_checks} 项安全检查"},
+                )
             else:
-                self.report.add_check("安全扫描", "容器安全", "⚠️ 警告",
-                    {"描述": f"仅通过了 {passed_checks}/{total_checks} 项安全检查"})
+                self.report.add_check(
+                    "安全扫描",
+                    "容器安全",
+                    "⚠️ 警告",
+                    {"描述": f"仅通过了 {passed_checks}/{total_checks} 项安全检查"},
+                )
 
     def verify_deployment_readiness(self):
         """验证部署准备状态"""
@@ -344,56 +390,63 @@ class CICDVerifier:
                     deployment_strategies.append("Rolling")
 
             if deployment_strategies:
-                self.report.add_check("部署准备", "部署策略", "✅ 通过",
-                    {"描述": f"支持部署策略: {', '.join(deployment_strategies)}"})
+                self.report.add_check(
+                    "部署准备",
+                    "部署策略",
+                    "✅ 通过",
+                    {"描述": f"支持部署策略: {', '.join(deployment_strategies)}"},
+                )
             else:
-                self.report.add_check("部署准备", "部署策略", "⚠️ 警告",
-                    {"描述": "未找到部署策略脚本"})
+                self.report.add_check("部署准备", "部署策略", "⚠️ 警告", {"描述": "未找到部署策略脚本"})
         else:
-            self.report.add_check("部署准备", "部署策略", "❌ 失败",
-                {"描述": "未找到部署脚本目录"})
+            self.report.add_check("部署准备", "部署策略", "❌ 失败", {"描述": "未找到部署脚本目录"})
 
         # 2. 检查环境配置
         env_files = list(self.project_root.glob(".env*"))
         if env_files:
-            self.report.add_check("部署准备", "环境配置", "✅ 通过",
-                {"描述": f"找到 {len(env_files)} 个环境配置文件"})
+            self.report.add_check(
+                "部署准备", "环境配置", "✅ 通过", {"描述": f"找到 {len(env_files)} 个环境配置文件"}
+            )
         else:
-            self.report.add_check("部署准备", "环境配置", "⚠️ 警告",
-                {"描述": "建议提供环境配置示例文件"})
+            self.report.add_check("部署准备", "环境配置", "⚠️ 警告", {"描述": "建议提供环境配置示例文件"})
 
         # 3. 检查生产配置
         prod_configs = [
             self.project_root / "docker-compose.production.yml",
             self.project_root / "deployment" / "docker-compose.prod.yml",
             self.project_root / "k8s",
-            self.project_root / "terraform"
+            self.project_root / "terraform",
         ]
 
         found_prod_configs = [config.name for config in prod_configs if config.exists()]
 
         if found_prod_configs:
-            self.report.add_check("部署准备", "生产配置", "✅ 通过",
-                {"描述": f"配置了生产环境: {', '.join(found_prod_configs)}"})
+            self.report.add_check(
+                "部署准备",
+                "生产配置",
+                "✅ 通过",
+                {"描述": f"配置了生产环境: {', '.join(found_prod_configs)}"},
+            )
         else:
-            self.report.add_check("部署准备", "生产配置", "❌ 失败",
-                {"描述": "未找到生产环境配置"})
+            self.report.add_check("部署准备", "生产配置", "❌ 失败", {"描述": "未找到生产环境配置"})
 
         # 4. 检查监控配置
         monitoring_configs = [
             self.project_root / "monitoring",
             self.project_root / "prometheus.yml",
-            self.project_root / "grafana"
+            self.project_root / "grafana",
         ]
 
-        found_monitoring = [config.name for config in monitoring_configs if config.exists()]
+        found_monitoring = [
+            config.name for config in monitoring_configs if config.exists()
+        ]
 
         if found_monitoring:
-            self.report.add_check("部署准备", "监控配置", "✅ 通过",
-                {"描述": f"配置了监控: {', '.join(found_monitoring)}"})
+            self.report.add_check(
+                "部署准备", "监控配置", "✅ 通过", {"描述": f"配置了监控: {', '.join(found_monitoring)}"}
+            )
         else:
-            self.report.add_check("部署准备", "监控配置", "⚠️ 警告",
-                {"描述": "建议配置监控系统"})
+            self.report.add_check("部署准备", "监控配置", "⚠️ 警告", {"描述": "建议配置监控系统"})
 
     def verify_rollback_mechanism(self):
         """验证回滚机制"""
@@ -405,11 +458,11 @@ class CICDVerifier:
             rollback_scripts.extend(list(self.project_root.rglob(pattern)))
 
         if rollback_scripts:
-            self.report.add_check("回滚机制", "回滚脚本", "✅ 通过",
-                {"描述": f"找到 {len(rollback_scripts)} 个回滚脚本"})
+            self.report.add_check(
+                "回滚机制", "回滚脚本", "✅ 通过", {"描述": f"找到 {len(rollback_scripts)} 个回滚脚本"}
+            )
         else:
-            self.report.add_check("回滚机制", "回滚脚本", "❌ 失败",
-                {"描述": "未找到回滚脚本"})
+            self.report.add_check("回滚机制", "回滚脚本", "❌ 失败", {"描述": "未找到回滚脚本"})
 
         # 2. 检查CI/CD中的回滚配置
         workflows_dir = self.project_root / ".github" / "workflows"
@@ -417,7 +470,7 @@ class CICDVerifier:
 
         if workflows_dir.exists():
             for workflow_file in workflows_dir.glob("*.yml"):
-                with open(workflow_file, 'r') as f:
+                with open(workflow_file, "r") as f:
                     content = f.read().lower()
 
                 if "rollback" in content:
@@ -425,27 +478,23 @@ class CICDVerifier:
                     break
 
         if rollback_in_ci:
-            self.report.add_check("回滚机制", "CI集成", "✅ 通过",
-                {"描述": "CI/CD流程包含回滚配置"})
+            self.report.add_check("回滚机制", "CI集成", "✅ 通过", {"描述": "CI/CD流程包含回滚配置"})
         else:
-            self.report.add_check("回滚机制", "CI集成", "⚠️ 警告",
-                {"描述": "建议在CI/CD中配置自动回滚"})
+            self.report.add_check("回滚机制", "CI集成", "⚠️ 警告", {"描述": "建议在CI/CD中配置自动回滚"})
 
         # 3. 检查数据库迁移回滚
         migration_dirs = [
             self.project_root / "database" / "migrations",
             self.project_root / "migrations",
-            self.project_root / "alembic"
+            self.project_root / "alembic",
         ]
 
         migration_found = any(d.exists() for d in migration_dirs)
 
         if migration_found:
-            self.report.add_check("回滚机制", "数据库迁移", "✅ 通过",
-                {"描述": "配置了数据库迁移管理"})
+            self.report.add_check("回滚机制", "数据库迁移", "✅ 通过", {"描述": "配置了数据库迁移管理"})
         else:
-            self.report.add_check("回滚机制", "数据库迁移", "⚠️ 警告",
-                {"描述": "建议配置数据库迁移管理"})
+            self.report.add_check("回滚机制", "数据库迁移", "⚠️ 警告", {"描述": "建议配置数据库迁移管理"})
 
     def run_comprehensive_verification(self):
         """运行综合验证"""
@@ -478,13 +527,18 @@ class CICDVerifier:
         for category, items in self.report.results.items():
             if isinstance(items, dict):
                 for item, details in items.items():
-                    if isinstance(details, dict) and details.get("状态") in ["❌ 失败", "⚠️ 警告"]:
-                        suggestions.append({
-                            "类别": category,
-                            "项目": item,
-                            "状态": details["状态"],
-                            "建议": details["详情"].get("描述", "需要改进")
-                        })
+                    if isinstance(details, dict) and details.get("状态") in [
+                        "❌ 失败",
+                        "⚠️ 警告",
+                    ]:
+                        suggestions.append(
+                            {
+                                "类别": category,
+                                "项目": item,
+                                "状态": details["状态"],
+                                "建议": details["详情"].get("描述", "需要改进"),
+                            }
+                        )
 
         self.report.results["改进建议"] = suggestions
 
@@ -496,15 +550,16 @@ class CICDVerifier:
 
         report_content = self.report.generate_report()
 
-        with open(filename, 'w', encoding='utf-8') as f:
+        with open(filename, "w", encoding="utf-8") as f:
             f.write(report_content)
 
         logger.info(f"📊 CI/CD验证报告已保存至: {filename}")
         return filename
 
+
 def generate_html_report(json_report_path: str):
     """生成HTML报告"""
-    with open(json_report_path, 'r', encoding='utf-8') as f:
+    with open(json_report_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
     html_content = f"""
@@ -672,7 +727,9 @@ def generate_html_report(json_report_path: str):
 
             for item, details in data[category].items():
                 status = details.get("状态", "N/A")
-                css_class = "pass" if "✅" in status else ("warn" if "⚠️" in status else "fail")
+                css_class = (
+                    "pass" if "✅" in status else ("warn" if "⚠️" in status else "fail")
+                )
 
                 html_content += f"""
                 <div class="check-item">
@@ -715,12 +772,13 @@ def generate_html_report(json_report_path: str):
 </html>
     """
 
-    html_filename = json_report_path.replace('.json', '.html')
-    with open(html_filename, 'w', encoding='utf-8') as f:
+    html_filename = json_report_path.replace(".json", ".html")
+    with open(html_filename, "w", encoding="utf-8") as f:
         f.write(html_content)
 
     logger.info(f"📊 HTML报告已生成: {html_filename}")
     return html_filename
+
 
 def main():
     """主函数"""
@@ -754,6 +812,7 @@ def main():
     else:
         print("\n❌ CI/CD验证失败")
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

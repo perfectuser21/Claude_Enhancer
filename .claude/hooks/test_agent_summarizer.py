@@ -9,7 +9,10 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # 安全导入模块而不是使用exec
 import importlib.util
-spec = importlib.util.spec_from_file_location("summarizer", "agent-output-summarizer.py")
+
+spec = importlib.util.spec_from_file_location(
+    "summarizer", "agent-output-summarizer.py"
+)
 if spec and spec.loader:
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)

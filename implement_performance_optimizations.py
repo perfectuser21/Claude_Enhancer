@@ -51,19 +51,19 @@ class PerformanceOptimizer:
 
         self.backup_file(settings_file)
 
-        with open(settings_file, 'r', encoding='utf-8') as f:
+        with open(settings_file, "r", encoding="utf-8") as f:
             settings = json.load(f)
 
         # 优化超时配置
         optimizations = {
-            'hooks.performance_monitor.timeout': 50,
-            'hooks.error_recovery.timeout': 100,
-            'performance.hook_timeout_ms': 200,
-            'performance.phase_transition_delay': 30,
+            "hooks.performance_monitor.timeout": 50,
+            "hooks.error_recovery.timeout": 100,
+            "performance.hook_timeout_ms": 200,
+            "performance.phase_transition_delay": 30,
         }
 
         for key, value in optimizations.items():
-            keys = key.split('.')
+            keys = key.split(".")
             current = settings
             for k in keys[:-1]:
                 if k not in current:
@@ -72,22 +72,22 @@ class PerformanceOptimizer:
             current[keys[-1]] = value
 
         # 优化工作流阶段超时
-        if 'hooks' in settings and 'workflow_phases' in settings['hooks']:
-            phases = settings['hooks']['workflow_phases']
+        if "hooks" in settings and "workflow_phases" in settings["hooks"]:
+            phases = settings["hooks"]["workflow_phases"]
             timeout_optimizations = {
-                'P1_requirements': {'timeout': 1500},
-                'P2_design': {'timeout': 2000},
-                'P3_implementation': {'timeout': 2500},
-                'P4_testing': {'timeout': 1500},
-                'P5_commit': {'timeout': 1000},
-                'P6_review': {'timeout': 800},
+                "P1_requirements": {"timeout": 1500},
+                "P2_design": {"timeout": 2000},
+                "P3_implementation": {"timeout": 2500},
+                "P4_testing": {"timeout": 1500},
+                "P5_commit": {"timeout": 1000},
+                "P6_review": {"timeout": 800},
             }
 
             for phase, config in timeout_optimizations.items():
                 if phase in phases:
                     phases[phase].update(config)
 
-        with open(settings_file, 'w', encoding='utf-8') as f:
+        with open(settings_file, "w", encoding="utf-8") as f:
             json.dump(settings, f, indent=2, ensure_ascii=False)
 
         self.log_optimization("Hook超时时间已优化 (预计提升20-30%)")
@@ -95,7 +95,9 @@ class PerformanceOptimizer:
     def optimize_cache_configurations(self):
         """优化缓存配置"""
         lazy_engine = self.project_root / ".claude" / "core" / "lazy_engine.py"
-        lazy_orchestrator = self.project_root / ".claude" / "core" / "lazy_orchestrator.py"
+        lazy_orchestrator = (
+            self.project_root / ".claude" / "core" / "lazy_orchestrator.py"
+        )
 
         files_to_optimize = [lazy_engine, lazy_orchestrator]
 
@@ -105,20 +107,20 @@ class PerformanceOptimizer:
 
             self.backup_file(file_path)
 
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 content = f.read()
 
             # 增加LRU缓存大小
             cache_optimizations = [
-                (r'@lru_cache\(maxsize=8\)', '@lru_cache(maxsize=16)'),
-                (r'@lru_cache\(maxsize=16\)', '@lru_cache(maxsize=32)'),
-                (r'@lru_cache\(maxsize=32\)', '@lru_cache(maxsize=64)'),
+                (r"@lru_cache\(maxsize=8\)", "@lru_cache(maxsize=16)"),
+                (r"@lru_cache\(maxsize=16\)", "@lru_cache(maxsize=32)"),
+                (r"@lru_cache\(maxsize=32\)", "@lru_cache(maxsize=64)"),
             ]
 
             for pattern, replacement in cache_optimizations:
                 content = re.sub(pattern, replacement, content)
 
-            with open(file_path, 'w', encoding='utf-8') as f:
+            with open(file_path, "w", encoding="utf-8") as f:
                 f.write(content)
 
         self.log_optimization("缓存配置已优化 (预计提升15-25%)")
@@ -133,22 +135,28 @@ class PerformanceOptimizer:
 
         self.backup_file(async_processor)
 
-        with open(async_processor, 'r', encoding='utf-8') as f:
+        with open(async_processor, "r", encoding="utf-8") as f:
             content = f.read()
 
         # 优化默认配置
         config_optimizations = [
-            (r'max_workers: int = 10', 'max_workers: int = 15'),
-            (r'worker_timeout: float = 300\.0', 'worker_timeout: float = 180.0'),
-            (r'max_queue_size: int = 1000', 'max_queue_size: int = 2000'),
-            (r'health_check_interval: float = 30\.0', 'health_check_interval: float = 15.0'),
-            (r'stats_report_interval: float = 60\.0', 'stats_report_interval: float = 30.0'),
+            (r"max_workers: int = 10", "max_workers: int = 15"),
+            (r"worker_timeout: float = 300\.0", "worker_timeout: float = 180.0"),
+            (r"max_queue_size: int = 1000", "max_queue_size: int = 2000"),
+            (
+                r"health_check_interval: float = 30\.0",
+                "health_check_interval: float = 15.0",
+            ),
+            (
+                r"stats_report_interval: float = 60\.0",
+                "stats_report_interval: float = 30.0",
+            ),
         ]
 
         for pattern, replacement in config_optimizations:
             content = re.sub(pattern, replacement, content)
 
-        with open(async_processor, 'w', encoding='utf-8') as f:
+        with open(async_processor, "w", encoding="utf-8") as f:
             f.write(content)
 
         self.log_optimization("异步处理器配置已优化 (预计提升25-40%)")
@@ -163,33 +171,32 @@ class PerformanceOptimizer:
 
         self.backup_file(dashboard)
 
-        with open(dashboard, 'r', encoding='utf-8') as f:
+        with open(dashboard, "r", encoding="utf-8") as f:
             content = f.read()
 
         # 优化数据收集频率
         dashboard_optimizations = [
-            (r'await asyncio\.sleep\(5\)', 'await asyncio.sleep(3)'),  # 更频繁的指标收集
-            (r'await asyncio\.sleep\(10\)', 'await asyncio.sleep(5)'),  # 更频繁的状态更新
-            (r'await asyncio\.sleep\(2\)', 'await asyncio.sleep(1)'),   # 更频繁的广播
-            (r'await asyncio\.sleep\(300\)', 'await asyncio.sleep(180)'), # 更频繁的清理
+            (r"await asyncio\.sleep\(5\)", "await asyncio.sleep(3)"),  # 更频繁的指标收集
+            (r"await asyncio\.sleep\(10\)", "await asyncio.sleep(5)"),  # 更频繁的状态更新
+            (r"await asyncio\.sleep\(2\)", "await asyncio.sleep(1)"),  # 更频繁的广播
+            (r"await asyncio\.sleep\(300\)", "await asyncio.sleep(180)"),  # 更频繁的清理
         ]
 
         for pattern, replacement in dashboard_optimizations:
             content = re.sub(pattern, replacement, content)
 
         # 增加更多性能指标缓存
-        if 'self.metrics_cache = {}' not in content:
-            cache_code = '''
+        if "self.metrics_cache = {}" not in content:
+            cache_code = """
         # 性能优化: 增加指标缓存
         self.metrics_cache = {}
-        self.cache_ttl = 5  # 5秒缓存TTL'''
+        self.cache_ttl = 5  # 5秒缓存TTL"""
 
             content = content.replace(
-                'self.running = False',
-                f'self.running = False{cache_code}'
+                "self.running = False", f"self.running = False{cache_code}"
             )
 
-        with open(dashboard, 'w', encoding='utf-8') as f:
+        with open(dashboard, "w", encoding="utf-8") as f:
             f.write(content)
 
         self.log_optimization("性能监控仪表板已优化 (预计提升10-20%)")
@@ -197,7 +204,12 @@ class PerformanceOptimizer:
     def optimize_database_connections(self):
         """优化数据库连接配置"""
         db_files = [
-            self.project_root / "backend" / "auth-service" / "app" / "core" / "database.py",
+            self.project_root
+            / "backend"
+            / "auth-service"
+            / "app"
+            / "core"
+            / "database.py",
             self.project_root / "backend" / "db" / "database.py",
             self.project_root / "backend" / "core" / "database_optimizer.py",
         ]
@@ -210,15 +222,15 @@ class PerformanceOptimizer:
 
             self.backup_file(db_file)
 
-            with open(db_file, 'r', encoding='utf-8') as f:
+            with open(db_file, "r", encoding="utf-8") as f:
                 content = f.read()
 
             # 数据库连接池优化
             db_optimizations = [
-                (r'pool_size=5', 'pool_size=20'),
-                (r'max_overflow=10', 'max_overflow=30'),
-                (r'pool_timeout=30', 'pool_timeout=15'),
-                (r'pool_recycle=3600', 'pool_recycle=1800'),
+                (r"pool_size=5", "pool_size=20"),
+                (r"max_overflow=10", "max_overflow=30"),
+                (r"pool_timeout=30", "pool_timeout=15"),
+                (r"pool_recycle=3600", "pool_recycle=1800"),
             ]
 
             for pattern, replacement in db_optimizations:
@@ -227,14 +239,14 @@ class PerformanceOptimizer:
                     optimized_count += 1
 
             # 添加连接池优化配置
-            if 'pool_pre_ping=True' not in content and 'create_engine' in content:
+            if "pool_pre_ping=True" not in content and "create_engine" in content:
                 content = content.replace(
-                    'create_engine(',
-                    'create_engine(\n    pool_pre_ping=True,  # 连接预检查\n    '
+                    "create_engine(",
+                    "create_engine(\n    pool_pre_ping=True,  # 连接预检查\n    ",
                 )
                 optimized_count += 1
 
-            with open(db_file, 'w', encoding='utf-8') as f:
+            with open(db_file, "w", encoding="utf-8") as f:
                 f.write(content)
 
         if optimized_count > 0:
@@ -265,36 +277,38 @@ class PerformanceOptimizer:
 
             self.backup_file(hook_path)
 
-            with open(hook_path, 'r', encoding='utf-8') as f:
+            with open(hook_path, "r", encoding="utf-8") as f:
                 content = f.read()
 
             # Hook性能优化
             hook_optimizations = [
-                (r'MONITOR_TIMEOUT=0\.1', 'MONITOR_TIMEOUT=0.05'),  # 更快的监控
-                (r'RECOVERY_TIMEOUT=0\.2', 'RECOVERY_TIMEOUT=0.1'),  # 更快的恢复
-                (r'OPTIMIZER_TIMEOUT=0\.15', 'OPTIMIZER_TIMEOUT=0.08'),  # 更快的优化
+                (r"MONITOR_TIMEOUT=0\.1", "MONITOR_TIMEOUT=0.05"),  # 更快的监控
+                (r"RECOVERY_TIMEOUT=0\.2", "RECOVERY_TIMEOUT=0.1"),  # 更快的恢复
+                (r"OPTIMIZER_TIMEOUT=0\.15", "OPTIMIZER_TIMEOUT=0.08"),  # 更快的优化
             ]
 
             for pattern, replacement in hook_optimizations:
                 content = re.sub(pattern, replacement, content)
 
-            with open(hook_path, 'w', encoding='utf-8') as f:
+            with open(hook_path, "w", encoding="utf-8") as f:
                 f.write(content)
 
         self.log_optimization("Git Hooks性能已优化 (预计提升20-40%)")
 
     def add_performance_indexes(self):
         """添加性能索引缓存"""
-        lazy_orchestrator = self.project_root / ".claude" / "core" / "lazy_orchestrator.py"
+        lazy_orchestrator = (
+            self.project_root / ".claude" / "core" / "lazy_orchestrator.py"
+        )
 
         if not lazy_orchestrator.exists():
             return
 
-        with open(lazy_orchestrator, 'r', encoding='utf-8') as f:
+        with open(lazy_orchestrator, "r", encoding="utf-8") as f:
             content = f.read()
 
         # 检查是否已经有索引缓存
-        if 'agent_metadata_index' in content:
+        if "agent_metadata_index" in content:
             self.log_optimization("性能索引已存在，跳过添加")
             return
 
@@ -319,18 +333,18 @@ class PerformanceOptimizer:
 
         # 在类定义后添加索引方法
         content = content.replace(
-            'def _init_agent_metadata(self):',
-            f'{index_code}\n\n    def _init_agent_metadata(self):'
+            "def _init_agent_metadata(self):",
+            f"{index_code}\n\n    def _init_agent_metadata(self):",
         )
 
         # 添加functools导入
-        if 'import functools' not in content:
+        if "import functools" not in content:
             content = content.replace(
-                'from functools import lru_cache',
-                'from functools import lru_cache, cached_property\nimport functools'
+                "from functools import lru_cache",
+                "from functools import lru_cache, cached_property\nimport functools",
             )
 
-        with open(lazy_orchestrator, 'w', encoding='utf-8') as f:
+        with open(lazy_orchestrator, "w", encoding="utf-8") as f:
             f.write(content)
 
         self.log_optimization("性能索引已添加 (预计提升10-20%)")
@@ -415,7 +429,7 @@ if __name__ == "__main__":
     monitor.run_continuous_monitoring(duration)
 '''
 
-        with open(monitor_script, 'w', encoding='utf-8') as f:
+        with open(monitor_script, "w", encoding="utf-8") as f:
             f.write(monitor_code)
 
         # 添加执行权限
@@ -544,7 +558,7 @@ if __name__ == "__main__":
     main()
 '''
 
-        with open(validation_script, 'w', encoding='utf-8') as f:
+        with open(validation_script, "w", encoding="utf-8") as f:
             f.write(validation_code)
 
         os.chmod(validation_script, 0o755)
@@ -562,13 +576,13 @@ if __name__ == "__main__":
                 "async_processor": "25-40%",
                 "database_connections": "30-50%",
                 "git_hooks": "20-40%",
-                "performance_indexes": "10-20%"
+                "performance_indexes": "10-20%",
             },
-            "optimization_log": self.optimization_log
+            "optimization_log": self.optimization_log,
         }
 
         summary_file = self.project_root / "OPTIMIZATION_SUMMARY.json"
-        with open(summary_file, 'w', encoding='utf-8') as f:
+        with open(summary_file, "w", encoding="utf-8") as f:
             json.dump(summary, f, indent=2, ensure_ascii=False)
 
         print(f"\n📋 优化总结报告已生成: {summary_file}")

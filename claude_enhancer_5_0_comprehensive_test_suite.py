@@ -28,19 +28,23 @@ from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 import unittest
 from unittest.mock import patch, MagicMock
 
+
 # Test Framework Configuration
 @dataclass
 class TestResult:
     """Test result data structure"""
+
     test_name: str
     status: str  # PASS, FAIL, SKIP
     duration: float
     details: str = ""
     metrics: Dict[str, Any] = field(default_factory=dict)
 
+
 @dataclass
 class TestSuite:
     """Test suite configuration and results"""
+
     name: str
     tests: List[TestResult] = field(default_factory=list)
     start_time: float = 0
@@ -57,6 +61,7 @@ class TestSuite:
         passed = sum(1 for test in self.tests if test.status == "PASS")
         return (passed / len(self.tests)) * 100
 
+
 class ClaudeEnhancer5TestFramework:
     """Advanced testing framework for Claude Enhancer 5.0"""
 
@@ -69,11 +74,11 @@ class ClaudeEnhancer5TestFramework:
         """Enhanced logging with timestamps"""
         timestamp = time.strftime("%H:%M:%S")
         colors = {
-            "INFO": "\033[36m",    # Cyan
-            "PASS": "\033[32m",    # Green
-            "FAIL": "\033[31m",    # Red
-            "WARN": "\033[33m",    # Yellow
-            "SKIP": "\033[37m"     # White
+            "INFO": "\033[36m",  # Cyan
+            "PASS": "\033[32m",  # Green
+            "FAIL": "\033[31m",  # Red
+            "WARN": "\033[33m",  # Yellow
+            "SKIP": "\033[37m",  # White
         }
         color = colors.get(level, "\033[0m")
         print(f"{color}[{timestamp}] {level}: {message}\033[0m")
@@ -87,7 +92,7 @@ class ClaudeEnhancer5TestFramework:
                 capture_output=True,
                 text=True,
                 timeout=timeout,
-                cwd=self.project_root
+                cwd=self.project_root,
             )
             return process.returncode, process.stdout, process.stderr
         except subprocess.TimeoutExpired:
@@ -107,12 +112,7 @@ class ClaudeEnhancer5TestFramework:
         start = time.time()
 
         # Critical directories to check
-        critical_dirs = [
-            ".claude/hooks",
-            ".claude/scripts",
-            "src/workflow",
-            "backend"
-        ]
+        critical_dirs = [".claude/hooks", ".claude/scripts", "src/workflow", "backend"]
 
         eval_found = []
         for dir_path in critical_dirs:
@@ -123,12 +123,15 @@ class ClaudeEnhancer5TestFramework:
                     f'grep -r "eval" {full_path} --include="*.sh" || true'
                 )
                 if stdout.strip() and not stdout.startswith("Binary file"):
-                    eval_found.extend(stdout.strip().split('\n'))
+                    eval_found.extend(stdout.strip().split("\n"))
 
         # Filter out backup directories and test files
         filtered_eval = [
-            line for line in eval_found
-            if not any(skip in line for skip in ['.backup/', 'test_', 'migrate_docs.sh'])
+            line
+            for line in eval_found
+            if not any(
+                skip in line for skip in [".backup/", "test_", "migrate_docs.sh"]
+            )
         ]
 
         if filtered_eval:
@@ -152,12 +155,17 @@ class ClaudeEnhancer5TestFramework:
         if stdout.strip():
             # Filter allowed eval usage (like in test files or comments)
             dangerous_eval = [
-                line for line in stdout.strip().split('\n')
-                if not any(safe in line for safe in ['# Test', '"""', "'''", 'eval removal'])
+                line
+                for line in stdout.strip().split("\n")
+                if not any(
+                    safe in line for safe in ["# Test", '"""', "'''", "eval removal"]
+                )
             ]
             if dangerous_eval:
                 test.status = "FAIL"
-                test.details = f"Dangerous eval usage found: {len(dangerous_eval)} instances"
+                test.details = (
+                    f"Dangerous eval usage found: {len(dangerous_eval)} instances"
+                )
             else:
                 test.status = "PASS"
                 test.details = "Only safe eval usage found"
@@ -188,8 +196,9 @@ class ClaudeEnhancer5TestFramework:
 
             # Count non-comment, non-empty lines
             deps = [
-                line.strip() for line in requirements.split('\n')
-                if line.strip() and not line.strip().startswith('#')
+                line.strip()
+                for line in requirements.split("\n")
+                if line.strip() and not line.strip().startswith("#")
             ]
 
             test.metrics["python_deps_count"] = len(deps)
@@ -330,6 +339,7 @@ class ClaudeEnhancer5TestFramework:
         # Simulate memory efficient operations
         try:
             import psutil
+
             process = psutil.Process()
             memory_before = process.memory_info().rss / 1024 / 1024  # MB
 
@@ -382,8 +392,12 @@ class ClaudeEnhancer5TestFramework:
 
             # Verify critical settings
             required_keys = [
-                "version", "project", "hooks", "workflow_phases",
-                "performance", "workflow_config"
+                "version",
+                "project",
+                "hooks",
+                "workflow_phases",
+                "performance",
+                "workflow_config",
             ]
 
             missing_keys = [key for key in required_keys if key not in settings]
@@ -394,8 +408,12 @@ class ClaudeEnhancer5TestFramework:
             else:
                 test.status = "PASS"
                 test.details = "All critical settings present"
-                test.metrics["workflow_phases"] = len(settings.get("workflow_phases", {}))
-                test.metrics["hook_count"] = len(settings.get("hooks", {}).get("PreToolUse", []))
+                test.metrics["workflow_phases"] = len(
+                    settings.get("workflow_phases", {})
+                )
+                test.metrics["hook_count"] = len(
+                    settings.get("hooks", {}).get("PreToolUse", [])
+                )
 
         except Exception as e:
             test.status = "FAIL"
@@ -485,7 +503,9 @@ class ClaudeEnhancer5TestFramework:
                 hooks = settings.get("hooks", {}).get(hook_type, [])
                 for hook in hooks:
                     if hook.get("blocking", True):  # Default to True if not specified
-                        blocking_hooks.append(f"{hook_type}:{hook.get('description', 'unknown')}")
+                        blocking_hooks.append(
+                            f"{hook_type}:{hook.get('description', 'unknown')}"
+                        )
 
             if blocking_hooks:
                 test.status = "FAIL"
@@ -523,13 +543,17 @@ class ClaudeEnhancer5TestFramework:
                 for hook in hooks:
                     timeout = hook.get("timeout", 0)
                     if timeout > 5000:  # More than 5 seconds
-                        long_timeout_hooks.append(f"{hook.get('description', 'unknown')}:{timeout}ms")
+                        long_timeout_hooks.append(
+                            f"{hook.get('description', 'unknown')}:{timeout}ms"
+                        )
 
             test.metrics["long_timeout_hooks"] = len(long_timeout_hooks)
 
             if long_timeout_hooks:
                 test.status = "WARN"
-                test.details = f"Found {len(long_timeout_hooks)} hooks with long timeouts"
+                test.details = (
+                    f"Found {len(long_timeout_hooks)} hooks with long timeouts"
+                )
             else:
                 test.status = "PASS"
                 test.details = "All hooks have reasonable timeouts"
@@ -562,12 +586,14 @@ class ClaudeEnhancer5TestFramework:
             hook_start = time.time()
             result = simulate_hook_execution(timeout)
             hook_duration = (time.time() - hook_start) * 1000
-            hook_results.append({
-                "timeout": timeout,
-                "duration": hook_duration,
-                "success": result,
-                "within_timeout": hook_duration < timeout
-            })
+            hook_results.append(
+                {
+                    "timeout": timeout,
+                    "duration": hook_duration,
+                    "success": result,
+                    "within_timeout": hook_duration < timeout,
+                }
+            )
 
         successful_hooks = sum(1 for r in hook_results if r["success"])
         within_timeout = sum(1 for r in hook_results if r["within_timeout"])
@@ -575,7 +601,9 @@ class ClaudeEnhancer5TestFramework:
         test.metrics["hook_simulation_results"] = hook_results
         test.metrics["success_rate"] = successful_hooks / len(hook_results)
 
-        if successful_hooks == len(hook_results) and within_timeout == len(hook_results):
+        if successful_hooks == len(hook_results) and within_timeout == len(
+            hook_results
+        ):
             test.status = "PASS"
             test.details = f"All {len(hook_results)} hook simulations successful"
         else:
@@ -604,13 +632,15 @@ class ClaudeEnhancer5TestFramework:
             with open(settings_path, "r") as f:
                 settings = json.load(f)
 
-            agent_strategies = settings.get("workflow_config", {}).get("agent_strategies", {})
+            agent_strategies = settings.get("workflow_config", {}).get(
+                "agent_strategies", {}
+            )
 
             # Expected strategies: simple (4), standard (6), complex (8)
             expected_strategies = {
                 "simple_task": 4,
                 "standard_task": 6,
-                "complex_task": 8
+                "complex_task": 8,
             }
 
             strategy_errors = []
@@ -620,7 +650,9 @@ class ClaudeEnhancer5TestFramework:
                 else:
                     actual_count = agent_strategies[strategy].get("agent_count", 0)
                     if actual_count != expected_count:
-                        strategy_errors.append(f"{strategy}: expected {expected_count}, got {actual_count}")
+                        strategy_errors.append(
+                            f"{strategy}: expected {expected_count}, got {actual_count}"
+                        )
 
             if strategy_errors:
                 test.status = "FAIL"
@@ -654,10 +686,9 @@ class ClaudeEnhancer5TestFramework:
                 if category_dir.is_dir():
                     agent_files = list(category_dir.glob("*.md"))
                     agent_count += len(agent_files)
-                    agent_categories.append({
-                        "category": category_dir.name,
-                        "count": len(agent_files)
-                    })
+                    agent_categories.append(
+                        {"category": category_dir.name, "count": len(agent_files)}
+                    )
 
             test.metrics["total_agents"] = agent_count
             test.metrics["agent_categories"] = agent_categories
@@ -683,7 +714,7 @@ class ClaudeEnhancer5TestFramework:
             return {
                 "agent_id": agent_id,
                 "duration": time.time() - work_start,
-                "result": f"Agent {agent_id} completed work"
+                "result": f"Agent {agent_id} completed work",
             }
 
         # Test parallel execution of different agent counts
@@ -705,20 +736,22 @@ class ClaudeEnhancer5TestFramework:
             execution_results[f"{agent_count}_agents"] = {
                 "total_duration": parallel_duration,
                 "agent_results": len(results),
-                "parallel_efficiency": parallel_duration < (0.05 * agent_count * 0.5)  # Better than 50% sequential
+                "parallel_efficiency": parallel_duration
+                < (0.05 * agent_count * 0.5),  # Better than 50% sequential
             }
 
         test.metrics["execution_results"] = execution_results
 
         # Check if parallel execution is working
         all_efficient = all(
-            result["parallel_efficiency"]
-            for result in execution_results.values()
+            result["parallel_efficiency"] for result in execution_results.values()
         )
 
         if all_efficient:
             test.status = "PASS"
-            test.details = "Parallel execution simulation successful for all agent counts"
+            test.details = (
+                "Parallel execution simulation successful for all agent counts"
+            )
         else:
             test.status = "WARN"
             test.details = "Parallel execution may not be optimal"
@@ -740,7 +773,7 @@ class ClaudeEnhancer5TestFramework:
             self.test_performance_improvements(),
             self.test_workflow_system(),
             self.test_hook_system_nonblocking(),
-            self.test_agent_parallel_execution()
+            self.test_agent_parallel_execution(),
         ]
 
         self.test_results = test_suites
@@ -769,10 +802,12 @@ class ClaudeEnhancer5TestFramework:
                 "passed": total_passed,
                 "failed": total_failed,
                 "skipped": total_skipped,
-                "pass_rate": (total_passed / total_tests * 100) if total_tests > 0 else 0,
-                "total_duration_seconds": overall_duration
+                "pass_rate": (total_passed / total_tests * 100)
+                if total_tests > 0
+                else 0,
+                "total_duration_seconds": overall_duration,
             },
-            "test_suites": []
+            "test_suites": [],
         }
 
         for suite in test_suites:
@@ -781,17 +816,19 @@ class ClaudeEnhancer5TestFramework:
                 "duration": suite.duration,
                 "pass_rate": suite.pass_rate,
                 "test_count": len(suite.tests),
-                "tests": []
+                "tests": [],
             }
 
             for test in suite.tests:
-                suite_data["tests"].append({
-                    "name": test.test_name,
-                    "status": test.status,
-                    "duration": test.duration,
-                    "details": test.details,
-                    "metrics": test.metrics
-                })
+                suite_data["tests"].append(
+                    {
+                        "name": test.test_name,
+                        "status": test.status,
+                        "duration": test.duration,
+                        "details": test.details,
+                        "metrics": test.metrics,
+                    }
+                )
 
             report["test_suites"].append(suite_data)
 
@@ -821,12 +858,21 @@ class ClaudeEnhancer5TestFramework:
         for suite_data in report["test_suites"]:
             lines.append(f"🧪 {suite_data['name'].upper()}")
             lines.append("-" * 40)
-            lines.append(f"Tests: {suite_data['test_count']} | Pass Rate: {suite_data['pass_rate']:.1f}% | Duration: {suite_data['duration']:.2f}s")
+            lines.append(
+                f"Tests: {suite_data['test_count']} | Pass Rate: {suite_data['pass_rate']:.1f}% | Duration: {suite_data['duration']:.2f}s"
+            )
             lines.append("")
 
             for test in suite_data["tests"]:
-                status_icon = {"PASS": "✅", "FAIL": "❌", "SKIP": "⏭️", "WARN": "⚠️"}.get(test["status"], "❓")
-                lines.append(f"  {status_icon} {test['name']} ({test['duration']:.3f}s)")
+                status_icon = {
+                    "PASS": "✅",
+                    "FAIL": "❌",
+                    "SKIP": "⏭️",
+                    "WARN": "⚠️",
+                }.get(test["status"], "❓")
+                lines.append(
+                    f"  {status_icon} {test['name']} ({test['duration']:.3f}s)"
+                )
                 lines.append(f"     {test['details']}")
 
                 if test.get("metrics"):
@@ -842,33 +888,51 @@ class ClaudeEnhancer5TestFramework:
         lines.append("-" * 40)
 
         # Security findings
-        security_suite = next((s for s in report["test_suites"] if "Security" in s["name"]), None)
+        security_suite = next(
+            (s for s in report["test_suites"] if "Security" in s["name"]), None
+        )
         if security_suite:
-            failed_security = [t for t in security_suite["tests"] if t["status"] == "FAIL"]
+            failed_security = [
+                t for t in security_suite["tests"] if t["status"] == "FAIL"
+            ]
             if failed_security:
-                lines.append(f"🔒 SECURITY: {len(failed_security)} issues found - immediate attention needed")
+                lines.append(
+                    f"🔒 SECURITY: {len(failed_security)} issues found - immediate attention needed"
+                )
             else:
                 lines.append("🔒 SECURITY: All eval security fixes verified ✅")
 
         # Dependencies findings
-        deps_suite = next((s for s in report["test_suites"] if "Dependencies" in s["name"]), None)
+        deps_suite = next(
+            (s for s in report["test_suites"] if "Dependencies" in s["name"]), None
+        )
         if deps_suite:
-            lines.append("📦 DEPENDENCIES: Optimization successful - 23 core Python dependencies ✅")
+            lines.append(
+                "📦 DEPENDENCIES: Optimization successful - 23 core Python dependencies ✅"
+            )
 
         # Performance findings
-        perf_suite = next((s for s in report["test_suites"] if "Performance" in s["name"]), None)
+        perf_suite = next(
+            (s for s in report["test_suites"] if "Performance" in s["name"]), None
+        )
         if perf_suite:
             perf_tests = [t for t in perf_suite["tests"] if t["status"] == "PASS"]
-            lines.append(f"⚡ PERFORMANCE: {len(perf_tests)}/{len(perf_suite['tests'])} metrics optimal")
+            lines.append(
+                f"⚡ PERFORMANCE: {len(perf_tests)}/{len(perf_suite['tests'])} metrics optimal"
+            )
 
         # Workflow findings
-        workflow_suite = next((s for s in report["test_suites"] if "Workflow" in s["name"]), None)
+        workflow_suite = next(
+            (s for s in report["test_suites"] if "Workflow" in s["name"]), None
+        )
         if workflow_suite:
             workflow_pass = workflow_suite["pass_rate"]
             lines.append(f"🔄 WORKFLOW: System integrity at {workflow_pass:.0f}%")
 
         # Hooks findings
-        hooks_suite = next((s for s in report["test_suites"] if "Hooks" in s["name"]), None)
+        hooks_suite = next(
+            (s for s in report["test_suites"] if "Hooks" in s["name"]), None
+        )
         if hooks_suite:
             if hooks_suite["pass_rate"] > 90:
                 lines.append("🪝 HOOKS: Non-blocking configuration verified ✅")
@@ -876,19 +940,28 @@ class ClaudeEnhancer5TestFramework:
                 lines.append("🪝 HOOKS: Configuration needs attention ⚠️")
 
         # Agent findings
-        agents_suite = next((s for s in report["test_suites"] if "Agents" in s["name"]), None)
+        agents_suite = next(
+            (s for s in report["test_suites"] if "Agents" in s["name"]), None
+        )
         if agents_suite:
             agent_metrics = next(
-                (t.get("metrics", {}) for t in agents_suite["tests"] if "agent_files" in t["name"]),
-                {}
+                (
+                    t.get("metrics", {})
+                    for t in agents_suite["tests"]
+                    if "agent_files" in t["name"]
+                ),
+                {},
             )
             agent_count = agent_metrics.get("total_agents", 0)
-            lines.append(f"🤖 AGENTS: {agent_count} agents available for 4-6-8 parallel execution")
+            lines.append(
+                f"🤖 AGENTS: {agent_count} agents available for 4-6-8 parallel execution"
+            )
 
         lines.append("")
         lines.append("=" * 80)
 
         return "\n".join(lines)
+
 
 def main():
     """Main test execution"""
@@ -907,12 +980,16 @@ def main():
         print(formatted_report)
 
         # Save report to file
-        report_file = Path("/home/xx/dev/Claude Enhancer 5.0/CLAUDE_ENHANCER_5.0_TEST_REPORT.md")
+        report_file = Path(
+            "/home/xx/dev/Claude Enhancer 5.0/CLAUDE_ENHANCER_5.0_TEST_REPORT.md"
+        )
         with open(report_file, "w") as f:
             f.write(formatted_report)
 
         # Save detailed JSON report
-        json_report_file = Path("/home/xx/dev/Claude Enhancer 5.0/CLAUDE_ENHANCER_5.0_TEST_REPORT.json")
+        json_report_file = Path(
+            "/home/xx/dev/Claude Enhancer 5.0/CLAUDE_ENHANCER_5.0_TEST_REPORT.json"
+        )
         with open(json_report_file, "w") as f:
             json.dump(report, f, indent=2)
 
@@ -932,6 +1009,7 @@ def main():
     except Exception as e:
         test_framework.log("FAIL", f"Test suite execution failed: {e}")
         return 2
+
 
 if __name__ == "__main__":
     exit_code = main()

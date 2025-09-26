@@ -32,12 +32,16 @@ import signal
 import resource
 
 # 配置日志
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
+
 
 @dataclass
 class StressTestResult:
     """压力测试结果"""
+
     test_name: str
     duration_minutes: float
     total_operations: int
@@ -55,6 +59,7 @@ class StressTestResult:
     warnings: List[str] = field(default_factory=list)
     memory_growth_mb: float = 0.0
     cpu_variance_percent: float = 0.0
+
 
 class SystemMonitor:
     """系统资源监控器"""
@@ -74,13 +79,15 @@ class SystemMonitor:
             while self.monitoring:
                 try:
                     sample = {
-                        'timestamp': time.time(),
-                        'cpu_percent': self.process.cpu_percent(),
-                        'memory_mb': self.process.memory_info().rss / 1024 / 1024,
-                        'threads': self.process.num_threads(),
-                        'fds': self.process.num_fds() if hasattr(self.process, 'num_fds') else 0,
-                        'system_cpu': psutil.cpu_percent(),
-                        'system_memory': psutil.virtual_memory().percent
+                        "timestamp": time.time(),
+                        "cpu_percent": self.process.cpu_percent(),
+                        "memory_mb": self.process.memory_info().rss / 1024 / 1024,
+                        "threads": self.process.num_threads(),
+                        "fds": self.process.num_fds()
+                        if hasattr(self.process, "num_fds")
+                        else 0,
+                        "system_cpu": psutil.cpu_percent(),
+                        "system_memory": psutil.virtual_memory().percent,
                     }
                     self.samples.append(sample)
                 except Exception as e:
@@ -95,7 +102,7 @@ class SystemMonitor:
     def stop_monitoring(self) -> Dict[str, Any]:
         """停止监控并返回统计数据"""
         self.monitoring = False
-        if hasattr(self, 'monitor_thread'):
+        if hasattr(self, "monitor_thread"):
             self.monitor_thread.join(timeout=2)
 
         if not self.samples:
@@ -103,20 +110,26 @@ class SystemMonitor:
 
         # 计算统计数据
         stats = {
-            'duration': time.time() - self.start_time,
-            'sample_count': len(self.samples),
-            'peak_memory_mb': max(s['memory_mb'] for s in self.samples),
-            'avg_memory_mb': statistics.mean(s['memory_mb'] for s in self.samples),
-            'peak_cpu_percent': max(s['cpu_percent'] for s in self.samples),
-            'avg_cpu_percent': statistics.mean(s['cpu_percent'] for s in self.samples),
-            'peak_threads': max(s['threads'] for s in self.samples),
-            'peak_fds': max(s['fds'] for s in self.samples),
-            'memory_growth_mb': max(s['memory_mb'] for s in self.samples) - min(s['memory_mb'] for s in self.samples),
-            'cpu_variance': statistics.variance([s['cpu_percent'] for s in self.samples]) if len(self.samples) > 1 else 0
+            "duration": time.time() - self.start_time,
+            "sample_count": len(self.samples),
+            "peak_memory_mb": max(s["memory_mb"] for s in self.samples),
+            "avg_memory_mb": statistics.mean(s["memory_mb"] for s in self.samples),
+            "peak_cpu_percent": max(s["cpu_percent"] for s in self.samples),
+            "avg_cpu_percent": statistics.mean(s["cpu_percent"] for s in self.samples),
+            "peak_threads": max(s["threads"] for s in self.samples),
+            "peak_fds": max(s["fds"] for s in self.samples),
+            "memory_growth_mb": max(s["memory_mb"] for s in self.samples)
+            - min(s["memory_mb"] for s in self.samples),
+            "cpu_variance": statistics.variance(
+                [s["cpu_percent"] for s in self.samples]
+            )
+            if len(self.samples) > 1
+            else 0,
         }
 
         logger.info("📊 系统监控已停止")
         return stats
+
 
 class StressTestSuite:
     """压力测试套件"""
@@ -166,7 +179,9 @@ class StressTestSuite:
             self.lazy_engine_class = None
             self.lazy_orchestrator_class = None
 
-    def concurrent_load_test(self, duration_minutes: float = 10, max_workers: int = 50) -> StressTestResult:
+    def concurrent_load_test(
+        self, duration_minutes: float = 10, max_workers: int = 50
+    ) -> StressTestResult:
         """并发负载压力测试"""
         logger.info(f"🔥 开始并发负载测试: {duration_minutes}分钟, {max_workers}并发")
 
@@ -176,7 +191,7 @@ class StressTestSuite:
         # 启动监控
         self.monitor.start_monitoring()
 
-        operations_counter = {'total': 0, 'success': 0, 'failed': 0}
+        operations_counter = {"total": 0, "success": 0, "failed": 0}
         operations_lock = threading.Lock()
         errors = []
 
@@ -201,7 +216,7 @@ class StressTestSuite:
 
                             if local_ops % 5 == 0:
                                 phase_result = engine.execute_phase(local_ops % 4)
-                                if not phase_result.get('success', False):
+                                if not phase_result.get("success", False):
                                     raise Exception("Phase execution failed")
                         else:
                             # 模拟操作
@@ -221,9 +236,11 @@ class StressTestSuite:
                     # 每100次操作更新全局计数
                     if local_ops % 100 == 0:
                         with operations_lock:
-                            operations_counter['total'] += 100
-                            operations_counter['success'] += min(100, local_successes)
-                            operations_counter['failed'] += max(0, 100 - local_successes)
+                            operations_counter["total"] += 100
+                            operations_counter["success"] += min(100, local_successes)
+                            operations_counter["failed"] += max(
+                                0, 100 - local_successes
+                            )
                             if local_errors:
                                 errors.extend(local_errors[-5:])  # 只保留最近5个错误
                         local_successes = 0
@@ -233,9 +250,13 @@ class StressTestSuite:
                 with operations_lock:
                     remaining_ops = local_ops % 100
                     if remaining_ops > 0:
-                        operations_counter['total'] += remaining_ops
-                        operations_counter['success'] += min(remaining_ops, local_successes)
-                        operations_counter['failed'] += max(0, remaining_ops - local_successes)
+                        operations_counter["total"] += remaining_ops
+                        operations_counter["success"] += min(
+                            remaining_ops, local_successes
+                        )
+                        operations_counter["failed"] += max(
+                            0, remaining_ops - local_successes
+                        )
 
             except Exception as e:
                 logger.error(f"Worker {worker_id} 崩溃: {e}")
@@ -258,9 +279,9 @@ class StressTestSuite:
         monitor_stats = self.monitor.stop_monitoring()
 
         actual_duration = time.time() - start_time
-        total_ops = operations_counter['total']
-        success_ops = operations_counter['success']
-        failed_ops = operations_counter['failed']
+        total_ops = operations_counter["total"]
+        success_ops = operations_counter["success"]
+        failed_ops = operations_counter["failed"]
 
         # 计算指标
         ops_per_second = total_ops / actual_duration if actual_duration > 0 else 0
@@ -274,19 +295,21 @@ class StressTestSuite:
             successful_operations=success_ops,
             failed_operations=failed_ops,
             operations_per_second=ops_per_second,
-            peak_memory_mb=monitor_stats.get('peak_memory_mb', 0),
-            peak_cpu_percent=monitor_stats.get('peak_cpu_percent', 0),
-            peak_threads=monitor_stats.get('peak_threads', 0),
-            peak_file_descriptors=monitor_stats.get('peak_fds', 0),
+            peak_memory_mb=monitor_stats.get("peak_memory_mb", 0),
+            peak_cpu_percent=monitor_stats.get("peak_cpu_percent", 0),
+            peak_threads=monitor_stats.get("peak_threads", 0),
+            peak_file_descriptors=monitor_stats.get("peak_fds", 0),
             error_rate_percent=error_rate,
             recovery_time_ms=0,  # 此测试不涉及恢复时间
             stability_score=stability_score,
             errors=errors[-20:],  # 保留最近20个错误
-            memory_growth_mb=monitor_stats.get('memory_growth_mb', 0),
-            cpu_variance_percent=monitor_stats.get('cpu_variance', 0)
+            memory_growth_mb=monitor_stats.get("memory_growth_mb", 0),
+            cpu_variance_percent=monitor_stats.get("cpu_variance", 0),
         )
 
-        logger.info(f"✅ 并发负载测试完成: {ops_per_second:.1f} ops/sec, 稳定性: {stability_score:.1f}%")
+        logger.info(
+            f"✅ 并发负载测试完成: {ops_per_second:.1f} ops/sec, 稳定性: {stability_score:.1f}%"
+        )
         return result
 
     def memory_leak_test(self, duration_minutes: float = 30) -> StressTestResult:
@@ -321,7 +344,9 @@ class StressTestSuite:
 
                         # 执行一些操作
                         for i, orchestrator in enumerate(components[::2]):
-                            result = orchestrator.select_agents_fast(f"memory_test_{operations}_{i}")
+                            result = orchestrator.select_agents_fast(
+                                f"memory_test_{operations}_{i}"
+                            )
 
                         # 清理引用
                         components.clear()
@@ -330,11 +355,16 @@ class StressTestSuite:
                         # 模拟内存密集操作
                         data = []
                         for _ in range(1000):
-                            data.append({
-                                'id': operations,
-                                'data': [i for i in range(100)],
-                                'metadata': {'timestamp': time.time(), 'iteration': operations}
-                            })
+                            data.append(
+                                {
+                                    "id": operations,
+                                    "data": [i for i in range(100)],
+                                    "metadata": {
+                                        "timestamp": time.time(),
+                                        "iteration": operations,
+                                    },
+                                }
+                            )
                         data.clear()
 
                     successes += 1
@@ -370,7 +400,7 @@ class StressTestSuite:
         error_rate = (len(errors) / operations * 100) if operations > 0 else 0
 
         # 评估内存泄漏严重程度
-        memory_growth = monitor_stats.get('memory_growth_mb', 0)
+        memory_growth = monitor_stats.get("memory_growth_mb", 0)
         stability_score = 100 - min(memory_growth / 10, 50)  # 内存增长越多，稳定性越低
 
         result = StressTestResult(
@@ -380,18 +410,20 @@ class StressTestSuite:
             successful_operations=successes,
             failed_operations=len(errors),
             operations_per_second=ops_per_second,
-            peak_memory_mb=monitor_stats.get('peak_memory_mb', 0),
-            peak_cpu_percent=monitor_stats.get('peak_cpu_percent', 0),
-            peak_threads=monitor_stats.get('peak_threads', 0),
-            peak_file_descriptors=monitor_stats.get('peak_fds', 0),
+            peak_memory_mb=monitor_stats.get("peak_memory_mb", 0),
+            peak_cpu_percent=monitor_stats.get("peak_cpu_percent", 0),
+            peak_threads=monitor_stats.get("peak_threads", 0),
+            peak_file_descriptors=monitor_stats.get("peak_fds", 0),
             error_rate_percent=error_rate,
             recovery_time_ms=0,
             stability_score=stability_score,
             errors=errors[-10:],
-            memory_growth_mb=memory_growth
+            memory_growth_mb=memory_growth,
         )
 
-        logger.info(f"✅ 内存泄漏检测完成: 内存增长 {memory_growth:.1f}MB, 稳定性: {stability_score:.1f}%")
+        logger.info(
+            f"✅ 内存泄漏检测完成: 内存增长 {memory_growth:.1f}MB, 稳定性: {stability_score:.1f}%"
+        )
         return result
 
     def fault_tolerance_test(self, duration_minutes: float = 15) -> StressTestResult:
@@ -415,7 +447,7 @@ class StressTestSuite:
             "resource_exhaustion",
             "invalid_input",
             "component_failure",
-            "network_error"
+            "network_error",
         ]
 
         try:
@@ -432,7 +464,10 @@ class StressTestSuite:
                         # 模拟不同类型的故障
                         if fault_type == "timeout_simulation":
                             # 模拟超时情况
-                            result = orchestrator.select_agents_fast("timeout_test_task", required_agents=["nonexistent_agent"])
+                            result = orchestrator.select_agents_fast(
+                                "timeout_test_task",
+                                required_agents=["nonexistent_agent"],
+                            )
 
                         elif fault_type == "resource_exhaustion":
                             # 模拟资源耗尽
@@ -509,21 +544,25 @@ class StressTestSuite:
             successful_operations=successes,
             failed_operations=failures,
             operations_per_second=ops_per_second,
-            peak_memory_mb=monitor_stats.get('peak_memory_mb', 0),
-            peak_cpu_percent=monitor_stats.get('peak_cpu_percent', 0),
-            peak_threads=monitor_stats.get('peak_threads', 0),
-            peak_file_descriptors=monitor_stats.get('peak_fds', 0),
+            peak_memory_mb=monitor_stats.get("peak_memory_mb", 0),
+            peak_cpu_percent=monitor_stats.get("peak_cpu_percent", 0),
+            peak_threads=monitor_stats.get("peak_threads", 0),
+            peak_file_descriptors=monitor_stats.get("peak_fds", 0),
             error_rate_percent=error_rate,
             recovery_time_ms=avg_recovery_time,
             stability_score=stability_score,
             errors=errors[-15:],
-            memory_growth_mb=monitor_stats.get('memory_growth_mb', 0)
+            memory_growth_mb=monitor_stats.get("memory_growth_mb", 0),
         )
 
-        logger.info(f"✅ 故障容错测试完成: 恢复时间 {avg_recovery_time:.1f}ms, 稳定性: {stability_score:.1f}%")
+        logger.info(
+            f"✅ 故障容错测试完成: 恢复时间 {avg_recovery_time:.1f}ms, 稳定性: {stability_score:.1f}%"
+        )
         return result
 
-    def resource_exhaustion_test(self, duration_minutes: float = 20) -> StressTestResult:
+    def resource_exhaustion_test(
+        self, duration_minutes: float = 20
+    ) -> StressTestResult:
         """资源耗尽边界测试"""
         logger.info(f"⚡ 开始资源耗尽测试: {duration_minutes}分钟")
 
@@ -566,14 +605,16 @@ class StressTestSuite:
                             components.extend([orchestrator, engine])
 
                         # 执行批量操作
-                        with ThreadPoolExecutor(max_workers=min(current_load, 20)) as executor:
+                        with ThreadPoolExecutor(
+                            max_workers=min(current_load, 20)
+                        ) as executor:
                             futures = []
                             for i in range(current_load):
                                 if i < len(components) // 2:
                                     orchestrator = components[i * 2]
                                     future = executor.submit(
                                         orchestrator.select_agents_fast,
-                                        f"load_test_{operations}_{i}"
+                                        f"load_test_{operations}_{i}",
                                     )
                                     futures.append(future)
 
@@ -646,16 +687,16 @@ class StressTestSuite:
             successful_operations=successes,
             failed_operations=failures,
             operations_per_second=ops_per_second,
-            peak_memory_mb=monitor_stats.get('peak_memory_mb', 0),
-            peak_cpu_percent=monitor_stats.get('peak_cpu_percent', 0),
-            peak_threads=monitor_stats.get('peak_threads', 0),
-            peak_file_descriptors=monitor_stats.get('peak_fds', 0),
+            peak_memory_mb=monitor_stats.get("peak_memory_mb", 0),
+            peak_cpu_percent=monitor_stats.get("peak_cpu_percent", 0),
+            peak_threads=monitor_stats.get("peak_threads", 0),
+            peak_file_descriptors=monitor_stats.get("peak_fds", 0),
             error_rate_percent=error_rate,
             recovery_time_ms=0,
             stability_score=stability_score,
             errors=errors[-10:],
-            memory_growth_mb=monitor_stats.get('memory_growth_mb', 0),
-            cpu_variance_percent=monitor_stats.get('cpu_variance', 0)
+            memory_growth_mb=monitor_stats.get("memory_growth_mb", 0),
+            cpu_variance_percent=monitor_stats.get("cpu_variance", 0),
         )
 
         logger.info(f"✅ 资源耗尽测试完成: 峰值负载 {current_load}, 稳定性: {stability_score:.1f}%")
@@ -669,16 +710,16 @@ class StressTestSuite:
             logger.info("⚡ 快速模式: 缩短测试时间")
             test_configs = [
                 ("concurrent_load_test", 3, 20),  # 3分钟, 20并发
-                ("memory_leak_test", 5),          # 5分钟
-                ("fault_tolerance_test", 3),      # 3分钟
+                ("memory_leak_test", 5),  # 5分钟
+                ("fault_tolerance_test", 3),  # 3分钟
                 ("resource_exhaustion_test", 5),  # 5分钟
             ]
         else:
             logger.info("🎯 标准模式: 完整压力测试")
             test_configs = [
                 ("concurrent_load_test", 10, 50),  # 10分钟, 50并发
-                ("memory_leak_test", 30),          # 30分钟
-                ("fault_tolerance_test", 15),      # 15分钟
+                ("memory_leak_test", 30),  # 30分钟
+                ("fault_tolerance_test", 15),  # 15分钟
                 ("resource_exhaustion_test", 20),  # 20分钟
             ]
 
@@ -758,7 +799,9 @@ class StressTestSuite:
         total_successes = sum(r.successful_operations for r in self.results)
         total_failures = sum(r.failed_operations for r in self.results)
 
-        avg_ops_per_sec = statistics.mean([r.operations_per_second for r in self.results])
+        avg_ops_per_sec = statistics.mean(
+            [r.operations_per_second for r in self.results]
+        )
         max_memory = max([r.peak_memory_mb for r in self.results])
         avg_cpu = statistics.mean([r.peak_cpu_percent for r in self.results])
         avg_error_rate = statistics.mean([r.error_rate_percent for r in self.results])
@@ -804,7 +847,7 @@ class StressTestSuite:
                 "timestamp": datetime.now().isoformat(),
                 "total_duration_minutes": total_duration / 60,
                 "total_tests": len(self.results),
-                "system_grade": system_grade
+                "system_grade": system_grade,
             },
             "aggregate_metrics": {
                 "total_operations": total_operations,
@@ -814,7 +857,7 @@ class StressTestSuite:
                 "peak_memory_mb": max_memory,
                 "average_cpu_percent": avg_cpu,
                 "average_error_rate_percent": avg_error_rate,
-                "average_stability_score": avg_stability
+                "average_stability_score": avg_stability,
             },
             "test_results": [
                 {
@@ -826,18 +869,28 @@ class StressTestSuite:
                     "stability_score": r.stability_score,
                     "peak_memory_mb": r.peak_memory_mb,
                     "peak_cpu_percent": r.peak_cpu_percent,
-                    "memory_growth_mb": r.memory_growth_mb
+                    "memory_growth_mb": r.memory_growth_mb,
                 }
                 for r in self.results
             ],
             "critical_issues": critical_issues,
             "recommendations": recommendations,
             "system_limits": {
-                "max_concurrent_operations": max([r.operations_per_second for r in self.results]) if self.results else 0,
+                "max_concurrent_operations": max(
+                    [r.operations_per_second for r in self.results]
+                )
+                if self.results
+                else 0,
                 "memory_ceiling_mb": max_memory,
-                "cpu_threshold_percent": max([r.peak_cpu_percent for r in self.results]) if self.results else 0,
-                "stability_floor_percent": min([r.stability_score for r in self.results]) if self.results else 0
-            }
+                "cpu_threshold_percent": max([r.peak_cpu_percent for r in self.results])
+                if self.results
+                else 0,
+                "stability_floor_percent": min(
+                    [r.stability_score for r in self.results]
+                )
+                if self.results
+                else 0,
+            },
         }
 
         return summary
@@ -852,11 +905,12 @@ class StressTestSuite:
         summary = self._generate_stress_test_report(total_duration)
 
         filepath = Path(__file__).parent / filename
-        with open(filepath, 'w', encoding='utf-8') as f:
+        with open(filepath, "w", encoding="utf-8") as f:
             json.dump(summary, f, indent=2, ensure_ascii=False)
 
         logger.info(f"📄 压力测试结果已保存: {filepath}")
         return str(filepath)
+
 
 def main():
     """主函数"""
@@ -873,9 +927,9 @@ def main():
         summary = stress_suite.run_complete_stress_suite(quick_mode=quick_mode)
 
         # 打印总结报告
-        print("\n" + "="*80)
+        print("\n" + "=" * 80)
         print("🎯 CLAUDE ENHANCER 5.1 压力测试总结报告")
-        print("="*80)
+        print("=" * 80)
 
         print(f"\n📊 测试概览:")
         print(f"  系统评级: {summary['test_suite_info']['system_grade']}")
@@ -883,7 +937,7 @@ def main():
         print(f"  测试数量: {summary['test_suite_info']['total_tests']}")
 
         print(f"\n📈 聚合指标:")
-        metrics = summary['aggregate_metrics']
+        metrics = summary["aggregate_metrics"]
         print(f"  总操作数: {metrics['total_operations']:,}")
         print(f"  平均吞吐量: {metrics['average_ops_per_second']:.1f} ops/sec")
         print(f"  峰值内存: {metrics['peak_memory_mb']:.1f} MB")
@@ -892,15 +946,15 @@ def main():
         print(f"  平均稳定性: {metrics['average_stability_score']:.1f}")
 
         # 关键问题
-        if summary['critical_issues']:
+        if summary["critical_issues"]:
             print(f"\n⚠️ 关键问题:")
-            for issue in summary['critical_issues']:
+            for issue in summary["critical_issues"]:
                 print(f"  - {issue}")
 
         # 优化建议
-        if summary['recommendations']:
+        if summary["recommendations"]:
             print(f"\n💡 优化建议:")
-            for rec in summary['recommendations']:
+            for rec in summary["recommendations"]:
                 print(f"  - {rec}")
 
         # 保存结果
@@ -908,8 +962,8 @@ def main():
         print(f"\n📄 详细报告已保存: {report_file}")
 
         # 判断测试是否通过
-        system_grade = summary['test_suite_info']['system_grade']
-        success = system_grade in ['A+', 'A', 'B']
+        system_grade = summary["test_suite_info"]["system_grade"]
+        success = system_grade in ["A+", "A", "B"]
 
         print(f"\n🎯 压力测试{'通过' if success else '需要优化'}! (评级: {system_grade})")
 
@@ -922,6 +976,7 @@ def main():
         logger.error(f"❌ 压力测试套件执行失败: {e}")
         traceback.print_exc()
         return False
+
 
 if __name__ == "__main__":
     success = main()

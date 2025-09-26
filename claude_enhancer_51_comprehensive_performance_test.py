@@ -27,12 +27,16 @@ import tempfile
 import traceback
 
 # 配置日志
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
+
 
 @dataclass
 class PerformanceMetrics:
     """性能指标数据类"""
+
     test_name: str
     start_time: float
     end_time: float
@@ -51,9 +55,11 @@ class PerformanceMetrics:
     def memory_delta_mb(self) -> float:
         return self.memory_peak_mb - self.memory_baseline_mb
 
+
 @dataclass
 class ComparisonResult:
     """对比结果"""
+
     baseline_value: float
     current_value: float
     improvement_percent: float
@@ -62,6 +68,7 @@ class ComparisonResult:
     @property
     def is_improvement(self) -> bool:
         return self.improvement_percent > 0
+
 
 class PerformanceTestSuite:
     """Claude Enhancer 5.1性能测试套件"""
@@ -80,7 +87,7 @@ class PerformanceTestSuite:
             "memory_total_gb": psutil.virtual_memory().total / (1024**3),
             "python_version": sys.version,
             "platform": sys.platform,
-            "architecture": os.uname().machine if hasattr(os, 'uname') else "Unknown"
+            "architecture": os.uname().machine if hasattr(os, "uname") else "Unknown",
         }
 
         # 导入当前版本的组件
@@ -118,11 +125,7 @@ class PerformanceTestSuite:
         return self.process.cpu_percent()
 
     def _run_performance_test(
-        self,
-        test_func,
-        test_name: str,
-        iterations: int = 100,
-        warmup: int = 5
+        self, test_func, test_name: str, iterations: int = 100, warmup: int = 5
     ) -> PerformanceMetrics:
         """运行性能测试并收集指标"""
         logger.info(f"🧪 开始测试: {test_name} (热身:{warmup}, 迭代:{iterations})")
@@ -200,14 +203,20 @@ class PerformanceTestSuite:
                 "total_duration": total_duration,
                 "min_duration": min(durations) if durations else 0,
                 "max_duration": max(durations) if durations else 0,
-                "std_duration": statistics.stdev(durations) if len(durations) > 1 else 0,
-                "p95_duration": statistics.quantiles(durations, n=20)[18] if len(durations) >= 20 else (max(durations) if durations else 0),
+                "std_duration": statistics.stdev(durations)
+                if len(durations) > 1
+                else 0,
+                "p95_duration": statistics.quantiles(durations, n=20)[18]
+                if len(durations) >= 20
+                else (max(durations) if durations else 0),
                 "successful_runs": successful_runs,
-                "error_count": len(errors)
-            }
+                "error_count": len(errors),
+            },
         )
 
-        logger.info(f"✅ 完成测试: {test_name} - 平均耗时:{avg_duration*1000:.2f}ms, 成功率:{success_rate:.1f}%")
+        logger.info(
+            f"✅ 完成测试: {test_name} - 平均耗时:{avg_duration*1000:.2f}ms, 成功率:{success_rate:.1f}%"
+        )
         return metrics
 
     def test_startup_performance(self) -> PerformanceMetrics:
@@ -223,7 +232,9 @@ class PerformanceTestSuite:
                 time.sleep(0.001)  # 模拟1ms启动时间
                 return 0.001
 
-        return self._run_performance_test(startup_test, "启动速度测试", iterations=200, warmup=10)
+        return self._run_performance_test(
+            startup_test, "启动速度测试", iterations=200, warmup=10
+        )
 
     def test_lazy_loading_efficiency(self) -> PerformanceMetrics:
         """测试2: 懒加载效率测试"""
@@ -258,12 +269,15 @@ class PerformanceTestSuite:
                     "create REST API",
                     "optimize database queries",
                     "fix security issues",
-                    "deploy to production"
+                    "deploy to production",
                 ]
 
                 results = []
                 with ThreadPoolExecutor(max_workers=5) as executor:
-                    futures = [executor.submit(orchestrator.select_agents_fast, task) for task in tasks]
+                    futures = [
+                        executor.submit(orchestrator.select_agents_fast, task)
+                        for task in tasks
+                    ]
                     results = [future.result() for future in as_completed(futures)]
 
                 return len(results)
@@ -292,12 +306,14 @@ class PerformanceTestSuite:
                 tasks = [
                     ("simple task", "simple"),
                     ("standard API development", "standard"),
-                    ("complex microservices architecture", "complex")
+                    ("complex microservices architecture", "complex"),
                 ]
 
                 results = []
                 for task, complexity in tasks:
-                    result = orchestrator.select_agents_fast(task, complexity=complexity)
+                    result = orchestrator.select_agents_fast(
+                        task, complexity=complexity
+                    )
                     results.append(result["agent_count"])
 
                 return sum(results)
@@ -306,7 +322,9 @@ class PerformanceTestSuite:
                 time.sleep(0.001)  # 模拟1ms选择时间
                 return 18  # 4+6+8 agents
 
-        return self._run_performance_test(agent_selection_test, "Agent选择性能测试", iterations=300)
+        return self._run_performance_test(
+            agent_selection_test, "Agent选择性能测试", iterations=300
+        )
 
     def test_memory_efficiency(self) -> PerformanceMetrics:
         """测试5: 内存使用效率测试"""
@@ -345,7 +363,9 @@ class PerformanceTestSuite:
                 gc.collect()
                 return 1000
 
-        return self._run_performance_test(memory_efficiency_test, "内存使用效率测试", iterations=50)
+        return self._run_performance_test(
+            memory_efficiency_test, "内存使用效率测试", iterations=50
+        )
 
     def test_cache_performance(self) -> PerformanceMetrics:
         """测试6: 缓存效率测试"""
@@ -446,7 +466,9 @@ class PerformanceTestSuite:
                         time.sleep(0.0001)  # 模拟恢复时间
                 return operations
 
-        return self._run_performance_test(error_recovery_test, "错误恢复性能测试", iterations=50)
+        return self._run_performance_test(
+            error_recovery_test, "错误恢复性能测试", iterations=50
+        )
 
     def run_stress_test(self) -> PerformanceMetrics:
         """压力测试: 高负载下的系统稳定性"""
@@ -499,7 +521,7 @@ class PerformanceTestSuite:
         """加载基准数据"""
         try:
             if os.path.exists(self.baseline_file):
-                with open(self.baseline_file, 'r') as f:
+                with open(self.baseline_file, "r") as f:
                     baseline_data = json.load(f)
                 logger.info(f"✅ 加载基准数据: {self.baseline_file}")
                 return baseline_data
@@ -513,7 +535,7 @@ class PerformanceTestSuite:
             "agent_selection_time_ms": 5.0,  # 5.0版本的agent选择时间
             "memory_usage_mb": 80.0,  # 5.0版本的平均内存使用
             "cache_hit_rate": 60.0,  # 5.0版本的缓存命中率
-            "error_recovery_time_ms": 200.0  # 5.0版本的错误恢复时间
+            "error_recovery_time_ms": 200.0,  # 5.0版本的错误恢复时间
         }
 
     def compare_with_baseline(self, baseline_data: Dict[str, Any]):
@@ -523,8 +545,18 @@ class PerformanceTestSuite:
         # 定义对比映射
         comparisons = [
             ("启动速度测试", "startup_time_ms", lambda m: m.duration * 1000, True),
-            ("并发处理能力测试", "concurrent_throughput", lambda m: m.throughput_ops_per_sec, False),
-            ("Agent选择性能测试", "agent_selection_time_ms", lambda m: m.duration * 1000, True),
+            (
+                "并发处理能力测试",
+                "concurrent_throughput",
+                lambda m: m.throughput_ops_per_sec,
+                False,
+            ),
+            (
+                "Agent选择性能测试",
+                "agent_selection_time_ms",
+                lambda m: m.duration * 1000,
+                True,
+            ),
             ("内存使用效率测试", "memory_usage_mb", lambda m: m.memory_delta_mb, True),
             ("缓存效率测试", "cache_hit_rate", lambda m: m.success_rate, False),
             ("错误恢复性能测试", "error_recovery_time_ms", lambda m: m.duration * 1000, True),
@@ -532,7 +564,9 @@ class PerformanceTestSuite:
 
         for test_name, baseline_key, value_extractor, lower_is_better in comparisons:
             # 找到对应的测试结果
-            test_result = next((r for r in self.results if r.test_name == test_name), None)
+            test_result = next(
+                (r for r in self.results if r.test_name == test_name), None
+            )
             if not test_result or baseline_key not in baseline_data:
                 continue
 
@@ -562,7 +596,7 @@ class PerformanceTestSuite:
                 baseline_value=baseline_value,
                 current_value=current_value,
                 improvement_percent=improvement,
-                improvement_description=description
+                improvement_description=description,
             )
 
     def run_comprehensive_test_suite(self) -> Dict[str, Any]:
@@ -592,7 +626,9 @@ class PerformanceTestSuite:
                 self.results.append(result)
 
                 # 实时显示结果
-                print(f"  ✅ {result.test_name}: {result.duration*1000:.2f}ms avg, {result.throughput_ops_per_sec:.1f} ops/sec")
+                print(
+                    f"  ✅ {result.test_name}: {result.duration*1000:.2f}ms avg, {result.throughput_ops_per_sec:.1f} ops/sec"
+                )
 
             except Exception as e:
                 logger.error(f"❌ 测试失败 {test_method.__name__}: {e}")
@@ -614,10 +650,18 @@ class PerformanceTestSuite:
         successful_tests = [r for r in self.results if r.success_rate > 90]
 
         # 计算总体性能指标
-        avg_duration = statistics.mean([r.duration for r in self.results]) if self.results else 0
+        avg_duration = (
+            statistics.mean([r.duration for r in self.results]) if self.results else 0
+        )
         total_throughput = sum([r.throughput_ops_per_sec for r in self.results])
-        peak_memory = max([r.memory_peak_mb for r in self.results]) if self.results else 0
-        avg_cpu = statistics.mean([r.cpu_avg_percent for r in self.results]) if self.results else 0
+        peak_memory = (
+            max([r.memory_peak_mb for r in self.results]) if self.results else 0
+        )
+        avg_cpu = (
+            statistics.mean([r.cpu_avg_percent for r in self.results])
+            if self.results
+            else 0
+        )
 
         # 性能等级评定
         performance_grade = self._calculate_performance_grade()
@@ -629,14 +673,22 @@ class PerformanceTestSuite:
         claims_verification = {
             "startup_speed_68_75_percent": {
                 "claimed": 68.75,
-                "actual": startup_improvement.improvement_percent if startup_improvement else 0,
-                "verified": startup_improvement.improvement_percent >= 60 if startup_improvement else False
+                "actual": startup_improvement.improvement_percent
+                if startup_improvement
+                else 0,
+                "verified": startup_improvement.improvement_percent >= 60
+                if startup_improvement
+                else False,
             },
             "concurrent_processing_50_percent": {
                 "claimed": 50.0,
-                "actual": concurrent_improvement.improvement_percent if concurrent_improvement else 0,
-                "verified": concurrent_improvement.improvement_percent >= 40 if concurrent_improvement else False
-            }
+                "actual": concurrent_improvement.improvement_percent
+                if concurrent_improvement
+                else 0,
+                "verified": concurrent_improvement.improvement_percent >= 40
+                if concurrent_improvement
+                else False,
+            },
         }
 
         summary = {
@@ -646,22 +698,23 @@ class PerformanceTestSuite:
                 "total_duration": total_duration,
                 "total_tests": len(self.results),
                 "successful_tests": len(successful_tests),
-                "system_info": self.system_info
+                "system_info": self.system_info,
             },
             "performance_summary": {
                 "average_operation_time_ms": avg_duration * 1000,
                 "total_throughput_ops_sec": total_throughput,
                 "peak_memory_usage_mb": peak_memory,
                 "average_cpu_usage_percent": avg_cpu,
-                "performance_grade": performance_grade
+                "performance_grade": performance_grade,
             },
             "baseline_comparisons": {
-                name: asdict(comparison) for name, comparison in self.comparison_results.items()
+                name: asdict(comparison)
+                for name, comparison in self.comparison_results.items()
             },
             "claims_verification": claims_verification,
             "detailed_results": [asdict(r) for r in self.results],
             "recommendations": self._generate_recommendations(),
-            "bottlenecks": self._identify_bottlenecks()
+            "bottlenecks": self._identify_bottlenecks(),
         }
 
         return summary
@@ -758,16 +811,24 @@ class PerformanceTestSuite:
         # 分析测试结果
         for result in self.results:
             if result.success_rate < 95:
-                recommendations.append(f"提升{result.test_name}的稳定性 (当前成功率: {result.success_rate:.1f}%)")
+                recommendations.append(
+                    f"提升{result.test_name}的稳定性 (当前成功率: {result.success_rate:.1f}%)"
+                )
 
             if result.duration > 0.1:  # 100ms
-                recommendations.append(f"优化{result.test_name}的执行速度 (当前: {result.duration*1000:.2f}ms)")
+                recommendations.append(
+                    f"优化{result.test_name}的执行速度 (当前: {result.duration*1000:.2f}ms)"
+                )
 
             if result.memory_delta_mb > 100:
-                recommendations.append(f"减少{result.test_name}的内存使用 (当前增量: {result.memory_delta_mb:.1f}MB)")
+                recommendations.append(
+                    f"减少{result.test_name}的内存使用 (当前增量: {result.memory_delta_mb:.1f}MB)"
+                )
 
             if result.cpu_peak_percent > 80:
-                recommendations.append(f"优化{result.test_name}的CPU使用 (峰值: {result.cpu_peak_percent:.1f}%)")
+                recommendations.append(
+                    f"优化{result.test_name}的CPU使用 (峰值: {result.cpu_peak_percent:.1f}%)"
+                )
 
         # 通用建议
         if len(recommendations) == 0:
@@ -809,12 +870,18 @@ class PerformanceTestSuite:
                 issues.append(f"成功率偏低: {result.success_rate:.1f}%")
 
             if bottleneck_score > 0:
-                bottlenecks.append({
-                    "test_name": result.test_name,
-                    "bottleneck_score": bottleneck_score,
-                    "issues": issues,
-                    "priority": "高" if bottleneck_score >= 5 else "中" if bottleneck_score >= 3 else "低"
-                })
+                bottlenecks.append(
+                    {
+                        "test_name": result.test_name,
+                        "bottleneck_score": bottleneck_score,
+                        "issues": issues,
+                        "priority": "高"
+                        if bottleneck_score >= 5
+                        else "中"
+                        if bottleneck_score >= 3
+                        else "低",
+                    }
+                )
 
         # 按瓶颈分数排序
         bottlenecks.sort(key=lambda x: x["bottleneck_score"], reverse=True)
@@ -830,7 +897,7 @@ class PerformanceTestSuite:
         summary = self._generate_summary_report(time.time() - self.start_time)
 
         filepath = Path(__file__).parent / filename
-        with open(filepath, 'w', encoding='utf-8') as f:
+        with open(filepath, "w", encoding="utf-8") as f:
             json.dump(summary, f, indent=2, ensure_ascii=False)
 
         logger.info(f"📄 测试结果已保存: {filepath}")
@@ -856,7 +923,9 @@ class PerformanceTestSuite:
 
         concurrent_comp = self.comparison_results.get("并发处理能力测试")
         if concurrent_comp:
-            status = "✅ 验证通过" if concurrent_comp.improvement_percent >= 40 else "❌ 未达到声称"
+            status = (
+                "✅ 验证通过" if concurrent_comp.improvement_percent >= 40 else "❌ 未达到声称"
+            )
             print(f"  并发处理50%提升: 实际{concurrent_comp.improvement_percent:.2f}% {status}")
 
         # 测试结果概览
@@ -901,10 +970,11 @@ class PerformanceTestSuite:
             print(f"\n⚠️ 性能瓶颈分析:")
             for bottleneck in bottlenecks[:5]:  # 显示前5个瓶颈
                 print(f"  🎯 {bottleneck['test_name']} (优先级: {bottleneck['priority']}):")
-                for issue in bottleneck['issues']:
+                for issue in bottleneck["issues"]:
                     print(f"    - {issue}")
 
         print("\n" + "=" * 100)
+
 
 def main():
     """主函数"""
@@ -926,13 +996,17 @@ def main():
         # 确定测试是否通过
         performance_grade = summary["performance_summary"]["performance_grade"]
         claims_verified = (
-            summary["claims_verification"]["startup_speed_68_75_percent"]["verified"] and
-            summary["claims_verification"]["concurrent_processing_50_percent"]["verified"]
+            summary["claims_verification"]["startup_speed_68_75_percent"]["verified"]
+            and summary["claims_verification"]["concurrent_processing_50_percent"][
+                "verified"
+            ]
         )
 
         success = performance_grade in ["A+", "A", "B+"] and claims_verified
 
-        print(f"\n🎯 测试完成! 等级: {performance_grade}, 声称验证: {'✅' if claims_verified else '❌'}")
+        print(
+            f"\n🎯 测试完成! 等级: {performance_grade}, 声称验证: {'✅' if claims_verified else '❌'}"
+        )
         print(f"📄 详细报告: {report_file}")
 
         return success
@@ -941,6 +1015,7 @@ def main():
         logger.error(f"❌ 测试套件执行失败: {e}")
         traceback.print_exc()
         return False
+
 
 if __name__ == "__main__":
     success = main()

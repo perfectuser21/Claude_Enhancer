@@ -13,12 +13,15 @@ import subprocess
 from pathlib import Path
 from typing import Dict, List, Any
 
+
 class ClaudeEnhancer5FinalValidator:
     """Final validation and analysis for Claude Enhancer 5.0"""
 
     def __init__(self):
         self.project_root = Path("/home/xx/dev/Claude Enhancer 5.0")
-        self.test_report_path = self.project_root / "CLAUDE_ENHANCER_5.0_TEST_REPORT.json"
+        self.test_report_path = (
+            self.project_root / "CLAUDE_ENHANCER_5.0_TEST_REPORT.json"
+        )
 
     def analyze_security_fixes(self) -> Dict[str, Any]:
         """Analyze security fixes (eval removal)"""
@@ -35,13 +38,19 @@ class ClaudeEnhancer5FinalValidator:
                 try:
                     result = subprocess.run(
                         f'grep -r "eval" {dir_path} --include="*.sh" || true',
-                        shell=True, capture_output=True, text=True, cwd=self.project_root
+                        shell=True,
+                        capture_output=True,
+                        text=True,
+                        cwd=self.project_root,
                     )
                     eval_found = result.stdout.strip()
                     if eval_found and not result.stdout.startswith("Binary file"):
                         # Filter out backup files
-                        lines = [line for line in eval_found.split('\n')
-                               if '.backup/' not in line and 'migrate_docs.sh' not in line]
+                        lines = [
+                            line
+                            for line in eval_found.split("\n")
+                            if ".backup/" not in line and "migrate_docs.sh" not in line
+                        ]
                         eval_check_results[dir_name] = lines
                     else:
                         eval_check_results[dir_name] = []
@@ -55,8 +64,14 @@ class ClaudeEnhancer5FinalValidator:
             "eval_removal_status": "COMPLETE" if total_eval_found == 0 else "PARTIAL",
             "eval_findings": eval_check_results,
             "total_eval_instances": total_eval_found,
-            "security_grade": "A+" if total_eval_found == 0 else "B" if total_eval_found < 5 else "C",
-            "recommendation": "All critical eval usage removed ✅" if total_eval_found == 0 else f"Review {total_eval_found} remaining eval instances"
+            "security_grade": "A+"
+            if total_eval_found == 0
+            else "B"
+            if total_eval_found < 5
+            else "C",
+            "recommendation": "All critical eval usage removed ✅"
+            if total_eval_found == 0
+            else f"Review {total_eval_found} remaining eval instances",
         }
 
     def analyze_dependency_optimization(self) -> Dict[str, Any]:
@@ -71,7 +86,7 @@ class ClaudeEnhancer5FinalValidator:
         nodejs_deps = self.count_nodejs_dependencies()
 
         # Calculate total core dependencies
-        total_core_deps = python_deps + nodejs_deps['total']
+        total_core_deps = python_deps + nodejs_deps["total"]
 
         return {
             "python_core_deps": python_deps,
@@ -79,9 +94,17 @@ class ClaudeEnhancer5FinalValidator:
             "nodejs_deps": nodejs_deps,
             "total_core_deps": total_core_deps,
             "target_deps": 23,
-            "optimization_status": "EXCELLENT" if total_core_deps <= 23 else "GOOD" if total_core_deps <= 30 else "NEEDS_WORK",
-            "dependency_grade": "A+" if total_core_deps <= 20 else "A" if total_core_deps <= 25 else "B",
-            "recommendation": f"Core dependencies: {total_core_deps} (Target: 23) - {'✅ Optimized' if total_core_deps <= 23 else '⚠️ Over target'}"
+            "optimization_status": "EXCELLENT"
+            if total_core_deps <= 23
+            else "GOOD"
+            if total_core_deps <= 30
+            else "NEEDS_WORK",
+            "dependency_grade": "A+"
+            if total_core_deps <= 20
+            else "A"
+            if total_core_deps <= 25
+            else "B",
+            "recommendation": f"Core dependencies: {total_core_deps} (Target: 23) - {'✅ Optimized' if total_core_deps <= 23 else '⚠️ Over target'}",
         }
 
     def count_dependencies_in_file(self, file_path: str) -> int:
@@ -91,14 +114,17 @@ class ClaudeEnhancer5FinalValidator:
             return 0
 
         try:
-            with open(full_path, 'r') as f:
+            with open(full_path, "r") as f:
                 content = f.read()
 
             # Handle escaped newlines and count actual dependencies
-            content = content.replace('\\n', '\n')
-            lines = content.split('\n')
-            deps = [line.strip() for line in lines
-                   if line.strip() and not line.strip().startswith('#')]
+            content = content.replace("\\n", "\n")
+            lines = content.split("\n")
+            deps = [
+                line.strip()
+                for line in lines
+                if line.strip() and not line.strip().startswith("#")
+            ]
             return len(deps)
         except Exception:
             return 0
@@ -110,17 +136,13 @@ class ClaudeEnhancer5FinalValidator:
             return {"prod": 0, "dev": 0, "total": 0}
 
         try:
-            with open(package_path, 'r') as f:
+            with open(package_path, "r") as f:
                 package_data = json.load(f)
 
             prod_deps = len(package_data.get("dependencies", {}))
             dev_deps = len(package_data.get("devDependencies", {}))
 
-            return {
-                "prod": prod_deps,
-                "dev": dev_deps,
-                "total": prod_deps + dev_deps
-            }
+            return {"prod": prod_deps, "dev": dev_deps, "total": prod_deps + dev_deps}
         except Exception:
             return {"prod": 0, "dev": 0, "total": 0}
 
@@ -132,7 +154,7 @@ class ClaudeEnhancer5FinalValidator:
         performance_metrics = {}
         if self.test_report_path.exists():
             try:
-                with open(self.test_report_path, 'r') as f:
+                with open(self.test_report_path, "r") as f:
                     test_data = json.load(f)
 
                 # Extract performance metrics from test results
@@ -161,8 +183,10 @@ class ClaudeEnhancer5FinalValidator:
             "hook_grade": hook_grade,
             "filesystem_grade": fs_grade,
             "memory_grade": memory_grade,
-            "overall_performance_grade": hook_grade if hook_grade == fs_grade == memory_grade else "A",
-            "recommendation": "All performance metrics within optimal range ✅"
+            "overall_performance_grade": hook_grade
+            if hook_grade == fs_grade == memory_grade
+            else "A",
+            "recommendation": "All performance metrics within optimal range ✅",
         }
 
     def analyze_workflow_system(self) -> Dict[str, Any]:
@@ -175,37 +199,58 @@ class ClaudeEnhancer5FinalValidator:
 
         if settings_path.exists():
             try:
-                with open(settings_path, 'r') as f:
+                with open(settings_path, "r") as f:
                     settings = json.load(f)
 
                 # Analyze key components
                 settings_analysis = {
                     "version": settings.get("version", "unknown"),
-                    "hooks_configured": len(settings.get("hooks", {}).get("PreToolUse", [])) +
-                                     len(settings.get("hooks", {}).get("PostToolUse", [])) +
-                                     len(settings.get("hooks", {}).get("UserPromptSubmit", [])),
-                    "workflow_phases": len(settings.get("workflow_config", {}).get("phases", {})),
-                    "agent_strategies": len(settings.get("workflow_config", {}).get("agent_strategies", {})),
+                    "hooks_configured": len(
+                        settings.get("hooks", {}).get("PreToolUse", [])
+                    )
+                    + len(settings.get("hooks", {}).get("PostToolUse", []))
+                    + len(settings.get("hooks", {}).get("UserPromptSubmit", [])),
+                    "workflow_phases": len(
+                        settings.get("workflow_config", {}).get("phases", {})
+                    ),
+                    "agent_strategies": len(
+                        settings.get("workflow_config", {}).get("agent_strategies", {})
+                    ),
                     "performance_config": "performance" in settings,
-                    "security_enabled": settings.get("security", {}).get("hook_security_enabled", False)
+                    "security_enabled": settings.get("security", {}).get(
+                        "hook_security_enabled", False
+                    ),
                 }
 
                 # Check hook files
                 hooks_dir = self.project_root / ".claude" / "hooks"
-                hook_files = len(list(hooks_dir.glob("*.sh"))) if hooks_dir.exists() else 0
+                hook_files = (
+                    len(list(hooks_dir.glob("*.sh"))) if hooks_dir.exists() else 0
+                )
 
                 settings_analysis["hook_files_count"] = hook_files
 
                 # Workflow integrity score
                 integrity_score = 0
-                if settings_analysis["workflow_phases"] >= 7: integrity_score += 30
-                if settings_analysis["hooks_configured"] >= 10: integrity_score += 25
-                if settings_analysis["agent_strategies"] >= 3: integrity_score += 20
-                if settings_analysis["hook_files_count"] >= 20: integrity_score += 15
-                if settings_analysis["security_enabled"]: integrity_score += 10
+                if settings_analysis["workflow_phases"] >= 7:
+                    integrity_score += 30
+                if settings_analysis["hooks_configured"] >= 10:
+                    integrity_score += 25
+                if settings_analysis["agent_strategies"] >= 3:
+                    integrity_score += 20
+                if settings_analysis["hook_files_count"] >= 20:
+                    integrity_score += 15
+                if settings_analysis["security_enabled"]:
+                    integrity_score += 10
 
                 settings_analysis["integrity_score"] = integrity_score
-                settings_analysis["integrity_grade"] = "A+" if integrity_score >= 90 else "A" if integrity_score >= 80 else "B"
+                settings_analysis["integrity_grade"] = (
+                    "A+"
+                    if integrity_score >= 90
+                    else "A"
+                    if integrity_score >= 80
+                    else "B"
+                )
 
             except Exception as e:
                 settings_analysis["error"] = str(e)
@@ -222,7 +267,7 @@ class ClaudeEnhancer5FinalValidator:
             return {"error": "Settings file not found", "grade": "F"}
 
         try:
-            with open(settings_path, 'r') as f:
+            with open(settings_path, "r") as f:
                 settings = json.load(f)
 
             # Analyze hook configuration
@@ -232,18 +277,32 @@ class ClaudeEnhancer5FinalValidator:
                 all_hooks.extend(hooks)
 
             # Check blocking behavior
-            blocking_hooks = [h for h in all_hooks if h.get("blocking", True)]  # Default True
+            blocking_hooks = [
+                h for h in all_hooks if h.get("blocking", True)
+            ]  # Default True
             non_blocking_hooks = [h for h in all_hooks if not h.get("blocking", True)]
 
             # Check timeout configuration
             long_timeout_hooks = [h for h in all_hooks if h.get("timeout", 0) > 5000]
-            reasonable_timeout_hooks = [h for h in all_hooks if h.get("timeout", 0) <= 5000]
+            reasonable_timeout_hooks = [
+                h for h in all_hooks if h.get("timeout", 0) <= 5000
+            ]
 
             # Hook system grade
-            non_blocking_ratio = len(non_blocking_hooks) / len(all_hooks) if all_hooks else 0
-            timeout_ratio = len(reasonable_timeout_hooks) / len(all_hooks) if all_hooks else 0
+            non_blocking_ratio = (
+                len(non_blocking_hooks) / len(all_hooks) if all_hooks else 0
+            )
+            timeout_ratio = (
+                len(reasonable_timeout_hooks) / len(all_hooks) if all_hooks else 0
+            )
 
-            grade = "A+" if non_blocking_ratio == 1.0 and timeout_ratio >= 0.9 else "A" if non_blocking_ratio >= 0.9 else "B"
+            grade = (
+                "A+"
+                if non_blocking_ratio == 1.0 and timeout_ratio >= 0.9
+                else "A"
+                if non_blocking_ratio >= 0.9
+                else "B"
+            )
 
             return {
                 "total_hooks": len(all_hooks),
@@ -254,7 +313,9 @@ class ClaudeEnhancer5FinalValidator:
                 "non_blocking_ratio": non_blocking_ratio,
                 "timeout_ratio": timeout_ratio,
                 "grade": grade,
-                "recommendation": "All hooks properly configured as non-blocking ✅" if grade.startswith("A") else "Review hook configuration"
+                "recommendation": "All hooks properly configured as non-blocking ✅"
+                if grade.startswith("A")
+                else "Review hook configuration",
             }
 
         except Exception as e:
@@ -281,16 +342,18 @@ class ClaudeEnhancer5FinalValidator:
 
         if settings_path.exists():
             try:
-                with open(settings_path, 'r') as f:
+                with open(settings_path, "r") as f:
                     settings = json.load(f)
 
-                strategies = settings.get("workflow_config", {}).get("agent_strategies", {})
+                strategies = settings.get("workflow_config", {}).get(
+                    "agent_strategies", {}
+                )
 
                 # Check 4-6-8 strategy
                 expected_strategies = {
                     "simple_task": 4,
                     "standard_task": 6,
-                    "complex_task": 8
+                    "complex_task": 8,
                 }
 
                 strategy_correct = all(
@@ -301,18 +364,30 @@ class ClaudeEnhancer5FinalValidator:
                 strategy_analysis = {
                     "strategies_configured": len(strategies),
                     "4_6_8_strategy_correct": strategy_correct,
-                    "strategies": {name: strategies.get(name, {}).get("agent_count", 0)
-                                 for name in expected_strategies.keys()}
+                    "strategies": {
+                        name: strategies.get(name, {}).get("agent_count", 0)
+                        for name in expected_strategies.keys()
+                    },
                 }
 
             except Exception as e:
                 strategy_analysis["error"] = str(e)
 
         # Agent system grade
-        agent_count_grade = "A+" if agent_analysis["total_agents"] >= 50 else "A" if agent_analysis["total_agents"] >= 40 else "B"
-        strategy_grade = "A+" if strategy_analysis.get("4_6_8_strategy_correct", False) else "B"
+        agent_count_grade = (
+            "A+"
+            if agent_analysis["total_agents"] >= 50
+            else "A"
+            if agent_analysis["total_agents"] >= 40
+            else "B"
+        )
+        strategy_grade = (
+            "A+" if strategy_analysis.get("4_6_8_strategy_correct", False) else "B"
+        )
 
-        overall_grade = agent_count_grade if agent_count_grade == strategy_grade else "A"
+        overall_grade = (
+            agent_count_grade if agent_count_grade == strategy_grade else "A"
+        )
 
         return {
             **agent_analysis,
@@ -320,7 +395,7 @@ class ClaudeEnhancer5FinalValidator:
             "agent_count_grade": agent_count_grade,
             "strategy_grade": strategy_grade,
             "overall_grade": overall_grade,
-            "recommendation": f"{agent_analysis['total_agents']} agents available for 4-6-8 parallel execution strategy ✅"
+            "recommendation": f"{agent_analysis['total_agents']} agents available for 4-6-8 parallel execution strategy ✅",
         }
 
     def generate_final_report(self) -> Dict[str, Any]:
@@ -342,11 +417,20 @@ class ClaudeEnhancer5FinalValidator:
             performance.get("overall_performance_grade", "C"),
             workflow.get("integrity_grade", "C"),
             hooks.get("grade", "C"),
-            agents.get("overall_grade", "C")
+            agents.get("overall_grade", "C"),
         ]
 
         # Grade point calculation
-        grade_points = {"A+": 4.3, "A": 4.0, "A-": 3.7, "B+": 3.3, "B": 3.0, "B-": 2.7, "C": 2.0, "F": 0.0}
+        grade_points = {
+            "A+": 4.3,
+            "A": 4.0,
+            "A-": 3.7,
+            "B+": 3.3,
+            "B": 3.0,
+            "B-": 2.7,
+            "C": 2.0,
+            "F": 0.0,
+        }
         avg_points = sum(grade_points.get(g, 2.0) for g in grades) / len(grades)
 
         if avg_points >= 4.0:
@@ -369,14 +453,14 @@ class ClaudeEnhancer5FinalValidator:
                 "performance": performance,
                 "workflow": workflow,
                 "hooks": hooks,
-                "agents": agents
+                "agents": agents,
             },
             "summary": {
                 "total_tests_areas": 6,
                 "excellent_areas": sum(1 for g in grades if g.startswith("A")),
                 "good_areas": sum(1 for g in grades if g.startswith("B")),
                 "needs_work_areas": sum(1 for g in grades if g in ["C", "F"]),
-                "ready_for_production": overall_grade.startswith("A")
+                "ready_for_production": overall_grade.startswith("A"),
             },
             "key_achievements": [
                 "✅ Security: eval usage completely removed",
@@ -384,14 +468,23 @@ class ClaudeEnhancer5FinalValidator:
                 "✅ Performance: All metrics within optimal range",
                 f"✅ Workflow: {workflow.get('integrity_score', 0)}% system integrity",
                 "✅ Hooks: Non-blocking configuration verified",
-                f"✅ Agents: {agents.get('total_agents', 0)} agents with 4-6-8 parallel strategy"
+                f"✅ Agents: {agents.get('total_agents', 0)} agents with 4-6-8 parallel strategy",
             ],
             "recommendations": [
-                rec for component in [security, dependencies, performance, workflow, hooks, agents]
+                rec
+                for component in [
+                    security,
+                    dependencies,
+                    performance,
+                    workflow,
+                    hooks,
+                    agents,
+                ]
                 for rec in [component.get("recommendation", "")]
                 if rec
-            ]
+            ],
         }
+
 
 def main():
     """Main execution"""
@@ -403,31 +496,43 @@ def main():
 
     # Display results
     print(f"\n🏆 OVERALL GRADE: {report['overall_grade']} ({report['overall_score']})")
-    print(f"📈 Production Ready: {'YES ✅' if report['summary']['ready_for_production'] else 'NO ⚠️'}")
+    print(
+        f"📈 Production Ready: {'YES ✅' if report['summary']['ready_for_production'] else 'NO ⚠️'}"
+    )
 
     print(f"\n📊 COMPONENT GRADES:")
-    for component, data in report['components'].items():
-        grade_key = next((k for k in data.keys() if 'grade' in k and k != 'agent_count_grade' and k != 'strategy_grade'), None)
+    for component, data in report["components"].items():
+        grade_key = next(
+            (
+                k
+                for k in data.keys()
+                if "grade" in k and k != "agent_count_grade" and k != "strategy_grade"
+            ),
+            None,
+        )
         grade = data.get(grade_key, "N/A") if grade_key else "N/A"
         print(f"   {component.title()}: {grade}")
 
     print(f"\n🎯 KEY ACHIEVEMENTS:")
-    for achievement in report['key_achievements']:
+    for achievement in report["key_achievements"]:
         print(f"   {achievement}")
 
     print(f"\n💡 RECOMMENDATIONS:")
-    for recommendation in report['recommendations'][:5]:  # Top 5
+    for recommendation in report["recommendations"][:5]:  # Top 5
         print(f"   • {recommendation}")
 
     # Save detailed report
-    report_file = validator.project_root / "CLAUDE_ENHANCER_5.0_FINAL_VALIDATION_REPORT.json"
-    with open(report_file, 'w') as f:
+    report_file = (
+        validator.project_root / "CLAUDE_ENHANCER_5.0_FINAL_VALIDATION_REPORT.json"
+    )
+    with open(report_file, "w") as f:
         json.dump(report, f, indent=2)
 
     print(f"\n📄 Detailed report saved: {report_file}")
     print("\n🎉 Claude Enhancer 5.0 Final Validation Complete!")
 
-    return 0 if report['summary']['ready_for_production'] else 1
+    return 0 if report["summary"]["ready_for_production"] else 1
+
 
 if __name__ == "__main__":
     exit_code = main()

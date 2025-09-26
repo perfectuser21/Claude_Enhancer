@@ -159,7 +159,7 @@ class Session(BaseModel):
         device_type: DeviceType = DeviceType.UNKNOWN,
         ip_address: str = None,
         user_agent: str = None,
-        **kwargs
+        **kwargs,
     ) -> "Session":
         """
         创建新会话
@@ -188,7 +188,7 @@ class Session(BaseModel):
             device_type=device_type,
             ip_address=ip_address,
             user_agent=user_agent,
-            **kwargs
+            **kwargs,
         )
 
         return session

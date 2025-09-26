@@ -50,7 +50,6 @@ class LazyAgentManager:
         # Initialize metadata only (no actual agent loading)
         self._init_agent_metadata()
 
-    
     @functools.cached_property
     def agent_metadata_index(self) -> Dict[str, List[str]]:
         """Agent元数据索引 - 加速查找"""

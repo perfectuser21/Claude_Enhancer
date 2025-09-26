@@ -28,6 +28,7 @@ import concurrent.futures
 PROJECT_ROOT = Path(__file__).parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
+
 class PerformanceBenchmarkValidator:
     """性能基准验证器"""
 
@@ -44,10 +45,10 @@ class PerformanceBenchmarkValidator:
 
         self.claimed_improvements = {
             "startup_speed": 68.75,  # 启动速度提升68.75%
-            "concurrency": 50.0,     # 并发处理提升50%
+            "concurrency": 50.0,  # 并发处理提升50%
             "cache_hit_rate": 90.0,  # 缓存命中率90%+
-            "response_time": 40.0,   # 响应时间减少40%
-            "memory": 30.0           # 内存使用减少30%
+            "response_time": 40.0,  # 响应时间减少40%
+            "memory": 30.0,  # 内存使用减少30%
         }
 
         self.test_results = {}
@@ -61,7 +62,7 @@ class PerformanceBenchmarkValidator:
 
         try:
             # 导入组件进行实际测试
-            sys.path.insert(0, str(PROJECT_ROOT / '.claude' / 'core'))
+            sys.path.insert(0, str(PROJECT_ROOT / ".claude" / "core"))
             from lazy_engine import LazyWorkflowEngine
             from lazy_orchestrator import LazyAgentOrchestrator
 
@@ -98,20 +99,30 @@ class PerformanceBenchmarkValidator:
             engine_p95 = sorted(engine_times)[int(len(engine_times) * 0.95)]
 
             orchestrator_avg = statistics.mean(orchestrator_times)
-            orchestrator_p95 = sorted(orchestrator_times)[int(len(orchestrator_times) * 0.95)]
+            orchestrator_p95 = sorted(orchestrator_times)[
+                int(len(orchestrator_times) * 0.95)
+            ]
 
             # 验证性能声明
             baseline_engine = self.baseline_data["lazy_workflow_engine_startup"]
-            baseline_orchestrator = self.baseline_data["lazy_agent_orchestrator_startup"]
+            baseline_orchestrator = self.baseline_data[
+                "lazy_agent_orchestrator_startup"
+            ]
 
-            engine_improvement = ((baseline_engine - engine_avg) / baseline_engine) * 100
-            orchestrator_improvement = ((baseline_orchestrator - orchestrator_avg) / baseline_orchestrator) * 100
+            engine_improvement = (
+                (baseline_engine - engine_avg) / baseline_engine
+            ) * 100
+            orchestrator_improvement = (
+                (baseline_orchestrator - orchestrator_avg) / baseline_orchestrator
+            ) * 100
 
             # 验证目标
             engine_target_met = engine_avg <= 0.0016  # 目标时间
             orchestrator_target_met = orchestrator_avg <= 0.0004  # 目标时间
 
-            improvement_target_met = engine_improvement >= self.claimed_improvements["startup_speed"]
+            improvement_target_met = (
+                engine_improvement >= self.claimed_improvements["startup_speed"]
+            )
 
             print(f"\n📊 启动性能测试结果:")
             print(f"  LazyWorkflowEngine:")
@@ -136,7 +147,9 @@ class PerformanceBenchmarkValidator:
                 "engine_target_met": engine_target_met,
                 "orchestrator_target_met": orchestrator_target_met,
                 "improvement_claim_validated": improvement_target_met,
-                "overall_validation": engine_target_met and orchestrator_target_met and improvement_target_met
+                "overall_validation": engine_target_met
+                and orchestrator_target_met
+                and improvement_target_met,
             }
 
         except ImportError as e:
@@ -146,7 +159,9 @@ class PerformanceBenchmarkValidator:
             print(f"❌ 启动性能测试失败: {e}")
             return {"status": "failed", "reason": "test_failed", "error": str(e)}
 
-    def validate_concurrency_performance(self, workers: int = 20, tasks_per_worker: int = 50) -> Dict[str, Any]:
+    def validate_concurrency_performance(
+        self, workers: int = 20, tasks_per_worker: int = 50
+    ) -> Dict[str, Any]:
         """验证并发处理性能声明"""
         print(f"\n⚡ 验证并发处理性能声明")
         print(f"目标: 并发吞吐量提升50% (≥75 tasks/sec)")
@@ -157,13 +172,13 @@ class PerformanceBenchmarkValidator:
 
             try:
                 # 导入并使用Claude Enhancer组件
-                sys.path.insert(0, str(PROJECT_ROOT / '.claude' / 'core'))
+                sys.path.insert(0, str(PROJECT_ROOT / ".claude" / "core"))
                 from lazy_engine import LazyWorkflowEngine
 
                 engine = LazyWorkflowEngine()
 
                 # 执行一些典型操作
-                if hasattr(engine, 'detect_complexity_fast'):
+                if hasattr(engine, "detect_complexity_fast"):
                     engine.detect_complexity_fast(f"concurrent task {task_id}")
 
                 del engine
@@ -171,6 +186,7 @@ class PerformanceBenchmarkValidator:
             except Exception:
                 # 如果组件不可用，执行等效的工作负载
                 import hashlib
+
                 hashlib.sha256(f"task_{task_id}".encode()).hexdigest()
                 time.sleep(0.001)  # 模拟处理时间
 
@@ -203,14 +219,20 @@ class PerformanceBenchmarkValidator:
 
         # 验证性能声明
         baseline_throughput = self.baseline_data["concurrency_throughput"]
-        improvement_percent = ((throughput - baseline_throughput) / baseline_throughput) * 100
+        improvement_percent = (
+            (throughput - baseline_throughput) / baseline_throughput
+        ) * 100
         target_throughput = baseline_throughput * 1.5  # 50%提升
 
         target_met = throughput >= target_throughput
-        claim_validated = improvement_percent >= self.claimed_improvements["concurrency"]
+        claim_validated = (
+            improvement_percent >= self.claimed_improvements["concurrency"]
+        )
 
         avg_task_time = statistics.mean(completed_tasks) * 1000  # ms
-        p95_task_time = sorted(completed_tasks)[int(len(completed_tasks) * 0.95)] * 1000  # ms
+        p95_task_time = (
+            sorted(completed_tasks)[int(len(completed_tasks) * 0.95)] * 1000
+        )  # ms
 
         print(f"\n📊 并发性能测试结果:")
         print(f"  完成任务数: {len(completed_tasks)}")
@@ -230,7 +252,7 @@ class PerformanceBenchmarkValidator:
             "avg_task_time_ms": avg_task_time,
             "p95_task_time_ms": p95_task_time,
             "target_met": target_met,
-            "claim_validated": claim_validated
+            "claim_validated": claim_validated,
         }
 
     def validate_cache_performance(self, operations: int = 2000) -> Dict[str, Any]:
@@ -244,12 +266,15 @@ class PerformanceBenchmarkValidator:
 
         # 预定义重复查询以测试缓存
         queries = [
-            "simple task", "complex workflow", "database operation",
-            "api integration", "user authentication"
+            "simple task",
+            "complex workflow",
+            "database operation",
+            "api integration",
+            "user authentication",
         ]
 
         try:
-            sys.path.insert(0, str(PROJECT_ROOT / '.claude' / 'core'))
+            sys.path.insert(0, str(PROJECT_ROOT / ".claude" / "core"))
             from lazy_engine import LazyWorkflowEngine
 
             engine = LazyWorkflowEngine()
@@ -260,7 +285,7 @@ class PerformanceBenchmarkValidator:
 
                 start = time.perf_counter()
 
-                if hasattr(engine, 'detect_complexity_fast'):
+                if hasattr(engine, "detect_complexity_fast"):
                     try:
                         result = engine.detect_complexity_fast(query)
                         response_time = time.perf_counter() - start
@@ -296,10 +321,16 @@ class PerformanceBenchmarkValidator:
 
         # 计算缓存统计
         total_operations = cache_hits + cache_misses
-        cache_hit_rate = (cache_hits / total_operations * 100) if total_operations > 0 else 0
+        cache_hit_rate = (
+            (cache_hits / total_operations * 100) if total_operations > 0 else 0
+        )
 
         avg_response_time = statistics.mean(cache_operations) if cache_operations else 0
-        p95_response_time = sorted(cache_operations)[int(len(cache_operations) * 0.95)] if cache_operations else 0
+        p95_response_time = (
+            sorted(cache_operations)[int(len(cache_operations) * 0.95)]
+            if cache_operations
+            else 0
+        )
 
         # 验证性能声明
         target_hit_rate = self.claimed_improvements["cache_hit_rate"]
@@ -327,7 +358,7 @@ class PerformanceBenchmarkValidator:
             "improvement_percent": improvement_percent,
             "avg_response_time_ms": avg_response_time,
             "p95_response_time_ms": p95_response_time,
-            "target_met": target_met
+            "target_met": target_met,
         }
 
     def validate_memory_efficiency(self, cycles: int = 200) -> Dict[str, Any]:
@@ -342,7 +373,7 @@ class PerformanceBenchmarkValidator:
         objects_created = 0
 
         try:
-            sys.path.insert(0, str(PROJECT_ROOT / '.claude' / 'core'))
+            sys.path.insert(0, str(PROJECT_ROOT / ".claude" / "core"))
             from lazy_engine import LazyWorkflowEngine
             from lazy_orchestrator import LazyAgentOrchestrator
 
@@ -353,7 +384,7 @@ class PerformanceBenchmarkValidator:
                 objects_created += 2
 
                 # 执行一些操作
-                if hasattr(engine, 'detect_complexity_fast'):
+                if hasattr(engine, "detect_complexity_fast"):
                     engine.detect_complexity_fast("memory test task")
 
                 # 记录内存使用
@@ -367,6 +398,7 @@ class PerformanceBenchmarkValidator:
                 # 定期垃圾回收
                 if i % 50 == 0:
                     import gc
+
                     gc.collect()
                     print(f"  完成 {i+1}/{cycles} 次内存测试循环")
 
@@ -376,6 +408,7 @@ class PerformanceBenchmarkValidator:
 
         # 最终内存测量
         import gc
+
         gc.collect()
         final_memory = process.memory_info().rss / 1024 / 1024
 
@@ -385,7 +418,11 @@ class PerformanceBenchmarkValidator:
         memory_growth = final_memory - initial_memory
 
         # 验证性能声明（简化计算）
-        memory_efficiency = max(0, 100 - (memory_growth / initial_memory * 100)) if initial_memory > 0 else 100
+        memory_efficiency = (
+            max(0, 100 - (memory_growth / initial_memory * 100))
+            if initial_memory > 0
+            else 100
+        )
         target_efficiency = self.claimed_improvements["memory"]
         target_met = memory_growth < initial_memory * 0.3  # 增长不超过30%
 
@@ -408,10 +445,12 @@ class PerformanceBenchmarkValidator:
             "objects_created": objects_created,
             "memory_efficiency_percent": memory_efficiency,
             "target_met": target_met,
-            "cycles_completed": cycles
+            "cycles_completed": cycles,
         }
 
-    def validate_response_time_improvement(self, requests: int = 1000) -> Dict[str, Any]:
+    def validate_response_time_improvement(
+        self, requests: int = 1000
+    ) -> Dict[str, Any]:
         """验证响应时间改进声明"""
         print(f"\n⚡ 验证响应时间改进声明")
         print(f"目标: 响应时间减少40%")
@@ -419,7 +458,7 @@ class PerformanceBenchmarkValidator:
         response_times = []
 
         try:
-            sys.path.insert(0, str(PROJECT_ROOT / '.claude' / 'core'))
+            sys.path.insert(0, str(PROJECT_ROOT / ".claude" / "core"))
             from lazy_engine import LazyWorkflowEngine
 
             engine = LazyWorkflowEngine()
@@ -427,7 +466,7 @@ class PerformanceBenchmarkValidator:
             for i in range(requests):
                 start = time.perf_counter()
 
-                if hasattr(engine, 'detect_complexity_fast'):
+                if hasattr(engine, "detect_complexity_fast"):
                     engine.detect_complexity_fast(f"response time test {i}")
                 else:
                     # 模拟操作
@@ -451,7 +490,9 @@ class PerformanceBenchmarkValidator:
 
         # 验证改进声明
         baseline_response = self.baseline_data["response_time"]
-        improvement_percent = ((baseline_response - avg_response) / baseline_response) * 100
+        improvement_percent = (
+            (baseline_response - avg_response) / baseline_response
+        ) * 100
         target_improvement = self.claimed_improvements["response_time"]
         target_met = improvement_percent >= target_improvement
 
@@ -471,13 +512,13 @@ class PerformanceBenchmarkValidator:
             "improvement_percent": improvement_percent,
             "target_improvement": target_improvement,
             "target_met": target_met,
-            "total_requests": len(response_times)
+            "total_requests": len(response_times),
         }
 
     def run_comprehensive_validation(self) -> Dict[str, Any]:
         """运行完整的性能验证"""
         print("🎯 Claude Enhancer 5.1 性能声明验证")
-        print("="*80)
+        print("=" * 80)
 
         validation_start = datetime.now()
 
@@ -498,7 +539,9 @@ class PerformanceBenchmarkValidator:
         validation_duration = (validation_end - validation_start).total_seconds()
 
         # 生成验证报告
-        validation_summary = self.generate_validation_summary(results, validation_duration)
+        validation_summary = self.generate_validation_summary(
+            results, validation_duration
+        )
 
         return {
             "validation_timestamp": validation_start.isoformat(),
@@ -506,10 +549,12 @@ class PerformanceBenchmarkValidator:
             "baseline_data": self.baseline_data,
             "claimed_improvements": self.claimed_improvements,
             "test_results": results,
-            "validation_summary": validation_summary
+            "validation_summary": validation_summary,
         }
 
-    def generate_validation_summary(self, results: Dict[str, Any], duration: float) -> Dict[str, Any]:
+    def generate_validation_summary(
+        self, results: Dict[str, Any], duration: float
+    ) -> Dict[str, Any]:
         """生成验证摘要"""
         validated_claims = 0
         total_claims = 0
@@ -527,7 +572,9 @@ class PerformanceBenchmarkValidator:
 
                 validation_details.append(f"{test_name}: {status}")
 
-        validation_rate = (validated_claims / total_claims * 100) if total_claims > 0 else 0
+        validation_rate = (
+            (validated_claims / total_claims * 100) if total_claims > 0 else 0
+        )
 
         # 总体评估
         if validation_rate >= 90:
@@ -545,8 +592,9 @@ class PerformanceBenchmarkValidator:
             "claims_validated": validated_claims,
             "validation_rate_percent": validation_rate,
             "overall_status": overall_status,
-            "validation_details": validation_details
+            "validation_details": validation_details,
         }
+
 
 def main():
     """主函数"""
@@ -569,16 +617,16 @@ def main():
     report_filename = f"claude_enhancer_5.1_validation_report_{timestamp}.json"
 
     try:
-        with open(report_filename, 'w', encoding='utf-8') as f:
+        with open(report_filename, "w", encoding="utf-8") as f:
             json.dump(validation_report, f, ensure_ascii=False, indent=2, default=str)
         print(f"\n📄 验证报告已保存: {report_filename}")
     except Exception as e:
         print(f"保存报告失败: {e}")
 
     # 打印验证摘要
-    print("\n" + "="*80)
+    print("\n" + "=" * 80)
     print("🏆 性能验证结果摘要")
-    print("="*80)
+    print("=" * 80)
 
     summary = validation_report.get("validation_summary", {})
 
@@ -588,7 +636,7 @@ def main():
     print(f"验证通过率: {summary.get('validation_rate_percent', 0):.1f}%")
     print(f"总体状态: {summary.get('overall_status', '未知')}")
 
-    details = summary.get('validation_details', [])
+    details = summary.get("validation_details", [])
     if details:
         print(f"\n详细验证结果:")
         for detail in details:
@@ -596,6 +644,7 @@ def main():
 
     print(f"\n📁 完整验证报告: {report_filename}")
     print("验证完成! 🎉")
+
 
 if __name__ == "__main__":
     main()

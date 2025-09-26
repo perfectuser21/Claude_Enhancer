@@ -14,6 +14,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 
+
 def run_command(cmd, description, timeout=30):
     """执行命令并返回结果"""
     print(f"🔄 {description}...")
@@ -24,7 +25,7 @@ def run_command(cmd, description, timeout=30):
             capture_output=True,
             text=True,
             timeout=timeout,
-            cwd="/home/xx/dev/Claude Enhancer 5.0"
+            cwd="/home/xx/dev/Claude Enhancer 5.0",
         )
 
         if result.returncode == 0:
@@ -41,6 +42,7 @@ def run_command(cmd, description, timeout=30):
         print(f"❌ {description} - 异常: {e}")
         return False, str(e)
 
+
 def test_docker_build():
     """测试Docker构建"""
     print("\n🐳 测试Docker构建...")
@@ -54,21 +56,17 @@ def test_docker_build():
 
     # 构建镜像
     success, output = run_command(
-        "docker build -t claude-enhancer:test .",
-        "构建Docker镜像",
-        300
+        "docker build -t claude-enhancer:test .", "构建Docker镜像", 300
     )
 
     return success
+
 
 def test_compose_validation():
     """测试Docker Compose配置"""
     print("\n📋 测试Docker Compose配置...")
 
-    compose_files = [
-        "docker-compose.production.yml",
-        "docker-compose.performance.yml"
-    ]
+    compose_files = ["docker-compose.production.yml", "docker-compose.performance.yml"]
 
     all_valid = True
 
@@ -77,7 +75,7 @@ def test_compose_validation():
             success, output = run_command(
                 f"docker-compose -f {compose_file} config --quiet",
                 f"验证 {compose_file}",
-                10
+                10,
             )
 
             if not success and "docker-compose: command not found" in output:
@@ -88,6 +86,7 @@ def test_compose_validation():
                 all_valid = False
 
     return all_valid
+
 
 def test_deployment_scripts():
     """测试部署脚本"""
@@ -103,16 +102,13 @@ def test_deployment_scripts():
 
     for script in scripts:
         # 检查脚本语法
-        success, output = run_command(
-            f"bash -n {script}",
-            f"检查脚本语法: {script.name}",
-            5
-        )
+        success, output = run_command(f"bash -n {script}", f"检查脚本语法: {script.name}", 5)
 
         if not success:
             all_valid = False
 
     return all_valid
+
 
 def test_github_workflows():
     """测试GitHub Actions工作流语法"""
@@ -132,7 +128,7 @@ def test_github_workflows():
         all_valid = True
         for workflow in workflows:
             try:
-                with open(workflow, 'r') as f:
+                with open(workflow, "r") as f:
                     yaml.safe_load(f)
                 print(f"✅ {workflow.name} - YAML语法正确")
             except yaml.YAMLError as e:
@@ -144,6 +140,7 @@ def test_github_workflows():
     except ImportError:
         print("⚠️ PyYAML未安装，跳过YAML语法检查")
         return True
+
 
 def test_application_startup():
     """测试应用启动"""
@@ -164,12 +161,11 @@ def test_application_startup():
 
     # 测试Python语法
     success, output = run_command(
-        f"python3 -m py_compile {found_main}",
-        f"检查 {found_main} Python语法",
-        10
+        f"python3 -m py_compile {found_main}", f"检查 {found_main} Python语法", 10
     )
 
     return success
+
 
 def test_rollback_mechanism():
     """测试回滚机制"""
@@ -179,15 +175,12 @@ def test_rollback_mechanism():
 
     if rollback_script.exists():
         # 检查脚本语法
-        success, output = run_command(
-            f"bash -n {rollback_script}",
-            "检查回滚脚本语法",
-            5
-        )
+        success, output = run_command(f"bash -n {rollback_script}", "检查回滚脚本语法", 5)
         return success
     else:
         print("⚠️ 未找到回滚脚本")
         return False
+
 
 def generate_test_report(results):
     """生成测试报告"""
@@ -198,16 +191,17 @@ def generate_test_report(results):
         "项目": "Claude Enhancer 5.1",
         "测试结果": results,
         "总体状态": "通过" if all(results.values()) else "失败",
-        "通过率": f"{sum(results.values())}/{len(results)} ({sum(results.values())/len(results)*100:.1f}%)"
+        "通过率": f"{sum(results.values())}/{len(results)} ({sum(results.values())/len(results)*100:.1f}%)",
     }
 
     filename = f"quick_cicd_test_report_{timestamp}.json"
 
-    with open(filename, 'w', encoding='utf-8') as f:
+    with open(filename, "w", encoding="utf-8") as f:
         json.dump(report, f, ensure_ascii=False, indent=2)
 
     print(f"\n📊 测试报告已保存: {filename}")
     return filename
+
 
 def main():
     """主测试函数"""
@@ -264,6 +258,7 @@ def main():
     print("=" * 80)
 
     return status_code
+
 
 if __name__ == "__main__":
     sys.exit(main())

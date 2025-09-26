@@ -63,8 +63,7 @@ def create_database_engine() -> Engine:
     try:
         # 创建引擎
         engine = create_engine(
-    pool_pre_ping=True,  # 连接预检查
-    
+            pool_pre_ping=True,  # 连接预检查
             config.get_sync_url(),
             **config.get_engine_kwargs(),
             poolclass=QueuePool,

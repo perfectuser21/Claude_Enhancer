@@ -880,23 +880,23 @@ async def main():
         # 生成并打印摘要报告
         summary = monitor.generate_summary_report()
 
-        print("\n" + "="*80)
-        print("Claude Enhancer 5.1 监控结果摘要")
-        print("="*80)
-        print(f"总测试数量: {summary['summary']['total_tests']}")
-        print(f"成功: {summary['summary']['successful']}")
-        print(f"警告: {summary['summary']['warnings']}")
-        print(f"失败: {summary['summary']['failures']}")
-        print(f"成功率: {summary['summary']['success_rate']:.1f}%")
-        print(f"平均响应时间: {summary['summary']['average_response_time_ms']:.2f}ms")
-        print(f"健康状态: {summary['health_status']}")
+        # print("\n" + "="*80)
+        # print("Claude Enhancer 5.1 监控结果摘要")
+        # print("="*80)
+        # print(f"总测试数量: {summary['summary']['total_tests']}")
+        # print(f"成功: {summary['summary']['successful']}")
+        # print(f"警告: {summary['summary']['warnings']}")
+        # print(f"失败: {summary['summary']['failures']}")
+        # print(f"成功率: {summary['summary']['success_rate']:.1f}%")
+        # print(f"平均响应时间: {summary['summary']['average_response_time_ms']:.2f}ms")
+        # print(f"健康状态: {summary['health_status']}")
 
         if summary['failed_tests']:
-            print("\n失败的测试:")
+            # print("\n失败的测试:")
             for test in summary['failed_tests']:
-                print(f"  - {test['test_name']}: {test['error']}")
+                # print(f"  - {test['test_name']}: {test['error']}")
 
-        print("="*80)
+        # print("="*80)
 
         # 根据监控结果设置退出码
         exit_code = 0 if summary['summary']['failures'] == 0 else 1

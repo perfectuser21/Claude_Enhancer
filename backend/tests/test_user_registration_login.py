@@ -44,7 +44,7 @@ class User:
         login_count: int = 0,
         failed_login_count: int = 0,
         locked_until: datetime = None,
-        **kwargs
+        **kwargs,
     ):
         self.id = id or str(uuid.uuid4())
         self.email = email

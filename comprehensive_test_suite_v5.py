@@ -42,13 +42,14 @@ from unittest.mock import Mock, patch, MagicMock
 import warnings
 
 # Suppress warnings for cleaner output
-warnings.filterwarnings('ignore', category=DeprecationWarning)
-warnings.filterwarnings('ignore', category=UserWarning)
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+warnings.filterwarnings("ignore", category=UserWarning)
 
 
 @dataclass
 class TestResults:
     """Test results aggregation"""
+
     total_tests: int = 0
     passed_tests: int = 0
     failed_tests: int = 0
@@ -66,12 +67,12 @@ class SecurityScanner:
     def __init__(self, project_root: Path):
         self.project_root = project_root
         self.dangerous_patterns = {
-            'eval': r'eval\s*\(',
-            'exec': r'exec\s*\(',
-            'subprocess_shell': r'subprocess\.[^(]+\([^)]*shell\s*=\s*True',
-            'os_system': r'os\.system\s*\(',
-            'pickle_loads': r'pickle\.loads?\s*\(',
-            'yaml_unsafe': r'yaml\.load\s*\([^)]*Loader\s*=\s*yaml\.UnsafeLoader',
+            "eval": r"eval\s*\(",
+            "exec": r"exec\s*\(",
+            "subprocess_shell": r"subprocess\.[^(]+\([^)]*shell\s*=\s*True",
+            "os_system": r"os\.system\s*\(",
+            "pickle_loads": r"pickle\.loads?\s*\(",
+            "yaml_unsafe": r"yaml\.load\s*\([^)]*Loader\s*=\s*yaml\.UnsafeLoader",
         }
 
     def scan_file(self, file_path: Path) -> List[Dict[str, Any]]:
@@ -79,42 +80,57 @@ class SecurityScanner:
         issues = []
 
         try:
-            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+            with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
                 content = f.read()
 
             for issue_type, pattern in self.dangerous_patterns.items():
                 matches = re.finditer(pattern, content, re.IGNORECASE | re.MULTILINE)
                 for match in matches:
-                    line_num = content[:match.start()].count('\n') + 1
-                    issues.append({
-                        'type': issue_type,
-                        'file': str(file_path.relative_to(self.project_root)),
-                        'line': line_num,
-                        'code': match.group(0),
-                        'severity': 'HIGH' if issue_type in ['eval', 'exec'] else 'MEDIUM'
-                    })
+                    line_num = content[: match.start()].count("\n") + 1
+                    issues.append(
+                        {
+                            "type": issue_type,
+                            "file": str(file_path.relative_to(self.project_root)),
+                            "line": line_num,
+                            "code": match.group(0),
+                            "severity": "HIGH"
+                            if issue_type in ["eval", "exec"]
+                            else "MEDIUM",
+                        }
+                    )
 
         except Exception as e:
-            issues.append({
-                'type': 'scan_error',
-                'file': str(file_path.relative_to(self.project_root)),
-                'error': str(e)
-            })
+            issues.append(
+                {
+                    "type": "scan_error",
+                    "file": str(file_path.relative_to(self.project_root)),
+                    "error": str(e),
+                }
+            )
 
         return issues
 
     def scan_project(self) -> List[Dict[str, Any]]:
         """Scan entire project for security issues"""
         all_issues = []
-        python_files = list(self.project_root.rglob('*.py'))
+        python_files = list(self.project_root.rglob("*.py"))
 
         # Exclude test files and examples from security scanning
         python_files = [
-            f for f in python_files
-            if not any(exclude in str(f) for exclude in [
-                '/test/', '/tests/', '/examples/', '/__pycache__/',
-                '/venv/', '/.venv/', '/node_modules/'
-            ])
+            f
+            for f in python_files
+            if not any(
+                exclude in str(f)
+                for exclude in [
+                    "/test/",
+                    "/tests/",
+                    "/examples/",
+                    "/__pycache__/",
+                    "/venv/",
+                    "/.venv/",
+                    "/node_modules/",
+                ]
+            )
         ]
 
         print(f"🔍 Scanning {len(python_files)} Python files for security issues...")
@@ -132,16 +148,16 @@ class PerformanceBenchmark:
     def __init__(self, project_root: Path):
         self.project_root = project_root
         self.baseline_metrics = {
-            'startup_time': 2.0,  # seconds
-            'agent_selection_time': 100.0,  # milliseconds
-            'memory_usage': 200.0,  # MB
-            'hook_execution_time': 50.0,  # milliseconds
+            "startup_time": 2.0,  # seconds
+            "agent_selection_time": 100.0,  # milliseconds
+            "memory_usage": 200.0,  # MB
+            "hook_execution_time": 50.0,  # milliseconds
         }
 
     def benchmark_lazy_orchestrator(self) -> Dict[str, float]:
         """Benchmark lazy orchestrator performance"""
         try:
-            sys.path.append(str(self.project_root / '.claude/core'))
+            sys.path.append(str(self.project_root / ".claude/core"))
             from lazy_orchestrator import LazyAgentOrchestrator
 
             results = {}
@@ -156,7 +172,7 @@ class PerformanceBenchmark:
                 startup_times.append(end - start)
                 del orchestrator
 
-            results['startup_time'] = sum(startup_times) / len(startup_times)
+            results["startup_time"] = sum(startup_times) / len(startup_times)
 
             # Agent selection benchmark
             orchestrator = LazyAgentOrchestrator()
@@ -165,7 +181,7 @@ class PerformanceBenchmark:
                 "implement user authentication",
                 "create REST API endpoint",
                 "fix security vulnerability",
-                "optimize database performance"
+                "optimize database performance",
             ]
 
             for task in test_tasks * 2:  # Run each task twice
@@ -174,17 +190,19 @@ class PerformanceBenchmark:
                 end = time.time()
                 selection_times.append((end - start) * 1000)  # Convert to ms
 
-            results['agent_selection_time'] = sum(selection_times) / len(selection_times)
+            results["agent_selection_time"] = sum(selection_times) / len(
+                selection_times
+            )
 
             return results
 
         except Exception as e:
-            return {'error': str(e)}
+            return {"error": str(e)}
 
     def benchmark_lazy_engine(self) -> Dict[str, float]:
         """Benchmark lazy engine performance"""
         try:
-            sys.path.append(str(self.project_root / '.claude/core'))
+            sys.path.append(str(self.project_root / ".claude/core"))
             from lazy_engine import LazyWorkflowEngine
 
             results = {}
@@ -199,7 +217,7 @@ class PerformanceBenchmark:
                 startup_times.append(end - start)
                 del engine
 
-            results['engine_startup_time'] = sum(startup_times) / len(startup_times)
+            results["engine_startup_time"] = sum(startup_times) / len(startup_times)
 
             # Phase execution benchmark
             engine = LazyWorkflowEngine()
@@ -211,12 +229,12 @@ class PerformanceBenchmark:
                 end = time.time()
                 phase_times.append(end - start)
 
-            results['phase_execution_time'] = sum(phase_times) / len(phase_times)
+            results["phase_execution_time"] = sum(phase_times) / len(phase_times)
 
             return results
 
         except Exception as e:
-            return {'error': str(e)}
+            return {"error": str(e)}
 
     def benchmark_memory_usage(self) -> Dict[str, float]:
         """Benchmark memory usage"""
@@ -225,7 +243,7 @@ class PerformanceBenchmark:
 
         # Load components and measure memory
         try:
-            sys.path.append(str(self.project_root / '.claude/core'))
+            sys.path.append(str(self.project_root / ".claude/core"))
             from lazy_orchestrator import LazyAgentOrchestrator
             from lazy_engine import LazyWorkflowEngine
 
@@ -239,13 +257,13 @@ class PerformanceBenchmark:
             peak_memory = process.memory_info().rss / 1024 / 1024  # MB
 
             return {
-                'initial_memory': initial_memory,
-                'peak_memory': peak_memory,
-                'memory_increase': peak_memory - initial_memory
+                "initial_memory": initial_memory,
+                "peak_memory": peak_memory,
+                "memory_increase": peak_memory - initial_memory,
             }
 
         except Exception as e:
-            return {'error': str(e)}
+            return {"error": str(e)}
 
 
 class HookSystemTester:
@@ -253,101 +271,103 @@ class HookSystemTester:
 
     def __init__(self, project_root: Path):
         self.project_root = project_root
-        self.hooks_dir = project_root / '.claude/hooks'
+        self.hooks_dir = project_root / ".claude/hooks"
 
     def test_hook_non_blocking(self) -> Dict[str, Any]:
         """Test that hooks are non-blocking"""
         results = {
-            'hooks_tested': 0,
-            'blocking_hooks': [],
-            'timeout_hooks': [],
-            'error_hooks': [],
-            'max_execution_time': 0.0
+            "hooks_tested": 0,
+            "blocking_hooks": [],
+            "timeout_hooks": [],
+            "error_hooks": [],
+            "max_execution_time": 0.0,
         }
 
         # Find executable hooks
         hook_files = [
-            f for f in self.hooks_dir.glob('*.sh')
+            f
+            for f in self.hooks_dir.glob("*.sh")
             if f.is_file() and os.access(f, os.R_OK)
         ]
 
         print(f"🪝 Testing {len(hook_files)} hook files for non-blocking behavior...")
 
         for hook_file in hook_files:
-            results['hooks_tested'] += 1
+            results["hooks_tested"] += 1
 
             try:
                 start_time = time.time()
 
                 # Test hook execution with timeout
-                result = subprocess.run([
-                    'bash', str(hook_file), 'test'
-                ],
-                capture_output=True,
-                text=True,
-                timeout=5.0  # 5 second timeout
+                result = subprocess.run(
+                    ["bash", str(hook_file), "test"],
+                    capture_output=True,
+                    text=True,
+                    timeout=5.0,  # 5 second timeout
                 )
 
                 execution_time = time.time() - start_time
-                results['max_execution_time'] = max(results['max_execution_time'], execution_time)
+                results["max_execution_time"] = max(
+                    results["max_execution_time"], execution_time
+                )
 
                 # Check for blocking behavior indicators
                 if execution_time > 3.0:  # Hooks should be fast
-                    results['blocking_hooks'].append({
-                        'file': hook_file.name,
-                        'execution_time': execution_time
-                    })
+                    results["blocking_hooks"].append(
+                        {"file": hook_file.name, "execution_time": execution_time}
+                    )
 
             except subprocess.TimeoutExpired:
-                results['timeout_hooks'].append(hook_file.name)
+                results["timeout_hooks"].append(hook_file.name)
             except Exception as e:
-                results['error_hooks'].append({
-                    'file': hook_file.name,
-                    'error': str(e)
-                })
+                results["error_hooks"].append({"file": hook_file.name, "error": str(e)})
 
         return results
 
     def test_hook_configuration(self) -> Dict[str, Any]:
         """Test hook configuration in settings.json"""
-        settings_file = self.project_root / '.claude/settings.json'
+        settings_file = self.project_root / ".claude/settings.json"
 
         try:
-            with open(settings_file, 'r') as f:
+            with open(settings_file, "r") as f:
                 settings = json.load(f)
 
-            hooks_config = settings.get('hooks', {})
+            hooks_config = settings.get("hooks", {})
             results = {
-                'hooks_configured': 0,
-                'blocking_hooks_found': [],
-                'non_blocking_hooks': 0,
-                'timeouts_configured': 0
+                "hooks_configured": 0,
+                "blocking_hooks_found": [],
+                "non_blocking_hooks": 0,
+                "timeouts_configured": 0,
             }
 
             # Check all hook categories
-            for hook_type in ['PreToolUse', 'PostToolUse', 'UserPromptSubmit']:
+            for hook_type in ["PreToolUse", "PostToolUse", "UserPromptSubmit"]:
                 hooks = hooks_config.get(hook_type, [])
                 for hook in hooks:
-                    results['hooks_configured'] += 1
+                    results["hooks_configured"] += 1
 
                     # Check blocking behavior
-                    if hook.get('blocking', True):  # Default is blocking=True in many systems
-                        results['blocking_hooks_found'].append({
-                            'type': hook_type,
-                            'command': hook.get('command', ''),
-                            'blocking': hook.get('blocking')
-                        })
+                    if hook.get(
+                        "blocking", True
+                    ):  # Default is blocking=True in many systems
+                        results["blocking_hooks_found"].append(
+                            {
+                                "type": hook_type,
+                                "command": hook.get("command", ""),
+                                "blocking": hook.get("blocking"),
+                            }
+                        )
                     else:
-                        results['non_blocking_hooks'] += 1
+                        results["non_blocking_hooks"] += 1
 
                     # Check timeout configuration
-                    if 'timeout' in hook:
-                        results['timeouts_configured'] += 1
+                    if "timeout" in hook:
+                        results["timeouts_configured"] += 1
 
             return results
 
         except Exception as e:
-            return {'error': str(e)}
+            return {"error": str(e)}
 
 
 class AgentSystemTester:
@@ -359,38 +379,38 @@ class AgentSystemTester:
     def test_agent_parallel_execution(self) -> Dict[str, Any]:
         """Test Agent parallel execution performance"""
         try:
-            sys.path.append(str(self.project_root / '.claude/core'))
+            sys.path.append(str(self.project_root / ".claude/core"))
             from lazy_orchestrator import LazyAgentOrchestrator
 
             orchestrator = LazyAgentOrchestrator()
             results = {
-                'tests_completed': 0,
-                'parallel_execution_times': [],
-                'sequential_execution_times': [],
-                'agents_tested': []
+                "tests_completed": 0,
+                "parallel_execution_times": [],
+                "sequential_execution_times": [],
+                "agents_tested": [],
             }
 
             test_tasks = [
                 "implement user authentication",
                 "create REST API",
-                "add database integration"
+                "add database integration",
             ]
 
             for task in test_tasks:
-                results['tests_completed'] += 1
+                results["tests_completed"] += 1
 
                 # Get agent selection
                 selection_result = orchestrator.select_agents_fast(task)
-                agents = selection_result['selected_agents']
-                results['agents_tested'] = agents
+                agents = selection_result["selected_agents"]
+                results["agents_tested"] = agents
 
                 # Test parallel execution
                 start_time = time.time()
                 parallel_results = orchestrator.execute_parallel_agents(
-                    agents, task, {'test_mode': True}
+                    agents, task, {"test_mode": True}
                 )
                 parallel_time = time.time() - start_time
-                results['parallel_execution_times'].append(parallel_time)
+                results["parallel_execution_times"].append(parallel_time)
 
                 # Test sequential execution (for comparison)
                 start_time = time.time()
@@ -398,41 +418,53 @@ class AgentSystemTester:
                 for agent_name in agents:
                     agent = orchestrator.agent_manager.load_agent(agent_name)
                     if agent:
-                        result = agent['execute'](task, {'test_mode': True})
+                        result = agent["execute"](task, {"test_mode": True})
                         sequential_results.append(result)
                 sequential_time = time.time() - start_time
-                results['sequential_execution_times'].append(sequential_time)
+                results["sequential_execution_times"].append(sequential_time)
 
             # Calculate performance improvement
-            if results['parallel_execution_times'] and results['sequential_execution_times']:
-                avg_parallel = sum(results['parallel_execution_times']) / len(results['parallel_execution_times'])
-                avg_sequential = sum(results['sequential_execution_times']) / len(results['sequential_execution_times'])
-                results['performance_improvement'] = (avg_sequential - avg_parallel) / avg_sequential * 100
+            if (
+                results["parallel_execution_times"]
+                and results["sequential_execution_times"]
+            ):
+                avg_parallel = sum(results["parallel_execution_times"]) / len(
+                    results["parallel_execution_times"]
+                )
+                avg_sequential = sum(results["sequential_execution_times"]) / len(
+                    results["sequential_execution_times"]
+                )
+                results["performance_improvement"] = (
+                    (avg_sequential - avg_parallel) / avg_sequential * 100
+                )
 
             return results
 
         except Exception as e:
-            return {'error': str(e)}
+            return {"error": str(e)}
 
     def test_agent_loading(self) -> Dict[str, Any]:
         """Test agent lazy loading"""
         try:
-            sys.path.append(str(self.project_root / '.claude/core'))
+            sys.path.append(str(self.project_root / ".claude/core"))
             from lazy_orchestrator import LazyAgentManager
 
             manager = LazyAgentManager()
             results = {
-                'total_agents_available': len(manager.agent_metadata),
-                'loaded_agents': 0,
-                'loading_times': [],
-                'cache_hits': 0,
-                'loading_errors': []
+                "total_agents_available": len(manager.agent_metadata),
+                "loaded_agents": 0,
+                "loading_times": [],
+                "cache_hits": 0,
+                "loading_errors": [],
             }
 
             # Test loading common agents
             common_agents = [
-                'backend-architect', 'test-engineer', 'security-auditor',
-                'api-designer', 'database-specialist'
+                "backend-architect",
+                "test-engineer",
+                "security-auditor",
+                "api-designer",
+                "database-specialist",
             ]
 
             for agent_name in common_agents:
@@ -442,8 +474,8 @@ class AgentSystemTester:
                     load_time = time.time() - start_time
 
                     if agent:
-                        results['loaded_agents'] += 1
-                        results['loading_times'].append(load_time)
+                        results["loaded_agents"] += 1
+                        results["loading_times"].append(load_time)
 
                     # Test caching by loading again
                     start_time = time.time()
@@ -451,13 +483,12 @@ class AgentSystemTester:
                     cache_time = time.time() - start_time
 
                     if cache_time < load_time / 10:  # Should be much faster
-                        results['cache_hits'] += 1
+                        results["cache_hits"] += 1
 
                 except Exception as e:
-                    results['loading_errors'].append({
-                        'agent': agent_name,
-                        'error': str(e)
-                    })
+                    results["loading_errors"].append(
+                        {"agent": agent_name, "error": str(e)}
+                    )
 
             # Get metrics from manager
             metrics = manager.get_metrics()
@@ -466,7 +497,7 @@ class AgentSystemTester:
             return results
 
         except Exception as e:
-            return {'error': str(e)}
+            return {"error": str(e)}
 
 
 class WorkflowSystemTester:
@@ -478,69 +509,72 @@ class WorkflowSystemTester:
     def test_workflow_phases(self) -> Dict[str, Any]:
         """Test workflow phase execution"""
         try:
-            sys.path.append(str(self.project_root / '.claude/core'))
+            sys.path.append(str(self.project_root / ".claude/core"))
             from lazy_engine import LazyWorkflowEngine
 
             engine = LazyWorkflowEngine()
             results = {
-                'phases_tested': 0,
-                'successful_phases': 0,
-                'failed_phases': [],
-                'execution_times': {},
-                'phase_transitions': []
+                "phases_tested": 0,
+                "successful_phases": 0,
+                "failed_phases": [],
+                "execution_times": {},
+                "phase_transitions": [],
             }
 
             # Test all phases
             for phase_id in range(8):  # Phases 0-7
-                results['phases_tested'] += 1
+                results["phases_tested"] += 1
 
                 try:
                     start_time = time.time()
                     result = engine.execute_phase(phase_id, test_mode=True)
                     execution_time = time.time() - start_time
 
-                    results['execution_times'][f'phase_{phase_id}'] = execution_time
+                    results["execution_times"][f"phase_{phase_id}"] = execution_time
 
-                    if result.get('success', False):
-                        results['successful_phases'] += 1
-                        results['phase_transitions'].append({
-                            'from_phase': engine.current_phase,
-                            'to_phase': phase_id,
-                            'success': True
-                        })
+                    if result.get("success", False):
+                        results["successful_phases"] += 1
+                        results["phase_transitions"].append(
+                            {
+                                "from_phase": engine.current_phase,
+                                "to_phase": phase_id,
+                                "success": True,
+                            }
+                        )
                     else:
-                        results['failed_phases'].append({
-                            'phase_id': phase_id,
-                            'error': result.get('error', 'Unknown error')
-                        })
+                        results["failed_phases"].append(
+                            {
+                                "phase_id": phase_id,
+                                "error": result.get("error", "Unknown error"),
+                            }
+                        )
 
                 except Exception as e:
-                    results['failed_phases'].append({
-                        'phase_id': phase_id,
-                        'error': str(e)
-                    })
+                    results["failed_phases"].append(
+                        {"phase_id": phase_id, "error": str(e)}
+                    )
 
             # Test workflow status
             status = engine.get_status()
-            results['final_status'] = status
+            results["final_status"] = status
 
             return results
 
         except Exception as e:
-            return {'error': str(e)}
+            return {"error": str(e)}
 
     def test_task_type_detection(self) -> Dict[str, Any]:
         """Test task type detection accuracy"""
         try:
-            sys.path.append(str(self.project_root / '.claude/core'))
+            sys.path.append(str(self.project_root / ".claude/core"))
             from lazy_engine import LazyWorkflowEngine
 
             engine = LazyWorkflowEngine()
             results = {
-                'tests_run': 0,
-                'correct_detections': 0,
-                'detection_accuracy': 0.0,
-                'detection_results': []
+                "tests_run": 0,
+                "correct_detections": 0,
+                "detection_accuracy": 0.0,
+                "detection_results": [],
             }
 
             # Test cases with expected results
@@ -554,26 +588,30 @@ class WorkflowSystemTester:
             ]
 
             for description, expected_type in test_cases:
-                results['tests_run'] += 1
+                results["tests_run"] += 1
                 detected_type = engine.detect_task_type(description)
 
                 is_correct = detected_type == expected_type
                 if is_correct:
-                    results['correct_detections'] += 1
+                    results["correct_detections"] += 1
 
-                results['detection_results'].append({
-                    'description': description,
-                    'expected': expected_type,
-                    'detected': detected_type,
-                    'correct': is_correct
-                })
+                results["detection_results"].append(
+                    {
+                        "description": description,
+                        "expected": expected_type,
+                        "detected": detected_type,
+                        "correct": is_correct,
+                    }
+                )
 
-            results['detection_accuracy'] = results['correct_detections'] / results['tests_run'] * 100
+            results["detection_accuracy"] = (
+                results["correct_detections"] / results["tests_run"] * 100
+            )
 
             return results
 
         except Exception as e:
-            return {'error': str(e)}
+            return {"error": str(e)}
 
 
 class DependencyAnalyzer:
@@ -585,41 +623,47 @@ class DependencyAnalyzer:
     def analyze_dependencies(self) -> Dict[str, Any]:
         """Analyze project dependencies"""
         results = {
-            'requirement_files_found': [],
-            'total_dependencies': 0,
-            'core_dependencies': [],
-            'dev_dependencies': [],
-            'duplicate_dependencies': [],
-            'analysis_complete': False
+            "requirement_files_found": [],
+            "total_dependencies": 0,
+            "core_dependencies": [],
+            "dev_dependencies": [],
+            "duplicate_dependencies": [],
+            "analysis_complete": False,
         }
 
         # Find all requirement files
-        req_files = list(self.project_root.rglob('requirements*.txt'))
-        req_files.extend(list(self.project_root.rglob('pyproject.toml')))
+        req_files = list(self.project_root.rglob("requirements*.txt"))
+        req_files.extend(list(self.project_root.rglob("pyproject.toml")))
 
-        results['requirement_files_found'] = [str(f.relative_to(self.project_root)) for f in req_files]
+        results["requirement_files_found"] = [
+            str(f.relative_to(self.project_root)) for f in req_files
+        ]
 
         # Analyze main requirements file
-        main_req_file = self.project_root / 'test/requirements.txt'
+        main_req_file = self.project_root / "test/requirements.txt"
         if main_req_file.exists():
             try:
-                with open(main_req_file, 'r') as f:
+                with open(main_req_file, "r") as f:
                     content = f.read()
 
                 # Parse dependencies
-                lines = [line.strip() for line in content.split('\n') if line.strip() and not line.startswith('#')]
+                lines = [
+                    line.strip()
+                    for line in content.split("\n")
+                    if line.strip() and not line.startswith("#")
+                ]
 
                 for line in lines:
-                    if '>=' in line or '==' in line or '~=' in line:
-                        dep_name = re.split(r'[><=~!]', line)[0].strip()
+                    if ">=" in line or "==" in line or "~=" in line:
+                        dep_name = re.split(r"[><=~!]", line)[0].strip()
                         if dep_name:
-                            results['core_dependencies'].append(line)
+                            results["core_dependencies"].append(line)
 
-                results['total_dependencies'] = len(results['core_dependencies'])
-                results['analysis_complete'] = True
+                results["total_dependencies"] = len(results["core_dependencies"])
+                results["analysis_complete"] = True
 
             except Exception as e:
-                results['error'] = str(e)
+                results["error"] = str(e)
 
         return results
 
@@ -648,36 +692,43 @@ class ClaudeEnhancerTestSuite:
         print("\n🔒 Running Security Tests...")
 
         security_results = {
-            'test_name': 'Security Vulnerability Scan',
-            'start_time': time.time()
+            "test_name": "Security Vulnerability Scan",
+            "start_time": time.time(),
         }
 
         # Scan for security issues
         issues = self.security_scanner.scan_project()
 
         # Filter for high-severity issues (eval, exec)
-        high_severity_issues = [i for i in issues if i.get('severity') == 'HIGH']
-        medium_severity_issues = [i for i in issues if i.get('severity') == 'MEDIUM']
+        high_severity_issues = [i for i in issues if i.get("severity") == "HIGH"]
+        medium_severity_issues = [i for i in issues if i.get("severity") == "MEDIUM"]
 
-        security_results.update({
-            'total_issues': len(issues),
-            'high_severity_issues': len(high_severity_issues),
-            'medium_severity_issues': len(medium_severity_issues),
-            'scan_errors': len([i for i in issues if i.get('type') == 'scan_error']),
-            'issues_details': high_severity_issues[:10],  # Top 10 high severity
-            'execution_time': time.time() - security_results['start_time'],
-            'passed': len(high_severity_issues) == 0  # Pass if no high severity issues
-        })
+        security_results.update(
+            {
+                "total_issues": len(issues),
+                "high_severity_issues": len(high_severity_issues),
+                "medium_severity_issues": len(medium_severity_issues),
+                "scan_errors": len(
+                    [i for i in issues if i.get("type") == "scan_error"]
+                ),
+                "issues_details": high_severity_issues[:10],  # Top 10 high severity
+                "execution_time": time.time() - security_results["start_time"],
+                "passed": len(high_severity_issues)
+                == 0,  # Pass if no high severity issues
+            }
+        )
 
         # Update overall results
         self.results.total_tests += 1
-        if security_results['passed']:
+        if security_results["passed"]:
             self.results.passed_tests += 1
         else:
             self.results.failed_tests += 1
             self.results.security_issues.extend([str(i) for i in high_severity_issues])
 
-        print(f"✅ Security scan completed: {len(issues)} total issues, {len(high_severity_issues)} high severity")
+        print(
+            f"✅ Security scan completed: {len(issues)} total issues, {len(high_severity_issues)} high severity"
+        )
 
         return security_results
 
@@ -686,8 +737,8 @@ class ClaudeEnhancerTestSuite:
         print("\n⚡ Running Performance Tests...")
 
         perf_results = {
-            'test_name': 'Performance Benchmarks',
-            'start_time': time.time()
+            "test_name": "Performance Benchmarks",
+            "start_time": time.time(),
         }
 
         # Benchmark lazy orchestrator
@@ -699,30 +750,39 @@ class ClaudeEnhancerTestSuite:
         # Benchmark memory usage
         memory_results = self.performance_benchmark.benchmark_memory_usage()
 
-        perf_results.update({
-            'orchestrator_benchmark': orchestrator_results,
-            'engine_benchmark': engine_results,
-            'memory_benchmark': memory_results,
-            'execution_time': time.time() - perf_results['start_time']
-        })
+        perf_results.update(
+            {
+                "orchestrator_benchmark": orchestrator_results,
+                "engine_benchmark": engine_results,
+                "memory_benchmark": memory_results,
+                "execution_time": time.time() - perf_results["start_time"],
+            }
+        )
 
         # Evaluate performance against baselines
         baseline = self.performance_benchmark.baseline_metrics
         passed = True
         performance_issues = []
 
-        if 'startup_time' in orchestrator_results:
-            if orchestrator_results['startup_time'] > baseline['startup_time']:
+        if "startup_time" in orchestrator_results:
+            if orchestrator_results["startup_time"] > baseline["startup_time"]:
                 passed = False
-                performance_issues.append(f"Startup time {orchestrator_results['startup_time']:.3f}s exceeds baseline {baseline['startup_time']}s")
+                performance_issues.append(
+                    f"Startup time {orchestrator_results['startup_time']:.3f}s exceeds baseline {baseline['startup_time']}s"
+                )
 
-        if 'agent_selection_time' in orchestrator_results:
-            if orchestrator_results['agent_selection_time'] > baseline['agent_selection_time']:
+        if "agent_selection_time" in orchestrator_results:
+            if (
+                orchestrator_results["agent_selection_time"]
+                > baseline["agent_selection_time"]
+            ):
                 passed = False
-                performance_issues.append(f"Agent selection time {orchestrator_results['agent_selection_time']:.2f}ms exceeds baseline {baseline['agent_selection_time']}ms")
+                performance_issues.append(
+                    f"Agent selection time {orchestrator_results['agent_selection_time']:.2f}ms exceeds baseline {baseline['agent_selection_time']}ms"
+                )
 
-        perf_results['passed'] = passed
-        perf_results['performance_issues'] = performance_issues
+        perf_results["passed"] = passed
+        perf_results["performance_issues"] = performance_issues
 
         # Update overall results
         self.results.total_tests += 1
@@ -742,8 +802,8 @@ class ClaudeEnhancerTestSuite:
         print("\n🪝 Running Hook System Tests...")
 
         hook_results = {
-            'test_name': 'Hook System Validation',
-            'start_time': time.time()
+            "test_name": "Hook System Validation",
+            "start_time": time.time(),
         }
 
         # Test non-blocking behavior
@@ -752,32 +812,46 @@ class ClaudeEnhancerTestSuite:
         # Test hook configuration
         config_results = self.hook_tester.test_hook_configuration()
 
-        hook_results.update({
-            'non_blocking_test': non_blocking_results,
-            'configuration_test': config_results,
-            'execution_time': time.time() - hook_results['start_time']
-        })
+        hook_results.update(
+            {
+                "non_blocking_test": non_blocking_results,
+                "configuration_test": config_results,
+                "execution_time": time.time() - hook_results["start_time"],
+            }
+        )
 
         # Evaluate results
         passed = True
         hook_issues = []
 
-        if non_blocking_results.get('blocking_hooks'):
+        if non_blocking_results.get("blocking_hooks"):
             passed = False
-            hook_issues.append(f"Found {len(non_blocking_results['blocking_hooks'])} potentially blocking hooks")
+            hook_issues.append(
+                f"Found {len(non_blocking_results['blocking_hooks'])} potentially blocking hooks"
+            )
 
-        if non_blocking_results.get('timeout_hooks'):
+        if non_blocking_results.get("timeout_hooks"):
             passed = False
-            hook_issues.append(f"Found {len(non_blocking_results['timeout_hooks'])} hooks that timed out")
+            hook_issues.append(
+                f"Found {len(non_blocking_results['timeout_hooks'])} hooks that timed out"
+            )
 
-        if config_results.get('blocking_hooks_found'):
+        if config_results.get("blocking_hooks_found"):
             # For Claude Enhancer 5.0, all hooks should be non-blocking
-            blocking_count = len([h for h in config_results['blocking_hooks_found'] if h.get('blocking', False)])
+            blocking_count = len(
+                [
+                    h
+                    for h in config_results["blocking_hooks_found"]
+                    if h.get("blocking", False)
+                ]
+            )
             if blocking_count > 0:
-                hook_issues.append(f"Found {blocking_count} hooks configured as blocking")
+                hook_issues.append(
+                    f"Found {blocking_count} hooks configured as blocking"
+                )
 
-        hook_results['passed'] = passed
-        hook_results['hook_issues'] = hook_issues
+        hook_results["passed"] = passed
+        hook_results["hook_issues"] = hook_issues
 
         # Update overall results
         self.results.total_tests += 1
@@ -796,8 +870,8 @@ class ClaudeEnhancerTestSuite:
         print("\n🤖 Running Agent System Tests...")
 
         agent_results = {
-            'test_name': 'Agent System Validation',
-            'start_time': time.time()
+            "test_name": "Agent System Validation",
+            "start_time": time.time(),
         }
 
         # Test parallel execution
@@ -806,31 +880,39 @@ class ClaudeEnhancerTestSuite:
         # Test agent loading
         loading_results = self.agent_tester.test_agent_loading()
 
-        agent_results.update({
-            'parallel_execution_test': parallel_results,
-            'agent_loading_test': loading_results,
-            'execution_time': time.time() - agent_results['start_time']
-        })
+        agent_results.update(
+            {
+                "parallel_execution_test": parallel_results,
+                "agent_loading_test": loading_results,
+                "execution_time": time.time() - agent_results["start_time"],
+            }
+        )
 
         # Evaluate results
         passed = True
         agent_issues = []
 
-        if 'error' in parallel_results:
+        if "error" in parallel_results:
             passed = False
-            agent_issues.append(f"Parallel execution error: {parallel_results['error']}")
-        elif parallel_results.get('performance_improvement', 0) < 10:
-            agent_issues.append("Parallel execution shows minimal performance improvement")
+            agent_issues.append(
+                f"Parallel execution error: {parallel_results['error']}"
+            )
+        elif parallel_results.get("performance_improvement", 0) < 10:
+            agent_issues.append(
+                "Parallel execution shows minimal performance improvement"
+            )
 
-        if 'error' in loading_results:
+        if "error" in loading_results:
             passed = False
             agent_issues.append(f"Agent loading error: {loading_results['error']}")
-        elif loading_results.get('loading_errors'):
+        elif loading_results.get("loading_errors"):
             passed = False
-            agent_issues.append(f"Found {len(loading_results['loading_errors'])} agent loading errors")
+            agent_issues.append(
+                f"Found {len(loading_results['loading_errors'])} agent loading errors"
+            )
 
-        agent_results['passed'] = passed
-        agent_results['agent_issues'] = agent_issues
+        agent_results["passed"] = passed
+        agent_results["agent_issues"] = agent_issues
 
         # Update overall results
         self.results.total_tests += 1
@@ -849,8 +931,8 @@ class ClaudeEnhancerTestSuite:
         print("\n🔄 Running Workflow System Tests...")
 
         workflow_results = {
-            'test_name': 'Workflow System Validation',
-            'start_time': time.time()
+            "test_name": "Workflow System Validation",
+            "start_time": time.time(),
         }
 
         # Test workflow phases
@@ -859,32 +941,40 @@ class ClaudeEnhancerTestSuite:
         # Test task type detection
         detection_results = self.workflow_tester.test_task_type_detection()
 
-        workflow_results.update({
-            'phase_execution_test': phase_results,
-            'task_detection_test': detection_results,
-            'execution_time': time.time() - workflow_results['start_time']
-        })
+        workflow_results.update(
+            {
+                "phase_execution_test": phase_results,
+                "task_detection_test": detection_results,
+                "execution_time": time.time() - workflow_results["start_time"],
+            }
+        )
 
         # Evaluate results
         passed = True
         workflow_issues = []
 
-        if 'error' in phase_results:
+        if "error" in phase_results:
             passed = False
             workflow_issues.append(f"Phase execution error: {phase_results['error']}")
-        elif phase_results.get('failed_phases'):
+        elif phase_results.get("failed_phases"):
             passed = False
-            workflow_issues.append(f"Found {len(phase_results['failed_phases'])} failed phases")
+            workflow_issues.append(
+                f"Found {len(phase_results['failed_phases'])} failed phases"
+            )
 
-        if 'error' in detection_results:
+        if "error" in detection_results:
             passed = False
-            workflow_issues.append(f"Task detection error: {detection_results['error']}")
-        elif detection_results.get('detection_accuracy', 0) < 80:
+            workflow_issues.append(
+                f"Task detection error: {detection_results['error']}"
+            )
+        elif detection_results.get("detection_accuracy", 0) < 80:
             passed = False
-            workflow_issues.append(f"Task detection accuracy {detection_results['detection_accuracy']:.1f}% below 80% threshold")
+            workflow_issues.append(
+                f"Task detection accuracy {detection_results['detection_accuracy']:.1f}% below 80% threshold"
+            )
 
-        workflow_results['passed'] = passed
-        workflow_results['workflow_issues'] = workflow_issues
+        workflow_results["passed"] = passed
+        workflow_results["workflow_issues"] = workflow_issues
 
         # Update overall results
         self.results.total_tests += 1
@@ -902,37 +992,38 @@ class ClaudeEnhancerTestSuite:
         """Run dependency analysis tests"""
         print("\n📦 Running Dependency Tests...")
 
-        dep_results = {
-            'test_name': 'Dependency Analysis',
-            'start_time': time.time()
-        }
+        dep_results = {"test_name": "Dependency Analysis", "start_time": time.time()}
 
         # Analyze dependencies
         analysis = self.dependency_analyzer.analyze_dependencies()
 
-        dep_results.update({
-            'analysis_results': analysis,
-            'execution_time': time.time() - dep_results['start_time']
-        })
+        dep_results.update(
+            {
+                "analysis_results": analysis,
+                "execution_time": time.time() - dep_results["start_time"],
+            }
+        )
 
         # Evaluate results
         passed = True
         dep_issues = []
 
-        if 'error' in analysis:
+        if "error" in analysis:
             passed = False
             dep_issues.append(f"Dependency analysis error: {analysis['error']}")
         else:
             # Check if we have reasonable number of core dependencies (target: ~23)
-            core_dep_count = analysis.get('total_dependencies', 0)
+            core_dep_count = analysis.get("total_dependencies", 0)
             if core_dep_count == 0:
                 passed = False
                 dep_issues.append("No core dependencies found")
             elif core_dep_count > 50:
-                dep_issues.append(f"High number of dependencies: {core_dep_count} (target: ~23)")
+                dep_issues.append(
+                    f"High number of dependencies: {core_dep_count} (target: ~23)"
+                )
 
-        dep_results['passed'] = passed
-        dep_results['dependency_issues'] = dep_issues
+        dep_results["passed"] = passed
+        dep_results["dependency_issues"] = dep_issues
 
         # Update overall results
         self.results.total_tests += 1
@@ -955,22 +1046,25 @@ class ClaudeEnhancerTestSuite:
 
         try:
             # Run all test categories
-            test_results['security'] = self.run_security_tests()
-            test_results['performance'] = self.run_performance_tests()
-            test_results['hooks'] = self.run_hook_system_tests()
-            test_results['agents'] = self.run_agent_system_tests()
-            test_results['workflow'] = self.run_workflow_system_tests()
-            test_results['dependencies'] = self.run_dependency_tests()
+            test_results["security"] = self.run_security_tests()
+            test_results["performance"] = self.run_performance_tests()
+            test_results["hooks"] = self.run_hook_system_tests()
+            test_results["agents"] = self.run_agent_system_tests()
+            test_results["workflow"] = self.run_workflow_system_tests()
+            test_results["dependencies"] = self.run_dependency_tests()
 
             # Calculate overall execution time
             self.results.execution_time = time.time() - self.start_time
 
             # Calculate coverage (simulated based on tests run)
-            self.results.coverage_percentage = min(95.0, (self.results.passed_tests / max(1, self.results.total_tests)) * 100)
+            self.results.coverage_percentage = min(
+                95.0,
+                (self.results.passed_tests / max(1, self.results.total_tests)) * 100,
+            )
 
         except Exception as e:
             self.results.errors.append(f"Test suite execution error: {str(e)}")
-            test_results['execution_error'] = str(e)
+            test_results["execution_error"] = str(e)
 
         # Generate final report
         self.generate_test_report(test_results)
@@ -989,91 +1083,101 @@ class ClaudeEnhancerTestSuite:
         print(f"  Passed: {self.results.passed_tests}")
         print(f"  Failed: {self.results.failed_tests}")
         print(f"  Skipped: {self.results.skipped_tests}")
-        print(f"  Success Rate: {(self.results.passed_tests / max(1, self.results.total_tests)) * 100:.1f}%")
+        print(
+            f"  Success Rate: {(self.results.passed_tests / max(1, self.results.total_tests)) * 100:.1f}%"
+        )
         print(f"  Execution Time: {self.results.execution_time:.2f}s")
         print(f"  Estimated Coverage: {self.results.coverage_percentage:.1f}%")
 
         # Test Results by Category
         print(f"\n🔍 TEST RESULTS BY CATEGORY")
         for category, results in test_results.items():
-            if isinstance(results, dict) and 'test_name' in results:
-                status = "✅ PASS" if results.get('passed', False) else "❌ FAIL"
-                exec_time = results.get('execution_time', 0)
+            if isinstance(results, dict) and "test_name" in results:
+                status = "✅ PASS" if results.get("passed", False) else "❌ FAIL"
+                exec_time = results.get("execution_time", 0)
                 print(f"  {status} {results['test_name']} ({exec_time:.3f}s)")
 
         # Security Analysis
-        if 'security' in test_results:
-            sec = test_results['security']
+        if "security" in test_results:
+            sec = test_results["security"]
             print(f"\n🔒 SECURITY ANALYSIS")
             print(f"  High Severity Issues: {sec.get('high_severity_issues', 0)}")
             print(f"  Medium Severity Issues: {sec.get('medium_severity_issues', 0)}")
-            if sec.get('issues_details'):
+            if sec.get("issues_details"):
                 print(f"  Sample Issues:")
-                for issue in sec['issues_details'][:3]:
-                    print(f"    - {issue.get('type', 'unknown')} in {issue.get('file', 'unknown')} line {issue.get('line', 0)}")
+                for issue in sec["issues_details"][:3]:
+                    print(
+                        f"    - {issue.get('type', 'unknown')} in {issue.get('file', 'unknown')} line {issue.get('line', 0)}"
+                    )
 
         # Performance Metrics
-        if 'performance' in test_results:
-            perf = test_results['performance']
+        if "performance" in test_results:
+            perf = test_results["performance"]
             print(f"\n⚡ PERFORMANCE METRICS")
-            if 'orchestrator_benchmark' in perf:
-                orch = perf['orchestrator_benchmark']
-                if 'startup_time' in orch:
+            if "orchestrator_benchmark" in perf:
+                orch = perf["orchestrator_benchmark"]
+                if "startup_time" in orch:
                     print(f"  Orchestrator Startup: {orch['startup_time']:.3f}s")
-                if 'agent_selection_time' in orch:
+                if "agent_selection_time" in orch:
                     print(f"  Agent Selection: {orch['agent_selection_time']:.2f}ms")
 
-            if 'memory_benchmark' in perf:
-                mem = perf['memory_benchmark']
-                if 'memory_increase' in mem:
+            if "memory_benchmark" in perf:
+                mem = perf["memory_benchmark"]
+                if "memory_increase" in mem:
                     print(f"  Memory Usage Increase: {mem['memory_increase']:.1f}MB")
 
         # Hook System Status
-        if 'hooks' in test_results:
-            hooks = test_results['hooks']
+        if "hooks" in test_results:
+            hooks = test_results["hooks"]
             print(f"\n🪝 HOOK SYSTEM STATUS")
-            if 'non_blocking_test' in hooks:
-                nb = hooks['non_blocking_test']
+            if "non_blocking_test" in hooks:
+                nb = hooks["non_blocking_test"]
                 print(f"  Hooks Tested: {nb.get('hooks_tested', 0)}")
                 print(f"  Max Execution Time: {nb.get('max_execution_time', 0):.3f}s")
                 print(f"  Blocking Hooks Found: {len(nb.get('blocking_hooks', []))}")
 
         # Agent System Status
-        if 'agents' in test_results:
-            agents = test_results['agents']
+        if "agents" in test_results:
+            agents = test_results["agents"]
             print(f"\n🤖 AGENT SYSTEM STATUS")
-            if 'agent_loading_test' in agents:
-                loading = agents['agent_loading_test']
+            if "agent_loading_test" in agents:
+                loading = agents["agent_loading_test"]
                 print(f"  Available Agents: {loading.get('total_agents_available', 0)}")
                 print(f"  Successfully Loaded: {loading.get('loaded_agents', 0)}")
                 print(f"  Cache Hits: {loading.get('cache_hits', 0)}")
 
-            if 'parallel_execution_test' in agents:
-                parallel = agents['parallel_execution_test']
-                if 'performance_improvement' in parallel:
-                    print(f"  Parallel Performance Improvement: {parallel['performance_improvement']:.1f}%")
+            if "parallel_execution_test" in agents:
+                parallel = agents["parallel_execution_test"]
+                if "performance_improvement" in parallel:
+                    print(
+                        f"  Parallel Performance Improvement: {parallel['performance_improvement']:.1f}%"
+                    )
 
         # Workflow System Status
-        if 'workflow' in test_results:
-            workflow = test_results['workflow']
+        if "workflow" in test_results:
+            workflow = test_results["workflow"]
             print(f"\n🔄 WORKFLOW SYSTEM STATUS")
-            if 'phase_execution_test' in workflow:
-                phases = workflow['phase_execution_test']
+            if "phase_execution_test" in workflow:
+                phases = workflow["phase_execution_test"]
                 print(f"  Phases Tested: {phases.get('phases_tested', 0)}")
                 print(f"  Successful Phases: {phases.get('successful_phases', 0)}")
 
-            if 'task_detection_test' in workflow:
-                detection = workflow['task_detection_test']
-                print(f"  Task Detection Accuracy: {detection.get('detection_accuracy', 0):.1f}%")
+            if "task_detection_test" in workflow:
+                detection = workflow["task_detection_test"]
+                print(
+                    f"  Task Detection Accuracy: {detection.get('detection_accuracy', 0):.1f}%"
+                )
 
         # Dependency Status
-        if 'dependencies' in test_results:
-            deps = test_results['dependencies']
+        if "dependencies" in test_results:
+            deps = test_results["dependencies"]
             print(f"\n📦 DEPENDENCY STATUS")
-            if 'analysis_results' in deps:
-                analysis = deps['analysis_results']
+            if "analysis_results" in deps:
+                analysis = deps["analysis_results"]
                 print(f"  Core Dependencies: {analysis.get('total_dependencies', 0)}")
-                print(f"  Requirements Files: {len(analysis.get('requirement_files_found', []))}")
+                print(
+                    f"  Requirements Files: {len(analysis.get('requirement_files_found', []))}"
+                )
 
         # Critical Issues
         if self.results.security_issues or self.results.errors:
@@ -1092,73 +1196,81 @@ class ClaudeEnhancerTestSuite:
         print(f"\n💡 RECOMMENDATIONS")
 
         # Security recommendations
-        if test_results.get('security', {}).get('high_severity_issues', 0) > 0:
+        if test_results.get("security", {}).get("high_severity_issues", 0) > 0:
             print(f"  🔒 Fix high severity security issues immediately")
         else:
             print(f"  ✅ No high severity security issues found - Good!")
 
         # Performance recommendations
-        perf_issues = test_results.get('performance', {}).get('performance_issues', [])
+        perf_issues = test_results.get("performance", {}).get("performance_issues", [])
         if perf_issues:
             print(f"  ⚡ Address performance issues: {len(perf_issues)} found")
         else:
             print(f"  ✅ Performance metrics within acceptable ranges")
 
         # Hook system recommendations
-        hook_issues = test_results.get('hooks', {}).get('hook_issues', [])
+        hook_issues = test_results.get("hooks", {}).get("hook_issues", [])
         if hook_issues:
             print(f"  🪝 Verify hook system configuration: {len(hook_issues)} issues")
         else:
             print(f"  ✅ Hook system properly configured for non-blocking operation")
 
         # Agent system recommendations
-        agent_issues = test_results.get('agents', {}).get('agent_issues', [])
+        agent_issues = test_results.get("agents", {}).get("agent_issues", [])
         if agent_issues:
             print(f"  🤖 Optimize agent system: {len(agent_issues)} issues")
         else:
             print(f"  ✅ Agent system functioning optimally")
 
         # Overall assessment
-        overall_score = (self.results.passed_tests / max(1, self.results.total_tests)) * 100
+        overall_score = (
+            self.results.passed_tests / max(1, self.results.total_tests)
+        ) * 100
 
         print(f"\n🎯 OVERALL ASSESSMENT")
         if overall_score >= 90:
-            print(f"  🟢 EXCELLENT - Claude Enhancer 5.0 is production ready ({overall_score:.1f}%)")
+            print(
+                f"  🟢 EXCELLENT - Claude Enhancer 5.0 is production ready ({overall_score:.1f}%)"
+            )
         elif overall_score >= 75:
             print(f"  🟡 GOOD - Minor issues need attention ({overall_score:.1f}%)")
         elif overall_score >= 50:
             print(f"  🟠 NEEDS WORK - Significant issues found ({overall_score:.1f}%)")
         else:
-            print(f"  🔴 CRITICAL - Major issues require immediate attention ({overall_score:.1f}%)")
+            print(
+                f"  🔴 CRITICAL - Major issues require immediate attention ({overall_score:.1f}%)"
+            )
 
         print("=" * 60)
 
         # Save report to file
         self.save_report_to_file(test_results, overall_score)
 
-    def save_report_to_file(self, test_results: Dict[str, Any], overall_score: float) -> None:
+    def save_report_to_file(
+        self, test_results: Dict[str, Any], overall_score: float
+    ) -> None:
         """Save detailed test report to file"""
         report_data = {
-            'timestamp': time.strftime('%Y-%m-%d %H:%M:%S'),
-            'overall_score': overall_score,
-            'summary': {
-                'total_tests': self.results.total_tests,
-                'passed_tests': self.results.passed_tests,
-                'failed_tests': self.results.failed_tests,
-                'success_rate': overall_score,
-                'execution_time': self.results.execution_time,
-                'coverage_percentage': self.results.coverage_percentage
+            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+            "overall_score": overall_score,
+            "summary": {
+                "total_tests": self.results.total_tests,
+                "passed_tests": self.results.passed_tests,
+                "failed_tests": self.results.failed_tests,
+                "success_rate": overall_score,
+                "execution_time": self.results.execution_time,
+                "coverage_percentage": self.results.coverage_percentage,
             },
-            'test_results': test_results,
-            'security_issues': self.results.security_issues,
-            'errors': self.results.errors,
-            'performance_metrics': self.results.performance_metrics
+            "test_results": test_results,
+            "security_issues": self.results.security_issues,
+            "errors": self.results.errors,
+            "performance_metrics": self.results.performance_metrics,
         }
 
-        report_file = self.project_root / 'CLAUDE_ENHANCER_5_TEST_REPORT.json'
+        report_file = self.project_root / "CLAUDE_ENHANCER_5_TEST_REPORT.json"
 
         try:
-            with open(report_file, 'w') as f:
+            with open(report_file, "w") as f:
                 json.dump(report_data, f, indent=2, default=str)
             print(f"📝 Detailed report saved to: {report_file}")
         except Exception as e:
