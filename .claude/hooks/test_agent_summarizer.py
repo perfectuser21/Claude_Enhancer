@@ -7,7 +7,12 @@ import os
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-exec(open("agent-output-summarizer.py").read())  # 直接执行文件内容
+# 安全导入模块而不是使用exec
+import importlib.util
+spec = importlib.util.spec_from_file_location("summarizer", "agent-output-summarizer.py")
+if spec and spec.loader:
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
 
 # 模拟多个agent的输出
 test_agents = [

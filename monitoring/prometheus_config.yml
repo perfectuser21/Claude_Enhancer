@@ -1,0 +1,217 @@
+# Claude Enhancer 5.1 - Prometheus监控配置
+# 企业级指标收集与告警配置
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'claude-enhancer-5.1'
+    environment: 'production'
+    region: 'us-east-1'
+
+# =================================
+# 告警管理配置
+# =================================
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - 'localhost:9093'
+      path_prefix: '/alertmanager'
+      scheme: 'http'
+
+# =================================
+# 规则文件配置
+# =================================
+rule_files:
+  - '/etc/prometheus/rules/claude_enhancer_recording_rules.yml'
+  - '/etc/prometheus/rules/claude_enhancer_alerting_rules.yml'
+  - '/etc/prometheus/rules/sli_slo_rules.yml'
+
+# =================================
+# 服务发现与抓取配置
+# =================================
+scrape_configs:
+  # Claude Enhancer主服务
+  - job_name: 'claude-enhancer-main'
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+    scrape_timeout: 5s
+    static_configs:
+      - targets:
+          - 'localhost:8000'  # 主服务
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+      - target_label: service
+        replacement: 'claude-enhancer-main'
+      - target_label: component
+        replacement: 'api'
+
+  # 认证服务
+  - job_name: 'claude-enhancer-auth'
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+    static_configs:
+      - targets:
+          - 'localhost:8001'  # 认证服务
+    relabel_configs:
+      - target_label: service
+        replacement: 'claude-enhancer-auth'
+      - target_label: component
+        replacement: 'auth'
+
+  # 性能监控仪表板
+  - job_name: 'claude-enhancer-dashboard'
+    metrics_path: '/api/metrics/prometheus'
+    scrape_interval: 15s
+    static_configs:
+      - targets:
+          - 'localhost:8080'  # 监控仪表板
+    relabel_configs:
+      - target_label: service
+        replacement: 'claude-enhancer-dashboard'
+      - target_label: component
+        replacement: 'monitoring'
+
+  # 数据库监控（如果使用PostgreSQL Exporter）
+  - job_name: 'postgres-exporter'
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+    static_configs:
+      - targets:
+          - 'localhost:9187'  # PostgreSQL exporter
+    relabel_configs:
+      - target_label: service
+        replacement: 'postgresql'
+      - target_label: component
+        replacement: 'database'
+
+  # Redis监控（如果使用Redis Exporter）
+  - job_name: 'redis-exporter'
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+    static_configs:
+      - targets:
+          - 'localhost:9121'  # Redis exporter
+    relabel_configs:
+      - target_label: service
+        replacement: 'redis'
+      - target_label: component
+        replacement: 'cache'
+
+  # 系统指标监控
+  - job_name: 'node-exporter'
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    static_configs:
+      - targets:
+          - 'localhost:9100'  # Node exporter
+    relabel_configs:
+      - target_label: service
+        replacement: 'system'
+      - target_label: component
+        replacement: 'node'
+
+  # 黑盒监控（端点可用性检查）
+  - job_name: 'blackbox-exporter'
+    metrics_path: '/probe'
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+          - 'http://localhost:8000/health'         # 主服务健康检查
+          - 'http://localhost:8001/health'         # 认证服务健康检查
+          - 'http://localhost:8000/api/v1/auth/status'  # 认证状态检查
+          - 'http://localhost:8080/api/status'     # 监控仪表板状态
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 'localhost:9115'  # Blackbox exporter地址
+
+  # Kubernetes环境配置（如果部署在k8s中）
+  - job_name: 'kubernetes-pods'
+    kubernetes_sd_configs:
+      - role: pod
+        namespaces:
+          names: ['claude-enhancer']
+    relabel_configs:
+      # 只抓取有prometheus.io/scrape=true注解的Pod
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+        action: keep
+        regex: true
+
+      # 使用自定义路径
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+        action: replace
+        target_label: __metrics_path__
+        regex: (.+)
+        replacement: $1
+
+      # 使用自定义端口
+      - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+        action: replace
+        regex: ([^:]+)(?::\d+)?;(\d+)
+        replacement: $1:$2
+        target_label: __address__
+
+      # 添加标签
+      - source_labels: [__meta_kubernetes_pod_name]
+        target_label: kubernetes_pod_name
+      - source_labels: [__meta_kubernetes_namespace]
+        target_label: kubernetes_namespace
+      - source_labels: [__meta_kubernetes_pod_label_app]
+        target_label: app
+      - source_labels: [__meta_kubernetes_pod_label_component]
+        target_label: component
+
+  # 服务网格监控（如果使用Istio）
+  - job_name: 'istio-mesh'
+    kubernetes_sd_configs:
+      - role: endpoints
+        namespaces:
+          names: ['istio-system', 'claude-enhancer']
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_service_name, __meta_kubernetes_endpoint_port_name]
+        action: keep
+        regex: istio-proxy;http-monitoring
+      - source_labels: [__address__, __meta_kubernetes_endpoint_port]
+        action: replace
+        regex: ([^:]+)(?::\d+)?;(\d+)
+        replacement: $1:15090
+        target_label: __address__
+      - action: labelmap
+        regex: __meta_kubernetes_service_label_(.+)
+      - source_labels: [__meta_kubernetes_namespace]
+        target_label: namespace
+      - source_labels: [__meta_kubernetes_service_name]
+        target_label: service_name
+
+# =================================
+# 远程存储配置（长期数据存储）
+# =================================
+remote_write:
+  - url: "http://localhost:8428/api/v1/write"  # VictoriaMetrics
+    queue_config:
+      max_samples_per_send: 10000
+      max_shards: 30
+      capacity: 100000
+
+# 可选：远程读取配置
+remote_read:
+  - url: "http://localhost:8428/api/v1/read"
+    read_recent: true
+
+# =================================
+# 存储配置
+# =================================
+storage:
+  tsdb:
+    path: '/prometheus/data'
+    retention.time: 15d    # 保留15天本地数据
+    retention.size: 50GB   # 最大50GB存储
+    min-block-duration: 2h # 最小块持续时间
+    max-block-duration: 25h # 最大块持续时间

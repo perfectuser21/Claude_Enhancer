@@ -1,0 +1,450 @@
+# Claude Enhancer 5.1 - Prometheus告警规则
+# 全面的告警规则配置，涵盖可用性、性能、资源、安全等方面
+
+groups:
+  # =================================
+  # 可用性告警规则
+  # =================================
+  - name: availability_alerts
+    interval: 30s
+    rules:
+      # 服务下线告警
+      - alert: ServiceDown
+        expr: up{job=~"claude-enhancer.*"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          team: platform
+          service: "{{ $labels.job }}"
+        annotations:
+          summary: "Claude Enhancer服务下线"
+          description: "服务 {{ $labels.job }} 在 {{ $labels.instance }} 上已下线超过2分钟"
+          runbook: "https://wiki.company.com/runbooks/service-down"
+          dashboard: "http://grafana.company.com/d/claude-enhancer-overview"
+
+      # 高错误率告警
+      - alert: HighErrorRate
+        expr: |
+          (
+            sum(rate(auth_requests_total{status=~"5.."}[5m])) by (service)
+            /
+            sum(rate(auth_requests_total[5m])) by (service)
+          ) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "{{ $labels.service }}服务错误率过高"
+          description: "服务 {{ $labels.service }} 的错误率为 {{ $value | humanizePercentage }}，超过5%阈值"
+          runbook: "https://wiki.company.com/runbooks/high-error-rate"
+
+      # 认证服务不可用
+      - alert: AuthServiceUnavailable
+        expr: |
+          (
+            sum(rate(auth_requests_total{status=~"2.."}[5m]))
+            /
+            sum(rate(auth_requests_total[5m]))
+          ) < 0.9
+        for: 3m
+        labels:
+          severity: critical
+          team: auth
+        annotations:
+          summary: "认证服务可用性低于90%"
+          description: "认证服务成功率仅为 {{ $value | humanizePercentage }}，低于90%阈值"
+
+      # API网关健康检查失败
+      - alert: ApiGatewayHealthCheckFailed
+        expr: probe_success{job="blackbox-exporter"} == 0
+        for: 1m
+        labels:
+          severity: error
+          team: platform
+        annotations:
+          summary: "API网关健康检查失败"
+          description: "端点 {{ $labels.instance }} 健康检查失败"
+          runbook: "https://wiki.company.com/runbooks/gateway-health-check"
+
+  # =================================
+  # 性能告警规则
+  # =================================
+  - name: performance_alerts
+    interval: 30s
+    rules:
+      # 高响应时间告警
+      - alert: HighResponseTime
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(auth_response_time_bucket[5m])) by (le, service)
+          ) > 1
+        for: 10m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "{{ $labels.service }}响应时间过高"
+          description: "服务 {{ $labels.service }} 的95%分位响应时间为 {{ $value }}秒，超过1秒阈值"
+          runbook: "https://wiki.company.com/runbooks/high-latency"
+
+      # 极高响应时间（严重）
+      - alert: CriticalResponseTime
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(auth_response_time_bucket[5m])) by (le, service)
+          ) > 5
+        for: 5m
+        labels:
+          severity: critical
+          team: backend
+        annotations:
+          summary: "{{ $labels.service }}响应时间极高"
+          description: "服务 {{ $labels.service }} 的95%分位响应时间为 {{ $value }}秒，超过5秒严重阈值"
+
+      # 请求速率异常下降
+      - alert: RequestRateDrop
+        expr: |
+          (
+            sum(rate(auth_requests_total[5m])) by (service)
+            /
+            sum(rate(auth_requests_total[1h] offset 1h)) by (service)
+          ) < 0.5
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "{{ $labels.service }}请求速率异常下降"
+          description: "服务 {{ $labels.service }} 的请求速率较1小时前下降了50%以上，当前比率: {{ $value }}"
+
+      # 队列积压告警
+      - alert: QueueBacklog
+        expr: queue_size > 1000
+        for: 5m
+        labels:
+          severity: error
+          team: backend
+        annotations:
+          summary: "队列积压严重"
+          description: "队列大小为 {{ $value }}，超过1000个任务的阈值"
+          runbook: "https://wiki.company.com/runbooks/queue-backlog"
+
+      # 数据库连接池耗尽
+      - alert: DatabaseConnectionPoolExhausted
+        expr: database_connections / database_pool_size > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          team: database
+        annotations:
+          summary: "数据库连接池接近耗尽"
+          description: "数据库连接池使用率为 {{ $value | humanizePercentage }}，超过90%"
+
+  # =================================
+  # 资源告警规则
+  # =================================
+  - name: resource_alerts
+    interval: 60s
+    rules:
+      # CPU使用率告警
+      - alert: HighCpuUsage
+        expr: claude_enhancer_cpu_usage > 80
+        for: 15m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "CPU使用率过高"
+          description: "实例 {{ $labels.instance }} 的CPU使用率为 {{ $value }}%，持续超过80%达15分钟"
+          runbook: "https://wiki.company.com/runbooks/high-cpu"
+
+      # 极高CPU使用率
+      - alert: CriticalCpuUsage
+        expr: claude_enhancer_cpu_usage > 95
+        for: 5m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "CPU使用率达到危险水平"
+          description: "实例 {{ $labels.instance }} 的CPU使用率为 {{ $value }}%，超过95%危险阈值"
+
+      # 内存使用率告警
+      - alert: HighMemoryUsage
+        expr: claude_enhancer_memory_usage > 85
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "内存使用率过高"
+          description: "实例 {{ $labels.instance }} 的内存使用率为 {{ $value }}%，超过85%阈值"
+
+      # 极高内存使用率
+      - alert: CriticalMemoryUsage
+        expr: claude_enhancer_memory_usage > 95
+        for: 5m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "内存使用率达到危险水平"
+          description: "实例 {{ $labels.instance }} 的内存使用率为 {{ $value }}%，超过95%危险阈值"
+
+      # 磁盘空间不足
+      - alert: LowDiskSpace
+        expr: claude_enhancer_disk_usage > 85
+        for: 30m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "磁盘空间不足"
+          description: "实例 {{ $labels.instance }} 的磁盘使用率为 {{ $value }}%，超过85%"
+
+      # 磁盘空间严重不足
+      - alert: CriticalDiskSpace
+        expr: claude_enhancer_disk_usage > 95
+        for: 10m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "磁盘空间严重不足"
+          description: "实例 {{ $labels.instance }} 的磁盘使用率为 {{ $value }}%，接近100%"
+
+      # 文件描述符耗尽
+      - alert: FileDescriptorExhaustion
+        expr: |
+          (
+            process_open_fds / process_max_fds
+          ) > 0.8
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "文件描述符使用率过高"
+          description: "实例 {{ $labels.instance }} 的文件描述符使用率为 {{ $value | humanizePercentage }}"
+
+  # =================================
+  # 缓存性能告警
+  # =================================
+  - name: cache_alerts
+    interval: 60s
+    rules:
+      # 缓存命中率过低
+      - alert: LowCacheHitRate
+        expr: cache_hit_ratio < 0.8
+        for: 15m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "缓存命中率过低"
+          description: "缓存命中率为 {{ $value | humanizePercentage }}，低于80%阈值"
+          runbook: "https://wiki.company.com/runbooks/low-cache-hit-rate"
+
+      # 缓存失效率异常
+      - alert: HighCacheEvictionRate
+        expr: rate(cache_evictions_total[5m]) > 100
+        for: 10m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "缓存失效率异常"
+          description: "缓存失效率为 {{ $value }} ops/sec，可能存在内存压力"
+
+      # 缓存服务不可用
+      - alert: CacheServiceDown
+        expr: up{job="redis-exporter"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          team: backend
+        annotations:
+          summary: "缓存服务不可用"
+          description: "Redis缓存服务已下线"
+
+  # =================================
+  # 安全告警规则
+  # =================================
+  - name: security_alerts
+    interval: 30s
+    rules:
+      # 异常认证失败尝试
+      - alert: SuspiciousAuthFailures
+        expr: |
+          sum(rate(auth_requests_total{status="401"}[5m])) by (instance) > 10
+        for: 2m
+        labels:
+          severity: warning
+          team: security
+        annotations:
+          summary: "检测到异常认证失败尝试"
+          description: "实例 {{ $labels.instance }} 出现异常的认证失败尝试，速率为 {{ $value }} /秒"
+          runbook: "https://wiki.company.com/runbooks/suspicious-auth"
+
+      # 大量认证失败
+      - alert: MassiveAuthFailures
+        expr: |
+          sum(rate(auth_requests_total{status="401"}[1m])) by (instance) > 50
+        for: 1m
+        labels:
+          severity: critical
+          team: security
+        annotations:
+          summary: "检测到大量认证失败"
+          description: "实例 {{ $labels.instance }} 出现大量认证失败，可能遭受攻击，速率为 {{ $value }} /秒"
+
+      # 可疑的请求模式
+      - alert: SuspiciousRequestPattern
+        expr: |
+          sum(rate(auth_requests_total[1m])) by (instance) > 500
+        for: 2m
+        labels:
+          severity: error
+          team: security
+        annotations:
+          summary: "检测到可疑请求模式"
+          description: "实例 {{ $labels.instance }} 出现异常高频请求，速率为 {{ $value }} /秒"
+
+      # MFA失败率异常
+      - alert: HighMfaFailureRate
+        expr: mfa_success_rate < 0.8
+        for: 10m
+        labels:
+          severity: warning
+          team: security
+        annotations:
+          summary: "多因子认证失败率过高"
+          description: "MFA成功率为 {{ $value | humanizePercentage }}，低于80%，可能存在安全问题"
+
+  # =================================
+  # 业务指标告警
+  # =================================
+  - name: business_alerts
+    interval: 60s
+    rules:
+      # 用户注册异常激增
+      - alert: UserRegistrationSpike
+        expr: |
+          sum(rate(user_registrations_total[5m])) >
+          sum(rate(user_registrations_total[1h] offset 1h)) * 5
+        for: 10m
+        labels:
+          severity: info
+          team: product
+        annotations:
+          summary: "用户注册量异常激增"
+          description: "用户注册速率为 {{ $value }} /秒，是历史平均值的5倍以上"
+
+      # 活跃会话数异常
+      - alert: ActiveSessionsAnomaly
+        expr: |
+          abs(
+            user_sessions_active -
+            avg_over_time(user_sessions_active[1h])
+          ) >
+          stddev_over_time(user_sessions_active[1h]) * 3
+        for: 15m
+        labels:
+          severity: warning
+          team: product
+        annotations:
+          summary: "活跃会话数异常"
+          description: "当前活跃会话数 {{ $value }} 偏离正常范围较大"
+
+      # 密码强度下降
+      - alert: PasswordStrengthDegradation
+        expr: |
+          avg(password_strength_score) < 60
+        for: 30m
+        labels:
+          severity: info
+          team: security
+        annotations:
+          summary: "用户密码强度整体下降"
+          description: "用户平均密码强度为 {{ $value }}，低于60分标准"
+
+  # =================================
+  # SLA违规告警
+  # =================================
+  - name: sla_alerts
+    interval: 60s
+    rules:
+      # 可用性SLA违规
+      - alert: AvailabilitySlaViolation
+        expr: |
+          (
+            sum(up{job=~"claude-enhancer.*"}) /
+            count(up{job=~"claude-enhancer.*"})
+          ) < 0.999
+        for: 5m
+        labels:
+          severity: critical
+          team: sre
+        annotations:
+          summary: "可用性SLA违规"
+          description: "系统可用性为 {{ $value | humanizePercentage }}，低于99.9%的SLA要求"
+          runbook: "https://wiki.company.com/runbooks/sla-violation"
+
+      # 响应时间SLA违规
+      - alert: ResponseTimeSlaViolation
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(auth_response_time_bucket[5m]))
+          ) > 0.2
+        for: 15m
+        labels:
+          severity: error
+          team: sre
+        annotations:
+          summary: "响应时间SLA违规"
+          description: "95%分位响应时间为 {{ $value }}秒，超过200ms的SLA要求"
+
+      # 错误率SLA违规
+      - alert: ErrorRateSlaViolation
+        expr: |
+          (
+            sum(rate(auth_requests_total{status=~"5.."}[5m]))
+            /
+            sum(rate(auth_requests_total[5m]))
+          ) > 0.001
+        for: 30m
+        labels:
+          severity: error
+          team: sre
+        annotations:
+          summary: "错误率SLA违规"
+          description: "系统错误率为 {{ $value | humanizePercentage }}，超过0.1%的SLA要求"
+
+  # =================================
+  # 数据一致性告警
+  # =================================
+  - name: data_consistency_alerts
+    interval: 300s  # 5分钟检查一次
+    rules:
+      # 数据库复制延迟
+      - alert: DatabaseReplicationLag
+        expr: database_replication_lag_seconds > 300
+        for: 10m
+        labels:
+          severity: warning
+          team: database
+        annotations:
+          summary: "数据库复制延迟过高"
+          description: "数据库复制延迟为 {{ $value }} 秒，超过5分钟"
+
+      # 缓存与数据库数据不一致
+      - alert: CacheDatabaseInconsistency
+        expr: cache_database_consistency_ratio < 0.95
+        for: 15m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "缓存与数据库数据不一致"
+          description: "缓存与数据库一致性比率为 {{ $value | humanizePercentage }}，低于95%"

@@ -1,0 +1,370 @@
+# =============================================================================
+# Istio VirtualService - 金丝雀部署 5% 流量配置
+# 将5%流量路由到Claude Enhancer 5.1版本进行验证
+# =============================================================================
+
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: claude-enhancer-canary-5
+  namespace: claude-enhancer
+  labels:
+    app: claude-enhancer
+    version: "5.1"
+    traffic-split: "canary-5"
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+    canary.percentage: "5"
+spec:
+  hosts:
+  - claude-enhancer.example.com
+  - claude-enhancer-service.claude-enhancer.svc.cluster.local
+  gateways:
+  - claude-enhancer-gateway
+  - mesh  # 允许集群内部访问
+  http:
+  # 特殊用户流量路由 - 优先级最高
+  - match:
+    - headers:
+        x-canary-user:
+          exact: "true"
+    - headers:
+        x-canary-test:
+          exact: "enabled"
+    - headers:
+        x-claude-version:
+          exact: "5.1"
+    route:
+    - destination:
+        host: claude-enhancer-canary-service.claude-enhancer.svc.cluster.local
+        port:
+          number: 80
+        subset: canary
+      weight: 100
+    fault:
+      delay:
+        percentage:
+          value: 0.1
+        fixedDelay: 5s
+    headers:
+      response:
+        add:
+          x-canary-version: "5.1"
+          x-traffic-type: "canary-user"
+
+  # 健康检查流量 - 直接路由到两个版本
+  - match:
+    - uri:
+        prefix: "/health"
+    - uri:
+        prefix: "/metrics"
+    - uri:
+        prefix: "/ready"
+    route:
+    - destination:
+        host: claude-enhancer-service.claude-enhancer.svc.cluster.local
+        port:
+          number: 80
+        subset: stable
+      weight: 95
+      headers:
+        response:
+          add:
+            x-version: "5.0"
+            x-traffic-type: "health-stable"
+    - destination:
+        host: claude-enhancer-canary-service.claude-enhancer.svc.cluster.local
+        port:
+          number: 80
+        subset: canary
+      weight: 5
+      headers:
+        response:
+          add:
+            x-version: "5.1"
+            x-traffic-type: "health-canary"
+    timeout: 10s
+    retries:
+      attempts: 2
+      perTryTimeout: 3s
+
+  # Agent相关流量 - 特殊处理
+  - match:
+    - uri:
+        prefix: "/api/agents"
+    - uri:
+        prefix: "/api/workflow"
+    route:
+    - destination:
+        host: claude-enhancer-service.claude-enhancer.svc.cluster.local
+        port:
+          number: 80
+        subset: stable
+      weight: 95
+      headers:
+        request:
+          add:
+            x-agent-version: "5.0"
+        response:
+          add:
+            x-agent-count: "61"
+            x-workflow-phases: "8"
+    - destination:
+        host: claude-enhancer-canary-service.claude-enhancer.svc.cluster.local
+        port:
+          number: 80
+        subset: canary
+      weight: 5
+      headers:
+        request:
+          add:
+            x-agent-version: "5.1"
+        response:
+          add:
+            x-agent-count: "61"
+            x-workflow-phases: "8"
+            x-optimization: "enhanced"
+    timeout: 30s  # Agent操作可能需要更长时间
+    retries:
+      attempts: 1  # Agent操作通常不应重试
+
+  # WebSocket连接 - 会话保持
+  - match:
+    - headers:
+        upgrade:
+          exact: websocket
+    route:
+    - destination:
+        host: claude-enhancer-service.claude-enhancer.svc.cluster.local
+        port:
+          number: 80
+        subset: stable
+      weight: 95
+    - destination:
+        host: claude-enhancer-canary-service.claude-enhancer.svc.cluster.local
+        port:
+          number: 80
+        subset: canary
+      weight: 5
+    timeout: 300s  # WebSocket连接超时5分钟
+
+  # 主要业务流量 - 5%金丝雀分流
+  - match:
+    - uri:
+        prefix: "/"
+    route:
+    - destination:
+        host: claude-enhancer-service.claude-enhancer.svc.cluster.local
+        port:
+          number: 80
+        subset: stable
+      weight: 95
+      headers:
+        response:
+          add:
+            x-version: "5.0"
+            x-traffic-type: "stable"
+            x-deployment-stage: "production"
+    - destination:
+        host: claude-enhancer-canary-service.claude-enhancer.svc.cluster.local
+        port:
+          number: 80
+        subset: canary
+      weight: 5
+      headers:
+        response:
+          add:
+            x-version: "5.1"
+            x-traffic-type: "canary"
+            x-deployment-stage: "canary-5"
+            x-optimization-enabled: "true"
+
+    # 超时和重试配置
+    timeout: 60s
+    retries:
+      attempts: 2
+      perTryTimeout: 30s
+      retryOn: 5xx,gateway-error,connect-failure,refused-stream
+
+    # 故障注入 - 用于测试弹性
+    fault:
+      abort:
+        percentage:
+          value: 0.01  # 0.01%的请求返回错误，用于测试监控
+        httpStatus: 503
+
+---
+# DestinationRule - 定义流量目标和负载均衡
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: claude-enhancer-destination
+  namespace: claude-enhancer
+  labels:
+    app: claude-enhancer
+    version: "5.1"
+spec:
+  host: claude-enhancer-service.claude-enhancer.svc.cluster.local
+  trafficPolicy:
+    loadBalancer:
+      simple: LEAST_CONN  # 最少连接负载均衡
+    connectionPool:
+      tcp:
+        maxConnections: 100
+        connectTimeout: 30s
+        keepAlive:
+          time: 7200s
+          interval: 75s
+      http:
+        http1MaxPendingRequests: 50
+        http2MaxRequests: 100
+        maxRequestsPerConnection: 2
+        maxRetries: 3
+        connectTimeout: 10s
+        h2UpgradePolicy: UPGRADE
+    circuitBreaker:
+      consecutiveGatewayErrors: 5
+      consecutive5xxErrors: 5
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+      minHealthPercent: 30
+  subsets:
+  # 稳定版本子集
+  - name: stable
+    labels:
+      version: "5.0"
+    trafficPolicy:
+      portLevelSettings:
+      - port:
+          number: 80
+        loadBalancer:
+          simple: ROUND_ROBIN
+        connectionPool:
+          tcp:
+            maxConnections: 50
+          http:
+            http1MaxPendingRequests: 25
+            maxRequestsPerConnection: 1
+
+  # 金丝雀版本子集
+  - name: canary
+    labels:
+      version: "5.1"
+      deployment-type: canary
+    trafficPolicy:
+      portLevelSettings:
+      - port:
+          number: 80
+        loadBalancer:
+          simple: LEAST_CONN
+        connectionPool:
+          tcp:
+            maxConnections: 20  # 金丝雀限制连接数
+          http:
+            http1MaxPendingRequests: 10
+            maxRequestsPerConnection: 1
+        circuitBreaker:
+          consecutiveGatewayErrors: 3  # 更严格的熔断
+          consecutive5xxErrors: 3
+          interval: 15s
+          baseEjectionTime: 60s
+
+---
+# DestinationRule for Canary Service
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: claude-enhancer-canary-destination
+  namespace: claude-enhancer
+  labels:
+    app: claude-enhancer
+    version: "5.1"
+    deployment-type: canary
+spec:
+  host: claude-enhancer-canary-service.claude-enhancer.svc.cluster.local
+  trafficPolicy:
+    loadBalancer:
+      simple: LEAST_CONN
+    connectionPool:
+      tcp:
+        maxConnections: 20
+        connectTimeout: 10s
+        keepAlive:
+          time: 600s
+          interval: 60s
+      http:
+        http1MaxPendingRequests: 10
+        http2MaxRequests: 20
+        maxRequestsPerConnection: 1
+        maxRetries: 2
+        connectTimeout: 5s
+        h2UpgradePolicy: UPGRADE
+    circuitBreaker:
+      consecutiveGatewayErrors: 3
+      consecutive5xxErrors: 3
+      interval: 15s
+      baseEjectionTime: 60s
+      maxEjectionPercent: 100  # 金丝雀可以完全熔断
+      minHealthPercent: 0
+    outlierDetection:
+      consecutiveGatewayErrors: 2
+      consecutive5xxErrors: 2
+      interval: 10s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 100
+  subsets:
+  - name: canary
+    labels:
+      version: "5.1"
+      deployment-type: canary
+
+---
+# ServiceEntry for external dependencies (if needed)
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: claude-enhancer-external-deps
+  namespace: claude-enhancer
+spec:
+  hosts:
+  - prometheus.monitoring.svc.cluster.local
+  - grafana.monitoring.svc.cluster.local
+  ports:
+  - number: 9090
+    name: prometheus
+    protocol: HTTP
+  - number: 3000
+    name: grafana
+    protocol: HTTP
+  location: MESH_EXTERNAL
+  resolution: DNS
+
+---
+# Gateway配置 (如果不存在)
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: claude-enhancer-gateway
+  namespace: claude-enhancer
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - claude-enhancer.example.com
+    tls:
+      httpsRedirect: true
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: claude-enhancer-tls
+    hosts:
+    - claude-enhancer.example.com

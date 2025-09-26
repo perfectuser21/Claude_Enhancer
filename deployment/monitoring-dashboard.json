@@ -1,0 +1,427 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Claude Enhancer 5.1 部署监控仪表板",
+    "description": "实时监控Claude Enhancer 5.1部署过程和系统健康状态",
+    "tags": ["claude-enhancer", "deployment", "canary", "blue-green"],
+    "style": "dark",
+    "timezone": "browser",
+    "refresh": "30s",
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "部署概览",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0},
+        "targets": [
+          {
+            "expr": "claude_enhancer_deployment_status",
+            "refId": "A",
+            "legendFormat": "部署状态"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": 0},
+                {"color": "yellow", "value": 0.5},
+                {"color": "green", "value": 1}
+              ]
+            },
+            "displayName": "部署阶段"
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "流量分布",
+        "type": "piechart",
+        "gridPos": {"h": 8, "w": 12, "x": 6, "y": 0},
+        "targets": [
+          {
+            "expr": "sum(rate(istio_requests_total{destination_app=\"claude-enhancer\"}[5m])) by (destination_version)",
+            "refId": "A",
+            "legendFormat": "Version {{destination_version}}"
+          }
+        ],
+        "options": {
+          "pieType": "pie",
+          "tooltip": {"mode": "single"},
+          "legend": {
+            "displayMode": "table",
+            "placement": "right",
+            "values": ["value", "percent"]
+          }
+        }
+      },
+      {
+        "id": 3,
+        "title": "系统错误率",
+        "type": "graph",
+        "gridPos": {"h": 6, "w": 12, "x": 0, "y": 8},
+        "targets": [
+          {
+            "expr": "sum(rate(istio_requests_total{destination_app=\"claude-enhancer\",response_code=~\"5..\"}[5m])) by (destination_version) / sum(rate(istio_requests_total{destination_app=\"claude-enhancer\"}[5m])) by (destination_version) * 100",
+            "refId": "A",
+            "legendFormat": "错误率 - Version {{destination_version}}"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "错误率 (%)",
+            "max": 1,
+            "min": 0,
+            "unit": "percent"
+          }
+        ],
+        "alert": {
+          "conditions": [
+            {
+              "evaluator": {"params": [0.5], "type": "gt"},
+              "operator": {"type": "and"},
+              "query": {"params": ["A", "5m", "now"]},
+              "reducer": {"type": "avg"},
+              "type": "query"
+            }
+          ],
+          "executionErrorState": "alerting",
+          "frequency": "10s",
+          "handler": 1,
+          "name": "Claude Enhancer 错误率告警",
+          "noDataState": "no_data"
+        }
+      },
+      {
+        "id": 4,
+        "title": "响应时间分位数",
+        "type": "graph",
+        "gridPos": {"h": 6, "w": 12, "x": 12, "y": 8},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, sum(rate(istio_request_duration_milliseconds_bucket{destination_app=\"claude-enhancer\"}[5m])) by (destination_version, le))",
+            "refId": "A",
+            "legendFormat": "P50 - Version {{destination_version}}"
+          },
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(istio_request_duration_milliseconds_bucket{destination_app=\"claude-enhancer\"}[5m])) by (destination_version, le))",
+            "refId": "B",
+            "legendFormat": "P95 - Version {{destination_version}}"
+          },
+          {
+            "expr": "histogram_quantile(0.99, sum(rate(istio_request_duration_milliseconds_bucket{destination_app=\"claude-enhancer\"}[5m])) by (destination_version, le))",
+            "refId": "C",
+            "legendFormat": "P99 - Version {{destination_version}}"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "响应时间 (ms)",
+            "min": 0,
+            "unit": "ms"
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Agent状态概览",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 8, "x": 0, "y": 14},
+        "targets": [
+          {
+            "expr": "claude_enhancer_agents_active_total",
+            "refId": "A",
+            "legendFormat": "活跃Agent"
+          },
+          {
+            "expr": "claude_enhancer_agents_total",
+            "refId": "B",
+            "legendFormat": "总Agent"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": 0},
+                {"color": "yellow", "value": 50},
+                {"color": "green", "value": 61}
+              ]
+            },
+            "displayName": "Agent状态"
+          }
+        }
+      },
+      {
+        "id": 6,
+        "title": "工作流阶段分布",
+        "type": "bargauge",
+        "gridPos": {"h": 4, "w": 8, "x": 8, "y": 14},
+        "targets": [
+          {
+            "expr": "claude_enhancer_workflow_phase_active_total by (phase)",
+            "refId": "A",
+            "legendFormat": "Phase {{phase}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": 0},
+                {"color": "yellow", "value": 10},
+                {"color": "red", "value": 20}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 7,
+        "title": "资源使用率",
+        "type": "graph",
+        "gridPos": {"h": 6, "w": 12, "x": 0, "y": 18},
+        "targets": [
+          {
+            "expr": "rate(container_cpu_usage_seconds_total{pod=~\"claude-enhancer.*\"}[5m]) * 100",
+            "refId": "A",
+            "legendFormat": "CPU - {{pod}}"
+          },
+          {
+            "expr": "container_memory_usage_bytes{pod=~\"claude-enhancer.*\"} / container_spec_memory_limit_bytes{pod=~\"claude-enhancer.*\"} * 100",
+            "refId": "B",
+            "legendFormat": "Memory - {{pod}}"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "使用率 (%)",
+            "max": 100,
+            "min": 0,
+            "unit": "percent"
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "数据库连接池",
+        "type": "graph",
+        "gridPos": {"h": 6, "w": 12, "x": 12, "y": 18},
+        "targets": [
+          {
+            "expr": "claude_enhancer_db_connections_active",
+            "refId": "A",
+            "legendFormat": "活跃连接"
+          },
+          {
+            "expr": "claude_enhancer_db_connections_idle",
+            "refId": "B",
+            "legendFormat": "空闲连接"
+          },
+          {
+            "expr": "claude_enhancer_db_connections_total",
+            "refId": "C",
+            "legendFormat": "总连接数"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "连接数",
+            "min": 0
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "title": "部署阶段时间线",
+        "type": "graph",
+        "gridPos": {"h": 6, "w": 24, "x": 0, "y": 24},
+        "targets": [
+          {
+            "expr": "claude_enhancer_deployment_phase_duration_seconds",
+            "refId": "A",
+            "legendFormat": "Phase {{phase}} - {{status}}"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "持续时间 (秒)",
+            "min": 0,
+            "unit": "s"
+          }
+        ],
+        "xAxis": {
+          "mode": "time"
+        }
+      },
+      {
+        "id": 10,
+        "title": "网络流量",
+        "type": "graph",
+        "gridPos": {"h": 6, "w": 12, "x": 0, "y": 30},
+        "targets": [
+          {
+            "expr": "sum(rate(istio_tcp_received_bytes_total{destination_app=\"claude-enhancer\"}[5m])) by (destination_version)",
+            "refId": "A",
+            "legendFormat": "接收 - Version {{destination_version}}"
+          },
+          {
+            "expr": "sum(rate(istio_tcp_sent_bytes_total{destination_app=\"claude-enhancer\"}[5m])) by (destination_version)",
+            "refId": "B",
+            "legendFormat": "发送 - Version {{destination_version}}"
+          }
+        ],
+        "yAxes": [
+          {
+            "label": "字节/秒",
+            "min": 0,
+            "unit": "bytes"
+          }
+        ]
+      },
+      {
+        "id": 11,
+        "title": "告警状态",
+        "type": "alertlist",
+        "gridPos": {"h": 6, "w": 12, "x": 12, "y": 30},
+        "options": {
+          "showOptions": "current",
+          "maxItems": 10,
+          "sortOrder": 1,
+          "dashboardAlerts": true,
+          "alertName": "",
+          "dashboardTitle": "",
+          "folderTitle": "",
+          "tags": ["claude-enhancer"]
+        }
+      },
+      {
+        "id": 12,
+        "title": "用户会话统计",
+        "type": "singlestat",
+        "gridPos": {"h": 4, "w": 6, "x": 16, "y": 14},
+        "targets": [
+          {
+            "expr": "claude_enhancer_active_sessions_total",
+            "refId": "A"
+          }
+        ],
+        "valueName": "current",
+        "format": "short",
+        "thresholds": "100,500"
+      },
+      {
+        "id": 13,
+        "title": "部署健康评分",
+        "type": "gauge",
+        "gridPos": {"h": 8, "w": 8, "x": 16, "y": 0},
+        "targets": [
+          {
+            "expr": "claude_enhancer_deployment_health_score * 100",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": 0},
+                {"color": "yellow", "value": 70},
+                {"color": "green", "value": 90}
+              ]
+            },
+            "unit": "percent",
+            "min": 0,
+            "max": 100
+          }
+        }
+      }
+    ],
+    "templating": {
+      "list": [
+        {
+          "name": "namespace",
+          "type": "query",
+          "query": "label_values(claude_enhancer_info, namespace)",
+          "refresh": 1,
+          "includeAll": false,
+          "multi": false,
+          "current": {
+            "selected": true,
+            "text": "claude-enhancer",
+            "value": "claude-enhancer"
+          }
+        },
+        {
+          "name": "version",
+          "type": "query",
+          "query": "label_values(claude_enhancer_info{namespace=\"$namespace\"}, version)",
+          "refresh": 1,
+          "includeAll": true,
+          "multi": true,
+          "current": {
+            "selected": true,
+            "text": "All",
+            "value": "$__all"
+          }
+        },
+        {
+          "name": "deployment_type",
+          "type": "custom",
+          "options": [
+            {"text": "All", "value": "$__all", "selected": true},
+            {"text": "Stable", "value": "stable", "selected": false},
+            {"text": "Canary", "value": "canary", "selected": false},
+            {"text": "Blue-Green", "value": "blue-green", "selected": false}
+          ],
+          "multi": true,
+          "includeAll": true
+        }
+      ]
+    },
+    "annotations": {
+      "list": [
+        {
+          "name": "部署事件",
+          "datasource": "prometheus",
+          "enable": true,
+          "expr": "changes(claude_enhancer_deployment_events_total[1m]) > 0",
+          "iconColor": "blue",
+          "titleFormat": "部署事件",
+          "textFormat": "{{event_type}}: {{description}}"
+        },
+        {
+          "name": "告警事件",
+          "datasource": "prometheus",
+          "enable": true,
+          "expr": "ALERTS{alertname=~\"Claude.*\"}",
+          "iconColor": "red",
+          "titleFormat": "告警: {{alertname}}",
+          "textFormat": "{{description}}"
+        }
+      ]
+    },
+    "links": [
+      {
+        "title": "Claude Enhancer Docs",
+        "url": "https://docs.claude-enhancer.com",
+        "type": "link",
+        "icon": "external link"
+      },
+      {
+        "title": "Deployment Runbook",
+        "url": "https://runbook.claude-enhancer.com/deployment",
+        "type": "link",
+        "icon": "doc"
+      }
+    ]
+  }
+}

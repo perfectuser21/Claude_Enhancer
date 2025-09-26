@@ -1,0 +1,282 @@
+{
+  "widgets": [
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 0,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          [ "AWS/ApplicationELB", "RequestCount", "LoadBalancer", "claude-enhancer-prod-alb", { "stat": "Sum" } ],
+          [ ".", "TargetResponseTime", ".", ".", { "stat": "Average", "yAxis": "right" } ],
+          [ ".", "HTTPCode_ELB_5XX_Count", ".", ".", { "stat": "Sum", "color": "#d62728" } ],
+          [ ".", "HTTPCode_Target_5XX_Count", ".", ".", { "stat": "Sum", "color": "#ff7f0e" } ]
+        ],
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "us-east-1",
+        "title": "Application Load Balancer Metrics",
+        "period": 300,
+        "yAxis": {
+          "left": {
+            "min": 0
+          },
+          "right": {
+            "min": 0
+          }
+        }
+      }
+    },
+    {
+      "type": "metric",
+      "x": 12,
+      "y": 0,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          [ "AWS/ECS", "CPUUtilization", "ServiceName", "claude-enhancer-auth-service", "ClusterName", "claude-enhancer-prod", { "stat": "Average" } ],
+          [ "...", "claude-enhancer-core-service", ".", ".", { "stat": "Average" } ],
+          [ "...", "claude-enhancer-agent-service", ".", ".", { "stat": "Average" } ],
+          [ ".", "MemoryUtilization", "ServiceName", "claude-enhancer-auth-service", "ClusterName", "claude-enhancer-prod", { "stat": "Average", "yAxis": "right" } ],
+          [ "...", "claude-enhancer-core-service", ".", ".", { "stat": "Average", "yAxis": "right" } ],
+          [ "...", "claude-enhancer-agent-service", ".", ".", { "stat": "Average", "yAxis": "right" } ]
+        ],
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "us-east-1",
+        "title": "ECS Service Resource Utilization",
+        "period": 300,
+        "yAxis": {
+          "left": {
+            "min": 0,
+            "max": 100
+          },
+          "right": {
+            "min": 0,
+            "max": 100
+          }
+        }
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 6,
+      "width": 8,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          [ "AWS/RDS", "CPUUtilization", "DBClusterIdentifier", "claude-enhancer-prod-aurora-cluster", { "stat": "Average" } ],
+          [ ".", "DatabaseConnections", ".", ".", { "stat": "Average", "yAxis": "right" } ],
+          [ ".", "ReadLatency", ".", ".", { "stat": "Average" } ],
+          [ ".", "WriteLatency", ".", ".", { "stat": "Average" } ]
+        ],
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "us-east-1",
+        "title": "Aurora PostgreSQL Performance",
+        "period": 300,
+        "yAxis": {
+          "left": {
+            "min": 0
+          },
+          "right": {
+            "min": 0
+          }
+        }
+      }
+    },
+    {
+      "type": "metric",
+      "x": 8,
+      "y": 6,
+      "width": 8,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          [ "AWS/ElastiCache", "CPUUtilization", "CacheClusterId", "claude-enhancer-prod-redis-001", { "stat": "Average" } ],
+          [ ".", "DatabaseMemoryUsagePercentage", ".", ".", { "stat": "Average" } ],
+          [ ".", "CacheHits", ".", ".", { "stat": "Sum", "yAxis": "right" } ],
+          [ ".", "CacheMisses", ".", ".", { "stat": "Sum", "yAxis": "right" } ]
+        ],
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "us-east-1",
+        "title": "ElastiCache Redis Performance",
+        "period": 300,
+        "yAxis": {
+          "left": {
+            "min": 0,
+            "max": 100
+          },
+          "right": {
+            "min": 0
+          }
+        }
+      }
+    },
+    {
+      "type": "metric",
+      "x": 16,
+      "y": 6,
+      "width": 8,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          [ "AWS/ECS", "ServiceCount", "ServiceName", "claude-enhancer-auth-service", "ClusterName", "claude-enhancer-prod", { "stat": "Average" } ],
+          [ "...", "claude-enhancer-core-service", ".", ".", { "stat": "Average" } ],
+          [ "...", "claude-enhancer-agent-service", ".", ".", { "stat": "Average" } ],
+          [ ".", "TaskCount", "ServiceName", "claude-enhancer-auth-service", "ClusterName", "claude-enhancer-prod", { "stat": "Average", "yAxis": "right" } ],
+          [ "...", "claude-enhancer-core-service", ".", ".", { "stat": "Average", "yAxis": "right" } ],
+          [ "...", "claude-enhancer-agent-service", ".", ".", { "stat": "Average", "yAxis": "right" } ]
+        ],
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "us-east-1",
+        "title": "ECS Service and Task Counts",
+        "period": 300
+      }
+    },
+    {
+      "type": "log",
+      "x": 0,
+      "y": 12,
+      "width": 24,
+      "height": 6,
+      "properties": {
+        "query": "SOURCE '/aws/ecs/claude-enhancer-prod'\n| fields @timestamp, @message\n| filter @message like /ERROR/\n| sort @timestamp desc\n| limit 100",
+        "region": "us-east-1",
+        "title": "Recent Error Logs",
+        "view": "table"
+      }
+    },
+    {
+      "type": "metric",
+      "x": 0,
+      "y": 18,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          [ "AWS/CloudFront", "Requests", "DistributionId", "E1EXAMPLE", { "stat": "Sum" } ],
+          [ ".", "BytesDownloaded", ".", ".", { "stat": "Sum", "yAxis": "right" } ],
+          [ ".", "4xxErrorRate", ".", ".", { "stat": "Average" } ],
+          [ ".", "5xxErrorRate", ".", ".", { "stat": "Average" } ]
+        ],
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "us-east-1",
+        "title": "CloudFront Distribution Metrics",
+        "period": 300,
+        "yAxis": {
+          "left": {
+            "min": 0
+          },
+          "right": {
+            "min": 0
+          }
+        }
+      }
+    },
+    {
+      "type": "metric",
+      "x": 12,
+      "y": 18,
+      "width": 12,
+      "height": 6,
+      "properties": {
+        "metrics": [
+          [ "CWAgent", "Memory % Committed Bytes In Use", "InstanceId", "*", { "stat": "Average" } ],
+          [ ".", "LogicalDisk % Free Space", ".", "*", "instance", "C:", { "stat": "Average" } ],
+          [ "AWS/EC2", "NetworkIn", "InstanceId", "*", { "stat": "Sum", "yAxis": "right" } ],
+          [ ".", "NetworkOut", ".", "*", { "stat": "Sum", "yAxis": "right" } ]
+        ],
+        "view": "timeSeries",
+        "stacked": false,
+        "region": "us-east-1",
+        "title": "System Resource Metrics",
+        "period": 300
+      }
+    },
+    {
+      "type": "number",
+      "x": 0,
+      "y": 24,
+      "width": 6,
+      "height": 3,
+      "properties": {
+        "metrics": [
+          [ "AWS/ECS", "RunningTaskCount", "ServiceName", "claude-enhancer-core-service", "ClusterName", "claude-enhancer-prod" ]
+        ],
+        "view": "singleValue",
+        "region": "us-east-1",
+        "title": "Core Service Running Tasks",
+        "period": 300,
+        "stat": "Average"
+      }
+    },
+    {
+      "type": "number",
+      "x": 6,
+      "y": 24,
+      "width": 6,
+      "height": 3,
+      "properties": {
+        "metrics": [
+          [ "AWS/ApplicationELB", "HealthyHostCount", "TargetGroup", "claude-enhancer-core-tg" ]
+        ],
+        "view": "singleValue",
+        "region": "us-east-1",
+        "title": "Healthy Targets",
+        "period": 300,
+        "stat": "Average"
+      }
+    },
+    {
+      "type": "number",
+      "x": 12,
+      "y": 24,
+      "width": 6,
+      "height": 3,
+      "properties": {
+        "metrics": [
+          [ "AWS/RDS", "DatabaseConnections", "DBClusterIdentifier", "claude-enhancer-prod-aurora-cluster" ]
+        ],
+        "view": "singleValue",
+        "region": "us-east-1",
+        "title": "Database Connections",
+        "period": 300,
+        "stat": "Average"
+      }
+    },
+    {
+      "type": "number",
+      "x": 18,
+      "y": 24,
+      "width": 6,
+      "height": 3,
+      "properties": {
+        "metrics": [
+          [ "AWS/ElastiCache", "CurrConnections", "CacheClusterId", "claude-enhancer-prod-redis-001" ]
+        ],
+        "view": "singleValue",
+        "region": "us-east-1",
+        "title": "Redis Connections",
+        "period": 300,
+        "stat": "Average"
+      }
+    },
+    {
+      "type": "text",
+      "x": 0,
+      "y": 27,
+      "width": 24,
+      "height": 3,
+      "properties": {
+        "markdown": "# Claude Enhancer 5.1 - Production Dashboard\n\n## Key Metrics Overview\n\n- **Request Processing**: Monitor ALB request count and response times\n- **Service Health**: Track ECS service resource utilization and task counts  \n- **Database Performance**: Aurora and Redis performance metrics\n- **Error Monitoring**: Real-time error log analysis\n- **Infrastructure**: CloudFront CDN and system resource monitoring\n\n**Last Updated**: Auto-refresh every 5 minutes | **Environment**: Production | **Region**: us-east-1"
+      }
+    }
+  ]
+}

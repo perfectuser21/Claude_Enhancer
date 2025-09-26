@@ -38,7 +38,8 @@ class LazyAgentManager:
     """Manages lazy loading of agents"""
 
     def __init__(self):
-        self.loaded_agents = weakref.WeakValueDictionary()
+        # 使用普通字典而不是WeakValueDictionary来避免WeakReference问题
+        self.loaded_agents = {}
         self.agent_metadata = {}
         self.loading_lock = threading.RLock()
         self.load_executor = ThreadPoolExecutor(

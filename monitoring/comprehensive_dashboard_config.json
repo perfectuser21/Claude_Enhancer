@@ -1,0 +1,672 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Claude Enhancer 5.1 - 企业级监控中心",
+    "description": "全方位监控Claude Enhancer 5.1系统性能、业务指标和运行状态",
+    "tags": ["claude-enhancer", "monitoring", "enterprise", "sre"],
+    "style": "dark",
+    "timezone": "browser",
+    "refresh": "10s",
+    "time": {
+      "from": "now-3h",
+      "to": "now"
+    },
+    "templating": {
+      "list": [
+        {
+          "name": "environment",
+          "type": "custom",
+          "options": [
+            {"text": "Production", "value": "production", "selected": true},
+            {"text": "Staging", "value": "staging", "selected": false},
+            {"text": "Development", "value": "development", "selected": false}
+          ],
+          "multi": false,
+          "includeAll": false
+        },
+        {
+          "name": "service",
+          "type": "query",
+          "query": "label_values(up{environment=\"$environment\"}, job)",
+          "refresh": 1,
+          "includeAll": true,
+          "multi": true,
+          "current": {
+            "selected": true,
+            "text": "All",
+            "value": "$__all"
+          }
+        },
+        {
+          "name": "instance",
+          "type": "query",
+          "query": "label_values(up{environment=\"$environment\", job=~\"$service\"}, instance)",
+          "refresh": 1,
+          "includeAll": true,
+          "multi": true
+        }
+      ]
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "系统健康度概览",
+        "type": "stat",
+        "gridPos": {"h": 8, "w": 6, "x": 0, "y": 0},
+        "targets": [
+          {
+            "expr": "avg(claude_enhancer_system_health_score)",
+            "refId": "A",
+            "legendFormat": "整体健康度"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": 0},
+                {"color": "yellow", "value": 70},
+                {"color": "green", "value": 90}
+              ]
+            },
+            "unit": "percent",
+            "min": 0,
+            "max": 100,
+            "mappings": [
+              {"options": {"0": {"text": "Critical"}}, "type": "value"},
+              {"options": {"70": {"text": "Warning"}}, "type": "value"},
+              {"options": {"90": {"text": "Healthy"}}, "type": "value"}
+            ]
+          }
+        },
+        "options": {
+          "orientation": "horizontal",
+          "reduceOptions": {"values": false, "calcs": ["lastNotNull"], "fields": ""},
+          "textMode": "auto",
+          "colorMode": "background",
+          "graphMode": "area",
+          "justifyMode": "center"
+        }
+      },
+      {
+        "id": 2,
+        "title": "SLO达成情况",
+        "type": "gauge",
+        "gridPos": {"h": 8, "w": 6, "x": 6, "y": 0},
+        "targets": [
+          {
+            "expr": "avg(claude_enhancer_slo_availability_ratio) * 100",
+            "refId": "A",
+            "legendFormat": "可用性SLO"
+          },
+          {
+            "expr": "avg(claude_enhancer_slo_latency_ratio) * 100",
+            "refId": "B",
+            "legendFormat": "延迟SLO"
+          },
+          {
+            "expr": "avg(claude_enhancer_slo_error_rate_ratio) * 100",
+            "refId": "C",
+            "legendFormat": "错误率SLO"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": 0},
+                {"color": "yellow", "value": 95},
+                {"color": "green", "value": 99}
+              ]
+            },
+            "unit": "percent",
+            "min": 90,
+            "max": 100
+          }
+        },
+        "options": {
+          "showThresholdLabels": true,
+          "showThresholdMarkers": true
+        }
+      },
+      {
+        "id": 3,
+        "title": "实时告警状态",
+        "type": "alertlist",
+        "gridPos": {"h": 8, "w": 6, "x": 12, "y": 0},
+        "options": {
+          "showOptions": "current",
+          "maxItems": 10,
+          "sortOrder": 1,
+          "dashboardAlerts": false,
+          "alertName": "",
+          "dashboardTitle": "",
+          "folderTitle": "",
+          "tags": ["claude-enhancer"],
+          "stateFilter": {
+            "ok": false,
+            "paused": false,
+            "no_data": false,
+            "execution_error": false,
+            "alerting": true,
+            "pending": true
+          }
+        }
+      },
+      {
+        "id": 4,
+        "title": "关键业务指标",
+        "type": "stat",
+        "gridPos": {"h": 8, "w": 6, "x": 18, "y": 0},
+        "targets": [
+          {
+            "expr": "sum(rate(http_requests_total[5m]))",
+            "refId": "A",
+            "legendFormat": "QPS"
+          },
+          {
+            "expr": "sum(claude_enhancer_active_users)",
+            "refId": "B",
+            "legendFormat": "活跃用户"
+          },
+          {
+            "expr": "sum(rate(http_requests_total{status=~\"5..\"}[5m])) / sum(rate(http_requests_total[5m])) * 100",
+            "refId": "C",
+            "legendFormat": "错误率"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "custom": {
+              "displayMode": "basic",
+              "orientation": "horizontal"
+            }
+          },
+          "overrides": [
+            {"matcher": {"id": "byName", "options": "QPS"}, "properties": [{"id": "unit", "value": "reqps"}]},
+            {"matcher": {"id": "byName", "options": "错误率"}, "properties": [{"id": "unit", "value": "percent"}]}
+          ]
+        }
+      },
+      {
+        "id": 5,
+        "title": "请求处理性能趋势",
+        "type": "timeseries",
+        "gridPos": {"h": 9, "w": 12, "x": 0, "y": 8},
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))",
+            "refId": "A",
+            "legendFormat": "P50 延迟"
+          },
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))",
+            "refId": "B",
+            "legendFormat": "P95 延迟"
+          },
+          {
+            "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))",
+            "refId": "C",
+            "legendFormat": "P99 延迟"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "smooth",
+              "barAlignment": 0,
+              "lineWidth": 2,
+              "fillOpacity": 20,
+              "gradientMode": "opacity",
+              "spanNulls": false,
+              "insertNulls": false,
+              "showPoints": "never",
+              "pointSize": 5,
+              "stacking": {"mode": "none", "group": "A"},
+              "axisPlacement": "auto",
+              "axisLabel": "",
+              "scaleDistribution": {"type": "linear"},
+              "hideFrom": {"legend": false, "tooltip": false, "vis": false},
+              "thresholdsStyle": {"mode": "off"}
+            },
+            "unit": "s",
+            "min": 0,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 0.2},
+                {"color": "red", "value": 1.0}
+              ]
+            }
+          }
+        },
+        "options": {
+          "tooltip": {"mode": "multi", "sort": "none"},
+          "legend": {"displayMode": "table", "placement": "bottom", "values": ["last", "max"]},
+          "displayMode": "list"
+        }
+      },
+      {
+        "id": 6,
+        "title": "系统资源使用率",
+        "type": "timeseries",
+        "gridPos": {"h": 9, "w": 12, "x": 12, "y": 8},
+        "targets": [
+          {
+            "expr": "avg(claude_enhancer_cpu_usage)",
+            "refId": "A",
+            "legendFormat": "CPU使用率"
+          },
+          {
+            "expr": "avg(claude_enhancer_memory_usage)",
+            "refId": "B",
+            "legendFormat": "内存使用率"
+          },
+          {
+            "expr": "avg(claude_enhancer_disk_usage)",
+            "refId": "C",
+            "legendFormat": "磁盘使用率"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "unit": "percent",
+            "min": 0,
+            "max": 100,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 70},
+                {"color": "red", "value": 90}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 7,
+        "title": "错误率和状态码分布",
+        "type": "timeseries",
+        "gridPos": {"h": 8, "w": 8, "x": 0, "y": 17},
+        "targets": [
+          {
+            "expr": "sum(rate(http_requests_total{status=~\"2..\"}[5m])) by (status)",
+            "refId": "A",
+            "legendFormat": "2xx成功"
+          },
+          {
+            "expr": "sum(rate(http_requests_total{status=~\"4..\"}[5m])) by (status)",
+            "refId": "B",
+            "legendFormat": "4xx客户端错误"
+          },
+          {
+            "expr": "sum(rate(http_requests_total{status=~\"5..\"}[5m])) by (status)",
+            "refId": "C",
+            "legendFormat": "5xx服务器错误"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "unit": "reqps"
+          },
+          "overrides": [
+            {"matcher": {"id": "byRegexp", "options": "2xx.*"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "green"}}]},
+            {"matcher": {"id": "byRegexp", "options": "4xx.*"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "yellow"}}]},
+            {"matcher": {"id": "byRegexp", "options": "5xx.*"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "red"}}]}
+          ]
+        }
+      },
+      {
+        "id": 8,
+        "title": "数据库性能指标",
+        "type": "timeseries",
+        "gridPos": {"h": 8, "w": 8, "x": 8, "y": 17},
+        "targets": [
+          {
+            "expr": "claude_enhancer_database_connections_active",
+            "refId": "A",
+            "legendFormat": "活跃连接数"
+          },
+          {
+            "expr": "avg(claude_enhancer_database_query_duration_seconds) * 1000",
+            "refId": "B",
+            "legendFormat": "平均查询时间"
+          },
+          {
+            "expr": "sum(rate(claude_enhancer_database_queries_total[5m]))",
+            "refId": "C",
+            "legendFormat": "QPS"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"}
+          },
+          "overrides": [
+            {"matcher": {"id": "byName", "options": "平均查询时间"}, "properties": [{"id": "unit", "value": "ms"}]},
+            {"matcher": {"id": "byName", "options": "QPS"}, "properties": [{"id": "unit", "value": "qps"}]}
+          ]
+        }
+      },
+      {
+        "id": 9,
+        "title": "缓存性能统计",
+        "type": "stat",
+        "gridPos": {"h": 8, "w": 8, "x": 16, "y": 17},
+        "targets": [
+          {
+            "expr": "avg(claude_enhancer_cache_hit_ratio) * 100",
+            "refId": "A",
+            "legendFormat": "缓存命中率"
+          },
+          {
+            "expr": "sum(rate(claude_enhancer_cache_operations_total[5m]))",
+            "refId": "B",
+            "legendFormat": "缓存操作/秒"
+          },
+          {
+            "expr": "claude_enhancer_cache_size_bytes / 1024 / 1024",
+            "refId": "C",
+            "legendFormat": "缓存大小(MB)"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": 0},
+                {"color": "yellow", "value": 70},
+                {"color": "green", "value": 90}
+              ]
+            }
+          },
+          "overrides": [
+            {"matcher": {"id": "byName", "options": "缓存命中率"}, "properties": [{"id": "unit", "value": "percent"}]},
+            {"matcher": {"id": "byName", "options": "缓存操作/秒"}, "properties": [{"id": "unit", "value": "ops"}]},
+            {"matcher": {"id": "byName", "options": "缓存大小(MB)"}, "properties": [{"id": "unit", "value": "decmbytes"}]}
+          ]
+        }
+      },
+      {
+        "id": 10,
+        "title": "认证服务监控",
+        "type": "timeseries",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 25},
+        "targets": [
+          {
+            "expr": "sum(rate(claude_enhancer_auth_requests_total[5m]))",
+            "refId": "A",
+            "legendFormat": "认证请求/秒"
+          },
+          {
+            "expr": "avg(claude_enhancer_auth_success_rate) * 100",
+            "refId": "B",
+            "legendFormat": "认证成功率"
+          },
+          {
+            "expr": "sum(claude_enhancer_active_sessions)",
+            "refId": "C",
+            "legendFormat": "活跃会话数"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"}
+          },
+          "overrides": [
+            {"matcher": {"id": "byName", "options": "认证请求/秒"}, "properties": [{"id": "unit", "value": "reqps"}]},
+            {"matcher": {"id": "byName", "options": "认证成功率"}, "properties": [{"id": "unit", "value": "percent"}]}
+          ]
+        }
+      },
+      {
+        "id": 11,
+        "title": "Agent执行状态",
+        "type": "bargauge",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 25},
+        "targets": [
+          {
+            "expr": "claude_enhancer_agents_running_total by (agent_type)",
+            "refId": "A",
+            "legendFormat": "{{ agent_type }}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"color": "green", "value": null}
+              ]
+            },
+            "unit": "short",
+            "min": 0
+          }
+        },
+        "options": {
+          "reduceOptions": {"values": false, "calcs": ["lastNotNull"], "fields": ""},
+          "orientation": "horizontal",
+          "textMode": "auto",
+          "colorMode": "value",
+          "graphMode": "area",
+          "justifyMode": "auto"
+        }
+      },
+      {
+        "id": 12,
+        "title": "工作流阶段分布",
+        "type": "piechart",
+        "gridPos": {"h": 8, "w": 8, "x": 0, "y": 33},
+        "targets": [
+          {
+            "expr": "claude_enhancer_workflow_phase_count by (phase)",
+            "refId": "A",
+            "legendFormat": "{{ phase }}"
+          }
+        ],
+        "options": {
+          "reduceOptions": {"values": false, "calcs": ["lastNotNull"], "fields": ""},
+          "pieType": "pie",
+          "tooltip": {"mode": "single"},
+          "legend": {
+            "displayMode": "table",
+            "placement": "right",
+            "values": ["value", "percent"]
+          },
+          "displayLabels": ["name", "percent"]
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "custom": {
+              "hideFrom": {"legend": false, "tooltip": false, "vis": false}
+            }
+          }
+        }
+      },
+      {
+        "id": 13,
+        "title": "网络流量统计",
+        "type": "timeseries",
+        "gridPos": {"h": 8, "w": 8, "x": 8, "y": 33},
+        "targets": [
+          {
+            "expr": "sum(rate(claude_enhancer_network_bytes_sent_total[5m])) * 8",
+            "refId": "A",
+            "legendFormat": "出站流量"
+          },
+          {
+            "expr": "sum(rate(claude_enhancer_network_bytes_received_total[5m])) * 8",
+            "refId": "B",
+            "legendFormat": "入站流量"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "unit": "bps"
+          }
+        }
+      },
+      {
+        "id": 14,
+        "title": "质量门禁通过率",
+        "type": "stat",
+        "gridPos": {"h": 8, "w": 8, "x": 16, "y": 33},
+        "targets": [
+          {
+            "expr": "avg(claude_enhancer_quality_gate_pass_rate) * 100",
+            "refId": "A",
+            "legendFormat": "整体通过率"
+          },
+          {
+            "expr": "avg(claude_enhancer_code_quality_score)",
+            "refId": "B",
+            "legendFormat": "代码质量评分"
+          },
+          {
+            "expr": "avg(claude_enhancer_security_score)",
+            "refId": "C",
+            "legendFormat": "安全评分"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": 0},
+                {"color": "yellow", "value": 70},
+                {"color": "green", "value": 85}
+              ]
+            },
+            "unit": "percent",
+            "min": 0,
+            "max": 100
+          }
+        }
+      },
+      {
+        "id": 15,
+        "title": "错误日志热图",
+        "type": "heatmap",
+        "gridPos": {"h": 9, "w": 12, "x": 0, "y": 41},
+        "targets": [
+          {
+            "expr": "sum(increase(claude_enhancer_errors_total[1m])) by (error_level)",
+            "refId": "A",
+            "legendFormat": "{{ error_level }}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "hideFrom": {"legend": false, "tooltip": false, "vis": false},
+              "scaleDistribution": {"type": "linear"}
+            }
+          }
+        },
+        "options": {
+          "calculate": false,
+          "yAxis": {"unit": "short", "reverse": false},
+          "color": {"mode": "spectrum", "scheme": "Oranges", "steps": 128}
+        }
+      },
+      {
+        "id": 16,
+        "title": "部署和发布统计",
+        "type": "timeseries",
+        "gridPos": {"h": 9, "w": 12, "x": 12, "y": 41},
+        "targets": [
+          {
+            "expr": "increase(claude_enhancer_deployments_total[1h])",
+            "refId": "A",
+            "legendFormat": "部署次数/小时"
+          },
+          {
+            "expr": "avg(claude_enhancer_deployment_duration_seconds) / 60",
+            "refId": "B",
+            "legendFormat": "平均部署时长(分钟)"
+          },
+          {
+            "expr": "avg(claude_enhancer_deployment_success_rate) * 100",
+            "refId": "C",
+            "legendFormat": "部署成功率"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"}
+          },
+          "overrides": [
+            {"matcher": {"id": "byName", "options": "部署成功率"}, "properties": [{"id": "unit", "value": "percent"}]},
+            {"matcher": {"id": "byName", "options": "平均部署时长(分钟)"}, "properties": [{"id": "unit", "value": "m"}]}
+          ]
+        }
+      }
+    ],
+    "annotations": {
+      "list": [
+        {
+          "name": "部署事件",
+          "datasource": "prometheus",
+          "enable": true,
+          "expr": "changes(claude_enhancer_deployment_timestamp[5m]) > 0",
+          "iconColor": "blue",
+          "titleFormat": "部署: v{{ version }}",
+          "textFormat": "环境: {{ environment }}, 版本: {{ version }}"
+        },
+        {
+          "name": "告警事件",
+          "datasource": "prometheus",
+          "enable": true,
+          "expr": "ALERTS{alertname=~\".*Claude.*\",alertstate=\"firing\"}",
+          "iconColor": "red",
+          "titleFormat": "告警: {{ alertname }}",
+          "textFormat": "{{ description }}"
+        },
+        {
+          "name": "维护窗口",
+          "datasource": "prometheus",
+          "enable": true,
+          "expr": "claude_enhancer_maintenance_mode == 1",
+          "iconColor": "orange",
+          "titleFormat": "维护模式",
+          "textFormat": "系统进入维护模式"
+        }
+      ]
+    },
+    "links": [
+      {
+        "title": "Claude Enhancer文档",
+        "url": "https://docs.claude-enhancer.com",
+        "type": "link",
+        "icon": "external link"
+      },
+      {
+        "title": "运维手册",
+        "url": "https://runbooks.claude-enhancer.com",
+        "type": "link",
+        "icon": "doc"
+      },
+      {
+        "title": "Slack告警频道",
+        "url": "https://slack.com/channels/claude-alerts",
+        "type": "link",
+        "icon": "bolt"
+      }
+    ]
+  }
+}

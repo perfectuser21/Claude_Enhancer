@@ -1,28 +1,34 @@
-# Claude Enhancer - AI-Driven Development Workflow System
+# Claude Enhancer 5.1 - AI-Driven Development Workflow System
 
 ## 🎯 系统概览
 
-Claude Enhancer是专为Claude Code Max 20X用户设计的智能开发工作流系统，提供完整的AI驱动多Agent协作框架。
+Claude Enhancer 5.1是专为Claude Code Max 20X用户设计的智能开发工作流系统，提供完整的AI驱动多Agent协作框架。本版本专注于自检优化和性能提升。
 
-### 核心特性
+### 核心特性 (v5.1)
 - **8-Phase开发工作流** - 完整项目生命周期管理
 - **智能Agent选择** - 从56+专业AI Agent中选择4-6-8个
 - **质量保证门禁** - 自动化安全、性能和代码质量检查
 - **Git工作流集成** - 自动化分支管理和提交验证
 - **并行执行** - 多Agent协作实现快速交付
+- **🆕 自检优化系统** - 智能错误恢复和性能监控
+- **🆕 懒加载架构** - 按需加载，减少资源消耗
+- **🆕 实时监控** - 系统健康状态和性能指标追踪
 
-## 🚀 快速开始
+## 🚀 快速开始 (v5.1)
 
 ### 安装
 ```bash
 # 1. 复制.claude配置到项目
 cp -r .claude /your/project/
 
-# 2. 安装Git Hooks
+# 2. 安装Git Hooks和性能监控
 cd /your/project && ./.claude/install.sh
 
-# 3. 开始开发
-# 系统将自动提供8-Phase工作流支持
+# 3. 验证安装
+npm run test:installation
+
+# 4. 开始开发
+# 系统将自动提供8-Phase工作流支持和性能监控
 ```
 
 ### 基本使用

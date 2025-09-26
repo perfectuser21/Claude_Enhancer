@@ -585,7 +585,7 @@ class EmailService:
 
                 log_data = await self.redis_client.get(key)
                 if log_data:
-                    log_info = eval(log_data)  # 在生产环境中应使用JSON
+                    log_info = json.loads(log_data)  # 使用安全的JSON解析
                     stats["total_sent"] += 1
 
                     if log_info.get("success"):

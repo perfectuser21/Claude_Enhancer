@@ -1,0 +1,248 @@
+{
+  "test_framework": {
+    "version": "5.1",
+    "name": "Claude Enhancer E2E Test Suite",
+    "description": "完整的端到端测试配置"
+  },
+  "test_environments": {
+    "local": {
+      "project_path": "/home/xx/dev/Claude Enhancer 5.0",
+      "claude_dir": ".claude",
+      "hooks_dir": ".claude/hooks",
+      "git_enabled": true,
+      "performance_monitoring": true
+    },
+    "ci": {
+      "project_path": "/workspace/claude-enhancer",
+      "timeout_multiplier": 2,
+      "parallel_limit": 2,
+      "skip_long_tests": true
+    }
+  },
+  "test_categories": {
+    "workflow": {
+      "description": "完整工作流测试（Phase P0-P6）",
+      "timeout": 180,
+      "critical": true,
+      "phases": ["P0", "P1", "P2", "P3", "P4", "P5", "P6"],
+      "success_criteria": [
+        "all_phases_completed",
+        "phase_transitions_valid",
+        "tools_available",
+        "success_criteria_met"
+      ]
+    },
+    "agents": {
+      "description": "Agent协作测试（4-6-8策略）",
+      "timeout": 120,
+      "critical": true,
+      "test_cases": [
+        {
+          "name": "simple_task",
+          "agent_count": 4,
+          "agents": ["backend-architect", "test-engineer", "security-auditor", "technical-writer"],
+          "expected_duration": 600
+        },
+        {
+          "name": "standard_task",
+          "agent_count": 6,
+          "agents": ["backend-architect", "api-designer", "database-specialist", "test-engineer", "security-auditor", "performance-engineer"],
+          "expected_duration": 1200
+        },
+        {
+          "name": "complex_task",
+          "agent_count": 8,
+          "agents": ["backend-architect", "api-designer", "database-specialist", "frontend-specialist", "test-engineer", "security-auditor", "performance-engineer", "devops-engineer"],
+          "expected_duration": 1800
+        }
+      ]
+    },
+    "git": {
+      "description": "Git集成测试",
+      "timeout": 60,
+      "critical": true,
+      "test_items": [
+        "branch_status_check",
+        "git_hooks_installation",
+        "pre_commit_validation",
+        "commit_message_format",
+        "pre_push_validation",
+        "branch_protection"
+      ]
+    },
+    "hooks": {
+      "description": "Hook触发机制测试",
+      "timeout": 90,
+      "critical": true,
+      "hook_types": ["PreToolUse", "PostToolUse", "UserPromptSubmit"],
+      "validation_points": [
+        "script_existence",
+        "execution_success",
+        "timeout_handling",
+        "non_blocking_behavior",
+        "error_recovery"
+      ]
+    },
+    "recovery": {
+      "description": "错误恢复机制测试",
+      "timeout": 120,
+      "critical": false,
+      "error_scenarios": [
+        "hook_timeout",
+        "missing_script",
+        "permission_error",
+        "agent_failure",
+        "workflow_interruption",
+        "git_operation_failure",
+        "resource_exhaustion"
+      ]
+    },
+    "scenarios": {
+      "description": "真实用户场景测试",
+      "timeout": 300,
+      "critical": true,
+      "user_scenarios": [
+        {
+          "name": "new_feature_development",
+          "description": "开发新API端点",
+          "workflow": ["P0", "P1", "P2", "P3", "P4", "P5", "P6"],
+          "expected_agents": 6,
+          "estimated_time": 1200
+        },
+        {
+          "name": "bug_fix",
+          "description": "修复安全漏洞",
+          "workflow": ["P0", "P1", "P3", "P4", "P5"],
+          "expected_agents": 4,
+          "estimated_time": 600
+        },
+        {
+          "name": "performance_optimization",
+          "description": "系统性能优化",
+          "workflow": ["P0", "P1", "P2", "P3", "P4", "P5", "P6"],
+          "expected_agents": 8,
+          "estimated_time": 1800
+        },
+        {
+          "name": "code_refactoring",
+          "description": "代码重构",
+          "workflow": ["P0", "P1", "P2", "P3", "P4", "P5"],
+          "expected_agents": 6,
+          "estimated_time": 900
+        }
+      ]
+    },
+    "performance": {
+      "description": "性能和压力测试",
+      "timeout": 180,
+      "critical": false,
+      "performance_tests": [
+        {
+          "name": "hook_execution_performance",
+          "metrics": ["avg_execution_time", "max_execution_time"],
+          "thresholds": {"avg_time": 0.1, "max_time": 0.2}
+        },
+        {
+          "name": "agent_concurrency_performance",
+          "metrics": ["concurrent_efficiency", "parallel_speedup"],
+          "thresholds": {"efficiency": 1.5, "speedup": 2.0}
+        },
+        {
+          "name": "workflow_transition_performance",
+          "metrics": ["avg_transition_time"],
+          "thresholds": {"transition_time": 0.1}
+        },
+        {
+          "name": "resource_usage",
+          "metrics": ["cpu_percent", "memory_mb"],
+          "thresholds": {"cpu": 50, "memory": 500}
+        }
+      ]
+    },
+    "concurrent": {
+      "description": "并发执行测试",
+      "timeout": 120,
+      "critical": false,
+      "concurrent_scenarios": [
+        {"name": "multi_hook_concurrent", "count": 5},
+        {"name": "multi_agent_concurrent", "count": 8},
+        {"name": "multi_workflow_concurrent", "count": 3},
+        {"name": "mixed_concurrent", "count": 10}
+      ],
+      "success_threshold": 0.8
+    }
+  },
+  "quality_thresholds": {
+    "overall_success_rate": 80,
+    "critical_test_success_rate": 95,
+    "performance_baseline": {
+      "hook_max_time": 0.2,
+      "agent_coordination_time": 1.0,
+      "workflow_transition_time": 0.1,
+      "memory_usage_mb": 500,
+      "cpu_usage_percent": 50
+    },
+    "error_recovery_success_rate": 70
+  },
+  "test_data": {
+    "mock_agents": [
+      "backend-architect",
+      "api-designer",
+      "database-specialist",
+      "frontend-specialist",
+      "test-engineer",
+      "security-auditor",
+      "performance-engineer",
+      "devops-engineer",
+      "technical-writer",
+      "ui-ux-designer"
+    ],
+    "mock_phases": {
+      "P0": {"tools": ["Bash"], "duration": 30},
+      "P1": {"tools": ["Read", "Grep"], "duration": 60},
+      "P2": {"tools": ["Read", "Write"], "duration": 120},
+      "P3": {"tools": ["Task", "Write", "MultiEdit"], "duration": 600},
+      "P4": {"tools": ["Bash", "Read"], "duration": 180},
+      "P5": {"tools": ["Bash"], "duration": 90},
+      "P6": {"tools": ["Bash"], "duration": 60}
+    },
+    "mock_hooks": [
+      {
+        "name": "workflow_phase_detector",
+        "type": "PreToolUse",
+        "timeout": 1500,
+        "blocking": false
+      },
+      {
+        "name": "smart_agent_selector",
+        "type": "PreToolUse",
+        "timeout": 3000,
+        "blocking": false
+      },
+      {
+        "name": "agent_output_summarizer",
+        "type": "PostToolUse",
+        "timeout": 1000,
+        "blocking": false
+      }
+    ]
+  },
+  "reporting": {
+    "output_formats": ["json", "html", "junit"],
+    "include_details": true,
+    "include_performance_charts": true,
+    "save_screenshots": false,
+    "generate_recommendations": true
+  },
+  "ci_cd": {
+    "github_actions": {
+      "trigger_on": ["push", "pull_request"],
+      "parallel_jobs": 3,
+      "timeout_minutes": 30
+    },
+    "notifications": {
+      "slack_webhook": "",
+      "email_recipients": []
+    }
+  }
+}

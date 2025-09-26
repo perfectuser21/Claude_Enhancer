@@ -1,9 +1,12 @@
 {
-  "version": "5.0.0",
-  "project": "Claude Enhancer 5.0 - P1-P6 Workflow System",
-  "description": "完整的P1-P6工作流系统，支持8-Phase开发生命周期",
+  "version": "5.1.0",
+  "project": "Claude Enhancer 5.1 - Self-Optimization System",
+  "description": "自检优化系统，智能错误恢复和性能监控，支持8-Phase开发生命周期",
   "architecture": {
-    "version": "v2.0",
+    "version": "v2.1",
+    "lazy_loading": true,
+    "self_optimization": true,
+    "real_time_monitoring": true,
     "documentation": ".claude/ARCHITECTURE/INDEX.md",
     "auto_load_docs": [
       ".claude/ARCHITECTURE_LOADER.md",
@@ -203,8 +206,11 @@
   },
   "environment": {
     "CLAUDE_ENHANCER_MODE": "workflow",
-    "CLAUDE_ENHANCER_VERSION": "5.0",
-    "WORKFLOW_SYSTEM": "P1-P6",
+    "CLAUDE_ENHANCER_VERSION": "5.1",
+    "WORKFLOW_SYSTEM": "P1-P6-Enhanced",
+    "MONITORING_ENABLED": "true",
+    "SELF_OPTIMIZATION": "true",
+    "LAZY_LOADING": "true",
     "MIN_AGENTS": "4",
     "STANDARD_AGENTS": "6",
     "COMPLEX_AGENTS": "8",
@@ -214,12 +220,15 @@
     "MAX_20X_MODE": "true"
   },
   "performance": {
-    "max_concurrent_hooks": 6,
-    "hook_timeout_ms": 200,
+    "max_concurrent_hooks": 12,
+    "hook_timeout_ms": 500,
     "enable_caching": true,
     "enable_parallel_execution": true,
     "workflow_optimization": true,
-    "phase_transition_delay": 30
+    "phase_transition_delay": 30,
+    "lazy_loading": true,
+    "auto_scaling": true,
+    "memory_optimization": true
   },
   "workflow_config": {
     "phases": {
@@ -369,5 +378,21 @@
         "deployment_ready"
       ]
     }
+  },
+  "monitoring": {
+    "enabled": true,
+    "metrics_endpoint": "http://localhost:8080/metrics",
+    "health_check_interval": 30,
+    "performance_tracking": true,
+    "error_recovery": true,
+    "real_time_alerts": true
+  },
+  "optimization": {
+    "lazy_loading": true,
+    "caching": true,
+    "resource_pooling": true,
+    "auto_scaling": true,
+    "adaptive_performance": true,
+    "intelligent_error_recovery": true
   }
 }

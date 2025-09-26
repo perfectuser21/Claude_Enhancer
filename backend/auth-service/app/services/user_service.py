@@ -576,7 +576,7 @@ class UserService:
         lockout_data = await self.redis_client.get(lockout_key)
 
         if lockout_data:
-            lockout_info = eval(lockout_data)  # 在生产环境中应使用JSON
+            lockout_info = json.loads(lockout_data)  # 使用安全的JSON解析
             return {
                 "is_locked": True,
                 "locked_until": datetime.fromisoformat(lockout_info["locked_until"]),

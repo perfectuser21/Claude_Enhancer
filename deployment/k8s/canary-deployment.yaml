@@ -1,0 +1,410 @@
+# =============================================================================
+# Claude Enhancer 5.1 金丝雀部署配置
+# 用于渐进式流量测试和验证
+# =============================================================================
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: claude-enhancer-canary
+  namespace: claude-enhancer
+  labels:
+    app: claude-enhancer
+    version: "5.1"
+    deployment-type: canary
+    component: ai-workflow
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+    rollout.strategy: "canary"
+    monitoring.prometheus.io/scrape: "true"
+spec:
+  replicas: 1  # 初始1个副本用于5%流量
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: claude-enhancer
+      version: "5.1"
+      deployment-type: canary
+  template:
+    metadata:
+      labels:
+        app: claude-enhancer
+        version: "5.1"
+        deployment-type: canary
+        component: ai-workflow
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+        sidecar.istio.io/inject: "true"
+    spec:
+      serviceAccountName: claude-enhancer-service-account
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+      - name: claude-enhancer
+        image: claude-enhancer:5.1
+        imagePullPolicy: Always
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+        - name: metrics
+          containerPort: 9090
+          protocol: TCP
+        - name: agents
+          containerPort: 9091
+          protocol: TCP
+        - name: workflow
+          containerPort: 9092
+          protocol: TCP
+        env:
+        # 应用配置
+        - name: CLAUDE_VERSION
+          value: "5.1"
+        - name: CLAUDE_MODE
+          value: "canary"
+        - name: DEPLOYMENT_TYPE
+          value: "canary"
+        - name: ENVIRONMENT
+          value: "production"
+
+        # Agent系统配置
+        - name: AGENT_COUNT
+          value: "61"
+        - name: AGENT_CONFIG_PATH
+          value: "/app/.claude/agents"
+        - name: AGENT_COORDINATION_ENABLED
+          value: "true"
+
+        # 工作流配置
+        - name: WORKFLOW_PHASES
+          value: "8"
+        - name: WORKFLOW_ENGINE
+          value: "enhanced"
+        - name: PHASE_VALIDATION_ENABLED
+          value: "true"
+
+        # 数据库配置
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: claude-enhancer-db-secret
+              key: database-url
+        - name: DATABASE_POOL_SIZE
+          value: "20"
+        - name: DATABASE_TIMEOUT
+          value: "30"
+
+        # Redis配置
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: claude-enhancer-redis-secret
+              key: redis-url
+        - name: REDIS_POOL_SIZE
+          value: "10"
+
+        # 监控配置
+        - name: METRICS_ENABLED
+          value: "true"
+        - name: TRACING_ENABLED
+          value: "true"
+        - name: LOG_LEVEL
+          value: "INFO"
+
+        # 性能优化
+        - name: LAZY_LOADING_ENABLED
+          value: "true"
+        - name: SMART_CACHING_ENABLED
+          value: "true"
+        - name: OPTIMIZATION_MODE
+          value: "enhanced"
+
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+            ephemeral-storage: "1Gi"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+            ephemeral-storage: "2Gi"
+
+        # 健康检查配置
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: http
+            httpHeaders:
+            - name: X-Health-Check
+              value: "kubernetes-liveness"
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+          successThreshold: 1
+
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: http
+            httpHeaders:
+            - name: X-Health-Check
+              value: "kubernetes-readiness"
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 2
+          successThreshold: 1
+
+        startupProbe:
+          httpGet:
+            path: /health/startup
+            port: http
+            httpHeaders:
+            - name: X-Health-Check
+              value: "kubernetes-startup"
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 10
+          failureThreshold: 10
+          successThreshold: 1
+
+        # 卷挂载
+        volumeMounts:
+        - name: agent-configs
+          mountPath: /app/.claude/agents
+          readOnly: true
+        - name: workflow-configs
+          mountPath: /app/.claude/workflows
+          readOnly: true
+        - name: app-logs
+          mountPath: /app/logs
+        - name: temp-storage
+          mountPath: /tmp
+
+      # 初始化容器 - 确保依赖服务就绪
+      initContainers:
+      - name: wait-for-db
+        image: postgres:13-alpine
+        command:
+        - sh
+        - -c
+        - |
+          until pg_isready -h $DATABASE_HOST -p $DATABASE_PORT -U $DATABASE_USER; do
+            echo "等待数据库就绪..."
+            sleep 2
+          done
+          echo "数据库已就绪"
+        env:
+        - name: DATABASE_HOST
+          valueFrom:
+            secretKeyRef:
+              name: claude-enhancer-db-secret
+              key: host
+        - name: DATABASE_PORT
+          valueFrom:
+            secretKeyRef:
+              name: claude-enhancer-db-secret
+              key: port
+        - name: DATABASE_USER
+          valueFrom:
+            secretKeyRef:
+              name: claude-enhancer-db-secret
+              key: username
+
+      - name: wait-for-redis
+        image: redis:7-alpine
+        command:
+        - sh
+        - -c
+        - |
+          until redis-cli -h $REDIS_HOST -p $REDIS_PORT ping; do
+            echo "等待Redis就绪..."
+            sleep 2
+          done
+          echo "Redis已就绪"
+        env:
+        - name: REDIS_HOST
+          valueFrom:
+            secretKeyRef:
+              name: claude-enhancer-redis-secret
+              key: host
+        - name: REDIS_PORT
+          valueFrom:
+            secretKeyRef:
+              name: claude-enhancer-redis-secret
+              key: port
+
+      # 卷定义
+      volumes:
+      - name: agent-configs
+        configMap:
+          name: claude-enhancer-5.1-agents
+          defaultMode: 0644
+      - name: workflow-configs
+        configMap:
+          name: claude-enhancer-5.1-workflows
+          defaultMode: 0644
+      - name: app-logs
+        emptyDir:
+          sizeLimit: 1Gi
+      - name: temp-storage
+        emptyDir:
+          sizeLimit: 2Gi
+
+      # 节点选择和容忍度
+      nodeSelector:
+        node-type: "compute"
+        environment: "production"
+
+      tolerations:
+      - key: "claude-enhancer"
+        operator: "Equal"
+        value: "canary"
+        effect: "NoSchedule"
+
+      affinity:
+        # Pod反亲和性 - 确保金丝雀Pod分散在不同节点
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app: claude-enhancer
+                  version: "5.0"
+              topologyKey: kubernetes.io/hostname
+
+        # 节点亲和性 - 优先选择资源充足的节点
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 50
+            preference:
+              matchExpressions:
+              - key: node.kubernetes.io/instance-type
+                operator: In
+                values: ["m5.xlarge", "m5.2xlarge"]
+          - weight: 30
+            preference:
+              matchExpressions:
+              - key: kubernetes.io/arch
+                operator: In
+                values: ["amd64"]
+
+---
+# 金丝雀Service - 用于内部通信和监控
+apiVersion: v1
+kind: Service
+metadata:
+  name: claude-enhancer-canary-service
+  namespace: claude-enhancer
+  labels:
+    app: claude-enhancer
+    version: "5.1"
+    deployment-type: canary
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9090"
+spec:
+  type: ClusterIP
+  selector:
+    app: claude-enhancer
+    version: "5.1"
+    deployment-type: canary
+  ports:
+  - name: http
+    port: 80
+    targetPort: http
+    protocol: TCP
+  - name: metrics
+    port: 9090
+    targetPort: metrics
+    protocol: TCP
+  - name: agents-metrics
+    port: 9091
+    targetPort: agents
+    protocol: TCP
+  - name: workflow-metrics
+    port: 9092
+    targetPort: workflow
+    protocol: TCP
+
+---
+# 金丝雀HPA - 自动扩缩容
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: claude-enhancer-canary-hpa
+  namespace: claude-enhancer
+  labels:
+    app: claude-enhancer
+    version: "5.1"
+    deployment-type: canary
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: claude-enhancer-canary
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  - type: Pods
+    pods:
+      metric:
+        name: http_requests_per_second
+      target:
+        type: AverageValue
+        averageValue: "100"
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300  # 5分钟稳定期
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 60  # 1分钟稳定期
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 30
+
+---
+# 金丝雀PodDisruptionBudget - 确保可用性
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: claude-enhancer-canary-pdb
+  namespace: claude-enhancer
+  labels:
+    app: claude-enhancer
+    version: "5.1"
+    deployment-type: canary
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: claude-enhancer
+      version: "5.1"
+      deployment-type: canary

@@ -1,0 +1,400 @@
+# =============================================================================
+# Claude Enhancer 5.1 部署配置文件
+# 定义部署过程中的所有参数和阈值
+# =============================================================================
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: claude-enhancer-deployment-config
+  namespace: claude-enhancer
+data:
+  # =============================================================================
+  # 基础部署配置
+  # =============================================================================
+  deployment.yaml: |
+    metadata:
+      name: "Claude Enhancer 5.1"
+      version: "5.1.0"
+      strategy: "hybrid-blue-green-canary"
+      namespace: "claude-enhancer"
+
+    # 部署阶段配置
+    phases:
+      phase1:
+        name: "canary-start"
+        duration: 1800  # 30分钟
+        traffic_percentage: 5
+        success_criteria:
+          error_rate_max: 0.1
+          response_time_p95_max: 200
+          agent_availability_min: 0.99
+
+      phase2:
+        name: "canary-expand"
+        duration: 2700  # 45分钟
+        traffic_percentage: 20
+        success_criteria:
+          error_rate_max: 0.1
+          response_time_p95_max: 300
+          workflow_success_rate_min: 0.98
+
+      phase3:
+        name: "blue-green-prep"
+        duration: 1800  # 30分钟
+        traffic_percentage: 50
+        success_criteria:
+          error_rate_max: 0.1
+          response_time_p95_max: 400
+          green_environment_ready: true
+
+      phase4:
+        name: "full-switch"
+        duration: 900   # 15分钟
+        traffic_percentage: 100
+        success_criteria:
+          error_rate_max: 0.05
+          response_time_p95_max: 500
+          service_switch_verified: true
+
+    # 回滚触发条件
+    rollback_triggers:
+      error_rate_threshold: 0.5
+      response_time_threshold: 1000
+      agent_failure_threshold: 5
+      workflow_error_threshold: 10
+      memory_usage_threshold: 90
+      cpu_usage_threshold: 85
+
+    # 资源配置
+    resources:
+      canary:
+        initial_replicas: 1
+        max_replicas: 5
+        cpu_request: "1000m"
+        cpu_limit: "2000m"
+        memory_request: "2Gi"
+        memory_limit: "4Gi"
+
+      green:
+        target_replicas: 10
+        cpu_request: "1000m"
+        cpu_limit: "2000m"
+        memory_request: "2Gi"
+        memory_limit: "4Gi"
+
+    # 监控配置
+    monitoring:
+      metrics_interval: 30
+      health_check_interval: 10
+      alert_evaluation_interval: 15
+      prometheus_url: "http://prometheus.monitoring.svc.cluster.local:9090"
+      grafana_url: "http://grafana.monitoring.svc.cluster.local:3000"
+
+    # 网络配置
+    network:
+      service_mesh: "istio"
+      load_balancer: "haproxy"
+      ingress_class: "nginx"
+      ssl_enabled: true
+      session_affinity: true
+
+  # =============================================================================
+  # Agent系统配置
+  # =============================================================================
+  agents.yaml: |
+    agent_system:
+      total_agents: 61
+      critical_agents: 58  # 最少需要58个Agent正常运行
+      coordination_timeout: 30
+      initialization_timeout: 60
+      health_check_interval: 15
+
+    agent_categories:
+      core_agents:
+        - orchestrator
+        - claude_enhancer
+        - workflow_manager
+        - error_handler
+        - performance_monitor
+
+      development_agents:
+        - backend_architect
+        - frontend_architect
+        - database_specialist
+        - api_designer
+        - security_auditor
+
+      testing_agents:
+        - test_engineer
+        - qa_specialist
+        - performance_engineer
+        - accessibility_specialist
+        - integration_tester
+
+      operations_agents:
+        - devops_engineer
+        - sre_specialist
+        - monitoring_specialist
+        - deployment_manager
+        - incident_manager
+
+    agent_configuration:
+      lazy_loading: true
+      smart_caching: true
+      parallel_initialization: true
+      failure_tolerance: 3  # 允许3个Agent失败
+      auto_recovery: true
+      coordination_protocol: "enhanced"
+
+  # =============================================================================
+  # 工作流配置
+  # =============================================================================
+  workflow.yaml: |
+    workflow_system:
+      total_phases: 8
+      phase_timeout: 1800  # 30分钟超时
+      state_persistence: true
+      rollback_support: true
+
+    workflow_phases:
+      phase0:
+        name: "Git分支创建"
+        timeout: 300
+        required_agents: ["orchestrator", "workflow_manager"]
+
+      phase1:
+        name: "需求分析"
+        timeout: 900
+        required_agents: ["backend_architect", "api_designer", "database_specialist"]
+
+      phase2:
+        name: "设计规划"
+        timeout: 1200
+        required_agents: ["backend_architect", "security_auditor", "performance_engineer"]
+
+      phase3:
+        name: "实现开发"
+        timeout: 1800
+        required_agents: ["backend_architect", "test_engineer", "api_designer", "database_specialist"]
+        parallel_execution: true
+
+      phase4:
+        name: "本地测试"
+        timeout: 600
+        required_agents: ["test_engineer", "qa_specialist", "performance_engineer"]
+
+      phase5:
+        name: "代码提交"
+        timeout: 300
+        required_agents: ["devops_engineer", "security_auditor"]
+        git_hooks_required: true
+
+      phase6:
+        name: "代码审查"
+        timeout: 900
+        required_agents: ["backend_architect", "security_auditor", "qa_specialist"]
+
+      phase7:
+        name: "合并部署"
+        timeout: 600
+        required_agents: ["deployment_manager", "devops_engineer", "monitoring_specialist"]
+
+    workflow_optimization:
+      phase_parallelization: true
+      smart_phase_skipping: false
+      adaptive_timeouts: true
+      state_checkpointing: true
+
+  # =============================================================================
+  # 监控和告警配置
+  # =============================================================================
+  monitoring.yaml: |
+    prometheus_rules:
+      groups:
+        - name: "claude-enhancer-deployment"
+          interval: 15s
+          rules:
+            - alert: "DeploymentErrorRateHigh"
+              expr: "rate(http_requests_total{status=~\"5..\"}[5m]) > 0.005"
+              for: "2m"
+              labels:
+                severity: "critical"
+              annotations:
+                summary: "部署错误率过高"
+
+            - alert: "DeploymentResponseTimeSlow"
+              expr: "histogram_quantile(0.95, http_request_duration_seconds) > 0.5"
+              for: "3m"
+              labels:
+                severity: "warning"
+              annotations:
+                summary: "部署响应时间过慢"
+
+            - alert: "AgentCoordinationFailed"
+              expr: "claude_enhancer_agent_coordination_failures > 5"
+              for: "1m"
+              labels:
+                severity: "critical"
+              annotations:
+                summary: "Agent协调失败"
+
+    grafana_dashboards:
+      deployment_overview:
+        refresh: "30s"
+        time_range: "1h"
+        panels:
+          - "部署状态概览"
+          - "流量分布图"
+          - "错误率趋势"
+          - "响应时间分位数"
+          - "Agent状态监控"
+          - "工作流执行状态"
+          - "资源使用监控"
+
+    alert_channels:
+      slack:
+        webhook_url: "${SLACK_WEBHOOK_URL}"
+        channel: "#claude-enhancer-alerts"
+
+      pagerduty:
+        integration_key: "${PAGERDUTY_INTEGRATION_KEY}"
+        severity: "critical"
+
+      email:
+        smtp_host: "${SMTP_HOST}"
+        recipients: ["ops-team@example.com", "dev-team@example.com"]
+
+  # =============================================================================
+  # 安全配置
+  # =============================================================================
+  security.yaml: |
+    security_policies:
+      pod_security:
+        run_as_non_root: true
+        run_as_user: 1000
+        fs_group: 1000
+        read_only_root_filesystem: false
+
+      network_policies:
+        ingress_allowed:
+          - from_namespaces: ["istio-system", "monitoring"]
+          - from_pods: ["claude-enhancer"]
+        egress_allowed:
+          - to_namespaces: ["monitoring", "kube-system"]
+          - to_external: ["prometheus.io", "grafana.com"]
+
+      service_mesh:
+        mtls_enabled: true
+        authorization_policies: true
+        rate_limiting: true
+
+    secrets_management:
+      database:
+        secret_name: "claude-enhancer-db-secret"
+        keys: ["database-url", "username", "password"]
+
+      redis:
+        secret_name: "claude-enhancer-redis-secret"
+        keys: ["redis-url", "password"]
+
+      external_services:
+        secret_name: "claude-enhancer-external-secrets"
+        keys: ["api-keys", "tokens"]
+
+    certificates:
+      tls_secret: "claude-enhancer-tls"
+      ca_bundle: "claude-enhancer-ca"
+      rotation_policy: "90d"
+
+  # =============================================================================
+  # 性能优化配置
+  # =============================================================================
+  performance.yaml: |
+    optimization_settings:
+      lazy_loading:
+        enabled: true
+        agent_lazy_loading: true
+        configuration_lazy_loading: true
+        resource_lazy_loading: true
+
+      caching:
+        redis_cache_enabled: true
+        in_memory_cache_enabled: true
+        cache_ttl: 300
+        cache_size_limit: "512Mi"
+
+      connection_pooling:
+        database_pool_size: 20
+        redis_pool_size: 10
+        http_pool_size: 50
+
+      concurrency:
+        max_concurrent_agents: 8
+        max_concurrent_workflows: 5
+        max_concurrent_requests: 100
+
+      gc_optimization:
+        gc_percent: 100
+        max_heap_size: "3Gi"
+        gc_target_percentage: 95
+
+    resource_limits:
+      canary_environment:
+        cpu_limit: "2000m"
+        memory_limit: "4Gi"
+        storage_limit: "2Gi"
+
+      production_environment:
+        cpu_limit: "2000m"
+        memory_limit: "4Gi"
+        storage_limit: "5Gi"
+
+    scaling_policies:
+      horizontal_scaling:
+        min_replicas: 2
+        max_replicas: 20
+        target_cpu_utilization: 70
+        target_memory_utilization: 80
+
+      vertical_scaling:
+        enabled: true
+        max_allowed_cpu: "4000m"
+        max_allowed_memory: "8Gi"
+
+  # =============================================================================
+  # 环境特定配置
+  # =============================================================================
+  environments.yaml: |
+    production:
+      replicas: 10
+      resources:
+        cpu_request: "1000m"
+        cpu_limit: "2000m"
+        memory_request: "2Gi"
+        memory_limit: "4Gi"
+      log_level: "INFO"
+      monitoring_enabled: true
+      tracing_enabled: true
+
+    staging:
+      replicas: 3
+      resources:
+        cpu_request: "500m"
+        cpu_limit: "1000m"
+        memory_request: "1Gi"
+        memory_limit: "2Gi"
+      log_level: "DEBUG"
+      monitoring_enabled: true
+      tracing_enabled: true
+
+    development:
+      replicas: 1
+      resources:
+        cpu_request: "250m"
+        cpu_limit: "500m"
+        memory_request: "512Mi"
+        memory_limit: "1Gi"
+      log_level: "DEBUG"
+      monitoring_enabled: false
+      tracing_enabled: false

@@ -1,0 +1,735 @@
+{
+  "summary": {
+    "total_hooks": 30,
+    "validated": 30,
+    "passed": 21,
+    "partial": 0,
+    "failed": 9,
+    "not_found": 0,
+    "start_time": 1758876242.5659292,
+    "end_time": 1758876247.1668093,
+    "total_duration": 4.600880146026611
+  },
+  "hook_results": {
+    "smart_agent_selector": {
+      "name": "smart_agent_selector",
+      "exists": true,
+      "executable": true,
+      "scenarios": [
+        {
+          "name": "simple_task",
+          "success": true,
+          "duration": 0.01482391357421875,
+          "output_valid": false,
+          "output": ""
+        },
+        {
+          "name": "standard_task",
+          "success": true,
+          "duration": 0.011663436889648438,
+          "output_valid": false,
+          "output": ""
+        },
+        {
+          "name": "complex_task",
+          "success": true,
+          "duration": 0.015279769897460938,
+          "output_valid": false,
+          "output": ""
+        }
+      ],
+      "performance": {
+        "total_duration": 0.041767120361328125,
+        "average_duration": 0.013922373453776041,
+        "max_duration": 0.015279769897460938,
+        "successful_scenarios": 0,
+        "total_scenarios": 3,
+        "success_rate": 0.0
+      },
+      "overall_status": "FAIL"
+    },
+    "error_handler": {
+      "name": "error_handler",
+      "exists": true,
+      "executable": true,
+      "scenarios": [
+        {
+          "name": "timeout_error",
+          "success": true,
+          "duration": 0.009106636047363281,
+          "output_valid": false,
+          "output": ""
+        },
+        {
+          "name": "git_error",
+          "success": true,
+          "duration": 0.007767677307128906,
+          "output_valid": false,
+          "output": ""
+        }
+      ],
+      "performance": {
+        "total_duration": 0.016874313354492188,
+        "average_duration": 0.008437156677246094,
+        "max_duration": 0.009106636047363281,
+        "successful_scenarios": 0,
+        "total_scenarios": 2,
+        "success_rate": 0.0
+      },
+      "overall_status": "FAIL"
+    },
+    "performance_monitor": {
+      "name": "performance_monitor",
+      "exists": true,
+      "executable": true,
+      "scenarios": [
+        {
+          "name": "resource_check",
+          "success": true,
+          "duration": 0.017262935638427734,
+          "output_valid": false,
+          "output": "🚀 快速执行:  (8ms)"
+        }
+      ],
+      "performance": {
+        "total_duration": 0.017262935638427734,
+        "average_duration": 0.017262935638427734,
+        "max_duration": 0.017262935638427734,
+        "successful_scenarios": 0,
+        "total_scenarios": 1,
+        "success_rate": 0.0
+      },
+      "overall_status": "FAIL"
+    },
+    "branch_helper": {
+      "name": "branch_helper",
+      "exists": true,
+      "executable": true,
+      "scenarios": [
+        {
+          "name": "basic_execution",
+          "success": true,
+          "duration": 0.005914926528930664,
+          "output_valid": true,
+          "output": "🌿 当前分支: feature/claude-enhancer-5.1-self-optimization\n✅ 已在feature分支，可以开始开发"
+        }
+      ],
+      "performance": {
+        "total_duration": 0.005914926528930664,
+        "average_duration": 0.005914926528930664,
+        "max_duration": 0.005914926528930664,
+        "successful_scenarios": 1,
+        "total_scenarios": 1,
+        "success_rate": 100.0
+      },
+      "overall_status": "PASS"
+    },
+    "agent_error_recovery": {
+      "name": "agent_error_recovery",
+      "exists": true,
+      "executable": true,
+      "scenarios": [
+        {
+          "name": "basic_execution",
+          "success": true,
+          "duration": 0.005753278732299805,
+          "output_valid": true,
+          "output": ""
+        }
+      ],
+      "performance": {
+        "total_duration": 0.005753278732299805,
+        "average_duration": 0.005753278732299805,
+        "max_duration": 0.005753278732299805,
+        "successful_scenarios": 1,
+        "total_scenarios": 1,
+        "success_rate": 100.0
+      },
+      "overall_status": "PASS"
+    },
+    "auto_cleanup_check": {
+      "name": "auto_cleanup_check",
+      "exists": true,
+      "executable": true,
+      "scenarios": [
+        {
+          "name": "basic_execution",
+          "success": true,
+          "duration": 0.07246112823486328,
+          "output_valid": true,
+          "output": "🧹 清理提醒\n━━━━━━━━━━━━━━━━━━━━━\n🗑️ 垃圾文件统计:\n  • 临时文件: 11 个\n  • 测试脚本: 11 个\n  • 报告文件: 58 个\n  • 总计: 80 个\n\n🔴 建议立即清理！\n执行: .claude/scripts/hyper_performance_cleanup.sh\n━━━━━━━━━━━━━━━━━━━━━"
+        }
+      ],
+      "performance": {
+        "total_duration": 0.07246112823486328,
+        "average_duration": 0.07246112823486328,
+        "max_duration": 0.07246112823486328,
+        "successful_scenarios": 1,
+        "total_scenarios": 1,
+        "success_rate": 100.0
+      },
+      "overall_status": "PASS"
+    },
+    "code_writing_check": {
+      "name": "code_writing_check",
+      "exists": true,
+      "executable": true,
+      "scenarios": [
+        {
+          "name": "basic_execution",
+          "success": true,
+          "duration": 0.014903068542480469,
+          "output_valid": true,
+          "output": ""
+        }
+      ],
+      "performance": {
+        "total_duration": 0.014903068542480469,
+        "average_duration": 0.014903068542480469,
+        "max_duration": 0.014903068542480469,
+        "successful_scenarios": 1,
+        "total_scenarios": 1,
+        "success_rate": 100.0
+      },
+      "overall_status": "PASS"
+    },
+    "concurrent_optimizer": {
+      "name": "concurrent_optimizer",
+      "exists": true,
+      "executable": true,
+      "scenarios": [
+        {
+          "name": "basic_execution",
+          "success": true,
+          "duration": 0.12107133865356445,
+          "output_valid": true,
+          "output": "🔧 并发优化建议:\n   🔄 当前Hook过多(5 > 4)，建议等待 \n   推荐并发度: 4\n   当前运行: 5 Hook(s)\n🕐 智能延迟: .05s (等待Hook完成)"
+        }
+      ],
+      "performance": {
+        "total_duration": 0.12107133865356445,
+        "average_duration": 0.12107133865356445,
+        "max_duration": 0.12107133865356445,
+        "successful_scenarios": 1,
+        "total_scenarios": 1,
+        "success_rate": 100.0
+      },
+      "overall_status": "PASS"
+    },
+    "fix_git_hooks": {
+      "name": "fix_git_hooks",
+      "exists": true,
+      "executable": true,
+      "scenarios": [
+        {
+          "name": "basic_execution",
+          "success": true,
+          "duration": 0.03695249557495117,
+          "output_valid": true,
+          "output": "🔧 修复Git Hooks执行一致性问题\n✅ .git/hooks/pre-commit 已修复\n✅ .git/hooks/commit-msg 已修复\n✅ .git/hooks/pre-push 已修复\n✅ Git Hooks一致性问题已修复\n运行 .git/hooks/test-hooks.sh 进行诊断"
+        }
+      ],
+      "performance": {
+        "total_duration": 0.03695249557495117,
+        "average_duration": 0.03695249557495117,
+        "max_duration": 0.03695249557495117,
+        "successful_scenarios": 1,
+        "total_scenarios": 1,
+        "success_rate": 100.0
+      },
+      "overall_status": "PASS"
+    },
+    "git_status_monitor": {
+      "name": "git_status_monitor",
+      "exists": true,
+      "executable": true,
+      "scenarios": [
+        {
+          "name": "basic_execution",
+          "success": true,
+          "duration": 0.03135991096496582,
+          "output_valid": true,
+          "output": "📊 Git状态监控\n━━━━━━━━━━━━━━━━━━━━━━━━━━━\n🌿 当前分支: feature/claude-enhancer-5.1-self-optimization\n📝 未提交更改: 31 个文件\n🟡 提醒: 有较多未提交更改\n💡 建议: 适时提交以保存进度\n\n📁 更改类型:\n  • 未跟踪: 25 个文件\n━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        }
+      ],
+      "performance": {
+        "total_duration": 0.03135991096496582,
+        "average_duration": 0.03135991096496582,
+        "max_duration": 0.03135991096496582,
+        "successful_scenarios": 1,
+        "total_scenarios": 1,
+        "success_rate": 100.0
+      },
+      "overall_status": "PASS"
+    },
+    "hook_wrapper": {
+      "name": "hook_wrapper",
+      "exists": true,
+      "executable": true,
+      "scenarios": [
+        {
+          "name": "basic_execution",
+          "success": false,
+          "duration": 0.005136013031005859,
+          "output_valid": true,
+          "output": "ERROR: Hook script not found:"
+        }
+      ],
+      "performance": {
+        "total_duration": 0.005136013031005859,
+        "average_duration": 0.005136013031005859,
+        "max_duration": 0.005136013031005859,
+        "successful_scenarios": 0,
+        "total_scenarios": 1,
+        "success_rate": 0.0
+      },
+      "overall_status": "FAIL"
+    },
+    "install": {
+      "name": "install",
+      "exists": true,
+      "executable": true,
+      "scenarios": [
+        {
+          "name": "basic_execution",
+          "success": false,
+          "duration": 0.007795572280883789,
+          "output_valid": true,
+          "output": "🚀 Claude Enhancer Hooks 安装程序\n=========================================\n\n📝 设置Hook执行权限...\nchmod: cannot access 'claude_enhancer_*.sh': No such file or directory"
+        }
+      ],
+      "performance": {
+        "total_duration": 0.007795572280883789,
+        "average_duration": 0.007795572280883789,
+        "max_duration": 0.007795572280883789,
+        "successful_scenarios": 0,
+        "total_scenarios": 1,
+        "success_rate": 0.0
+      },
+      "overall_status": "FAIL"
+    },
+    "optimized_performance_monitor": {
+      "name": "optimized_performance_monitor",
+      "exists": true,
+      "executable": true,
+      "scenarios": [
+        {
+          "name": "basic_execution",
+          "success": true,
+          "duration": 0.06213736534118652,
+          "output_valid": true,
+          "output": ""
+        }
+      ],
+      "performance": {
+        "total_duration": 0.06213736534118652,
+        "average_duration": 0.06213736534118652,
+        "max_duration": 0.06213736534118652,
+        "successful_scenarios": 1,
+        "total_scenarios": 1,
+        "success_rate": 100.0
+      },
+      "overall_status": "PASS"
+    },
+    "performance_monitor_optimized": {
+      "name": "performance_monitor_optimized",
+      "exists": true,
+      "executable": true,
+      "scenarios": [
+        {
+          "name": "basic_execution",
+          "success": true,
+          "duration": 0.010913372039794922,
+          "output_valid": true,
+          "output": ""
+        }
+      ],
+      "performance": {
+        "total_duration": 0.010913372039794922,
+        "average_duration": 0.010913372039794922,
+        "max_duration": 0.010913372039794922,
+        "successful_scenarios": 1,
+        "total_scenarios": 1,
+        "success_rate": 100.0
+      },
+      "overall_status": "PASS"
+    },
+    "quality_gate": {
+      "name": "quality_gate",
+      "exists": true,
+      "executable": true,
+      "scenarios": [
+        {
+          "name": "basic_execution",
+          "success": true,
+          "duration": 0.035927534103393555,
+          "output_valid": true,
+          "output": ""
+        }
+      ],
+      "performance": {
+        "total_duration": 0.035927534103393555,
+        "average_duration": 0.035927534103393555,
+        "max_duration": 0.035927534103393555,
+        "successful_scenarios": 1,
+        "total_scenarios": 1,
+        "success_rate": 100.0
+      },
+      "overall_status": "PASS"
+    },
+    "simple_commit_msg": {
+      "name": "simple_commit_msg",
+      "exists": true,
+      "executable": true,
+      "scenarios": [
+        {
+          "name": "basic_execution",
+          "success": false,
+          "duration": 0.007216453552246094,
+          "output_valid": true,
+          "output": "❌ 提交信息格式不正确\n\n正确格式: <type>: <description>\n\n类型:\n  feat:     新功能\n  fix:      修复bug\n  docs:     文档更新\n  style:    代码格式\n  refactor: 重构\n  test:     测试\n  chore:    其他修改\n  perf:     性能优化\n\n例子: feat: 添加用户登录功能\nca..."
+        }
+      ],
+      "performance": {
+        "total_duration": 0.007216453552246094,
+        "average_duration": 0.007216453552246094,
+        "max_duration": 0.007216453552246094,
+        "successful_scenarios": 0,
+        "total_scenarios": 1,
+        "success_rate": 0.0
+      },
+      "overall_status": "FAIL"
+    },
+    "simple_pre_commit": {
+      "name": "simple_pre_commit",
+      "exists": true,
+      "executable": true,
+      "scenarios": [
+        {
+          "name": "basic_execution",
+          "success": true,
+          "duration": 0.4956071376800537,
+          "output_valid": true,
+          "output": "🚀 使用优化版本检查代码质量...\n✅ 优化版本检查通过"
+        }
+      ],
+      "performance": {
+        "total_duration": 0.4956071376800537,
+        "average_duration": 0.4956071376800537,
+        "max_duration": 0.4956071376800537,
+        "successful_scenarios": 1,
+        "total_scenarios": 1,
+        "success_rate": 100.0
+      },
+      "overall_status": "PASS"
+    },
+    "simple_pre_push": {
+      "name": "simple_pre_push",
+      "exists": true,
+      "executable": true,
+      "scenarios": [
+        {
+          "name": "basic_execution",
+          "success": false,
+          "duration": 0.2612593173980713,
+          "output_valid": true,
+          "output": "🚀 推送前检查...\n  运行测试...\n\n> claude-enhancer@5.0.0 test\n> node test/test_runner.js\n\n❌ 测试失败，请修复后再推送\nnode:internal/modules/cjs/loader:1215\n  throw err;\n  ^\n\nError: Cannot find module '/home/xx/dev/Claude Enh..."
+        }
+      ],
+      "performance": {
+        "total_duration": 0.2612593173980713,
+        "average_duration": 0.2612593173980713,
+        "max_duration": 0.2612593173980713,
+        "successful_scenarios": 0,
+        "total_scenarios": 1,
+        "success_rate": 0.0
+      },
+      "overall_status": "FAIL"
+    },
+    "smart_agent_selector_fixed": {
+      "name": "smart_agent_selector_fixed",
+      "exists": true,
+      "executable": true,
+      "scenarios": [
+        {
+          "name": "basic_execution",
+          "success": false,
+          "duration": 0.004439115524291992,
+          "output_valid": true,
+          "output": "/home/xx/dev/Claude Enhancer 5.0/.claude/hooks/smart_agent_selector_fixed.sh: line 168: unexpected EOF while looking for matching `\"'"
+        }
+      ],
+      "performance": {
+        "total_duration": 0.004439115524291992,
+        "average_duration": 0.004439115524291992,
+        "max_duration": 0.004439115524291992,
+        "successful_scenarios": 0,
+        "total_scenarios": 1,
+        "success_rate": 0.0
+      },
+      "overall_status": "FAIL"
+    },
+    "smart_agent_selector_optimized": {
+      "name": "smart_agent_selector_optimized",
+      "exists": true,
+      "executable": true,
+      "scenarios": [
+        {
+          "name": "basic_execution",
+          "success": true,
+          "duration": 0.012129068374633789,
+          "output_valid": true,
+          "output": "{\n  \"type\": \"standard\",\n  \"agents\": 6,\n  \"recommendation\": \"使用6个Agent并行执行\"\n}"
+        }
+      ],
+      "performance": {
+        "total_duration": 0.012129068374633789,
+        "average_duration": 0.012129068374633789,
+        "max_duration": 0.012129068374633789,
+        "successful_scenarios": 1,
+        "total_scenarios": 1,
+        "success_rate": 100.0
+      },
+      "overall_status": "PASS"
+    },
+    "smart_agent_selector_simple": {
+      "name": "smart_agent_selector_simple",
+      "exists": true,
+      "executable": true,
+      "scenarios": [
+        {
+          "name": "basic_execution",
+          "success": true,
+          "duration": 0.013643264770507812,
+          "output_valid": true,
+          "output": ""
+        }
+      ],
+      "performance": {
+        "total_duration": 0.013643264770507812,
+        "average_duration": 0.013643264770507812,
+        "max_duration": 0.013643264770507812,
+        "successful_scenarios": 1,
+        "total_scenarios": 1,
+        "success_rate": 100.0
+      },
+      "overall_status": "PASS"
+    },
+    "smart_cleanup_advisor": {
+      "name": "smart_cleanup_advisor",
+      "exists": true,
+      "executable": true,
+      "scenarios": [
+        {
+          "name": "basic_execution",
+          "success": true,
+          "duration": 0.7666254043579102,
+          "output_valid": true,
+          "output": "\u001b[0;34m🧹 智能清理顾问\u001b[0m\n════════════════════════════════════════\n📊 清理分析报告:\n\n\u001b[0;32mLevel 1: 安全清理\u001b[0m (无风险)\n────────────────────\n  • 编译缓存: 2 个\n  • Python缓存: 1 个\n  \u001b[0;32m→ 可安全删除\u001b[0m\n\n\u001b[1;33mLevel 2: 临时文件\u001b[..."
+        }
+      ],
+      "performance": {
+        "total_duration": 0.7666254043579102,
+        "average_duration": 0.7666254043579102,
+        "max_duration": 0.7666254043579102,
+        "successful_scenarios": 1,
+        "total_scenarios": 1,
+        "success_rate": 100.0
+      },
+      "overall_status": "PASS"
+    },
+    "smart_error_recovery": {
+      "name": "smart_error_recovery",
+      "exists": true,
+      "executable": true,
+      "scenarios": [
+        {
+          "name": "basic_execution",
+          "success": true,
+          "duration": 0.10855603218078613,
+          "output_valid": true,
+          "output": ""
+        }
+      ],
+      "performance": {
+        "total_duration": 0.10855603218078613,
+        "average_duration": 0.10855603218078613,
+        "max_duration": 0.10855603218078613,
+        "successful_scenarios": 1,
+        "total_scenarios": 1,
+        "success_rate": 100.0
+      },
+      "overall_status": "PASS"
+    },
+    "smart_git_workflow": {
+      "name": "smart_git_workflow",
+      "exists": true,
+      "executable": true,
+      "scenarios": [
+        {
+          "name": "basic_execution",
+          "success": true,
+          "duration": 0.04601120948791504,
+          "output_valid": true,
+          "output": "\u001b[0;34m🔄 Git工作流智能助手\u001b[0m\n════════════════════════════════════════\n📊 当前状态:\n  • 分支: \u001b[0;32mfeature/claude-enhancer-5.1-self-optimization\u001b[0m\n  • 修改: \u001b[1;33m31\u001b[0m 个文件\n  • 未跟踪: \u001b[1;33m25\u001b[0m 个文件\n\n\u001b[1;33m⚠..."
+        }
+      ],
+      "performance": {
+        "total_duration": 0.04601120948791504,
+        "average_duration": 0.04601120948791504,
+        "max_duration": 0.04601120948791504,
+        "successful_scenarios": 1,
+        "total_scenarios": 1,
+        "success_rate": 100.0
+      },
+      "overall_status": "PASS"
+    },
+    "start_high_performance_engine": {
+      "name": "start_high_performance_engine",
+      "exists": true,
+      "executable": true,
+      "scenarios": [
+        {
+          "name": "basic_execution",
+          "success": false,
+          "duration": 0.2764608860015869,
+          "output_valid": true,
+          "output": "🚀 Claude Enhancer - 高性能Hook引擎启动器\n=================================================\n开始设置高性能Hook引擎...\n\n🔍 检查Python环境...\n✅ Python版本: 3.10\n✅ 所有必要的Python模块都可用\n\n🔍 检查Hook脚本权限...\n❌ 错误: Hook脚本不存在: high_performa..."
+        }
+      ],
+      "performance": {
+        "total_duration": 0.2764608860015869,
+        "average_duration": 0.2764608860015869,
+        "max_duration": 0.2764608860015869,
+        "successful_scenarios": 0,
+        "total_scenarios": 1,
+        "success_rate": 0.0
+      },
+      "overall_status": "FAIL"
+    },
+    "system_prompt_workflow_enforcer": {
+      "name": "system_prompt_workflow_enforcer",
+      "exists": true,
+      "executable": true,
+      "scenarios": [
+        {
+          "name": "basic_execution",
+          "success": true,
+          "duration": 0.032501220703125,
+          "output_valid": true,
+          "output": "\u001b[0;35m🤖 Claude Enhancer 5.0 Workflow Enforcer\u001b[0m\n\u001b[0;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m\n\u001b[0;32m📍 Current Phase: P1 (Unknown Phase)\u001b[0m\n\n\n\u001b[0;35m🔄 Universal Workflow R..."
+        }
+      ],
+      "performance": {
+        "total_duration": 0.032501220703125,
+        "average_duration": 0.032501220703125,
+        "max_duration": 0.032501220703125,
+        "successful_scenarios": 1,
+        "total_scenarios": 1,
+        "success_rate": 100.0
+      },
+      "overall_status": "PASS"
+    },
+    "task_type_detector": {
+      "name": "task_type_detector",
+      "exists": true,
+      "executable": true,
+      "scenarios": [
+        {
+          "name": "basic_execution",
+          "success": true,
+          "duration": 0.011222600936889648,
+          "output_valid": true,
+          "output": ""
+        }
+      ],
+      "performance": {
+        "total_duration": 0.011222600936889648,
+        "average_duration": 0.011222600936889648,
+        "max_duration": 0.011222600936889648,
+        "successful_scenarios": 1,
+        "total_scenarios": 1,
+        "success_rate": 100.0
+      },
+      "overall_status": "PASS"
+    },
+    "ultra_fast_agent_selector": {
+      "name": "ultra_fast_agent_selector",
+      "exists": true,
+      "executable": true,
+      "scenarios": [
+        {
+          "name": "basic_execution",
+          "success": true,
+          "duration": 0.02179694175720215,
+          "output_valid": true,
+          "output": "{\n  \"recommended_agents\": [\"backend-architect\",\"frontend-architect\",\"test-engineer\",\"technical-writer\",\"security-auditor\",\"performance-engineer\"],\n  \"task_type\": \"general_development\",\n  \"complexity\":..."
+        }
+      ],
+      "performance": {
+        "total_duration": 0.02179694175720215,
+        "average_duration": 0.02179694175720215,
+        "max_duration": 0.02179694175720215,
+        "successful_scenarios": 1,
+        "total_scenarios": 1,
+        "success_rate": 100.0
+      },
+      "overall_status": "PASS"
+    },
+    "workflow_auto_trigger_integration": {
+      "name": "workflow_auto_trigger_integration",
+      "exists": true,
+      "executable": true,
+      "scenarios": [
+        {
+          "name": "basic_execution",
+          "success": true,
+          "duration": 2.037506103515625,
+          "output_valid": true,
+          "output": "\u001b[0;32m[AUTO-TRIGGER INFO]\u001b[0m 🔄 Auto-Trigger Integration activated\n\u001b[0;34m[AUTO-TRIGGER DEBUG]\u001b[0m Trigger: startup, Context: \n\u001b[0;32m[AUTO-TRIGGER INFO]\u001b[0m 🚀 Claude Code startup detected - initiali..."
+        }
+      ],
+      "performance": {
+        "total_duration": 2.037506103515625,
+        "average_duration": 2.037506103515625,
+        "max_duration": 2.037506103515625,
+        "successful_scenarios": 1,
+        "total_scenarios": 1,
+        "success_rate": 100.0
+      },
+      "overall_status": "PASS"
+    },
+    "workflow_executor_integration": {
+      "name": "workflow_executor_integration",
+      "exists": true,
+      "executable": true,
+      "scenarios": [
+        {
+          "name": "basic_execution",
+          "success": true,
+          "duration": 0.008626699447631836,
+          "output_valid": true,
+          "output": "timeout: failed to run command ‘main’: No such file or directory\n\u001b[0;34m[WORKFLOW-HOOK]\u001b[0m \u001b[1;33mIntegration hook 超时\u001b[0m"
+        }
+      ],
+      "performance": {
+        "total_duration": 0.008626699447631836,
+        "average_duration": 0.008626699447631836,
+        "max_duration": 0.008626699447631836,
+        "successful_scenarios": 1,
+        "total_scenarios": 1,
+        "success_rate": 100.0
+      },
+      "overall_status": "PASS"
+    }
+  },
+  "performance_overview": {
+    "average_hook_duration": 0.1517849975162082,
+    "max_hook_duration": 2.037506103515625,
+    "min_hook_duration": 0.004439115524291992,
+    "total_hook_execution_time": 4.553549925486246
+  },
+  "recommendations": [
+    "关键Hook功能异常: smart_agent_selector, error_handler, performance_monitor"
+  ]
+}

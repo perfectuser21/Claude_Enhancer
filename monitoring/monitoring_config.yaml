@@ -1,0 +1,568 @@
+# Claude Enhancer 5.1 - 企业级监控配置
+# 全面的监控、告警、仪表板配置
+
+monitoring:
+  service_name: "claude-enhancer-5.1"
+  version: "5.1.0"
+  environment: "production"  # production, staging, development
+
+  # =================================
+  # 1. 性能指标监控配置
+  # =================================
+  metrics:
+    collection_interval: 10  # 秒
+    retention_period: "7d"   # 7天数据保留
+    export_interval: 60      # 导出间隔60秒
+
+    # Prometheus兼容配置
+    prometheus:
+      enabled: true
+      port: 9090
+      endpoint: "/metrics"
+      format: "prometheus"
+
+    # 自定义指标配置
+    custom_metrics:
+      # 业务指标
+      business:
+        - name: "auth_requests_total"
+          type: "counter"
+          help: "认证请求总数"
+          labels: ["method", "endpoint", "status"]
+
+        - name: "user_sessions_active"
+          type: "gauge"
+          help: "活跃用户会话数"
+
+        - name: "auth_response_time"
+          type: "histogram"
+          help: "认证响应时间分布"
+          buckets: [0.01, 0.05, 0.1, 0.5, 1.0, 2.0, 5.0]
+
+        - name: "password_strength_score"
+          type: "histogram"
+          help: "密码强度评分分布"
+          buckets: [20, 40, 60, 80, 100]
+
+        - name: "mfa_success_rate"
+          type: "gauge"
+          help: "多因子认证成功率"
+
+      # 系统指标
+      system:
+        - name: "claude_enhancer_cpu_usage"
+          type: "gauge"
+          help: "CPU使用率"
+
+        - name: "claude_enhancer_memory_usage"
+          type: "gauge"
+          help: "内存使用率"
+
+        - name: "claude_enhancer_disk_usage"
+          type: "gauge"
+          help: "磁盘使用率"
+
+        - name: "database_connections"
+          type: "gauge"
+          help: "数据库连接数"
+
+        - name: "cache_hit_ratio"
+          type: "gauge"
+          help: "缓存命中率"
+
+      # 性能指标
+      performance:
+        - name: "request_duration_seconds"
+          type: "histogram"
+          help: "请求处理时间"
+          buckets: [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0]
+
+        - name: "queue_size"
+          type: "gauge"
+          help: "队列大小"
+
+        - name: "worker_pool_utilization"
+          type: "gauge"
+          help: "工作线程池利用率"
+
+  # =================================
+  # 2. 日志聚合配置
+  # =================================
+  logging:
+    # ELK Stack配置
+    elasticsearch:
+      enabled: true
+      hosts: ["localhost:9200"]
+      index_template: "claude-enhancer-5.1-{date}"
+      max_retries: 3
+
+    # 日志级别配置
+    levels:
+      root: "INFO"
+      claude_enhancer: "DEBUG"
+      auth_service: "INFO"
+      database: "WARNING"
+      performance: "DEBUG"
+
+    # 结构化日志配置
+    structured_logging:
+      enabled: true
+      format: "json"
+      fields:
+        service: "claude-enhancer-5.1"
+        version: "5.1.0"
+        environment: "${ENVIRONMENT}"
+        host: "${HOSTNAME}"
+
+    # 日志采样配置
+    sampling:
+      enabled: true
+      rate: 1.0  # 100%采样（生产环境可调整）
+
+    # 敏感信息过滤
+    filters:
+      - field: "password"
+        action: "mask"
+      - field: "token"
+        action: "mask"
+      - field: "api_key"
+        action: "remove"
+
+  # =================================
+  # 3. 告警规则配置
+  # =================================
+  alerts:
+    # 可用性告警
+    availability:
+      - name: "service_down"
+        metric: "up"
+        condition: "== 0"
+        duration: "2m"
+        severity: "critical"
+        message: "Claude Enhancer 5.1服务下线"
+        runbook: "https://wiki.company.com/runbooks/service-down"
+
+      - name: "high_error_rate"
+        metric: "error_rate"
+        condition: "> 0.05"  # 5%
+        duration: "5m"
+        severity: "warning"
+        message: "错误率过高: {{value}}%"
+
+      - name: "auth_service_failure"
+        metric: "auth_requests_total{status='500'}"
+        condition: "> 10"
+        duration: "3m"
+        severity: "error"
+        message: "认证服务大量失败请求"
+
+    # 性能告警
+    performance:
+      - name: "high_response_time"
+        metric: "request_duration_seconds_p95"
+        condition: "> 1.0"  # 1秒
+        duration: "10m"
+        severity: "warning"
+        message: "响应时间过高: {{value}}秒"
+
+      - name: "cache_hit_rate_low"
+        metric: "cache_hit_ratio"
+        condition: "< 0.8"  # 80%
+        duration: "15m"
+        severity: "warning"
+        message: "缓存命中率过低: {{value}}%"
+
+      - name: "queue_size_high"
+        metric: "queue_size"
+        condition: "> 1000"
+        duration: "5m"
+        severity: "error"
+        message: "队列积压严重: {{value}}个任务"
+
+    # 资源告警
+    resources:
+      - name: "cpu_usage_high"
+        metric: "claude_enhancer_cpu_usage"
+        condition: "> 80"
+        duration: "15m"
+        severity: "warning"
+        message: "CPU使用率过高: {{value}}%"
+
+      - name: "memory_usage_critical"
+        metric: "claude_enhancer_memory_usage"
+        condition: "> 90"
+        duration: "10m"
+        severity: "critical"
+        message: "内存使用率达到临界值: {{value}}%"
+
+      - name: "disk_usage_high"
+        metric: "claude_enhancer_disk_usage"
+        condition: "> 85"
+        duration: "30m"
+        severity: "warning"
+        message: "磁盘使用率过高: {{value}}%"
+
+      - name: "database_connections_high"
+        metric: "database_connections"
+        condition: "> 80"
+        duration: "10m"
+        severity: "warning"
+        message: "数据库连接数过高: {{value}}"
+
+    # 安全告警
+    security:
+      - name: "failed_auth_attempts"
+        metric: "auth_requests_total{status='401'}"
+        condition: "> 50"
+        duration: "5m"
+        severity: "warning"
+        message: "异常认证失败尝试: {{value}}次"
+
+      - name: "suspicious_login_pattern"
+        metric: "auth_requests_total"
+        condition: "rate > 100"  # 每秒超过100次
+        duration: "2m"
+        severity: "error"
+        message: "可疑登录模式检测"
+
+    # 业务告警
+    business:
+      - name: "user_registration_spike"
+        metric: "user_registrations_total"
+        condition: "rate > 10"  # 每秒超过10个注册
+        duration: "5m"
+        severity: "info"
+        message: "用户注册量激增"
+
+      - name: "mfa_failure_rate_high"
+        metric: "mfa_success_rate"
+        condition: "< 0.9"  # 90%
+        duration: "10m"
+        severity: "warning"
+        message: "多因子认证成功率过低"
+
+  # =================================
+  # 4. 告警通知配置
+  # =================================
+  notifications:
+    channels:
+      # Slack通知
+      slack:
+        enabled: true
+        webhook_url: "${SLACK_WEBHOOK_URL}"
+        channels:
+          critical: "#incidents"
+          error: "#alerts"
+          warning: "#monitoring"
+          info: "#notifications"
+        template: |
+          🚨 *Claude Enhancer 5.1 Alert*
+
+          *Alert:* {{alert_name}}
+          *Severity:* {{severity}}
+          *Message:* {{message}}
+          *Time:* {{timestamp}}
+          *Runbook:* {{runbook}}
+
+      # 邮件通知
+      email:
+        enabled: true
+        smtp_server: "${SMTP_SERVER}"
+        smtp_port: 587
+        username: "${SMTP_USERNAME}"
+        password: "${SMTP_PASSWORD}"
+        recipients:
+          critical: ["oncall@company.com", "tech-lead@company.com"]
+          error: ["dev-team@company.com"]
+          warning: ["monitoring@company.com"]
+        template: |
+          Subject: [{{severity|upper}}] Claude Enhancer 5.1 - {{alert_name}}
+
+          Alert Details:
+          - Service: Claude Enhancer 5.1
+          - Alert Name: {{alert_name}}
+          - Severity: {{severity}}
+          - Message: {{message}}
+          - Timestamp: {{timestamp}}
+          - Runbook: {{runbook}}
+
+      # PagerDuty集成
+      pagerduty:
+        enabled: false
+        routing_key: "${PAGERDUTY_ROUTING_KEY}"
+        severity_mapping:
+          critical: "critical"
+          error: "error"
+          warning: "warning"
+          info: "info"
+
+  # =================================
+  # 5. 监控仪表板配置
+  # =================================
+  dashboards:
+    # Grafana配置
+    grafana:
+      enabled: true
+      url: "http://localhost:3000"
+      datasources:
+        - name: "claude-enhancer-prometheus"
+          type: "prometheus"
+          url: "http://localhost:9090"
+        - name: "claude-enhancer-elasticsearch"
+          type: "elasticsearch"
+          url: "http://localhost:9200"
+
+    # 内置Web仪表板
+    web_dashboard:
+      enabled: true
+      port: 8080
+      path: "/dashboard"
+      refresh_interval: 3  # 秒
+
+    # 仪表板面板配置
+    panels:
+      # 系统概览面板
+      system_overview:
+        - title: "系统健康状态"
+          type: "stat"
+          metrics: ["overall_health", "uptime_seconds"]
+
+        - title: "请求速率"
+          type: "graph"
+          metrics: ["auth_requests_total"]
+          time_range: "1h"
+
+        - title: "响应时间分布"
+          type: "histogram"
+          metrics: ["auth_response_time"]
+
+        - title: "错误率趋势"
+          type: "graph"
+          metrics: ["error_rate"]
+          thresholds: [0.01, 0.05]
+
+      # 性能监控面板
+      performance:
+        - title: "CPU使用率"
+          type: "gauge"
+          metrics: ["claude_enhancer_cpu_usage"]
+          thresholds: [60, 80]
+
+        - title: "内存使用率"
+          type: "gauge"
+          metrics: ["claude_enhancer_memory_usage"]
+          thresholds: [70, 90]
+
+        - title: "磁盘I/O"
+          type: "graph"
+          metrics: ["disk_read_bytes", "disk_write_bytes"]
+
+        - title: "网络流量"
+          type: "graph"
+          metrics: ["network_bytes_sent", "network_bytes_recv"]
+
+      # 数据库监控面板
+      database:
+        - title: "数据库连接池"
+          type: "graph"
+          metrics: ["database_connections", "database_pool_size"]
+
+        - title: "查询性能"
+          type: "histogram"
+          metrics: ["database_query_duration"]
+
+        - title: "慢查询数量"
+          type: "stat"
+          metrics: ["database_slow_queries"]
+
+      # 缓存监控面板
+      cache:
+        - title: "缓存命中率"
+          type: "gauge"
+          metrics: ["cache_hit_ratio"]
+          thresholds: [0.8, 0.95]
+
+        - title: "缓存大小"
+          type: "graph"
+          metrics: ["cache_size_bytes"]
+
+        - title: "缓存操作"
+          type: "graph"
+          metrics: ["cache_gets_total", "cache_sets_total"]
+
+      # 认证服务面板
+      authentication:
+        - title: "认证成功率"
+          type: "gauge"
+          metrics: ["auth_success_rate"]
+          thresholds: [0.95, 0.99]
+
+        - title: "活跃会话数"
+          type: "stat"
+          metrics: ["user_sessions_active"]
+
+        - title: "密码强度分布"
+          type: "histogram"
+          metrics: ["password_strength_score"]
+
+        - title: "MFA使用率"
+          type: "pie"
+          metrics: ["mfa_enabled_users", "mfa_disabled_users"]
+
+  # =================================
+  # 6. SLA/SLI监控配置
+  # =================================
+  sla:
+    # 可用性SLA
+    availability:
+      target: 99.9  # 99.9%
+      window: "30d"
+      measurement: "uptime_percentage"
+
+    # 响应时间SLA
+    response_time:
+      target: 200  # 200ms
+      percentile: 95
+      window: "7d"
+      measurement: "response_time_p95"
+
+    # 错误率SLA
+    error_rate:
+      target: 0.1  # 0.1%
+      window: "24h"
+      measurement: "error_percentage"
+
+    # SLI计算配置
+    sli_calculations:
+      availability:
+        good_events: "sum(up)"
+        total_events: "count(up)"
+
+      latency:
+        good_events: "sum(rate(request_duration_seconds_bucket{le='0.2'}[5m]))"
+        total_events: "sum(rate(request_duration_seconds_count[5m]))"
+
+      error_rate:
+        good_events: "sum(rate(auth_requests_total{status!~'5..'}[5m]))"
+        total_events: "sum(rate(auth_requests_total[5m]))"
+
+  # =================================
+  # 7. 异常检测配置
+  # =================================
+  anomaly_detection:
+    enabled: true
+
+    # 基于统计的异常检测
+    statistical:
+      - metric: "auth_requests_total"
+        method: "z_score"
+        threshold: 3.0  # 3个标准差
+        window: "1h"
+
+      - metric: "auth_response_time"
+        method: "iqr"  # 四分位数法
+        threshold: 1.5
+        window: "30m"
+
+    # 基于机器学习的异常检测
+    ml_based:
+      - metric: "user_behavior_pattern"
+        algorithm: "isolation_forest"
+        contamination: 0.1
+        features: ["login_time", "login_location", "device_type"]
+
+    # 趋势分析
+    trend_analysis:
+      - metric: "memory_usage"
+        method: "linear_regression"
+        predict_horizon: "6h"
+        alert_threshold: 90  # 预测值超过90%时告警
+
+  # =================================
+  # 8. 健康检查配置
+  # =================================
+  health_checks:
+    # 服务健康检查
+    services:
+      - name: "auth-service"
+        url: "http://localhost:8000/health"
+        interval: 30  # 秒
+        timeout: 10
+        expected_status: 200
+
+      - name: "database"
+        type: "database"
+        connection_string: "${DATABASE_URL}"
+        query: "SELECT 1"
+        interval: 60
+        timeout: 5
+
+      - name: "cache"
+        type: "redis"
+        connection_string: "${REDIS_URL}"
+        command: "ping"
+        interval: 30
+        timeout: 3
+
+    # 端到端健康检查
+    e2e_checks:
+      - name: "user_registration_flow"
+        type: "synthetic"
+        script: "/scripts/test_user_registration.py"
+        interval: 300  # 5分钟
+        timeout: 60
+
+      - name: "user_login_flow"
+        type: "synthetic"
+        script: "/scripts/test_user_login.py"
+        interval: 180  # 3分钟
+        timeout: 30
+
+  # =================================
+  # 9. 性能基准配置
+  # =================================
+  benchmarks:
+    # 性能基准测试
+    load_testing:
+      - name: "auth_endpoint_load"
+        target: "http://localhost:8000/api/v1/auth/login"
+        method: "POST"
+        concurrent_users: 100
+        duration: "5m"
+        ramp_up: "1m"
+
+      - name: "registration_endpoint_load"
+        target: "http://localhost:8000/api/v1/auth/register"
+        method: "POST"
+        concurrent_users: 50
+        duration: "3m"
+        ramp_up: "30s"
+
+    # 性能回归测试
+    regression_testing:
+      baseline_file: "/benchmarks/baseline_performance.json"
+      threshold_degradation: 10  # 10%性能下降触发告警
+
+    # 容量规划
+    capacity_planning:
+      target_growth: 20  # 20%年增长
+      projection_period: "12m"
+      resource_thresholds:
+        cpu: 70
+        memory: 75
+        disk: 80
+
+# 配置验证规则
+validation:
+  required_fields:
+    - "monitoring.service_name"
+    - "monitoring.metrics.prometheus.enabled"
+    - "monitoring.alerts.availability"
+    - "monitoring.notifications.channels"
+
+  field_constraints:
+    "monitoring.metrics.collection_interval":
+      min: 1
+      max: 300
+    "monitoring.alerts.*.duration":
+      pattern: "^[0-9]+[smhd]$"

@@ -1,0 +1,415 @@
+# Claude Enhancer 5.1 - 高级告警规则配置
+# 智能告警，减少噪音，提高准确性
+
+groups:
+  # =================================
+  # SLI/SLO监控告警
+  # =================================
+  - name: sli_slo_alerts
+    interval: 60s
+    rules:
+      # SLO错误预算消耗告警
+      - alert: SLOErrorBudgetBurnRate
+        expr: |
+          (
+            1 - (
+              sum(rate(http_requests_total{status!~"5.."}[1h])) /
+              sum(rate(http_requests_total[1h]))
+            )
+          ) > (
+            14.4 * (1 - 0.999)  # 14.4x burn rate for 99.9% SLO
+          )
+        for: 2m
+        labels:
+          severity: critical
+          team: sre
+          slo_type: availability
+        annotations:
+          summary: "SLO错误预算消耗过快"
+          description: |
+            可用性SLO错误预算消耗速度为正常速度的14.4倍，
+            如果持续将在2小时内耗尽月度错误预算
+          runbook: "https://runbooks.company.com/slo-burn-rate"
+          dashboard: "https://grafana.company.com/d/slo-monitoring"
+
+      # 延迟SLO违反告警
+      - alert: LatencySLOViolation
+        expr: |
+          (
+            histogram_quantile(0.95,
+              sum(rate(http_request_duration_seconds_bucket[5m])) by (le)
+            ) > 0.2
+          ) and (
+            sum(rate(http_request_duration_seconds_bucket{le="0.2"}[5m])) /
+            sum(rate(http_request_duration_seconds_count[5m])) < 0.95
+          )
+        for: 10m
+        labels:
+          severity: warning
+          team: backend
+          slo_type: latency
+        annotations:
+          summary: "延迟SLO违反 - P95超过200ms"
+          description: |
+            95%分位延迟为 {{ $value }}s，超过200ms的SLO目标，
+            当前有 {{ printf "%.1f" $value }}% 的请求超过阈值
+          runbook: "https://runbooks.company.com/high-latency"
+
+  # =================================
+  # 智能异常检测告警
+  # =================================
+  - name: anomaly_detection_alerts
+    interval: 300s  # 5分钟评估一次
+    rules:
+      # 请求量异常检测
+      - alert: RequestVolumeAnomaly
+        expr: |
+          abs(
+            sum(rate(http_requests_total[5m])) -
+            avg_over_time(sum(rate(http_requests_total[5m]))[1h:5m])
+          ) > (
+            3 * stddev_over_time(sum(rate(http_requests_total[5m]))[1h:5m])
+          )
+        for: 15m
+        labels:
+          severity: warning
+          team: platform
+          anomaly_type: volume
+        annotations:
+          summary: "请求量异常检测"
+          description: |
+            当前请求量 {{ printf "%.0f" $value }} req/s，
+            偏离1小时平均值超过3个标准差，可能存在异常
+          context: |
+            - 平均值: {{ printf "%.0f" (query "avg_over_time(sum(rate(http_requests_total[5m]))[1h:5m])") }} req/s
+            - 标准差: {{ printf "%.0f" (query "stddev_over_time(sum(rate(http_requests_total[5m]))[1h:5m])") }} req/s
+
+      # 错误率突增检测
+      - alert: ErrorRateSpike
+        expr: |
+          (
+            sum(rate(http_requests_total{status=~"5.."}[5m])) /
+            sum(rate(http_requests_total[5m]))
+          ) > (
+            avg_over_time(
+              sum(rate(http_requests_total{status=~"5.."}[5m])) /
+              sum(rate(http_requests_total[5m]))[1h:5m]
+            ) + 3 * stddev_over_time(
+              sum(rate(http_requests_total{status=~"5.."}[5m])) /
+              sum(rate(http_requests_total[5m]))[1h:5m]
+            )
+          )
+        for: 5m
+        labels:
+          severity: error
+          team: backend
+          anomaly_type: error_rate
+        annotations:
+          summary: "错误率异常突增"
+          description: |
+            当前错误率 {{ printf "%.3f" $value }}%，
+            超出历史正常范围，可能存在系统故障
+
+  # =================================
+  # 业务流程监控告警
+  # =================================
+  - name: business_process_alerts
+    interval: 120s
+    rules:
+      # 用户注册流程失败率
+      - alert: UserRegistrationFailureRate
+        expr: |
+          (
+            sum(rate(user_registration_attempts_total{status="failed"}[5m])) /
+            sum(rate(user_registration_attempts_total[5m]))
+          ) > 0.05
+        for: 10m
+        labels:
+          severity: warning
+          team: product
+          process: registration
+        annotations:
+          summary: "用户注册失败率过高"
+          description: |
+            用户注册失败率为 {{ printf "%.2f" $value }}%，
+            超过5%阈值，可能影响新用户获取
+          impact: "影响新用户注册，可能导致用户流失"
+          action: "检查注册服务状态和数据库连接"
+
+      # 认证服务响应时间
+      - alert: AuthServiceSlowResponse
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(auth_service_duration_seconds_bucket[5m])) by (le)
+          ) > 2.0
+        for: 8m
+        labels:
+          severity: warning
+          team: auth
+          service: authentication
+        annotations:
+          summary: "认证服务响应缓慢"
+          description: |
+            认证服务95%分位响应时间为 {{ $value }}s，
+            超过2秒阈值，可能影响用户登录体验
+          user_impact: "用户登录等待时间增加，可能导致用户体验下降"
+
+  # =================================
+  # 资源预测性告警
+  # =================================
+  - name: predictive_alerts
+    interval: 300s
+    rules:
+      # 磁盘空间增长趋势预测
+      - alert: DiskSpaceExhaustionPrediction
+        expr: |
+          (
+            predict_linear(node_filesystem_avail_bytes{fstype!="tmpfs"}[6h], 24*3600)
+            / node_filesystem_size_bytes{fstype!="tmpfs"}
+          ) < 0.1
+        for: 30m
+        labels:
+          severity: warning
+          team: infrastructure
+          type: predictive
+        annotations:
+          summary: "预测磁盘空间将在24小时内不足"
+          description: |
+            根据过去6小时的趋势分析，
+            磁盘 {{ $labels.device }} 预计在24小时内使用率将超过90%
+          action: "需要计划磁盘清理或扩容"
+          prediction_confidence: "基于6小时线性趋势分析"
+
+      # 内存使用增长预测
+      - alert: MemoryLeakDetection
+        expr: |
+          (
+            increase(process_resident_memory_bytes[1h]) > 0
+          ) and (
+            rate(process_resident_memory_bytes[1h]) >
+            rate(process_resident_memory_bytes[6h])
+          )
+        for: 2h
+        labels:
+          severity: warning
+          team: backend
+          type: memory_leak
+        annotations:
+          summary: "检测到可能的内存泄漏"
+          description: |
+            进程 {{ $labels.job }} 内存使用持续增长，
+            过去1小时增长 {{ humanize1024 $value }} bytes
+          investigation: "检查应用是否存在内存泄漏"
+
+  # =================================
+  # 安全监控告警
+  # =================================
+  - name: security_monitoring_alerts
+    interval: 60s
+    rules:
+      # 暴力破解攻击检测
+      - alert: BruteForceAttackDetected
+        expr: |
+          (
+            sum(rate(auth_attempts_total{status="failed"}[5m])) by (source_ip) > 20
+          ) and (
+            sum(rate(auth_attempts_total{status="success"}[5m])) by (source_ip) == 0
+          )
+        for: 2m
+        labels:
+          severity: critical
+          team: security
+          attack_type: brute_force
+        annotations:
+          summary: "检测到暴力破解攻击"
+          description: |
+            IP地址 {{ $labels.source_ip }} 在5分钟内有超过100次失败登录尝试，
+            没有成功登录记录，疑似暴力破解攻击
+          immediate_action: "考虑临时封禁该IP地址"
+          investigation: "分析攻击模式和目标账户"
+
+      # 异常API访问模式
+      - alert: SuspiciousAPIUsagePattern
+        expr: |
+          (
+            sum(rate(http_requests_total{endpoint=~"/api/admin/.*"}[5m])) by (source_ip) > 50
+          ) and (
+            sum(rate(http_requests_total{endpoint=~"/api/admin/.*",status=~"4.."}[5m])) by (source_ip) /
+            sum(rate(http_requests_total{endpoint=~"/api/admin/.*"}[5m])) by (source_ip) > 0.8
+          )
+        for: 5m
+        labels:
+          severity: warning
+          team: security
+          pattern_type: api_abuse
+        annotations:
+          summary: "检测到异常API访问模式"
+          description: |
+            IP {{ $labels.source_ip }} 对管理API的访问频率异常高，
+            且80%以上返回4xx状态码，可能在尝试未授权访问
+          monitoring: "持续监控该IP的访问行为"
+
+  # =================================
+  # 依赖服务监控告警
+  # =================================
+  - name: dependency_monitoring_alerts
+    interval: 60s
+    rules:
+      # 数据库连接池耗尽预警
+      - alert: DatabaseConnectionPoolNearExhaustion
+        expr: |
+          (
+            database_connection_pool_active_connections /
+            database_connection_pool_max_connections
+          ) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          team: database
+          component: connection_pool
+        annotations:
+          summary: "数据库连接池接近耗尽"
+          description: |
+            数据库连接池使用率为 {{ printf "%.1f" $value }}%，
+            活跃连接数: {{ query "database_connection_pool_active_connections" }}，
+            最大连接数: {{ query "database_connection_pool_max_connections" }}
+          impact: "可能导致新请求无法获取数据库连接"
+          action: "检查长时间运行的查询，考虑增加连接池大小"
+
+      # 第三方API调用失败率
+      - alert: ThirdPartyAPIFailureRate
+        expr: |
+          (
+            sum(rate(external_api_requests_total{status=~"5.."}[5m])) by (api_name) /
+            sum(rate(external_api_requests_total[5m])) by (api_name)
+          ) > 0.1
+        for: 10m
+        labels:
+          severity: warning
+          team: integration
+          component: external_api
+        annotations:
+          summary: "第三方API {{ $labels.api_name }} 调用失败率过高"
+          description: |
+            第三方API {{ $labels.api_name }} 失败率为 {{ printf "%.2f" $value }}%，
+            可能影响相关业务功能
+          fallback: "检查是否有备用方案或降级策略"
+
+  # =================================
+  # 性能回归检测告警
+  # =================================
+  - name: performance_regression_alerts
+    interval: 300s
+    rules:
+      # 性能基线偏离检测
+      - alert: PerformanceRegressionDetected
+        expr: |
+          (
+            histogram_quantile(0.95,
+              sum(rate(http_request_duration_seconds_bucket[30m])) by (le)
+            ) >
+            histogram_quantile(0.95,
+              sum(rate(http_request_duration_seconds_bucket[24h] offset 24h)) by (le)
+            ) * 1.5
+          ) and (
+            sum(rate(http_requests_total[30m])) > 10
+          )
+        for: 20m
+        labels:
+          severity: warning
+          team: backend
+          type: regression
+        annotations:
+          summary: "检测到性能回归"
+          description: |
+            当前P95响应时间 {{ printf "%.3f" $value }}s，
+            比24小时前同时段慢了50%以上
+          investigation: |
+            - 检查最近的代码部署
+            - 分析慢查询日志
+            - 检查系统资源使用情况
+          baseline: "基于24小时前同时段的性能基线"
+
+  # =================================
+  # 集群健康监控告警
+  # =================================
+  - name: cluster_health_alerts
+    interval: 120s
+    rules:
+      # 集群节点不可用
+      - alert: ClusterNodeDown
+        expr: up{job="kubernetes-nodes"} == 0
+        for: 3m
+        labels:
+          severity: critical
+          team: infrastructure
+          component: cluster
+        annotations:
+          summary: "集群节点 {{ $labels.instance }} 不可用"
+          description: "Kubernetes节点 {{ $labels.instance }} 已下线超过3分钟"
+          impact: "可能影响Pod调度和服务可用性"
+          action: "检查节点状态，必要时进行故障转移"
+
+      # Pod重启频率异常
+      - alert: HighPodRestartRate
+        expr: |
+          increase(kube_pod_container_status_restarts_total[1h]) > 5
+        for: 10m
+        labels:
+          severity: warning
+          team: platform
+          component: pod
+        annotations:
+          summary: "Pod {{ $labels.pod }} 重启频率异常"
+          description: |
+            Pod {{ $labels.pod }} 在过去1小时内重启了 {{ $value }} 次，
+            可能存在稳定性问题
+          investigation: "检查Pod日志和资源限制配置"
+
+  # =================================
+  # 数据一致性监控告警
+  # =================================
+  - name: data_consistency_alerts
+    interval: 300s
+    rules:
+      # 缓存命中率异常下降
+      - alert: CacheHitRateDegraded
+        expr: |
+          (
+            sum(rate(cache_requests_total{result="hit"}[30m])) /
+            sum(rate(cache_requests_total[30m]))
+          ) < 0.7 and (
+            sum(rate(cache_requests_total[30m])) > 10
+          )
+        for: 15m
+        labels:
+          severity: warning
+          team: backend
+          component: cache
+        annotations:
+          summary: "缓存命中率异常下降"
+          description: |
+            缓存命中率降至 {{ printf "%.1f" $value }}%，
+            低于70%正常水平，可能影响性能
+          impact: "增加数据库负载，响应时间可能增加"
+          investigation: |
+            - 检查缓存服务状态
+            - 分析缓存失效模式
+            - 检查缓存配置
+
+      # 数据同步延迟
+      - alert: DataReplicationLagHigh
+        expr: |
+          mysql_slave_lag_seconds > 300
+        for: 10m
+        labels:
+          severity: error
+          team: database
+          component: replication
+        annotations:
+          summary: "数据库主从同步延迟过高"
+          description: |
+            数据库主从同步延迟为 {{ $value }} 秒，
+            超过5分钟阈值，可能影响读写分离效果
+          impact: "从库数据滞后，可能影响业务逻辑"
+          action: "检查网络状态和从库性能"

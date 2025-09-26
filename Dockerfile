@@ -99,7 +99,7 @@ COPY backend/ ./backend/
 COPY database/ ./database/
 COPY .claude/ ./.claude/
 COPY test/ ./test/
-COPY monitoring/ ./monitoring/
+# COPY monitoring/ ./monitoring/
 COPY requirements.txt .
 
 # Copy built frontend assets (when available)
