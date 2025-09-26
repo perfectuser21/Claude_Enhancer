@@ -31,23 +31,35 @@ sys.path.append(str(project_root))
 
 # Import our lazy loading components
 try:
-    from claude.core.lazy_engine import LazyWorkflowEngine, benchmark_startup_performance
-    from claude.core.lazy_orchestrator import LazyAgentOrchestrator, benchmark_orchestrator_performance
+    from claude.core.lazy_engine import (
+        LazyWorkflowEngine,
+        benchmark_startup_performance,
+    )
+    from claude.core.lazy_orchestrator import (
+        LazyAgentOrchestrator,
+        benchmark_orchestrator_performance,
+    )
 except ImportError:
     # Fallback imports for different project structures
     sys.path.append(str(project_root / ".claude" / "core"))
     from lazy_engine import LazyWorkflowEngine, benchmark_startup_performance
-    from lazy_orchestrator import LazyAgentOrchestrator, benchmark_orchestrator_performance
+    from lazy_orchestrator import (
+        LazyAgentOrchestrator,
+        benchmark_orchestrator_performance,
+    )
+
 
 @dataclass
 class PerformanceMetrics:
     """Performance measurement results"""
+
     startup_time_ms: float
     memory_usage_mb: float
     component_load_time_ms: float
     cache_hit_rate: float
     cpu_usage_percent: float
     improvement_percent: float
+
 
 class PerformanceTestSuite:
     """Comprehensive performance test suite"""
@@ -108,18 +120,20 @@ class PerformanceTestSuite:
                 "avg_ms": statistics.mean(startup_times),
                 "min_ms": min(startup_times),
                 "max_ms": max(startup_times),
-                "std_dev": statistics.stdev(startup_times) if len(startup_times) > 1 else 0
+                "std_dev": statistics.stdev(startup_times)
+                if len(startup_times) > 1
+                else 0,
             },
             "memory_usage": {
                 "avg_mb": statistics.mean(memory_usage),
                 "max_mb": max(memory_usage),
-                "min_mb": min(memory_usage)
+                "min_mb": min(memory_usage),
             },
             "cpu_usage": {
                 "avg_percent": statistics.mean(cpu_usage),
-                "max_percent": max(cpu_usage)
+                "max_percent": max(cpu_usage),
             },
-            "iterations": iterations
+            "iterations": iterations,
         }
 
         return results
@@ -145,13 +159,17 @@ class PerformanceTestSuite:
             "avg_ms": statistics.mean(phase_times),
             "total_phases": len(phase_times),
             "max_ms": max(phase_times),
-            "min_ms": min(phase_times)
+            "min_ms": min(phase_times),
         }
 
         # Test agent loading
         test_agents = [
-            "backend-architect", "test-engineer", "security-auditor",
-            "frontend-specialist", "api-designer", "database-specialist"
+            "backend-architect",
+            "test-engineer",
+            "security-auditor",
+            "frontend-specialist",
+            "api-designer",
+            "database-specialist",
         ]
 
         agent_times = []
@@ -166,7 +184,7 @@ class PerformanceTestSuite:
             "avg_ms": statistics.mean(agent_times),
             "total_agents": len(agent_times),
             "max_ms": max(agent_times),
-            "min_ms": min(agent_times)
+            "min_ms": min(agent_times),
         }
 
         return results
@@ -184,7 +202,7 @@ class PerformanceTestSuite:
             "create REST API",
             "fix security bug",
             "optimize database performance",
-            "deploy to production"
+            "deploy to production",
         ]
 
         # First pass - populate cache
@@ -214,13 +232,17 @@ class PerformanceTestSuite:
 
         return {
             "engine_cache": {
-                "hit_rate": engine_stats.get("performance", {}).get("cache_hit_rate", "0%"),
-                "cached_operations_time_ms": cached_time * 1000
+                "hit_rate": engine_stats.get("performance", {}).get(
+                    "cache_hit_rate", "0%"
+                ),
+                "cached_operations_time_ms": cached_time * 1000,
             },
             "orchestrator_cache": {
-                "hit_rate": orchestrator_stats.get("cache_stats", {}).get("cache_hit_rate", "0%"),
-                "cached_selections_time_ms": orchestrator_cached_time * 1000
-            }
+                "hit_rate": orchestrator_stats.get("cache_stats", {}).get(
+                    "cache_hit_rate", "0%"
+                ),
+                "cached_selections_time_ms": orchestrator_cached_time * 1000,
+            },
         }
 
     def measure_parallel_execution(self) -> Dict[str, Any]:
@@ -230,7 +252,9 @@ class PerformanceTestSuite:
         orchestrator = LazyAgentOrchestrator()
 
         # Test parallel agent execution
-        test_task = "implement comprehensive user authentication system with JWT tokens and MFA"
+        test_task = (
+            "implement comprehensive user authentication system with JWT tokens and MFA"
+        )
         selection_result = orchestrator.select_agents_fast(test_task)
         selected_agents = selection_result["selected_agents"]
 
@@ -244,7 +268,9 @@ class PerformanceTestSuite:
 
         # Parallel execution
         start_time = time.perf_counter()
-        parallel_results = orchestrator.execute_parallel_agents(selected_agents, test_task)
+        parallel_results = orchestrator.execute_parallel_agents(
+            selected_agents, test_task
+        )
         parallel_time = time.perf_counter() - start_time
 
         speedup = sequential_time / parallel_time if parallel_time > 0 else 1
@@ -254,7 +280,7 @@ class PerformanceTestSuite:
             "parallel_execution_ms": parallel_time * 1000,
             "speedup_factor": speedup,
             "agents_executed": len(selected_agents),
-            "parallel_efficiency": f"{(speedup / len(selected_agents) * 100):.1f}%"
+            "parallel_efficiency": f"{(speedup / len(selected_agents) * 100):.1f}%",
         }
 
     def measure_memory_efficiency(self) -> Dict[str, Any]:
@@ -297,7 +323,10 @@ class PerformanceTestSuite:
             "memory_growth_mb": (peak_memory.rss - initial_memory.rss) / 1024 / 1024,
             "memory_recovered_mb": (peak_memory.rss - final_memory.rss) / 1024 / 1024,
             "instances_created": 10,  # 5 engines + 5 orchestrators
-            "avg_memory_per_instance_mb": ((peak_memory.rss - initial_memory.rss) / 1024 / 1024) / 10
+            "avg_memory_per_instance_mb": (
+                (peak_memory.rss - initial_memory.rss) / 1024 / 1024
+            )
+            / 10,
         }
 
     def run_comprehensive_benchmark(self) -> Dict[str, Any]:
@@ -313,8 +342,8 @@ class PerformanceTestSuite:
                 "cpu_count": psutil.cpu_count(),
                 "memory_total_gb": psutil.virtual_memory().total / 1024**3,
                 "python_version": sys.version.split()[0],
-                "platform": sys.platform
-            }
+                "platform": sys.platform,
+            },
         }
 
         try:
@@ -336,12 +365,16 @@ class PerformanceTestSuite:
             # Calculate overall improvement
             baseline_startup = 100  # Assume 100ms baseline
             actual_startup = results["startup_performance"]["startup_time"]["avg_ms"]
-            improvement = ((baseline_startup - actual_startup) / baseline_startup * 100)
+            improvement = (baseline_startup - actual_startup) / baseline_startup * 100
 
             results["overall_performance"] = {
                 "startup_improvement_percent": max(0, improvement),
                 "target_achieved": improvement >= 50,
-                "recommendation": "Excellent" if improvement >= 50 else "Good" if improvement >= 30 else "Needs optimization"
+                "recommendation": "Excellent"
+                if improvement >= 50
+                else "Good"
+                if improvement >= 30
+                else "Needs optimization",
             }
 
         except Exception as e:
@@ -374,7 +407,9 @@ class PerformanceTestSuite:
         startup = results.get("startup_performance", {}).get("startup_time", {})
         report.append("🚀 Startup Performance:")
         report.append(f"  Average: {startup.get('avg_ms', 0):.2f}ms")
-        report.append(f"  Range: {startup.get('min_ms', 0):.2f}ms - {startup.get('max_ms', 0):.2f}ms")
+        report.append(
+            f"  Range: {startup.get('min_ms', 0):.2f}ms - {startup.get('max_ms', 0):.2f}ms"
+        )
         report.append(f"  Std Dev: {startup.get('std_dev', 0):.2f}ms")
 
         # Component loading
@@ -385,11 +420,15 @@ class PerformanceTestSuite:
 
             if "phase_loading" in comp_loading:
                 phase = comp_loading["phase_loading"]
-                report.append(f"  Phase Loading: {phase.get('avg_ms', 0):.2f}ms average")
+                report.append(
+                    f"  Phase Loading: {phase.get('avg_ms', 0):.2f}ms average"
+                )
 
             if "agent_loading" in comp_loading:
                 agent = comp_loading["agent_loading"]
-                report.append(f"  Agent Loading: {agent.get('avg_ms', 0):.2f}ms average")
+                report.append(
+                    f"  Agent Loading: {agent.get('avg_ms', 0):.2f}ms average"
+                )
 
         # Cache efficiency
         if "cache_efficiency" in results:
@@ -398,8 +437,12 @@ class PerformanceTestSuite:
             report.append("💾 Cache Efficiency:")
             engine_cache = cache.get("engine_cache", {})
             orch_cache = cache.get("orchestrator_cache", {})
-            report.append(f"  Engine Cache Hit Rate: {engine_cache.get('hit_rate', '0%')}")
-            report.append(f"  Orchestrator Cache Hit Rate: {orch_cache.get('hit_rate', '0%')}")
+            report.append(
+                f"  Engine Cache Hit Rate: {engine_cache.get('hit_rate', '0%')}"
+            )
+            report.append(
+                f"  Orchestrator Cache Hit Rate: {orch_cache.get('hit_rate', '0%')}"
+            )
 
         # Parallel execution
         if "parallel_execution" in results:
@@ -407,27 +450,39 @@ class PerformanceTestSuite:
             report.append("")
             report.append("⚡ Parallel Execution:")
             report.append(f"  Speedup Factor: {parallel.get('speedup_factor', 1):.2f}x")
-            report.append(f"  Parallel Efficiency: {parallel.get('parallel_efficiency', '0%')}")
+            report.append(
+                f"  Parallel Efficiency: {parallel.get('parallel_efficiency', '0%')}"
+            )
 
         # Memory efficiency
         if "memory_efficiency" in results:
             memory = results["memory_efficiency"]
             report.append("")
             report.append("🧠 Memory Efficiency:")
-            report.append(f"  Memory per Instance: {memory.get('avg_memory_per_instance_mb', 0):.2f}MB")
-            report.append(f"  Peak Memory Usage: {memory.get('peak_memory_mb', 0):.2f}MB")
+            report.append(
+                f"  Memory per Instance: {memory.get('avg_memory_per_instance_mb', 0):.2f}MB"
+            )
+            report.append(
+                f"  Peak Memory Usage: {memory.get('peak_memory_mb', 0):.2f}MB"
+            )
 
         # Overall performance
         if "overall_performance" in results:
             overall = results["overall_performance"]
             report.append("")
             report.append("📊 Overall Performance:")
-            report.append(f"  Startup Improvement: {overall.get('startup_improvement_percent', 0):.1f}%")
-            report.append(f"  Target Achieved: {'✅ Yes' if overall.get('target_achieved', False) else '❌ No'}")
+            report.append(
+                f"  Startup Improvement: {overall.get('startup_improvement_percent', 0):.1f}%"
+            )
+            report.append(
+                f"  Target Achieved: {'✅ Yes' if overall.get('target_achieved', False) else '❌ No'}"
+            )
             report.append(f"  Rating: {overall.get('recommendation', 'Unknown')}")
 
         report.append("")
-        report.append(f"⏱️  Benchmark Duration: {results.get('benchmark_duration_seconds', 0):.2f}s")
+        report.append(
+            f"⏱️  Benchmark Duration: {results.get('benchmark_duration_seconds', 0):.2f}s"
+        )
 
         return "\n".join(report)
 
@@ -439,11 +494,12 @@ class PerformanceTestSuite:
 
         filepath = Path(__file__).parent / filename
 
-        with open(filepath, 'w') as f:
+        with open(filepath, "w") as f:
             json.dump(results, f, indent=2)
 
         print(f"📄 Results saved to: {filepath}")
         return filepath
+
 
 def main():
     """Main benchmark execution"""
@@ -477,6 +533,7 @@ def main():
         print("⚠️  Further optimization needed.")
 
     return results
+
 
 if __name__ == "__main__":
     main()

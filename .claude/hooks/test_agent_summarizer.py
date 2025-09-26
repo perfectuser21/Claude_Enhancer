@@ -4,9 +4,10 @@
 import json
 import sys
 import os
+
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-exec(open('agent-output-summarizer.py').read())  # 直接执行文件内容
+exec(open("agent-output-summarizer.py").read())  # 直接执行文件内容
 
 # 模拟多个agent的输出
 test_agents = [
@@ -28,7 +29,7 @@ Performance improvement: 60% faster validation
 
 ✅ All tests passing
 ✅ 100% backward compatibility maintained
-        """
+        """,
     },
     {
         "tool": "Task",
@@ -51,7 +52,7 @@ Created 5 files:
 - docs/cache-architecture.md
 
 Performance improvement: 75% reduction in validation time
-        """
+        """,
     },
     {
         "tool": "Task",
@@ -71,7 +72,7 @@ Created test files:
 
 Added 500 lines of test code
 Performance: 10x improvement in test speed
-        """
+        """,
     },
     {
         "tool": "Task",
@@ -93,9 +94,10 @@ Implementation:
 
 Memory usage: 0.026MB per instance
 Cache hit rate: 40-80%
-        """
-    }
+        """,
+    },
 ]
+
 
 def test_summarizer():
     """测试汇总器功能"""
@@ -110,14 +112,15 @@ def test_summarizer():
 
     # 生成报告
     report = summarizer.generate_summary_report()
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print(report)
-    print("="*60)
+    print("=" * 60)
 
     # 保存报告
     report_file = summarizer.save_summary()
     print(f"\n✅ Report saved to: {report_file}")
     print(f"✅ Latest report: .claude/LATEST_AGENT_SUMMARY.md")
+
 
 if __name__ == "__main__":
     test_summarizer()

@@ -140,7 +140,9 @@ class Settings(BaseSettings):
 
     # RabbitMQ配置
     RABBITMQ_URL: str = Field(..., env="RABBITMQ_URL")
-    RABBITMQ_EXCHANGE: str = Field(default="claude-enhancer.events", env="RABBITMQ_EXCHANGE")
+    RABBITMQ_EXCHANGE: str = Field(
+        default="claude-enhancer.events", env="RABBITMQ_EXCHANGE"
+    )
     RABBITMQ_QUEUE_PREFIX: str = Field(
         default="auth-service", env="RABBITMQ_QUEUE_PREFIX"
     )
@@ -214,7 +216,9 @@ class Settings(BaseSettings):
     )
 
     # 前端配置
-    FRONTEND_URL: str = Field(default="https://app.claude-enhancer.com", env="FRONTEND_URL")
+    FRONTEND_URL: str = Field(
+        default="https://app.claude-enhancer.com", env="FRONTEND_URL"
+    )
     FRONTEND_VERIFY_EMAIL_PATH: str = Field(
         default="/verify-email", env="FRONTEND_VERIFY_EMAIL_PATH"
     )

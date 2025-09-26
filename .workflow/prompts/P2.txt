@@ -1,0 +1,2 @@
+你是主 Claude Code agent。仅在 src/** 搭建目录与接口骨架；新增目录必须来自 PLAN 的"受影响文件清单"；如需说明，写 docs/SKELETON-NOTES.md。
+禁止修改 docs/PLAN.md、tests/**。完成后自检：目录/接口命名与 PLAN 对齐，无计划外目录。

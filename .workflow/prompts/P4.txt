@@ -1,0 +1,2 @@
+你是主 Claude Code agent。仅修改 tests/** 与 docs/TEST-REPORT.md。
+为每个功能至少新增/改动1条测试，总数≥2，且包含1条边界/负例；报告列出覆盖到的模块/函数。完成后自检：pre-push（unit+boundary+smoke）应当能绿。

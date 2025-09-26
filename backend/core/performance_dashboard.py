@@ -106,6 +106,9 @@ class PerformanceDashboard:
 
         # 运行状态
         self.running = False
+        # 性能优化: 增加指标缓存
+        self.metrics_cache = {}
+        self.cache_ttl = 5  # 5秒缓存TTL
         self.start_time = time.time()
 
         # 配置路由
@@ -240,7 +243,7 @@ class PerformanceDashboard:
             except Exception as e:
                 logger.error(f"❌ 指标收集失败: {e}")
 
-            await asyncio.sleep(5)  # 每5秒收集一次
+            await asyncio.sleep(3)  # 每5秒收集一次
 
     async def _collect_system_metrics(self):
         """收集系统指标"""
@@ -454,7 +457,7 @@ class PerformanceDashboard:
             except Exception as e:
                 logger.error(f"❌ 系统状态更新失败: {e}")
 
-            await asyncio.sleep(10)  # 每10秒更新一次
+            await asyncio.sleep(5)  # 每10秒更新一次
 
     async def _update_system_status(self):
         """更新系统状态"""
@@ -518,7 +521,7 @@ class PerformanceDashboard:
             except Exception as e:
                 logger.error(f"❌ 广播更新失败: {e}")
 
-            await asyncio.sleep(2)  # 每2秒广播一次
+            await asyncio.sleep(1)  # 每2秒广播一次
 
     async def _cleanup_old_data_loop(self):
         """清理旧数据循环"""
@@ -537,7 +540,7 @@ class PerformanceDashboard:
             except Exception as e:
                 logger.error(f"❌ 数据清理失败: {e}")
 
-            await asyncio.sleep(300)  # 每5分钟清理一次
+            await asyncio.sleep(180)  # 每5分钟清理一次
 
     def _get_status_by_threshold(
         self,
@@ -776,6 +779,9 @@ class PerformanceDashboard:
         """关闭仪表板"""
         logger.info("🛑 正在关闭性能监控仪表板...")
         self.running = False
+        # 性能优化: 增加指标缓存
+        self.metrics_cache = {}
+        self.cache_ttl = 5  # 5秒缓存TTL
 
         # 通知所有WebSocket客户端
         await self.websocket_manager.send_to_all(
@@ -786,7 +792,9 @@ class PerformanceDashboard:
 
 
 # 使用示例
-async def create_dashboard(service_name: str = "claude-enhancer") -> PerformanceDashboard:
+async def create_dashboard(
+    service_name: str = "claude-enhancer",
+) -> PerformanceDashboard:
     """创建仪表板实例"""
     dashboard = PerformanceDashboard(service_name)
     await dashboard.initialize()

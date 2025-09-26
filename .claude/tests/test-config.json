@@ -1,0 +1,320 @@
+{
+  "name": "Claude Enhancer 5.0 E2E Test Configuration",
+  "version": "5.0.0",
+  "description": "8-Phase工作流端到端测试配置",
+  
+  "testSuites": {
+    "workflow": {
+      "enabled": true,
+      "file": "workflow-e2e-test-suite.js",
+      "timeout": 300000,
+      "description": "完整的8-Phase工作流测试"
+    },
+    "performance": {
+      "enabled": true,
+      "file": "performance-benchmark.js",
+      "timeout": 120000,
+      "description": "性能基准测试和优化验证"
+    },
+    "hooks": {
+      "enabled": true,
+      "file": "hook-integration-test.js",
+      "timeout": 60000,
+      "description": "Hook集成和触发时机测试"
+    }
+  },
+  
+  "testEnvironment": {
+    "tempDirectory": "/tmp/claude-e2e-tests",
+    "logDirectory": ".claude/tests/logs",
+    "reportDirectory": ".claude/tests/reports",
+    "backupEnabled": true,
+    "cleanupAfterTest": true
+  },
+  
+  "phases": {
+    "phase0": {
+      "name": "分支创建",
+      "description": "Branch Creation - 创建feature分支，准备开发环境",
+      "hooks": ["branch_helper"],
+      "cleanup": "environment",
+      "testCases": [
+        "branch_detection",
+        "environment_setup",
+        "gitignore_validation"
+      ]
+    },
+    "phase1": {
+      "name": "需求分析",
+      "description": "Requirements Analysis - 理解要做什么，为什么要做",
+      "hooks": ["task_type_detector"],
+      "testCases": [
+        "requirement_parsing",
+        "stakeholder_identification",
+        "acceptance_criteria",
+        "risk_assessment"
+      ]
+    },
+    "phase2": {
+      "name": "设计规划",
+      "description": "Design Planning - 如何实现，技术选型，架构设计",
+      "hooks": ["smart_agent_selector"],
+      "testCases": [
+        "architecture_design",
+        "technology_selection",
+        "data_model_design",
+        "interface_design"
+      ]
+    },
+    "phase3": {
+      "name": "实现开发",
+      "description": "Implementation - 编写代码，实现功能（4-6-8 Agent策略）",
+      "hooks": ["smart_agent_selector", "quality_gate"],
+      "agentStrategy": "4-6-8",
+      "testCases": [
+        "agent_selection",
+        "parallel_execution",
+        "agent_coordination",
+        "code_generation"
+      ]
+    },
+    "phase4": {
+      "name": "本地测试",
+      "description": "Local Testing - 单元测试，集成测试，功能验证",
+      "hooks": ["performance_monitor"],
+      "testCases": [
+        "unit_test_execution",
+        "integration_testing",
+        "functional_verification",
+        "performance_benchmark"
+      ]
+    },
+    "phase5": {
+      "name": "代码提交",
+      "description": "Code Commit - Git提交，触发质量检查",
+      "hooks": ["quality_gate", "smart_cleanup_advisor"],
+      "cleanup": "temporary_files",
+      "gitHooks": ["pre-commit", "commit-msg"],
+      "testCases": [
+        "pre_commit_hooks",
+        "commit_message_validation",
+        "code_formatting",
+        "security_scanning"
+      ]
+    },
+    "phase6": {
+      "name": "代码审查",
+      "description": "Code Review - 创建PR，团队review，反馈修改",
+      "hooks": ["smart_git_workflow"],
+      "gitHooks": ["pre-push"],
+      "testCases": [
+        "pr_creation",
+        "automatic_checks",
+        "review_assignment",
+        "feedback_integration"
+      ]
+    },
+    "phase7": {
+      "name": "合并部署",
+      "description": "Merge & Deploy - 合并到主分支，部署到生产环境",
+      "cleanup": "deep_optimization",
+      "testCases": [
+        "merge_process",
+        "deployment_pipeline",
+        "production_validation",
+        "final_cleanup"
+      ]
+    }
+  },
+  
+  "agentStrategy": {
+    "4-agents": {
+      "description": "简单任务/快速修复",
+      "agents": [
+        "backend-engineer",
+        "test-engineer",
+        "code-reviewer",
+        "technical-writer"
+      ],
+      "executionTime": "5-10分钟",
+      "complexity": "simple"
+    },
+    "6-agents": {
+      "description": "标准开发任务",
+      "agents": [
+        "backend-architect",
+        "backend-engineer",
+        "test-engineer",
+        "security-auditor",
+        "api-designer",
+        "technical-writer"
+      ],
+      "executionTime": "15-20分钟",
+      "complexity": "standard"
+    },
+    "8-agents": {
+      "description": "复杂系统/核心功能",
+      "agents": [
+        "backend-architect",
+        "api-designer",
+        "database-specialist",
+        "backend-engineer",
+        "security-auditor",
+        "test-engineer",
+        "performance-engineer",
+        "technical-writer"
+      ],
+      "executionTime": "25-30分钟",
+      "complexity": "complex"
+    }
+  },
+  
+  "hooks": {
+    "branch_helper": {
+      "file": "branch_helper.sh",
+      "phase": 0,
+      "trigger": "phase_start",
+      "blocking": false,
+      "timeout": 3000,
+      "description": "检查当前分支并提供创建建议"
+    },
+    "smart_agent_selector": {
+      "file": "smart_agent_selector.sh",
+      "phase": 3,
+      "trigger": "pre_implementation",
+      "blocking": false,
+      "timeout": 3000,
+      "description": "智能选择4-6-8个Agent策略"
+    },
+    "quality_gate": {
+      "file": "quality_gate.sh",
+      "phase": [3, 5],
+      "trigger": "quality_check",
+      "blocking": false,
+      "timeout": 2000,
+      "description": "质量门禁检查和建议"
+    },
+    "performance_monitor": {
+      "file": "performance_monitor.sh",
+      "phase": "all",
+      "trigger": "post_action",
+      "blocking": false,
+      "timeout": 500,
+      "description": "性能监控和优化建议"
+    },
+    "error_handler": {
+      "file": "error_handler.sh",
+      "phase": "all",
+      "trigger": "error_detected",
+      "blocking": false,
+      "timeout": 500,
+      "description": "错误处理和恢复助手"
+    },
+    "smart_cleanup_advisor": {
+      "file": "smart_cleanup_advisor.sh",
+      "phase": [5, 7],
+      "trigger": "cleanup_phase",
+      "blocking": false,
+      "timeout": 1500,
+      "description": "智能清理顾问"
+    }
+  },
+  
+  "gitHooks": {
+    "pre-commit": {
+      "file": "pre-commit",
+      "phase": 5,
+      "description": "提交前代码质量检查",
+      "checks": [
+        "syntax_validation",
+        "code_formatting",
+        "sensitive_data_scan",
+        "test_execution"
+      ]
+    },
+    "commit-msg": {
+      "file": "commit-msg",
+      "phase": 5,
+      "description": "提交信息格式验证",
+      "pattern": "^(feat|fix|docs|style|refactor|test|chore): .+"
+    },
+    "pre-push": {
+      "file": "pre-push",
+      "phase": 6,
+      "description": "推送前最终验证",
+      "checks": [
+        "all_tests_pass",
+        "no_todo_comments",
+        "branch_protection"
+      ]
+    }
+  },
+  
+  "performanceThresholds": {
+    "hook_execution_time": 3000,
+    "phase_transition_time": 1000,
+    "agent_parallel_time": 5000,
+    "memory_usage_mb": 200,
+    "cpu_usage_percent": 80,
+    "disk_temp_files": 10
+  },
+  
+  "testData": {
+    "simpleTask": {
+      "description": "fix typo in readme file",
+      "expectedAgents": 4,
+      "expectedPhases": [0, 1, 2, 3, 4, 5],
+      "estimatedTime": "5-10分钟"
+    },
+    "standardTask": {
+      "description": "implement user authentication API with JWT",
+      "expectedAgents": 6,
+      "expectedPhases": [0, 1, 2, 3, 4, 5, 6, 7],
+      "estimatedTime": "15-20分钟"
+    },
+    "complexTask": {
+      "description": "design and architect microservices system with distributed logging",
+      "expectedAgents": 8,
+      "expectedPhases": [0, 1, 2, 3, 4, 5, 6, 7],
+      "estimatedTime": "25-30分钟"
+    }
+  },
+  
+  "edgeCases": {
+    "workflowInterruption": {
+      "phase": 3,
+      "interruptAt": "60%",
+      "expectedRecovery": true,
+      "description": "Phase 3中断后应能恢复"
+    },
+    "parallelPhaseExecution": {
+      "phases": [4, "documentation"],
+      "conflictDetection": true,
+      "description": "检测并发执行冲突"
+    },
+    "circularDependency": {
+      "dependencies": {
+        "phase5": ["phase7"],
+        "phase7": ["phase6"],
+        "phase6": ["phase5"]
+      },
+      "expectedDetection": true,
+      "description": "循环依赖检测"
+    },
+    "resourceExhaustion": {
+      "memoryLimit": "150MB",
+      "cpuLimit": "90%",
+      "gracefulDegradation": true,
+      "description": "资源耗尽时的优雅降级"
+    }
+  },
+  
+  "reporting": {
+    "formats": ["json", "html", "console"],
+    "includeMetrics": true,
+    "includeRecommendations": true,
+    "includePerformanceData": true,
+    "archiveReports": true,
+    "maxReportAge": "30 days"
+  }
+}

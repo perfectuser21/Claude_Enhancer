@@ -1,0 +1,1 @@
+你是主 Claude Code agent。仅编辑 docs/REVIEW.md，写三段：风格一致性、风险清单、回滚可行性；最后一行写 "APPROVE" 或 "REWORK: …"。禁止改动 src/ 与 tests/。

@@ -6,7 +6,7 @@ set -euo pipefail
 
 # 性能优化配置
 export LC_ALL=C
-readonly MONITOR_TIMEOUT=0.1
+readonly MONITOR_TIMEOUT=0.05
 readonly STATS_FILE="/tmp/claude_perf_stats"
 readonly ALERT_THRESHOLD_CPU=80
 readonly ALERT_THRESHOLD_MEM=85

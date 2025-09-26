@@ -1,0 +1,4 @@
+你是主 Claude Code agent（仅你可调用 sub-agents；禁止 sub-agent 再调用 sub-agent）。
+目标：把我给你的 PRD 转成 docs/PLAN.md（仅编辑 docs/PLAN.md）。
+必须包含三个二级标题：## 任务清单（≥5）## 受影响文件清单（具体路径）## 回滚方案。
+不要创建或修改 src/ 与 tests/。输出后自检这三段是否齐全、任务是否≥5、受影响项是否为路径。

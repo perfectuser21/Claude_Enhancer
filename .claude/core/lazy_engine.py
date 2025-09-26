@@ -23,6 +23,7 @@ from pathlib import Path
 from datetime import datetime
 import weakref
 
+
 class LazyImportManager:
     """Manages lazy imports to reduce startup time"""
 
@@ -33,17 +34,21 @@ class LazyImportManager:
 
     def lazy_import(self, module_name: str, attribute: str = None):
         """Decorator for lazy imports"""
+
         def decorator(func):
             @wraps(func)
             def wrapper(*args, **kwargs):
                 # Load module if not loaded
                 if module_name not in self._imports:
                     with self._load_lock:
-                        if module_name not in self._imports and module_name not in self._loading:
+                        if (
+                            module_name not in self._imports
+                            and module_name not in self._loading
+                        ):
                             self._loading.add(module_name)
                             try:
                                 module = __import__(module_name)
-                                for part in module_name.split('.')[1:]:
+                                for part in module_name.split(".")[1:]:
                                     module = getattr(module, part)
                                 self._imports[module_name] = module
                             except ImportError as e:
@@ -54,15 +59,21 @@ class LazyImportManager:
 
                 # Call original function with loaded module
                 if attribute:
-                    module_attr = getattr(self._imports.get(module_name), attribute, None)
+                    module_attr = getattr(
+                        self._imports.get(module_name), attribute, None
+                    )
                     return func(module_attr, *args, **kwargs)
                 else:
                     return func(self._imports.get(module_name), *args, **kwargs)
+
             return wrapper
+
         return decorator
+
 
 # Global lazy import manager
 lazy_imports = LazyImportManager()
+
 
 class LazyWorkflowEngine:
     """
@@ -88,10 +99,10 @@ class LazyWorkflowEngine:
 
         # Performance tracking
         self.metrics = {
-            'startup_time': 0,
-            'lazy_loads': 0,
-            'cache_hits': 0,
-            'phase_executions': 0
+            "startup_time": 0,
+            "lazy_loads": 0,
+            "cache_hits": 0,
+            "phase_executions": 0,
         }
 
         # Quick initialization
@@ -105,8 +116,10 @@ class LazyWorkflowEngine:
         # Load minimal state
         self._load_state_fast()
 
-        self.metrics['startup_time'] = time.time() - self.start_time
-        print(f"🚀 LazyWorkflowEngine initialized in {self.metrics['startup_time']:.3f}s")
+        self.metrics["startup_time"] = time.time() - self.start_time
+        print(
+            f"🚀 LazyWorkflowEngine initialized in {self.metrics['startup_time']:.3f}s"
+        )
 
     def _load_state_fast(self):
         """Fast state loading with error resilience"""
@@ -125,9 +138,9 @@ class LazyWorkflowEngine:
         """Lazy-loaded Phase enum"""
         if self._phase_enum is None:
             self._phase_enum = self._load_phase_enum()
-            self.metrics['lazy_loads'] += 1
+            self.metrics["lazy_loads"] += 1
         else:
-            self.metrics['cache_hits'] += 1
+            self.metrics["cache_hits"] += 1
         return self._phase_enum
 
     @property
@@ -135,9 +148,9 @@ class LazyWorkflowEngine:
         """Lazy-loaded TaskType enum"""
         if self._task_type_enum is None:
             self._task_type_enum = self._load_task_type_enum()
-            self.metrics['lazy_loads'] += 1
+            self.metrics["lazy_loads"] += 1
         else:
-            self.metrics['cache_hits'] += 1
+            self.metrics["cache_hits"] += 1
         return self._task_type_enum
 
     def _load_phase_enum(self):
@@ -193,14 +206,14 @@ class LazyWorkflowEngine:
         except Exception as e:
             print(f"Warning: Background preloading failed: {e}")
 
-    @lru_cache(maxsize=16)
+    @lru_cache(maxsize=64)
     def _get_phase_handler(self, phase_id: int):
         """Get phase handler with caching"""
         if phase_id in self._phase_handlers:
-            self.metrics['cache_hits'] += 1
+            self.metrics["cache_hits"] += 1
             return self._phase_handlers[phase_id]
 
-        self.metrics['lazy_loads'] += 1
+        self.metrics["lazy_loads"] += 1
 
         # Map phase to handler
         handler_map = {
@@ -230,9 +243,9 @@ class LazyWorkflowEngine:
                 "actions": [
                     "Check current branch",
                     "Create feature branch",
-                    "Switch to new branch"
-                ]
-            }
+                    "Switch to new branch",
+                ],
+            },
         }
 
     def _load_phase1_handler(self):
@@ -245,9 +258,9 @@ class LazyWorkflowEngine:
                 "actions": [
                     "Analyze requirements",
                     "Identify constraints",
-                    "Define success criteria"
-                ]
-            }
+                    "Define success criteria",
+                ],
+            },
         }
 
     def _load_phase2_handler(self):
@@ -257,12 +270,8 @@ class LazyWorkflowEngine:
             "execute": lambda **kwargs: {
                 "success": True,
                 "message": "Design planning phase",
-                "actions": [
-                    "Architecture design",
-                    "API design",
-                    "Database design"
-                ]
-            }
+                "actions": ["Architecture design", "API design", "Database design"],
+            },
         }
 
     def _load_phase3_handler(self):
@@ -272,14 +281,10 @@ class LazyWorkflowEngine:
             "execute": lambda **kwargs: {
                 "success": True,
                 "message": "Implementation phase",
-                "actions": [
-                    "Code implementation",
-                    "Unit tests",
-                    "Documentation"
-                ],
+                "actions": ["Code implementation", "Unit tests", "Documentation"],
                 "requires_agents": True,
-                "min_agents": 4
-            }
+                "min_agents": 4,
+            },
         }
 
     def _load_phase4_handler(self):
@@ -292,9 +297,9 @@ class LazyWorkflowEngine:
                 "actions": [
                     "Run unit tests",
                     "Run integration tests",
-                    "Check coverage"
-                ]
-            }
+                    "Check coverage",
+                ],
+            },
         }
 
     def _load_phase5_handler(self):
@@ -304,13 +309,9 @@ class LazyWorkflowEngine:
             "execute": lambda **kwargs: {
                 "success": True,
                 "message": "Commit phase",
-                "actions": [
-                    "Stage changes",
-                    "Write commit message",
-                    "Commit to git"
-                ],
-                "triggers_hooks": ["pre-commit", "commit-msg"]
-            }
+                "actions": ["Stage changes", "Write commit message", "Commit to git"],
+                "triggers_hooks": ["pre-commit", "commit-msg"],
+            },
         }
 
     def _load_phase6_handler(self):
@@ -320,12 +321,8 @@ class LazyWorkflowEngine:
             "execute": lambda **kwargs: {
                 "success": True,
                 "message": "Code review phase",
-                "actions": [
-                    "Create PR",
-                    "Request review",
-                    "Address feedback"
-                ]
-            }
+                "actions": ["Create PR", "Request review", "Address feedback"],
+            },
         }
 
     def _load_phase7_handler(self):
@@ -335,12 +332,8 @@ class LazyWorkflowEngine:
             "execute": lambda **kwargs: {
                 "success": True,
                 "message": "Deployment phase",
-                "actions": [
-                    "Merge to main",
-                    "Deploy to production",
-                    "Monitor"
-                ]
-            }
+                "actions": ["Merge to main", "Deploy to production", "Monitor"],
+            },
         }
 
     def _load_default_handler(self):
@@ -349,8 +342,8 @@ class LazyWorkflowEngine:
             "name": "Unknown Phase",
             "execute": lambda **kwargs: {
                 "success": False,
-                "error": "Unknown phase handler"
-            }
+                "error": "Unknown phase handler",
+            },
         }
 
     def detect_task_type(self, description: str):
@@ -360,7 +353,9 @@ class LazyWorkflowEngine:
         # Fast keyword matching
         if any(word in description_lower for word in ["bug", "fix", "修复", "issue"]):
             return "bug_fix"
-        elif any(word in description_lower for word in ["new", "feature", "新功能", "add"]):
+        elif any(
+            word in description_lower for word in ["new", "feature", "新功能", "add"]
+        ):
             return "new_feature"
         elif any(word in description_lower for word in ["refactor", "重构", "optimize"]):
             return "refactoring"
@@ -368,12 +363,14 @@ class LazyWorkflowEngine:
             return "documentation"
         elif any(word in description_lower for word in ["performance", "性能", "speed"]):
             return "performance"
-        elif any(word in description_lower for word in ["security", "安全", "vulnerability"]):
+        elif any(
+            word in description_lower for word in ["security", "安全", "vulnerability"]
+        ):
             return "security"
         else:
             return "new_feature"  # Default
 
-    @lru_cache(maxsize=8)
+    @lru_cache(maxsize=64)
     def get_required_phases(self, task_type: str) -> List[int]:
         """Get required phases with caching"""
         phase_map = {
@@ -410,7 +407,7 @@ class LazyWorkflowEngine:
     def execute_phase(self, phase_id: int, **kwargs) -> Dict[str, Any]:
         """Execute phase with lazy loading"""
         start_time = time.time()
-        self.metrics['phase_executions'] += 1
+        self.metrics["phase_executions"] += 1
 
         try:
             # Fast skip check
@@ -418,7 +415,9 @@ class LazyWorkflowEngine:
                 return {
                     "success": False,
                     "error": f"Cannot execute phase {phase_id}. Prerequisites not met.",
-                    "required_phases": self.get_required_phases(self.task_type or "new_feature")
+                    "required_phases": self.get_required_phases(
+                        self.task_type or "new_feature"
+                    ),
                 }
 
             # Get handler (lazy loaded)
@@ -433,7 +432,7 @@ class LazyWorkflowEngine:
                     "phase": phase_id,
                     "name": handler["name"],
                     "timestamp": datetime.now().isoformat(),
-                    "metadata": kwargs
+                    "metadata": kwargs,
                 }
                 self.phase_history.append(execution_record)
                 self.current_phase = phase_id
@@ -451,7 +450,7 @@ class LazyWorkflowEngine:
             return {
                 "success": False,
                 "error": str(e),
-                "execution_time": f"{execution_time:.3f}s"
+                "execution_time": f"{execution_time:.3f}s",
             }
 
     def _save_state_async(self):
@@ -460,7 +459,7 @@ class LazyWorkflowEngine:
             state = {
                 "current_phase": self.current_phase,
                 "history": self.phase_history,
-                "last_updated": datetime.now().isoformat()
+                "last_updated": datetime.now().isoformat(),
             }
             os.makedirs(os.path.dirname(self.state_file), exist_ok=True)
             with open(self.state_file, "w") as f:
@@ -479,8 +478,8 @@ class LazyWorkflowEngine:
             "performance": {
                 "startup_time": f"{self.metrics['startup_time']:.3f}s",
                 "cache_hit_rate": f"{(self.metrics['cache_hits'] / max(1, self.metrics['cache_hits'] + self.metrics['lazy_loads']) * 100):.1f}%",
-                "lazy_loads": self.metrics['lazy_loads']
-            }
+                "lazy_loads": self.metrics["lazy_loads"],
+            },
         }
 
     def reset_workflow(self):
@@ -504,6 +503,7 @@ class LazyWorkflowEngine:
 
         print(f"📦 Preloaded {len(common_phases)} common phases")
         return self.get_status()
+
 
 # Performance benchmark
 def benchmark_startup_performance(iterations: int = 10):
@@ -529,7 +529,7 @@ def benchmark_startup_performance(iterations: int = 10):
         "min_startup_time": f"{min_time:.4f}s",
         "max_startup_time": f"{max_time:.4f}s",
         "iterations": iterations,
-        "estimated_improvement": "~50-60% faster"
+        "estimated_improvement": "~50-60% faster",
     }
 
     print("📊 Benchmark Results:")
@@ -537,6 +537,7 @@ def benchmark_startup_performance(iterations: int = 10):
         print(f"  {key}: {value}")
 
     return results
+
 
 # CLI interface
 if __name__ == "__main__":

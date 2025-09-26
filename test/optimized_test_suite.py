@@ -22,6 +22,7 @@ from contextlib import contextmanager
 @dataclass
 class TestResult:
     """Optimized test result structure"""
+
     name: str
     success: bool
     duration: float
@@ -33,6 +34,7 @@ class TestResult:
 @dataclass
 class TestConfig:
     """Optimized test configuration"""
+
     max_execution_time: float = 10.0
     target_coverage: float = 0.8
     parallel_workers: int = mp.cpu_count()
@@ -80,12 +82,12 @@ class OptimizedTestSuite:
     def _discover_test_modules(self) -> List[str]:
         """Discover test modules efficiently"""
         modules = [
-            'core.PhaseManager',
-            'validators.ValidationEngine',
-            'utils.FileOperations',
-            'cache.CacheManager',
-            'hooks.SmartAgentSelector',
-            'workflows.ExecutionEngine'
+            "core.PhaseManager",
+            "validators.ValidationEngine",
+            "utils.FileOperations",
+            "cache.CacheManager",
+            "hooks.SmartAgentSelector",
+            "workflows.ExecutionEngine",
         ]
         return modules
 
@@ -93,11 +95,7 @@ class OptimizedTestSuite:
     def mock_claude_enhancer(self):
         """Mock Claude Enhancer for fast testing"""
         mock = Mock()
-        mock.settings = {
-            'max_workers': 4,
-            'timeout': 5.0,
-            'cache_enabled': True
-        }
+        mock.settings = {"max_workers": 4, "timeout": 5.0, "cache_enabled": True}
         return mock
 
     def test_core_phase_manager(self):
@@ -121,7 +119,7 @@ class OptimizedTestSuite:
             name="test_core_phase_manager",
             success=True,
             duration=self.performance_monitor.start_time,
-            coverage=0.85
+            coverage=0.85,
         )
 
     def test_validation_engine(self):
@@ -135,21 +133,21 @@ class OptimizedTestSuite:
 
             # Test validation rules
             test_cases = [
-                {'agent_count': 4, 'expected': True},
-                {'agent_count': 6, 'expected': True},
-                {'agent_count': 8, 'expected': True},
-                {'agent_count': 2, 'expected': False}  # Below minimum
+                {"agent_count": 4, "expected": True},
+                {"agent_count": 6, "expected": True},
+                {"agent_count": 8, "expected": True},
+                {"agent_count": 2, "expected": False},  # Below minimum
             ]
 
             for case in test_cases:
-                result = validator.validate_agent_count(case['agent_count'])
-                assert result == case['expected']
+                result = validator.validate_agent_count(case["agent_count"])
+                assert result == case["expected"]
 
         return TestResult(
             name="test_validation_engine",
             success=True,
             duration=0.02,  # Fast execution
-            coverage=0.90
+            coverage=0.90,
         )
 
     def test_file_operations(self):
@@ -157,25 +155,22 @@ class OptimizedTestSuite:
         with self.performance_monitor.measure():
             # Mock file operations to avoid I/O overhead
             file_ops = Mock()
-            file_ops.read_config = Mock(return_value={'test': True})
+            file_ops.read_config = Mock(return_value={"test": True})
             file_ops.write_config = Mock(return_value=True)
             file_ops.validate_path = Mock(return_value=True)
 
             # Test file operations
-            config = file_ops.read_config('mock_path')
-            assert config == {'test': True}
+            config = file_ops.read_config("mock_path")
+            assert config == {"test": True}
 
-            write_result = file_ops.write_config({'new': 'data'}, 'mock_path')
+            write_result = file_ops.write_config({"new": "data"}, "mock_path")
             assert write_result == True
 
-            path_valid = file_ops.validate_path('/mock/path')
+            path_valid = file_ops.validate_path("/mock/path")
             assert path_valid == True
 
         return TestResult(
-            name="test_file_operations",
-            success=True,
-            duration=0.01,
-            coverage=0.80
+            name="test_file_operations", success=True, duration=0.01, coverage=0.80
         )
 
     def test_cache_manager(self):
@@ -196,20 +191,20 @@ class OptimizedTestSuite:
                 return len(cache) == 0
 
             # Test cache operations
-            set_cache('test_key', 'test_value')
-            assert get_cache('test_key') == 'test_value'
+            set_cache("test_key", "test_value")
+            assert get_cache("test_key") == "test_value"
 
-            set_cache('performance', {'metric': 100})
-            assert get_cache('performance')['metric'] == 100
+            set_cache("performance", {"metric": 100})
+            assert get_cache("performance")["metric"] == 100
 
             assert clear_cache() == True
-            assert get_cache('test_key') is None
+            assert get_cache("test_key") is None
 
         return TestResult(
             name="test_cache_manager",
             success=True,
             duration=0.005,  # Very fast
-            coverage=0.95
+            coverage=0.95,
         )
 
     def test_smart_agent_selector(self):
@@ -220,9 +215,9 @@ class OptimizedTestSuite:
 
             def select_agents(task_complexity, agent_pool):
                 """Optimized agent selection mock"""
-                if task_complexity == 'simple':
+                if task_complexity == "simple":
                     return agent_pool[:4]  # 4 agents
-                elif task_complexity == 'standard':
+                elif task_complexity == "standard":
                     return agent_pool[:6]  # 6 agents
                 else:
                     return agent_pool[:8]  # 8 agents
@@ -230,23 +225,20 @@ class OptimizedTestSuite:
             selector.select_agents = select_agents
 
             # Mock agent pool
-            agent_pool = [f'agent_{i}' for i in range(10)]
+            agent_pool = [f"agent_{i}" for i in range(10)]
 
             # Test agent selection strategy
-            simple_agents = selector.select_agents('simple', agent_pool)
+            simple_agents = selector.select_agents("simple", agent_pool)
             assert len(simple_agents) == 4
 
-            standard_agents = selector.select_agents('standard', agent_pool)
+            standard_agents = selector.select_agents("standard", agent_pool)
             assert len(standard_agents) == 6
 
-            complex_agents = selector.select_agents('complex', agent_pool)
+            complex_agents = selector.select_agents("complex", agent_pool)
             assert len(complex_agents) == 8
 
         return TestResult(
-            name="test_smart_agent_selector",
-            success=True,
-            duration=0.03,
-            coverage=0.88
+            name="test_smart_agent_selector", success=True, duration=0.03, coverage=0.88
         )
 
     def test_execution_engine_parallel(self):
@@ -258,7 +250,7 @@ class OptimizedTestSuite:
                 def mock_agent_task(agent_id):
                     """Mock agent task that completes quickly"""
                     time.sleep(0.01)  # Simulate minimal work
-                    return f'agent_{agent_id}_result'
+                    return f"agent_{agent_id}_result"
 
                 # Submit parallel tasks
                 futures = []
@@ -272,13 +264,13 @@ class OptimizedTestSuite:
                     results.append(future.result())
 
                 assert len(results) == 6
-                assert all('result' in result for result in results)
+                assert all("result" in result for result in results)
 
         return TestResult(
             name="test_execution_engine_parallel",
             success=True,
             duration=0.05,  # Should be fast due to parallelization
-            coverage=0.75
+            coverage=0.75,
         )
 
     async def test_async_workflow(self):
@@ -288,7 +280,7 @@ class OptimizedTestSuite:
         async def mock_async_phase(phase_id):
             """Mock async phase execution"""
             await asyncio.sleep(0.01)  # Simulate async work
-            return f'phase_{phase_id}_complete'
+            return f"phase_{phase_id}_complete"
 
         # Test async phase execution
         phases = list(range(3))  # Test with 3 phases for speed
@@ -298,14 +290,11 @@ class OptimizedTestSuite:
         duration = time.perf_counter() - start_time
 
         assert len(results) == 3
-        assert all('complete' in result for result in results)
+        assert all("complete" in result for result in results)
         assert duration < 0.1  # Should complete quickly
 
         return TestResult(
-            name="test_async_workflow",
-            success=True,
-            duration=duration,
-            coverage=0.70
+            name="test_async_workflow", success=True, duration=duration, coverage=0.70
         )
 
     def run_parallel_tests(self) -> List[TestResult]:
@@ -316,33 +305,39 @@ class OptimizedTestSuite:
             self.test_file_operations,
             self.test_cache_manager,
             self.test_smart_agent_selector,
-            self.test_execution_engine_parallel
+            self.test_execution_engine_parallel,
         ]
 
         results = []
-        with concurrent.futures.ThreadPoolExecutor(max_workers=self.config.parallel_workers) as executor:
+        with concurrent.futures.ThreadPoolExecutor(
+            max_workers=self.config.parallel_workers
+        ) as executor:
             # Submit all tests
-            future_to_test = {executor.submit(test_method): test_method.__name__
-                            for test_method in test_methods}
+            future_to_test = {
+                executor.submit(test_method): test_method.__name__
+                for test_method in test_methods
+            }
 
             # Collect results
             for future in concurrent.futures.as_completed(future_to_test):
                 test_name = future_to_test[future]
                 try:
-                    result = future.result(timeout=2.0)  # Short timeout for fast execution
+                    result = future.result(
+                        timeout=2.0
+                    )  # Short timeout for fast execution
                     results.append(result)
                 except Exception as exc:
-                    results.append(TestResult(
-                        name=test_name,
-                        success=False,
-                        duration=0.0,
-                        error=str(exc)
-                    ))
+                    results.append(
+                        TestResult(
+                            name=test_name, success=False, duration=0.0, error=str(exc)
+                        )
+                    )
 
         return results
 
     def run_async_tests(self) -> List[TestResult]:
         """Run async tests efficiently"""
+
         async def run_async_suite():
             return [await self.test_async_workflow()]
 
@@ -405,7 +400,7 @@ class OptimizedTestSuite:
                     "success": r.success,
                     "duration": r.duration,
                     "coverage": r.coverage,
-                    "error": r.error
+                    "error": r.error,
                 }
                 for r in all_results
             ],
@@ -414,17 +409,21 @@ class OptimizedTestSuite:
                 "async_support": True,
                 "memory_optimized": True,
                 "cache_enabled": self.config.cache_enabled,
-                "workers_used": self.config.parallel_workers
-            }
+                "workers_used": self.config.parallel_workers,
+            },
         }
 
         # Print results
         print("\n" + "=" * 60)
         print("📊 Optimized Test Results")
         print("=" * 60)
-        print(f"⏱️  Total Duration: {total_duration:.3f}s (target: <{self.config.max_execution_time}s)")
+        print(
+            f"⏱️  Total Duration: {total_duration:.3f}s (target: <{self.config.max_execution_time}s)"
+        )
         print(f"📈 Success Rate: {success_rate:.1%} ({successful_tests}/{total_tests})")
-        print(f"🎯 Coverage: {average_coverage:.1%} (target: {self.config.target_coverage:.1%})")
+        print(
+            f"🎯 Coverage: {average_coverage:.1%} (target: {self.config.target_coverage:.1%})"
+        )
         print(f"⚡ Performance Target: {'✅' if performance_passed else '❌'}")
         print(f"🎯 Coverage Target: {'✅' if coverage_passed else '❌'}")
         print("=" * 60)
@@ -438,7 +437,7 @@ def main():
         max_execution_time=10.0,
         target_coverage=0.8,
         parallel_workers=min(mp.cpu_count(), 6),  # Optimize for typical systems
-        cache_enabled=True
+        cache_enabled=True,
     )
 
     suite = OptimizedTestSuite(config)
@@ -446,15 +445,17 @@ def main():
 
     # Save results for analysis
     output_file = Path(__file__).parent / "optimized_test_results.json"
-    with open(output_file, 'w') as f:
+    with open(output_file, "w") as f:
         json.dump(results, f, indent=2)
 
     print(f"\n📄 Results saved to: {output_file}")
 
     # Return success if targets are met
-    success = (results['performance_target_met'] and
-              results['coverage_target_met'] and
-              results['success_rate'] >= 0.8)
+    success = (
+        results["performance_target_met"]
+        and results["coverage_target_met"]
+        and results["success_rate"] >= 0.8
+    )
 
     return success
 

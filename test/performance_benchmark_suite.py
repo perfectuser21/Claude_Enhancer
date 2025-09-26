@@ -18,6 +18,7 @@ from dataclasses import dataclass, asdict
 @dataclass
 class BenchmarkResult:
     """Structured benchmark result"""
+
     name: str
     duration: float
     memory_peak: float
@@ -36,7 +37,9 @@ class PerformanceBenchmarkSuite:
         self.process = psutil.Process()
         self.baseline_memory = self.process.memory_info().rss / 1024 / 1024
 
-    def _measure_performance(self, func: Callable, iterations: int = 100) -> BenchmarkResult:
+    def _measure_performance(
+        self, func: Callable, iterations: int = 100
+    ) -> BenchmarkResult:
         """Measure function performance with detailed metrics"""
         # Warm-up
         func()
@@ -77,15 +80,20 @@ class PerformanceBenchmarkSuite:
             success=True,
             iterations=iterations,
             metadata={
-                'min_duration': min(durations),
-                'max_duration': max(durations),
-                'std_duration': statistics.stdev(durations) if len(durations) > 1 else 0,
-                'p95_duration': statistics.quantiles(durations, n=20)[18] if len(durations) >= 20 else max(durations)
-            }
+                "min_duration": min(durations),
+                "max_duration": max(durations),
+                "std_duration": statistics.stdev(durations)
+                if len(durations) > 1
+                else 0,
+                "p95_duration": statistics.quantiles(durations, n=20)[18]
+                if len(durations) >= 20
+                else max(durations),
+            },
         )
 
     def benchmark_phase_transitions(self) -> BenchmarkResult:
         """Benchmark phase transition performance"""
+
         def phase_transition():
             # Simulate phase transition logic
             phases = list(range(8))
@@ -101,16 +109,17 @@ class PerformanceBenchmarkSuite:
 
     def benchmark_agent_selection(self) -> BenchmarkResult:
         """Benchmark agent selection performance"""
+
         def agent_selection():
             # Mock agent pool
-            agent_pool = [f'agent_{i}' for i in range(20)]
-            task_complexities = ['simple', 'standard', 'complex']
+            agent_pool = [f"agent_{i}" for i in range(20)]
+            task_complexities = ["simple", "standard", "complex"]
 
             selected_agents = []
             for complexity in task_complexities:
-                if complexity == 'simple':
+                if complexity == "simple":
                     selected = agent_pool[:4]
-                elif complexity == 'standard':
+                elif complexity == "standard":
                     selected = agent_pool[:6]
                 else:
                     selected = agent_pool[:8]
@@ -122,6 +131,7 @@ class PerformanceBenchmarkSuite:
 
     def benchmark_validation_engine(self) -> BenchmarkResult:
         """Benchmark validation engine performance"""
+
         def validation_operations():
             # Simulate multiple validation checks
             validations = 0
@@ -133,13 +143,13 @@ class PerformanceBenchmarkSuite:
 
             # Configuration validation
             configs = [
-                {'max_workers': 4, 'timeout': 30, 'enabled': True},
-                {'max_workers': 6, 'timeout': 60, 'enabled': True},
-                {'max_workers': 8, 'timeout': 90, 'enabled': False}
+                {"max_workers": 4, "timeout": 30, "enabled": True},
+                {"max_workers": 6, "timeout": 60, "enabled": True},
+                {"max_workers": 8, "timeout": 90, "enabled": False},
             ]
 
             for config in configs:
-                if config['max_workers'] > 0 and config['timeout'] > 0:
+                if config["max_workers"] > 0 and config["timeout"] > 0:
                     validations += 1
 
             return validations
@@ -148,6 +158,7 @@ class PerformanceBenchmarkSuite:
 
     def benchmark_cache_operations(self) -> BenchmarkResult:
         """Benchmark cache operations performance"""
+
         def cache_operations():
             # In-memory cache simulation
             cache = {}
@@ -173,6 +184,7 @@ class PerformanceBenchmarkSuite:
 
     def benchmark_parallel_execution(self) -> BenchmarkResult:
         """Benchmark parallel execution performance"""
+
         def parallel_operations():
             def worker_task(n):
                 # Simulate lightweight work
@@ -187,6 +199,7 @@ class PerformanceBenchmarkSuite:
 
     async def benchmark_async_workflow(self) -> BenchmarkResult:
         """Benchmark async workflow performance"""
+
         async def async_operations():
             async def async_task(delay=0.001):
                 await asyncio.sleep(delay)
@@ -219,20 +232,21 @@ class PerformanceBenchmarkSuite:
             throughput=iterations / (end_time - start_time),
             success=True,
             iterations=iterations,
-            metadata={'total_time': end_time - start_time}
+            metadata={"total_time": end_time - start_time},
         )
 
     def benchmark_file_operations(self) -> BenchmarkResult:
         """Benchmark file operations performance (mocked for speed)"""
+
         def file_operations():
             # Mock file operations to avoid I/O overhead
             operations = 0
 
             # Simulate config read/write
             configs = [
-                {'version': '2.0', 'enabled': True},
-                {'agents': [1, 2, 3, 4], 'parallel': True},
-                {'cache': {'enabled': True, 'size': 100}}
+                {"version": "2.0", "enabled": True},
+                {"agents": [1, 2, 3, 4], "parallel": True},
+                {"cache": {"enabled": True, "size": 100}},
             ]
 
             for config in configs:
@@ -245,9 +259,9 @@ class PerformanceBenchmarkSuite:
                     operations += 1
 
             # Mock path validation
-            paths = ['valid/path', '../invalid', 'another/valid']
+            paths = ["valid/path", "../invalid", "another/valid"]
             for path in paths:
-                if not path.startswith('../') and path:
+                if not path.startswith("../") and path:
                     operations += 1
 
             return operations
@@ -256,6 +270,7 @@ class PerformanceBenchmarkSuite:
 
     def benchmark_memory_efficiency(self) -> BenchmarkResult:
         """Benchmark memory efficiency"""
+
         def memory_operations():
             # Create and manipulate data structures
             data = []
@@ -263,14 +278,14 @@ class PerformanceBenchmarkSuite:
             # Build data
             for i in range(100):
                 entry = {
-                    'id': i,
-                    'agents': [f'agent_{j}' for j in range(6)],
-                    'config': {'enabled': True, 'priority': i % 3}
+                    "id": i,
+                    "agents": [f"agent_{j}" for j in range(6)],
+                    "config": {"enabled": True, "priority": i % 3},
                 }
                 data.append(entry)
 
             # Process data
-            filtered_data = [item for item in data if item['config']['enabled']]
+            filtered_data = [item for item in data if item["config"]["enabled"]]
 
             # Cleanup
             data.clear()
@@ -295,7 +310,7 @@ class PerformanceBenchmarkSuite:
             self.benchmark_validation_engine,
             self.benchmark_cache_operations,
             self.benchmark_file_operations,
-            self.benchmark_memory_efficiency
+            self.benchmark_memory_efficiency,
         ]
 
         print("⚡ Running synchronous benchmarks...")
@@ -305,7 +320,9 @@ class PerformanceBenchmarkSuite:
             duration = time.perf_counter() - start_time
 
             self.results.append(result)
-            print(f"  ✅ {result.name}: {duration:.3f}s (avg: {result.duration*1000:.2f}ms, throughput: {result.throughput:.1f}/s)")
+            print(
+                f"  ✅ {result.name}: {duration:.3f}s (avg: {result.duration*1000:.2f}ms, throughput: {result.throughput:.1f}/s)"
+            )
 
         # Run parallel benchmark
         print("\n🔄 Running parallel execution benchmark...")
@@ -334,7 +351,7 @@ class PerformanceBenchmarkSuite:
                 throughput=100.0,
                 success=False,
                 iterations=1,
-                metadata={'error': str(e)}
+                metadata={"error": str(e)},
             )
             self.results.append(async_result)
 
@@ -347,24 +364,26 @@ class PerformanceBenchmarkSuite:
         peak_memory = max([r.memory_peak for r in successful_benchmarks])
 
         # Performance analysis
-        performance_grade = self._calculate_performance_grade(total_duration, avg_duration, peak_memory)
+        performance_grade = self._calculate_performance_grade(
+            total_duration, avg_duration, peak_memory
+        )
 
         summary = {
-            'timestamp': time.time(),
-            'suite_duration': total_duration,
-            'total_benchmarks': len(self.results),
-            'successful_benchmarks': len(successful_benchmarks),
-            'average_duration_ms': avg_duration * 1000,
-            'total_throughput': total_throughput,
-            'peak_memory_mb': peak_memory,
-            'performance_grade': performance_grade,
-            'target_met': total_duration < 10.0,
-            'detailed_results': [asdict(r) for r in self.results],
-            'system_info': {
-                'cpu_count': psutil.cpu_count(),
-                'memory_total_gb': psutil.virtual_memory().total / (1024**3),
-                'python_version': f"{psutil.Process().pid}"
-            }
+            "timestamp": time.time(),
+            "suite_duration": total_duration,
+            "total_benchmarks": len(self.results),
+            "successful_benchmarks": len(successful_benchmarks),
+            "average_duration_ms": avg_duration * 1000,
+            "total_throughput": total_throughput,
+            "peak_memory_mb": peak_memory,
+            "performance_grade": performance_grade,
+            "target_met": total_duration < 10.0,
+            "detailed_results": [asdict(r) for r in self.results],
+            "system_info": {
+                "cpu_count": psutil.cpu_count(),
+                "memory_total_gb": psutil.virtual_memory().total / (1024**3),
+                "python_version": f"{psutil.Process().pid}",
+            },
         }
 
         # Print final summary
@@ -372,7 +391,9 @@ class PerformanceBenchmarkSuite:
         print("📊 Benchmark Suite Results")
         print("=" * 70)
         print(f"⏱️  Total Duration: {total_duration:.3f}s (target: <10s)")
-        print(f"📈 Successful Benchmarks: {len(successful_benchmarks)}/{len(self.results)}")
+        print(
+            f"📈 Successful Benchmarks: {len(successful_benchmarks)}/{len(self.results)}"
+        )
         print(f"⚡ Average Operation: {avg_duration*1000:.2f}ms")
         print(f"🚀 Total Throughput: {total_throughput:.1f} ops/sec")
         print(f"💾 Peak Memory Usage: {peak_memory:.1f}MB")
@@ -392,7 +413,9 @@ class PerformanceBenchmarkSuite:
 
         return summary
 
-    def _calculate_performance_grade(self, total_duration: float, avg_duration: float, peak_memory: float) -> str:
+    def _calculate_performance_grade(
+        self, total_duration: float, avg_duration: float, peak_memory: float
+    ) -> str:
         """Calculate performance grade based on metrics"""
         score = 0
 
@@ -440,23 +463,26 @@ class PerformanceBenchmarkSuite:
         else:
             return "D"
 
-    def save_benchmark_report(self, filename: str = "performance_benchmark_report.json") -> Path:
+    def save_benchmark_report(
+        self, filename: str = "performance_benchmark_report.json"
+    ) -> Path:
         """Save detailed benchmark report"""
         output_path = Path(__file__).parent / filename
 
         summary = {
-            'benchmark_suite': 'Claude Enhancer Plus P3',
-            'timestamp': time.time(),
-            'results': [asdict(r) for r in self.results],
-            'summary_metrics': {
-                'total_benchmarks': len(self.results),
-                'avg_duration_ms': statistics.mean([r.duration for r in self.results]) * 1000,
-                'total_throughput': sum([r.throughput for r in self.results]),
-                'peak_memory_mb': max([r.memory_peak for r in self.results])
-            }
+            "benchmark_suite": "Claude Enhancer Plus P3",
+            "timestamp": time.time(),
+            "results": [asdict(r) for r in self.results],
+            "summary_metrics": {
+                "total_benchmarks": len(self.results),
+                "avg_duration_ms": statistics.mean([r.duration for r in self.results])
+                * 1000,
+                "total_throughput": sum([r.throughput for r in self.results]),
+                "peak_memory_mb": max([r.memory_peak for r in self.results]),
+            },
         }
 
-        with open(output_path, 'w') as f:
+        with open(output_path, "w") as f:
             json.dump(summary, f, indent=2)
 
         print(f"📄 Benchmark report saved to: {output_path}")
@@ -470,10 +496,11 @@ def main():
     report_path = benchmark_suite.save_benchmark_report()
 
     # Return success based on performance targets
-    return results['target_met'] and results['performance_grade'] in ['A+', 'A', 'B+']
+    return results["target_met"] and results["performance_grade"] in ["A+", "A", "B+"]
 
 
 if __name__ == "__main__":
     import sys
+
     success = main()
     sys.exit(0 if success else 1)

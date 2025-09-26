@@ -1,0 +1,110 @@
+# Workflow Gates v1 — 六阶段自动化
+meta:
+  subagent_invocation: "Only main Claude Code agent may invoke sub-agents. Sub-agents MUST NOT invoke sub-agents."
+  merge_strategy: "squash"              # main 分支一律 squash
+  post_merge_healthcheck: true          # 合并后冒烟检查
+  auto_rollback_on_health_fail: true    # 健康检查失败立即回滚上一 tag
+
+parallel_limits:
+  P1: 4
+  P2: 6
+  P3: 8
+  P4: 6
+  P5: 4
+  P6: 2
+parallel_autotune:
+  success_streak_add: 2    # 连续两次一次过，上限 +2（不超过阶段限额）
+  fail_streak_sub: 2       # 连续两次 gate 失败，上限 -2（不低于2）
+
+test_depth:
+  pre_push: ["unit", "boundary", "smoke"]   # push 前跑的集
+  nightly_ci: ["integration", "contract"]   # 夜间 CI 额外跑
+
+phase_order: [P1, P2, P3, P4, P5, P6]
+
+phases:
+  P1:
+    name: "Plan"
+    allow_paths: ["docs/PLAN.md"]
+    must_produce:
+      - "docs/PLAN.md: 包含三级标题：## 任务清单, ## 受影响文件清单, ## 回滚方案"
+      - "任务清单≥5条（每条以动词开头，包含具体文件/模块名）"
+      - "受影响文件清单为具体路径（如 src/auth/login.ts）"
+    gates:
+      - "必须存在 docs/PLAN.md"
+      - "必须匹配三个标题"
+      - "任务清单计数 >= 5"
+      - "受影响清单为路径格式"
+    on_pass:
+      - "create: .gates/01.ok"
+      - "set: .phase/current=P2"
+
+  P2:
+    name: "Skeleton"
+    allow_paths: ["src/**", "docs/SKELETON-NOTES.md"]
+    must_produce:
+      - "根据 PLAN.md 新建目录/接口骨架；不得新增计划外目录"
+      - "必要说明写入 docs/SKELETON-NOTES.md"
+    gates:
+      - "src/ 新增目录均在 PLAN 受影响清单内"
+      - "接口文件存在且命名遵循项目规范"
+    on_pass:
+      - "create: .gates/02.ok"
+      - "set: .phase/current=P3"
+
+  P3:
+    name: "Implement"
+    allow_paths: ["src/**", "docs/CHANGELOG.md"]
+    must_produce:
+      - "实现功能代码，可构建"
+      - "docs/CHANGELOG.md 的 Unreleased 段新增本次条目（简述范围/影响）"
+      - "每个 ticket 生成一段 '变更点清单'（可写在 commit message 中）"
+    gates:
+      - "构建/编译通过"
+      - "CHANGELOG Unreleased 段存在新增条目"
+      - "不得改动非白名单目录"
+    on_pass:
+      - "create: .gates/03.ok"
+      - "set: .phase/current=P4"
+
+  P4:
+    name: "Test"
+    allow_paths: ["tests/**", "docs/TEST-REPORT.md"]
+    must_produce:
+      - "新增/改动测试 >= 2 条，且至少 1 条为边界/负例"
+      - "docs/TEST-REPORT.md 列出覆盖的模块/函数与结果"
+    gates:
+      - "pre-push: unit+boundary+smoke 必须绿"
+      - "报告存在并含覆盖点清单"
+    on_pass:
+      - "create: .gates/04.ok"
+      - "set: .phase/current=P5"
+
+  P5:
+    name: "Review"
+    allow_paths: ["docs/REVIEW.md"]
+    must_produce:
+      - "docs/REVIEW.md 三段：风格一致性/风险清单/回滚可行性；最后一行写 'APPROVE' 或 'REWORK: …'"
+    gates:
+      - "三段齐全"
+      - "存在明确结论（APPROVE/REWORK）"
+    on_pass:
+      - "when: APPROVE"
+      - "create: .gates/05.ok"
+      - "set: .phase/current=P6"
+
+  P6:
+    name: "Docs & Release"
+    allow_paths: ["docs/README.md", "docs/CHANGELOG.md", ".tags/**"]
+    must_produce:
+      - "docs/README.md 必含：安装、使用、注意事项 三段"
+      - "docs/CHANGELOG.md 版本号递增并写影响面"
+      - "发布 tag 与 Release Notes"
+    gates:
+      - "README 三段齐"
+      - "CHANGELOG 版本号+影响面齐"
+      - "打 tag 成功"
+      - "post-merge healthcheck 通过（否则自动回滚上一 tag）"
+    on_pass:
+      - "create: .gates/06.ok"
+      - "set: .phase/current=P1"

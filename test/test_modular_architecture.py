@@ -83,8 +83,8 @@ class TestPhaseManager:
         result = performance_benchmark.stop()
 
         # Assert
-        assert result['duration'] < 0.1  # Should complete in <100ms
-        assert result['memory_delta'] < 10  # Should use <10MB additional memory
+        assert result["duration"] < 0.1  # Should complete in <100ms
+        assert result["memory_delta"] < 10  # Should use <10MB additional memory
 
 
 class TestValidationEngine:
@@ -96,7 +96,7 @@ class TestValidationEngine:
         """Test agent count validation rules"""
         # Arrange
         validator = mock_claude_enhancer.validation_engine
-        agent_data = sample_test_data['agents']
+        agent_data = sample_test_data["agents"]
 
         # Mock validation logic
         def mock_validate_agents(agents):
@@ -105,10 +105,12 @@ class TestValidationEngine:
         validator.validate_agents = mock_validate_agents
 
         # Act & Assert
-        assert validator.validate_agents(agent_data['simple_task']) is True  # 4 agents
-        assert validator.validate_agents(agent_data['standard_task']) is True  # 6 agents
-        assert validator.validate_agents(agent_data['complex_task']) is True  # 8 agents
-        assert validator.validate_agents(['agent1', 'agent2']) is False  # Too few
+        assert validator.validate_agents(agent_data["simple_task"]) is True  # 4 agents
+        assert (
+            validator.validate_agents(agent_data["standard_task"]) is True
+        )  # 6 agents
+        assert validator.validate_agents(agent_data["complex_task"]) is True  # 8 agents
+        assert validator.validate_agents(["agent1", "agent2"]) is False  # Too few
 
     @pytest.mark.unit
     @pytest.mark.fast
@@ -119,25 +121,20 @@ class TestValidationEngine:
 
         # Mock parallel validation
         def mock_validate_parallel(config):
-            return (config.get('max_workers', 0) > 0 and
-                   config.get('timeout', 0) > 0 and
-                   config.get('parallel_enabled', False))
+            return (
+                config.get("max_workers", 0) > 0
+                and config.get("timeout", 0) > 0
+                and config.get("parallel_enabled", False)
+            )
 
         validator.validate_parallel_execution = mock_validate_parallel
 
         # Test valid parallel configuration
-        valid_config = {
-            'max_workers': 4,
-            'timeout': 30,
-            'parallel_enabled': True
-        }
+        valid_config = {"max_workers": 4, "timeout": 30, "parallel_enabled": True}
         assert validator.validate_parallel_execution(valid_config) is True
 
         # Test invalid configuration
-        invalid_config = {
-            'max_workers': 0,
-            'parallel_enabled': False
-        }
+        invalid_config = {"max_workers": 0, "parallel_enabled": False}
         assert validator.validate_parallel_execution(invalid_config) is False
 
     @pytest.mark.unit
@@ -149,31 +146,34 @@ class TestValidationEngine:
 
         # Mock quality gate validation
         quality_rules = {
-            'coverage_threshold': 0.8,
-            'performance_threshold': 10.0,
-            'security_checks': True
+            "coverage_threshold": 0.8,
+            "performance_threshold": 10.0,
+            "security_checks": True,
         }
 
         def mock_validate_quality_gates(metrics):
-            return (metrics.get('coverage', 0) >= quality_rules['coverage_threshold'] and
-                   metrics.get('execution_time', 0) <= quality_rules['performance_threshold'] and
-                   metrics.get('security_passed', False))
+            return (
+                metrics.get("coverage", 0) >= quality_rules["coverage_threshold"]
+                and metrics.get("execution_time", 0)
+                <= quality_rules["performance_threshold"]
+                and metrics.get("security_passed", False)
+            )
 
         validator.validate_quality_gates = mock_validate_quality_gates
 
         # Test passing metrics
         passing_metrics = {
-            'coverage': 0.85,
-            'execution_time': 8.5,
-            'security_passed': True
+            "coverage": 0.85,
+            "execution_time": 8.5,
+            "security_passed": True,
         }
         assert validator.validate_quality_gates(passing_metrics) is True
 
         # Test failing metrics
         failing_metrics = {
-            'coverage': 0.6,  # Below threshold
-            'execution_time': 15.0,  # Too slow
-            'security_passed': False
+            "coverage": 0.6,  # Below threshold
+            "execution_time": 15.0,  # Too slow
+            "security_passed": False,
         }
         assert validator.validate_quality_gates(failing_metrics) is False
 
@@ -214,7 +214,7 @@ class TestFileOperations:
         # Mock path validation
         def mock_validate_path(path):
             # Simple validation: path should not be empty and not contain dangerous patterns
-            if not path or '..' in path or path.startswith('/'):
+            if not path or ".." in path or path.startswith("/"):
                 return False
             return True
 
@@ -235,6 +235,7 @@ class TestFileOperations:
 
         # Mock backup operations
         backup_results = []
+
         def mock_backup_files(files):
             backup_results.extend(files)
             return len(files) > 0
@@ -263,7 +264,9 @@ class TestCacheManager:
 
         # Mock cache operations with in-memory store
         cache_manager.get = Mock(side_effect=lambda key: memory_cache.get(key))
-        cache_manager.set = Mock(side_effect=lambda key, value: memory_cache.update({key: value}) or True)
+        cache_manager.set = Mock(
+            side_effect=lambda key, value: memory_cache.update({key: value}) or True
+        )
         cache_manager.clear = Mock(side_effect=lambda: memory_cache.clear() or True)
 
         # Act & Assert - Set operations
@@ -306,7 +309,7 @@ class TestCacheManager:
         result = performance_benchmark.stop()
 
         # Assert
-        assert result['duration'] < 0.05  # Should complete very fast
+        assert result["duration"] < 0.05  # Should complete very fast
         assert len(cache) <= 100  # Should have effective key rotation
 
     @pytest.mark.unit
@@ -346,28 +349,30 @@ class TestIntegrationScenarios:
 
     @pytest.mark.integration
     @pytest.mark.parallel
-    def test_end_to_end_workflow_simulation(self, fast_mock_environment, sample_test_data):
+    def test_end_to_end_workflow_simulation(
+        self, fast_mock_environment, sample_test_data
+    ):
         """Test complete workflow simulation"""
         # Arrange
         env = fast_mock_environment
-        claude_enhancer = env['claude_enhancer']
-        phases = sample_test_data['phases']
+        claude_enhancer = env["claude_enhancer"]
+        phases = sample_test_data["phases"]
 
         # Mock workflow execution
         workflow_results = []
         for phase in phases[:4]:  # Test first 4 phases for speed
             # Simulate phase execution
             result = {
-                'phase_id': phase['id'],
-                'phase_name': phase['name'],
-                'duration': phase['duration'] * 0.1,  # Faster for testing
-                'success': True
+                "phase_id": phase["id"],
+                "phase_name": phase["name"],
+                "duration": phase["duration"] * 0.1,  # Faster for testing
+                "success": True,
             }
             workflow_results.append(result)
 
         # Act
-        total_duration = sum(r['duration'] for r in workflow_results)
-        success_count = sum(1 for r in workflow_results if r['success'])
+        total_duration = sum(r["duration"] for r in workflow_results)
+        success_count = sum(1 for r in workflow_results if r["success"])
 
         # Assert
         assert len(workflow_results) == 4
@@ -376,16 +381,18 @@ class TestIntegrationScenarios:
 
     @pytest.mark.integration
     @pytest.mark.async
-    async def test_parallel_agent_execution(self, async_mock_claude_enhancer, sample_test_data):
+    async def test_parallel_agent_execution(
+        self, async_mock_claude_enhancer, sample_test_data
+    ):
         """Test parallel agent execution simulation"""
         # Arrange
         mock_enhancer = await async_mock_claude_enhancer
-        agents = sample_test_data['agents']['standard_task']
+        agents = sample_test_data["agents"]["standard_task"]
 
         # Simulate async agent execution
         async def mock_agent_execution(agent_name):
             await asyncio.sleep(0.01)  # Minimal async delay
-            return {'agent': agent_name, 'success': True, 'duration': 0.01}
+            return {"agent": agent_name, "success": True, "duration": 0.01}
 
         # Act
         tasks = [mock_agent_execution(agent) for agent in agents]
@@ -393,12 +400,14 @@ class TestIntegrationScenarios:
 
         # Assert
         assert len(results) == 6  # Standard task uses 6 agents
-        assert all(isinstance(r, dict) and r['success'] for r in results)
-        assert all(r['duration'] < 0.1 for r in results)
+        assert all(isinstance(r, dict) and r["success"] for r in results)
+        assert all(r["duration"] < 0.1 for r in results)
 
     @pytest.mark.performance
     @pytest.mark.critical
-    def test_system_performance_under_load(self, performance_benchmark, mock_claude_enhancer):
+    def test_system_performance_under_load(
+        self, performance_benchmark, mock_claude_enhancer
+    ):
         """Test system performance under simulated load"""
         # Arrange
         performance_benchmark.start()
@@ -411,11 +420,23 @@ class TestIntegrationScenarios:
             for i in range(20):
                 # Simulate different operations
                 if i % 3 == 0:
-                    future = executor.submit(lambda: mock_claude_enhancer.phase_manager.validate_transition(0, 1))
+                    future = executor.submit(
+                        lambda: mock_claude_enhancer.phase_manager.validate_transition(
+                            0, 1
+                        )
+                    )
                 elif i % 3 == 1:
-                    future = executor.submit(lambda: mock_claude_enhancer.validation_engine.validate_agents(['a', 'b', 'c', 'd']))
+                    future = executor.submit(
+                        lambda: mock_claude_enhancer.validation_engine.validate_agents(
+                            ["a", "b", "c", "d"]
+                        )
+                    )
                 else:
-                    future = executor.submit(lambda: mock_claude_enhancer.cache_manager.set(f"key_{i}", f"value_{i}"))
+                    future = executor.submit(
+                        lambda: mock_claude_enhancer.cache_manager.set(
+                            f"key_{i}", f"value_{i}"
+                        )
+                    )
 
                 futures.append(future)
 
@@ -429,8 +450,10 @@ class TestIntegrationScenarios:
 
         # Assert
         assert len(results) == 20
-        assert perf_result['duration'] < 1.0  # Should complete quickly with parallelization
-        assert perf_result['memory_delta'] < 50  # Reasonable memory usage
+        assert (
+            perf_result["duration"] < 1.0
+        )  # Should complete quickly with parallelization
+        assert perf_result["memory_delta"] < 50  # Reasonable memory usage
 
 
 # Performance regression tests
@@ -454,7 +477,7 @@ class TestPerformanceRegression:
         result = performance_benchmark.stop()
 
         # Assert strict performance requirements
-        assert result['duration'] < 0.5  # Must complete in <500ms
+        assert result["duration"] < 0.5  # Must complete in <500ms
 
     @pytest.mark.performance
     @pytest.mark.fast
@@ -465,12 +488,12 @@ class TestPerformanceRegression:
         # Simulate memory usage
         data = []
         for i in range(1000):
-            data.append({'id': i, 'data': f'test_data_{i}'})
+            data.append({"id": i, "data": f"test_data_{i}"})
 
         result = performance_benchmark.stop()
 
         # Assert memory efficiency
-        assert result['memory_delta'] < 20  # Should use <20MB additional memory
+        assert result["memory_delta"] < 20  # Should use <20MB additional memory
 
     @pytest.mark.unit
     @pytest.mark.fast
@@ -487,11 +510,13 @@ class TestPerformanceRegression:
 
 if __name__ == "__main__":
     # Run tests with optimized settings
-    pytest.main([
-        __file__,
-        "-v",
-        "--tb=short",
-        "--maxfail=3",
-        "--durations=10",
-        "-x"  # Stop on first failure for fast feedback
-    ])
+    pytest.main(
+        [
+            __file__,
+            "-v",
+            "--tb=short",
+            "--maxfail=3",
+            "--durations=10",
+            "-x",  # Stop on first failure for fast feedback
+        ]
+    )

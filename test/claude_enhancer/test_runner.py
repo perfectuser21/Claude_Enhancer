@@ -602,7 +602,9 @@ def main():
     """主函数"""
     parser = argparse.ArgumentParser(description="Claude Enhancer 测试框架")
     parser.add_argument(
-        "--claude-dir", default="/home/xx/dev/Claude_Enhancer/.claude", help="Claude目录路径"
+        "--claude-dir",
+        default="/home/xx/dev/Claude_Enhancer/.claude",
+        help="Claude目录路径",
     )
     parser.add_argument("--quick", action="store_true", help="只运行快速验证测试")
     parser.add_argument("--no-stress", action="store_true", help="跳过压力测试")

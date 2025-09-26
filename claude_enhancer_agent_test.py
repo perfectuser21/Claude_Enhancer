@@ -312,7 +312,9 @@ class AgentStressTest:
                 report["recommendations"].append("改进错误处理机制，减少重试次数")
 
         # 保存报告
-        with open("/home/xx/dev/Claude_Enhancer/agent_stress_test_report.json", "w") as f:
+        with open(
+            "/home/xx/dev/Claude_Enhancer/agent_stress_test_report.json", "w"
+        ) as f:
             json.dump(report, f, indent=2, ensure_ascii=False)
 
         return report

@@ -18,7 +18,7 @@ class SimpleErrorRecoveryValidator {
     }
 
     async validate() {
-        console.log('🔍 Validating Error Recovery System...\n');
+        // console.log('🔍 Validating Error Recovery System...\n');
 
         // Test file structure
         await this.validateFileStructure();
@@ -34,7 +34,7 @@ class SimpleErrorRecoveryValidator {
     }
 
     async validateFileStructure() {
-        console.log('📁 Validating file structure...');
+        // console.log('📁 Validating file structure...');
 
         const expectedFiles = [
             'src/recovery/ErrorRecovery.js',
@@ -59,7 +59,7 @@ class SimpleErrorRecoveryValidator {
     }
 
     async validateModuleImports() {
-        console.log('\n📦 Validating module imports...');
+        // console.log('\n📦 Validating module imports...');
 
         const modules = [
             { name: 'ErrorRecovery', path: './src/recovery/ErrorRecovery' },
@@ -87,7 +87,7 @@ class SimpleErrorRecoveryValidator {
     }
 
     async validateBasicFunctionality() {
-        console.log('\n⚙️ Validating basic functionality...');
+        // console.log('\n⚙️ Validating basic functionality...');
 
         try {
             // Test ErrorRecovery instantiation
@@ -158,10 +158,10 @@ class SimpleErrorRecoveryValidator {
 
         if (passed) {
             this.results.passed++;
-            console.log(`  ✅ ${test}: ${message}`);
+            // console.log(`  ✅ ${test}: ${message}`);
         } else {
             this.results.failed++;
-            console.log(`  ❌ ${test}: ${message}`);
+            // console.log(`  ❌ ${test}: ${message}`);
         }
     }
 
@@ -169,21 +169,21 @@ class SimpleErrorRecoveryValidator {
         const total = this.results.passed + this.results.failed;
         const successRate = total > 0 ? ((this.results.passed / total) * 100).toFixed(1) : '0.0';
 
-        console.log('\n📊 Validation Results:');
-        console.log(`  ✅ Passed: ${this.results.passed}`);
-        console.log(`  ❌ Failed: ${this.results.failed}`);
-        console.log(`  📈 Success Rate: ${successRate}%`);
+        // console.log('\n📊 Validation Results:');
+        // console.log(`  ✅ Passed: ${this.results.passed}`);
+        // console.log(`  ❌ Failed: ${this.results.failed}`);
+        // console.log(`  📈 Success Rate: ${successRate}%`);
 
         if (this.results.failed === 0) {
-            console.log('\n🎉 All validations passed! Error Recovery System is ready.');
+            // console.log('\n🎉 All validations passed! Error Recovery System is ready.');
         } else {
-            console.log('\n⚠️  Some validations failed. Please check the issues above.');
+            // console.log('\n⚠️  Some validations failed. Please check the issues above.');
         }
 
-        console.log('\n🚀 Available Commands:');
-        console.log('  • Run test: node src/recovery/test/comprehensive-recovery-test.js');
-        console.log('  • Run demo: node src/recovery/ErrorRecoveryDemo.js');
-        console.log('  • Check status: node -e "console.log(require(\'./src/recovery\').RecoverySystem)"');
+        // console.log('\n🚀 Available Commands:');
+        // console.log('  • Run test: node src/recovery/test/comprehensive-recovery-test.js');
+        // console.log('  • Run demo: node src/recovery/ErrorRecoveryDemo.js');
+        // console.log('  • Check status: node -e "// console.log(require(\'./src/recovery\').RecoverySystem)"');
     }
 }
 

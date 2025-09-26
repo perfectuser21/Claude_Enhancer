@@ -33,7 +33,7 @@ def test_config():
         "memory_limit_mb": 500.0,
         "cache_enabled": True,
         "mock_external_services": True,
-        "fast_mode": True
+        "fast_mode": True,
     }
 
 
@@ -54,10 +54,10 @@ def temp_project_dir():
         "version": "2.0",
         "hooks_enabled": True,
         "performance_mode": True,
-        "max_workers": 6
+        "max_workers": 6,
     }
 
-    with open(project_path / ".claude" / "settings.json", 'w') as f:
+    with open(project_path / ".claude" / "settings.json", "w") as f:
         json.dump(mock_settings, f)
 
     yield project_path
@@ -94,7 +94,7 @@ def mock_claude_enhancer():
 
     mock.agent_selector = MagicMock()
     mock.agent_selector.select_agents = MagicMock(
-        return_value=['agent1', 'agent2', 'agent3', 'agent4']
+        return_value=["agent1", "agent2", "agent3", "agent4"]
     )
 
     return mock
@@ -120,16 +120,30 @@ def sample_test_data():
     """Sample test data for various test scenarios"""
     return {
         "agents": {
-            "simple_task": ["backend-architect", "test-engineer", "api-designer", "technical-writer"],
+            "simple_task": [
+                "backend-architect",
+                "test-engineer",
+                "api-designer",
+                "technical-writer",
+            ],
             "standard_task": [
-                "backend-architect", "security-auditor", "test-engineer",
-                "api-designer", "database-specialist", "performance-engineer"
+                "backend-architect",
+                "security-auditor",
+                "test-engineer",
+                "api-designer",
+                "database-specialist",
+                "performance-engineer",
             ],
             "complex_task": [
-                "backend-architect", "security-auditor", "test-engineer",
-                "api-designer", "database-specialist", "performance-engineer",
-                "devops-specialist", "frontend-architect"
-            ]
+                "backend-architect",
+                "security-auditor",
+                "test-engineer",
+                "api-designer",
+                "database-specialist",
+                "performance-engineer",
+                "devops-specialist",
+                "frontend-architect",
+            ],
         },
         "phases": [
             {"id": 0, "name": "Branch Creation", "duration": 0.1},
@@ -139,14 +153,14 @@ def sample_test_data():
             {"id": 4, "name": "Testing", "duration": 1.5},
             {"id": 5, "name": "Commit", "duration": 0.3},
             {"id": 6, "name": "Review", "duration": 0.8},
-            {"id": 7, "name": "Deploy", "duration": 0.2}
+            {"id": 7, "name": "Deploy", "duration": 0.2},
         ],
         "performance_benchmarks": {
             "max_execution_time": 10.0,
             "memory_limit_mb": 500.0,
             "cpu_usage_limit": 80.0,
-            "parallel_efficiency": 0.85
-        }
+            "parallel_efficiency": 0.85,
+        },
     }
 
 
@@ -160,8 +174,8 @@ def fast_mock_environment(temp_project_dir, mock_claude_enhancer):
             "fast_mode": True,
             "mock_external_calls": True,
             "parallel_enabled": True,
-            "cache_enabled": True
-        }
+            "cache_enabled": True,
+        },
     }
     return environment
 
@@ -216,7 +230,10 @@ def pytest_collection_modifyitems(config, items):
 
     # Add fast execution marker to appropriate tests
     for item in items:
-        if not any(marker.name in ['performance', 'integration'] for marker in item.iter_markers()):
+        if not any(
+            marker.name in ["performance", "integration"]
+            for marker in item.iter_markers()
+        ):
             item.add_marker(pytest.mark.fast)
 
 
@@ -244,9 +261,9 @@ def performance_benchmark():
             end_memory = self.process.memory_info().rss / 1024 / 1024
 
             return {
-                'duration': end_time - self.start_time,
-                'memory_delta': end_memory - self.start_memory,
-                'peak_memory': end_memory
+                "duration": end_time - self.start_time,
+                "memory_delta": end_memory - self.start_memory,
+                "peak_memory": end_memory,
             }
 
     return PerformanceBenchmark()
@@ -285,16 +302,20 @@ async def async_test_helper(coroutine_func, *args, **kwargs):
 def assert_execution_time(func, max_time=1.0):
     """Assert function executes within time limit"""
     import time
+
     start = time.perf_counter()
     result = func()
     duration = time.perf_counter() - start
-    assert duration <= max_time, f"Execution took {duration:.3f}s, expected <= {max_time}s"
+    assert (
+        duration <= max_time
+    ), f"Execution took {duration:.3f}s, expected <= {max_time}s"
     return result
 
 
 def assert_memory_usage(func, max_memory_mb=100.0):
     """Assert function memory usage within limit"""
     import psutil
+
     process = psutil.Process()
     initial_memory = process.memory_info().rss / 1024 / 1024
 
@@ -303,5 +324,7 @@ def assert_memory_usage(func, max_memory_mb=100.0):
     final_memory = process.memory_info().rss / 1024 / 1024
     memory_used = final_memory - initial_memory
 
-    assert memory_used <= max_memory_mb, f"Memory usage {memory_used:.1f}MB exceeded limit {max_memory_mb}MB"
+    assert (
+        memory_used <= max_memory_mb
+    ), f"Memory usage {memory_used:.1f}MB exceeded limit {max_memory_mb}MB"
     return result

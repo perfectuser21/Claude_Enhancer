@@ -1,0 +1,2 @@
+你是主 Claude Code agent。以"小工单"为主（每个 ticket=1个函数/接口），最多并行8个 sub-agents 由你分派；禁止 sub-agent 调 sub-agent。
+仅修改 src/** 与 docs/CHANGELOG.md（Unreleased 段新增本次条目）。为每个 ticket 生成"变更点清单"（可写在提交说明里）。完成后自检：能构建、未越权、CHANGELOG 已更新。

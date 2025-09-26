@@ -1,0 +1,2 @@
+你是主 Claude Code agent。仅编辑 docs/README.md（安装/使用/注意事项）与 docs/CHANGELOG.md（版本号递增+影响面）；生成 Release Notes；打 tag。
+合并后触发健康检查（如失败必须自动回滚上一 tag 并生成 ROLLBACK-REPORT.md）。

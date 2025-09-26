@@ -6,7 +6,7 @@ set -euo pipefail
 
 # 性能优化配置
 export LC_ALL=C
-readonly OPTIMIZER_TIMEOUT=0.15
+readonly OPTIMIZER_TIMEOUT=0.08
 readonly CONCURRENCY_CACHE="/tmp/claude_concurrency_cache"
 readonly MAX_CONCURRENT_HOOKS=4
 readonly CPU_THRESHOLD=75

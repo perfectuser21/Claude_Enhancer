@@ -70,11 +70,11 @@ class Task:
 class ProcessorConfig:
     """异步处理器配置"""
 
-    max_workers: int = 10
-    max_queue_size: int = 1000
-    worker_timeout: float = 300.0  # 5分钟
-    health_check_interval: float = 30.0
-    stats_report_interval: float = 60.0
+    max_workers: int = 15
+    max_queue_size: int = 2000
+    worker_timeout: float = 180.0  # 5分钟
+    health_check_interval: float = 15.0
+    stats_report_interval: float = 30.0
     cleanup_interval: float = 3600.0  # 1小时
     task_retention_hours: int = 24
 
@@ -148,7 +148,9 @@ class AsyncProcessor:
             await self.rabbitmq_channel.declare_queue(
                 "claude-enhancer.notifications", durable=True
             )
-            await self.rabbitmq_channel.declare_queue("claude-enhancer.emails", durable=True)
+            await self.rabbitmq_channel.declare_queue(
+                "claude-enhancer.emails", durable=True
+            )
             await self.rabbitmq_channel.declare_queue(
                 "claude-enhancer.webhooks", durable=True
             )

@@ -1,0 +1,162 @@
+# ═══════════════════════════════════════════════════════════════════
+# Claude Enhancer 5.0 - Dashboard Configuration
+# 工作流监控面板配置文件
+# ═══════════════════════════════════════════════════════════════════
+
+# 显示配置
+display:
+  refresh_rate: 2              # 自动刷新间隔（秒）
+  dashboard_width: 120         # 面板宽度
+  log_lines: 15               # 显示的日志行数
+  progress_bar_width: 50      # 进度条宽度
+  enable_colors: true         # 启用彩色输出
+  enable_animations: false    # 启用动画效果（实验性）
+
+# 监控路径配置
+paths:
+  project_root: "/home/xx/dev/Claude Enhancer 5.0"
+  phase_dir: ".phase"
+  gates_dir: ".gates"
+  workflow_dir: ".workflow"
+  log_file: ".workflow/executor.log"
+
+# 阶段配置
+phases:
+  P0:
+    name: "Branch Creation"
+    description: "创建feature分支，准备开发环境"
+    color: "cyan"
+    icon: "🌱"
+  P1:
+    name: "Plan"
+    description: "需求分析和任务规划"
+    color: "blue"
+    icon: "📋"
+  P2:
+    name: "Skeleton"
+    description: "架构设计和骨架构建"
+    color: "magenta"
+    icon: "🏗️"
+  P3:
+    name: "Implement"
+    description: "功能实现和代码开发"
+    color: "yellow"
+    icon: "💻"
+  P4:
+    name: "Test"
+    description: "测试验证和质量保证"
+    color: "green"
+    icon: "🧪"
+  P5:
+    name: "Review"
+    description: "代码审查和质量评估"
+    color: "orange"
+    icon: "👀"
+  P6:
+    name: "Docs & Release"
+    description: "文档完善和发布部署"
+    color: "purple"
+    icon: "🚀"
+
+# 并行任务配置
+parallel_limits:
+  P1: 4    # Plan阶段最大4个Agent
+  P2: 6    # Skeleton阶段最大6个Agent
+  P3: 8    # Implement阶段最大8个Agent
+  P4: 6    # Test阶段最大6个Agent
+  P5: 4    # Review阶段最大4个Agent
+  P6: 2    # Release阶段最大2个Agent
+
+# Gates验证配置
+gates:
+  01:
+    phase: "Plan"
+    name: "文档结构和任务规划验证"
+    critical: true
+    timeout: 30
+  02:
+    phase: "Skeleton"
+    name: "架构骨架和接口定义验证"
+    critical: true
+    timeout: 60
+  03:
+    phase: "Implement"
+    name: "功能实现和代码质量验证"
+    critical: true
+    timeout: 120
+  04:
+    phase: "Test"
+    name: "测试覆盖和质量保证验证"
+    critical: true
+    timeout: 90
+  05:
+    phase: "Review"
+    name: "代码审查和风险评估验证"
+    critical: true
+    timeout: 60
+  06:
+    phase: "Release"
+    name: "文档完善和发布准备验证"
+    critical: true
+    timeout: 45
+
+# 性能监控配置
+monitoring:
+  health_thresholds:
+    error_limit: 5          # 错误数量阈值
+    warning_limit: 10       # 警告数量阈值
+    success_rate_min: 80    # 最低成功率
+
+  alerts:
+    enable_notifications: false    # 启用系统通知
+    sound_alerts: false           # 启用声音提醒
+    log_critical_events: true    # 记录关键事件
+
+# 日志配置
+logging:
+  levels: ["ERROR", "WARN", "SUCCESS", "INFO"]
+  highlight_patterns:
+    - "Gates验证"
+    - "阶段切换"
+    - "Agent执行"
+    - "错误恢复"
+
+  filters:
+    show_debug: false
+    show_timestamps: true
+    max_line_length: 113
+
+# 图表配置
+charts:
+  enable_progress_charts: true
+  enable_performance_graphs: false    # 实验性功能
+  enable_real_time_stats: true
+
+  colors:
+    success: "green"
+    warning: "yellow"
+    error: "red"
+    info: "blue"
+    running: "cyan"
+    waiting: "dim"
+
+# 快捷键配置
+shortcuts:
+  refresh: ["r", "R"]
+  logs: ["l", "L"]
+  help: ["h", "H"]
+  quit: ["q", "Q"]
+
+# 自定义命令
+custom_commands:
+  phase_status: "cat .phase/current"
+  gates_count: "ls .gates/*.ok 2>/dev/null | wc -l"
+  log_errors: "grep '\\[ERROR\\]' .workflow/executor.log | tail -5"
+  system_health: "echo 'Health Check: OK'"
+
+# 实验性功能
+experimental:
+  enable_websocket: false      # WebSocket实时更新
+  enable_api_integration: false   # API集成
+  enable_slack_notifications: false  # Slack通知
+  enable_email_alerts: false     # 邮件告警

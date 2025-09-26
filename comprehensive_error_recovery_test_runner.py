@@ -19,6 +19,7 @@ import threading
 import psutil
 import tempfile
 
+
 @dataclass
 class TestResult:
     name: str
@@ -26,6 +27,7 @@ class TestResult:
     duration: float
     message: str = ""
     details: Dict[str, Any] = None
+
 
 class PerformanceMonitor:
     def __init__(self):
@@ -45,10 +47,11 @@ class PerformanceMonitor:
         end_memory = process.memory_info().rss / 1024 / 1024  # MB
 
         return {
-            'duration': end_time - self.start_time if self.start_time else 0,
-            'memory_used': end_memory - self.start_memory if self.start_memory else 0,
-            'peak_memory': end_memory
+            "duration": end_time - self.start_time if self.start_time else 0,
+            "memory_used": end_memory - self.start_memory if self.start_memory else 0,
+            "peak_memory": end_memory,
         }
+
 
 class ComprehensiveErrorRecoveryTester:
     def __init__(self):
@@ -58,29 +61,29 @@ class ComprehensiveErrorRecoveryTester:
 
         # Test categories
         self.test_suites = {
-            'unit_tests': [
-                'test_error_recovery_core',
-                'test_checkpoint_system',
-                'test_retry_mechanisms',
-                'test_error_analysis'
+            "unit_tests": [
+                "test_error_recovery_core",
+                "test_checkpoint_system",
+                "test_retry_mechanisms",
+                "test_error_analysis",
             ],
-            'integration_tests': [
-                'test_full_recovery_flow',
-                'test_cross_component_integration',
-                'test_real_world_scenarios'
+            "integration_tests": [
+                "test_full_recovery_flow",
+                "test_cross_component_integration",
+                "test_real_world_scenarios",
             ],
-            'performance_tests': [
-                'test_recovery_speed',
-                'test_memory_usage',
-                'test_concurrent_recovery',
-                'test_large_scale_errors'
+            "performance_tests": [
+                "test_recovery_speed",
+                "test_memory_usage",
+                "test_concurrent_recovery",
+                "test_large_scale_errors",
             ],
-            'edge_case_tests': [
-                'test_extreme_conditions',
-                'test_malformed_inputs',
-                'test_resource_exhaustion',
-                'test_concurrent_failures'
-            ]
+            "edge_case_tests": [
+                "test_extreme_conditions",
+                "test_malformed_inputs",
+                "test_resource_exhaustion",
+                "test_concurrent_failures",
+            ],
         }
 
     def run_all_tests(self) -> Dict[str, Any]:
@@ -119,9 +122,12 @@ class ComprehensiveErrorRecoveryTester:
         print("-" * 40)
 
         js_tests = [
-            ('Basic Recovery Tests', 'node test-recovery-basic.js'),
-            ('Validation Tests', 'node validate-error-recovery-simple.js'),
-            ('TypeScript Tests', 'npx tsc test-ts-recovery.ts && node dist/test-ts-recovery.js')
+            ("Basic Recovery Tests", "node test-recovery-basic.js"),
+            ("Validation Tests", "node validate-error-recovery-simple.js"),
+            (
+                "TypeScript Tests",
+                "npx tsc test-ts-recovery.ts && node dist/test-ts-recovery.js",
+            ),
         ]
 
         for test_name, command in js_tests:
@@ -203,10 +209,10 @@ class ComprehensiveErrorRecoveryTester:
 
             # Simulate different error types
             error_scenarios = [
-                ('NetworkError', 'ECONNREFUSED'),
-                ('FileSystemError', 'ENOENT'),
-                ('ValidationError', 'VALIDATION_FAILED'),
-                ('MemoryError', 'ENOMEM')
+                ("NetworkError", "ECONNREFUSED"),
+                ("FileSystemError", "ENOENT"),
+                ("ValidationError", "VALIDATION_FAILED"),
+                ("MemoryError", "ENOMEM"),
             ]
 
             for error_type, error_code in error_scenarios:
@@ -217,20 +223,23 @@ class ComprehensiveErrorRecoveryTester:
             metrics = monitor.stop()
 
             return TestResult(
-                name='Error Recovery Core',
-                status='PASSED' if test_passed else 'FAILED',
-                duration=metrics['duration'],
+                name="Error Recovery Core",
+                status="PASSED" if test_passed else "FAILED",
+                duration=metrics["duration"],
                 message=f"Tested {len(error_scenarios)} error scenarios",
-                details={'scenarios_tested': len(error_scenarios), 'memory_used': metrics['memory_used']}
+                details={
+                    "scenarios_tested": len(error_scenarios),
+                    "memory_used": metrics["memory_used"],
+                },
             )
 
         except Exception as e:
             metrics = monitor.stop()
             return TestResult(
-                name='Error Recovery Core',
-                status='FAILED',
-                duration=metrics['duration'],
-                message=f"Error: {str(e)}"
+                name="Error Recovery Core",
+                status="FAILED",
+                duration=metrics["duration"],
+                message=f"Error: {str(e)}",
             )
 
     def _test_checkpoint_system(self) -> TestResult:
@@ -241,10 +250,10 @@ class ComprehensiveErrorRecoveryTester:
         try:
             # Simulate checkpoint operations
             checkpoint_operations = [
-                'create_checkpoint',
-                'restore_checkpoint',
-                'list_checkpoints',
-                'cleanup_checkpoints'
+                "create_checkpoint",
+                "restore_checkpoint",
+                "list_checkpoints",
+                "cleanup_checkpoints",
             ]
 
             test_passed = True
@@ -259,24 +268,24 @@ class ComprehensiveErrorRecoveryTester:
             metrics = monitor.stop()
 
             return TestResult(
-                name='Checkpoint System',
-                status='PASSED' if test_passed else 'FAILED',
-                duration=metrics['duration'],
+                name="Checkpoint System",
+                status="PASSED" if test_passed else "FAILED",
+                duration=metrics["duration"],
                 message=f"Tested {len(checkpoint_operations)} operations with {len(data_sizes)} data sizes",
                 details={
-                    'operations_tested': len(checkpoint_operations),
-                    'data_sizes_tested': data_sizes,
-                    'memory_used': metrics['memory_used']
-                }
+                    "operations_tested": len(checkpoint_operations),
+                    "data_sizes_tested": data_sizes,
+                    "memory_used": metrics["memory_used"],
+                },
             )
 
         except Exception as e:
             metrics = monitor.stop()
             return TestResult(
-                name='Checkpoint System',
-                status='FAILED',
-                duration=metrics['duration'],
-                message=f"Error: {str(e)}"
+                name="Checkpoint System",
+                status="FAILED",
+                duration=metrics["duration"],
+                message=f"Error: {str(e)}",
             )
 
     def _test_retry_mechanisms(self) -> TestResult:
@@ -288,7 +297,12 @@ class ComprehensiveErrorRecoveryTester:
             test_passed = True
 
             # Test different retry strategies
-            strategies = ['exponential_backoff', 'linear_backoff', 'fixed_delay', 'circuit_breaker']
+            strategies = [
+                "exponential_backoff",
+                "linear_backoff",
+                "fixed_delay",
+                "circuit_breaker",
+            ]
 
             for strategy in strategies:
                 # Simulate retry strategy testing
@@ -297,20 +311,23 @@ class ComprehensiveErrorRecoveryTester:
             metrics = monitor.stop()
 
             return TestResult(
-                name='Retry Mechanisms',
-                status='PASSED' if test_passed else 'FAILED',
-                duration=metrics['duration'],
+                name="Retry Mechanisms",
+                status="PASSED" if test_passed else "FAILED",
+                duration=metrics["duration"],
                 message=f"Tested {len(strategies)} retry strategies",
-                details={'strategies_tested': strategies, 'memory_used': metrics['memory_used']}
+                details={
+                    "strategies_tested": strategies,
+                    "memory_used": metrics["memory_used"],
+                },
             )
 
         except Exception as e:
             metrics = monitor.stop()
             return TestResult(
-                name='Retry Mechanisms',
-                status='FAILED',
-                duration=metrics['duration'],
-                message=f"Error: {str(e)}"
+                name="Retry Mechanisms",
+                status="FAILED",
+                duration=metrics["duration"],
+                message=f"Error: {str(e)}",
             )
 
     def _test_error_analysis(self) -> TestResult:
@@ -323,11 +340,11 @@ class ComprehensiveErrorRecoveryTester:
 
             # Test error pattern analysis
             error_patterns = [
-                r'git.*failed',
-                r'ENOENT|EACCES|EPERM',
-                r'ECONNREFUSED|ETIMEDOUT|ENOTFOUND',
-                r'validation.*failed',
-                r'out of memory|ENOMEM|heap'
+                r"git.*failed",
+                r"ENOENT|EACCES|EPERM",
+                r"ECONNREFUSED|ETIMEDOUT|ENOTFOUND",
+                r"validation.*failed",
+                r"out of memory|ENOMEM|heap",
             ]
 
             for pattern in error_patterns:
@@ -337,20 +354,23 @@ class ComprehensiveErrorRecoveryTester:
             metrics = monitor.stop()
 
             return TestResult(
-                name='Error Analysis',
-                status='PASSED' if test_passed else 'FAILED',
-                duration=metrics['duration'],
+                name="Error Analysis",
+                status="PASSED" if test_passed else "FAILED",
+                duration=metrics["duration"],
                 message=f"Tested {len(error_patterns)} error patterns",
-                details={'patterns_tested': len(error_patterns), 'memory_used': metrics['memory_used']}
+                details={
+                    "patterns_tested": len(error_patterns),
+                    "memory_used": metrics["memory_used"],
+                },
             )
 
         except Exception as e:
             metrics = monitor.stop()
             return TestResult(
-                name='Error Analysis',
-                status='FAILED',
-                duration=metrics['duration'],
-                message=f"Error: {str(e)}"
+                name="Error Analysis",
+                status="FAILED",
+                duration=metrics["duration"],
+                message=f"Error: {str(e)}",
             )
 
     def _test_full_recovery_flow(self) -> TestResult:
@@ -363,12 +383,12 @@ class ComprehensiveErrorRecoveryTester:
 
             # Simulate full recovery flow
             flow_steps = [
-                'error_detection',
-                'error_analysis',
-                'recovery_strategy_selection',
-                'checkpoint_creation',
-                'recovery_execution',
-                'verification'
+                "error_detection",
+                "error_analysis",
+                "recovery_strategy_selection",
+                "checkpoint_creation",
+                "recovery_execution",
+                "verification",
             ]
 
             for step in flow_steps:
@@ -377,20 +397,23 @@ class ComprehensiveErrorRecoveryTester:
             metrics = monitor.stop()
 
             return TestResult(
-                name='Full Recovery Flow',
-                status='PASSED' if test_passed else 'FAILED',
-                duration=metrics['duration'],
+                name="Full Recovery Flow",
+                status="PASSED" if test_passed else "FAILED",
+                duration=metrics["duration"],
                 message=f"Tested {len(flow_steps)} recovery steps",
-                details={'flow_steps': flow_steps, 'memory_used': metrics['memory_used']}
+                details={
+                    "flow_steps": flow_steps,
+                    "memory_used": metrics["memory_used"],
+                },
             )
 
         except Exception as e:
             metrics = monitor.stop()
             return TestResult(
-                name='Full Recovery Flow',
-                status='FAILED',
-                duration=metrics['duration'],
-                message=f"Error: {str(e)}"
+                name="Full Recovery Flow",
+                status="FAILED",
+                duration=metrics["duration"],
+                message=f"Error: {str(e)}",
             )
 
     def _test_cross_component_integration(self) -> TestResult:
@@ -403,10 +426,10 @@ class ComprehensiveErrorRecoveryTester:
 
             # Test component interactions
             interactions = [
-                ('ErrorRecovery', 'CheckpointManager'),
-                ('ErrorRecovery', 'RetryManager'),
-                ('ErrorAnalytics', 'ErrorDiagnostics'),
-                ('CircuitBreaker', 'RetryManager')
+                ("ErrorRecovery", "CheckpointManager"),
+                ("ErrorRecovery", "RetryManager"),
+                ("ErrorAnalytics", "ErrorDiagnostics"),
+                ("CircuitBreaker", "RetryManager"),
             ]
 
             for comp1, comp2 in interactions:
@@ -415,20 +438,23 @@ class ComprehensiveErrorRecoveryTester:
             metrics = monitor.stop()
 
             return TestResult(
-                name='Cross-Component Integration',
-                status='PASSED' if test_passed else 'FAILED',
-                duration=metrics['duration'],
+                name="Cross-Component Integration",
+                status="PASSED" if test_passed else "FAILED",
+                duration=metrics["duration"],
                 message=f"Tested {len(interactions)} component interactions",
-                details={'interactions_tested': interactions, 'memory_used': metrics['memory_used']}
+                details={
+                    "interactions_tested": interactions,
+                    "memory_used": metrics["memory_used"],
+                },
             )
 
         except Exception as e:
             metrics = monitor.stop()
             return TestResult(
-                name='Cross-Component Integration',
-                status='FAILED',
-                duration=metrics['duration'],
-                message=f"Error: {str(e)}"
+                name="Cross-Component Integration",
+                status="FAILED",
+                duration=metrics["duration"],
+                message=f"Error: {str(e)}",
             )
 
     def _test_recovery_speed(self) -> TestResult:
@@ -451,31 +477,36 @@ class ComprehensiveErrorRecoveryTester:
 
                 scale_duration = time.perf_counter() - scale_start
                 performance_data[scale] = {
-                    'duration': scale_duration,
-                    'avg_per_operation': scale_duration / scale
+                    "duration": scale_duration,
+                    "avg_per_operation": scale_duration / scale,
                 }
 
             metrics = monitor.stop()
 
             # Check performance criteria
-            avg_operation_time = sum(data['avg_per_operation'] for data in performance_data.values()) / len(performance_data)
+            avg_operation_time = sum(
+                data["avg_per_operation"] for data in performance_data.values()
+            ) / len(performance_data)
             test_passed = avg_operation_time < 0.01  # Under 10ms per operation
 
             return TestResult(
-                name='Recovery Speed',
-                status='PASSED' if test_passed else 'FAILED',
-                duration=metrics['duration'],
+                name="Recovery Speed",
+                status="PASSED" if test_passed else "FAILED",
+                duration=metrics["duration"],
                 message=f"Average operation time: {avg_operation_time:.4f}s",
-                details={'performance_data': performance_data, 'memory_used': metrics['memory_used']}
+                details={
+                    "performance_data": performance_data,
+                    "memory_used": metrics["memory_used"],
+                },
             )
 
         except Exception as e:
             metrics = monitor.stop()
             return TestResult(
-                name='Recovery Speed',
-                status='FAILED',
-                duration=metrics['duration'],
-                message=f"Error: {str(e)}"
+                name="Recovery Speed",
+                status="FAILED",
+                duration=metrics["duration"],
+                message=f"Error: {str(e)}",
             )
 
     def _test_memory_usage(self) -> TestResult:
@@ -498,23 +529,26 @@ class ComprehensiveErrorRecoveryTester:
             metrics = monitor.stop()
 
             # Check memory usage is reasonable
-            test_passed = metrics['memory_used'] < 100  # Under 100MB increase
+            test_passed = metrics["memory_used"] < 100  # Under 100MB increase
 
             return TestResult(
-                name='Memory Usage',
-                status='PASSED' if test_passed else 'FAILED',
-                duration=metrics['duration'],
+                name="Memory Usage",
+                status="PASSED" if test_passed else "FAILED",
+                duration=metrics["duration"],
                 message=f"Memory increase: {metrics['memory_used']:.2f}MB",
-                details={'memory_used': metrics['memory_used'], 'operations_count': 100}
+                details={
+                    "memory_used": metrics["memory_used"],
+                    "operations_count": 100,
+                },
             )
 
         except Exception as e:
             metrics = monitor.stop()
             return TestResult(
-                name='Memory Usage',
-                status='FAILED',
-                duration=metrics['duration'],
-                message=f"Error: {str(e)}"
+                name="Memory Usage",
+                status="FAILED",
+                duration=metrics["duration"],
+                message=f"Error: {str(e)}",
             )
 
     def _test_concurrent_recovery(self) -> TestResult:
@@ -544,20 +578,23 @@ class ComprehensiveErrorRecoveryTester:
             test_passed = True  # If we got here, concurrent operations completed
 
             return TestResult(
-                name='Concurrent Recovery',
-                status='PASSED' if test_passed else 'FAILED',
-                duration=metrics['duration'],
+                name="Concurrent Recovery",
+                status="PASSED" if test_passed else "FAILED",
+                duration=metrics["duration"],
                 message=f"Tested {thread_count} concurrent threads",
-                details={'thread_count': thread_count, 'memory_used': metrics['memory_used']}
+                details={
+                    "thread_count": thread_count,
+                    "memory_used": metrics["memory_used"],
+                },
             )
 
         except Exception as e:
             metrics = monitor.stop()
             return TestResult(
-                name='Concurrent Recovery',
-                status='FAILED',
-                duration=metrics['duration'],
-                message=f"Error: {str(e)}"
+                name="Concurrent Recovery",
+                status="FAILED",
+                duration=metrics["duration"],
+                message=f"Error: {str(e)}",
             )
 
     def _test_extreme_conditions(self) -> TestResult:
@@ -567,19 +604,19 @@ class ComprehensiveErrorRecoveryTester:
 
         try:
             extreme_scenarios = [
-                'very_long_error_message',
-                'deeply_nested_error_stack',
-                'high_frequency_errors',
-                'multiple_simultaneous_failures'
+                "very_long_error_message",
+                "deeply_nested_error_stack",
+                "high_frequency_errors",
+                "multiple_simultaneous_failures",
             ]
 
             test_passed = True
 
             for scenario in extreme_scenarios:
                 # Simulate extreme condition testing
-                if scenario == 'very_long_error_message':
+                if scenario == "very_long_error_message":
                     long_message = "X" * 10000  # Very long error message
-                elif scenario == 'high_frequency_errors':
+                elif scenario == "high_frequency_errors":
                     # Simulate many errors in short time
                     for _ in range(100):
                         time.sleep(0.0001)
@@ -589,20 +626,23 @@ class ComprehensiveErrorRecoveryTester:
             metrics = monitor.stop()
 
             return TestResult(
-                name='Extreme Conditions',
-                status='PASSED' if test_passed else 'FAILED',
-                duration=metrics['duration'],
+                name="Extreme Conditions",
+                status="PASSED" if test_passed else "FAILED",
+                duration=metrics["duration"],
                 message=f"Tested {len(extreme_scenarios)} extreme scenarios",
-                details={'scenarios': extreme_scenarios, 'memory_used': metrics['memory_used']}
+                details={
+                    "scenarios": extreme_scenarios,
+                    "memory_used": metrics["memory_used"],
+                },
             )
 
         except Exception as e:
             metrics = monitor.stop()
             return TestResult(
-                name='Extreme Conditions',
-                status='FAILED',
-                duration=metrics['duration'],
-                message=f"Error: {str(e)}"
+                name="Extreme Conditions",
+                status="FAILED",
+                duration=metrics["duration"],
+                message=f"Error: {str(e)}",
             )
 
     def _test_resource_exhaustion(self) -> TestResult:
@@ -613,10 +653,10 @@ class ComprehensiveErrorRecoveryTester:
         try:
             # Simulate resource exhaustion scenarios
             resource_tests = [
-                'low_memory_simulation',
-                'high_cpu_usage',
-                'disk_space_exhaustion',
-                'network_unavailable'
+                "low_memory_simulation",
+                "high_cpu_usage",
+                "disk_space_exhaustion",
+                "network_unavailable",
             ]
 
             test_passed = True
@@ -628,20 +668,23 @@ class ComprehensiveErrorRecoveryTester:
             metrics = monitor.stop()
 
             return TestResult(
-                name='Resource Exhaustion',
-                status='PASSED' if test_passed else 'FAILED',
-                duration=metrics['duration'],
+                name="Resource Exhaustion",
+                status="PASSED" if test_passed else "FAILED",
+                duration=metrics["duration"],
                 message=f"Tested {len(resource_tests)} resource scenarios",
-                details={'resource_tests': resource_tests, 'memory_used': metrics['memory_used']}
+                details={
+                    "resource_tests": resource_tests,
+                    "memory_used": metrics["memory_used"],
+                },
             )
 
         except Exception as e:
             metrics = monitor.stop()
             return TestResult(
-                name='Resource Exhaustion',
-                status='FAILED',
-                duration=metrics['duration'],
-                message=f"Error: {str(e)}"
+                name="Resource Exhaustion",
+                status="FAILED",
+                duration=metrics["duration"],
+                message=f"Error: {str(e)}",
             )
 
     def _run_test_command(self, test_name: str, command: str) -> TestResult:
@@ -655,7 +698,7 @@ class ComprehensiveErrorRecoveryTester:
                 capture_output=True,
                 text=True,
                 timeout=60,
-                cwd=self.project_root
+                cwd=self.project_root,
             )
 
             duration = time.perf_counter() - start_time
@@ -663,80 +706,82 @@ class ComprehensiveErrorRecoveryTester:
             if result.returncode == 0:
                 return TestResult(
                     name=test_name,
-                    status='PASSED',
+                    status="PASSED",
                     duration=duration,
                     message=f"Command executed successfully",
-                    details={'stdout': result.stdout[:500], 'command': command}
+                    details={"stdout": result.stdout[:500], "command": command},
                 )
             else:
                 return TestResult(
                     name=test_name,
-                    status='FAILED',
+                    status="FAILED",
                     duration=duration,
                     message=f"Command failed with code {result.returncode}",
-                    details={'stderr': result.stderr[:500], 'command': command}
+                    details={"stderr": result.stderr[:500], "command": command},
                 )
 
         except subprocess.TimeoutExpired:
             duration = time.perf_counter() - start_time
             return TestResult(
                 name=test_name,
-                status='TIMEOUT',
+                status="TIMEOUT",
                 duration=duration,
-                message="Test timed out after 60 seconds"
+                message="Test timed out after 60 seconds",
             )
         except Exception as e:
             duration = time.perf_counter() - start_time
             return TestResult(
                 name=test_name,
-                status='ERROR',
+                status="ERROR",
                 duration=duration,
-                message=f"Test error: {str(e)}"
+                message=f"Test error: {str(e)}",
             )
 
     def _generate_report(self, overall_metrics: Dict[str, Any]) -> Dict[str, Any]:
         """Generate comprehensive test report"""
         total_tests = len(self.test_results)
-        passed_tests = len([r for r in self.test_results if r.status == 'PASSED'])
-        failed_tests = len([r for r in self.test_results if r.status == 'FAILED'])
-        error_tests = len([r for r in self.test_results if r.status == 'ERROR'])
-        timeout_tests = len([r for r in self.test_results if r.status == 'TIMEOUT'])
+        passed_tests = len([r for r in self.test_results if r.status == "PASSED"])
+        failed_tests = len([r for r in self.test_results if r.status == "FAILED"])
+        error_tests = len([r for r in self.test_results if r.status == "ERROR"])
+        timeout_tests = len([r for r in self.test_results if r.status == "TIMEOUT"])
 
         success_rate = (passed_tests / total_tests * 100) if total_tests > 0 else 0
         total_duration = sum(r.duration for r in self.test_results)
 
         report = {
-            'timestamp': datetime.now().isoformat(),
-            'summary': {
-                'total_tests': total_tests,
-                'passed': passed_tests,
-                'failed': failed_tests,
-                'errors': error_tests,
-                'timeouts': timeout_tests,
-                'success_rate': f"{success_rate:.2f}%",
-                'total_duration': f"{total_duration:.3f}s"
+            "timestamp": datetime.now().isoformat(),
+            "summary": {
+                "total_tests": total_tests,
+                "passed": passed_tests,
+                "failed": failed_tests,
+                "errors": error_tests,
+                "timeouts": timeout_tests,
+                "success_rate": f"{success_rate:.2f}%",
+                "total_duration": f"{total_duration:.3f}s",
             },
-            'performance': {
-                'overall_duration': f"{overall_metrics['duration']:.3f}s",
-                'memory_usage': f"{overall_metrics['memory_used']:.2f}MB",
-                'peak_memory': f"{overall_metrics['peak_memory']:.2f}MB"
+            "performance": {
+                "overall_duration": f"{overall_metrics['duration']:.3f}s",
+                "memory_usage": f"{overall_metrics['memory_used']:.2f}MB",
+                "peak_memory": f"{overall_metrics['peak_memory']:.2f}MB",
             },
-            'test_results': [
+            "test_results": [
                 {
-                    'name': r.name,
-                    'status': r.status,
-                    'duration': f"{r.duration:.3f}s",
-                    'message': r.message,
-                    'details': r.details
+                    "name": r.name,
+                    "status": r.status,
+                    "duration": f"{r.duration:.3f}s",
+                    "message": r.message,
+                    "details": r.details,
                 }
                 for r in self.test_results
             ],
-            'recommendations': self._generate_recommendations()
+            "recommendations": self._generate_recommendations(),
         }
 
         # Save report to file
-        report_path = self.project_root / 'error_recovery_comprehensive_test_report.json'
-        with open(report_path, 'w') as f:
+        report_path = (
+            self.project_root / "error_recovery_comprehensive_test_report.json"
+        )
+        with open(report_path, "w") as f:
             json.dump(report, f, indent=2)
 
         # Print summary
@@ -750,26 +795,42 @@ class ComprehensiveErrorRecoveryTester:
         """Generate recommendations based on test results"""
         recommendations = []
 
-        failed_tests = [r for r in self.test_results if r.status == 'FAILED']
+        failed_tests = [r for r in self.test_results if r.status == "FAILED"]
         slow_tests = [r for r in self.test_results if r.duration > 1.0]
 
         if failed_tests:
-            recommendations.append(f"Fix {len(failed_tests)} failing tests to improve system reliability")
+            recommendations.append(
+                f"Fix {len(failed_tests)} failing tests to improve system reliability"
+            )
 
         if slow_tests:
-            recommendations.append(f"Optimize {len(slow_tests)} slow tests for better performance")
+            recommendations.append(
+                f"Optimize {len(slow_tests)} slow tests for better performance"
+            )
 
         # Performance recommendations
-        total_memory = sum(r.details.get('memory_used', 0) for r in self.test_results if r.details)
+        total_memory = sum(
+            r.details.get("memory_used", 0) for r in self.test_results if r.details
+        )
         if total_memory > 200:  # > 200MB total
-            recommendations.append("Consider memory optimization - total memory usage is high")
+            recommendations.append(
+                "Consider memory optimization - total memory usage is high"
+            )
 
-        success_rate = len([r for r in self.test_results if r.status == 'PASSED']) / len(self.test_results) * 100
+        success_rate = (
+            len([r for r in self.test_results if r.status == "PASSED"])
+            / len(self.test_results)
+            * 100
+        )
         if success_rate < 95:
-            recommendations.append("Focus on improving test reliability - success rate below 95%")
+            recommendations.append(
+                "Focus on improving test reliability - success rate below 95%"
+            )
 
         if not recommendations:
-            recommendations.append("System is performing well - consider adding more edge case tests")
+            recommendations.append(
+                "System is performing well - consider adding more edge case tests"
+            )
 
         return recommendations
 
@@ -779,7 +840,7 @@ class ComprehensiveErrorRecoveryTester:
         print("📊 ERROR RECOVERY TEST SUITE SUMMARY")
         print("=" * 60)
 
-        summary = report['summary']
+        summary = report["summary"]
         print(f"Total Tests: {summary['total_tests']}")
         print(f"✅ Passed: {summary['passed']}")
         print(f"❌ Failed: {summary['failed']}")
@@ -788,22 +849,23 @@ class ComprehensiveErrorRecoveryTester:
         print(f"📈 Success Rate: {summary['success_rate']}")
         print(f"⏱️  Total Duration: {summary['total_duration']}")
 
-        perf = report['performance']
+        perf = report["performance"]
         print(f"\n🚀 Performance Metrics:")
         print(f"Overall Duration: {perf['overall_duration']}")
         print(f"Memory Usage: {perf['memory_usage']}")
         print(f"Peak Memory: {perf['peak_memory']}")
 
         print(f"\n💡 Recommendations:")
-        for i, rec in enumerate(report['recommendations'], 1):
+        for i, rec in enumerate(report["recommendations"], 1):
             print(f"{i}. {rec}")
 
         # Show failed tests if any
-        failed_results = [r for r in self.test_results if r.status != 'PASSED']
+        failed_results = [r for r in self.test_results if r.status != "PASSED"]
         if failed_results:
             print(f"\n❌ Failed Tests:")
             for result in failed_results:
                 print(f"  • {result.name}: {result.message}")
+
 
 def main():
     """Main test runner"""
@@ -816,7 +878,11 @@ def main():
         report = tester.run_all_tests()
 
         # Determine exit code based on results
-        exit_code = 0 if report['summary']['failed'] == 0 and report['summary']['errors'] == 0 else 1
+        exit_code = (
+            0
+            if report["summary"]["failed"] == 0 and report["summary"]["errors"] == 0
+            else 1
+        )
 
         print(f"\n🏁 Testing completed with exit code: {exit_code}")
         return exit_code
@@ -824,9 +890,11 @@ def main():
     except Exception as e:
         print(f"\n💥 Test suite crashed: {str(e)}")
         import traceback
+
         traceback.print_exc()
         return 2
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     exit_code = main()
     sys.exit(exit_code)

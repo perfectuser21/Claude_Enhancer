@@ -6,7 +6,7 @@ set -euo pipefail
 
 # 性能优化配置
 export LC_ALL=C
-readonly RECOVERY_TIMEOUT=0.2
+readonly RECOVERY_TIMEOUT=0.1
 readonly ERROR_CACHE_DIR="/tmp/claude_error_cache"
 readonly ERROR_PATTERNS_FILE="${ERROR_CACHE_DIR}/error_patterns"
 readonly RECOVERY_LOG="${ERROR_CACHE_DIR}/recovery.log"

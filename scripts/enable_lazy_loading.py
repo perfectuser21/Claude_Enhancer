@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Dict, Any, List
 import subprocess
 
+
 class LazyLoadingMigration:
     """Handles migration to lazy loading system"""
 
@@ -54,7 +55,7 @@ class LazyLoadingMigration:
                 ".claude/settings_high_performance.json",
                 ".claude/core/engine.py",
                 ".claude/core/orchestrator.py",
-                ".claude/hooks/high_performance_hook_engine.py"
+                ".claude/hooks/high_performance_hook_engine.py",
             ]
 
             for file_path in files_to_backup:
@@ -92,32 +93,36 @@ class LazyLoadingMigration:
                 "version": "1.0.0",
                 "engine_class": "lazy_engine.LazyWorkflowEngine",
                 "orchestrator_class": "lazy_orchestrator.LazyAgentOrchestrator",
-                "performance_target": "50% startup reduction"
+                "performance_target": "50% startup reduction",
             }
 
             # Update performance settings
             if "performance" not in settings:
                 settings["performance"] = {}
 
-            settings["performance"].update({
-                "lazy_component_loading": True,
-                "cache_components": True,
-                "background_preloading": True,
-                "startup_optimization": True
-            })
+            settings["performance"].update(
+                {
+                    "lazy_component_loading": True,
+                    "cache_components": True,
+                    "background_preloading": True,
+                    "startup_optimization": True,
+                }
+            )
 
             # Update environment variables
             if "environment" not in settings:
                 settings["environment"] = {}
 
-            settings["environment"].update({
-                "LAZY_LOADING": "enabled",
-                "COMPONENT_CACHING": "true",
-                "PRELOAD_COMMON": "true"
-            })
+            settings["environment"].update(
+                {
+                    "LAZY_LOADING": "enabled",
+                    "COMPONENT_CACHING": "true",
+                    "PRELOAD_COMMON": "true",
+                }
+            )
 
             # Save updated settings
-            with open(settings_file, 'w') as f:
+            with open(settings_file, "w") as f:
                 json.dump(settings, f, indent=2)
 
             self.log("✅ Settings updated successfully")
@@ -249,7 +254,7 @@ except ImportError as e:
 
         try:
             launcher_file = self.project_root / "claude_enhancer_lazy.py"
-            with open(launcher_file, 'w') as f:
+            with open(launcher_file, "w") as f:
                 f.write(launcher_content)
 
             # Make executable
@@ -273,6 +278,7 @@ except ImportError as e:
             try:
                 from lazy_engine import LazyWorkflowEngine
                 from lazy_orchestrator import LazyAgentOrchestrator
+
                 self.log("✅ Lazy components import successfully")
             except ImportError as e:
                 self.log(f"❌ Failed to import lazy components: {e}", "ERROR")
@@ -285,7 +291,10 @@ except ImportError as e:
             init_time = time.time() - start_time
 
             if init_time > 0.2:  # 200ms threshold
-                self.log(f"⚠️  Initialization time ({init_time:.3f}s) higher than expected", "WARNING")
+                self.log(
+                    f"⚠️  Initialization time ({init_time:.3f}s) higher than expected",
+                    "WARNING",
+                )
             else:
                 self.log(f"✅ Fast initialization: {init_time:.3f}s")
 
@@ -319,8 +328,12 @@ except ImportError as e:
             suite = PerformanceTestSuite()
             results = suite.run_comprehensive_benchmark()
 
-            improvement = results.get("overall_performance", {}).get("startup_improvement_percent", 0)
-            target_met = results.get("overall_performance", {}).get("target_achieved", False)
+            improvement = results.get("overall_performance", {}).get(
+                "startup_improvement_percent", 0
+            )
+            target_met = results.get("overall_performance", {}).get(
+                "target_achieved", False
+            )
 
             self.log(f"📊 Performance Results:")
             self.log(f"  Startup improvement: {improvement:.1f}%")
@@ -329,7 +342,9 @@ except ImportError as e:
             if target_met:
                 self.log("🎉 Migration successful - 50%+ improvement achieved!")
             else:
-                self.log("⚠️  Target not fully met, but some improvement gained", "WARNING")
+                self.log(
+                    "⚠️  Target not fully met, but some improvement gained", "WARNING"
+                )
 
             return results
 
@@ -386,7 +401,7 @@ if __name__ == "__main__":
 
         try:
             rollback_file = self.project_root / "rollback_lazy_loading.py"
-            with open(rollback_file, 'w') as f:
+            with open(rollback_file, "w") as f:
                 f.write(rollback_content)
 
             os.chmod(rollback_file, 0o755)
@@ -401,7 +416,7 @@ if __name__ == "__main__":
         """Save migration log"""
         try:
             log_file = self.claude_dir / "lazy_loading_migration.log"
-            with open(log_file, 'w') as f:
+            with open(log_file, "w") as f:
                 f.write("\\n".join(self.migration_log))
 
             self.log(f"📄 Migration log saved: {log_file}")
@@ -445,7 +460,9 @@ if __name__ == "__main__":
         # Step 6: Benchmark performance
         benchmark_results = self.benchmark_performance()
         if benchmark_results:
-            improvement = benchmark_results.get("overall_performance", {}).get("startup_improvement_percent", 0)
+            improvement = benchmark_results.get("overall_performance", {}).get(
+                "startup_improvement_percent", 0
+            )
             if improvement < 50:
                 print(f"⚠️  Performance target not fully met ({improvement:.1f}%)")
                 success = False
@@ -466,13 +483,18 @@ if __name__ == "__main__":
 
         return success
 
+
 def main():
     """Main entry point"""
     import argparse
 
-    parser = argparse.ArgumentParser(description="Enable lazy loading in Claude Enhancer")
+    parser = argparse.ArgumentParser(
+        description="Enable lazy loading in Claude Enhancer"
+    )
     parser.add_argument("--project-root", help="Project root directory")
-    parser.add_argument("--dry-run", action="store_true", help="Show what would be done")
+    parser.add_argument(
+        "--dry-run", action="store_true", help="Show what would be done"
+    )
 
     args = parser.parse_args()
 
@@ -489,6 +511,7 @@ def main():
 
     migration = LazyLoadingMigration(args.project_root)
     return migration.run_migration()
+
 
 if __name__ == "__main__":
     success = main()
