@@ -225,7 +225,7 @@
   },
   "environment": {
     "CLAUDE_ENHANCER_MODE": "workflow",
-    "CLAUDE_ENHANCER_VERSION": "5.1",
+    "CLAUDE_ENHANCER_VERSION": "5.2",
     "WORKFLOW_SYSTEM": "P1-P6-Enhanced",
     "MONITORING_ENABLED": "true",
     "SELF_OPTIMIZATION": "true",
