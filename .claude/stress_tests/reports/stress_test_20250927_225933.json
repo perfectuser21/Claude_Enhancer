@@ -1,0 +1,43 @@
+{
+  "timestamp": "2025-09-27 22:59:33",
+  "duration_seconds": 6.605043649673462,
+  "results": {
+    "workflow_hooks": {
+      "iterations": 10,
+      "success_rate": 100.0,
+      "avg_time_ms": 28.657984733581543,
+      "min_time_ms": 16.0369873046875,
+      "max_time_ms": 54.515838623046875
+    },
+    "git_hooks": {
+      "pre-commit": "installed",
+      "commit-msg": "installed",
+      "pre-push": "installed",
+      "phase": "P4"
+    },
+    "agent_selection": {
+      "iterations": 30,
+      "avg_time_ms": 10.497299830118815,
+      "min_time_ms": 6.51240348815918,
+      "max_time_ms": 21.46172523498535,
+      "cache_hit_rate": 0.0
+    },
+    "memory_usage": {
+      "samples": 5,
+      "min_mb": 19.53515625,
+      "max_mb": 19.53515625,
+      "avg_mb": 19.53515625
+    },
+    "concurrent_ops": {
+      "workers": 5,
+      "tasks": 20,
+      "total_time_s": 0.9959936141967773,
+      "throughput": 20.0804500299222,
+      "completed": 20
+    }
+  },
+  "summary": {
+    "total_tests": 5,
+    "status": "PASS"
+  }
+}
