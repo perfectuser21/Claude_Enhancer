@@ -11,6 +11,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional, Dict, List, Tuple
 
+
 class GitAutomation:
     """Git操作自动化管理器"""
 
@@ -23,7 +24,8 @@ class GitAutomation:
         config_path = self.repo_path / ".workflow/config.yml"
         if config_path.exists():
             import yaml
-            with open(config_path, 'r') as f:
+
+            with open(config_path, "r") as f:
                 return yaml.safe_load(f)
         return {}
 
@@ -35,7 +37,7 @@ class GitAutomation:
                 cwd=self.repo_path,
                 capture_output=True,
                 text=True,
-                check=True
+                check=True,
             )
             return True, result.stdout.strip()
         except subprocess.CalledProcessError as e:
@@ -53,7 +55,9 @@ class GitAutomation:
             return phase_file.read_text().strip()
         return "P0"
 
-    def auto_create_branch(self, ticket_id: str = None, description: str = None) -> bool:
+    def auto_create_branch(
+        self, ticket_id: str = None, description: str = None
+    ) -> bool:
         """
         自动创建feature分支
         格式: feature/PRD-XXX-description
@@ -69,13 +73,14 @@ class GitAutomation:
         if not ticket_id:
             # 自动生成ticket ID
             import random
+
             ticket_id = f"PRD-{random.randint(100, 999)}"
 
         if not description:
             description = "auto-task"
 
         # 清理description，只保留字母数字和连字符
-        description = re.sub(r'[^a-zA-Z0-9-]', '-', description.lower())
+        description = re.sub(r"[^a-zA-Z0-9-]", "-", description.lower())
         branch_name = f"feature/{ticket_id}-{description}"
 
         print(f"🔄 Creating feature branch: {branch_name}")
@@ -112,7 +117,7 @@ class GitAutomation:
 
         # 获取ticket ID从分支名
         branch = self.get_current_branch()
-        ticket_match = re.search(r'PRD-\d+', branch)
+        ticket_match = re.search(r"PRD-\d+", branch)
         ticket = ticket_match.group() if ticket_match else "T-AUTO"
 
         # 生成提交信息
@@ -123,7 +128,7 @@ class GitAutomation:
                 "P3": "feat: 完成功能实现",
                 "P4": "test: 完成测试验证",
                 "P5": "review: 完成代码审查",
-                "P6": "release: 准备发布版本"
+                "P6": "release: 准备发布版本",
             }
             message = phase_messages.get(phase, f"chore: {phase}阶段完成")
 
@@ -134,7 +139,7 @@ class GitAutomation:
         success, stats = self._run_git("diff", "--cached", "--stat")
         if stats:
             # 提取关键统计
-            lines = stats.split('\n')
+            lines = stats.split("\n")
             if lines:
                 last_line = lines[-1]
                 commit_msg += f"Changes: {last_line}\n"
@@ -167,8 +172,8 @@ class GitAutomation:
             if tags:
                 # 获取最新版本
                 versions = []
-                for tag in tags.split('\n'):
-                    match = re.match(r'v(\d+)\.(\d+)\.(\d+)', tag)
+                for tag in tags.split("\n"):
+                    match = re.match(r"v(\d+)\.(\d+)\.(\d+)", tag)
                     if match:
                         versions.append(tuple(map(int, match.groups())))
 
@@ -238,18 +243,25 @@ class GitAutomation:
             pr_body += "Automated PR from 6-Phase workflow\n\n"
             pr_body += "## Recent Commits\n"
             if commits:
-                for line in commits.split('\n'):
+                for line in commits.split("\n"):
                     pr_body += f"- {line}\n"
             pr_body += "\n🤖 Generated with Claude Code"
 
             result = subprocess.run(
-                ["gh", "pr", "create",
-                 "--title", f"[Auto] {branch}",
-                 "--body", pr_body,
-                 "--base", "main"],
+                [
+                    "gh",
+                    "pr",
+                    "create",
+                    "--title",
+                    f"[Auto] {branch}",
+                    "--body",
+                    pr_body,
+                    "--base",
+                    "main",
+                ],
                 cwd=self.repo_path,
                 capture_output=True,
-                text=True
+                text=True,
             )
 
             if result.returncode == 0:
@@ -268,7 +280,7 @@ class GitAutomation:
         自动合并到main分支
         注意：这个功能默认关闭，需要在配置中启用
         """
-        if not self.config.get('git', {}).get('auto_merge', False):
+        if not self.config.get("git", {}).get("auto_merge", False):
             print("ℹ️ Auto-merge is disabled in config")
             return False
 
@@ -297,7 +309,7 @@ class GitAutomation:
         if success:
             print(f"✅ Successfully merged to main")
             # 删除feature分支
-            if self.config.get('git', {}).get('delete_branch_after_merge', True):
+            if self.config.get("git", {}).get("delete_branch_after_merge", True):
                 self._run_git("branch", "-d", current_branch)
                 print(f"🗑️ Deleted branch: {current_branch}")
             return True
@@ -325,11 +337,11 @@ class GitAutomation:
             self.auto_tag_release()
 
             # 如果配置了自动PR
-            if self.config.get('git', {}).get('auto_pr', True):
+            if self.config.get("git", {}).get("auto_pr", True):
                 self.auto_create_pr()
 
             # 如果配置了自动合并
-            if self.config.get('git', {}).get('auto_merge', False):
+            if self.config.get("git", {}).get("auto_merge", False):
                 self.auto_merge_main()
 
         print(f"{'='*50}\n")

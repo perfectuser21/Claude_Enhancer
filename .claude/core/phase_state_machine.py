@@ -19,6 +19,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 try:
     from git_automation import GitAutomation
+
     GIT_AUTOMATION_AVAILABLE = True
 except ImportError:
     GIT_AUTOMATION_AVAILABLE = False
@@ -27,12 +28,12 @@ except ImportError:
 
 class PhaseType(Enum):
     # 统一为6-Phase标准流程
-    P1_REQUIREMENTS = "P1_requirements"     # 需求分析
-    P2_DESIGN = "P2_design"                # 架构设计
+    P1_REQUIREMENTS = "P1_requirements"  # 需求分析
+    P2_DESIGN = "P2_design"  # 架构设计
     P3_IMPLEMENTATION = "P3_implementation"  # 功能实现
-    P4_TESTING = "P4_testing"              # 测试验证
-    P5_REVIEW = "P5_review"                # 代码审查
-    P6_RELEASE = "P6_release"              # 发布准备
+    P4_TESTING = "P4_testing"  # 测试验证
+    P5_REVIEW = "P5_review"  # 代码审查
+    P6_RELEASE = "P6_release"  # 发布准备
 
 
 class PhaseStatus(Enum):
