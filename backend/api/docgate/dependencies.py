@@ -27,6 +27,7 @@ logger = logging.getLogger(__name__)
 
 # =============== 服务依赖 ===============
 
+
 class DocGateServiceConfig:
     """DocGate服务配置"""
 
@@ -73,19 +74,29 @@ class DocGateHealthCheck:
                 self._check_quality_checker(),
                 self._check_report_generator(),
                 self._check_webhook_service(),
-                return_exceptions=True
+                return_exceptions=True,
             )
 
             # 汇总结果
             services = {
-                "document_parser": "healthy" if not isinstance(checks[0], Exception) else "unhealthy",
-                "quality_checker": "healthy" if not isinstance(checks[1], Exception) else "unhealthy",
-                "report_generator": "healthy" if not isinstance(checks[2], Exception) else "unhealthy",
-                "webhook_service": "healthy" if not isinstance(checks[3], Exception) else "unhealthy",
+                "document_parser": "healthy"
+                if not isinstance(checks[0], Exception)
+                else "unhealthy",
+                "quality_checker": "healthy"
+                if not isinstance(checks[1], Exception)
+                else "unhealthy",
+                "report_generator": "healthy"
+                if not isinstance(checks[2], Exception)
+                else "unhealthy",
+                "webhook_service": "healthy"
+                if not isinstance(checks[3], Exception)
+                else "unhealthy",
             }
 
             # 计算整体状态
-            unhealthy_count = sum(1 for status in services.values() if status == "unhealthy")
+            unhealthy_count = sum(
+                1 for status in services.values() if status == "unhealthy"
+            )
             if unhealthy_count == 0:
                 overall_status = "healthy"
             elif unhealthy_count <= len(services) // 2:
@@ -148,12 +159,13 @@ async def get_docgate_health() -> DocGateHealthCheck:
 
 # =============== 权限依赖 ===============
 
+
 def require_docgate_permissions(permissions: List[str]):
     """要求DocGate特定权限"""
 
     def permission_checker(
         current_user: User = Depends(get_current_active_user),
-        _: bool = Depends(require_permissions(permissions))
+        _: bool = Depends(require_permissions(permissions)),
     ) -> User:
         return current_user
 
@@ -170,6 +182,7 @@ require_docgate_webhook = require_docgate_permissions(["docgate:webhook"])
 
 # =============== 限流依赖 ===============
 
+
 class DocGateRateLimiter:
     """DocGate专用限流器"""
 
@@ -177,9 +190,9 @@ class DocGateRateLimiter:
         self.limiter = RateLimiter()
         self.limits = {
             "quality_check": {"limit": 100, "window": 3600},  # 100次/小时
-            "batch_check": {"limit": 10, "window": 3600},     # 10次/小时
-            "report_download": {"limit": 1000, "window": 3600}, # 1000次/小时
-            "webhook_trigger": {"limit": 10000, "window": 3600}, # 10000次/小时
+            "batch_check": {"limit": 10, "window": 3600},  # 10次/小时
+            "report_download": {"limit": 1000, "window": 3600},  # 1000次/小时
+            "webhook_trigger": {"limit": 10000, "window": 3600},  # 10000次/小时
         }
 
     async def check_limit(self, user_id: str, operation: str) -> bool:
@@ -191,9 +204,7 @@ class DocGateRateLimiter:
         key = f"docgate:{operation}:{user_id}"
 
         return await self.limiter.is_allowed(
-            key=key,
-            limit=limit_config["limit"],
-            window=limit_config["window"]
+            key=key, limit=limit_config["limit"], window=limit_config["window"]
         )
 
     async def get_remaining(self, user_id: str, operation: str) -> Optional[int]:
@@ -205,9 +216,7 @@ class DocGateRateLimiter:
         key = f"docgate:{operation}:{user_id}"
 
         return await self.limiter.get_remaining(
-            key=key,
-            limit=limit_config["limit"],
-            window=limit_config["window"]
+            key=key, limit=limit_config["limit"], window=limit_config["window"]
         )
 
 
@@ -232,7 +241,9 @@ def docgate_rate_limit_check(operation: str):
 
         if not allowed:
             # 获取剩余次数和重置时间
-            remaining = await rate_limiter.get_remaining(str(current_user.id), operation)
+            remaining = await rate_limiter.get_remaining(
+                str(current_user.id), operation
+            )
             limit_config = rate_limiter.limits.get(operation, {})
 
             raise HTTPException(
@@ -247,9 +258,16 @@ def docgate_rate_limit_check(operation: str):
                 headers={
                     "X-RateLimit-Limit": str(limit_config.get("limit", 0)),
                     "X-RateLimit-Remaining": str(remaining or 0),
-                    "X-RateLimit-Reset": str(int((datetime.utcnow() + timedelta(seconds=limit_config.get("window", 3600))).timestamp())),
+                    "X-RateLimit-Reset": str(
+                        int(
+                            (
+                                datetime.utcnow()
+                                + timedelta(seconds=limit_config.get("window", 3600))
+                            ).timestamp()
+                        )
+                    ),
                     "Retry-After": str(limit_config.get("window", 3600)),
-                }
+                },
             )
 
         return True
@@ -265,6 +283,7 @@ webhook_rate_limit = docgate_rate_limit_check("webhook_trigger")
 
 
 # =============== 验证依赖 ===============
+
 
 class DocumentValidator:
     """文档验证器"""
@@ -286,7 +305,9 @@ class DocumentValidator:
     def validate_document_size(self, size: int) -> bool:
         """验证文档大小"""
         if size > self.config.max_document_size:
-            raise ValueError(f"文档大小超出限制（最大{self.config.max_document_size / 1024 / 1024:.1f}MB）")
+            raise ValueError(
+                f"文档大小超出限制（最大{self.config.max_document_size / 1024 / 1024:.1f}MB）"
+            )
 
         return True
 
@@ -338,6 +359,7 @@ def validate_document_request():
 
 # =============== 缓存依赖 ===============
 
+
 class DocGateCacheManager:
     """DocGate缓存管理器"""
 
@@ -345,14 +367,16 @@ class DocGateCacheManager:
         self.cache = CacheManager()
         self.default_ttl = 3600  # 1小时
         self.report_ttl = 86400  # 24小时
-        self.config_ttl = 1800   # 30分钟
+        self.config_ttl = 1800  # 30分钟
 
     async def get_check_status(self, check_id: str) -> Optional[Dict[str, Any]]:
         """获取检查状态缓存"""
         key = f"docgate:check_status:{check_id}"
         return await self.cache.get(key)
 
-    async def set_check_status(self, check_id: str, status: Dict[str, Any], ttl: Optional[int] = None) -> None:
+    async def set_check_status(
+        self, check_id: str, status: Dict[str, Any], ttl: Optional[int] = None
+    ) -> None:
         """设置检查状态缓存"""
         key = f"docgate:check_status:{check_id}"
         await self.cache.set(key, status, ttl or self.default_ttl)
@@ -399,6 +423,7 @@ async def get_docgate_cache() -> DocGateCacheManager:
 
 # =============== 请求追踪依赖 ===============
 
+
 async def get_request_context(
     request: Request,
     client_info: Dict[str, Any] = Depends(get_client_info),
@@ -409,6 +434,7 @@ async def get_request_context(
     request_id = client_info.get("request_id")
     if not request_id:
         import uuid
+
         request_id = str(uuid.uuid4())
 
     return {
@@ -424,6 +450,7 @@ async def get_request_context(
 
 # =============== 服务质量依赖 ===============
 
+
 class ServiceQualityMonitor:
     """服务质量监控"""
 
@@ -436,7 +463,9 @@ class ServiceQualityMonitor:
             "last_error": None,
         }
 
-    async def record_request(self, success: bool, response_time: float, error: Optional[str] = None):
+    async def record_request(
+        self, success: bool, response_time: float, error: Optional[str] = None
+    ):
         """记录请求指标"""
         self.metrics["total_requests"] += 1
 
@@ -447,15 +476,21 @@ class ServiceQualityMonitor:
             self.metrics["last_error"] = error
 
         # 更新平均响应时间
-        total_time = self.metrics["avg_response_time"] * (self.metrics["total_requests"] - 1)
-        self.metrics["avg_response_time"] = (total_time + response_time) / self.metrics["total_requests"]
+        total_time = self.metrics["avg_response_time"] * (
+            self.metrics["total_requests"] - 1
+        )
+        self.metrics["avg_response_time"] = (total_time + response_time) / self.metrics[
+            "total_requests"
+        ]
 
     def get_success_rate(self) -> float:
         """获取成功率"""
         if self.metrics["total_requests"] == 0:
             return 0.0
 
-        return self.metrics["successful_requests"] / self.metrics["total_requests"] * 100
+        return (
+            self.metrics["successful_requests"] / self.metrics["total_requests"] * 100
+        )
 
     def get_metrics(self) -> Dict[str, Any]:
         """获取所有指标"""
@@ -475,6 +510,7 @@ async def get_service_monitor() -> ServiceQualityMonitor:
 
 # =============== 异步任务依赖 ===============
 
+
 class TaskManager:
     """异步任务管理器"""
 
@@ -492,7 +528,7 @@ class TaskManager:
                     "code": "DOC_SER_004",
                     "type": "SERVICE_UNAVAILABLE",
                     "message": "系统繁忙，请稍后重试",
-                }
+                },
             )
 
         # 创建任务
@@ -564,6 +600,7 @@ async def get_task_manager() -> TaskManager:
 
 
 # =============== 组合依赖 ===============
+
 
 class DocGateDependencies:
     """DocGate依赖集合"""

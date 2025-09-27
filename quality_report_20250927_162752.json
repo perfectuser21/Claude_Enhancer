@@ -1,0 +1,991 @@
+{
+  "timestamp": "2025-09-27T16:27:52.981707",
+  "project_path": "/home/xx/dev/Claude Enhancer 5.0",
+  "total_files": 2,
+  "score": {
+    "readability": 25,
+    "security": 0,
+    "performance": 16,
+    "maintainability": 25
+  },
+  "issues": [
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/config/hyper_config_validator.py",
+      "line_number": 27,
+      "severity": "major",
+      "category": "security",
+      "message": "Bandit: Probable insecure usage of temp file/directory.",
+      "rule_id": "B108",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/config/hyper_config_validator.py",
+      "line_number": 28,
+      "severity": "major",
+      "category": "security",
+      "message": "Bandit: Probable insecure usage of temp file/directory.",
+      "rule_id": "B108",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/config/hyper_config_validator.py",
+      "line_number": 51,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Try, Except, Pass detected.",
+      "rule_id": "B110",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/config/hyper_config_validator.py",
+      "line_number": 96,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Try, Except, Pass detected.",
+      "rule_id": "B110",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/config/migration_tool.py",
+      "line_number": 192,
+      "severity": "major",
+      "category": "security",
+      "message": "Bandit: Probable insecure usage of temp file/directory.",
+      "rule_id": "B108",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/config/migration_tool.py",
+      "line_number": 327,
+      "severity": "major",
+      "category": "security",
+      "message": "Bandit: Probable insecure usage of temp file/directory.",
+      "rule_id": "B108",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/core/git_automation.py",
+      "line_number": 7,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Consider possible security implications associated with the subprocess module.",
+      "rule_id": "B404",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/core/git_automation.py",
+      "line_number": 35,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: subprocess call - check for execution of untrusted input.",
+      "rule_id": "B603",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/core/git_automation.py",
+      "line_number": 77,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "rule_id": "B311",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/core/git_automation.py",
+      "line_number": 250,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Starting a process with a partial executable path",
+      "rule_id": "B607",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/core/git_automation.py",
+      "line_number": 250,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: subprocess call - check for execution of untrusted input.",
+      "rule_id": "B603",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/core/lazy_engine.py",
+      "line_number": 132,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Try, Except, Pass detected.",
+      "rule_id": "B110",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/core/lazy_engine.py",
+      "line_number": 467,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Try, Except, Pass detected.",
+      "rule_id": "B110",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/core/lazy_orchestrator.py",
+      "line_number": 927,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "rule_id": "B311",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/core/optimized_lazy_orchestrator.py",
+      "line_number": 30,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Consider possible security implications associated with pickle module.",
+      "rule_id": "B403",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/core/optimized_lazy_orchestrator.py",
+      "line_number": 101,
+      "severity": "critical",
+      "category": "security",
+      "message": "Bandit: Use of weak MD5 hash for security. Consider usedforsecurity=False",
+      "rule_id": "B324",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/core/optimized_lazy_orchestrator.py",
+      "line_number": 129,
+      "severity": "major",
+      "category": "security",
+      "message": "Bandit: Probable insecure usage of temp file/directory.",
+      "rule_id": "B108",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/core/optimized_lazy_orchestrator.py",
+      "line_number": 156,
+      "severity": "major",
+      "category": "security",
+      "message": "Bandit: Pickle and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue.",
+      "rule_id": "B301",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/core/optimized_lazy_orchestrator.py",
+      "line_number": 204,
+      "severity": "major",
+      "category": "security",
+      "message": "Bandit: Pickle and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue.",
+      "rule_id": "B301",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/core/optimized_lazy_orchestrator.py",
+      "line_number": 789,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Try, Except, Pass detected.",
+      "rule_id": "B110",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/core/performance_optimizer.py",
+      "line_number": 10,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Consider possible security implications associated with the subprocess module.",
+      "rule_id": "B404",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/core/performance_optimizer.py",
+      "line_number": 337,
+      "severity": "major",
+      "category": "security",
+      "message": "Bandit: Probable insecure usage of temp file/directory.",
+      "rule_id": "B108",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/core/performance_optimizer.py",
+      "line_number": 359,
+      "severity": "major",
+      "category": "security",
+      "message": "Bandit: Probable insecure usage of temp file/directory.",
+      "rule_id": "B108",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/core/performance_optimizer.py",
+      "line_number": 388,
+      "severity": "major",
+      "category": "security",
+      "message": "Bandit: Probable insecure usage of temp file/directory.",
+      "rule_id": "B108",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/core/performance_optimizer.py",
+      "line_number": 388,
+      "severity": "major",
+      "category": "security",
+      "message": "Bandit: Probable insecure usage of temp file/directory.",
+      "rule_id": "B108",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/core/performance_optimizer.py",
+      "line_number": 402,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Try, Except, Pass detected.",
+      "rule_id": "B110",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/core/performance_optimizer.py",
+      "line_number": 498,
+      "severity": "major",
+      "category": "security",
+      "message": "Bandit: Probable insecure usage of temp file/directory.",
+      "rule_id": "B108",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/core/performance_optimizer.py",
+      "line_number": 521,
+      "severity": "major",
+      "category": "security",
+      "message": "Bandit: Probable insecure usage of temp file/directory.",
+      "rule_id": "B108",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/core/performance_optimizer.py",
+      "line_number": 521,
+      "severity": "major",
+      "category": "security",
+      "message": "Bandit: Probable insecure usage of temp file/directory.",
+      "rule_id": "B108",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/core/performance_optimizer.py",
+      "line_number": 534,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Try, Except, Pass detected.",
+      "rule_id": "B110",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/core/phase_state_machine.py",
+      "line_number": 13,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Consider possible security implications associated with the subprocess module.",
+      "rule_id": "B404",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/core/phase_state_machine.py",
+      "line_number": 80,
+      "severity": "major",
+      "category": "security",
+      "message": "Bandit: Probable insecure usage of temp file/directory.",
+      "rule_id": "B108",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/core/phase_state_machine.py",
+      "line_number": 385,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Starting a process with a partial executable path",
+      "rule_id": "B607",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/core/phase_state_machine.py",
+      "line_number": 385,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: subprocess call - check for execution of untrusted input.",
+      "rule_id": "B603",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/core/phase_state_machine.py",
+      "line_number": 393,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Starting a process with a partial executable path",
+      "rule_id": "B607",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/core/phase_state_machine.py",
+      "line_number": 393,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: subprocess call - check for execution of untrusted input.",
+      "rule_id": "B603",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/core/phase_state_machine.py",
+      "line_number": 402,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Starting a process with a partial executable path",
+      "rule_id": "B607",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/core/phase_state_machine.py",
+      "line_number": 402,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: subprocess call - check for execution of untrusted input.",
+      "rule_id": "B603",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/core/phase_state_machine.py",
+      "line_number": 418,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Try, Except, Pass detected.",
+      "rule_id": "B110",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/hooks/high_performance_hook_engine.py",
+      "line_number": 18,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Consider possible security implications associated with the subprocess module.",
+      "rule_id": "B404",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/hooks/high_performance_hook_engine.py",
+      "line_number": 35,
+      "severity": "major",
+      "category": "security",
+      "message": "Bandit: Probable insecure usage of temp file/directory.",
+      "rule_id": "B108",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/hooks/high_performance_hook_engine.py",
+      "line_number": 121,
+      "severity": "critical",
+      "category": "security",
+      "message": "Bandit: Use of weak MD5 hash for security. Consider usedforsecurity=False",
+      "rule_id": "B324",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/hooks/high_performance_hook_engine.py",
+      "line_number": 301,
+      "severity": "critical",
+      "category": "security",
+      "message": "Bandit: subprocess call with shell=True identified, security issue.",
+      "rule_id": "B602",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/hooks/high_performance_hook_engine.py",
+      "line_number": 368,
+      "severity": "critical",
+      "category": "security",
+      "message": "Bandit: subprocess call with shell=True identified, security issue.",
+      "rule_id": "B602",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/hooks/simple_hook_engine.py",
+      "line_number": 17,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Consider possible security implications associated with the subprocess module.",
+      "rule_id": "B404",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/hooks/simple_hook_engine.py",
+      "line_number": 25,
+      "severity": "major",
+      "category": "security",
+      "message": "Bandit: Probable insecure usage of temp file/directory.",
+      "rule_id": "B108",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/hooks/simple_hook_engine.py",
+      "line_number": 32,
+      "severity": "critical",
+      "category": "security",
+      "message": "Bandit: Use of weak MD5 hash for security. Consider usedforsecurity=False",
+      "rule_id": "B324",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/hooks/simple_hook_engine.py",
+      "line_number": 61,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Try, Except, Pass detected.",
+      "rule_id": "B110",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/hooks/simple_hook_engine.py",
+      "line_number": 101,
+      "severity": "critical",
+      "category": "security",
+      "message": "Bandit: subprocess call with shell=True identified, security issue.",
+      "rule_id": "B602",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/memory_optimizer.py",
+      "line_number": 25,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Consider possible security implications associated with pickle module.",
+      "rule_id": "B403",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/performance_validation_suite.py",
+      "line_number": 11,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Consider possible security implications associated with the subprocess module.",
+      "rule_id": "B404",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/performance_validation_suite.py",
+      "line_number": 90,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Starting a process with a partial executable path",
+      "rule_id": "B607",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/performance_validation_suite.py",
+      "line_number": 90,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: subprocess call - check for execution of untrusted input.",
+      "rule_id": "B603",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/performance_validation_suite.py",
+      "line_number": 169,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Try, Except, Pass detected.",
+      "rule_id": "B110",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/performance_validation_suite.py",
+      "line_number": 224,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Standard pseudo-random generators are not suitable for security/cryptographic purposes.",
+      "rule_id": "B311",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/performance_validation_suite.py",
+      "line_number": 230,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Starting a process with a partial executable path",
+      "rule_id": "B607",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/performance_validation_suite.py",
+      "line_number": 230,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: subprocess call - check for execution of untrusted input.",
+      "rule_id": "B603",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/performance_validation_suite.py",
+      "line_number": 264,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Starting a process with a partial executable path",
+      "rule_id": "B607",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/performance_validation_suite.py",
+      "line_number": 264,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: subprocess call - check for execution of untrusted input.",
+      "rule_id": "B603",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/performance_validation_suite.py",
+      "line_number": 265,
+      "severity": "major",
+      "category": "security",
+      "message": "Bandit: Probable insecure usage of temp file/directory.",
+      "rule_id": "B108",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/performance_validation_suite.py",
+      "line_number": 358,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Try, Except, Pass detected.",
+      "rule_id": "B110",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/performance_validation_suite.py",
+      "line_number": 518,
+      "severity": "major",
+      "category": "security",
+      "message": "Bandit: Probable insecure usage of temp file/directory.",
+      "rule_id": "B108",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/quality_checker.py",
+      "line_number": 24,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Consider possible security implications associated with the subprocess module.",
+      "rule_id": "B404",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/quality_checker.py",
+      "line_number": 104,
+      "severity": "major",
+      "category": "security",
+      "message": "Bandit: Probable insecure usage of temp file/directory.",
+      "rule_id": "B108",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/quality_checker.py",
+      "line_number": 131,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Starting a process with a partial executable path",
+      "rule_id": "B607",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/quality_checker.py",
+      "line_number": 131,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: subprocess call - check for execution of untrusted input.",
+      "rule_id": "B603",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/quality_checker.py",
+      "line_number": 613,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Starting a process with a partial executable path",
+      "rule_id": "B607",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/quality_checker.py",
+      "line_number": 613,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: subprocess call - check for execution of untrusted input.",
+      "rule_id": "B603",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/quality_checker.py",
+      "line_number": 660,
+      "severity": "critical",
+      "category": "security",
+      "message": "Bandit: Use of weak MD5 hash for security. Consider usedforsecurity=False",
+      "rule_id": "B324",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/quality_checker.py",
+      "line_number": 734,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Starting a process with a partial executable path",
+      "rule_id": "B607",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/quality_checker.py",
+      "line_number": 734,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: subprocess call - check for execution of untrusted input.",
+      "rule_id": "B603",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/quality_checker.py",
+      "line_number": 761,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Starting a process with a partial executable path",
+      "rule_id": "B607",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/quality_checker.py",
+      "line_number": 761,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: subprocess call - check for execution of untrusted input.",
+      "rule_id": "B603",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/quality_checker.py",
+      "line_number": 786,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Starting a process with a partial executable path",
+      "rule_id": "B607",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/quality_checker.py",
+      "line_number": 786,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: subprocess call - check for execution of untrusted input.",
+      "rule_id": "B603",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/quality_checker.py",
+      "line_number": 820,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Starting a process with a partial executable path",
+      "rule_id": "B607",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/quality_checker.py",
+      "line_number": 820,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: subprocess call - check for execution of untrusted input.",
+      "rule_id": "B603",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/quality_checker.py",
+      "line_number": 855,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Starting a process with a partial executable path",
+      "rule_id": "B607",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/quality_checker.py",
+      "line_number": 855,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: subprocess call - check for execution of untrusted input.",
+      "rule_id": "B603",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/realtime_performance_dashboard.py",
+      "line_number": 16,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Consider possible security implications associated with the subprocess module.",
+      "rule_id": "B404",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/realtime_performance_dashboard.py",
+      "line_number": 44,
+      "severity": "major",
+      "category": "security",
+      "message": "Bandit: Probable insecure usage of temp file/directory.",
+      "rule_id": "B108",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/realtime_performance_dashboard.py",
+      "line_number": 381,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Try, Except, Continue detected.",
+      "rule_id": "B112",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/smart_document_loader.py",
+      "line_number": 508,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Try, Except, Pass detected.",
+      "rule_id": "B110",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/test_smart_loading.py",
+      "line_number": 29,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+      "rule_id": "B101",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/test_smart_loading.py",
+      "line_number": 37,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+      "rule_id": "B101",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/test_smart_loading.py",
+      "line_number": 76,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+      "rule_id": "B101",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/test_smart_loading.py",
+      "line_number": 81,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+      "rule_id": "B101",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/test_smart_loading.py",
+      "line_number": 87,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+      "rule_id": "B101",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/test_smart_loading.py",
+      "line_number": 92,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+      "rule_id": "B101",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/test_smart_loading.py",
+      "line_number": 97,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+      "rule_id": "B101",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/test_smart_loading.py",
+      "line_number": 157,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+      "rule_id": "B101",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/test_smart_loading.py",
+      "line_number": 166,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+      "rule_id": "B101",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/test_smart_loading.py",
+      "line_number": 172,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+      "rule_id": "B101",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/test_smart_loading.py",
+      "line_number": 177,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+      "rule_id": "B101",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/test_smart_loading.py",
+      "line_number": 185,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+      "rule_id": "B101",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/test_smart_loading.py",
+      "line_number": 197,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+      "rule_id": "B101",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/test_smart_loading.py",
+      "line_number": 221,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+      "rule_id": "B101",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/test_smart_loading.py",
+      "line_number": 225,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+      "rule_id": "B101",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/test_smart_loading.py",
+      "line_number": 247,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+      "rule_id": "B101",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/test_smart_loading.py",
+      "line_number": 259,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+      "rule_id": "B101",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/test_smart_loading.py",
+      "line_number": 283,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+      "rule_id": "B101",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/test_smart_loading.py",
+      "line_number": 287,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+      "rule_id": "B101",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/scripts/test_smart_loading.py",
+      "line_number": 288,
+      "severity": "minor",
+      "category": "security",
+      "message": "Bandit: Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.",
+      "rule_id": "B101",
+      "suggestion": "修复安全问题"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/hooks/quality_gate.sh",
+      "line_number": 51,
+      "severity": "major",
+      "category": "security",
+      "message": "检测到潜在的命令注入风险",
+      "rule_id": "S101",
+      "suggestion": "避免动态命令执行，使用安全的替代方案"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/core/orchestrator.py",
+      "line_number": 372,
+      "severity": "minor",
+      "category": "performance",
+      "message": "检测到低效的字符串拼接",
+      "rule_id": "P001",
+      "suggestion": "考虑使用join()或f-string"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/core/orchestrator.py",
+      "line_number": 196,
+      "severity": "minor",
+      "category": "performance",
+      "message": "循环中重复计算len()",
+      "rule_id": "P002",
+      "suggestion": "将len()计算移到循环外"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/core/orchestrator.py",
+      "line_number": 306,
+      "severity": "minor",
+      "category": "performance",
+      "message": "循环中重复计算len()",
+      "rule_id": "P002",
+      "suggestion": "将len()计算移到循环外"
+    },
+    {
+      "file_path": "/home/xx/dev/Claude Enhancer 5.0/.claude/core/orchestrator.py",
+      "line_number": 319,
+      "severity": "minor",
+      "category": "performance",
+      "message": "循环中重复计算len()",
+      "rule_id": "P002",
+      "suggestion": "将len()计算移到循环外"
+    }
+  ],
+  "recommendations": [
+    "🚨 高优先级：修复 7 个严重安全问题",
+    "⚠️ 中优先级：解决 22 个重要质量问题",
+    "🔒 加强安全性：修复安全漏洞，添加输入验证"
+  ],
+  "execution_time": 4.8946990966796875
+}

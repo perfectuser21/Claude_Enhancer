@@ -29,13 +29,11 @@ __all__ = [
     # 路由
     "docgate_router",
     "register_exception_handlers",
-
     # 请求模型
     "QualityCheckRequest",
     "BatchQualityCheckRequest",
     "ConfigCreateRequest",
     "WebhookCreateRequest",
-
     # 响应模型
     "QualityCheckResponse",
     "QualityReport",
@@ -43,7 +41,6 @@ __all__ = [
     "WebhookResponse",
     "SystemHealth",
     "UsageStats",
-
     # 枚举
     "DocumentSourceType",
     "CheckStatus",
@@ -51,7 +48,6 @@ __all__ = [
     "QualityProfile",
     "Priority",
     "WebhookEvent",
-
     # 依赖
     "get_docgate_dependencies",
     "require_docgate_read",
@@ -59,7 +55,6 @@ __all__ = [
     "require_docgate_config",
     "require_docgate_admin",
     "require_docgate_webhook",
-
     # 异常
     "DocGateException",
     "ValidationError",
@@ -124,11 +119,7 @@ def setup_docgate_api(main_app: "FastAPI"):
     """在主应用中设置DocGate API"""
 
     # 包含DocGate路由
-    main_app.include_router(
-        docgate_router,
-        prefix="/api",
-        tags=["DocGate质量管理"]
-    )
+    main_app.include_router(docgate_router, prefix="/api", tags=["DocGate质量管理"])
 
     # 注册异常处理器
     register_exception_handlers(main_app)

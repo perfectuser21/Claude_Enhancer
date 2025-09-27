@@ -3,7 +3,15 @@ DocGate Agent API路由实现
 提供完整的文档质量管理API端点
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, status, BackgroundTasks
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Query,
+    Request,
+    status,
+    BackgroundTasks,
+)
 from fastapi.responses import FileResponse, StreamingResponse
 from typing import Dict, Any, List, Optional, Union
 import logging
@@ -46,21 +54,28 @@ from backend.api.auth.dependencies import (
 from backend.core.models import User
 from backend.core.monitoring import monitor_endpoint, SecurityEvent
 
+
 # DocGate服务（假设存在这些服务类）
 # 在实际实现中需要创建这些服务类
 class DocGateService:
     """文档质量检查服务"""
 
-    async def submit_check(self, user_id: str, request: QualityCheckRequest) -> QualityCheckResponse:
+    async def submit_check(
+        self, user_id: str, request: QualityCheckRequest
+    ) -> QualityCheckResponse:
         """提交质量检查任务"""
         # 实现质量检查逻辑
         pass
 
-    async def submit_batch_check(self, user_id: str, request: BatchQualityCheckRequest) -> BatchQualityCheckResponse:
+    async def submit_batch_check(
+        self, user_id: str, request: BatchQualityCheckRequest
+    ) -> BatchQualityCheckResponse:
         """提交批量质量检查任务"""
         pass
 
-    async def get_check_status(self, check_id: str, user_id: str) -> QualityCheckResponse:
+    async def get_check_status(
+        self, check_id: str, user_id: str
+    ) -> QualityCheckResponse:
         """获取检查状态"""
         pass
 
@@ -80,11 +95,15 @@ class ConfigService:
         """获取配置列表"""
         pass
 
-    async def create_config(self, user_id: str, request: ConfigCreateRequest) -> ConfigResponse:
+    async def create_config(
+        self, user_id: str, request: ConfigCreateRequest
+    ) -> ConfigResponse:
         """创建配置"""
         pass
 
-    async def update_config(self, config_id: str, user_id: str, request: ConfigCreateRequest) -> ConfigResponse:
+    async def update_config(
+        self, config_id: str, user_id: str, request: ConfigCreateRequest
+    ) -> ConfigResponse:
         """更新配置"""
         pass
 
@@ -96,7 +115,9 @@ class ConfigService:
 class WebhookService:
     """Webhook管理服务"""
 
-    async def create_webhook(self, user_id: str, request: WebhookCreateRequest) -> WebhookResponse:
+    async def create_webhook(
+        self, user_id: str, request: WebhookCreateRequest
+    ) -> WebhookResponse:
         """创建Webhook"""
         pass
 
@@ -114,13 +135,16 @@ async def get_docgate_service() -> DocGateService:
     """获取DocGate服务实例"""
     return DocGateService()
 
+
 async def get_config_service() -> ConfigService:
     """获取配置服务实例"""
     return ConfigService()
 
+
 async def get_webhook_service() -> WebhookService:
     """获取Webhook服务实例"""
     return WebhookService()
+
 
 # 创建路由器
 router = APIRouter(prefix="/v1/docgate", tags=["DocGate质量管理"])
@@ -128,6 +152,7 @@ logger = logging.getLogger(__name__)
 
 
 # =============== 质量检查接口 ===============
+
 
 @router.post(
     "/checks",
@@ -193,8 +218,7 @@ async def submit_quality_check(
 
         # 提交检查任务
         result = await docgate_service.submit_check(
-            user_id=str(current_user.id),
-            request=request
+            user_id=str(current_user.id), request=request
         )
 
         logger.info(f"质量检查任务已提交: {result.check_id}")
@@ -203,7 +227,7 @@ async def submit_quality_check(
             success=True,
             data=result,
             message="文档质量检查任务已提交",
-            request_id=client_info.get("request_id")
+            request_id=client_info.get("request_id"),
         )
 
     except ValueError as e:
@@ -214,7 +238,7 @@ async def submit_quality_check(
                 "code": "DOC_VAL_001",
                 "type": "VALIDATION_ERROR",
                 "message": str(e),
-            }
+            },
         )
     except Exception as e:
         logger.error(f"质量检查提交异常: {e}", exc_info=True)
@@ -224,7 +248,7 @@ async def submit_quality_check(
                 "code": "DOC_SER_002",
                 "type": "SERVICE_ERROR",
                 "message": "质量检查服务暂时不可用",
-            }
+            },
         )
 
 
@@ -268,8 +292,7 @@ async def submit_batch_quality_check(
 
         # 提交批量检查
         result = await docgate_service.submit_batch_check(
-            user_id=str(current_user.id),
-            request=request
+            user_id=str(current_user.id), request=request
         )
 
         logger.info(f"批量质量检查任务已提交: {result.batch_id}")
@@ -278,7 +301,7 @@ async def submit_batch_quality_check(
             success=True,
             data=result,
             message=f"批量质量检查任务已提交，共{len(request.documents)}个文档",
-            request_id=client_info.get("request_id")
+            request_id=client_info.get("request_id"),
         )
 
     except ValueError as e:
@@ -288,7 +311,7 @@ async def submit_batch_quality_check(
                 "code": "DOC_VAL_004",
                 "type": "VALIDATION_ERROR",
                 "message": str(e),
-            }
+            },
         )
     except Exception as e:
         logger.error(f"批量质量检查提交异常: {e}", exc_info=True)
@@ -298,7 +321,7 @@ async def submit_batch_quality_check(
                 "code": "DOC_SER_002",
                 "type": "SERVICE_ERROR",
                 "message": "批量质量检查服务暂时不可用",
-            }
+            },
         )
 
 
@@ -333,8 +356,7 @@ async def get_check_status(
     """
     try:
         result = await docgate_service.get_check_status(
-            check_id=check_id,
-            user_id=str(current_user.id)
+            check_id=check_id, user_id=str(current_user.id)
         )
 
         if not result:
@@ -344,14 +366,10 @@ async def get_check_status(
                     "code": "DOC_NOT_002",
                     "type": "NOT_FOUND",
                     "message": "检查任务不存在",
-                }
+                },
             )
 
-        return ApiResponse(
-            success=True,
-            data=result,
-            message="检查状态获取成功"
-        )
+        return ApiResponse(success=True, data=result, message="检查状态获取成功")
 
     except HTTPException:
         raise
@@ -363,7 +381,7 @@ async def get_check_status(
                 "code": "DOC_SER_001",
                 "type": "SERVICE_ERROR",
                 "message": "获取检查状态服务暂时不可用",
-            }
+            },
         )
 
 
@@ -420,16 +438,9 @@ async def list_checks(
             "has_previous": page > 1,
         }
 
-        paginated_data = PaginatedResponse(
-            items=items,
-            pagination=pagination
-        )
+        paginated_data = PaginatedResponse(items=items, pagination=pagination)
 
-        return ApiResponse(
-            success=True,
-            data=paginated_data,
-            message="检查列表获取成功"
-        )
+        return ApiResponse(success=True, data=paginated_data, message="检查列表获取成功")
 
     except Exception as e:
         logger.error(f"获取检查列表异常: {e}", exc_info=True)
@@ -439,7 +450,7 @@ async def list_checks(
                 "code": "DOC_SER_001",
                 "type": "SERVICE_ERROR",
                 "message": "获取检查列表服务暂时不可用",
-            }
+            },
         )
 
 
@@ -474,8 +485,7 @@ async def cancel_check(
     """
     try:
         result = await docgate_service.cancel_check(
-            check_id=check_id,
-            user_id=str(current_user.id)
+            check_id=check_id, user_id=str(current_user.id)
         )
 
         if not result:
@@ -485,7 +495,7 @@ async def cancel_check(
                     "code": "DOC_CON_001",
                     "type": "CONFLICT_ERROR",
                     "message": "任务无法取消（可能已完成或不存在）",
-                }
+                },
             )
 
         # 记录安全事件
@@ -502,7 +512,7 @@ async def cancel_check(
             success=True,
             data=True,
             message="检查任务已取消",
-            request_id=client_info.get("request_id")
+            request_id=client_info.get("request_id"),
         )
 
     except HTTPException:
@@ -515,11 +525,12 @@ async def cancel_check(
                 "code": "DOC_SER_001",
                 "type": "SERVICE_ERROR",
                 "message": "取消检查任务服务暂时不可用",
-            }
+            },
         )
 
 
 # =============== 质量报告接口 ===============
+
 
 @router.get(
     "/checks/{check_id}/report",
@@ -561,8 +572,7 @@ async def get_quality_report(
     try:
         # 获取报告数据
         report = await docgate_service.get_report(
-            check_id=check_id,
-            user_id=str(current_user.id)
+            check_id=check_id, user_id=str(current_user.id)
         )
 
         if not report:
@@ -572,23 +582,21 @@ async def get_quality_report(
                     "code": "DOC_NOT_002",
                     "type": "NOT_FOUND",
                     "message": "检查任务或报告不存在",
-                }
+                },
             )
 
         # 根据格式返回不同响应
         if format.lower() == "json":
-            return ApiResponse(
-                success=True,
-                data=report,
-                message="质量报告获取成功"
-            )
+            return ApiResponse(success=True, data=report, message="质量报告获取成功")
         elif format.lower() == "html":
             # 生成HTML报告
             html_content = await generate_html_report(report)
             return StreamingResponse(
                 io.BytesIO(html_content.encode()),
                 media_type="text/html",
-                headers={"Content-Disposition": f"inline; filename=report_{check_id}.html"}
+                headers={
+                    "Content-Disposition": f"inline; filename=report_{check_id}.html"
+                },
             )
         elif format.lower() == "pdf":
             # 生成PDF报告
@@ -596,7 +604,7 @@ async def get_quality_report(
             return FileResponse(
                 pdf_path,
                 media_type="application/pdf",
-                filename=f"report_{check_id}.pdf"
+                filename=f"report_{check_id}.pdf",
             )
         else:
             raise ValueError("不支持的报告格式")
@@ -610,7 +618,7 @@ async def get_quality_report(
                 "code": "DOC_VAL_002",
                 "type": "VALIDATION_ERROR",
                 "message": str(e),
-            }
+            },
         )
     except Exception as e:
         logger.error(f"获取质量报告异常: {e}", exc_info=True)
@@ -620,7 +628,7 @@ async def get_quality_report(
                 "code": "DOC_SER_003",
                 "type": "SERVICE_ERROR",
                 "message": "报告生成服务暂时不可用",
-            }
+            },
         )
 
 
@@ -655,8 +663,7 @@ async def download_report(
     try:
         # 获取报告
         report = await docgate_service.get_report(
-            check_id=check_id,
-            user_id=str(current_user.id)
+            check_id=check_id, user_id=str(current_user.id)
         )
 
         if not report:
@@ -666,7 +673,7 @@ async def download_report(
                     "code": "DOC_NOT_002",
                     "type": "NOT_FOUND",
                     "message": "检查任务或报告不存在",
-                }
+                },
             )
 
         # 生成文件
@@ -691,7 +698,7 @@ async def download_report(
             file_path,
             media_type=media_type,
             filename=filename,
-            headers={"Content-Disposition": f"attachment; filename={filename}"}
+            headers={"Content-Disposition": f"attachment; filename={filename}"},
         )
 
     except HTTPException:
@@ -703,7 +710,7 @@ async def download_report(
                 "code": "DOC_VAL_002",
                 "type": "VALIDATION_ERROR",
                 "message": str(e),
-            }
+            },
         )
     except Exception as e:
         logger.error(f"下载报告异常: {e}", exc_info=True)
@@ -713,11 +720,12 @@ async def download_report(
                 "code": "DOC_SER_003",
                 "type": "SERVICE_ERROR",
                 "message": "报告下载服务暂时不可用",
-            }
+            },
         )
 
 
 # =============== 配置管理接口 ===============
+
 
 @router.get(
     "/configs",
@@ -753,11 +761,7 @@ async def list_configs(
     try:
         configs = await config_service.get_configs(str(current_user.id))
 
-        return ApiResponse(
-            success=True,
-            data=configs,
-            message="配置列表获取成功"
-        )
+        return ApiResponse(success=True, data=configs, message="配置列表获取成功")
 
     except Exception as e:
         logger.error(f"获取配置列表异常: {e}", exc_info=True)
@@ -767,7 +771,7 @@ async def list_configs(
                 "code": "DOC_SER_001",
                 "type": "SERVICE_ERROR",
                 "message": "获取配置列表服务暂时不可用",
-            }
+            },
         )
 
 
@@ -806,8 +810,7 @@ async def create_config(
     """
     try:
         result = await config_service.create_config(
-            user_id=str(current_user.id),
-            request=request
+            user_id=str(current_user.id), request=request
         )
 
         # 记录安全事件
@@ -827,7 +830,7 @@ async def create_config(
             success=True,
             data=result,
             message="配置创建成功",
-            request_id=client_info.get("request_id")
+            request_id=client_info.get("request_id"),
         )
 
     except ValueError as e:
@@ -837,7 +840,7 @@ async def create_config(
                 "code": "DOC_VAL_002",
                 "type": "VALIDATION_ERROR",
                 "message": str(e),
-            }
+            },
         )
     except Exception as e:
         logger.error(f"创建配置异常: {e}", exc_info=True)
@@ -847,11 +850,12 @@ async def create_config(
                 "code": "DOC_SER_001",
                 "type": "SERVICE_ERROR",
                 "message": "创建配置服务暂时不可用",
-            }
+            },
         )
 
 
 # =============== Webhook管理接口 ===============
+
 
 @router.post(
     "/webhooks",
@@ -891,8 +895,7 @@ async def create_webhook(
     """
     try:
         result = await webhook_service.create_webhook(
-            user_id=str(current_user.id),
-            request=request
+            user_id=str(current_user.id), request=request
         )
 
         # 记录安全事件
@@ -913,7 +916,7 @@ async def create_webhook(
             success=True,
             data=result,
             message="Webhook配置创建成功",
-            request_id=client_info.get("request_id")
+            request_id=client_info.get("request_id"),
         )
 
     except ValueError as e:
@@ -923,7 +926,7 @@ async def create_webhook(
                 "code": "DOC_VAL_002",
                 "type": "VALIDATION_ERROR",
                 "message": str(e),
-            }
+            },
         )
     except Exception as e:
         logger.error(f"创建Webhook异常: {e}", exc_info=True)
@@ -933,7 +936,7 @@ async def create_webhook(
                 "code": "DOC_SER_001",
                 "type": "SERVICE_ERROR",
                 "message": "创建Webhook服务暂时不可用",
-            }
+            },
         )
 
 
@@ -961,11 +964,7 @@ async def list_webhooks(
     try:
         webhooks = await webhook_service.get_webhooks(str(current_user.id))
 
-        return ApiResponse(
-            success=True,
-            data=webhooks,
-            message="Webhook列表获取成功"
-        )
+        return ApiResponse(success=True, data=webhooks, message="Webhook列表获取成功")
 
     except Exception as e:
         logger.error(f"获取Webhook列表异常: {e}", exc_info=True)
@@ -975,7 +974,7 @@ async def list_webhooks(
                 "code": "DOC_SER_001",
                 "type": "SERVICE_ERROR",
                 "message": "获取Webhook列表服务暂时不可用",
-            }
+            },
         )
 
 
@@ -1010,8 +1009,7 @@ async def test_webhook(
     """
     try:
         result = await webhook_service.test_webhook(
-            webhook_id=webhook_id,
-            user_id=str(current_user.id)
+            webhook_id=webhook_id, user_id=str(current_user.id)
         )
 
         # 记录测试事件
@@ -1032,7 +1030,7 @@ async def test_webhook(
             success=True,
             data=result,
             message=message,
-            request_id=client_info.get("request_id")
+            request_id=client_info.get("request_id"),
         )
 
     except Exception as e:
@@ -1043,11 +1041,12 @@ async def test_webhook(
                 "code": "DOC_SER_001",
                 "type": "SERVICE_ERROR",
                 "message": "测试Webhook服务暂时不可用",
-            }
+            },
         )
 
 
 # =============== 系统管理接口 ===============
+
 
 @router.get(
     "/health",
@@ -1098,11 +1097,7 @@ async def get_system_health(
             timestamp=datetime.utcnow(),
         )
 
-        return ApiResponse(
-            success=True,
-            data=health_data,
-            message="系统状态获取成功"
-        )
+        return ApiResponse(success=True, data=health_data, message="系统状态获取成功")
 
     except Exception as e:
         logger.error(f"获取系统状态异常: {e}", exc_info=True)
@@ -1112,7 +1107,7 @@ async def get_system_health(
                 "code": "DOC_SER_001",
                 "type": "SERVICE_ERROR",
                 "message": "获取系统状态服务暂时不可用",
-            }
+            },
         )
 
 
@@ -1188,11 +1183,7 @@ async def get_usage_stats(
             },
         )
 
-        return ApiResponse(
-            success=True,
-            data=stats_data,
-            message="使用统计获取成功"
-        )
+        return ApiResponse(success=True, data=stats_data, message="使用统计获取成功")
 
     except ValueError as e:
         raise HTTPException(
@@ -1201,7 +1192,7 @@ async def get_usage_stats(
                 "code": "DOC_VAL_002",
                 "type": "VALIDATION_ERROR",
                 "message": str(e),
-            }
+            },
         )
     except Exception as e:
         logger.error(f"获取使用统计异常: {e}", exc_info=True)
@@ -1211,11 +1202,12 @@ async def get_usage_stats(
                 "code": "DOC_SER_001",
                 "type": "SERVICE_ERROR",
                 "message": "获取使用统计服务暂时不可用",
-            }
+            },
         )
 
 
 # =============== 辅助函数 ===============
+
 
 async def generate_html_report(report: QualityReport) -> str:
     """生成HTML格式报告"""
@@ -1228,6 +1220,7 @@ async def generate_pdf_report(report: QualityReport) -> str:
     # 实际实现中应该使用PDF生成库
     # 返回临时文件路径
     import tempfile
+
     temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
     temp_file.close()
     return temp_file.name
@@ -1236,7 +1229,8 @@ async def generate_pdf_report(report: QualityReport) -> str:
 async def generate_html_report_file(report: QualityReport) -> str:
     """生成HTML报告文件"""
     import tempfile
-    temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".html", mode='w')
+
+    temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".html", mode="w")
     html_content = await generate_html_report(report)
     temp_file.write(html_content)
     temp_file.close()
@@ -1247,7 +1241,8 @@ async def generate_json_report_file(report: QualityReport) -> str:
     """生成JSON报告文件"""
     import tempfile
     import json
-    temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".json", mode='w')
+
+    temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".json", mode="w")
     json.dump(report.dict(), temp_file, indent=2, default=str)
     temp_file.close()
     return temp_file.name

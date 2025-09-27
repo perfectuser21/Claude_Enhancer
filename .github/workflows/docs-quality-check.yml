@@ -1,0 +1,588 @@
+name: 📋 Documentation Quality Check
+
+on:
+  push:
+    branches: [ main, develop, 'feature/**', 'docs/**' ]
+    paths:
+      - '**/*.md'
+      - '**/*.mdx'
+      - '.github/workflows/docs-quality-check.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - '**/*.md'
+      - '**/*.mdx'
+      - '.github/workflows/docs-quality-check.yml'
+
+# 确保只有一个workflow实例运行
+concurrency:
+  group: docs-quality-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '18'
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  docs-quality-check:
+    name: 🔍 Deep Documentation Quality Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 5  # 严格控制在5分钟内完成
+
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+
+    steps:
+      # ===== 环境准备 (15s) =====
+      - name: 📦 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🧹 Cache Setup
+        uses: actions/cache@v3
+        id: cache
+        with:
+          path: |
+            ~/.npm
+            ~/.cache/pip
+            node_modules
+            .markdownlint-cache
+          key: docs-quality-${{ runner.os }}-${{ hashFiles('**/package*.json', 'requirements.txt') }}
+          restore-keys: |
+            docs-quality-${{ runner.os }}-
+
+      # ===== 并行安装工具 (30s) =====
+      - name: 🚀 Setup Node.js & Python
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: ⚡ Install Tools (Parallel)
+        run: |
+          # 并行安装所有必需工具
+          {
+            npm install -g markdownlint-cli2 markdown-link-check write-good alex &
+            pip install --quiet proselint textstat markdown-link-validator &
+            wait
+          }
+
+          # 验证安装
+          echo "✅ Tools installed successfully:"
+          markdownlint-cli2 --version
+          echo "markdown-link-check: $(markdown-link-check --version 2>/dev/null || echo 'installed')"
+          echo "write-good: $(write-good --version 2>/dev/null || echo 'installed')"
+          echo "alex: $(alex --version 2>/dev/null || echo 'installed')"
+          proselint --version
+          python -c "import textstat; print(f'textstat: {textstat.__version__}')"
+
+      # ===== 文档发现与分析 (10s) =====
+      - name: 🔍 Discover Documentation Files
+        id: discover
+        run: |
+          echo "🔍 Discovering documentation files..."
+
+          # 查找所有文档文件（排除node_modules）
+          find . -type f \( -name "*.md" -o -name "*.mdx" \) \
+            ! -path "./node_modules/*" \
+            ! -path "./.git/*" \
+            ! -path "./build/*" \
+            ! -path "./dist/*" > docs_files.txt
+
+          # 统计信息
+          TOTAL_FILES=$(wc -l < docs_files.txt)
+          TOTAL_SIZE=$(cat docs_files.txt | xargs du -b 2>/dev/null | awk '{sum += $1} END {print sum}' || echo "0")
+
+          echo "📊 Documentation Statistics:"
+          echo "- Total files: $TOTAL_FILES"
+          echo "- Total size: $(echo $TOTAL_SIZE | awk '{print int($1/1024)"KB"}')"
+
+          # 分类文件
+          grep -E "(README|readme)" docs_files.txt > readme_files.txt || touch readme_files.txt
+          grep -E "(CHANGELOG|changelog)" docs_files.txt > changelog_files.txt || touch changelog_files.txt
+          grep -E "docs/" docs_files.txt > docs_folder_files.txt || touch docs_folder_files.txt
+
+          # 输出变量
+          echo "total_files=$TOTAL_FILES" >> $GITHUB_OUTPUT
+          echo "total_size_kb=$(echo $TOTAL_SIZE | awk '{print int($1/1024)}')" >> $GITHUB_OUTPUT
+
+      # ===== 并行质量检查 (60s) =====
+      - name: 📝 Markdown Linting
+        id: markdown_lint
+        run: |
+          echo "🔍 Running markdown linting..."
+
+          # 创建markdownlint配置
+          cat > .markdownlint.json << 'EOF'
+          {
+            "default": true,
+            "MD001": false,
+            "MD003": { "style": "atx" },
+            "MD007": { "indent": 2 },
+            "MD013": { "line_length": 120 },
+            "MD024": { "allow_different_nesting": true },
+            "MD033": { "allowed_elements": ["details", "summary", "br", "img"] },
+            "MD041": false
+          }
+          EOF
+
+          # 运行linting并收集结果
+          if markdownlint-cli2 --config .markdownlint.json "**/*.md" "!node_modules/**" > markdown_lint.log 2>&1; then
+            echo "✅ Markdown linting passed"
+            echo "lint_status=passed" >> $GITHUB_OUTPUT
+            echo "lint_issues=0" >> $GITHUB_OUTPUT
+          else
+            ISSUES=$(wc -l < markdown_lint.log)
+            echo "⚠️ Markdown linting found $ISSUES issues"
+            echo "lint_status=failed" >> $GITHUB_OUTPUT
+            echo "lint_issues=$ISSUES" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 🔗 Link Validation
+        id: link_check
+        run: |
+          echo "🔍 Checking documentation links..."
+
+          # 创建链接检查配置
+          cat > .markdown-link-check.json << 'EOF'
+          {
+            "timeout": "5s",
+            "retryOn429": true,
+            "retryCount": 2,
+            "ignorePatterns": [
+              {
+                "pattern": "^http://localhost"
+              },
+              {
+                "pattern": "^https://localhost"
+              },
+              {
+                "pattern": "^#"
+              }
+            ],
+            "replacementPatterns": [
+              {
+                "pattern": "^/",
+                "replacement": "{{BASEURL}}/"
+              }
+            ]
+          }
+          EOF
+
+          # 并行检查链接
+          broken_links=0
+          total_links=0
+
+          while IFS= read -r file; do
+            if [[ -f "$file" ]]; then
+              echo "Checking links in: $file"
+              if ! markdown-link-check "$file" --config .markdown-link-check.json --quiet; then
+                ((broken_links++))
+              fi
+              # 统计链接数量
+              link_count=$(grep -o '\[.*\](.*)'  "$file" 2>/dev/null | wc -l || echo 0)
+              total_links=$((total_links + link_count))
+            fi
+          done < docs_files.txt
+
+          echo "🔗 Link check summary:"
+          echo "- Total links: $total_links"
+          echo "- Files with broken links: $broken_links"
+
+          echo "total_links=$total_links" >> $GITHUB_OUTPUT
+          echo "broken_links=$broken_links" >> $GITHUB_OUTPUT
+
+      - name: ✍️ Writing Quality Analysis
+        id: writing_quality
+        run: |
+          echo "✍️ Analyzing writing quality..."
+
+          # 初始化计数器
+          total_issues=0
+          readability_scores=""
+
+          # 为每个文档文件运行质量检查
+          while IFS= read -r file; do
+            if [[ -f "$file" && -s "$file" ]]; then
+              echo "Analyzing: $file"
+
+              # 可读性分析
+              if command -v python3 >/dev/null; then
+                score=$(python3 -c "
+          import textstat
+          import sys
+          try:
+              with open('$file', 'r', encoding='utf-8') as f:
+                  text = f.read()
+              # 移除markdown语法
+              import re
+              text = re.sub(r'[#*`\[\]()]', '', text)
+              text = re.sub(r'!\[.*?\]\(.*?\)', '', text)
+              if len(text.strip()) > 100:
+                  score = textstat.flesch_reading_ease(text)
+                  print(f'{score:.1f}')
+              else:
+                  print('N/A')
+          except:
+              print('N/A')
+          " 2>/dev/null)
+
+                if [[ "$score" != "N/A" ]]; then
+                  readability_scores="$readability_scores$file:$score;"
+                fi
+              fi
+
+              # 写作建议 (简化版，快速检查)
+              if command -v write-good >/dev/null; then
+                suggestions=$(write-good "$file" 2>/dev/null | wc -l || echo 0)
+                total_issues=$((total_issues + suggestions))
+              fi
+
+            fi
+          done < docs_files.txt
+
+          # 计算平均可读性
+          avg_readability="N/A"
+          if [[ -n "$readability_scores" ]]; then
+            avg_readability=$(echo "$readability_scores" | tr ';' '\n' | grep ':' | cut -d':' -f2 | awk '{sum+=$1; count++} END {if(count>0) print sum/count; else print "N/A"}')
+          fi
+
+          echo "📊 Writing quality summary:"
+          echo "- Total writing suggestions: $total_issues"
+          echo "- Average readability score: $avg_readability"
+
+          echo "writing_issues=$total_issues" >> $GITHUB_OUTPUT
+          echo "avg_readability=$avg_readability" >> $GITHUB_OUTPUT
+
+      - name: 📊 Documentation Structure Analysis
+        id: structure_analysis
+        run: |
+          echo "🏗️ Analyzing documentation structure..."
+
+          # 分析文档结构
+          readme_count=$(cat readme_files.txt | wc -l)
+          changelog_count=$(cat changelog_files.txt | wc -l)
+          docs_folder_count=$(cat docs_folder_files.txt | wc -l)
+
+          # 检查必需文档
+          has_main_readme=false
+          has_contributing=false
+          has_license=false
+
+          if [[ -f "README.md" || -f "readme.md" ]]; then
+            has_main_readme=true
+          fi
+
+          if find . -maxdepth 2 -name "CONTRIBUTING*" -o -name "contributing*" | grep -q .; then
+            has_contributing=true
+          fi
+
+          if find . -maxdepth 2 -name "LICENSE*" -o -name "license*" | grep -q .; then
+            has_license=true
+          fi
+
+          # 分析标题层次
+          heading_issues=0
+          while IFS= read -r file; do
+            if [[ -f "$file" ]]; then
+              # 检查标题层次是否正确（不跳级）
+              heading_levels=$(grep -E '^#{1,6} ' "$file" 2>/dev/null | sed 's/^#\+//' | wc -l || echo 0)
+              if [[ $heading_levels -gt 0 ]]; then
+                # 简化的标题检查
+                first_heading=$(grep -E '^#{1,6} ' "$file" 2>/dev/null | head -1 | grep -o '^#\+' | wc -c || echo 1)
+                if [[ $first_heading -gt 2 ]]; then  # 第一个标题不应该是 ### 开始
+                  ((heading_issues++))
+                fi
+              fi
+            fi
+          done < docs_files.txt
+
+          echo "📋 Structure analysis:"
+          echo "- README files: $readme_count"
+          echo "- Changelog files: $changelog_count"
+          echo "- Docs folder files: $docs_folder_count"
+          echo "- Has main README: $has_main_readme"
+          echo "- Has contributing guide: $has_contributing"
+          echo "- Has license: $has_license"
+          echo "- Heading structure issues: $heading_issues"
+
+          echo "readme_count=$readme_count" >> $GITHUB_OUTPUT
+          echo "changelog_count=$changelog_count" >> $GITHUB_OUTPUT
+          echo "docs_folder_count=$docs_folder_count" >> $GITHUB_OUTPUT
+          echo "has_main_readme=$has_main_readme" >> $GITHUB_OUTPUT
+          echo "has_contributing=$has_contributing" >> $GITHUB_OUTPUT
+          echo "has_license=$has_license" >> $GITHUB_OUTPUT
+          echo "heading_issues=$heading_issues" >> $GITHUB_OUTPUT
+
+      # ===== 生成质量报告 (20s) =====
+      - name: 📈 Generate Quality Report
+        id: generate_report
+        run: |
+          echo "📈 Generating comprehensive quality report..."
+
+          # 创建详细报告
+          cat > docs_quality_report.md << 'EOF'
+          # 📋 Documentation Quality Report
+
+          ## 📊 Overview
+
+          | Metric | Value | Status |
+          |--------|-------|--------|
+          | Total Documentation Files | ${{ steps.discover.outputs.total_files }} | 📄 |
+          | Total Size | ${{ steps.discover.outputs.total_size_kb }}KB | 💾 |
+          | Markdown Lint Issues | ${{ steps.markdown_lint.outputs.lint_issues }} | ${{ steps.markdown_lint.outputs.lint_status == 'passed' && '✅' || '⚠️' }} |
+          | Broken Links | ${{ steps.link_check.outputs.broken_links }} | ${{ steps.link_check.outputs.broken_links == '0' && '✅' || '⚠️' }} |
+          | Writing Quality Issues | ${{ steps.writing_quality.outputs.writing_issues }} | ${{ steps.writing_quality.outputs.writing_issues == '0' && '✅' || '📝' }} |
+          | Average Readability Score | ${{ steps.writing_quality.outputs.avg_readability }} | 📖 |
+
+          ## 🏗️ Documentation Structure
+
+          | Element | Count | Present |
+          |---------|-------|---------|
+          | README Files | ${{ steps.structure_analysis.outputs.readme_count }} | 📖 |
+          | Changelog Files | ${{ steps.structure_analysis.outputs.changelog_count }} | 📅 |
+          | Docs Folder Files | ${{ steps.structure_analysis.outputs.docs_folder_count }} | 📁 |
+          | Main README | - | ${{ steps.structure_analysis.outputs.has_main_readme == 'true' && '✅' || '❌' }} |
+          | Contributing Guide | - | ${{ steps.structure_analysis.outputs.has_contributing == 'true' && '✅' || '❌' }} |
+          | License File | - | ${{ steps.structure_analysis.outputs.has_license == 'true' && '✅' || '❌' }} |
+
+          ## 🎯 Quality Score
+
+          EOF
+
+          # 计算综合质量分数
+          score=100
+
+          # 扣分规则
+          if [[ "${{ steps.markdown_lint.outputs.lint_issues }}" != "0" ]]; then
+            score=$((score - 10))
+          fi
+
+          if [[ "${{ steps.link_check.outputs.broken_links }}" != "0" ]]; then
+            score=$((score - 15))
+          fi
+
+          if [[ "${{ steps.writing_quality.outputs.writing_issues }}" -gt 10 ]]; then
+            score=$((score - 10))
+          fi
+
+          if [[ "${{ steps.structure_analysis.outputs.has_main_readme }}" != "true" ]]; then
+            score=$((score - 20))
+          fi
+
+          if [[ "${{ steps.structure_analysis.outputs.heading_issues }}" -gt 0 ]]; then
+            score=$((score - 5))
+          fi
+
+          # 确保分数不低于0
+          if [[ $score -lt 0 ]]; then
+            score=0
+          fi
+
+          # 确定等级
+          if [[ $score -ge 90 ]]; then
+            grade="A+"
+            emoji="🏆"
+          elif [[ $score -ge 80 ]]; then
+            grade="A"
+            emoji="🥇"
+          elif [[ $score -ge 70 ]]; then
+            grade="B"
+            emoji="🥈"
+          elif [[ $score -ge 60 ]]; then
+            grade="C"
+            emoji="🥉"
+          else
+            grade="D"
+            emoji="❌"
+          fi
+
+          # 添加分数到报告
+          cat >> docs_quality_report.md << EOF
+
+          ### Overall Score: ${score}/100 (Grade: ${grade}) ${emoji}
+
+          $(if [[ $score -ge 80 ]]; then
+            echo "🎉 **Excellent!** Your documentation meets high quality standards."
+          elif [[ $score -ge 60 ]]; then
+            echo "👍 **Good!** Your documentation is solid with room for improvement."
+          else
+            echo "⚠️ **Needs Improvement** Your documentation needs attention to meet quality standards."
+          fi)
+
+          ## 🔧 Recommendations
+
+          EOF
+
+          # 生成建议
+          if [[ "${{ steps.markdown_lint.outputs.lint_issues }}" != "0" ]]; then
+            echo "- 🔧 Fix markdown linting issues for better consistency" >> docs_quality_report.md
+          fi
+
+          if [[ "${{ steps.link_check.outputs.broken_links }}" != "0" ]]; then
+            echo "- 🔗 Update or remove broken links" >> docs_quality_report.md
+          fi
+
+          if [[ "${{ steps.structure_analysis.outputs.has_main_readme }}" != "true" ]]; then
+            echo "- 📖 Add a comprehensive README.md file" >> docs_quality_report.md
+          fi
+
+          if [[ "${{ steps.structure_analysis.outputs.has_contributing }}" != "true" ]]; then
+            echo "- 🤝 Consider adding a CONTRIBUTING.md guide" >> docs_quality_report.md
+          fi
+
+          if [[ "${{ steps.writing_quality.outputs.writing_issues }}" -gt 5 ]]; then
+            echo "- ✍️ Review and improve writing quality based on suggestions" >> docs_quality_report.md
+          fi
+
+          # 添加时间戳
+          echo "" >> docs_quality_report.md
+          echo "---" >> docs_quality_report.md
+          echo "*Report generated on $(date -u '+%Y-%m-%d %H:%M:%S UTC') by GitHub Actions*" >> docs_quality_report.md
+
+          echo "quality_score=$score" >> $GITHUB_OUTPUT
+          echo "quality_grade=$grade" >> $GITHUB_OUTPUT
+
+      # ===== 发布结果 (15s) =====
+      - name: 📤 Upload Quality Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: documentation-quality-report
+          path: |
+            docs_quality_report.md
+            markdown_lint.log
+            docs_files.txt
+          retention-days: 30
+
+      - name: 💬 Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('docs_quality_report.md', 'utf8');
+
+            const comment = `## 📋 Documentation Quality Check Results
+
+            ${report}
+
+            <details>
+            <summary>🔍 View Detailed Analysis</summary>
+
+            ### Workflow Details
+            - **Execution Time**: ${{ job.container.network }} seconds
+            - **Trigger**: ${context.eventName} on ${context.ref}
+            - **Commit**: ${context.sha.substring(0, 7)}
+
+            ### Files Analyzed
+            - **Total Documentation Files**: ${{ steps.discover.outputs.total_files }}
+            - **Total Links Checked**: ${{ steps.link_check.outputs.total_links }}
+            - **File Types**: Markdown (.md, .mdx)
+
+            </details>
+
+            ---
+            *Automated quality check by [GitHub Actions](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+      - name: ✅ Set Status Check
+        if: always()
+        run: |
+          if [[ "${{ steps.markdown_lint.outputs.lint_status }}" == "passed" &&
+                "${{ steps.link_check.outputs.broken_links }}" == "0" &&
+                "${{ steps.generate_report.outputs.quality_score }}" -ge 70 ]]; then
+            echo "✅ Documentation quality check passed"
+            exit 0
+          else
+            echo "❌ Documentation quality check failed"
+            echo "Quality score: ${{ steps.generate_report.outputs.quality_score }}/100"
+            exit 1
+          fi
+
+  # ===== 并行执行的补充检查 =====
+  accessibility-check:
+    name: ♿ Accessibility Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 🔍 Check Documentation Accessibility
+        run: |
+          echo "♿ Checking documentation accessibility..."
+
+          # 检查图片alt标签
+          missing_alt=0
+          while IFS= read -r file; do
+            if [[ -f "$file" ]]; then
+              # 查找没有alt属性的图片
+              if grep -P '!\[(?:\s*)\]\(' "$file" >/dev/null 2>&1; then
+                echo "⚠️ Missing alt text in: $file"
+                ((missing_alt++))
+              fi
+            fi
+          done < <(find . -name "*.md" ! -path "./node_modules/*")
+
+          # 检查标题层次
+          echo "📋 Accessibility summary:"
+          echo "- Images missing alt text: $missing_alt"
+
+          if [[ $missing_alt -gt 0 ]]; then
+            echo "⚠️ Consider adding descriptive alt text for better accessibility"
+            exit 1
+          else
+            echo "✅ Accessibility check passed"
+          fi
+
+  # ===== 性能监控 =====
+  performance-monitor:
+    name: ⚡ Performance Monitor
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 📊 Monitor Documentation Performance
+        run: |
+          echo "⚡ Monitoring documentation performance..."
+
+          start_time=$(date +%s)
+
+          # 快速文件统计
+          total_files=$(find . -name "*.md" ! -path "./node_modules/*" | wc -l)
+          total_size=$(find . -name "*.md" ! -path "./node_modules/*" -exec cat {} \; 2>/dev/null | wc -c)
+
+          end_time=$(date +%s)
+          duration=$((end_time - start_time))
+
+          echo "📈 Performance metrics:"
+          echo "- Analysis duration: ${duration}s"
+          echo "- Files processed: $total_files"
+          echo "- Data processed: $(echo $total_size | awk '{print int($1/1024)"KB"}')"
+          echo "- Processing rate: $(echo $total_files $duration | awk '{if($2>0) print int($1/$2)" files/s"; else print "N/A"}')"
+
+          # 性能警告
+          if [[ $duration -gt 120 ]]; then
+            echo "⚠️ WARNING: Documentation processing took longer than expected (${duration}s > 120s)"
+            exit 1
+          else
+            echo "✅ Performance within acceptable limits"
+          fi

@@ -1,0 +1,246 @@
+# Claude Enhancer 5.0 - 文档质量管理系统测试配置
+
+# 测试环境配置
+test_environment:
+  project_root: "/home/xx/dev/Claude Enhancer 5.0"
+  temp_directory: "/tmp/claude_enhancer_tests"
+  log_level: "INFO"
+  parallel_execution: true
+  max_workers: 4
+
+# 性能基准配置
+performance_benchmarks:
+  quality_gate_check:
+    expected_max_time_ms: 100
+    memory_limit_mb: 10
+    cpu_limit_percent: 5.0
+    test_iterations: 100
+
+  smart_agent_selector:
+    expected_max_time_ms: 50
+    memory_limit_mb: 8
+    cpu_limit_percent: 3.0
+    test_iterations: 100
+
+  lazy_orchestrator_init:
+    expected_max_time_ms: 200
+    memory_limit_mb: 50
+    cpu_limit_percent: 10.0
+    test_iterations: 50
+
+  agent_selection:
+    expected_max_time_ms: 30
+    memory_limit_mb: 20
+    cpu_limit_percent: 5.0
+    test_iterations: 100
+
+# Hook测试配置
+hook_tests:
+  quality_gate:
+    script_path: ".claude/hooks/quality_gate.sh"
+    test_cases:
+      - name: "normal_task"
+        input: '{"prompt": "实现用户认证系统，包含JWT token验证"}'
+        expected_success: true
+
+      - name: "short_task"
+        input: '{"prompt": "修复bug"}'
+        expected_success: true
+        expected_warnings: ["任务描述过短"]
+
+      - name: "dangerous_task"
+        input: '{"prompt": "删除全部用户数据"}'
+        expected_success: true
+        expected_warnings: ["检测到潜在危险操作"]
+
+      - name: "empty_task"
+        input: '{"prompt": ""}'
+        expected_success: true
+
+      - name: "invalid_json"
+        input: 'invalid json'
+        expected_success: false
+
+  smart_agent_selector:
+    script_path: ".claude/hooks/smart_agent_selector.sh"
+    test_cases:
+      - name: "simple_task"
+        input: '{"prompt": "fix typo in README"}'
+        expected_agents: 4
+
+      - name: "standard_task"
+        input: '{"prompt": "implement user authentication"}'
+        expected_agents: 6
+
+      - name: "complex_task"
+        input: '{"prompt": "architect complete microservices system"}'
+        expected_agents: 8
+
+# 集成测试配置
+integration_tests:
+  workflow_phases:
+    - name: "P1_规划"
+      expected_artifacts: ["PLAN.md"]
+      expected_agents: ["requirements-analyst", "business-analyst"]
+
+    - name: "P2_骨架"
+      expected_artifacts: ["project_structure", "architecture_diagram"]
+      expected_agents: ["backend-architect", "frontend-specialist"]
+
+    - name: "P3_实现"
+      expected_artifacts: ["source_code", "git_commits"]
+      expected_agents: ["backend-engineer", "frontend-specialist", "database-specialist"]
+
+    - name: "P4_测试"
+      expected_artifacts: ["test_suite", "coverage_report"]
+      expected_agents: ["test-engineer", "performance-tester"]
+
+    - name: "P5_审查"
+      expected_artifacts: ["REVIEW.md", "security_audit"]
+      expected_agents: ["code-reviewer", "security-auditor"]
+
+    - name: "P6_发布"
+      expected_artifacts: ["documentation", "deployment", "git_tag"]
+      expected_agents: ["deployment-manager", "technical-writer"]
+
+  document_types:
+    - extension: ".md"
+      content_template: "# Test Document\n\nThis is a test markdown document."
+      quality_checks: ["markdown_syntax", "content_length"]
+
+    - extension: ".py"
+      content_template: "#!/usr/bin/env python3\nprint('Hello, World!')"
+      quality_checks: ["python_syntax", "code_style", "security"]
+
+    - extension: ".js"
+      content_template: "console.log('Hello, World!');"
+      quality_checks: ["javascript_syntax", "eslint"]
+
+    - extension: ".json"
+      content_template: '{"test": "data", "version": "1.0"}'
+      quality_checks: ["json_syntax", "schema_validation"]
+
+    - extension: ".yaml"
+      content_template: "test:\n  data: value\n  version: 1.0"
+      quality_checks: ["yaml_syntax", "schema_validation"]
+
+# 回归测试配置
+regression_tests:
+  baseline_file: "test/regression_baseline.json"
+  performance_regression_threshold: 5.0  # 5% performance degradation threshold
+
+  critical_files:
+    - path: ".claude/hooks/quality_gate.sh"
+      checksum_required: true
+      functionality_test: true
+
+    - path: ".claude/hooks/smart_agent_selector.sh"
+      checksum_required: true
+      functionality_test: true
+
+    - path: ".claude/core/lazy_orchestrator.py"
+      checksum_required: true
+      functionality_test: true
+
+  configuration_files:
+    - ".claude/settings.json"
+    - ".claude/config.yaml"
+    - ".claude/hooks/config.yaml"
+
+# 故障恢复测试配置
+failure_recovery_tests:
+  hook_failures:
+    corruption_test:
+      create_corrupt_script: true
+      expected_failure: true
+
+    timeout_test:
+      timeout_duration: 2  # seconds
+      expected_timeout: true
+
+    permission_test:
+      remove_execute_permission: true
+      expected_failure: true
+
+  agent_failures:
+    load_failure:
+      test_nonexistent_agents: ["nonexistent-agent", "invalid-agent-name"]
+      expected_behavior: "graceful_failure"
+
+    execution_error:
+      simulate_exception: true
+      expected_behavior: "error_handling"
+
+    memory_leak:
+      memory_allocation_mb: 100
+      detection_threshold_mb: 50
+
+  system_failures:
+    disk_space:
+      critical_threshold: 95  # percent
+      warning_threshold: 85   # percent
+
+    network_failure:
+      test_unreachable_host: "192.0.2.1"
+      timeout_seconds: 1
+
+    concurrency_limit:
+      max_workers: 3
+      task_count: 10
+      expected_completion: true
+
+# 测试报告配置
+reporting:
+  output_format: "markdown"
+  include_performance_charts: true
+  include_detailed_logs: true
+
+  success_thresholds:
+    excellent: 95.0  # percent
+    good: 85.0       # percent
+    acceptable: 70.0 # percent
+
+  report_sections:
+    - "execution_summary"
+    - "test_suite_results"
+    - "detailed_results"
+    - "performance_analysis"
+    - "issues_and_recommendations"
+    - "conclusion"
+
+# 并发测试配置
+concurrency_tests:
+  levels: [1, 5, 10, 20]
+  tasks_per_level: 2  # multiplier
+  success_rate_threshold: 0.95
+
+# 内存测试配置
+memory_tests:
+  monitoring_interval: 10  # iterations
+  memory_increase_limit_mb: 100
+  leak_detection_threshold_mb: 50
+
+# 文档质量检查规则
+document_quality_rules:
+  markdown:
+    min_length: 10
+    max_length: 10000
+    required_sections: []
+
+  python:
+    max_complexity: 10
+    min_coverage: 80
+    security_checks: true
+
+  javascript:
+    use_strict: true
+    max_file_size_kb: 100
+    eslint_rules: "standard"
+
+  json:
+    max_depth: 10
+    validate_schema: true
+
+  yaml:
+    max_depth: 5
+    validate_schema: true

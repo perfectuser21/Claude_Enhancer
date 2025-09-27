@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 # =============== 异常代码枚举 ===============
 
+
 class DocGateErrorCode(str, Enum):
     """DocGate错误代码"""
 
@@ -80,6 +81,7 @@ class DocGateErrorCode(str, Enum):
 
 
 # =============== 自定义异常类 ===============
+
 
 class DocGateException(Exception):
     """DocGate基础异常"""
@@ -174,7 +176,12 @@ class AuthenticationError(DocGateException):
 class AuthorizationError(DocGateException):
     """授权错误"""
 
-    def __init__(self, message: str, error_code: DocGateErrorCode, required_permission: Optional[str] = None):
+    def __init__(
+        self,
+        message: str,
+        error_code: DocGateErrorCode,
+        required_permission: Optional[str] = None,
+    ):
         details = {}
         if required_permission:
             details["required_permission"] = required_permission
@@ -190,7 +197,13 @@ class AuthorizationError(DocGateException):
 class NotFoundError(DocGateException):
     """资源不存在错误"""
 
-    def __init__(self, message: str, error_code: DocGateErrorCode, resource_type: Optional[str] = None, resource_id: Optional[str] = None):
+    def __init__(
+        self,
+        message: str,
+        error_code: DocGateErrorCode,
+        resource_type: Optional[str] = None,
+        resource_id: Optional[str] = None,
+    ):
         details = {}
         if resource_type:
             details["resource_type"] = resource_type
@@ -208,7 +221,12 @@ class NotFoundError(DocGateException):
 class ConflictError(DocGateException):
     """冲突错误"""
 
-    def __init__(self, message: str, error_code: DocGateErrorCode, conflict_field: Optional[str] = None):
+    def __init__(
+        self,
+        message: str,
+        error_code: DocGateErrorCode,
+        conflict_field: Optional[str] = None,
+    ):
         details = {}
         if conflict_field:
             details["conflict_field"] = conflict_field
@@ -224,7 +242,13 @@ class ConflictError(DocGateException):
 class PayloadTooLargeError(DocGateException):
     """负载过大错误"""
 
-    def __init__(self, message: str, error_code: DocGateErrorCode, max_size: Optional[int] = None, actual_size: Optional[int] = None):
+    def __init__(
+        self,
+        message: str,
+        error_code: DocGateErrorCode,
+        max_size: Optional[int] = None,
+        actual_size: Optional[int] = None,
+    ):
         details = {}
         if max_size:
             details["max_size"] = max_size
@@ -265,7 +289,9 @@ class RateLimitError(DocGateException):
             headers["X-RateLimit-Remaining"] = str(remaining)
         if reset_time:
             headers["X-RateLimit-Reset"] = str(reset_time)
-            headers["Retry-After"] = str(reset_time - int(datetime.utcnow().timestamp()))
+            headers["Retry-After"] = str(
+                reset_time - int(datetime.utcnow().timestamp())
+            )
 
         super().__init__(
             message=message,
@@ -350,7 +376,10 @@ class TimeoutError(DocGateException):
 
 # =============== 异常处理器 ===============
 
-async def docgate_exception_handler(request: Request, exc: DocGateException) -> JSONResponse:
+
+async def docgate_exception_handler(
+    request: Request, exc: DocGateException
+) -> JSONResponse:
     """DocGate异常处理器"""
 
     # 记录异常日志
@@ -382,7 +411,9 @@ async def docgate_exception_handler(request: Request, exc: DocGateException) -> 
     )
 
 
-async def validation_exception_handler(request: Request, exc: ValueError) -> JSONResponse:
+async def validation_exception_handler(
+    request: Request, exc: ValueError
+) -> JSONResponse:
     """值错误异常处理器"""
 
     error_code = DocGateErrorCode.INVALID_CONFIG_FORMAT
@@ -424,7 +455,9 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
         504: DocGateErrorCode.CHECK_TIMEOUT,
     }
 
-    error_code = error_code_mapping.get(exc.status_code, DocGateErrorCode.QUALITY_CHECK_FAILED)
+    error_code = error_code_mapping.get(
+        exc.status_code, DocGateErrorCode.QUALITY_CHECK_FAILED
+    )
 
     # 处理详情信息
     details = {}
@@ -472,6 +505,7 @@ async def generic_exception_handler(request: Request, exc: Exception) -> JSONRes
 
 
 # =============== 便捷异常创建函数 ===============
+
 
 def create_validation_error(
     message: str,
@@ -560,7 +594,9 @@ def create_rate_limit_error(
         "report_download": DocGateErrorCode.REPORT_DOWNLOAD_RATE_LIMIT,
     }
 
-    error_code = error_code_mapping.get(operation, DocGateErrorCode.QUALITY_CHECK_RATE_LIMIT)
+    error_code = error_code_mapping.get(
+        operation, DocGateErrorCode.QUALITY_CHECK_RATE_LIMIT
+    )
 
     return RateLimitError(
         message=f"{operation}请求过于频繁，请稍后重试",
@@ -590,7 +626,9 @@ def create_service_error(
             "database": DocGateErrorCode.DATABASE_ERROR,
             "cache": DocGateErrorCode.CACHE_ERROR,
         }
-        error_code = service_error_mapping.get(service_name, DocGateErrorCode.QUALITY_CHECK_FAILED)
+        error_code = service_error_mapping.get(
+            service_name, DocGateErrorCode.QUALITY_CHECK_FAILED
+        )
 
     return ServiceError(
         message=message,
@@ -601,6 +639,7 @@ def create_service_error(
 
 
 # =============== 异常处理器注册 ===============
+
 
 def register_exception_handlers(app):
     """注册异常处理器到FastAPI应用"""

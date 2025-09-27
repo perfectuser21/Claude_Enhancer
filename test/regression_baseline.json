@@ -1,0 +1,108 @@
+{
+  "timestamp": 1758971693.4062717,
+  "version": "5.1",
+  "performance_metrics": {
+    "quality_gate_performance": {
+      "duration": 1.286769151687622,
+      "success": true,
+      "key_metrics": {
+        "avg_execution_time_ms": 12.776281833648682,
+        "max_execution_time_ms": 19.723176956176758,
+        "expected_max_time_ms": 100.0,
+        "avg_memory_usage_mb": 0.0,
+        "memory_limit_mb": 10,
+        "test_iterations": 100
+      }
+    },
+    "agent_selector_performance": {
+      "duration": 2.2674968242645264,
+      "success": true,
+      "key_metrics": {
+        "avg_execution_time_ms": 22.67136812210083,
+        "expected_max_time_ms": 50.0,
+        "test_tasks": 5,
+        "iterations_per_task": 20,
+        "total_iterations": 100
+      }
+    },
+    "lazy_orchestrator_performance": {
+      "duration": 0.055605173110961914,
+      "success": true,
+      "key_metrics": {
+        "avg_init_time_ms": 1.1092233657836914,
+        "expected_max_time_ms": 200.0,
+        "test_iterations": 50
+      }
+    },
+    "agent_selection_performance": {
+      "duration": 0.0005433559417724609,
+      "success": true,
+      "key_metrics": {
+        "avg_selection_time_ms": 0.005030632019042969,
+        "expected_max_time_ms": 30.0,
+        "complex_tasks": 4,
+        "iterations_per_task": 25
+      }
+    },
+    "memory_usage_benchmark": {
+      "duration": 0.1110837459564209,
+      "success": true,
+      "key_metrics": {
+        "initial_memory_mb": 32.09375,
+        "final_memory_mb": 32.09375,
+        "memory_increase_mb": 0.0,
+        "memory_snapshots": [
+          32.09375,
+          32.09375,
+          32.09375,
+          32.09375,
+          32.09375,
+          32.09375,
+          32.09375,
+          32.09375,
+          32.09375,
+          32.09375
+        ],
+        "memory_leak_detected": false
+      }
+    },
+    "concurrent_performance_benchmark": {
+      "duration": 0.4295797348022461,
+      "success": true,
+      "key_metrics": {
+        "concurrency_results": {
+          "level_1": {
+            "duration": 0.04057955741882324,
+            "tasks": 2,
+            "success_rate": 1.0,
+            "throughput": 49.28589977849979
+          },
+          "level_5": {
+            "duration": 0.06297159194946289,
+            "tasks": 10,
+            "success_rate": 1.0,
+            "throughput": 158.80176585062964
+          },
+          "level_10": {
+            "duration": 0.11423182487487793,
+            "tasks": 20,
+            "success_rate": 1.0,
+            "throughput": 175.08255708868077
+          },
+          "level_20": {
+            "duration": 0.21164274215698242,
+            "tasks": 40,
+            "success_rate": 1.0,
+            "throughput": 188.99774021228035
+          }
+        },
+        "max_concurrency_tested": 20
+      }
+    }
+  },
+  "functionality_checksums": {
+    "quality_gate.sh": "744fd63d227cd8c981bfda9764f84169",
+    "smart_agent_selector.sh": "ddb48d2dab2fda35028a948a2ae743b8",
+    "lazy_orchestrator.py": "2bb3c4b49385f3e4fdf37e7473ffef72"
+  }
+}
