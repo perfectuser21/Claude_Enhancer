@@ -36,6 +36,7 @@ class PhaseStatus(Enum):
 @dataclass
 class PhaseTransition:
     """Phase transition record"""
+
     from_phase: PhaseType
     to_phase: PhaseType
     trigger: str
@@ -46,6 +47,7 @@ class PhaseTransition:
 @dataclass
 class PhaseState:
     """Current phase state"""
+
     phase: PhaseType
     status: PhaseStatus
     progress: float  # 0.0 to 1.0
@@ -83,13 +85,18 @@ class PhaseStateMachine:
 
         # Tool to phase mapping
         self.tool_phase_mapping = {
-            'Read': [PhaseType.P1_REQUIREMENTS, PhaseType.P2_DESIGN],
-            'Grep': [PhaseType.P1_REQUIREMENTS, PhaseType.P2_DESIGN],
-            'Task': [PhaseType.P3_IMPLEMENTATION],
-            'Write': [PhaseType.P3_IMPLEMENTATION],
-            'Edit': [PhaseType.P3_IMPLEMENTATION],
-            'MultiEdit': [PhaseType.P3_IMPLEMENTATION],
-            'Bash': [PhaseType.P0_BRANCH_CREATION, PhaseType.P4_TESTING, PhaseType.P5_COMMIT, PhaseType.P7_DEPLOYMENT],
+            "Read": [PhaseType.P1_REQUIREMENTS, PhaseType.P2_DESIGN],
+            "Grep": [PhaseType.P1_REQUIREMENTS, PhaseType.P2_DESIGN],
+            "Task": [PhaseType.P3_IMPLEMENTATION],
+            "Write": [PhaseType.P3_IMPLEMENTATION],
+            "Edit": [PhaseType.P3_IMPLEMENTATION],
+            "MultiEdit": [PhaseType.P3_IMPLEMENTATION],
+            "Bash": [
+                PhaseType.P0_BRANCH_CREATION,
+                PhaseType.P4_TESTING,
+                PhaseType.P5_COMMIT,
+                PhaseType.P7_DEPLOYMENT,
+            ],
         }
 
         # Initialize state
@@ -99,31 +106,31 @@ class PhaseStateMachine:
         """Load state from file or initialize new state"""
         try:
             if os.path.exists(self.state_file):
-                with open(self.state_file, 'r') as f:
+                with open(self.state_file, "r") as f:
                     data = json.load(f)
 
                 # Reconstruct state from JSON
-                phase_data = data.get('current_state', {})
+                phase_data = data.get("current_state", {})
                 if phase_data:
                     self.current_state = PhaseState(
-                        phase=PhaseType(phase_data['phase']),
-                        status=PhaseStatus(phase_data['status']),
-                        progress=phase_data.get('progress', 0.0),
-                        started_at=phase_data['started_at'],
-                        completed_at=phase_data.get('completed_at'),
-                        metadata=phase_data.get('metadata', {}),
-                        issues=phase_data.get('issues', [])
+                        phase=PhaseType(phase_data["phase"]),
+                        status=PhaseStatus(phase_data["status"]),
+                        progress=phase_data.get("progress", 0.0),
+                        started_at=phase_data["started_at"],
+                        completed_at=phase_data.get("completed_at"),
+                        metadata=phase_data.get("metadata", {}),
+                        issues=phase_data.get("issues", []),
                     )
 
                 # Load history
-                history_data = data.get('history', [])
+                history_data = data.get("history", [])
                 for transition_data in history_data:
                     transition = PhaseTransition(
-                        from_phase=PhaseType(transition_data['from_phase']),
-                        to_phase=PhaseType(transition_data['to_phase']),
-                        trigger=transition_data['trigger'],
-                        timestamp=transition_data['timestamp'],
-                        metadata=transition_data.get('metadata', {})
+                        from_phase=PhaseType(transition_data["from_phase"]),
+                        to_phase=PhaseType(transition_data["to_phase"]),
+                        trigger=transition_data["trigger"],
+                        timestamp=transition_data["timestamp"],
+                        metadata=transition_data.get("metadata", {}),
                     )
                     self.history.append(transition)
             else:
@@ -141,7 +148,7 @@ class PhaseStateMachine:
             status=PhaseStatus.NOT_STARTED,
             progress=0.0,
             started_at=time.time(),
-            metadata={'workflow_id': f"wf_{int(time.time())}"}
+            metadata={"workflow_id": f"wf_{int(time.time())}"},
         )
         self.history = []
         self._save_state()
@@ -150,21 +157,23 @@ class PhaseStateMachine:
         """Save current state to file"""
         try:
             data = {
-                'current_state': asdict(self.current_state) if self.current_state else None,
-                'history': [asdict(t) for t in self.history],
-                'last_updated': time.time()
+                "current_state": asdict(self.current_state)
+                if self.current_state
+                else None,
+                "history": [asdict(t) for t in self.history],
+                "last_updated": time.time(),
             }
 
             # Convert enums to strings for JSON serialization
-            if data['current_state']:
-                data['current_state']['phase'] = data['current_state']['phase'].value
-                data['current_state']['status'] = data['current_state']['status'].value
+            if data["current_state"]:
+                data["current_state"]["phase"] = data["current_state"]["phase"].value
+                data["current_state"]["status"] = data["current_state"]["status"].value
 
-            for h in data['history']:
-                h['from_phase'] = h['from_phase'].value
-                h['to_phase'] = h['to_phase'].value
+            for h in data["history"]:
+                h["from_phase"] = h["from_phase"].value
+                h["to_phase"] = h["to_phase"].value
 
-            with open(self.state_file, 'w') as f:
+            with open(self.state_file, "w") as f:
                 json.dump(data, f, indent=2)
 
         except Exception as e:
@@ -174,7 +183,7 @@ class PhaseStateMachine:
         self,
         tool_name: str,
         task_description: str = "",
-        git_context: Dict[str, Any] = None
+        git_context: Dict[str, Any] = None,
     ) -> PhaseType:
         """Detect current phase from execution context"""
 
@@ -182,49 +191,58 @@ class PhaseStateMachine:
             git_context = self._get_git_context()
 
         # P0: Branch creation - on main/master branch
-        if git_context.get('branch') in ['main', 'master']:
+        if git_context.get("branch") in ["main", "master"]:
             return PhaseType.P0_BRANCH_CREATION
 
         # P1: Requirements analysis - reading/analyzing phase
-        if tool_name in ['Read', 'Grep', 'Glob'] and not git_context.get('has_changes'):
+        if tool_name in ["Read", "Grep", "Glob"] and not git_context.get("has_changes"):
             return PhaseType.P1_REQUIREMENTS
 
         # P2: Design planning - still analyzing but have some context
-        if tool_name in ['Read', 'Write'] and not git_context.get('has_implementation'):
+        if tool_name in ["Read", "Write"] and not git_context.get("has_implementation"):
             return PhaseType.P2_DESIGN
 
         # P3: Implementation - active coding
-        if tool_name in ['Task', 'Write', 'Edit', 'MultiEdit']:
+        if tool_name in ["Task", "Write", "Edit", "MultiEdit"]:
             return PhaseType.P3_IMPLEMENTATION
 
         # P4: Testing - running tests
-        if tool_name == 'Bash' and any(keyword in task_description.lower()
-                                       for keyword in ['test', 'pytest', 'jest', 'spec']):
+        if tool_name == "Bash" and any(
+            keyword in task_description.lower()
+            for keyword in ["test", "pytest", "jest", "spec"]
+        ):
             return PhaseType.P4_TESTING
 
         # P5: Commit - git operations
-        if tool_name == 'Bash' and any(keyword in task_description.lower()
-                                       for keyword in ['git add', 'git commit', 'commit']):
+        if tool_name == "Bash" and any(
+            keyword in task_description.lower()
+            for keyword in ["git add", "git commit", "commit"]
+        ):
             return PhaseType.P5_COMMIT
 
         # P6: Review - creating PR or review
-        if tool_name == 'Bash' and any(keyword in task_description.lower()
-                                       for keyword in ['pull request', 'pr create', 'gh pr']):
+        if tool_name == "Bash" and any(
+            keyword in task_description.lower()
+            for keyword in ["pull request", "pr create", "gh pr"]
+        ):
             return PhaseType.P6_REVIEW
 
         # P7: Deployment - deployment operations
-        if tool_name == 'Bash' and any(keyword in task_description.lower()
-                                       for keyword in ['deploy', 'merge', 'push origin']):
+        if tool_name == "Bash" and any(
+            keyword in task_description.lower()
+            for keyword in ["deploy", "merge", "push origin"]
+        ):
             return PhaseType.P7_DEPLOYMENT
 
         # Default: return current phase if no clear indicator
-        return self.current_state.phase if self.current_state else PhaseType.P1_REQUIREMENTS
+        return (
+            self.current_state.phase
+            if self.current_state
+            else PhaseType.P1_REQUIREMENTS
+        )
 
     def transition_to_phase(
-        self,
-        target_phase: PhaseType,
-        trigger: str,
-        metadata: Dict[str, Any] = None
+        self, target_phase: PhaseType, trigger: str, metadata: Dict[str, Any] = None
     ) -> bool:
         """Transition to target phase with validation"""
 
@@ -236,7 +254,9 @@ class PhaseStateMachine:
 
             # Check if transition is valid
             if not self._is_valid_transition(current_phase, target_phase):
-                print(f"Invalid transition from {current_phase.value} to {target_phase.value}")
+                print(
+                    f"Invalid transition from {current_phase.value} to {target_phase.value}"
+                )
                 return False
 
             # Record transition
@@ -245,7 +265,7 @@ class PhaseStateMachine:
                 to_phase=target_phase,
                 trigger=trigger,
                 timestamp=time.time(),
-                metadata=metadata or {}
+                metadata=metadata or {},
             )
             self.history.append(transition)
 
@@ -261,7 +281,7 @@ class PhaseStateMachine:
                 status=PhaseStatus.IN_PROGRESS,
                 progress=0.0,
                 started_at=time.time(),
-                metadata=metadata or {}
+                metadata=metadata or {},
             )
 
             self._save_state()
@@ -290,14 +310,13 @@ class PhaseStateMachine:
                 self._save_state()
 
     def auto_detect_and_transition(
-        self,
-        tool_name: str,
-        task_description: str = "",
-        force_transition: bool = False
+        self, tool_name: str, task_description: str = "", force_transition: bool = False
     ) -> Tuple[PhaseType, bool]:
         """Auto-detect phase and transition if needed"""
 
-        detected_phase = self.detect_current_phase_from_context(tool_name, task_description)
+        detected_phase = self.detect_current_phase_from_context(
+            tool_name, task_description
+        )
 
         # Check if we need to transition
         if not self.current_state or detected_phase != self.current_state.phase:
@@ -305,7 +324,7 @@ class PhaseStateMachine:
                 success = self.transition_to_phase(
                     detected_phase,
                     f"auto_transition_from_{tool_name}",
-                    {"tool": tool_name, "task": task_description[:100]}
+                    {"tool": tool_name, "task": task_description[:100]},
                 )
                 return detected_phase, success
 
@@ -339,7 +358,9 @@ class PhaseStateMachine:
 
         total_progress = sum(phase_weights[phase] for phase in completed_phases)
         if self.current_state.status == PhaseStatus.IN_PROGRESS:
-            total_progress += phase_weights[self.current_state.phase] * self.current_state.progress
+            total_progress += (
+                phase_weights[self.current_state.phase] * self.current_state.progress
+            )
 
         # Get recommended next actions
         next_actions = self._get_recommended_actions()
@@ -359,14 +380,17 @@ class PhaseStateMachine:
     def _get_git_context(self) -> Dict[str, Any]:
         """Get current git context"""
         try:
-            branch = subprocess.check_output(
-                ['git', 'rev-parse', '--abbrev-ref', 'HEAD'],
-                stderr=subprocess.DEVNULL
-            ).decode().strip()
+            branch = (
+                subprocess.check_output(
+                    ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+                    stderr=subprocess.DEVNULL,
+                )
+                .decode()
+                .strip()
+            )
 
             status_output = subprocess.check_output(
-                ['git', 'status', '--porcelain'],
-                stderr=subprocess.DEVNULL
+                ["git", "status", "--porcelain"], stderr=subprocess.DEVNULL
             ).decode()
 
             has_changes = len(status_output.strip()) > 0
@@ -374,25 +398,40 @@ class PhaseStateMachine:
             # Check for implementation files
             has_implementation = False
             try:
-                files = subprocess.check_output(['git', 'ls-files'], stderr=subprocess.DEVNULL).decode()
-                implementation_patterns = ['.js', '.py', '.ts', '.java', '.cpp', '.c', '.go', '.rs']
-                has_implementation = any(pattern in files for pattern in implementation_patterns)
+                files = subprocess.check_output(
+                    ["git", "ls-files"], stderr=subprocess.DEVNULL
+                ).decode()
+                implementation_patterns = [
+                    ".js",
+                    ".py",
+                    ".ts",
+                    ".java",
+                    ".cpp",
+                    ".c",
+                    ".go",
+                    ".rs",
+                ]
+                has_implementation = any(
+                    pattern in files for pattern in implementation_patterns
+                )
             except:
                 pass
 
             return {
-                'branch': branch,
-                'has_changes': has_changes,
-                'has_implementation': has_implementation,
-                'change_count': len(status_output.strip().split('\n')) if has_changes else 0
+                "branch": branch,
+                "has_changes": has_changes,
+                "has_implementation": has_implementation,
+                "change_count": len(status_output.strip().split("\n"))
+                if has_changes
+                else 0,
             }
 
         except:
             return {
-                'branch': 'unknown',
-                'has_changes': False,
-                'has_implementation': False,
-                'change_count': 0
+                "branch": "unknown",
+                "has_changes": False,
+                "has_implementation": False,
+                "change_count": 0,
             }
 
     def _is_valid_transition(self, from_phase: PhaseType, to_phase: PhaseType) -> bool:
@@ -407,7 +446,9 @@ class PhaseStateMachine:
 
         return all(dep in completed_phases for dep in dependencies)
 
-    def _is_forward_transition(self, from_phase: PhaseType, to_phase: PhaseType) -> bool:
+    def _is_forward_transition(
+        self, from_phase: PhaseType, to_phase: PhaseType
+    ) -> bool:
         """Check if transition is forward (progressing)"""
         return self._get_phase_order(to_phase) > self._get_phase_order(from_phase)
 
@@ -443,7 +484,9 @@ class PhaseStateMachine:
             return True
 
         # Don't auto-transition backward unless explicitly needed
-        if self._get_phase_order(detected_phase) < self._get_phase_order(self.current_state.phase):
+        if self._get_phase_order(detected_phase) < self._get_phase_order(
+            self.current_state.phase
+        ):
             return False
 
         # Allow transition if current phase is completed or stuck
@@ -451,8 +494,11 @@ class PhaseStateMachine:
             return True
 
         # Allow transition to next logical phase if current has significant progress
-        if (self._get_phase_order(detected_phase) == self._get_phase_order(self.current_state.phase) + 1
-            and self.current_state.progress > 0.7):
+        if (
+            self._get_phase_order(detected_phase)
+            == self._get_phase_order(self.current_state.phase) + 1
+            and self.current_state.progress > 0.7
+        ):
             return True
 
         return False
@@ -468,7 +514,9 @@ class PhaseStateMachine:
         actions = []
 
         if phase == PhaseType.P0_BRANCH_CREATION:
-            actions.append("Create feature branch: git checkout -b feature/your-feature")
+            actions.append(
+                "Create feature branch: git checkout -b feature/your-feature"
+            )
 
         elif phase == PhaseType.P1_REQUIREMENTS:
             if progress < 0.5:
@@ -520,6 +568,7 @@ class PhaseStateMachine:
 # Singleton instance
 _phase_machine_instance = None
 
+
 def get_phase_machine() -> PhaseStateMachine:
     """Get singleton phase state machine instance"""
     global _phase_machine_instance
@@ -545,7 +594,9 @@ if __name__ == "__main__":
             tool_name = sys.argv[2]
             task_desc = " ".join(sys.argv[3:]) if len(sys.argv) > 3 else ""
 
-            detected_phase, transitioned = machine.auto_detect_and_transition(tool_name, task_desc)
+            detected_phase, transitioned = machine.auto_detect_and_transition(
+                tool_name, task_desc
+            )
             print(f"Detected phase: {detected_phase.value}")
             print(f"Transitioned: {transitioned}")
 
@@ -568,5 +619,5 @@ if __name__ == "__main__":
         print(f"Overall Progress: {summary['overall_progress']:.1%}")
         print(f"Issues: {summary['issues_count']}")
         print("\nRecommended Actions:")
-        for i, action in enumerate(summary['next_actions'], 1):
+        for i, action in enumerate(summary["next_actions"], 1):
             print(f"  {i}. {action}")

@@ -1,0 +1,412 @@
+{
+  "test_date": "2025-09-27T13:15:36.242122",
+  "project": "Claude Enhancer 5.0",
+  "overall_score": 82,
+  "accessibility": {
+    "score": 84,
+    "tests": [
+      {
+        "test_name": "Keyboard Navigation",
+        "status": "pass",
+        "score": 95,
+        "details": "Found 0 keyboard navigation issues",
+        "issues": []
+      },
+      {
+        "test_name": "Color Contrast",
+        "status": "warning",
+        "score": 75,
+        "details": "Tested 5 color combinations, found 1 contrast issues",
+        "issues": [
+          {
+            "type": "color_contrast",
+            "severity": "major",
+            "element": "auth background gradient",
+            "description": "Contrast ratio 3.7:1 is below WCAG AA standard (4.5:1)",
+            "wcag_guideline": "1.4.3 Contrast (Minimum)",
+            "recommendation": "Increase color contrast to meet WCAG AA standards",
+            "file_path": "frontend/auth/styles/auth.css",
+            "line_number": null
+          }
+        ]
+      },
+      {
+        "test_name": "ARIA Labels and Landmarks",
+        "status": "warning",
+        "score": 85,
+        "details": "Found 0 major and 5 minor ARIA issues",
+        "issues": [
+          {
+            "type": "aria_landmarks",
+            "severity": "minor",
+            "element": "main landmark",
+            "description": "Missing main landmark for screen reader navigation",
+            "wcag_guideline": "1.3.1 Info and Relationships",
+            "recommendation": "Add <main> element or role='main' attribute",
+            "file_path": "frontend/index.html",
+            "line_number": null
+          },
+          {
+            "type": "aria_landmarks",
+            "severity": "minor",
+            "element": "nav landmark",
+            "description": "Missing nav landmark for screen reader navigation",
+            "wcag_guideline": "1.3.1 Info and Relationships",
+            "recommendation": "Add <nav> element or role='nav' attribute",
+            "file_path": "frontend/index.html",
+            "line_number": null
+          },
+          {
+            "type": "aria_landmarks",
+            "severity": "minor",
+            "element": "header landmark",
+            "description": "Missing header landmark for screen reader navigation",
+            "wcag_guideline": "1.3.1 Info and Relationships",
+            "recommendation": "Add <header> element or role='header' attribute",
+            "file_path": "frontend/index.html",
+            "line_number": null
+          },
+          {
+            "type": "aria_landmarks",
+            "severity": "minor",
+            "element": "footer landmark",
+            "description": "Missing footer landmark for screen reader navigation",
+            "wcag_guideline": "1.3.1 Info and Relationships",
+            "recommendation": "Add <footer> element or role='footer' attribute",
+            "file_path": "frontend/index.html",
+            "line_number": null
+          },
+          {
+            "type": "aria_landmarks",
+            "severity": "minor",
+            "element": "aside landmark",
+            "description": "Missing aside landmark for screen reader navigation",
+            "wcag_guideline": "1.3.1 Info and Relationships",
+            "recommendation": "Add <aside> element or role='aside' attribute",
+            "file_path": "frontend/index.html",
+            "line_number": null
+          }
+        ]
+      },
+      {
+        "test_name": "Semantic HTML",
+        "status": "pass",
+        "score": 90,
+        "details": "Analyzed HTML structure, found 0 semantic issues",
+        "issues": []
+      },
+      {
+        "test_name": "Form Accessibility",
+        "status": "pass",
+        "score": 90,
+        "details": "Analyzed form accessibility, found 0 issues",
+        "issues": []
+      },
+      {
+        "test_name": "Focus Management",
+        "status": "warning",
+        "score": 70,
+        "details": "Analyzed focus management, found 3 areas for improvement",
+        "issues": [
+          {
+            "type": "focus_management",
+            "severity": "minor",
+            "element": "focus-within",
+            "description": "No :focus-within pseudo-class usage found",
+            "wcag_guideline": "2.4.7 Focus Visible",
+            "recommendation": "Consider using :focus-within for container focus states",
+            "file_path": "CSS files",
+            "line_number": null
+          },
+          {
+            "type": "focus_management",
+            "severity": "minor",
+            "element": "focus-visible",
+            "description": "No :focus-visible pseudo-class usage found",
+            "wcag_guideline": "2.4.7 Focus Visible",
+            "recommendation": "Use :focus-visible for better keyboard-only focus indicators",
+            "file_path": "CSS files",
+            "line_number": null
+          },
+          {
+            "type": "focus_management",
+            "severity": "minor",
+            "element": "skip links",
+            "description": "No skip navigation links found",
+            "wcag_guideline": "2.4.1 Bypass Blocks",
+            "recommendation": "Add skip links for keyboard users to bypass repetitive content",
+            "file_path": "frontend/index.html",
+            "line_number": null
+          }
+        ]
+      }
+    ],
+    "compliance_level": "AA (Standard)"
+  },
+  "responsive_design": {
+    "score": 85,
+    "tests": [
+      {
+        "test_name": "Mobile Adaptation",
+        "status": "pass",
+        "score": 85,
+        "details": "Mobile responsive design analysis completed, found 0 issues",
+        "issues": []
+      },
+      {
+        "test_name": "Tablet Adaptation",
+        "status": "warning",
+        "score": 75,
+        "details": "Tablet responsive design analysis completed",
+        "issues": [
+          {
+            "type": "responsive_design",
+            "severity": "minor",
+            "element": "tablet breakpoints",
+            "description": "No tablet-specific responsive breakpoints found",
+            "wcag_guideline": "1.4.10 Reflow",
+            "recommendation": "Consider adding tablet-specific responsive breakpoints",
+            "file_path": "CSS files",
+            "line_number": null
+          }
+        ]
+      },
+      {
+        "test_name": "Viewport Configuration",
+        "status": "pass",
+        "score": 95,
+        "details": "Viewport meta tag analysis completed",
+        "issues": []
+      }
+    ],
+    "breakpoints_tested": [
+      "mobile (480px)",
+      "tablet (640px)",
+      "desktop (1024px+)"
+    ]
+  },
+  "user_flows": {
+    "score": 73,
+    "tests": [
+      {
+        "test_name": "Onboarding Flow",
+        "status": "warning",
+        "score": 70,
+        "details": "Onboarding flow analysis completed",
+        "issues": [
+          {
+            "type": "user_flow",
+            "severity": "minor",
+            "element": "onboarding",
+            "description": "No clear onboarding flow detected",
+            "wcag_guideline": "3.2.3 Consistent Navigation",
+            "recommendation": "Consider adding user onboarding or tutorial flow",
+            "file_path": "Frontend components",
+            "line_number": null
+          }
+        ]
+      },
+      {
+        "test_name": "Task Creation Flow",
+        "status": "warning",
+        "score": 60,
+        "details": "Task creation flow analysis completed",
+        "issues": [
+          {
+            "type": "user_flow",
+            "severity": "minor",
+            "element": "task creation",
+            "description": "No clear task creation flow detected in frontend",
+            "wcag_guideline": "3.2.4 Consistent Identification",
+            "recommendation": "Ensure task creation flow is intuitive and accessible",
+            "file_path": "Frontend components",
+            "line_number": null
+          }
+        ]
+      },
+      {
+        "test_name": "Error Recovery Flow",
+        "status": "pass",
+        "score": 90,
+        "details": "Error recovery flow analysis completed",
+        "issues": []
+      }
+    ],
+    "flows_tested": [
+      "onboarding",
+      "task_creation",
+      "error_recovery"
+    ]
+  },
+  "performance_ux": {
+    "score": 86,
+    "tests": [
+      {
+        "test_name": "Loading States",
+        "status": "pass",
+        "score": 85,
+        "details": "Loading states analysis completed",
+        "issues": []
+      },
+      {
+        "test_name": "Lazy Loading",
+        "status": "pass",
+        "score": 80,
+        "details": "Lazy loading analysis completed",
+        "issues": [
+          {
+            "type": "performance_ux",
+            "severity": "minor",
+            "element": "lazy loading",
+            "description": "No lazy loading implementation detected",
+            "wcag_guideline": "2.2.1 Timing Adjustable",
+            "recommendation": "Implement lazy loading for better performance",
+            "file_path": "JavaScript files",
+            "line_number": null
+          }
+        ]
+      },
+      {
+        "test_name": "Performance Optimization",
+        "status": "pass",
+        "score": 95,
+        "details": "Performance optimization analysis completed",
+        "issues": []
+      }
+    ]
+  },
+  "total_issues": 13,
+  "critical_issues": 0,
+  "issues": [
+    {
+      "type": "color_contrast",
+      "severity": "major",
+      "element": "auth background gradient",
+      "description": "Contrast ratio 3.7:1 is below WCAG AA standard (4.5:1)",
+      "wcag_guideline": "1.4.3 Contrast (Minimum)",
+      "recommendation": "Increase color contrast to meet WCAG AA standards",
+      "file_path": "frontend/auth/styles/auth.css",
+      "line_number": null
+    },
+    {
+      "type": "aria_landmarks",
+      "severity": "minor",
+      "element": "main landmark",
+      "description": "Missing main landmark for screen reader navigation",
+      "wcag_guideline": "1.3.1 Info and Relationships",
+      "recommendation": "Add <main> element or role='main' attribute",
+      "file_path": "frontend/index.html",
+      "line_number": null
+    },
+    {
+      "type": "aria_landmarks",
+      "severity": "minor",
+      "element": "nav landmark",
+      "description": "Missing nav landmark for screen reader navigation",
+      "wcag_guideline": "1.3.1 Info and Relationships",
+      "recommendation": "Add <nav> element or role='nav' attribute",
+      "file_path": "frontend/index.html",
+      "line_number": null
+    },
+    {
+      "type": "aria_landmarks",
+      "severity": "minor",
+      "element": "header landmark",
+      "description": "Missing header landmark for screen reader navigation",
+      "wcag_guideline": "1.3.1 Info and Relationships",
+      "recommendation": "Add <header> element or role='header' attribute",
+      "file_path": "frontend/index.html",
+      "line_number": null
+    },
+    {
+      "type": "aria_landmarks",
+      "severity": "minor",
+      "element": "footer landmark",
+      "description": "Missing footer landmark for screen reader navigation",
+      "wcag_guideline": "1.3.1 Info and Relationships",
+      "recommendation": "Add <footer> element or role='footer' attribute",
+      "file_path": "frontend/index.html",
+      "line_number": null
+    },
+    {
+      "type": "aria_landmarks",
+      "severity": "minor",
+      "element": "aside landmark",
+      "description": "Missing aside landmark for screen reader navigation",
+      "wcag_guideline": "1.3.1 Info and Relationships",
+      "recommendation": "Add <aside> element or role='aside' attribute",
+      "file_path": "frontend/index.html",
+      "line_number": null
+    },
+    {
+      "type": "focus_management",
+      "severity": "minor",
+      "element": "focus-within",
+      "description": "No :focus-within pseudo-class usage found",
+      "wcag_guideline": "2.4.7 Focus Visible",
+      "recommendation": "Consider using :focus-within for container focus states",
+      "file_path": "CSS files",
+      "line_number": null
+    },
+    {
+      "type": "focus_management",
+      "severity": "minor",
+      "element": "focus-visible",
+      "description": "No :focus-visible pseudo-class usage found",
+      "wcag_guideline": "2.4.7 Focus Visible",
+      "recommendation": "Use :focus-visible for better keyboard-only focus indicators",
+      "file_path": "CSS files",
+      "line_number": null
+    },
+    {
+      "type": "focus_management",
+      "severity": "minor",
+      "element": "skip links",
+      "description": "No skip navigation links found",
+      "wcag_guideline": "2.4.1 Bypass Blocks",
+      "recommendation": "Add skip links for keyboard users to bypass repetitive content",
+      "file_path": "frontend/index.html",
+      "line_number": null
+    },
+    {
+      "type": "responsive_design",
+      "severity": "minor",
+      "element": "tablet breakpoints",
+      "description": "No tablet-specific responsive breakpoints found",
+      "wcag_guideline": "1.4.10 Reflow",
+      "recommendation": "Consider adding tablet-specific responsive breakpoints",
+      "file_path": "CSS files",
+      "line_number": null
+    },
+    {
+      "type": "user_flow",
+      "severity": "minor",
+      "element": "onboarding",
+      "description": "No clear onboarding flow detected",
+      "wcag_guideline": "3.2.3 Consistent Navigation",
+      "recommendation": "Consider adding user onboarding or tutorial flow",
+      "file_path": "Frontend components",
+      "line_number": null
+    },
+    {
+      "type": "user_flow",
+      "severity": "minor",
+      "element": "task creation",
+      "description": "No clear task creation flow detected in frontend",
+      "wcag_guideline": "3.2.4 Consistent Identification",
+      "recommendation": "Ensure task creation flow is intuitive and accessible",
+      "file_path": "Frontend components",
+      "line_number": null
+    },
+    {
+      "type": "performance_ux",
+      "severity": "minor",
+      "element": "lazy loading",
+      "description": "No lazy loading implementation detected",
+      "wcag_guideline": "2.2.1 Timing Adjustable",
+      "recommendation": "Implement lazy loading for better performance",
+      "file_path": "JavaScript files",
+      "line_number": null
+    }
+  ]
+}

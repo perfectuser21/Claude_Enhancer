@@ -1,1 +1,50 @@
-# Claude Enhancer 5.1 - Essential Dependencies\n# Cleaned and optimized dependency list\n\n# Core Framework\nfastapi>=0.104.0\nuvicorn>=0.24.0\npydantic>=2.5.0\npydantic-settings>=2.1.0\n\n# Authentication & Security\npython-jose>=3.3.0\npasslib>=1.7.4\nbcrypt>=4.1.0\npython-multipart>=0.0.6\n\n# Database\nsqlalchemy>=2.0.0\nalembic>=1.13.0\nasyncpg>=0.29.0\n\n# Caching & Performance\nredis>=5.0.0\naioredis>=2.0.0\naiofiles>=23.0.0\nhttpx>=0.25.0\n\n# Monitoring\nprometheus-client>=0.19.0\npython-json-logger>=2.0.0\n
+# FastAPI Web Framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+
+# Database
+sqlalchemy==2.0.23
+psycopg2-binary==2.9.9
+alembic==1.12.1
+
+# Authentication & Security
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.6
+bcrypt==4.1.1
+
+# Data Validation
+pydantic[email]==2.5.0
+pydantic-settings==2.1.0
+
+# Redis Cache
+redis==5.0.1
+hiredis==2.2.3
+
+# File Handling
+python-magic==0.4.27
+pillow==10.1.0
+
+# HTTP Client
+httpx==0.25.2
+aiofiles==23.2.0
+
+# Utilities
+python-dotenv==1.0.0
+loguru==0.7.2
+click==8.1.7
+
+# Testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+httpx==0.25.2
+
+# Development
+black==23.11.0
+isort==5.12.0
+flake8==6.1.0
+mypy==1.7.1
+
+# Optional: Documentation
+mkdocs==1.5.3
+mkdocs-material==9.4.8

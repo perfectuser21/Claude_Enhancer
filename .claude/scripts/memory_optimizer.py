@@ -30,6 +30,7 @@ from concurrent.futures import ThreadPoolExecutor
 @dataclass
 class MemorySnapshot:
     """内存快照数据结构"""
+
     timestamp: float
     rss_mb: float
     vms_mb: float
@@ -75,9 +76,7 @@ class IntelligentMemoryManager:
 
         self.monitoring_active = True
         self.monitor_thread = threading.Thread(
-            target=self._monitoring_loop,
-            args=(interval_seconds,),
-            daemon=True
+            target=self._monitoring_loop, args=(interval_seconds,), daemon=True
         )
         self.monitor_thread.start()
         print(f"🔍 启动内存监控 (间隔: {interval_seconds}秒)")
@@ -165,15 +164,16 @@ class IntelligentMemoryManager:
     def _cleanup_caches(self):
         """清理各种缓存"""
         # 清理Python内部缓存
-        if hasattr(sys, '_getframe'):
+        if hasattr(sys, "_getframe"):
             frame = sys._getframe()
             while frame:
-                if hasattr(frame, 'f_locals'):
+                if hasattr(frame, "f_locals"):
                     frame.f_locals.clear()
                 frame = frame.f_back
 
         # 清理模块缓存
         import importlib
+
         importlib.invalidate_caches()
 
     def _force_garbage_collection(self):
@@ -190,6 +190,7 @@ class IntelligentMemoryManager:
         """清理导入缓存"""
         # 清理 __pycache__ 相关缓存
         import importlib.util
+
         importlib.util.cache_from_source.cache_clear()
 
     def _compact_data_structures(self):
@@ -222,7 +223,9 @@ class IntelligentMemoryManager:
                 "rss_mb": current.rss_mb,
                 "percent": current.percent,
                 "trend": trend,
-                "health": "良好" if current.rss_mb < self.target_memory/1024/1024 else "需要关注",
+                "health": "良好"
+                if current.rss_mb < self.target_memory / 1024 / 1024
+                else "需要关注",
             },
             "statistics": {
                 "peak_memory_mb": peak_memory,
@@ -384,21 +387,21 @@ class CacheOptimizer:
 
     def _get_cache_size(self, cache: Any) -> int:
         """获取缓存大小"""
-        if hasattr(cache, '__len__'):
+        if hasattr(cache, "__len__"):
             return len(cache)
-        elif hasattr(cache, 'cache_info'):  # functools.lru_cache
+        elif hasattr(cache, "cache_info"):  # functools.lru_cache
             return cache.cache_info().currsize
         return 0
 
     def _optimize_cache(self, name: str, cache: Any):
         """优化单个缓存"""
-        if hasattr(cache, 'clear'):
+        if hasattr(cache, "clear"):
             # 如果是字典类型的缓存
             if isinstance(cache, dict):
                 self._optimize_dict_cache(cache)
             else:
                 # 对于其他类型，直接清理一半
-                if hasattr(cache, '__len__') and len(cache) > 100:
+                if hasattr(cache, "__len__") and len(cache) > 100:
                     cache.clear()
 
     def _optimize_dict_cache(self, cache: dict):

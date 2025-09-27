@@ -1,18 +1,25 @@
 # Claude Enhancer 统一配置
-# Version: 5.1.0
+# Version: 从VERSION文件读取
 # 单一配置源，取代分散的settings.json
 
-version: "5.1.0"
+version: "5.1.0"  # 从VERSION文件读取
 project: "Claude Enhancer"
+
+# 系统总则
+meta:
+  subagent_invocation: "Only main Claude Code agent may invoke sub-agents. Sub-agents MUST NOT invoke sub-agents."
+  execution_engine: "Python (phase_state_machine.py + optimized_lazy_orchestrator.py)"
+  shell_role: "Git Hooks entry only, NOT core execution"
+  blocking_mode: "Git Hooks = YES (可阻断), Claude Hooks = NO (仅建议)"
 
 # 并行限制（阶段上限）
 parallel_limits:
-  P1: 4  # 需求分析
-  P2: 6  # 架构设计
-  P3: 8  # 功能开发（最高）
-  P4: 6  # 测试验证
-  P5: 4  # 代码提交
-  P6: 2  # 代码审查（最低）
+  P1: 4  # 规划（需求分析）
+  P2: 6  # 骨架（架构设计）
+  P3: 8  # 实现（功能开发，最高）
+  P4: 6  # 测试（测试验证）
+  P5: 4  # 审查（代码审查）
+  P6: 2  # 发布（文档与部署，最低）
 
 # 自适应节流
 autotune:
@@ -139,12 +146,12 @@ path_whitelist:
 
 # 提交前缀规范
 commit_prefixes:
-  P1: "[P1][analysis]"
-  P2: "[P2][design]"
-  P3: "[P3][feat]"
-  P4: "[P4][test]"
-  P5: "[P5][commit]"
-  P6: "[P6][review]"
+  P1: "[P1][plan]"      # 规划阶段
+  P2: "[P2][skeleton]"  # 骨架阶段
+  P3: "[P3][impl]"      # 实现阶段（含commit）
+  P4: "[P4][test]"      # 测试阶段
+  P5: "[P5][review]"    # 审查阶段
+  P6: "[P6][release]"   # 发布阶段
 
 # 环境变量
 environment:

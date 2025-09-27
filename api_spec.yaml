@@ -1,0 +1,1264 @@
+openapi: 3.0.3
+info:
+  title: Task Management System API
+  description: |
+    完整的任务管理系统RESTful API接口
+
+    ## 功能特性
+    - 完整的任务CRUD操作
+    - 高级搜索和过滤
+    - JWT认证系统
+    - 用户管理和偏好设置
+    - 统一错误处理
+
+    ## 认证方式
+    使用JWT Bearer Token进行身份验证
+
+    ## 版本控制
+    API版本通过URL路径进行管理（/api/v1/）
+  version: 1.0.0
+  contact:
+    name: Task Management API Support
+    email: support@taskmanager.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3000/api/v1
+    description: 本地开发环境
+  - url: https://api.taskmanager.com/v1
+    description: 生产环境
+
+paths:
+  # 认证相关API
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: 用户注册
+      description: 创建新用户账户
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - email
+                - password
+              properties:
+                username:
+                  type: string
+                  minLength: 3
+                  maxLength: 50
+                  example: "johndoe"
+                email:
+                  type: string
+                  format: email
+                  example: "john@example.com"
+                password:
+                  type: string
+                  minLength: 8
+                  example: "SecurePass123!"
+                firstName:
+                  type: string
+                  maxLength: 50
+                  example: "John"
+                lastName:
+                  type: string
+                  maxLength: 50
+                  example: "Doe"
+      responses:
+        '201':
+          description: 注册成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: 用户名或邮箱已存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: 用户登录
+      description: 使用用户名/邮箱和密码登录
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - identifier
+                - password
+              properties:
+                identifier:
+                  type: string
+                  description: 用户名或邮箱
+                  example: "johndoe"
+                password:
+                  type: string
+                  example: "SecurePass123!"
+                rememberMe:
+                  type: boolean
+                  default: false
+                  description: 是否保持登录状态
+      responses:
+        '200':
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: 认证失败
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: 刷新访问令牌
+      description: 使用刷新令牌获取新的访问令牌
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refreshToken
+              properties:
+                refreshToken:
+                  type: string
+                  example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+      responses:
+        '200':
+          description: 令牌刷新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '401':
+          description: 刷新令牌无效或已过期
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: 用户登出
+      description: 使当前令牌失效
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 登出成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Successfully logged out"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # 用户相关API
+  /users/profile:
+    get:
+      tags:
+        - Users
+      summary: 获取用户个人信息
+      description: 获取当前登录用户的个人资料
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 成功获取用户信息
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    put:
+      tags:
+        - Users
+      summary: 更新用户个人信息
+      description: 更新当前登录用户的个人资料
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                  maxLength: 50
+                lastName:
+                  type: string
+                  maxLength: 50
+                email:
+                  type: string
+                  format: email
+                avatar:
+                  type: string
+                  format: uri
+                timezone:
+                  type: string
+                  example: "Asia/Shanghai"
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /users/preferences:
+    get:
+      tags:
+        - Users
+      summary: 获取用户偏好设置
+      description: 获取当前用户的系统偏好配置
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 成功获取偏好设置
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPreferences'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    put:
+      tags:
+        - Users
+      summary: 更新用户偏好设置
+      description: 更新当前用户的系统偏好配置
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserPreferences'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPreferences'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /users/change-password:
+    put:
+      tags:
+        - Users
+      summary: 修改密码
+      description: 修改当前用户密码
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - currentPassword
+                - newPassword
+              properties:
+                currentPassword:
+                  type: string
+                  example: "OldPass123!"
+                newPassword:
+                  type: string
+                  minLength: 8
+                  example: "NewSecurePass456!"
+      responses:
+        '200':
+          description: 密码修改成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Password changed successfully"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # 任务相关API
+  /tasks:
+    get:
+      tags:
+        - Tasks
+      summary: 获取任务列表
+      description: |
+        获取当前用户的任务列表，支持分页、搜索、排序和过滤
+
+        ## 搜索功能
+        - `search`: 在标题和描述中进行模糊搜索
+        - `tags`: 按标签过滤（支持多个标签）
+        - `status`: 按状态过滤
+        - `priority`: 按优先级过滤
+        - `dueDate`: 按截止日期范围过滤
+
+        ## 排序功能
+        支持按创建时间、更新时间、截止日期、优先级排序
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          description: 页码（从1开始）
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          description: 每页数量
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: search
+          in: query
+          description: 搜索关键词（在标题和描述中搜索）
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: 按状态过滤
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/TaskStatus'
+        - name: priority
+          in: query
+          description: 按优先级过滤
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/TaskPriority'
+        - name: tags
+          in: query
+          description: 按标签过滤
+          schema:
+            type: array
+            items:
+              type: string
+        - name: dueDateFrom
+          in: query
+          description: 截止日期起始时间
+          schema:
+            type: string
+            format: date-time
+        - name: dueDateTo
+          in: query
+          description: 截止日期结束时间
+          schema:
+            type: string
+            format: date-time
+        - name: sortBy
+          in: query
+          description: 排序字段
+          schema:
+            type: string
+            enum: [createdAt, updatedAt, dueDate, priority, title]
+            default: createdAt
+        - name: sortOrder
+          in: query
+          description: 排序方向
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+      responses:
+        '200':
+          description: 成功获取任务列表
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Task'
+                  pagination:
+                    $ref: '#/components/schemas/PaginationInfo'
+                  filters:
+                    type: object
+                    description: 当前应用的过滤条件
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    post:
+      tags:
+        - Tasks
+      summary: 创建新任务
+      description: 为当前用户创建一个新任务
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTaskRequest'
+      responses:
+        '201':
+          description: 任务创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /tasks/{taskId}:
+    get:
+      tags:
+        - Tasks
+      summary: 获取任务详情
+      description: 根据ID获取特定任务的详细信息
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          description: 任务ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: 成功获取任务详情
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags:
+        - Tasks
+      summary: 更新任务
+      description: 更新指定任务的信息
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          description: 任务ID
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTaskRequest'
+      responses:
+        '200':
+          description: 任务更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags:
+        - Tasks
+      summary: 删除任务
+      description: 删除指定的任务（软删除）
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          description: 任务ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: 任务删除成功
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /tasks/{taskId}/status:
+    patch:
+      tags:
+        - Tasks
+      summary: 更新任务状态
+      description: 单独更新任务的状态
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          description: 任务ID
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  $ref: '#/components/schemas/TaskStatus'
+      responses:
+        '200':
+          description: 状态更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /tasks/search:
+    get:
+      tags:
+        - Tasks
+      summary: 高级搜索任务
+      description: |
+        使用复杂条件搜索任务
+
+        ## 搜索语法
+        支持以下搜索语法：
+        - `title:项目` - 在标题中搜索
+        - `description:重要` - 在描述中搜索
+        - `tag:工作` - 按标签搜索
+        - `status:todo` - 按状态搜索
+        - `priority:high` - 按优先级搜索
+        - `created:>2024-01-01` - 创建时间条件
+        - `due:<2024-12-31` - 截止时间条件
+
+        ## 组合搜索
+        可以使用AND、OR、NOT逻辑运算符
+        示例：`title:项目 AND priority:high OR tag:紧急`
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: 搜索查询字符串
+          schema:
+            type: string
+            example: "title:项目 AND priority:high"
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: 搜索成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Task'
+                  pagination:
+                    $ref: '#/components/schemas/PaginationInfo'
+                  query:
+                    type: string
+                    description: 解析后的搜索查询
+        '400':
+          description: 搜索语法错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /tasks/batch:
+    post:
+      tags:
+        - Tasks
+      summary: 批量操作任务
+      description: 对多个任务执行批量操作（状态更新、删除、标签管理等）
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - taskIds
+                - action
+              properties:
+                taskIds:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                  minItems: 1
+                  maxItems: 100
+                action:
+                  type: string
+                  enum: [updateStatus, delete, addTags, removeTags]
+                params:
+                  type: object
+                  description: 操作参数，根据action类型不同
+                  oneOf:
+                    - type: object
+                      title: UpdateStatus
+                      properties:
+                        status:
+                          $ref: '#/components/schemas/TaskStatus'
+                    - type: object
+                      title: TagsOperation
+                      properties:
+                        tags:
+                          type: array
+                          items:
+                            type: string
+      responses:
+        '200':
+          description: 批量操作成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: integer
+                    description: 成功处理的任务数量
+                  failed:
+                    type: integer
+                    description: 处理失败的任务数量
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        taskId:
+                          type: string
+                        error:
+                          type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /tasks/stats:
+    get:
+      tags:
+        - Tasks
+      summary: 获取任务统计信息
+      description: 获取当前用户的任务统计数据
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: period
+          in: query
+          description: 统计周期
+          schema:
+            type: string
+            enum: [today, week, month, year, all]
+            default: all
+      responses:
+        '200':
+          description: 统计信息获取成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskStats'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # 认证相关
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/UserProfile'
+        tokens:
+          $ref: '#/components/schemas/TokenResponse'
+        message:
+          type: string
+          example: "Authentication successful"
+
+    TokenResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        refreshToken:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        tokenType:
+          type: string
+          example: "Bearer"
+        expiresIn:
+          type: integer
+          example: 3600
+          description: 访问令牌过期时间（秒）
+
+    # 用户相关
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        firstName:
+          type: string
+        lastName:
+          type: string
+        avatar:
+          type: string
+          format: uri
+        timezone:
+          type: string
+          example: "Asia/Shanghai"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    UserPreferences:
+      type: object
+      properties:
+        theme:
+          type: string
+          enum: [light, dark, auto]
+          default: auto
+        language:
+          type: string
+          enum: [zh-CN, en-US, ja-JP]
+          default: zh-CN
+        dateFormat:
+          type: string
+          enum: [YYYY-MM-DD, MM/DD/YYYY, DD/MM/YYYY]
+          default: YYYY-MM-DD
+        timeFormat:
+          type: string
+          enum: [24h, 12h]
+          default: 24h
+        notifications:
+          type: object
+          properties:
+            email:
+              type: boolean
+              default: true
+            push:
+              type: boolean
+              default: true
+            dueDateReminder:
+              type: integer
+              minimum: 0
+              maximum: 72
+              default: 24
+              description: 截止日期提醒时间（小时）
+        taskDefaults:
+          type: object
+          properties:
+            priority:
+              $ref: '#/components/schemas/TaskPriority'
+            reminderEnabled:
+              type: boolean
+              default: true
+
+    # 任务相关
+    Task:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 2000
+        status:
+          $ref: '#/components/schemas/TaskStatus'
+        priority:
+          $ref: '#/components/schemas/TaskPriority'
+        tags:
+          type: array
+          items:
+            type: string
+          maxItems: 10
+        dueDate:
+          type: string
+          format: date-time
+          nullable: true
+        reminderDate:
+          type: string
+          format: date-time
+          nullable: true
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        userId:
+          type: string
+          format: uuid
+
+    CreateTaskRequest:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 2000
+        priority:
+          $ref: '#/components/schemas/TaskPriority'
+        tags:
+          type: array
+          items:
+            type: string
+          maxItems: 10
+        dueDate:
+          type: string
+          format: date-time
+        reminderDate:
+          type: string
+          format: date-time
+
+    UpdateTaskRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 2000
+        status:
+          $ref: '#/components/schemas/TaskStatus'
+        priority:
+          $ref: '#/components/schemas/TaskPriority'
+        tags:
+          type: array
+          items:
+            type: string
+          maxItems: 10
+        dueDate:
+          type: string
+          format: date-time
+          nullable: true
+        reminderDate:
+          type: string
+          format: date-time
+          nullable: true
+
+    TaskStatus:
+      type: string
+      enum: [todo, in_progress, completed, cancelled]
+      description: |
+        任务状态：
+        - todo: 待办
+        - in_progress: 进行中
+        - completed: 已完成
+        - cancelled: 已取消
+
+    TaskPriority:
+      type: string
+      enum: [low, medium, high, urgent]
+      description: |
+        任务优先级：
+        - low: 低优先级
+        - medium: 中等优先级
+        - high: 高优先级
+        - urgent: 紧急
+
+    TaskStats:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: 总任务数
+        byStatus:
+          type: object
+          properties:
+            todo:
+              type: integer
+            in_progress:
+              type: integer
+            completed:
+              type: integer
+            cancelled:
+              type: integer
+        byPriority:
+          type: object
+          properties:
+            low:
+              type: integer
+            medium:
+              type: integer
+            high:
+              type: integer
+            urgent:
+              type: integer
+        overdue:
+          type: integer
+          description: 过期任务数
+        completionRate:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: 完成率（0-1）
+        averageCompletionTime:
+          type: number
+          description: 平均完成时间（小时）
+        productivity:
+          type: object
+          properties:
+            todayCompleted:
+              type: integer
+            weekCompleted:
+              type: integer
+            monthCompleted:
+              type: integer
+
+    # 通用
+    PaginationInfo:
+      type: object
+      properties:
+        page:
+          type: integer
+          minimum: 1
+        limit:
+          type: integer
+          minimum: 1
+        total:
+          type: integer
+          minimum: 0
+        totalPages:
+          type: integer
+          minimum: 0
+        hasNext:
+          type: boolean
+        hasPrev:
+          type: boolean
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              description: 错误代码
+            message:
+              type: string
+              description: 错误消息
+            details:
+              type: object
+              description: 详细错误信息
+            timestamp:
+              type: string
+              format: date-time
+            path:
+              type: string
+              description: 请求路径
+            correlationId:
+              type: string
+              description: 关联ID，用于问题追踪
+
+    ValidationError:
+      type: object
+      properties:
+        field:
+          type: string
+          description: 验证失败的字段
+        message:
+          type: string
+          description: 验证错误信息
+        value:
+          description: 提交的值
+
+  responses:
+    BadRequest:
+      description: 请求参数错误
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ErrorResponse'
+              - type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        example: "VALIDATION_ERROR"
+                      validationErrors:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ValidationError'
+
+    Unauthorized:
+      description: 未授权访问
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ErrorResponse'
+              - type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        example: "UNAUTHORIZED"
+                      message:
+                        type: string
+                        example: "Authentication required"
+
+    NotFound:
+      description: 资源不存在
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ErrorResponse'
+              - type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        example: "RESOURCE_NOT_FOUND"
+                      message:
+                        type: string
+                        example: "Requested resource was not found"
+
+    RateLimitExceeded:
+      description: 请求频率超限
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ErrorResponse'
+              - type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        example: "RATE_LIMIT_EXCEEDED"
+                      message:
+                        type: string
+                        example: "Too many requests"
+                      retryAfter:
+                        type: integer
+                        description: 重试等待时间（秒）
+
+    InternalServerError:
+      description: 服务器内部错误
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ErrorResponse'
+              - type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        example: "INTERNAL_SERVER_ERROR"
+                      message:
+                        type: string
+                        example: "An unexpected error occurred"
+
+# 错误码规范
+x-error-codes:
+  authentication:
+    INVALID_CREDENTIALS: "用户名或密码错误"
+    TOKEN_EXPIRED: "访问令牌已过期"
+    TOKEN_INVALID: "无效的访问令牌"
+    REFRESH_TOKEN_EXPIRED: "刷新令牌已过期"
+    REFRESH_TOKEN_INVALID: "无效的刷新令牌"
+    UNAUTHORIZED: "未授权访问"
+    ACCOUNT_LOCKED: "账户已锁定"
+    ACCOUNT_DISABLED: "账户已禁用"
+
+  validation:
+    VALIDATION_ERROR: "输入验证失败"
+    REQUIRED_FIELD_MISSING: "必填字段缺失"
+    INVALID_FORMAT: "格式无效"
+    VALUE_TOO_LONG: "值过长"
+    VALUE_TOO_SHORT: "值过短"
+    INVALID_EMAIL: "邮箱格式无效"
+    WEAK_PASSWORD: "密码强度不足"
+
+  business:
+    USER_ALREADY_EXISTS: "用户已存在"
+    EMAIL_ALREADY_EXISTS: "邮箱已被使用"
+    TASK_NOT_FOUND: "任务不存在"
+    PERMISSION_DENIED: "权限不足"
+    OPERATION_NOT_ALLOWED: "操作不被允许"
+    RESOURCE_CONFLICT: "资源冲突"
+
+  system:
+    INTERNAL_SERVER_ERROR: "服务器内部错误"
+    SERVICE_UNAVAILABLE: "服务不可用"
+    DATABASE_ERROR: "数据库错误"
+    RATE_LIMIT_EXCEEDED: "请求频率超限"
+    MAINTENANCE_MODE: "系统维护中"
+
+# API设计原则说明
+x-design-principles:
+  restful: |
+    严格遵循RESTful设计原则：
+    - 使用标准HTTP方法（GET、POST、PUT、DELETE、PATCH）
+    - 资源URL设计清晰（/api/v1/tasks/{id}）
+    - 正确使用HTTP状态码
+    - 无状态设计（通过JWT令牌维护状态）
+
+  security: |
+    安全设计考虑：
+    - JWT Bearer Token认证
+    - 密码强度要求
+    - 访问令牌自动过期
+    - 刷新令牌机制
+    - 输入验证和参数化查询
+
+  usability: |
+    易用性设计：
+    - 统一的错误响应格式
+    - 详细的API文档和示例
+    - 灵活的查询和过滤功能
+    - 分页支持
+    - 批量操作支持
+
+  performance: |
+    性能优化：
+    - 分页查询避免大数据集传输
+    - 按需返回字段（未来可扩展字段选择）
+    - 缓存友好的设计
+    - 合理的默认参数
+
+  extensibility: |
+    可扩展性：
+    - 版本化API路径（/api/v1/）
+    - 灵活的数据结构设计
+    - 预留扩展字段
+    - 向后兼容考虑

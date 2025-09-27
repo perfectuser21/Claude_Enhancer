@@ -1,0 +1,123 @@
+# =============================================================================
+# Prometheus Configuration for Claude Enhancer 5.1
+# Comprehensive monitoring setup with custom metrics and alerting
+# =============================================================================
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'claude-enhancer-production'
+    environment: 'production'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+# Rules files for alerting
+rule_files:
+  - "alert_rules.yml"
+  - "recording_rules.yml"
+
+# Scrape configurations
+scrape_configs:
+  # ===========================================================================
+  # System Monitoring
+  # ===========================================================================
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 15s
+    metrics_path: /metrics
+
+  # ===========================================================================
+  # Application Monitoring
+  # ===========================================================================
+  - job_name: 'claude-enhancer-app'
+    static_configs:
+      - targets: ['app:8000']  # Prometheus metrics endpoint
+    scrape_interval: 15s
+    metrics_path: /metrics
+    scrape_timeout: 10s
+    honor_labels: true
+    params:
+      format: ['prometheus']
+
+  - job_name: 'claude-enhancer-nginx'
+    static_configs:
+      - targets: ['nginx:9113']  # nginx-prometheus-exporter
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  # ===========================================================================
+  # Database Monitoring
+  # ===========================================================================
+  - job_name: 'postgres-exporter'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  - job_name: 'redis-exporter'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  # ===========================================================================
+  # Container Monitoring
+  # ===========================================================================
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+    scrape_interval: 30s
+    metrics_path: /metrics
+    honor_labels: true
+
+  # ===========================================================================
+  # Application-Specific Metrics
+  # ===========================================================================
+  - job_name: 'claude-enhancer-agents'
+    static_configs:
+      - targets: ['app:8001']  # Agent metrics endpoint
+    scrape_interval: 20s
+    metrics_path: /agent-metrics
+    params:
+      format: ['prometheus']
+
+  - job_name: 'claude-enhancer-workflow'
+    static_configs:
+      - targets: ['app:8002']  # Workflow metrics endpoint
+    scrape_interval: 30s
+    metrics_path: /workflow-metrics
+    params:
+      format: ['prometheus']
+
+  # ===========================================================================
+  # External Service Monitoring
+  # ===========================================================================
+  - job_name: 'blackbox'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+        - https://claude-enhancer.your-domain.com/health
+        - https://claude-enhancer.your-domain.com/api/v1/health
+        - https://claude-enhancer.your-domain.com/api/v1/agents/status
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115

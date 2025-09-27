@@ -1,0 +1,372 @@
+/* 实时任务状态指示器样式 */
+
+.task-status-indicator {
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 12px;
+  position: relative;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.task-status-indicator.updating {
+  animation: updatePulse 2s ease-in-out;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+@keyframes updatePulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+/* 主要状态显示 */
+.status-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 16px;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.status-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.status-label {
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+/* 连接状态指示器 */
+.connection-indicator {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #666;
+}
+
+.connection-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.connection-indicator.connected .connection-dot {
+  background: #28a745;
+  animation: pulse 2s infinite;
+}
+
+.connection-indicator.disconnected .connection-dot {
+  background: #dc3545;
+}
+
+.connection-text {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+/* 最近更新信息 */
+.last-update {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  font-size: 12px;
+  color: #666;
+}
+
+.update-text {
+  flex: 1;
+}
+
+.update-time {
+  color: #999;
+  font-size: 11px;
+}
+
+/* 协作者显示 */
+.collaborators {
+  margin-bottom: 6px;
+}
+
+.collaborators-label {
+  font-size: 11px;
+  color: #666;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.collaborators-list {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.collaborator-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #007bff;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.collaborator-avatar:hover {
+  transform: scale(1.1);
+  z-index: 10;
+}
+
+.collaborator-more {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #6c757d;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 600;
+  border: 2px solid #ffffff;
+}
+
+/* 状态历史 */
+.status-history {
+  border-top: 1px solid #f0f0f0;
+  padding-top: 6px;
+}
+
+.history-label {
+  font-size: 11px;
+  color: #666;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  background: #f8f9fa;
+}
+
+.history-status {
+  color: #333;
+  font-weight: 500;
+}
+
+.history-time {
+  color: #999;
+}
+
+/* 更新动画 */
+.update-animation {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 100;
+  animation: fadeInOut 2s ease-in-out;
+}
+
+.update-pulse {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(0, 123, 255, 0.8);
+  animation: ripple 1s ease-out infinite;
+}
+
+.update-animation .update-text {
+  background: rgba(0, 123, 255, 0.9);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes fadeInOut {
+  0%, 100% { opacity: 0; }
+  20%, 80% { opacity: 1; }
+}
+
+/* 紧凑模式 */
+.task-status-indicator.compact {
+  padding: 8px;
+}
+
+.task-status-indicator.compact .status-badge {
+  padding: 2px 8px;
+  font-size: 12px;
+}
+
+.task-status-indicator.compact .status-icon {
+  font-size: 14px;
+}
+
+.task-status-indicator.compact .collaborator-avatar {
+  width: 20px;
+  height: 20px;
+  font-size: 9px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .task-status-indicator {
+    padding: 10px;
+  }
+
+  .status-badge {
+    padding: 3px 10px;
+    font-size: 13px;
+  }
+
+  .status-icon {
+    font-size: 15px;
+  }
+
+  .last-update {
+    font-size: 11px;
+  }
+
+  .collaborator-avatar {
+    width: 22px;
+    height: 22px;
+    font-size: 9px;
+  }
+
+  .history-item {
+    font-size: 10px;
+  }
+}
+
+/* 暗色主题支持 */
+@media (prefers-color-scheme: dark) {
+  .task-status-indicator {
+    background: #1e1e1e;
+    border-color: #444;
+    color: #e0e0e0;
+  }
+
+  .task-status-indicator.updating {
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+  }
+
+  .connection-indicator {
+    color: #aaa;
+  }
+
+  .last-update {
+    color: #aaa;
+  }
+
+  .update-time {
+    color: #777;
+  }
+
+  .collaborators-label,
+  .history-label {
+    color: #aaa;
+  }
+
+  .history-item {
+    background: #2a2a2a;
+  }
+
+  .history-status {
+    color: #e0e0e0;
+  }
+
+  .history-time {
+    color: #777;
+  }
+
+  .status-history {
+    border-top-color: #333;
+  }
+}
+
+/* 特殊状态样式 */
+.task-status-indicator[data-priority="high"] {
+  border-left: 4px solid #dc3545;
+}
+
+.task-status-indicator[data-priority="urgent"] {
+  border-left: 4px solid #dc3545;
+  animation: urgentBlink 3s infinite;
+}
+
+@keyframes urgentBlink {
+  0%, 100% { border-left-color: #dc3545; }
+  50% { border-left-color: #ff6b7a; }
+}
+
+.task-status-indicator[data-overdue="true"] {
+  background: linear-gradient(45deg, #fff 0%, #fff5f5 100%);
+  border-color: #dc3545;
+}
+
+@media (prefers-color-scheme: dark) {
+  .task-status-indicator[data-overdue="true"] {
+    background: linear-gradient(45deg, #1e1e1e 0%, #2a1f1f 100%);
+  }
+}

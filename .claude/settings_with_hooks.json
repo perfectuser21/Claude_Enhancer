@@ -1,0 +1,418 @@
+{
+  "version": "5.1.0",
+  "project": "Claude Enhancer 5.1 - Self-Optimization System",
+  "description": "自检优化系统，智能错误恢复和性能监控，支持6-Phase开发生命周期",
+  "architecture": {
+    "version": "v2.1",
+    "lazy_loading": true,
+    "self_optimization": true,
+    "real_time_monitoring": true,
+    "documentation": ".claude/ARCHITECTURE/INDEX.md",
+    "auto_load_docs": [
+      ".claude/ARCHITECTURE_LOADER.md",
+      ".claude/ARCHITECTURE/INDEX.md"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": ".*",
+        "type": "command",
+        "command": "bash .claude/hooks/workflow_enforcer.sh",
+        "description": "工作流强制执行器 - 确保按8-Phase执行",
+        "timeout": 500,
+        "blocking": true,
+        "disabled": true,
+        "phase": "workflow_enforcement",
+        "priority": 0,
+        "tags": [
+          "workflow",
+          "enforcement",
+          "blocking",
+          "phase-control"
+        ]
+      },
+      {
+        "matcher": ".*",
+        "type": "command",
+        "command": "bash .claude/hooks/unified_workflow_orchestrator.sh",
+        "description": "统一工作流调度器 - 智能Hook批处理",
+        "timeout": 400,
+        "blocking": false,
+        "disabled": true,
+        "phase": "unified_orchestration",
+        "priority": 1,
+        "tags": [
+          "workflow",
+          "orchestration",
+          "batch-processing",
+          "smart-routing"
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": ".*",
+        "type": "command",
+        "command": "bash .claude/hooks/unified_post_processor.sh",
+        "description": "统一后处理器 - 智能结果分析与进度跟踪",
+        "timeout": 300,
+        "blocking": false,
+        "disabled": true,
+        "phase": "unified_post_processing",
+        "priority": 1,
+        "tags": [
+          "post-processing",
+          "analysis",
+          "progress-tracking",
+          "optimization"
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "type": "command",
+        "command": "bash .claude/hooks/task_type_detector.sh",
+        "description": "P1: 任务类型检测和需求分析",
+        "timeout": 2000,
+        "blocking": false,
+        "phase": "P1_requirements",
+        "tags": [
+          "requirements",
+          "P1",
+          "task-detection",
+          "user-input",
+          "analysis"
+        ]
+      },
+      {
+        "type": "command",
+        "command": "bash .claude/hooks/branch_helper.sh",
+        "description": "P0: 分支状态检查和创建建议",
+        "timeout": 1000,
+        "blocking": false,
+        "phase": "P0_branch",
+        "tags": [
+          "branch",
+          "P0",
+          "git",
+          "status-check",
+          "initialization"
+        ]
+      },
+      {
+        "type": "command",
+        "command": "bash .claude/hooks/smart_agent_selector.sh",
+        "description": "Agent选择策略初始化 - 4-6-8策略准备",
+        "timeout": 1500,
+        "blocking": false,
+        "phase": "agent_preparation",
+        "tags": [
+          "agent-strategy",
+          "4-6-8",
+          "initialization",
+          "P3-preparation"
+        ]
+      }
+    ],
+    "workflow_phases": {
+      "P1_requirements": {
+        "script": "requirements_validator.sh",
+        "description": "需求分析和验证",
+        "blocking": false,
+        "timeout": 1500,
+        "enabled": true,
+        "tags": [
+          "P1",
+          "requirements",
+          "analysis",
+          "validation"
+        ]
+      },
+      "P2_design": {
+        "script": "design_advisor.sh",
+        "description": "设计规划和架构建议",
+        "blocking": false,
+        "timeout": 2000,
+        "enabled": true,
+        "tags": [
+          "P2",
+          "design",
+          "architecture",
+          "planning"
+        ]
+      },
+      "P3_implementation": {
+        "script": "implementation_orchestrator.sh",
+        "description": "4-6-8 Agent实现策略",
+        "blocking": false,
+        "timeout": 2500,
+        "enabled": true,
+        "tags": [
+          "P3",
+          "implementation",
+          "4-6-8-strategy",
+          "agent-orchestration"
+        ]
+      },
+      "P4_testing": {
+        "script": "testing_coordinator.sh",
+        "description": "本地测试和验证",
+        "blocking": false,
+        "timeout": 1500,
+        "enabled": true,
+        "tags": [
+          "P4",
+          "testing",
+          "validation",
+          "quality-assurance"
+        ]
+      },
+      "P5_commit": {
+        "script": "commit_quality_gate.sh",
+        "description": "代码提交质量检查",
+        "blocking": false,
+        "timeout": 1000,
+        "enabled": true,
+        "tags": [
+          "P5",
+          "commit",
+          "git",
+          "quality-gate"
+        ]
+      },
+      "P6_review": {
+        "script": "review_preparation.sh",
+        "description": "代码审查准备",
+        "blocking": false,
+        "timeout": 800,
+        "enabled": true,
+        "tags": [
+          "P6",
+          "review",
+          "code-review",
+          "pr-preparation"
+        ]
+      }
+    },
+    "performance_monitor": {
+      "script": "optimized_performance_monitor.sh",
+      "blocking": false,
+      "timeout": 50,
+      "enabled": true
+    },
+    "error_recovery": {
+      "script": "smart_error_recovery.sh",
+      "blocking": false,
+      "timeout": 100,
+      "enabled": true
+    }
+  },
+  "security": {
+    "hook_security_enabled": true,
+    "forbidden_operations": [
+      "modify_user_input",
+      "block_execution",
+      "hijack_workflow",
+      "infinite_loops"
+    ],
+    "allowed_hook_types": [
+      "advisory",
+      "validation",
+      "notification",
+      "workflow_tracking"
+    ]
+  },
+  "environment": {
+    "CLAUDE_ENHANCER_MODE": "workflow",
+    "CLAUDE_ENHANCER_VERSION": "5.1",
+    "WORKFLOW_SYSTEM": "P1-P6-Enhanced",
+    "MONITORING_ENABLED": "true",
+    "SELF_OPTIMIZATION": "true",
+    "LAZY_LOADING": "true",
+    "MIN_AGENTS": "4",
+    "STANDARD_AGENTS": "6",
+    "COMPLEX_AGENTS": "8",
+    "HOOK_SECURITY": "enabled",
+    "HOOK_BLOCKING": "enabled",
+    "PHASE_TRACKING": "enabled",
+    "MAX_20X_MODE": "true",
+    "WORKFLOW_ENFORCEMENT": "strict"
+  },
+  "performance": {
+    "max_concurrent_hooks": 6,
+    "hook_timeout_ms": 200,
+    "smart_hook_batching": true,
+    "adaptive_timeout": true,
+    "hook_prioritization": true,
+    "cache_enabled": true,
+    "cache_ttl_seconds": 300
+  },
+  "workflow_config": {
+    "phases": {
+      "P1": {
+        "name": "Requirements Analysis",
+        "description": "理解要做什么，为什么要做",
+        "required_tools": [
+          "Read",
+          "Grep"
+        ],
+        "success_criteria": [
+          "requirements_understood",
+          "scope_defined"
+        ]
+      },
+      "P2": {
+        "name": "Design Planning",
+        "description": "如何实现，技术选型，架构设计",
+        "required_tools": [
+          "Read",
+          "Write"
+        ],
+        "success_criteria": [
+          "architecture_defined",
+          "tech_stack_chosen"
+        ]
+      },
+      "P3": {
+        "name": "Implementation",
+        "description": "编写代码，实现功能 - 4-6-8 Agent策略",
+        "required_tools": [
+          "Task",
+          "Write",
+          "MultiEdit"
+        ],
+        "success_criteria": [
+          "code_implemented",
+          "agents_coordinated"
+        ]
+      },
+      "P4": {
+        "name": "Local Testing",
+        "description": "单元测试，集成测试，功能验证",
+        "required_tools": [
+          "Bash",
+          "Read"
+        ],
+        "success_criteria": [
+          "tests_passed",
+          "functionality_verified"
+        ]
+      },
+      "P5": {
+        "name": "Code Commit",
+        "description": "Git提交，触发质量检查",
+        "required_tools": [
+          "Bash"
+        ],
+        "success_criteria": [
+          "code_committed",
+          "quality_checks_passed"
+        ]
+      },
+      "P6": {
+        "name": "Code Review",
+        "description": "创建PR，团队review，反馈修改",
+        "required_tools": [
+          "Bash"
+        ],
+        "success_criteria": [
+          "pr_created",
+          "review_ready"
+        ]
+      }
+    },
+    "agent_strategies": {
+      "simple_task": {
+        "agent_count": 4,
+        "duration_estimate": "5-10分钟",
+        "complexity": "low",
+        "recommended_agents": [
+          "backend-architect",
+          "test-engineer",
+          "security-auditor",
+          "technical-writer"
+        ]
+      },
+      "standard_task": {
+        "agent_count": 6,
+        "duration_estimate": "15-20分钟",
+        "complexity": "medium",
+        "recommended_agents": [
+          "backend-architect",
+          "api-designer",
+          "database-specialist",
+          "test-engineer",
+          "security-auditor",
+          "performance-engineer"
+        ]
+      },
+      "complex_task": {
+        "agent_count": 8,
+        "duration_estimate": "25-30分钟",
+        "complexity": "high",
+        "recommended_agents": [
+          "backend-architect",
+          "api-designer",
+          "database-specialist",
+          "frontend-specialist",
+          "test-engineer",
+          "security-auditor",
+          "performance-engineer",
+          "devops-engineer"
+        ]
+      }
+    },
+    "quality_gates": {
+      "P3_implementation": [
+        "code_style",
+        "architecture_compliance",
+        "security_basic"
+      ],
+      "P4_testing": [
+        "unit_tests",
+        "integration_tests",
+        "performance_tests"
+      ],
+      "P5_commit": [
+        "lint_check",
+        "test_coverage",
+        "security_scan"
+      ],
+      "P6_review": [
+        "code_review",
+        "documentation",
+        "deployment_ready"
+      ]
+    }
+  },
+  "monitoring": {
+    "enabled": true,
+    "metrics_endpoint": "http://localhost:8080/metrics",
+    "health_check_interval": 30,
+    "performance_tracking": true,
+    "error_recovery": true,
+    "real_time_alerts": true
+  },
+  "optimization": {
+    "lazy_loading": true,
+    "caching": true,
+    "resource_pooling": true,
+    "auto_scaling": true,
+    "adaptive_performance": true,
+    "intelligent_error_recovery": true
+  },
+  "workflow_enforcement": {
+    "enabled": true,
+    "strict_mode": true,
+    "auto_phase_detection": true,
+    "block_non_workflow_tasks": true,
+    "require_plan_first": true,
+    "enforce_agent_strategy": true,
+    "min_agents": {
+      "simple": 4,
+      "standard": 6,
+      "complex": 8
+    }
+  }
+}
