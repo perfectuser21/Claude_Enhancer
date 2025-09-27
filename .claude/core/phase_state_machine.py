@@ -12,17 +12,27 @@ from enum import Enum
 from dataclasses import dataclass, asdict
 import subprocess
 import os
+import sys
+from pathlib import Path
+
+# 添加Git自动化支持
+sys.path.insert(0, str(Path(__file__).parent))
+try:
+    from git_automation import GitAutomation
+    GIT_AUTOMATION_AVAILABLE = True
+except ImportError:
+    GIT_AUTOMATION_AVAILABLE = False
+    print("⚠️ Git automation module not available")
 
 
 class PhaseType(Enum):
-    P0_BRANCH_CREATION = "P0_branch_creation"
-    P1_REQUIREMENTS = "P1_requirements"
-    P2_DESIGN = "P2_design"
-    P3_IMPLEMENTATION = "P3_implementation"
-    P4_TESTING = "P4_testing"
-    P5_COMMIT = "P5_commit"
-    P6_REVIEW = "P6_review"
-    P7_DEPLOYMENT = "P7_deployment"
+    # 统一为6-Phase标准流程
+    P1_REQUIREMENTS = "P1_requirements"     # 需求分析
+    P2_DESIGN = "P2_design"                # 架构设计
+    P3_IMPLEMENTATION = "P3_implementation"  # 功能实现
+    P4_TESTING = "P4_testing"              # 测试验证
+    P5_REVIEW = "P5_review"                # 代码审查
+    P6_RELEASE = "P6_release"              # 发布准备
 
 
 class PhaseStatus(Enum):
@@ -78,9 +88,8 @@ class PhaseStateMachine:
             PhaseType.P2_DESIGN: [PhaseType.P1_REQUIREMENTS],
             PhaseType.P3_IMPLEMENTATION: [PhaseType.P2_DESIGN],
             PhaseType.P4_TESTING: [PhaseType.P3_IMPLEMENTATION],
-            PhaseType.P5_COMMIT: [PhaseType.P4_TESTING],
-            PhaseType.P6_REVIEW: [PhaseType.P5_COMMIT],
-            PhaseType.P7_DEPLOYMENT: [PhaseType.P6_REVIEW],
+            PhaseType.P5_REVIEW: [PhaseType.P4_TESTING],
+            PhaseType.P6_RELEASE: [PhaseType.P5_REVIEW],
         }
 
         # Tool to phase mapping
@@ -92,10 +101,8 @@ class PhaseStateMachine:
             "Edit": [PhaseType.P3_IMPLEMENTATION],
             "MultiEdit": [PhaseType.P3_IMPLEMENTATION],
             "Bash": [
-                PhaseType.P0_BRANCH_CREATION,
                 PhaseType.P4_TESTING,
-                PhaseType.P5_COMMIT,
-                PhaseType.P7_DEPLOYMENT,
+                PhaseType.P6_RELEASE,
             ],
         }
 
@@ -142,9 +149,9 @@ class PhaseStateMachine:
             self._start_new_workflow()
 
     def _start_new_workflow(self):
-        """Start new workflow from P0"""
+        """Start new workflow from P1"""
         self.current_state = PhaseState(
-            phase=PhaseType.P0_BRANCH_CREATION,
+            phase=PhaseType.P1_REQUIREMENTS,
             status=PhaseStatus.NOT_STARTED,
             progress=0.0,
             started_at=time.time(),
@@ -209,30 +216,20 @@ class PhaseStateMachine:
         # P4: Testing - running tests
         if tool_name == "Bash" and any(
             keyword in task_description.lower()
-            for keyword in ["test", "pytest", "jest", "spec"]
+            for keyword in ["test", "pytest", "jest", "spec", "vitest"]
         ):
             return PhaseType.P4_TESTING
 
-        # P5: Commit - git operations
-        if tool_name == "Bash" and any(
-            keyword in task_description.lower()
-            for keyword in ["git add", "git commit", "commit"]
-        ):
-            return PhaseType.P5_COMMIT
+        # P5: Review - code review tasks
+        if "review" in task_description.lower() or "audit" in task_description.lower():
+            return PhaseType.P5_REVIEW
 
-        # P6: Review - creating PR or review
-        if tool_name == "Bash" and any(
+        # P6: Release - deployment and release tasks
+        if any(
             keyword in task_description.lower()
-            for keyword in ["pull request", "pr create", "gh pr"]
+            for keyword in ["deploy", "release", "tag", "publish"]
         ):
-            return PhaseType.P6_REVIEW
-
-        # P7: Deployment - deployment operations
-        if tool_name == "Bash" and any(
-            keyword in task_description.lower()
-            for keyword in ["deploy", "merge", "push origin"]
-        ):
-            return PhaseType.P7_DEPLOYMENT
+            return PhaseType.P6_RELEASE
 
         # Default: return current phase if no clear indicator
         return (
@@ -299,6 +296,9 @@ class PhaseStateMachine:
                 if progress >= 1.0:
                     self.current_state.status = PhaseStatus.COMPLETED
                     self.current_state.completed_at = time.time()
+
+                    # 触发Git自动化
+                    self._trigger_git_automation()
 
                 self._save_state()
 
@@ -434,6 +434,45 @@ class PhaseStateMachine:
                 "change_count": 0,
             }
 
+    def _trigger_git_automation(self):
+        """触发Git自动化操作"""
+        if not GIT_AUTOMATION_AVAILABLE:
+            return
+
+        if not self.current_state:
+            return
+
+        phase = self.current_state.phase
+        phase_name = phase.value.split("_")[0]  # 获取P1, P2等
+
+        try:
+            git = GitAutomation()
+
+            # 根据Phase执行相应的Git操作
+            if phase == PhaseType.P3_IMPLEMENTATION:
+                print("🔄 Auto-committing P3 implementation...")
+                git.auto_commit_phase("P3", "feat: 完成功能实现")
+
+            elif phase == PhaseType.P4_TESTING:
+                print("🔄 Auto-committing P4 test results...")
+                git.auto_commit_phase("P4", "test: 完成测试验证")
+
+            elif phase == PhaseType.P5_REVIEW:
+                print("🔄 Auto-committing P5 review changes...")
+                git.auto_commit_phase("P5", "review: 完成代码审查")
+
+            elif phase == PhaseType.P6_RELEASE:
+                print("🔄 Auto-committing P6 and creating release tag...")
+                git.auto_commit_phase("P6", "release: 准备发布版本")
+                git.auto_tag_release()
+
+                # 可选：创建PR
+                if os.environ.get("AUTO_CREATE_PR", "true").lower() == "true":
+                    git.auto_create_pr()
+
+        except Exception as e:
+            print(f"⚠️ Git automation failed: {e}")
+
     def _is_valid_transition(self, from_phase: PhaseType, to_phase: PhaseType) -> bool:
         """Check if phase transition is valid"""
         # Allow backward transitions for iteration
@@ -455,16 +494,14 @@ class PhaseStateMachine:
     def _get_phase_order(self, phase: PhaseType) -> int:
         """Get numerical order of phase"""
         order_map = {
-            PhaseType.P0_BRANCH_CREATION: 0,
             PhaseType.P1_REQUIREMENTS: 1,
             PhaseType.P2_DESIGN: 2,
             PhaseType.P3_IMPLEMENTATION: 3,
             PhaseType.P4_TESTING: 4,
-            PhaseType.P5_COMMIT: 5,
-            PhaseType.P6_REVIEW: 6,
-            PhaseType.P7_DEPLOYMENT: 7,
+            PhaseType.P5_REVIEW: 5,
+            PhaseType.P6_RELEASE: 6,
         }
-        return order_map[phase]
+        return order_map.get(phase, 0)
 
     def _get_completed_phases(self) -> set:
         """Get set of completed phases"""

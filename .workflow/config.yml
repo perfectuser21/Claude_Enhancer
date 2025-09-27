@@ -62,10 +62,20 @@ testing:
     required: false        # P4阶段开启
     timeout: 300
 
+# Git自动化配置
+git:
+  auto_commit: true        # 自动提交(P3/P4/P5结束时)
+  auto_tag: true          # 自动打tag(P6结束时)
+  auto_pr: true           # 自动创建PR(P6结束时)
+  auto_merge: false       # 自动合并到main(默认关闭,需手动开启)
+  delete_branch_after_merge: true  # 合并后删除分支
+  commit_strategy: "phase" # 按Phase提交(phase)或按工单提交(ticket)
+  tag_strategy: "semantic" # 语义化版本(v1.0.0)
+
 # 合并策略
 merge:
   strategy: "squash"       # Squash merge
-  auto_merge: true         # Gate全过自动合并
+  auto_merge: false        # 默认不自动合并(需要人工确认)
   require_pr_review: false # 无需人工review（Gate足够）
   delete_branch: true      # 合并后删除分支
   tag_strategy: "semantic" # 语义化版本
