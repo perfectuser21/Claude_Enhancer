@@ -1,0 +1,331 @@
+# Claude Enhancer 5.0 代码质量规则配置
+# ============================================
+#
+# 此文件定义了代码质量检查的具体标准和规则
+# 可以根据项目需求调整各项指标的阈值
+
+metadata:
+  version: "1.0.0"
+  description: "Claude Enhancer 5.0 质量规则配置"
+  last_updated: "2024-09-27"
+
+# 可读性规则 (25分)
+readability:
+  # 代码格式规范
+  max_line_length: 88              # 最大行长度
+  max_function_lines: 50           # 单个函数最大行数
+  max_file_lines: 500              # 单个文件最大行数
+  max_complexity: 10               # 最大圈复杂度
+  max_nesting_depth: 3             # 最大嵌套深度
+
+  # 命名规范
+  naming_conventions:
+    function_pattern: "^[a-z][a-z0-9_]*$"     # 函数命名：小写+下划线
+    class_pattern: "^[A-Z][a-zA-Z0-9]*$"      # 类命名：帕斯卡命名
+    constant_pattern: "^[A-Z][A-Z0-9_]*$"     # 常量命名：全大写+下划线
+    variable_pattern: "^[a-z][a-z0-9_]*$"     # 变量命名：小写+下划线
+
+  # 注释要求
+  require_docstrings: true         # 要求函数文档字符串
+  require_class_docstrings: true   # 要求类文档字符串
+  require_module_docstrings: true  # 要求模块文档字符串
+  min_comment_ratio: 0.1           # 最小注释率 (注释行/代码行)
+
+  # 代码结构
+  require_main_guard: true         # Python文件要求 if __name__ == "__main__"
+  require_shebang: true            # Shell脚本要求shebang
+  require_set_e: true              # Shell脚本要求 set -e
+
+# 安全性规则 (30分)
+security:
+  # 密码和密钥检查
+  check_hardcoded_secrets: true
+  secret_patterns:
+    - "password\\s*=\\s*[\"'][^\"']{3,}[\"']"
+    - "api_key\\s*=\\s*[\"'][^\"']{10,}[\"']"
+    - "secret\\s*=\\s*[\"'][^\"']{8,}[\"']"
+    - "token\\s*=\\s*[\"'][^\"']{10,}[\"']"
+    - "private_key\\s*=\\s*[\"'][^\"']{20,}[\"']"
+
+  # SQL注入检查
+  check_sql_injection: true
+  sql_patterns:
+    - "execute\\s*\\([^)]*%s"
+    - "query\\s*\\([^)]*%s"
+    - "SELECT\\s+.*%s"
+    - "INSERT\\s+.*%s"
+    - "UPDATE\\s+.*%s"
+    - "DELETE\\s+.*%s"
+
+  # 命令注入检查
+  check_command_injection: true
+  command_patterns:
+    - "os\\.system\\s*\\([^)]*\\$"
+    - "subprocess\\.[^(]*\\([^)]*shell\\s*=\\s*True"
+    - "eval\\s*\\("
+    - "exec\\s*\\("
+    - "`[^`]*\\$[^`]*`"              # Shell脚本中的命令替换
+
+  # 路径遍历检查
+  check_path_traversal: true
+  path_patterns:
+    - "\\.\\./.*"
+    - "\\\\\\.\\.\\\\.*"
+    - "open\\s*\\([^)]*\\.\\."
+
+  # 文件权限检查
+  check_file_permissions: true
+  dangerous_permissions:
+    - "chmod\\s+777"
+    - "chmod\\s+\\+x.*\\$"
+
+  # 输入验证要求
+  require_input_validation: true
+  input_sources:
+    - "request\\.args"
+    - "request\\.form"
+    - "request\\.json"
+    - "sys\\.argv"
+    - "input\\("
+    - "raw_input\\("
+
+# 性能规则 (20分)
+performance:
+  # 响应时间要求
+  max_response_time_ms: 100        # Hook脚本最大响应时间
+  max_startup_time_ms: 500         # 应用启动最大时间
+  max_memory_mb: 100               # 最大内存使用
+
+  # 算法效率检查
+  check_n_plus_one: true           # 检查N+1查询问题
+  check_inefficient_loops: true    # 检查低效循环
+  check_redundant_operations: true # 检查冗余操作
+
+  # 性能反模式
+  performance_antipatterns:
+    # Python性能问题
+    - pattern: "\\+=\\s*[\"']"     # 字符串拼接
+      message: "避免使用+=拼接字符串，使用join()或f-string"
+      language: "python"
+
+    - pattern: "for\\s+\\w+\\s+in\\s+range\\(len\\("
+      message: "避免使用range(len())，直接迭代对象"
+      language: "python"
+
+    - pattern: "len\\([^)]+\\)\\s*==\\s*0"
+      message: "使用 'not obj' 代替 'len(obj) == 0'"
+      language: "python"
+
+    # Shell性能问题
+    - pattern: "cat\\s+[^|]+\\|\\s*grep"
+      message: "直接使用grep而不是cat | grep"
+      language: "shell"
+
+    - pattern: "for\\s+\\w+\\s+in\\s*\\$\\("
+      message: "避免在循环中使用命令替换"
+      language: "shell"
+
+  # 缓存策略
+  recommend_caching: true
+  cache_candidates:
+    - "expensive_computation"
+    - "database_query"
+    - "file_reading"
+    - "network_request"
+
+# 可维护性规则 (25分)
+maintainability:
+  # 测试要求
+  min_test_coverage: 80            # 最小测试覆盖率
+  require_unit_tests: true         # 要求单元测试
+  require_integration_tests: true  # 要求集成测试
+  max_test_execution_time: 30      # 测试执行最大时间(秒)
+
+  # 依赖管理
+  max_dependency_depth: 5          # 最大依赖深度
+  max_external_dependencies: 50    # 最大外部依赖数量
+  require_dependency_pinning: true # 要求固定依赖版本
+
+  # 代码复用
+  check_code_duplication: true
+  max_duplicate_lines: 10          # 最大重复行数
+  duplication_threshold: 0.1       # 重复代码阈值 (10%)
+
+  # 类型系统
+  require_type_hints: true         # 要求类型提示
+  type_coverage_threshold: 0.8     # 类型覆盖率阈值
+
+  # 文档要求
+  require_readme: true             # 要求README文件
+  require_changelog: false         # 要求CHANGELOG文件
+  require_api_docs: true           # 要求API文档
+
+  # 配置管理
+  require_config_validation: true  # 要求配置验证
+  max_config_nesting: 4           # 最大配置嵌套深度
+  require_default_values: true     # 要求默认值
+
+  # 错误处理
+  require_error_handling: true     # 要求错误处理
+  error_handling_patterns:
+    - "try:\\s*$"                  # Python try块
+    - "except\\s+\\w+:"            # Python except块
+    - "finally:"                   # Python finally块
+    - "trap\\s+"                   # Shell陷阱处理
+
+# 文件类型特定规则
+file_type_rules:
+  python:
+    # Python特定规则
+    extensions: [".py"]
+    max_imports: 20                # 最大import数量
+    require_future_annotations: false # 要求 from __future__ import annotations
+
+    # 禁用的模块/函数
+    forbidden_imports:
+      - "eval"
+      - "exec"
+      - "compile"
+      - "__import__"
+
+    # 推荐的模块
+    recommended_imports:
+      - "logging"
+      - "typing"
+      - "pathlib"
+
+  shell:
+    # Shell脚本特定规则
+    extensions: [".sh", ".bash"]
+    require_strict_mode: true      # 要求 set -euo pipefail
+    max_functions: 10              # 最大函数数量
+
+    # 禁用的命令
+    forbidden_commands:
+      - "rm -rf /"
+      - "chmod 777"
+      - "eval"
+      - "source /dev/stdin"
+
+    # 推荐的模式
+    recommended_patterns:
+      - "local\\s+\\w+="           # 使用local变量
+      - "readonly\\s+\\w+="        # 使用readonly变量
+
+  yaml:
+    # YAML文件特定规则
+    extensions: [".yaml", ".yml"]
+    max_line_length: 120           # YAML最大行长度
+    require_document_start: false   # 要求文档开始标记 ---
+    require_explicit_start: false  # 要求显式开始
+
+    # 缩进规则
+    indent_spaces: 2               # 缩进空格数
+    max_nesting_depth: 6           # 最大嵌套深度
+
+# 排除规则
+exclusions:
+  # 排除的文件模式
+  file_patterns:
+    - "**/test_*.py"
+    - "**/tests/**"
+    - "**/__pycache__/**"
+    - "**/venv/**"
+    - "**/.venv/**"
+    - "**/node_modules/**"
+    - "**/.git/**"
+    - "**/build/**"
+    - "**/dist/**"
+
+  # 排除的目录
+  directories:
+    - ".git"
+    - "__pycache__"
+    - "venv"
+    - ".venv"
+    - "node_modules"
+    - "build"
+    - "dist"
+
+  # 按规则排除
+  rule_exclusions:
+    "S001":                        # 硬编码密钥检查
+      - "**/test_*.py"            # 测试文件可以包含假密钥
+      - "**/examples/**"          # 示例文件
+
+    "R001":                        # 行长度检查
+      - "**/*_test.py"            # 测试文件行长度可以更宽松
+
+# 自定义规则扩展
+custom_rules:
+  # Claude Enhancer特定规则
+  claude_enhancer:
+    # Agent相关规则
+    agent_rules:
+      min_agent_count: 3           # 最少Agent数量
+      max_agent_count: 8           # 最多Agent数量
+      require_parallel_execution: true # 要求并行执行
+
+    # Hook相关规则
+    hook_rules:
+      max_hook_execution_time: 100 # Hook最大执行时间(ms)
+      require_input_validation: true # 要求输入验证
+      require_output_format: true  # 要求标准输出格式
+
+    # 配置相关规则
+    config_rules:
+      require_schema_validation: true # 要求schema验证
+      max_config_file_size: 10240    # 最大配置文件大小(字节)
+      require_version_info: true     # 要求版本信息
+
+# 质量门禁配置
+quality_gates:
+  # 最低质量要求
+  minimum_scores:
+    total: 70                      # 总分最低要求
+    readability: 18                # 可读性最低分数
+    security: 21                   # 安全性最低分数
+    performance: 14                # 性能最低分数
+    maintainability: 18            # 可维护性最低分数
+
+  # 阻塞级别
+  blocking_severities:
+    - "critical"                   # 严重问题阻塞发布
+    - "major"                      # 重要问题阻塞发布
+
+  # 警告级别
+  warning_severities:
+    - "minor"                      # 次要问题给出警告
+    - "info"                       # 信息级别问题
+
+# 报告配置
+reporting:
+  # 报告格式
+  default_format: "markdown"      # 默认报告格式
+  include_suggestions: true       # 包含改进建议
+  include_examples: true          # 包含代码示例
+
+  # 报告内容
+  sections:
+    - "summary"                    # 摘要
+    - "scores"                     # 分数详情
+    - "issues"                     # 问题列表
+    - "recommendations"            # 改进建议
+    - "action_plan"               # 行动计划
+
+  # 历史跟踪
+  track_history: true             # 跟踪历史记录
+  max_history_records: 100       # 最大历史记录数
+
+# 通知配置
+notifications:
+  # 质量下降通知
+  quality_degradation_threshold: 5 # 分数下降超过5分时通知
+
+  # 新问题通知
+  notify_new_critical: true       # 新严重问题通知
+  notify_new_major: true          # 新重要问题通知
+
+  # 改进通知
+  notify_improvements: true       # 质量改进通知
+  improvement_threshold: 3        # 分数提升超过3分时通知

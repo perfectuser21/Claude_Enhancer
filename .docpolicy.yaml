@@ -1,0 +1,164 @@
+# Document Quality Management Policy
+# Claude Enhancer 5.0 文档质量管理策略配置
+
+version: "1.0"
+description: "三层递进式文档质量管理配置"
+
+# 文档类型和路径映射
+types:
+  requirement:
+    path: "docs/requirements"
+    required_fields: ["title", "summary", "status", "last_updated"]
+    template: "templates/requirement.md"
+
+  design:
+    path: "docs/design"
+    required_fields: ["title", "summary", "key_points", "last_updated"]
+    template: "templates/design.md"
+
+  api:
+    path: "docs/api"
+    required_fields: ["title", "endpoints", "examples", "last_updated"]
+    template: "templates/api.md"
+
+  guide:
+    path: "docs/guides"
+    required_fields: ["title", "summary", "steps", "last_updated"]
+    template: "templates/guide.md"
+
+  changelog:
+    path: "docs/changelogs"
+    required_fields: ["version", "date", "changes"]
+    template: "templates/changelog.md"
+
+  test:
+    path: "docs/test-reports"
+    required_fields: ["title", "coverage", "results", "date"]
+
+  temp:
+    path: "tmp/docs"
+    deletable: true
+    auto_merge: true
+
+# 文档生命周期
+lifecycle:
+  archive_after_days: 45          # 45天未更新自动归档
+  keep_versions: 3                # 保留最近3个版本
+  orphan_threshold_days: 30       # 30天未引用视为孤儿文档
+
+# 质量标准
+quality:
+  require_tldr: true              # 必须有摘要
+  min_key_points: 3               # 最少3个关键点
+  max_file_kb: 5120              # 最大5MB
+
+  # 禁止的文件名模式
+  deny_name_patterns:
+    - "(copy|backup|final\\(\\d+\\)|-old)\\.md$"
+    - "(explain|debug|temp)\\.md$"
+    - "\\s+\\.md$"               # 包含空格
+
+# 相似度检测
+similarity:
+  dedupe_threshold: 0.85          # 相似度>85%触发合并建议
+  algorithms:
+    - cosine                      # 余弦相似度
+    - jaccard                     # Jaccard相似度
+
+# 门禁控制
+gates:
+  # Layer 1: 本地pre-commit（轻量级）
+  pre_commit:
+    enabled: true
+    checks:
+      - path_check               # 路径检查
+      - deny_name_patterns       # 文件名黑名单
+      - file_size               # 文件大小
+      - sensitive_info          # 敏感信息
+    blocking: true              # 阻断提交
+
+  # Layer 2: 本地pre-push（快速）
+  pre_push:
+    enabled: true
+    checks:
+      - fast_lint              # 快速lint
+      - required_fields        # 必填字段
+      - dead_links            # 死链接
+    blocking: false           # 仅警告
+
+  # Layer 3: CI深度检查
+  ci_docs_qa:
+    enabled: true
+    checks:
+      - structure_check       # 结构检查
+      - quality_score        # 质量评分
+      - similarity_dedupe    # 相似度去重
+      - lifecycle_suggest    # 生命周期建议
+    auto_fix: true          # 自动修复
+
+  # 合并阻断条件
+  merge_block_on:
+    - missing_core_doc      # 缺少核心文档
+    - invalid_structure     # 结构无效
+    - security_leak        # 安全泄露
+
+# 自动化行为
+automation:
+  # 自动合并规则
+  auto_merge:
+    enabled: true
+    patterns:
+      - "*-explain.md -> explanations.md"
+      - "*-debug.md -> debug-notes.md"
+
+  # 自动生成
+  auto_generate:
+    - summary               # 自动摘要
+    - toc                  # 自动目录
+    - changelog_entry      # 变更日志
+
+  # 自动归档
+  auto_archive:
+    enabled: true
+    schedule: "weekly"
+    compress: true
+
+# DocGate Agent配置
+docgate:
+  enabled: true
+  mode: "advisory"         # advisory/enforcing
+  parallel_checks: true
+  max_suggestions: 10
+  auto_pr_comment: true
+
+# 报告配置
+reporting:
+  digest_path: "docs/_digest/latest.md"
+  quality_report: "docs/_reports/quality.md"
+  frequency: "on_merge"
+
+# 6-Phase工作流集成
+workflow_integration:
+  P1_planning:
+    docs: ["docs/requirements/"]
+    template: "requirement"
+
+  P2_design:
+    docs: ["docs/design/"]
+    template: "design"
+
+  P3_implementation:
+    docs: ["README.md", "docs/api/"]
+    checks: ["code_doc_sync"]
+
+  P4_testing:
+    docs: ["docs/test-reports/"]
+    template: "test"
+
+  P5_commit:
+    checks: ["all"]
+    auto_changelog: true
+
+  P6_review:
+    docs: ["docs/REVIEW.md"]
+    auto_archive: true

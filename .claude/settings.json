@@ -1,9 +1,21 @@
 {
   "version": "5.1.0",
   "project": "Claude Enhancer 5.0",
-  "description": "使用官方默认高亮显示",
+  "description": "使用官方默认高亮显示 + 工作流强制执行",
   "hooks": {
-    "PreToolUse": [],
-    "PostToolUse": []
+    "UserPromptSubmit": [
+      ".claude/hooks/workflow_auto_start.sh"
+    ],
+    "PrePrompt": [
+      ".claude/hooks/workflow_enforcer.sh",
+      ".claude/hooks/smart_agent_selector.sh"
+    ],
+    "PreToolUse": [
+      ".claude/hooks/branch_helper.sh",
+      ".claude/hooks/quality_gate.sh"
+    ],
+    "PostToolUse": [
+      ".claude/hooks/unified_post_processor.sh"
+    ]
   }
 }

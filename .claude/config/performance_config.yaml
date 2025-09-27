@@ -1,0 +1,122 @@
+# Performance Configuration for Document Quality Management
+# 文档质量管理系统性能配置
+
+# 整体性能模式
+performance:
+  mode: "balanced"  # fast, balanced, thorough
+  max_workers: 4
+  enable_caching: true
+  enable_incremental: true
+  enable_similarity_detection: true
+
+# 时间目标和阈值
+timeouts:
+  pre_commit_seconds: 2
+  pre_push_seconds: 5
+  ci_deep_minutes: 2
+  similarity_check_seconds: 30
+
+# 缓存配置
+cache:
+  enabled: true
+  directory: "/tmp/claude_doc_cache"
+  max_size_mb: 100
+  ttl_hours: 24
+  cleanup_interval_hours: 6
+  memory_cache_size: 1000
+
+# 增量检查配置
+incremental:
+  enabled: true
+  state_file: ".claude/incremental_state.json"
+  hash_check_enabled: true
+  dependency_analysis: true
+  size_grouping: true
+
+# 文档类型配置
+document_types:
+  extensions: [".md", ".txt", ".rst", ".adoc", ".org"]
+  exclude_patterns:
+    - "node_modules/**"
+    - "*.bak"
+    - "*.tmp"
+    - ".git/**"
+    - "build/**"
+    - "dist/**"
+  max_file_size_mb: 1
+
+# 检查配置
+checks:
+  syntax:
+    enabled: true
+    check_empty_files: true
+    check_headers: true
+    check_links: true
+    parallel: true
+
+  style:
+    enabled: true
+    max_line_length: 120
+    max_empty_line_ratio: 0.3
+    check_trailing_whitespace: true
+
+  content:
+    enabled: true
+    min_word_count: 10
+    check_todos: true
+    spell_check: false  # 可能较慢，默认关闭
+
+  similarity:
+    enabled: true
+    algorithm: "jaccard"  # jaccard, cosine, ngram
+    threshold_exact: 0.95
+    threshold_high: 0.80
+    threshold_medium: 0.60
+    ngram_size: 3
+    max_comparisons: 10000
+
+# 并行处理配置
+parallel:
+  max_processes: 4
+  max_threads: 8
+  batch_size: 100
+  chunk_size: 10
+  use_process_pool: true
+
+# 监控和报告
+monitoring:
+  enabled: true
+  log_performance: true
+  report_cache_stats: true
+  track_file_sizes: true
+  export_metrics: false
+
+# 优化策略
+optimization:
+  file_size_grouping: true
+  cache_priority_by_access: true
+  skip_unchanged_files: true
+  early_termination: true
+  smart_batching: true
+
+# 错误处理
+error_handling:
+  max_retries: 3
+  timeout_behavior: "warn"  # warn, skip, fail
+  continue_on_error: true
+  log_errors: true
+
+# Git集成配置
+git_integration:
+  use_git_diff: true
+  track_file_moves: true
+  ignore_whitespace_changes: false
+  check_commit_message: false
+
+# 调试和诊断
+debug:
+  enabled: false
+  verbose_logging: false
+  profile_performance: false
+  save_intermediate_results: false
+  benchmark_mode: false
