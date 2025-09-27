@@ -45,9 +45,11 @@ METRICS_FILE = WORKFLOW_DIR / "metrics.jsonl"
 for dir_path in [GATES_DIR, TICKETS_DIR, LIMITS_DIR, CACHE_DIR]:
     dir_path.mkdir(parents=True, exist_ok=True)
 
+
 @dataclass
 class ValidationResult:
     """验证结果"""
+
     phase: str
     passed: bool
     duration_ms: float
@@ -59,6 +61,7 @@ class ValidationResult:
         if not self.timestamp:
             self.timestamp = datetime.now().isoformat()
 
+
 class CacheManager:
     """缓存管理器"""
 
@@ -66,7 +69,9 @@ class CacheManager:
         self.cache_dir = cache_dir
         self.cache_dir.mkdir(parents=True, exist_ok=True)
 
-    def _get_cache_key(self, phase: str, ticket: str = "", files: List[Path] = None) -> str:
+    def _get_cache_key(
+        self, phase: str, ticket: str = "", files: List[Path] = None
+    ) -> str:
         """生成缓存键"""
         if files:
             # 计算文件内容的哈希
@@ -80,7 +85,9 @@ class CacheManager:
 
         return f"{phase}:{ticket}:{file_hash}"
 
-    def get(self, phase: str, ticket: str = "", files: List[Path] = None) -> Optional[ValidationResult]:
+    def get(
+        self, phase: str, ticket: str = "", files: List[Path] = None
+    ) -> Optional[ValidationResult]:
         """获取缓存"""
         cache_key = self._get_cache_key(phase, ticket, files)
         cache_file = self.cache_dir / f"kv-{cache_key}.json"
@@ -95,12 +102,19 @@ class CacheManager:
                     pass
         return None
 
-    def set(self, result: ValidationResult, phase: str, ticket: str = "", files: List[Path] = None):
+    def set(
+        self,
+        result: ValidationResult,
+        phase: str,
+        ticket: str = "",
+        files: List[Path] = None,
+    ):
         """设置缓存"""
         cache_key = self._get_cache_key(phase, ticket, files)
         cache_file = self.cache_dir / f"kv-{cache_key}.json"
 
         cache_file.write_bytes(orjson.dumps(asdict(result)))
+
 
 class PhaseValidator:
     """阶段验证器"""
@@ -130,7 +144,9 @@ class PhaseValidator:
             return PHASE_FILE.read_text().strip()
         return "P1"
 
-    def validate_phase(self, phase: str = None, use_cache: bool = True) -> ValidationResult:
+    def validate_phase(
+        self, phase: str = None, use_cache: bool = True
+    ) -> ValidationResult:
         """验证阶段Gates"""
         start_time = time.perf_counter()
 
@@ -145,7 +161,7 @@ class PhaseValidator:
                 passed=False,
                 duration_ms=(time.perf_counter() - start_time) * 1000,
                 cache_hit=False,
-                failures=[f"无效的阶段: {phase}"]
+                failures=[f"无效的阶段: {phase}"],
             )
 
         # 获取相关文件列表
@@ -174,7 +190,7 @@ class PhaseValidator:
             passed=len(failures) == 0,
             duration_ms=(time.perf_counter() - start_time) * 1000,
             cache_hit=False,
-            failures=failures
+            failures=failures,
         )
 
         # 写入缓存
@@ -221,7 +237,13 @@ class PhaseValidator:
             if path.exists():
                 content = path.read_text()
                 # 简单计数：数字开头的行
-                tasks = len([l for l in content.split('\n') if l.strip() and l.strip()[0].isdigit()])
+                tasks = len(
+                    [
+                        l
+                        for l in content.split("\n")
+                        if l.strip() and l.strip()[0].isdigit()
+                    ]
+                )
                 return tasks >= min_count
             return False
 
@@ -230,7 +252,9 @@ class PhaseValidator:
             cmd = gate.get("command", "")
             if cmd:
                 try:
-                    result = subprocess.run(cmd, shell=True, capture_output=True, timeout=30)
+                    result = subprocess.run(
+                        cmd, shell=True, capture_output=True, timeout=30
+                    )
                     return result.returncode == 0
                 except Exception:
                     return False
@@ -245,7 +269,7 @@ class PhaseValidator:
             "validate_ms": result.duration_ms,
             "cache_hit": result.cache_hit,
             "passed": result.passed,
-            "failures_count": len(result.failures)
+            "failures_count": len(result.failures),
         }
 
         with open(METRICS_FILE, "a") as f:
@@ -286,11 +310,14 @@ class PhaseValidator:
 
         return False
 
+
 class TicketManager:
     """工单管理器"""
 
     def __init__(self):
-        self.config = yaml.safe_load(CONFIG_FILE.read_text()) if CONFIG_FILE.exists() else {}
+        self.config = (
+            yaml.safe_load(CONFIG_FILE.read_text()) if CONFIG_FILE.exists() else {}
+        )
         self.max_active = self.config.get("tickets", {}).get("max_active", 8)
 
     def get_active_tickets(self) -> List[str]:
@@ -305,12 +332,15 @@ class TicketManager:
         """检查是否可以创建新工单"""
         return len(self.get_active_tickets()) < self.max_active
 
+
 def main():
     """主函数"""
     import argparse
 
     parser = argparse.ArgumentParser(description="Claude Enhancer Python执行器")
-    parser.add_argument("command", choices=["validate", "advance", "status", "cache-stats"])
+    parser.add_argument(
+        "command", choices=["validate", "advance", "status", "cache-stats"]
+    )
     parser.add_argument("--phase", help="指定阶段")
     parser.add_argument("--no-cache", action="store_true", help="禁用缓存")
 
@@ -329,7 +359,9 @@ def main():
             for failure in result.failures:
                 console.print(f"  • {failure}")
 
-        console.print(f"[dim]耗时: {result.duration_ms:.2f}ms, 缓存: {'命中' if result.cache_hit else '未命中'}[/dim]")
+        console.print(
+            f"[dim]耗时: {result.duration_ms:.2f}ms, 缓存: {'命中' if result.cache_hit else '未命中'}[/dim]"
+        )
 
         sys.exit(0 if result.passed else 1)
 
@@ -376,6 +408,7 @@ def main():
                 recent_100 = recent_metrics[-100:]
                 hits = sum(1 for m in recent_100 if m.get("cache_hit"))
                 console.print(f"  最近100次命中率: {hits}%")
+
 
 if __name__ == "__main__":
     main()

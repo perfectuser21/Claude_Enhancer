@@ -1,0 +1,39 @@
+{
+  "numTotalTestSuites": 3,
+  "numPassedTestSuites": 0,
+  "numFailedTestSuites": 3,
+  "numPendingTestSuites": 0,
+  "numTotalTests": 0,
+  "numPassedTests": 0,
+  "numFailedTests": 0,
+  "numPendingTests": 0,
+  "numTodoTests": 0,
+  "startTime": 1758956434377,
+  "success": false,
+  "testResults": [
+    {
+      "assertionResults": [],
+      "startTime": 1758956434377,
+      "endTime": 1758956434377,
+      "status": "passed",
+      "message": "Failed to load url @testing-library/react (resolved id: @testing-library/react) in /home/xx/dev/Claude Enhancer 5.0/frontend/src/test-setup.ts. Does the file exist?",
+      "name": "/home/xx/dev/Claude Enhancer 5.0/frontend/src/__tests__/components/Avatar.test.tsx"
+    },
+    {
+      "assertionResults": [],
+      "startTime": 1758956434377,
+      "endTime": 1758956434377,
+      "status": "passed",
+      "message": "Failed to load url @testing-library/react (resolved id: @testing-library/react) in /home/xx/dev/Claude Enhancer 5.0/frontend/src/test-setup.ts. Does the file exist?",
+      "name": "/home/xx/dev/Claude Enhancer 5.0/frontend/src/__tests__/components/PriorityBadge.test.tsx"
+    },
+    {
+      "assertionResults": [],
+      "startTime": 1758956434377,
+      "endTime": 1758956434377,
+      "status": "passed",
+      "message": "Failed to load url @testing-library/react (resolved id: @testing-library/react) in /home/xx/dev/Claude Enhancer 5.0/frontend/src/test-setup.ts. Does the file exist?",
+      "name": "/home/xx/dev/Claude Enhancer 5.0/frontend/src/__tests__/components/StatusBadge.test.tsx"
+    }
+  ]
+}

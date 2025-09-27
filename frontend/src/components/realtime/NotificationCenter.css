@@ -1,0 +1,392 @@
+/* 通知中心样式 */
+
+.notification-center {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.notification-overlay {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(2px);
+}
+
+.notification-panel {
+  position: relative;
+  width: 400px;
+  max-width: 90vw;
+  background: #ffffff;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* 头部 */
+.notification-header {
+  padding: 20px;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8f9fa;
+}
+
+.notification-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.notification-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.connection-status {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  background: #f0f0f0;
+  color: #666;
+}
+
+.connection-status.connected {
+  background: #e8f5e8;
+  color: #2e7d32;
+}
+
+.connection-status.disconnected {
+  background: #ffeaea;
+  color: #d32f2f;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  color: #666;
+  transition: all 0.2s ease;
+}
+
+.close-button:hover {
+  background: #e0e0e0;
+  color: #333;
+}
+
+/* 过滤器 */
+.notification-filters {
+  padding: 15px 20px;
+  display: flex;
+  gap: 10px;
+  border-bottom: 1px solid #e0e0e0;
+  background: #fafbfc;
+}
+
+.notification-filters button {
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  background: #fff;
+  border-radius: 16px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #666;
+}
+
+.notification-filters button:hover {
+  border-color: #007bff;
+  color: #007bff;
+}
+
+.notification-filters button.active {
+  background: #007bff;
+  border-color: #007bff;
+  color: #fff;
+}
+
+/* 操作按钮 */
+.notification-actions {
+  padding: 10px 20px;
+  border-bottom: 1px solid #e0e0e0;
+  text-align: right;
+}
+
+.clear-all-button {
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 12px;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.clear-all-button:hover {
+  color: #333;
+}
+
+/* 通知列表 */
+.notification-list {
+  flex: 1;
+  overflow-y: auto;
+  max-height: calc(100vh - 200px);
+}
+
+.no-notifications {
+  padding: 40px 20px;
+  text-align: center;
+  color: #999;
+}
+
+.no-notifications-icon {
+  font-size: 48px;
+  margin-bottom: 15px;
+  opacity: 0.5;
+}
+
+.no-notifications p {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* 通知项 */
+.notification-item {
+  padding: 15px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.notification-item:hover {
+  background: #f8f9fa;
+}
+
+.notification-item.unread {
+  background: #fff5f5;
+  border-left: 3px solid #007bff;
+}
+
+.notification-item.unread::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 8px;
+  background: #007bff;
+  border-radius: 50%;
+}
+
+.notification-icon {
+  font-size: 20px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.notification-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+
+.notification-message {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.4;
+  margin-bottom: 6px;
+  word-wrap: break-word;
+}
+
+.notification-time {
+  font-size: 11px;
+  color: #999;
+}
+
+.notification-item .notification-actions {
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  padding: 0;
+  border: none;
+}
+
+.notification-item:hover .notification-actions {
+  opacity: 1;
+}
+
+.mark-read-button,
+.remove-button {
+  background: none;
+  border: none;
+  padding: 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  color: #999;
+  transition: all 0.2s ease;
+}
+
+.mark-read-button:hover {
+  background: #e8f5e8;
+  color: #2e7d32;
+}
+
+.remove-button:hover {
+  background: #ffeaea;
+  color: #d32f2f;
+}
+
+/* 通知类型样式 */
+.notification-item.notification-success .notification-icon {
+  color: #2e7d32;
+}
+
+.notification-item.notification-warning .notification-icon {
+  color: #f57c00;
+}
+
+.notification-item.notification-error .notification-icon {
+  color: #d32f2f;
+}
+
+.notification-item.notification-info .notification-icon {
+  color: #1976d2;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .notification-panel {
+    width: 100vw;
+  }
+
+  .notification-header {
+    padding: 15px;
+  }
+
+  .notification-filters {
+    padding: 10px 15px;
+    flex-wrap: wrap;
+  }
+
+  .notification-filters button {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+
+  .notification-item {
+    padding: 12px 15px;
+  }
+
+  .notification-title {
+    font-size: 13px;
+  }
+
+  .notification-message {
+    font-size: 12px;
+  }
+}
+
+/* 暗色主题支持 */
+@media (prefers-color-scheme: dark) {
+  .notification-panel {
+    background: #1e1e1e;
+    color: #e0e0e0;
+  }
+
+  .notification-header {
+    background: #2d2d2d;
+    border-bottom-color: #444;
+  }
+
+  .notification-header h3 {
+    color: #e0e0e0;
+  }
+
+  .notification-filters {
+    background: #252525;
+    border-bottom-color: #444;
+  }
+
+  .notification-filters button {
+    background: #333;
+    border-color: #555;
+    color: #ccc;
+  }
+
+  .notification-filters button:hover {
+    border-color: #007bff;
+    color: #007bff;
+  }
+
+  .notification-filters button.active {
+    background: #007bff;
+    border-color: #007bff;
+    color: #fff;
+  }
+
+  .notification-item {
+    border-bottom-color: #333;
+  }
+
+  .notification-item:hover {
+    background: #2a2a2a;
+  }
+
+  .notification-item.unread {
+    background: #2a2520;
+  }
+
+  .notification-title {
+    color: #e0e0e0;
+  }
+
+  .notification-message {
+    color: #aaa;
+  }
+
+  .notification-time {
+    color: #777;
+  }
+
+  .close-button:hover {
+    background: #444;
+    color: #e0e0e0;
+  }
+}

@@ -289,71 +289,97 @@ class LazyAgentOrchestrator:
 
         # Multi-dimensional scoring
         complexity_indicators = {
-            'architectural': 0,
-            'technical': 0,
-            'scope': 0,
-            'integration': 0,
-            'risk': 0
+            "architectural": 0,
+            "technical": 0,
+            "scope": 0,
+            "integration": 0,
+            "risk": 0,
         }
 
         # Architectural complexity keywords (weighted)
         architectural_patterns = {
-            'microservices': 5, 'distributed': 4, 'system design': 4,
-            'architecture': 3, 'scalability': 3, 'performance': 2,
-            'optimization': 2, 'infrastructure': 2
+            "microservices": 5,
+            "distributed": 4,
+            "system design": 4,
+            "architecture": 3,
+            "scalability": 3,
+            "performance": 2,
+            "optimization": 2,
+            "infrastructure": 2,
         }
 
         # Technical complexity keywords
         technical_patterns = {
-            'machine learning': 5, 'ai': 4, 'algorithm': 3,
-            'data processing': 3, 'real-time': 3, 'concurrent': 3,
-            'parallel': 2, 'async': 2, 'threading': 2
+            "machine learning": 5,
+            "ai": 4,
+            "algorithm": 3,
+            "data processing": 3,
+            "real-time": 3,
+            "concurrent": 3,
+            "parallel": 2,
+            "async": 2,
+            "threading": 2,
         }
 
         # Scope complexity keywords
         scope_patterns = {
-            'entire system': 5, 'full rewrite': 4, 'migration': 4,
-            'refactor entire': 4, 'complete overhaul': 4,
-            'end-to-end': 3, 'comprehensive': 2
+            "entire system": 5,
+            "full rewrite": 4,
+            "migration": 4,
+            "refactor entire": 4,
+            "complete overhaul": 4,
+            "end-to-end": 3,
+            "comprehensive": 2,
         }
 
         # Integration complexity
         integration_patterns = {
-            'third-party': 3, 'api integration': 3, 'webhook': 2,
-            'external service': 2, 'payment': 3, 'authentication': 2,
-            'database': 2, 'deployment': 2
+            "third-party": 3,
+            "api integration": 3,
+            "webhook": 2,
+            "external service": 2,
+            "payment": 3,
+            "authentication": 2,
+            "database": 2,
+            "deployment": 2,
         }
 
         # Risk indicators
         risk_patterns = {
-            'security': 4, 'production': 3, 'critical': 3,
-            'urgent': 2, 'hotfix': 3, 'vulnerability': 4
+            "security": 4,
+            "production": 3,
+            "critical": 3,
+            "urgent": 2,
+            "hotfix": 3,
+            "vulnerability": 4,
         }
 
         # Calculate scores for each dimension
         for pattern, weight in architectural_patterns.items():
             if pattern in description_lower:
-                complexity_indicators['architectural'] += weight
+                complexity_indicators["architectural"] += weight
 
         for pattern, weight in technical_patterns.items():
             if pattern in description_lower:
-                complexity_indicators['technical'] += weight
+                complexity_indicators["technical"] += weight
 
         for pattern, weight in scope_patterns.items():
             if pattern in description_lower:
-                complexity_indicators['scope'] += weight
+                complexity_indicators["scope"] += weight
 
         for pattern, weight in integration_patterns.items():
             if pattern in description_lower:
-                complexity_indicators['integration'] += weight
+                complexity_indicators["integration"] += weight
 
         for pattern, weight in risk_patterns.items():
             if pattern in description_lower:
-                complexity_indicators['risk'] += weight
+                complexity_indicators["risk"] += weight
 
         # Simple task indicators (negative scoring)
-        simple_patterns = ['fix typo', 'small change', 'minor', 'quick fix', 'simple']
-        simple_score = sum(2 for pattern in simple_patterns if pattern in description_lower)
+        simple_patterns = ["fix typo", "small change", "minor", "quick fix", "simple"]
+        simple_score = sum(
+            2 for pattern in simple_patterns if pattern in description_lower
+        )
 
         # Calculate total complexity score
         total_score = sum(complexity_indicators.values()) - simple_score
@@ -363,9 +389,9 @@ class LazyAgentOrchestrator:
             total_score += 2
         if len(words) > 25:
             total_score += 2
-        if description_lower.count(',') > 3:  # Multiple requirements
+        if description_lower.count(",") > 3:  # Multiple requirements
             total_score += 1
-        if any(word in description_lower for word in ['and', 'also', 'additionally']):
+        if any(word in description_lower for word in ["and", "also", "additionally"]):
             total_score += 1  # Multiple requirements
 
         # Determine complexity level with improved thresholds
@@ -389,9 +415,7 @@ class LazyAgentOrchestrator:
 
         # Enhanced cache key with execution history
         history_hash = hash(tuple(execution_history or []))
-        cache_key = (
-            f"{task_description[:80]}:{complexity}:{','.join(required_agents or [])}:{history_hash}"
-        )
+        cache_key = f"{task_description[:80]}:{complexity}:{','.join(required_agents or [])}:{history_hash}"
 
         if cache_key in self.combination_cache:
             self.metrics["cache_hits"] += 1
@@ -411,9 +435,9 @@ class LazyAgentOrchestrator:
 
         # Adjust count based on task characteristics
         feature_analysis = self._analyze_task_features_advanced(task_description)
-        if feature_analysis.get('multi_domain', False):
+        if feature_analysis.get("multi_domain", False):
             agent_count = min(agent_count + 1, 8)
-        if feature_analysis.get('high_risk', False):
+        if feature_analysis.get("high_risk", False):
             agent_count = min(agent_count + 1, 8)
 
         # Intelligent agent selection with ML-inspired scoring
@@ -423,7 +447,9 @@ class LazyAgentOrchestrator:
 
         # Historical optimization
         if execution_history:
-            selected_agents = self._optimize_with_history(selected_agents, execution_history)
+            selected_agents = self._optimize_with_history(
+                selected_agents, execution_history
+            )
 
         # Create enhanced result
         result = {
@@ -431,7 +457,9 @@ class LazyAgentOrchestrator:
             "agent_count": len(selected_agents),
             "selected_agents": selected_agents,
             "execution_mode": "parallel",
-            "estimated_time": self._estimate_time_advanced(complexity, feature_analysis),
+            "estimated_time": self._estimate_time_advanced(
+                complexity, feature_analysis
+            ),
             "selection_time": f"{(time.time() - start_time) * 1000:.2f}ms",
             "rationale": f"Intelligent selection: {complexity} task with {feature_analysis.get('primary_domains', [])} domains",
             "feature_analysis": feature_analysis,
@@ -453,57 +481,125 @@ class LazyAgentOrchestrator:
         words = set(description_lower.split())
 
         features = {
-            'domains': [],
-            'primary_domains': [],
-            'multi_domain': False,
-            'high_risk': False,
-            'requires_testing': False,
-            'requires_security': False,
-            'performance_critical': False
+            "domains": [],
+            "primary_domains": [],
+            "multi_domain": False,
+            "high_risk": False,
+            "requires_testing": False,
+            "requires_security": False,
+            "performance_critical": False,
         }
 
         # Enhanced domain detection with confidence scoring
         domain_patterns = {
-            'backend': {
-                'patterns': ['backend', 'server', 'api', 'database', 'service', 'microservice'],
-                'agents': ['backend-architect', 'backend-engineer', 'api-designer', 'database-specialist'],
-                'weight': 3
+            "backend": {
+                "patterns": [
+                    "backend",
+                    "server",
+                    "api",
+                    "database",
+                    "service",
+                    "microservice",
+                ],
+                "agents": [
+                    "backend-architect",
+                    "backend-engineer",
+                    "api-designer",
+                    "database-specialist",
+                ],
+                "weight": 3,
             },
-            'frontend': {
-                'patterns': ['frontend', 'ui', 'react', 'vue', 'angular', 'interface', 'component'],
-                'agents': ['frontend-specialist', 'react-pro', 'ux-designer', 'javascript-pro'],
-                'weight': 3
+            "frontend": {
+                "patterns": [
+                    "frontend",
+                    "ui",
+                    "react",
+                    "vue",
+                    "angular",
+                    "interface",
+                    "component",
+                ],
+                "agents": [
+                    "frontend-specialist",
+                    "react-pro",
+                    "ux-designer",
+                    "javascript-pro",
+                ],
+                "weight": 3,
             },
-            'fullstack': {
-                'patterns': ['fullstack', 'full-stack', 'end-to-end', 'complete application'],
-                'agents': ['fullstack-engineer', 'backend-architect', 'frontend-specialist'],
-                'weight': 4
+            "fullstack": {
+                "patterns": [
+                    "fullstack",
+                    "full-stack",
+                    "end-to-end",
+                    "complete application",
+                ],
+                "agents": [
+                    "fullstack-engineer",
+                    "backend-architect",
+                    "frontend-specialist",
+                ],
+                "weight": 4,
             },
-            'testing': {
-                'patterns': ['test', 'testing', 'quality', 'qa', 'verification', 'validation'],
-                'agents': ['test-engineer', 'e2e-test-specialist', 'performance-tester'],
-                'weight': 2
+            "testing": {
+                "patterns": [
+                    "test",
+                    "testing",
+                    "quality",
+                    "qa",
+                    "verification",
+                    "validation",
+                ],
+                "agents": [
+                    "test-engineer",
+                    "e2e-test-specialist",
+                    "performance-tester",
+                ],
+                "weight": 2,
             },
-            'security': {
-                'patterns': ['security', 'authentication', 'authorization', 'vulnerability', 'encryption'],
-                'agents': ['security-auditor', 'code-reviewer'],
-                'weight': 4
+            "security": {
+                "patterns": [
+                    "security",
+                    "authentication",
+                    "authorization",
+                    "vulnerability",
+                    "encryption",
+                ],
+                "agents": ["security-auditor", "code-reviewer"],
+                "weight": 4,
             },
-            'performance': {
-                'patterns': ['performance', 'optimization', 'speed', 'latency', 'throughput'],
-                'agents': ['performance-engineer', 'performance-tester'],
-                'weight': 3
+            "performance": {
+                "patterns": [
+                    "performance",
+                    "optimization",
+                    "speed",
+                    "latency",
+                    "throughput",
+                ],
+                "agents": ["performance-engineer", "performance-tester"],
+                "weight": 3,
             },
-            'deployment': {
-                'patterns': ['deploy', 'deployment', 'ci/cd', 'kubernetes', 'docker', 'production'],
-                'agents': ['deployment-manager', 'devops-engineer', 'monitoring-specialist'],
-                'weight': 3
+            "deployment": {
+                "patterns": [
+                    "deploy",
+                    "deployment",
+                    "ci/cd",
+                    "kubernetes",
+                    "docker",
+                    "production",
+                ],
+                "agents": [
+                    "deployment-manager",
+                    "devops-engineer",
+                    "monitoring-specialist",
+                ],
+                "weight": 3,
             },
-            'debugging': {
-                'patterns': ['bug', 'error', 'fix', 'debug', 'issue', 'problem'],
-                'agents': ['error-detective', 'test-engineer', 'code-reviewer'],
-                'weight': 2
-            }
+            "debugging": {
+                "patterns": ["bug", "error", "fix", "debug", "issue", "problem"],
+                "agents": ["error-detective", "test-engineer", "code-reviewer"],
+                "weight": 2,
+            },
         }
 
         domain_scores = {}
@@ -513,9 +609,9 @@ class LazyAgentOrchestrator:
             score = 0
             pattern_matches = 0
 
-            for pattern in config['patterns']:
+            for pattern in config["patterns"]:
                 if pattern in description_lower:
-                    score += config['weight']
+                    score += config["weight"]
                     pattern_matches += 1
 
             # Bonus for multiple pattern matches in same domain
@@ -524,35 +620,53 @@ class LazyAgentOrchestrator:
 
             if score > 0:
                 domain_scores[domain] = score
-                features['domains'].append({
-                    'domain': domain,
-                    'score': score,
-                    'agents': config['agents'],
-                    'matches': pattern_matches
-                })
+                features["domains"].append(
+                    {
+                        "domain": domain,
+                        "score": score,
+                        "agents": config["agents"],
+                        "matches": pattern_matches,
+                    }
+                )
 
         # Identify primary domains (top scorers)
         if domain_scores:
             max_score = max(domain_scores.values())
-            features['primary_domains'] = [
-                domain for domain, score in domain_scores.items()
+            features["primary_domains"] = [
+                domain
+                for domain, score in domain_scores.items()
                 if score >= max_score * 0.7  # Within 70% of top score
             ]
 
         # Multi-domain detection
-        features['multi_domain'] = len(features['primary_domains']) > 2
+        features["multi_domain"] = len(features["primary_domains"]) > 2
 
         # Risk indicators
-        risk_keywords = ['production', 'critical', 'urgent', 'security', 'payment', 'user data']
-        features['high_risk'] = any(keyword in description_lower for keyword in risk_keywords)
+        risk_keywords = [
+            "production",
+            "critical",
+            "urgent",
+            "security",
+            "payment",
+            "user data",
+        ]
+        features["high_risk"] = any(
+            keyword in description_lower for keyword in risk_keywords
+        )
 
         # Special requirements
-        features['requires_testing'] = any(keyword in description_lower for keyword in
-            ['test', 'quality', 'verification', 'validation'])
-        features['requires_security'] = any(keyword in description_lower for keyword in
-            ['security', 'authentication', 'vulnerability', 'encryption'])
-        features['performance_critical'] = any(keyword in description_lower for keyword in
-            ['performance', 'optimization', 'speed', 'latency'])
+        features["requires_testing"] = any(
+            keyword in description_lower
+            for keyword in ["test", "quality", "verification", "validation"]
+        )
+        features["requires_security"] = any(
+            keyword in description_lower
+            for keyword in ["security", "authentication", "vulnerability", "encryption"]
+        )
+        features["performance_critical"] = any(
+            keyword in description_lower
+            for keyword in ["performance", "optimization", "speed", "latency"]
+        )
 
         return features
 
@@ -562,7 +676,7 @@ class LazyAgentOrchestrator:
         complexity: str,
         feature_analysis: Dict[str, Any],
         target_count: int,
-        required_agents: Optional[List[str]] = None
+        required_agents: Optional[List[str]] = None,
     ) -> List[str]:
         """Select agents using intelligent scoring algorithm"""
         selected_agents = []
@@ -573,19 +687,19 @@ class LazyAgentOrchestrator:
             selected_agents.extend(required_agents[:target_count])
 
         # Score agents based on domain relevance
-        for domain_info in feature_analysis.get('domains', []):
-            domain_score = domain_info['score']
-            for agent in domain_info['agents']:
+        for domain_info in feature_analysis.get("domains", []):
+            domain_score = domain_info["score"]
+            for agent in domain_info["agents"]:
                 if agent not in agent_scores:
                     agent_scores[agent] = 0
                 agent_scores[agent] += domain_score
 
         # Always ensure core agents for reliability
         core_agents = {
-            'backend-architect': 5,
-            'test-engineer': 4,
-            'security-auditor': 3,
-            'code-reviewer': 3
+            "backend-architect": 5,
+            "test-engineer": 4,
+            "security-auditor": 3,
+            "code-reviewer": 3,
         }
 
         for agent, base_score in core_agents.items():
@@ -595,8 +709,12 @@ class LazyAgentOrchestrator:
                 agent_scores[agent] += base_score * 0.5  # Bonus for core agents
 
         # Complexity-based adjustments
-        if complexity == 'complex':
-            specialist_agents = ['performance-engineer', 'devops-engineer', 'database-specialist']
+        if complexity == "complex":
+            specialist_agents = [
+                "performance-engineer",
+                "devops-engineer",
+                "database-specialist",
+            ]
             for agent in specialist_agents:
                 if agent in agent_scores:
                     agent_scores[agent] *= 1.3
@@ -610,7 +728,9 @@ class LazyAgentOrchestrator:
 
         return selected_agents[:target_count]
 
-    def _optimize_with_history(self, selected_agents: List[str], execution_history: List[str]) -> List[str]:
+    def _optimize_with_history(
+        self, selected_agents: List[str], execution_history: List[str]
+    ) -> List[str]:
         """Optimize agent selection based on execution history"""
         # Simple historical optimization - prefer agents that worked well recently
         # This is a placeholder for more sophisticated ML-based optimization
@@ -618,41 +738,47 @@ class LazyAgentOrchestrator:
         # Count successful agent usage patterns
         agent_success_count = {}
         for entry in execution_history:
-            if 'success' in entry.lower():
+            if "success" in entry.lower():
                 # Extract agent names from history (simplified)
                 for agent in selected_agents:
-                    if agent.replace('-', ' ') in entry.lower():
-                        agent_success_count[agent] = agent_success_count.get(agent, 0) + 1
+                    if agent.replace("-", " ") in entry.lower():
+                        agent_success_count[agent] = (
+                            agent_success_count.get(agent, 0) + 1
+                        )
 
         # Reorder selected agents to prioritize successful ones
         if agent_success_count:
-            selected_agents.sort(key=lambda x: agent_success_count.get(x, 0), reverse=True)
+            selected_agents.sort(
+                key=lambda x: agent_success_count.get(x, 0), reverse=True
+            )
 
         return selected_agents
 
-    def _estimate_time_advanced(self, complexity: str, feature_analysis: Dict[str, Any]) -> str:
+    def _estimate_time_advanced(
+        self, complexity: str, feature_analysis: Dict[str, Any]
+    ) -> str:
         """Advanced time estimation based on complexity and features"""
         base_times = {"simple": 8, "standard": 18, "complex": 28}  # minutes
 
         base_time = base_times[complexity]
 
         # Adjust based on features
-        if feature_analysis.get('multi_domain', False):
+        if feature_analysis.get("multi_domain", False):
             base_time += 5
-        if feature_analysis.get('high_risk', False):
+        if feature_analysis.get("high_risk", False):
             base_time += 3
-        if feature_analysis.get('performance_critical', False):
+        if feature_analysis.get("performance_critical", False):
             base_time += 4
 
         # Domain-specific adjustments
         domain_multipliers = {
-            'security': 1.2,
-            'performance': 1.15,
-            'deployment': 1.1,
-            'fullstack': 1.25
+            "security": 1.2,
+            "performance": 1.15,
+            "deployment": 1.1,
+            "fullstack": 1.25,
         }
 
-        for domain in feature_analysis.get('primary_domains', []):
+        for domain in feature_analysis.get("primary_domains", []):
             if domain in domain_multipliers:
                 base_time = int(base_time * domain_multipliers[domain])
 

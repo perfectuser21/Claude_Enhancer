@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites name="vitest tests" tests="0" failures="0" errors="0" time="1.508">
+    <testsuite name="src/__tests__/components/Avatar.test.tsx" timestamp="2025-09-27T07:00:35.896Z" hostname="Perfect21-VPS" tests="0" failures="0" errors="0" skipped="0" time="0">
+    </testsuite>
+    <testsuite name="src/__tests__/components/PriorityBadge.test.tsx" timestamp="2025-09-27T07:00:35.897Z" hostname="Perfect21-VPS" tests="0" failures="0" errors="0" skipped="0" time="0">
+    </testsuite>
+    <testsuite name="src/__tests__/components/StatusBadge.test.tsx" timestamp="2025-09-27T07:00:35.897Z" hostname="Perfect21-VPS" tests="0" failures="0" errors="0" skipped="0" time="0">
+    </testsuite>
+</testsuites>

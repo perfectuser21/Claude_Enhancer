@@ -36,6 +36,7 @@ import hashlib
 # 性能监控装饰器
 def performance_monitor(func):
     """性能监控装饰器"""
+
     def wrapper(*args, **kwargs):
         start_time = time.time()
         start_memory = psutil.Process().memory_info().rss
@@ -49,14 +50,18 @@ def performance_monitor(func):
         memory_delta = end_memory - start_memory
 
         if duration > 0.1:  # 只记录耗时超过100ms的操作
-            print(f"⚡ {func.__name__}: {duration*1000:.2f}ms, 内存变化: {memory_delta/1024/1024:.2f}MB")
+            print(
+                f"⚡ {func.__name__}: {duration*1000:.2f}ms, 内存变化: {memory_delta/1024/1024:.2f}MB"
+            )
 
         return result
+
     return wrapper
 
 
 class AgentCategory(IntEnum):
     """Agent分类枚举 - 使用整数减少内存"""
+
     BUSINESS = 1
     DEVELOPMENT = 2
     QUALITY = 3
@@ -67,6 +72,7 @@ class AgentCategory(IntEnum):
 @dataclass
 class CompactAgentMetadata:
     """压缩的Agent元数据结构"""
+
     name: str
     category: AgentCategory
     priority: int
@@ -78,7 +84,9 @@ class CompactAgentMetadata:
         self.last_used = time.time()
 
     @classmethod
-    def from_legacy(cls, name: str, category: str, priority: int, combinations: List[str]):
+    def from_legacy(
+        cls, name: str, category: str, priority: int, combinations: List[str]
+    ):
         """从旧格式转换"""
         cat_map = {
             "business": AgentCategory.BUSINESS,
@@ -96,7 +104,7 @@ class CompactAgentMetadata:
             name=name,
             category=cat_map.get(category, AgentCategory.SPECIALIZED),
             priority=priority,
-            combinations_hash=combinations_hash
+            combinations_hash=combinations_hash,
         )
 
     def update_usage(self):
@@ -128,7 +136,7 @@ class MemoryEfficientCache:
             "l2_hits": 0,
             "l3_hits": 0,
             "misses": 0,
-            "evictions": 0
+            "evictions": 0,
         }
 
     def get(self, key: str) -> Optional[Any]:
@@ -207,12 +215,15 @@ class MemoryEfficientCache:
             "l1_hit_rate": self.stats["l1_hits"] / total_ops,
             "l2_hit_rate": self.stats["l2_hits"] / total_ops,
             "l3_hit_rate": self.stats["l3_hits"] / total_ops,
-            "overall_hit_rate": (self.stats["l1_hits"] + self.stats["l2_hits"] + self.stats["l3_hits"]) / total_ops,
+            "overall_hit_rate": (
+                self.stats["l1_hits"] + self.stats["l2_hits"] + self.stats["l3_hits"]
+            )
+            / total_ops,
             "cache_sizes": {
                 "l1": len(self.l1_cache),
                 "l2": len(self.l2_cache),
-                "l3": len(self.l3_cache)
-            }
+                "l3": len(self.l3_cache),
+            },
         }
 
     def cleanup(self):
@@ -231,24 +242,45 @@ class OptimizedFeatureDetector:
     def __init__(self):
         # 预编译正则表达式模式
         self.compiled_patterns = {
-            'backend': re.compile(r'\b(backend|api|server|后端|接口|数据库|database)\b', re.I | re.M),
-            'frontend': re.compile(r'\b(frontend|ui|react|vue|前端|界面|page|页面)\b', re.I | re.M),
-            'testing': re.compile(r'\b(test|testing|质量|测试|验证|validation)\b', re.I | re.M),
-            'security': re.compile(r'\b(security|安全|漏洞|vulnerability|auth|认证)\b', re.I | re.M),
-            'performance': re.compile(r'\b(performance|性能|优化|optimization|速度|缓存)\b', re.I | re.M),
-            'deployment': re.compile(r'\b(deploy|部署|ci|cd|docker|k8s|production)\b', re.I | re.M),
-            'debugging': re.compile(r'\b(bug|error|fix|修复|错误|调试|debug)\b', re.I | re.M),
+            "backend": re.compile(
+                r"\b(backend|api|server|后端|接口|数据库|database)\b", re.I | re.M
+            ),
+            "frontend": re.compile(
+                r"\b(frontend|ui|react|vue|前端|界面|page|页面)\b", re.I | re.M
+            ),
+            "testing": re.compile(
+                r"\b(test|testing|质量|测试|验证|validation)\b", re.I | re.M
+            ),
+            "security": re.compile(
+                r"\b(security|安全|漏洞|vulnerability|auth|认证)\b", re.I | re.M
+            ),
+            "performance": re.compile(
+                r"\b(performance|性能|优化|optimization|速度|缓存)\b", re.I | re.M
+            ),
+            "deployment": re.compile(
+                r"\b(deploy|部署|ci|cd|docker|k8s|production)\b", re.I | re.M
+            ),
+            "debugging": re.compile(r"\b(bug|error|fix|修复|错误|调试|debug)\b", re.I | re.M),
         }
 
         # 特征对应的Agent映射 (使用位运算加速)
         self.feature_agents = {
-            'backend': ["backend-architect", "backend-engineer", "api-designer", "database-specialist"],
-            'frontend': ["frontend-specialist", "react-pro", "ux-designer"],
-            'testing': ["test-engineer", "e2e-test-specialist", "performance-tester"],
-            'security': ["security-auditor", "code-reviewer"],
-            'performance': ["performance-engineer", "performance-tester"],
-            'deployment': ["deployment-manager", "devops-engineer", "monitoring-specialist"],
-            'debugging': ["error-detective", "test-engineer", "code-reviewer"],
+            "backend": [
+                "backend-architect",
+                "backend-engineer",
+                "api-designer",
+                "database-specialist",
+            ],
+            "frontend": ["frontend-specialist", "react-pro", "ux-designer"],
+            "testing": ["test-engineer", "e2e-test-specialist", "performance-tester"],
+            "security": ["security-auditor", "code-reviewer"],
+            "performance": ["performance-engineer", "performance-tester"],
+            "deployment": [
+                "deployment-manager",
+                "devops-engineer",
+                "monitoring-specialist",
+            ],
+            "debugging": ["error-detective", "test-engineer", "code-reviewer"],
         }
 
     @performance_monitor
@@ -277,7 +309,14 @@ class OptimizedFeatureDetector:
         text_lower = text.lower()
 
         # 快速关键词计数
-        complex_keywords = ["architecture", "system", "microservices", "distributed", "migration", "refactor"]
+        complex_keywords = [
+            "architecture",
+            "system",
+            "microservices",
+            "distributed",
+            "migration",
+            "refactor",
+        ]
         score += sum(1 for kw in complex_keywords if kw in text_lower) * 2
 
         # 长度指标 (避免split()操作)
@@ -307,8 +346,7 @@ class SharedResourceManager:
         """初始化共享资源"""
         cpu_count = os.cpu_count() or 4
         self.thread_pool = ThreadPoolExecutor(
-            max_workers=min(4, cpu_count),
-            thread_name_prefix="claude-enhancer-shared"
+            max_workers=min(4, cpu_count), thread_name_prefix="claude-enhancer-shared"
         )
 
         self.feature_detector = OptimizedFeatureDetector()
@@ -333,9 +371,10 @@ class SharedResourceManager:
         current_time = time.time()
 
         # 如果内存超过阈值或者距离上次GC超过60秒
-        if (current_memory > self.memory_threshold or
-            current_time - self.last_gc_time > 60):
-
+        if (
+            current_memory > self.memory_threshold
+            or current_time - self.last_gc_time > 60
+        ):
             gc.collect()  # 强制垃圾回收
             self.last_gc_time = current_time
 
@@ -374,7 +413,7 @@ class OptimizedLazyOrchestrator:
             "selections_made": 0,
             "cache_hits": 0,
             "memory_gcs": 0,
-            "agent_loads": 0
+            "agent_loads": 0,
         }
 
         # 快速初始化
@@ -398,13 +437,13 @@ class OptimizedLazyOrchestrator:
         # 快速构建元数据
         for name, category, priority in core_agents_data:
             self.agent_metadata[name] = CompactAgentMetadata(
-                name=name,
-                category=category,
-                priority=priority
+                name=name, category=category, priority=priority
             )
 
         self.stats["startup_time"] = time.time() - self.start_time
-        print(f"🚀 OptimizedLazyOrchestrator 初始化完成 ({self.stats['startup_time']*1000:.2f}ms)")
+        print(
+            f"🚀 OptimizedLazyOrchestrator 初始化完成 ({self.stats['startup_time']*1000:.2f}ms)"
+        )
 
     @performance_monitor
     def select_agents_ultra_fast(
@@ -418,13 +457,17 @@ class OptimizedLazyOrchestrator:
         self.stats["selections_made"] += 1
 
         # 检查缓存
-        cache_key = f"{hash(task_description)}:{complexity}:{hash(str(required_agents))}"
+        cache_key = (
+            f"{hash(task_description)}:{complexity}:{hash(str(required_agents))}"
+        )
         cache = self.resource_manager.get_cache()
         cached_result = cache.get(cache_key)
 
         if cached_result:
             self.stats["cache_hits"] += 1
-            cached_result["selection_time"] = f"{(time.time() - start_time)*1000:.2f}ms (cached)"
+            cached_result[
+                "selection_time"
+            ] = f"{(time.time() - start_time)*1000:.2f}ms (cached)"
             return cached_result
 
         # 智能内存管理
@@ -469,7 +512,12 @@ class OptimizedLazyOrchestrator:
                     selected_agents.append(agent)
 
         # 3. 用高优先级Agent填充剩余位置
-        high_priority = ["backend-architect", "test-engineer", "security-auditor", "code-reviewer"]
+        high_priority = [
+            "backend-architect",
+            "test-engineer",
+            "security-auditor",
+            "code-reviewer",
+        ]
         for agent in high_priority:
             if agent not in selected_agents and len(selected_agents) < agent_count:
                 selected_agents.append(agent)
@@ -496,11 +544,7 @@ class OptimizedLazyOrchestrator:
 
     def _estimate_time_ultra_fast(self, complexity: str) -> str:
         """极速时间估算"""
-        time_map = {
-            "simple": "3-5分钟",
-            "standard": "10-15分钟",
-            "complex": "20-25分钟"
-        }
+        time_map = {"simple": "3-5分钟", "standard": "10-15分钟", "complex": "20-25分钟"}
         return time_map[complexity]
 
     @performance_monitor
@@ -545,6 +589,7 @@ class OptimizedLazyOrchestrator:
 
     def _create_optimized_executor(self, agent_name: str):
         """创建优化的执行器"""
+
         def execute(task: str, context: Dict[str, Any] = None) -> Dict[str, Any]:
             return {
                 "agent": agent_name,
@@ -554,14 +599,12 @@ class OptimizedLazyOrchestrator:
                 "context": context or {},
                 "execution_time": 0.001,  # 模拟极快执行
             }
+
         return execute
 
     @performance_monitor
     def execute_parallel_optimized(
-        self,
-        agent_names: List[str],
-        task: str,
-        context: Dict[str, Any] = None
+        self, agent_names: List[str], task: str, context: Dict[str, Any] = None
     ) -> List[Dict[str, Any]]:
         """优化的并行执行"""
         start_time = time.time()
@@ -583,12 +626,14 @@ class OptimizedLazyOrchestrator:
                 result = future.result(timeout=5)
                 results.append(result)
             except Exception as e:
-                results.append({
-                    "agent": agent_name,
-                    "success": False,
-                    "error": str(e),
-                    "task": task
-                })
+                results.append(
+                    {
+                        "agent": agent_name,
+                        "success": False,
+                        "error": str(e),
+                        "task": task,
+                    }
+                )
 
         execution_time = time.time() - start_time
         print(f"⚡ 并行执行 {len(agents)} 个Agent ({execution_time*1000:.2f}ms)")
@@ -616,17 +661,24 @@ class OptimizedLazyOrchestrator:
                 "total_agents": len(self.agent_metadata),
                 "loaded_agents": len(self.loaded_agents),
                 "most_used": sorted(
-                    [(name, meta.load_count) for name, meta in self.agent_metadata.items()],
+                    [
+                        (name, meta.load_count)
+                        for name, meta in self.agent_metadata.items()
+                    ],
                     key=lambda x: x[1],
-                    reverse=True
-                )[:5]
+                    reverse=True,
+                )[:5],
             },
             "performance_summary": {
                 "startup_time_ms": self.stats["startup_time"] * 1000,
-                "avg_selection_time": "< 1ms (cached)" if self.stats["cache_hits"] > 0 else "< 5ms",
+                "avg_selection_time": "< 1ms (cached)"
+                if self.stats["cache_hits"] > 0
+                else "< 5ms",
                 "cache_hit_rate": f"{(self.stats['cache_hits'] / max(1, self.stats['selections_made'])) * 100:.1f}%",
-                "memory_efficiency": "优秀" if memory_info.rss < 50 * 1024 * 1024 else "良好",
-            }
+                "memory_efficiency": "优秀"
+                if memory_info.rss < 50 * 1024 * 1024
+                else "良好",
+            },
         }
 
     def benchmark_performance(self, iterations: int = 50) -> Dict[str, Any]:
@@ -684,22 +736,30 @@ class OptimizedLazyOrchestrator:
                 "avg_time_ms": avg_time,
                 "min_time_ms": min_time,
                 "max_time_ms": max_time,
-                "p95_time_ms": sorted(selection_times)[int(len(selection_times) * 0.95)],
+                "p95_time_ms": sorted(selection_times)[
+                    int(len(selection_times) * 0.95)
+                ],
                 "throughput_ops_per_second": iterations / total_time,
             },
             "memory_performance": {
                 "start_memory_mb": start_memory / 1024 / 1024,
                 "end_memory_mb": end_memory / 1024 / 1024,
                 "memory_delta_mb": memory_delta / 1024 / 1024,
-                "avg_memory_mb": sum(memory_usage) / len(memory_usage) / 1024 / 1024 if memory_usage else 0,
+                "avg_memory_mb": sum(memory_usage) / len(memory_usage) / 1024 / 1024
+                if memory_usage
+                else 0,
             },
-            "performance_rating": self._calculate_performance_rating(avg_time, memory_delta),
-            "improvement_vs_original": "75-85% 性能提升"
+            "performance_rating": self._calculate_performance_rating(
+                avg_time, memory_delta
+            ),
+            "improvement_vs_original": "75-85% 性能提升",
         }
 
         print("📊 基准测试结果:")
         print(f"  平均选择时间: {avg_time:.2f}ms")
-        print(f"  吞吐量: {results['selection_performance']['throughput_ops_per_second']:.0f} ops/s")
+        print(
+            f"  吞吐量: {results['selection_performance']['throughput_ops_per_second']:.0f} ops/s"
+        )
         print(f"  内存变化: {memory_delta/1024/1024:.2f}MB")
         print(f"  性能评级: {results['performance_rating']}")
 
@@ -707,11 +767,11 @@ class OptimizedLazyOrchestrator:
 
     def _calculate_performance_rating(self, avg_time: float, memory_delta: int) -> str:
         """计算性能评级"""
-        if avg_time < 1.0 and memory_delta < 10*1024*1024:  # <1ms, <10MB
+        if avg_time < 1.0 and memory_delta < 10 * 1024 * 1024:  # <1ms, <10MB
             return "🏆 卓越"
-        elif avg_time < 5.0 and memory_delta < 50*1024*1024:  # <5ms, <50MB
+        elif avg_time < 5.0 and memory_delta < 50 * 1024 * 1024:  # <5ms, <50MB
             return "⭐ 优秀"
-        elif avg_time < 10.0 and memory_delta < 100*1024*1024:  # <10ms, <100MB
+        elif avg_time < 10.0 and memory_delta < 100 * 1024 * 1024:  # <10ms, <100MB
             return "✅ 良好"
         else:
             return "⚠️ 需要优化"
@@ -747,7 +807,9 @@ def main():
 
     else:
         # 快速功能测试
-        test_task = "implement high-performance user authentication with JWT and Redis caching"
+        test_task = (
+            "implement high-performance user authentication with JWT and Redis caching"
+        )
         print(f"\n🧪 测试任务: {test_task}")
 
         result = orchestrator.select_agents_ultra_fast(test_task)

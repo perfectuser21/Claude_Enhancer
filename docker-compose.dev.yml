@@ -1,0 +1,166 @@
+# =============================================================================
+# Docker Compose Configuration for Claude Enhancer 5.1 - Development
+# Optimized for local development with hot reload
+# =============================================================================
+
+version: '3.8'
+
+# =============================================================================
+# Development Services Override
+# =============================================================================
+services:
+  # ---------------------------------------------------------------------------
+  # Database: PostgreSQL with Development Settings
+  # ---------------------------------------------------------------------------
+  database:
+    environment:
+      POSTGRES_DB: claude_enhancer_dev
+      POSTGRES_USER: dev_user
+      POSTGRES_PASSWORD: dev_password
+      POSTGRES_HOST_AUTH_METHOD: trust  # More relaxed for development
+    ports:
+      - "5433:5432"  # Different port to avoid conflicts
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+      - ./database/dev-init.sql:/docker-entrypoint-initdb.d/dev-init.sql:ro
+    command: >
+      postgres
+      -c log_statement=all
+      -c log_destination=stderr
+      -c logging_collector=on
+      -c max_connections=200
+      -c shared_buffers=256MB
+
+  # ---------------------------------------------------------------------------
+  # Cache: Redis with Development Settings
+  # ---------------------------------------------------------------------------
+  cache:
+    command: >
+      redis-server
+      --requirepass dev_redis_password
+      --maxmemory 128mb
+      --maxmemory-policy allkeys-lru
+      --save ""
+      --loglevel verbose
+    ports:
+      - "6380:6379"  # Different port for development
+    volumes:
+      - redis_dev_data:/data
+
+  # ---------------------------------------------------------------------------
+  # Backend: FastAPI with Hot Reload
+  # ---------------------------------------------------------------------------
+  backend:
+    build:
+      target: development
+    environment:
+      CLAUDE_ENV: development
+      DEBUG: true
+      DATABASE_URL: postgresql://dev_user:dev_password@database:5432/claude_enhancer_dev
+      REDIS_URL: redis://:dev_redis_password@cache:6379/0
+      SECRET_KEY: dev-secret-key
+      JWT_SECRET_KEY: dev-jwt-secret
+      LOG_LEVEL: DEBUG
+      BACKEND_CORS_ORIGINS: '["http://localhost:3000","http://localhost:3001","http://localhost:8080"]'
+    volumes:
+      - .:/app  # Mount source code for hot reload
+      - /app/node_modules  # Exclude node_modules
+    ports:
+      - "8001:8000"  # Different port for development
+    command: uvicorn run_api:app --host 0.0.0.0 --port 8000 --reload --log-level debug
+
+  # ---------------------------------------------------------------------------
+  # Frontend: React with Vite Hot Reload
+  # ---------------------------------------------------------------------------
+  frontend:
+    build:
+      target: development
+    environment:
+      NODE_ENV: development
+      REACT_APP_API_URL: http://localhost:8001/api
+      REACT_APP_ENVIRONMENT: development
+      FAST_REFRESH: true
+      CHOKIDAR_USEPOLLING: true  # For file watching in Docker
+    volumes:
+      - ./frontend:/app  # Mount source code for hot reload
+      - /app/node_modules  # Exclude node_modules
+      - ./frontend/.env.development:/app/.env:ro
+    ports:
+      - "3000:3000"  # React dev server port
+    command: npm start
+    stdin_open: true  # Keep stdin open for React
+    tty: true
+
+  # ---------------------------------------------------------------------------
+  # Development Tools: Database Admin (pgAdmin)
+  # ---------------------------------------------------------------------------
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: claude-enhancer-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: dev@claude-enhancer.com
+      PGADMIN_DEFAULT_PASSWORD: dev_password
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    ports:
+      - "5050:80"
+    networks:
+      - claude-enhancer
+    depends_on:
+      - database
+
+  # ---------------------------------------------------------------------------
+  # Development Tools: Redis Admin (RedisInsight)
+  # ---------------------------------------------------------------------------
+  redis-insight:
+    image: redislabs/redisinsight:latest
+    container_name: claude-enhancer-redis-insight
+    restart: unless-stopped
+    ports:
+      - "8002:8001"
+    networks:
+      - claude-enhancer
+    depends_on:
+      - cache
+
+  # ---------------------------------------------------------------------------
+  # Development Tools: API Documentation (Swagger UI)
+  # ---------------------------------------------------------------------------
+  swagger-ui:
+    image: swaggerapi/swagger-ui
+    container_name: claude-enhancer-swagger
+    environment:
+      SWAGGER_JSON: /api-spec/api_spec.yaml
+      API_URL: http://localhost:8001/docs
+    volumes:
+      - ./api_spec.yaml:/api-spec/api_spec.yaml:ro
+    ports:
+      - "8003:8080"
+    networks:
+      - claude-enhancer
+
+  # ---------------------------------------------------------------------------
+  # Development Tools: MailHog (Email Testing)
+  # ---------------------------------------------------------------------------
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: claude-enhancer-mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"  # SMTP server
+      - "8025:8025"  # Web interface
+    networks:
+      - claude-enhancer
+
+# =============================================================================
+# Development Volumes
+# =============================================================================
+volumes:
+  postgres_dev_data:
+    driver: local
+  redis_dev_data:
+    driver: local
+  pgadmin_data:
+    driver: local
