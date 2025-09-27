@@ -11,31 +11,38 @@ import json
 import time
 from pathlib import Path
 
+
 # 添加颜色输出
 class Colors:
-    GREEN = '\033[92m'
-    YELLOW = '\033[93m'
-    RED = '\033[91m'
-    BLUE = '\033[94m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
+    GREEN = "\033[92m"
+    YELLOW = "\033[93m"
+    RED = "\033[91m"
+    BLUE = "\033[94m"
+    ENDC = "\033[0m"
+    BOLD = "\033[1m"
+
 
 def print_header(text):
     print(f"\n{Colors.BOLD}{Colors.BLUE}{'='*60}{Colors.ENDC}")
     print(f"{Colors.BOLD}{Colors.BLUE}{text:^60}{Colors.ENDC}")
     print(f"{Colors.BOLD}{Colors.BLUE}{'='*60}{Colors.ENDC}\n")
 
+
 def print_success(text):
     print(f"{Colors.GREEN}✅ {text}{Colors.ENDC}")
+
 
 def print_warning(text):
     print(f"{Colors.YELLOW}⚠️  {text}{Colors.ENDC}")
 
+
 def print_error(text):
     print(f"{Colors.RED}❌ {text}{Colors.ENDC}")
 
+
 def print_info(text):
     print(f"{Colors.BLUE}ℹ️  {text}{Colors.ENDC}")
+
 
 class DocGateSystemTest:
     def __init__(self):
@@ -73,7 +80,7 @@ class DocGateSystemTest:
             ".git/hooks/pre-push-docs",
             "docs/templates/requirement.md",
             "docs/templates/design.md",
-            "docs/templates/api.md"
+            "docs/templates/api.md",
         ]
 
         for config_file in config_files:
@@ -83,18 +90,22 @@ class DocGateSystemTest:
             if file_path.exists():
                 print_success(f"配置文件存在: {config_file}")
                 self.passed_tests += 1
-                self.test_results.append({
-                    "test": f"Config: {config_file}",
-                    "status": "PASS",
-                    "message": "File exists"
-                })
+                self.test_results.append(
+                    {
+                        "test": f"Config: {config_file}",
+                        "status": "PASS",
+                        "message": "File exists",
+                    }
+                )
             else:
                 print_error(f"配置文件缺失: {config_file}")
-                self.test_results.append({
-                    "test": f"Config: {config_file}",
-                    "status": "FAIL",
-                    "message": "File not found"
-                })
+                self.test_results.append(
+                    {
+                        "test": f"Config: {config_file}",
+                        "status": "FAIL",
+                        "message": "File not found",
+                    }
+                )
 
     def test_git_hooks(self):
         """测试Git Hooks功能"""
@@ -104,7 +115,7 @@ class DocGateSystemTest:
         test_files = [
             ("test_valid.md", "# Valid Document\n\n## Summary\n\nThis is valid."),
             ("test-copy.md", "# Copy Document\n\nThis should be rejected."),
-            ("test_sensitive.md", "# Document\n\npassword = 'secret123'")
+            ("test_sensitive.md", "# Document\n\npassword = 'secret123'"),
         ]
 
         for filename, content in test_files:
@@ -119,7 +130,7 @@ class DocGateSystemTest:
                 [str(self.project_root / ".git/hooks/pre-commit-docs")],
                 capture_output=True,
                 text=True,
-                env={**os.environ, "GIT_DIR": str(self.project_root / ".git")}
+                env={**os.environ, "GIT_DIR": str(self.project_root / ".git")},
             )
 
             if "copy" in filename or "sensitive" in filename:
@@ -141,11 +152,13 @@ class DocGateSystemTest:
                     print_error(f"错误地拒绝了: {filename}")
                     status = "FAIL"
 
-            self.test_results.append({
-                "test": f"Hook: {filename}",
-                "status": status,
-                "message": result.stdout[:100] if result.stdout else "No output"
-            })
+            self.test_results.append(
+                {
+                    "test": f"Hook: {filename}",
+                    "status": status,
+                    "message": result.stdout[:100] if result.stdout else "No output",
+                }
+            )
 
             # 清理测试文件
             test_file.unlink(missing_ok=True)
@@ -176,13 +189,13 @@ Well-written conclusion.
 
 Last Updated: 2024-09-27
 """,
-                "expected_quality": "high"
+                "expected_quality": "high",
             },
             {
                 "name": "low_quality.md",
                 "content": "# Title\n\nSome text.",
-                "expected_quality": "low"
-            }
+                "expected_quality": "low",
+            },
         ]
 
         for doc in test_docs:
@@ -192,8 +205,8 @@ Last Updated: 2024-09-27
             doc_path.write_text(doc["content"])
 
             # 这里简单模拟质量检查
-            lines = doc["content"].count('\n')
-            sections = doc["content"].count('##')
+            lines = doc["content"].count("\n")
+            sections = doc["content"].count("##")
 
             if lines > 10 and sections >= 3:
                 actual_quality = "high"
@@ -208,11 +221,13 @@ Last Updated: 2024-09-27
                 print_error(f"质量评估错误: {doc['name']}")
                 status = "FAIL"
 
-            self.test_results.append({
-                "test": f"Quality: {doc['name']}",
-                "status": status,
-                "message": f"Expected: {doc['expected_quality']}, Got: {actual_quality}"
-            })
+            self.test_results.append(
+                {
+                    "test": f"Quality: {doc['name']}",
+                    "status": status,
+                    "message": f"Expected: {doc['expected_quality']}, Got: {actual_quality}",
+                }
+            )
 
             # 清理
             doc_path.unlink(missing_ok=True)
@@ -234,7 +249,7 @@ Last Updated: 2024-09-27
             [str(self.project_root / ".git/hooks/pre-commit-docs")],
             capture_output=True,
             text=True,
-            timeout=1
+            timeout=1,
         )
 
         elapsed_time = (time.time() - start_time) * 1000  # 转换为毫秒
@@ -247,11 +262,13 @@ Last Updated: 2024-09-27
             print_warning(f"Pre-commit性能未达标: {elapsed_time:.2f}ms > 50ms")
             status = "WARN"
 
-        self.test_results.append({
-            "test": "Performance: pre-commit",
-            "status": status,
-            "message": f"{elapsed_time:.2f}ms"
-        })
+        self.test_results.append(
+            {
+                "test": "Performance: pre-commit",
+                "status": status,
+                "message": f"{elapsed_time:.2f}ms",
+            }
+        )
 
         # 清理
         test_file.unlink(missing_ok=True)
@@ -261,7 +278,9 @@ Last Updated: 2024-09-27
         print_header("测试报告")
 
         # 统计结果
-        pass_rate = (self.passed_tests / self.total_tests * 100) if self.total_tests > 0 else 0
+        pass_rate = (
+            (self.passed_tests / self.total_tests * 100) if self.total_tests > 0 else 0
+        )
 
         print(f"总测试数: {self.total_tests}")
         print(f"通过数: {self.passed_tests}")
@@ -273,13 +292,15 @@ Last Updated: 2024-09-27
         print("-" * 60)
         for result in self.test_results:
             status_color = Colors.GREEN if result["status"] == "PASS" else Colors.RED
-            print(f"{status_color}{result['status']:6}{Colors.ENDC} | {result['test']:30} | {result['message'][:30]}")
+            print(
+                f"{status_color}{result['status']:6}{Colors.ENDC} | {result['test']:30} | {result['message'][:30]}"
+            )
 
         # 生成报告文件
         report_path = self.project_root / "docs" / "DOCGATE_TEST_REPORT.md"
         report_path.parent.mkdir(exist_ok=True)
 
-        with open(report_path, 'w') as f:
+        with open(report_path, "w") as f:
             f.write(f"# DocGate文档质量管理系统 - 测试报告\n\n")
             f.write(f"测试时间: {time.strftime('%Y-%m-%d %H:%M:%S')}\n\n")
             f.write(f"## 测试统计\n\n")
@@ -291,12 +312,15 @@ Last Updated: 2024-09-27
             f.write(f"| 状态 | 测试项 | 说明 |\n")
             f.write(f"|------|--------|------|\n")
             for result in self.test_results:
-                f.write(f"| {result['status']} | {result['test']} | {result['message']} |\n")
+                f.write(
+                    f"| {result['status']} | {result['test']} | {result['message']} |\n"
+                )
 
         print_info(f"\n测试报告已保存到: docs/DOCGATE_TEST_REPORT.md")
 
         # 返回测试结果
         return pass_rate >= 80  # 80%以上算通过
+
 
 if __name__ == "__main__":
     tester = DocGateSystemTest()

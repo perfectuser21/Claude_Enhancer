@@ -29,6 +29,7 @@ import queue
 @dataclass
 class TestFrameworkConfig:
     """测试框架配置"""
+
     name: str
     description: str
     script_path: str
@@ -42,6 +43,7 @@ class TestFrameworkConfig:
 @dataclass
 class TestExecutionResult:
     """测试执行结果"""
+
     framework_name: str
     success: bool
     duration: float
@@ -82,9 +84,8 @@ class TestOrchestrator:
                 priority=1,
                 estimated_duration=300,  # 5分钟
                 dependencies=[],
-                parallel_safe=True
+                parallel_safe=True,
             ),
-
             "performance_benchmark": TestFrameworkConfig(
                 name="performance_benchmark",
                 description="性能基准测试",
@@ -93,9 +94,8 @@ class TestOrchestrator:
                 priority=2,
                 estimated_duration=600,  # 10分钟
                 dependencies=[],
-                parallel_safe=False  # 性能测试需要独占资源
+                parallel_safe=False,  # 性能测试需要独占资源
             ),
-
             "regression_test": TestFrameworkConfig(
                 name="regression_test",
                 description="回归测试",
@@ -104,9 +104,8 @@ class TestOrchestrator:
                 priority=3,
                 estimated_duration=480,  # 8分钟
                 dependencies=["performance_benchmark"],  # 需要性能基线
-                parallel_safe=True
+                parallel_safe=True,
             ),
-
             "failure_recovery": TestFrameworkConfig(
                 name="failure_recovery",
                 description="故障恢复测试",
@@ -115,9 +114,8 @@ class TestOrchestrator:
                 priority=4,
                 estimated_duration=900,  # 15分钟
                 dependencies=[],
-                parallel_safe=False  # 故障注入可能影响其他测试
+                parallel_safe=False,  # 故障注入可能影响其他测试
             ),
-
             "shell_integration": TestFrameworkConfig(
                 name="shell_integration",
                 description="Shell脚本集成测试",
@@ -126,13 +124,15 @@ class TestOrchestrator:
                 priority=2,
                 estimated_duration=180,  # 3分钟
                 dependencies=[],
-                parallel_safe=True
-            )
+                parallel_safe=True,
+            ),
         }
 
         return frameworks
 
-    def run_all_tests(self, parallel: bool = True, quick_mode: bool = False) -> Dict[str, TestExecutionResult]:
+    def run_all_tests(
+        self, parallel: bool = True, quick_mode: bool = False
+    ) -> Dict[str, TestExecutionResult]:
         """运行所有测试"""
         self.quick_mode = quick_mode  # 保存quick_mode状态
         print("🚀 Claude Enhancer 5.0 - 综合测试执行器")
@@ -153,7 +153,9 @@ class TestOrchestrator:
         for i, phase in enumerate(execution_plan, 1):
             framework_names = [f.name for f in phase]
             estimated_time = sum(f.estimated_duration for f in phase)
-            print(f"  阶段 {i}: {', '.join(framework_names)} (预估{estimated_time//60}分{estimated_time%60}秒)")
+            print(
+                f"  阶段 {i}: {', '.join(framework_names)} (预估{estimated_time//60}分{estimated_time%60}秒)"
+            )
 
         # 执行测试
         results = {}
@@ -187,7 +189,8 @@ class TestOrchestrator:
         if quick_mode:
             # 快速模式：只运行高优先级和快速的测试
             return [
-                f for f in self.test_frameworks.values()
+                f
+                for f in self.test_frameworks.values()
                 if f.priority <= 2 and f.estimated_duration <= 300
             ]
         else:
@@ -195,9 +198,7 @@ class TestOrchestrator:
             return list(self.test_frameworks.values())
 
     def _create_execution_plan(
-        self,
-        frameworks: List[TestFrameworkConfig],
-        parallel: bool
+        self, frameworks: List[TestFrameworkConfig], parallel: bool
     ) -> List[List[TestFrameworkConfig]]:
         """创建测试执行计划"""
         if not parallel:
@@ -216,7 +217,9 @@ class TestOrchestrator:
 
             for framework in remaining:
                 # 检查依赖是否已完成
-                dependencies_met = all(dep in completed for dep in framework.dependencies)
+                dependencies_met = all(
+                    dep in completed for dep in framework.dependencies
+                )
 
                 if dependencies_met:
                     ready_frameworks.append(framework)
@@ -250,7 +253,9 @@ class TestOrchestrator:
 
         return plan
 
-    def _execute_single_test(self, framework: TestFrameworkConfig) -> TestExecutionResult:
+    def _execute_single_test(
+        self, framework: TestFrameworkConfig
+    ) -> TestExecutionResult:
         """执行单个测试框架"""
         print(f"  🧪 执行: {framework.description}")
 
@@ -259,9 +264,9 @@ class TestOrchestrator:
 
         try:
             # 根据脚本类型选择执行方式
-            if script_path.endswith('.py'):
+            if script_path.endswith(".py"):
                 cmd = [sys.executable, script_path, "--project-root", self.project_root]
-            elif script_path.endswith('.sh'):
+            elif script_path.endswith(".sh"):
                 cmd = ["bash", script_path]
                 if self.quick_mode:
                     cmd.append("--quick")
@@ -274,7 +279,7 @@ class TestOrchestrator:
                 cwd=self.project_root,
                 capture_output=True,
                 text=True,
-                timeout=framework.estimated_duration * 2  # 超时时间为预估时间的2倍
+                timeout=framework.estimated_duration * 2,  # 超时时间为预估时间的2倍
             )
 
             duration = time.time() - start_time
@@ -293,12 +298,14 @@ class TestOrchestrator:
                 output=result.stdout,
                 error_output=result.stderr,
                 report_file=report_file,
-                metrics=metrics
+                metrics=metrics,
             )
 
             # 输出结果
             status_icon = "✅" if success else "❌"
-            print(f"    {status_icon} {framework.description}: {'成功' if success else '失败'} ({duration:.1f}s)")
+            print(
+                f"    {status_icon} {framework.description}: {'成功' if success else '失败'} ({duration:.1f}s)"
+            )
 
             if not success:
                 print(f"    📋 错误信息: {result.stderr[:200]}...")
@@ -316,7 +323,7 @@ class TestOrchestrator:
                 output="",
                 error_output="Test execution timeout",
                 report_file=None,
-                metrics={}
+                metrics={},
             )
 
         except Exception as e:
@@ -330,12 +337,11 @@ class TestOrchestrator:
                 output="",
                 error_output=str(e),
                 report_file=None,
-                metrics={}
+                metrics={},
             )
 
     def _execute_parallel_tests(
-        self,
-        frameworks: List[TestFrameworkConfig]
+        self, frameworks: List[TestFrameworkConfig]
     ) -> Dict[str, TestExecutionResult]:
         """并行执行多个测试框架"""
         print(f"  🔄 并行执行: {', '.join(f.description for f in frameworks)}")
@@ -364,7 +370,7 @@ class TestOrchestrator:
                         output="",
                         error_output=str(e),
                         report_file=None,
-                        metrics={}
+                        metrics={},
                     )
 
         return results
@@ -378,17 +384,17 @@ class TestOrchestrator:
             "Report generated:",
             "Report saved to:",
             f"{framework_name}_report_",
-            "report_"
+            "report_",
         ]
 
-        lines = output.split('\n')
+        lines = output.split("\n")
         for line in lines:
             for pattern in patterns:
                 if pattern in line:
                     # 尝试提取文件路径
                     parts = line.split()
                     for part in parts:
-                        if '.md' in part or '.html' in part or '.txt' in part:
+                        if ".md" in part or ".html" in part or ".txt" in part:
                             return part.strip()
 
         return None
@@ -397,40 +403,40 @@ class TestOrchestrator:
         """从输出中提取性能指标"""
         metrics = {}
 
-        lines = output.split('\n')
+        lines = output.split("\n")
         for line in lines:
             # 查找指标模式
             if "平均执行时间:" in line:
                 try:
-                    value = line.split(':')[1].strip().replace('ms', '')
-                    metrics['avg_execution_time_ms'] = float(value)
+                    value = line.split(":")[1].strip().replace("ms", "")
+                    metrics["avg_execution_time_ms"] = float(value)
                 except:
                     pass
 
             elif "成功率:" in line:
                 try:
-                    value = line.split(':')[1].strip().replace('%', '')
-                    metrics['success_rate'] = float(value)
+                    value = line.split(":")[1].strip().replace("%", "")
+                    metrics["success_rate"] = float(value)
                 except:
                     pass
 
             elif "内存使用:" in line:
                 try:
-                    value = line.split(':')[1].strip().replace('MB', '')
-                    metrics['memory_usage_mb'] = float(value)
+                    value = line.split(":")[1].strip().replace("MB", "")
+                    metrics["memory_usage_mb"] = float(value)
                 except:
                     pass
 
         return metrics
 
     def _generate_comprehensive_report(
-        self,
-        results: Dict[str, TestExecutionResult],
-        total_time: float
+        self, results: Dict[str, TestExecutionResult], total_time: float
     ) -> str:
         """生成综合测试报告"""
         timestamp = time.strftime("%Y%m%d_%H%M%S")
-        report_file = os.path.join(self.reports_dir, f"comprehensive_test_report_{timestamp}.md")
+        report_file = os.path.join(
+            self.reports_dir, f"comprehensive_test_report_{timestamp}.md"
+        )
 
         # 统计数据
         total_tests = len(results)
@@ -445,7 +451,11 @@ class TestOrchestrator:
             if framework:
                 category = framework.category
                 if category not in category_stats:
-                    category_stats[category] = {"total": 0, "successful": 0, "duration": 0}
+                    category_stats[category] = {
+                        "total": 0,
+                        "successful": 0,
+                        "duration": 0,
+                    }
 
                 category_stats[category]["total"] += 1
                 if result.success:
@@ -505,11 +515,19 @@ class TestOrchestrator:
 """
 
         for framework_name, result in results.items():
-            framework = self.test_frameworks.get(framework_name, TestFrameworkConfig(
-                name=framework_name, description="Unknown", script_path="",
-                category="unknown", priority=5, estimated_duration=0,
-                dependencies=[], parallel_safe=True
-            ))
+            framework = self.test_frameworks.get(
+                framework_name,
+                TestFrameworkConfig(
+                    name=framework_name,
+                    description="Unknown",
+                    script_path="",
+                    category="unknown",
+                    priority=5,
+                    estimated_duration=0,
+                    dependencies=[],
+                    parallel_safe=True,
+                ),
+            )
 
             status_icon = "✅" if result.success else "❌"
             report_link = f"[报告]({result.report_file})" if result.report_file else "无"
@@ -522,8 +540,18 @@ class TestOrchestrator:
 """
 
         for category, stats in category_stats.items():
-            category_success_rate = (stats["successful"] / stats["total"] * 100) if stats["total"] > 0 else 0
-            status_icon = "✅" if category_success_rate >= 90 else "⚠️" if category_success_rate >= 70 else "❌"
+            category_success_rate = (
+                (stats["successful"] / stats["total"] * 100)
+                if stats["total"] > 0
+                else 0
+            )
+            status_icon = (
+                "✅"
+                if category_success_rate >= 90
+                else "⚠️"
+                if category_success_rate >= 70
+                else "❌"
+            )
 
             report_content += f"""
 #### {category.upper()} 测试
@@ -567,9 +595,9 @@ class TestOrchestrator:
 """
 
             for framework_name, metrics in performance_metrics.items():
-                exec_time = metrics.get('avg_execution_time_ms', 0)
-                success_rate_metric = metrics.get('success_rate', 0)
-                memory_usage = metrics.get('memory_usage_mb', 0)
+                exec_time = metrics.get("avg_execution_time_ms", 0)
+                success_rate_metric = metrics.get("success_rate", 0)
+                memory_usage = metrics.get("memory_usage_mb", 0)
 
                 report_content += f"| {framework_name} | {exec_time:.2f}ms | {success_rate_metric:.1f}% | {memory_usage:.2f}MB |\n"
 
@@ -578,7 +606,9 @@ class TestOrchestrator:
 
 """
 
-        failed_results = {name: result for name, result in results.items() if not result.success}
+        failed_results = {
+            name: result for name, result in results.items() if not result.success
+        }
 
         if failed_results:
             report_content += "### 失败的测试框架\n\n"
@@ -608,9 +638,15 @@ class TestOrchestrator:
             framework = self.test_frameworks.get(framework_name)
 
             if not result.success:
-                immediate_actions.append(f"修复 {framework.description if framework else framework_name} 的执行问题")
+                immediate_actions.append(
+                    f"修复 {framework.description if framework else framework_name} 的执行问题"
+                )
 
-            elif result.duration > framework.estimated_duration * 1.5 if framework else False:
+            elif (
+                result.duration > framework.estimated_duration * 1.5
+                if framework
+                else False
+            ):
                 long_term_actions.append(f"优化 {framework.description} 的执行性能")
 
         if immediate_actions:
@@ -707,7 +743,10 @@ jobs:
         else:
             key_findings.append(f"🔧 {failed_tests}个测试框架需要修复")
 
-        if total_time < sum(f.estimated_duration for f in self.test_frameworks.values()) * 0.8:
+        if (
+            total_time
+            < sum(f.estimated_duration for f in self.test_frameworks.values()) * 0.8
+        ):
             key_findings.append("⚡ 测试执行效率优秀")
         else:
             key_findings.append("🐌 测试执行效率需要优化")
@@ -736,12 +775,14 @@ jobs:
 """
 
         # 保存报告
-        with open(report_file, 'w', encoding='utf-8') as f:
+        with open(report_file, "w", encoding="utf-8") as f:
             f.write(report_content)
 
         return report_file
 
-    def _get_failure_recommendation(self, framework_name: str, result: TestExecutionResult) -> str:
+    def _get_failure_recommendation(
+        self, framework_name: str, result: TestExecutionResult
+    ) -> str:
         """获取失败建议"""
         error_msg = result.error_output.lower()
 
@@ -762,7 +803,7 @@ jobs:
         self,
         results: Dict[str, TestExecutionResult],
         total_time: float,
-        report_file: str
+        report_file: str,
     ):
         """打印执行摘要"""
         total_tests = len(results)
@@ -805,7 +846,9 @@ def main():
         if args.list:
             print("📋 可用的测试框架:")
             for name, framework in orchestrator.test_frameworks.items():
-                print(f"  - {name}: {framework.description} ({framework.category}, {framework.estimated_duration}s)")
+                print(
+                    f"  - {name}: {framework.description} ({framework.category}, {framework.estimated_duration}s)"
+                )
             return
 
         if args.framework:
@@ -817,7 +860,9 @@ def main():
 
             result = orchestrator._execute_single_test(framework)
             success_icon = "✅" if result.success else "❌"
-            print(f"{success_icon} {framework.description}: {'成功' if result.success else '失败'}")
+            print(
+                f"{success_icon} {framework.description}: {'成功' if result.success else '失败'}"
+            )
             return
 
         # 运行综合测试

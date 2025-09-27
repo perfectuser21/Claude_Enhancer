@@ -202,9 +202,7 @@ class HooksUnitTestSuite(unittest.TestCase):
                 capture_output=True,
             )
             # Hook应该能够处理无效输入而不崩溃
-            self.assertIn(
-                result.returncode, [0, 1], f"Hook应该优雅处理无效输入: {invalid_input}"
-            )
+            self.assertIn(result.returncode, [0, 1], f"Hook应该优雅处理无效输入: {invalid_input}")
 
 
 class IntegrationTestSuite:
@@ -1142,10 +1140,12 @@ class FailureRecoveryTestSuite:
         except PermissionError:
             # 权限错误是预期的
             success = True
-            result = type('MockResult', (), {'returncode': 126, 'stderr': 'Permission denied'})()
+            result = type(
+                "MockResult", (), {"returncode": 126, "stderr": "Permission denied"}
+            )()
         except Exception as e:
             success = False
-            result = type('MockResult', (), {'returncode': 1, 'stderr': str(e)})()
+            result = type("MockResult", (), {"returncode": 1, "stderr": str(e)})()
 
         # 清理
         if os.path.exists(permission_hook):

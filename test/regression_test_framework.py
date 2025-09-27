@@ -30,6 +30,7 @@ from datetime import datetime, timedelta
 @dataclass
 class BaselineMetrics:
     """基线性能指标"""
+
     test_name: str
     avg_execution_time_ms: float
     success_rate: float
@@ -43,6 +44,7 @@ class BaselineMetrics:
 @dataclass
 class RegressionResult:
     """回归测试结果"""
+
     test_name: str
     baseline_value: float
     current_value: float
@@ -55,6 +57,7 @@ class RegressionResult:
 @dataclass
 class ConfigurationChange:
     """配置变更记录"""
+
     file_path: str
     change_type: str  # "modified", "added", "deleted"
     old_checksum: Optional[str]
@@ -68,7 +71,9 @@ class BaselineManager:
     def __init__(self, project_root: str):
         self.project_root = project_root
         self.baseline_dir = os.path.join(project_root, "test", "baselines")
-        self.current_baseline_file = os.path.join(self.baseline_dir, "current_baseline.json")
+        self.current_baseline_file = os.path.join(
+            self.baseline_dir, "current_baseline.json"
+        )
         self.historical_baselines_dir = os.path.join(self.baseline_dir, "historical")
 
         # 确保目录存在
@@ -87,18 +92,18 @@ class BaselineManager:
             "git_commit": git_commit,
             "metrics": [asdict(metric) for metric in metrics],
             "configuration_checksums": self._generate_config_checksums(),
-            "critical_files_checksums": self._generate_critical_files_checksums()
+            "critical_files_checksums": self._generate_critical_files_checksums(),
         }
 
         # 保存当前基线
-        with open(self.current_baseline_file, 'w') as f:
+        with open(self.current_baseline_file, "w") as f:
             json.dump(baseline_data, f, indent=2)
 
         # 保存历史基线
         baseline_filename = f"baseline_{version}_{int(timestamp)}.json"
         historical_file = os.path.join(self.historical_baselines_dir, baseline_filename)
 
-        with open(historical_file, 'w') as f:
+        with open(historical_file, "w") as f:
             json.dump(baseline_data, f, indent=2)
 
         print(f"✅ 基线已创建: {version}")
@@ -111,7 +116,9 @@ class BaselineManager:
         """加载基线数据"""
         if version:
             # 加载指定版本的基线
-            baseline_files = list(Path(self.historical_baselines_dir).glob(f"baseline_{version}_*.json"))
+            baseline_files = list(
+                Path(self.historical_baselines_dir).glob(f"baseline_{version}_*.json")
+            )
             if baseline_files:
                 baseline_file = baseline_files[0]  # 取第一个匹配的文件
             else:
@@ -126,7 +133,7 @@ class BaselineManager:
             return None
 
         try:
-            with open(baseline_file, 'r') as f:
+            with open(baseline_file, "r") as f:
                 return json.load(f)
         except Exception as e:
             print(f"❌ 加载基线失败: {e}")
@@ -139,25 +146,33 @@ class BaselineManager:
         # 当前基线
         current = self.load_baseline()
         if current:
-            baselines.append({
-                "type": "current",
-                "version": current.get("version", "unknown"),
-                "created_date": current.get("created_date", "unknown"),
-                "git_commit": current.get("git_commit", "unknown")
-            })
+            baselines.append(
+                {
+                    "type": "current",
+                    "version": current.get("version", "unknown"),
+                    "created_date": current.get("created_date", "unknown"),
+                    "git_commit": current.get("git_commit", "unknown"),
+                }
+            )
 
         # 历史基线
-        for baseline_file in Path(self.historical_baselines_dir).glob("baseline_*.json"):
+        for baseline_file in Path(self.historical_baselines_dir).glob(
+            "baseline_*.json"
+        ):
             try:
-                with open(baseline_file, 'r') as f:
+                with open(baseline_file, "r") as f:
                     baseline_data = json.load(f)
-                    baselines.append({
-                        "type": "historical",
-                        "version": baseline_data.get("version", "unknown"),
-                        "created_date": baseline_data.get("created_date", "unknown"),
-                        "git_commit": baseline_data.get("git_commit", "unknown"),
-                        "file": str(baseline_file)
-                    })
+                    baselines.append(
+                        {
+                            "type": "historical",
+                            "version": baseline_data.get("version", "unknown"),
+                            "created_date": baseline_data.get(
+                                "created_date", "unknown"
+                            ),
+                            "git_commit": baseline_data.get("git_commit", "unknown"),
+                            "file": str(baseline_file),
+                        }
+                    )
             except Exception:
                 continue
 
@@ -170,7 +185,7 @@ class BaselineManager:
                 ["git", "rev-parse", "HEAD"],
                 cwd=self.project_root,
                 capture_output=True,
-                text=True
+                text=True,
             )
             if result.returncode == 0:
                 return result.stdout.strip()
@@ -184,7 +199,7 @@ class BaselineManager:
             ".claude/settings.json",
             ".claude/config.yaml",
             ".claude/hooks/config.yaml",
-            "test/test_config.yaml"
+            "test/test_config.yaml",
         ]
 
         checksums = {}
@@ -201,7 +216,7 @@ class BaselineManager:
             ".claude/hooks/quality_gate.sh",
             ".claude/hooks/smart_agent_selector.sh",
             ".claude/core/lazy_orchestrator.py",
-            ".claude/core/engine.py"
+            ".claude/core/engine.py",
         ]
 
         checksums = {}
@@ -233,10 +248,10 @@ class PerformanceRegressionDetector:
 
         # 回归阈值配置
         self.regression_thresholds = {
-            "minor": 5.0,       # 5% 性能下降
-            "moderate": 15.0,   # 15% 性能下降
-            "severe": 30.0,     # 30% 性能下降
-            "critical": 50.0    # 50% 性能下降
+            "minor": 5.0,  # 5% 性能下降
+            "moderate": 15.0,  # 15% 性能下降
+            "severe": 30.0,  # 30% 性能下降
+            "critical": 50.0,  # 50% 性能下降
         }
 
     def detect_performance_regression(
@@ -251,8 +266,7 @@ class PerformanceRegressionDetector:
             return []
 
         baseline_metrics = {
-            metric["test_name"]: metric
-            for metric in baseline_data.get("metrics", [])
+            metric["test_name"]: metric for metric in baseline_data.get("metrics", [])
         }
 
         regression_results = []
@@ -270,7 +284,7 @@ class PerformanceRegressionDetector:
                 test_name + "_execution_time",
                 baseline_metric["avg_execution_time_ms"],
                 current_metric.avg_execution_time_ms,
-                "执行时间"
+                "执行时间",
             )
             if time_regression:
                 regression_results.append(time_regression)
@@ -281,7 +295,7 @@ class PerformanceRegressionDetector:
                 baseline_metric["success_rate"],
                 current_metric.success_rate,
                 "成功率",
-                is_success_rate=True
+                is_success_rate=True,
             )
             if success_regression:
                 regression_results.append(success_regression)
@@ -291,7 +305,7 @@ class PerformanceRegressionDetector:
                 test_name + "_memory_usage",
                 baseline_metric["memory_usage_mb"],
                 current_metric.memory_usage_mb,
-                "内存使用"
+                "内存使用",
             )
             if memory_regression:
                 regression_results.append(memory_regression)
@@ -304,7 +318,7 @@ class PerformanceRegressionDetector:
         baseline_value: float,
         current_value: float,
         metric_type: str,
-        is_success_rate: bool = False
+        is_success_rate: bool = False,
     ) -> Optional[RegressionResult]:
         """检测单项指标回归"""
         if baseline_value == 0:
@@ -326,7 +340,9 @@ class PerformanceRegressionDetector:
         severity = self._determine_severity(abs(change_percent), is_success_rate)
 
         # 生成建议
-        recommendation = self._generate_recommendation(metric_type, severity, change_percent)
+        recommendation = self._generate_recommendation(
+            metric_type, severity, change_percent
+        )
 
         return RegressionResult(
             test_name=test_name,
@@ -335,10 +351,12 @@ class PerformanceRegressionDetector:
             change_percent=change_percent,
             regression_detected=True,
             severity=severity,
-            recommendation=recommendation
+            recommendation=recommendation,
         )
 
-    def _determine_severity(self, change_percent: float, is_success_rate: bool = False) -> str:
+    def _determine_severity(
+        self, change_percent: float, is_success_rate: bool = False
+    ) -> str:
         """确定回归严重程度"""
         if is_success_rate:
             # 成功率回归严重程度
@@ -361,27 +379,29 @@ class PerformanceRegressionDetector:
             else:
                 return "minor"
 
-    def _generate_recommendation(self, metric_type: str, severity: str, change_percent: float) -> str:
+    def _generate_recommendation(
+        self, metric_type: str, severity: str, change_percent: float
+    ) -> str:
         """生成优化建议"""
         recommendations = {
             "执行时间": {
                 "critical": "立即停止部署！执行时间严重恶化，需要紧急优化算法",
                 "severe": "需要立即优化，考虑算法重构或缓存机制",
                 "moderate": "建议优化性能，检查最近的代码变更",
-                "minor": "轻微性能下降，建议监控趋势"
+                "minor": "轻微性能下降，建议监控趋势",
             },
             "成功率": {
                 "critical": "立即回滚！成功率严重下降，系统可靠性受损",
                 "severe": "需要立即修复，检查错误处理逻辑",
                 "moderate": "需要调查失败原因，改进错误处理",
-                "minor": "建议检查测试用例和边界条件"
+                "minor": "建议检查测试用例和边界条件",
             },
             "内存使用": {
                 "critical": "严重内存泄漏！立即调查内存管理问题",
                 "severe": "需要优化内存使用，检查是否有内存泄漏",
                 "moderate": "建议优化内存使用效率",
-                "minor": "轻微内存增长，建议持续监控"
-            }
+                "minor": "轻微内存增长，建议持续监控",
+            },
         }
 
         return recommendations.get(metric_type, {}).get(
@@ -411,7 +431,9 @@ class ConfigurationChangeDetector:
         changes = []
 
         # 检查所有配置文件
-        all_config_files = set(baseline_checksums.keys()) | set(current_checksums.keys())
+        all_config_files = set(baseline_checksums.keys()) | set(
+            current_checksums.keys()
+        )
 
         for config_file in all_config_files:
             baseline_checksum = baseline_checksums.get(config_file)
@@ -419,33 +441,45 @@ class ConfigurationChangeDetector:
 
             if not baseline_checksum and current_checksum:
                 # 新增配置文件
-                changes.append(ConfigurationChange(
-                    file_path=config_file,
-                    change_type="added",
-                    old_checksum=None,
-                    new_checksum=current_checksum,
-                    impact_severity=self._assess_config_impact(config_file, "added")
-                ))
+                changes.append(
+                    ConfigurationChange(
+                        file_path=config_file,
+                        change_type="added",
+                        old_checksum=None,
+                        new_checksum=current_checksum,
+                        impact_severity=self._assess_config_impact(
+                            config_file, "added"
+                        ),
+                    )
+                )
 
             elif baseline_checksum and not current_checksum:
                 # 删除配置文件
-                changes.append(ConfigurationChange(
-                    file_path=config_file,
-                    change_type="deleted",
-                    old_checksum=baseline_checksum,
-                    new_checksum=None,
-                    impact_severity=self._assess_config_impact(config_file, "deleted")
-                ))
+                changes.append(
+                    ConfigurationChange(
+                        file_path=config_file,
+                        change_type="deleted",
+                        old_checksum=baseline_checksum,
+                        new_checksum=None,
+                        impact_severity=self._assess_config_impact(
+                            config_file, "deleted"
+                        ),
+                    )
+                )
 
             elif baseline_checksum != current_checksum:
                 # 修改配置文件
-                changes.append(ConfigurationChange(
-                    file_path=config_file,
-                    change_type="modified",
-                    old_checksum=baseline_checksum,
-                    new_checksum=current_checksum,
-                    impact_severity=self._assess_config_impact(config_file, "modified")
-                ))
+                changes.append(
+                    ConfigurationChange(
+                        file_path=config_file,
+                        change_type="modified",
+                        old_checksum=baseline_checksum,
+                        new_checksum=current_checksum,
+                        impact_severity=self._assess_config_impact(
+                            config_file, "modified"
+                        ),
+                    )
+                )
 
         return changes
 
@@ -495,17 +529,24 @@ class FunctionalRegressionTester:
                 print(f"🔍 检测到文件变更: {file_path}")
                 # 对变更的文件进行功能测试
                 functional_result = self._test_file_functionality(file_path)
-                regression_results.append({
-                    "file_path": file_path,
-                    "change_detected": True,
-                    "functional_test_result": functional_result
-                })
+                regression_results.append(
+                    {
+                        "file_path": file_path,
+                        "change_detected": True,
+                        "functional_test_result": functional_result,
+                    }
+                )
             else:
-                regression_results.append({
-                    "file_path": file_path,
-                    "change_detected": False,
-                    "functional_test_result": {"status": "skipped", "reason": "no_changes"}
-                })
+                regression_results.append(
+                    {
+                        "file_path": file_path,
+                        "change_detected": False,
+                        "functional_test_result": {
+                            "status": "skipped",
+                            "reason": "no_changes",
+                        },
+                    }
+                )
 
         return regression_results
 
@@ -536,31 +577,37 @@ class FunctionalRegressionTester:
                     input=test_input,
                     text=True,
                     capture_output=True,
-                    timeout=10
+                    timeout=10,
                 )
 
-                results.append({
-                    "input": test_input,
-                    "return_code": result.returncode,
-                    "success": result.returncode == 0,
-                    "stdout": result.stdout[:100],  # 限制输出长度
-                    "stderr": result.stderr[:100]
-                })
+                results.append(
+                    {
+                        "input": test_input,
+                        "return_code": result.returncode,
+                        "success": result.returncode == 0,
+                        "stdout": result.stdout[:100],  # 限制输出长度
+                        "stderr": result.stderr[:100],
+                    }
+                )
 
             except subprocess.TimeoutExpired:
-                results.append({
-                    "input": test_input,
-                    "return_code": -1,
-                    "success": False,
-                    "error": "timeout"
-                })
+                results.append(
+                    {
+                        "input": test_input,
+                        "return_code": -1,
+                        "success": False,
+                        "error": "timeout",
+                    }
+                )
             except Exception as e:
-                results.append({
-                    "input": test_input,
-                    "return_code": -1,
-                    "success": False,
-                    "error": str(e)
-                })
+                results.append(
+                    {
+                        "input": test_input,
+                        "return_code": -1,
+                        "success": False,
+                        "error": str(e),
+                    }
+                )
 
         success_count = sum(1 for r in results if r["success"])
         success_rate = success_count / len(results)
@@ -570,7 +617,7 @@ class FunctionalRegressionTester:
             "test_cases": len(results),
             "success_count": success_count,
             "success_rate": success_rate,
-            "results": results
+            "results": results,
         }
 
     def _test_python_module(self, module_path: str) -> Dict[str, Any]:
@@ -578,29 +625,22 @@ class FunctionalRegressionTester:
         try:
             # 简单的导入测试
             import importlib.util
+
             spec = importlib.util.spec_from_file_location("test_module", module_path)
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
 
-            return {
-                "status": "completed",
-                "success": True,
-                "message": "模块导入成功"
-            }
+            return {"status": "completed", "success": True, "message": "模块导入成功"}
 
         except Exception as e:
-            return {
-                "status": "failed",
-                "success": False,
-                "error": str(e)
-            }
+            return {"status": "failed", "success": False, "error": str(e)}
 
     def _run_basic_functional_tests(self) -> List[Dict[str, Any]]:
         """运行基础功能测试"""
         critical_files = [
             ".claude/hooks/quality_gate.sh",
             ".claude/hooks/smart_agent_selector.sh",
-            ".claude/core/lazy_orchestrator.py"
+            ".claude/core/lazy_orchestrator.py",
         ]
 
         results = []
@@ -608,11 +648,13 @@ class FunctionalRegressionTester:
             full_path = os.path.join(self.project_root, file_path)
             if os.path.exists(full_path):
                 functional_result = self._test_file_functionality(file_path)
-                results.append({
-                    "file_path": file_path,
-                    "change_detected": False,
-                    "functional_test_result": functional_result
-                })
+                results.append(
+                    {
+                        "file_path": file_path,
+                        "change_detected": False,
+                        "functional_test_result": functional_result,
+                    }
+                )
 
         return results
 
@@ -629,15 +671,20 @@ class RegressionReportGenerator:
         performance_regressions: List[RegressionResult],
         config_changes: List[ConfigurationChange],
         functional_results: List[Dict[str, Any]],
-        timestamp: str
+        timestamp: str,
     ) -> str:
         """生成回归测试报告"""
         report_file = self.output_dir / f"regression_report_{timestamp}.md"
 
-        with open(report_file, 'w', encoding='utf-8') as f:
-            f.write(self._generate_regression_markdown(
-                performance_regressions, config_changes, functional_results, timestamp
-            ))
+        with open(report_file, "w", encoding="utf-8") as f:
+            f.write(
+                self._generate_regression_markdown(
+                    performance_regressions,
+                    config_changes,
+                    functional_results,
+                    timestamp,
+                )
+            )
 
         print(f"📊 回归测试报告已生成: {report_file}")
         return str(report_file)
@@ -647,22 +694,39 @@ class RegressionReportGenerator:
         performance_regressions: List[RegressionResult],
         config_changes: List[ConfigurationChange],
         functional_results: List[Dict[str, Any]],
-        timestamp: str
+        timestamp: str,
     ) -> str:
         """生成回归测试Markdown报告"""
         # 统计数据
-        critical_regressions = len([r for r in performance_regressions if r.severity == "critical"])
-        severe_regressions = len([r for r in performance_regressions if r.severity == "severe"])
+        critical_regressions = len(
+            [r for r in performance_regressions if r.severity == "critical"]
+        )
+        severe_regressions = len(
+            [r for r in performance_regressions if r.severity == "severe"]
+        )
         total_regressions = len(performance_regressions)
 
-        critical_config_changes = len([c for c in config_changes if c.impact_severity == "critical"])
-        high_impact_changes = len([c for c in config_changes if c.impact_severity == "high"])
+        critical_config_changes = len(
+            [c for c in config_changes if c.impact_severity == "critical"]
+        )
+        high_impact_changes = len(
+            [c for c in config_changes if c.impact_severity == "high"]
+        )
 
-        functional_failures = len([f for f in functional_results
-                                 if not f.get("functional_test_result", {}).get("success", True)])
+        functional_failures = len(
+            [
+                f
+                for f in functional_results
+                if not f.get("functional_test_result", {}).get("success", True)
+            ]
+        )
 
         # 确定整体状态
-        if critical_regressions > 0 or critical_config_changes > 0 or functional_failures > 0:
+        if (
+            critical_regressions > 0
+            or critical_config_changes > 0
+            or functional_failures > 0
+        ):
             overall_status = "🚨 CRITICAL"
             overall_color = "red"
         elif severe_regressions > 0 or high_impact_changes > 0:
@@ -704,7 +768,7 @@ class RegressionReportGenerator:
                     "critical": "🚨",
                     "severe": "⚠️",
                     "moderate": "📋",
-                    "minor": "ℹ️"
+                    "minor": "ℹ️",
                 }.get(regression.severity, "❓")
 
                 if "execution_time" in regression.test_name:
@@ -737,14 +801,12 @@ class RegressionReportGenerator:
                     "critical": "🚨",
                     "high": "⚠️",
                     "medium": "📋",
-                    "low": "ℹ️"
+                    "low": "ℹ️",
                 }.get(change.impact_severity, "❓")
 
-                change_icon = {
-                    "added": "➕",
-                    "modified": "📝",
-                    "deleted": "🗑️"
-                }.get(change.change_type, "❓")
+                change_icon = {"added": "➕", "modified": "📝", "deleted": "🗑️"}.get(
+                    change.change_type, "❓"
+                )
 
                 recommendation = self._get_config_change_recommendation(change)
 
@@ -801,17 +863,24 @@ class RegressionReportGenerator:
         # 严重性能回归
         for regression in performance_regressions:
             if regression.severity in ["critical", "severe"]:
-                immediate_actions.append(f"- **{regression.test_name}**: {regression.recommendation}")
+                immediate_actions.append(
+                    f"- **{regression.test_name}**: {regression.recommendation}"
+                )
 
         # 关键配置变更
         for change in config_changes:
             if change.impact_severity in ["critical", "high"]:
-                immediate_actions.append(f"- **{change.file_path}**: {self._get_config_change_recommendation(change)}")
+                immediate_actions.append(
+                    f"- **{change.file_path}**: {self._get_config_change_recommendation(change)}"
+                )
 
         # 功能失败
         for result in functional_results:
             test_result = result["functional_test_result"]
-            if test_result.get("status") == "failed" or test_result.get("success_rate", 1) < 0.8:
+            if (
+                test_result.get("status") == "failed"
+                or test_result.get("success_rate", 1) < 0.8
+            ):
                 immediate_actions.append(f"- **{result['file_path']}**: 修复功能问题")
 
         if immediate_actions:
@@ -880,12 +949,11 @@ class RegressionReportGenerator:
             ("medium", "added"): "验证新配置文件",
             ("low", "deleted"): "记录变更原因",
             ("low", "modified"): "记录配置变更",
-            ("low", "added"): "文档化新配置"
+            ("low", "added"): "文档化新配置",
         }
 
         return recommendations.get(
-            (change.impact_severity, change.change_type),
-            f"评估{change.change_type}配置的影响"
+            (change.impact_severity, change.change_type), f"评估{change.change_type}配置的影响"
         )
 
 
@@ -907,7 +975,9 @@ class RegressionTestFramework:
         self.functional_tester = FunctionalRegressionTester(self.project_root)
         self.report_generator = RegressionReportGenerator(self.reports_dir)
 
-    def run_complete_regression_test(self, current_metrics: List[BaselineMetrics] = None) -> str:
+    def run_complete_regression_test(
+        self, current_metrics: List[BaselineMetrics] = None
+    ) -> str:
         """运行完整回归测试"""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
@@ -921,7 +991,9 @@ class RegressionTestFramework:
         # 1. 性能回归检测
         print("\n📊 1. 性能回归检测")
         if current_metrics:
-            performance_regressions = self.performance_detector.detect_performance_regression(current_metrics)
+            performance_regressions = (
+                self.performance_detector.detect_performance_regression(current_metrics)
+            )
         else:
             print("⚠️ 无当前性能指标，跳过性能回归检测")
             performance_regressions = []
@@ -949,13 +1021,24 @@ class RegressionTestFramework:
         print(f"📊 报告文件: {report_file}")
 
         # 显示关键结果
-        critical_issues = len([r for r in performance_regressions if r.severity == "critical"])
-        critical_configs = len([c for c in config_changes if c.impact_severity == "critical"])
-        functional_failures = len([f for f in functional_results
-                                 if not f.get("functional_test_result", {}).get("success", True)])
+        critical_issues = len(
+            [r for r in performance_regressions if r.severity == "critical"]
+        )
+        critical_configs = len(
+            [c for c in config_changes if c.impact_severity == "critical"]
+        )
+        functional_failures = len(
+            [
+                f
+                for f in functional_results
+                if not f.get("functional_test_result", {}).get("success", True)
+            ]
+        )
 
         print(f"🚨 严重问题: {critical_issues + critical_configs + functional_failures}")
-        print(f"📋 总问题数: {len(performance_regressions) + len(config_changes) + functional_failures}")
+        print(
+            f"📋 总问题数: {len(performance_regressions) + len(config_changes) + functional_failures}"
+        )
 
         if critical_issues + critical_configs + functional_failures > 0:
             print("⚠️ 建议：发现严重问题，不建议部署")
@@ -978,7 +1061,7 @@ class RegressionTestFramework:
                 memory_usage_mb=8.5,
                 cpu_usage_percent=2.1,
                 timestamp=time.time(),
-                version=version
+                version=version,
             ),
             BaselineMetrics(
                 test_name="smart_agent_selector",
@@ -987,8 +1070,8 @@ class RegressionTestFramework:
                 memory_usage_mb=6.2,
                 cpu_usage_percent=1.8,
                 timestamp=time.time(),
-                version=version
-            )
+                version=version,
+            ),
         ]
 
         return self.baseline_manager.create_baseline(current_metrics, version)
@@ -999,9 +1082,11 @@ class RegressionTestFramework:
 
         print("📚 可用的性能基线:")
         for baseline in baselines:
-            print(f"  {baseline['type']}: {baseline['version']} "
-                  f"({baseline['created_date']}) "
-                  f"[{baseline.get('git_commit', 'unknown')[:8]}]")
+            print(
+                f"  {baseline['type']}: {baseline['version']} "
+                f"({baseline['created_date']}) "
+                f"[{baseline.get('git_commit', 'unknown')[:8]}]"
+            )
 
 
 if __name__ == "__main__":
@@ -1018,7 +1103,9 @@ if __name__ == "__main__":
         framework = RegressionTestFramework(args.project_root)
 
         if args.create_baseline:
-            baseline_file = framework.create_baseline_from_current_state(args.create_baseline)
+            baseline_file = framework.create_baseline_from_current_state(
+                args.create_baseline
+            )
             print(f"✅ 基线创建成功: {baseline_file}")
 
         elif args.list_baselines:

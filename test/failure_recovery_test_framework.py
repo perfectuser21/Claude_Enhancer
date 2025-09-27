@@ -35,6 +35,7 @@ import hashlib
 @dataclass
 class FailureScenario:
     """故障场景定义"""
+
     name: str
     description: str
     severity: str  # "low", "medium", "high", "critical"
@@ -48,6 +49,7 @@ class FailureScenario:
 @dataclass
 class RecoveryTestResult:
     """故障恢复测试结果"""
+
     scenario_name: str
     failure_injected: bool
     recovery_successful: bool
@@ -99,7 +101,7 @@ class FailureInjector:
             self.active_failures[failure_id] = {
                 "type": failure_type,
                 "start_time": time.time(),
-                "kwargs": kwargs
+                "kwargs": kwargs,
             }
 
             yield failure_id
@@ -119,7 +121,7 @@ class FailureInjector:
             self.cleanup_tasks.append(("restore_file", hook_path, backup_path))
 
             # 创建损坏的脚本
-            with open(hook_path, 'w') as f:
+            with open(hook_path, "w") as f:
                 f.write("#!/bin/bash\necho 'CORRUPTED HOOK'\nexit 1\n")
 
     def _inject_hook_timeout(self, hook_name: str = "quality_gate.sh", delay: int = 30):
@@ -132,7 +134,7 @@ class FailureInjector:
             self.cleanup_tasks.append(("restore_file", hook_path, backup_path))
 
             # 创建超时脚本
-            with open(hook_path, 'w') as f:
+            with open(hook_path, "w") as f:
                 f.write(f"#!/bin/bash\nsleep {delay}\necho 'TIMEOUT HOOK'\n")
 
     def _inject_hook_permission_error(self, hook_name: str = "quality_gate.sh"):
@@ -151,11 +153,12 @@ class FailureInjector:
         """注入进程终止"""
         # 查找匹配的进程
         target_pids = []
-        for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+        for proc in psutil.process_iter(["pid", "name", "cmdline"]):
             try:
-                if process_pattern in proc.info['name'] or \
-                   any(process_pattern in arg for arg in proc.info['cmdline'] or []):
-                    target_pids.append(proc.info['pid'])
+                if process_pattern in proc.info["name"] or any(
+                    process_pattern in arg for arg in proc.info["cmdline"] or []
+                ):
+                    target_pids.append(proc.info["pid"])
             except (psutil.NoSuchProcess, psutil.AccessDenied):
                 continue
 
@@ -177,11 +180,11 @@ class FailureInjector:
         dummy_file = os.path.join(path, f"disk_full_dummy_{int(time.time())}.tmp")
 
         try:
-            with open(dummy_file, 'wb') as f:
+            with open(dummy_file, "wb") as f:
                 # 写入指定大小的数据
                 chunk_size = 1024 * 1024  # 1MB chunks
                 for _ in range(size_mb):
-                    f.write(b'0' * chunk_size)
+                    f.write(b"0" * chunk_size)
 
             self.cleanup_tasks.append(("remove_file", dummy_file))
         except OSError:
@@ -202,7 +205,7 @@ class FailureInjector:
                 self.cleanup_tasks.append(("restore_file", hosts_file, backup_file))
 
                 # 添加错误的DNS解析
-                with open(hosts_file, 'a') as f:
+                with open(hosts_file, "a") as f:
                     f.write(f"\n127.0.0.1 {target_host}\n")
             except PermissionError:
                 # 没有权限修改hosts文件
@@ -210,6 +213,7 @@ class FailureInjector:
 
     def _inject_memory_exhaustion(self, size_mb: int = 500):
         """注入内存耗尽"""
+
         # 创建内存消耗进程
         def memory_hog():
             try:
@@ -242,7 +246,7 @@ class FailureInjector:
             self.cleanup_tasks.append(("restore_file", config_path, backup_path))
 
             # 创建损坏的配置文件
-            with open(config_path, 'w') as f:
+            with open(config_path, "w") as f:
                 f.write('{"corrupted": "config", "invalid": }')  # 无效JSON
 
     def _inject_database_lock(self, db_file: str = None):
@@ -256,7 +260,7 @@ class FailureInjector:
         if db_file and os.path.exists(db_file):
             # 创建锁文件
             lock_file = f"{db_file}.lock"
-            with open(lock_file, 'w') as f:
+            with open(lock_file, "w") as f:
                 f.write(str(os.getpid()))
 
             self.cleanup_tasks.append(("remove_file", lock_file))
@@ -339,7 +343,7 @@ class SystemHealthMonitor:
             "memory_usage": psutil.virtual_memory().percent,
             "disk_usage": psutil.disk_usage(self.project_root).percent,
             "process_count": len(psutil.pids()),
-            "load_average": os.getloadavg()[0] if hasattr(os, 'getloadavg') else 0,
+            "load_average": os.getloadavg()[0] if hasattr(os, "getloadavg") else 0,
         }
 
         # 检查关键进程
@@ -367,21 +371,17 @@ class SystemHealthMonitor:
 
     def _check_file_system(self) -> Dict[str, Any]:
         """检查文件系统健康"""
-        health = {
-            "readable": True,
-            "writable": True,
-            "critical_files_exist": True
-        }
+        health = {"readable": True, "writable": True, "critical_files_exist": True}
 
         try:
             # 测试读写能力
             test_file = os.path.join(self.project_root, "test/.health_check_tmp")
             os.makedirs(os.path.dirname(test_file), exist_ok=True)
 
-            with open(test_file, 'w') as f:
+            with open(test_file, "w") as f:
                 f.write("health check")
 
-            with open(test_file, 'r') as f:
+            with open(test_file, "r") as f:
                 content = f.read()
                 health["readable"] = content == "health check"
 
@@ -395,7 +395,7 @@ class SystemHealthMonitor:
         critical_files = [
             ".claude/hooks/quality_gate.sh",
             ".claude/hooks/smart_agent_selector.sh",
-            ".claude/core/lazy_orchestrator.py"
+            ".claude/core/lazy_orchestrator.py",
         ]
 
         for file_path in critical_files:
@@ -411,14 +411,14 @@ class SystemHealthMonitor:
         network_health = {
             "localhost_reachable": False,
             "external_reachable": False,
-            "dns_working": False
+            "dns_working": False,
         }
 
         try:
             # 测试本地连接
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.settimeout(1)
-            result = sock.connect_ex(('127.0.0.1', 22))
+            result = sock.connect_ex(("127.0.0.1", 22))
             network_health["localhost_reachable"] = result == 0
             sock.close()
         except Exception:
@@ -428,7 +428,7 @@ class SystemHealthMonitor:
             # 测试外部连接
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.settimeout(2)
-            result = sock.connect_ex(('8.8.8.8', 53))
+            result = sock.connect_ex(("8.8.8.8", 53))
             network_health["external_reachable"] = result == 0
             sock.close()
         except Exception:
@@ -436,7 +436,7 @@ class SystemHealthMonitor:
 
         try:
             # 测试DNS解析
-            socket.gethostbyname('google.com')
+            socket.gethostbyname("google.com")
             network_health["dns_working"] = True
         except Exception:
             pass
@@ -451,14 +451,20 @@ class SystemHealthMonitor:
         recent_metrics = self.health_metrics[-10:]  # 最近10个样本
 
         # 计算稳定性指标
-        cpu_variance = self._calculate_variance([m["cpu_usage"] for m in recent_metrics])
-        memory_trend = self._calculate_trend([m["memory_usage"] for m in recent_metrics])
+        cpu_variance = self._calculate_variance(
+            [m["cpu_usage"] for m in recent_metrics]
+        )
+        memory_trend = self._calculate_trend(
+            [m["memory_usage"] for m in recent_metrics]
+        )
 
         # 检查关键服务状态
         critical_issues = 0
         for metrics in recent_metrics:
             fs_health = metrics.get("file_system_health", {})
-            if not fs_health.get("readable", True) or not fs_health.get("writable", True):
+            if not fs_health.get("readable", True) or not fs_health.get(
+                "writable", True
+            ):
                 critical_issues += 1
 
             if not fs_health.get("critical_files_exist", True):
@@ -479,7 +485,7 @@ class SystemHealthMonitor:
 
         mean = sum(values) / len(values)
         variance = sum((x - mean) ** 2 for x in values) / len(values)
-        return variance ** 0.5  # 标准差
+        return variance**0.5  # 标准差
 
     def _calculate_trend(self, values: List[float]) -> float:
         """计算趋势（简单线性回归斜率）"""
@@ -522,7 +528,7 @@ class FailureRecoveryTestSuite:
                 category="hook",
                 setup_func="hook_corruption",
                 recovery_func="verify_hook_recovery",
-                expected_behavior="系统应检测到Hook失败，使用默认处理逻辑"
+                expected_behavior="系统应检测到Hook失败，使用默认处理逻辑",
             ),
             FailureScenario(
                 name="hook_execution_timeout",
@@ -531,7 +537,7 @@ class FailureRecoveryTestSuite:
                 category="hook",
                 setup_func="hook_timeout",
                 recovery_func="verify_timeout_handling",
-                expected_behavior="系统应在超时后终止Hook并继续执行"
+                expected_behavior="系统应在超时后终止Hook并继续执行",
             ),
             FailureScenario(
                 name="hook_permission_denied",
@@ -540,9 +546,8 @@ class FailureRecoveryTestSuite:
                 category="hook",
                 setup_func="hook_permission",
                 recovery_func="verify_permission_handling",
-                expected_behavior="系统应检测权限问题并报告错误"
+                expected_behavior="系统应检测权限问题并报告错误",
             ),
-
             # 系统级别故障
             FailureScenario(
                 name="disk_space_exhaustion",
@@ -551,7 +556,7 @@ class FailureRecoveryTestSuite:
                 category="system",
                 setup_func="disk_full",
                 recovery_func="verify_disk_recovery",
-                expected_behavior="系统应优雅降级，避免数据损坏"
+                expected_behavior="系统应优雅降级，避免数据损坏",
             ),
             FailureScenario(
                 name="memory_exhaustion",
@@ -560,7 +565,7 @@ class FailureRecoveryTestSuite:
                 category="system",
                 setup_func="memory_exhaustion",
                 recovery_func="verify_memory_recovery",
-                expected_behavior="系统应限制内存使用，避免OOM"
+                expected_behavior="系统应限制内存使用，避免OOM",
             ),
             FailureScenario(
                 name="network_partition",
@@ -569,9 +574,8 @@ class FailureRecoveryTestSuite:
                 category="system",
                 setup_func="network_partition",
                 recovery_func="verify_network_recovery",
-                expected_behavior="系统应在网络恢复后自动重连"
+                expected_behavior="系统应在网络恢复后自动重连",
             ),
-
             # 数据级别故障
             FailureScenario(
                 name="config_file_corruption",
@@ -580,7 +584,7 @@ class FailureRecoveryTestSuite:
                 category="data",
                 setup_func="config_corruption",
                 recovery_func="verify_config_recovery",
-                expected_behavior="系统应使用默认配置或备份配置"
+                expected_behavior="系统应使用默认配置或备份配置",
             ),
             FailureScenario(
                 name="database_lock_contention",
@@ -589,8 +593,8 @@ class FailureRecoveryTestSuite:
                 category="data",
                 setup_func="database_lock",
                 recovery_func="verify_database_recovery",
-                expected_behavior="系统应处理锁冲突，避免死锁"
-            )
+                expected_behavior="系统应处理锁冲突，避免死锁",
+            ),
         ]
 
     def run_all_recovery_tests(self) -> List[RecoveryTestResult]:
@@ -612,32 +616,38 @@ class FailureRecoveryTestSuite:
 
                 # 输出测试结果
                 status_icon = "✅" if result.recovery_successful else "❌"
-                print(f"{status_icon} 恢复测试: {'成功' if result.recovery_successful else '失败'}")
+                print(
+                    f"{status_icon} 恢复测试: {'成功' if result.recovery_successful else '失败'}"
+                )
                 print(f"⏱️ 检测时间: {result.detection_time_ms:.2f}ms")
                 print(f"🔧 恢复时间: {result.recovery_time_ms:.2f}ms")
                 print(f"📊 系统稳定性: {result.system_stability}")
 
             except Exception as e:
                 print(f"❌ 测试执行失败: {e}")
-                results.append(RecoveryTestResult(
-                    scenario_name=scenario.name,
-                    failure_injected=False,
-                    recovery_successful=False,
-                    detection_time_ms=0,
-                    recovery_time_ms=0,
-                    system_stability="unknown",
-                    data_integrity_preserved=False,
-                    performance_impact={},
-                    error_logs=[str(e)],
-                    recommendations=["调查测试框架问题"]
-                ))
+                results.append(
+                    RecoveryTestResult(
+                        scenario_name=scenario.name,
+                        failure_injected=False,
+                        recovery_successful=False,
+                        detection_time_ms=0,
+                        recovery_time_ms=0,
+                        system_stability="unknown",
+                        data_integrity_preserved=False,
+                        performance_impact={},
+                        error_logs=[str(e)],
+                        recommendations=["调查测试框架问题"],
+                    )
+                )
 
             # 短暂休息，让系统稳定
             time.sleep(2)
 
         return results
 
-    def _run_single_recovery_test(self, scenario: FailureScenario) -> RecoveryTestResult:
+    def _run_single_recovery_test(
+        self, scenario: FailureScenario
+    ) -> RecoveryTestResult:
         """运行单个故障恢复测试"""
         start_time = time.time()
 
@@ -646,7 +656,11 @@ class FailureRecoveryTestSuite:
 
         # 记录基线健康状态
         time.sleep(1)  # 收集基线数据
-        baseline_health = self.health_monitor.health_metrics[-1] if self.health_monitor.health_metrics else {}
+        baseline_health = (
+            self.health_monitor.health_metrics[-1]
+            if self.health_monitor.health_metrics
+            else {}
+        )
 
         # 故障注入
         failure_injected = False
@@ -658,19 +672,25 @@ class FailureRecoveryTestSuite:
             # 注入故障
             failure_kwargs = self._get_failure_kwargs(scenario)
 
-            with self.failure_injector.inject_failure(scenario.setup_func, **failure_kwargs):
+            with self.failure_injector.inject_failure(
+                scenario.setup_func, **failure_kwargs
+            ):
                 failure_injected = True
                 failure_start = time.time()
 
                 # 等待故障被检测
                 detection_start = time.time()
-                failure_detected = self._wait_for_failure_detection(scenario, timeout=10)
+                failure_detected = self._wait_for_failure_detection(
+                    scenario, timeout=10
+                )
                 detection_time_ms = (time.time() - detection_start) * 1000
 
                 if failure_detected:
                     # 等待系统恢复
                     recovery_start = time.time()
-                    recovery_successful = self._wait_for_recovery(scenario, timeout=scenario.timeout_seconds)
+                    recovery_successful = self._wait_for_recovery(
+                        scenario, timeout=scenario.timeout_seconds
+                    )
                     recovery_time_ms = (time.time() - recovery_start) * 1000
                 else:
                     recovery_successful = False
@@ -686,8 +706,13 @@ class FailureRecoveryTestSuite:
 
         # 评估恢复结果
         recovery_result = self._evaluate_recovery(
-            scenario, failure_injected, recovery_successful,
-            baseline_health, detection_time_ms, recovery_time_ms, error_logs
+            scenario,
+            failure_injected,
+            recovery_successful,
+            baseline_health,
+            detection_time_ms,
+            recovery_time_ms,
+            error_logs,
         )
 
         return recovery_result
@@ -702,12 +727,14 @@ class FailureRecoveryTestSuite:
             "memory_exhaustion": {"size_mb": 100},  # 适中的内存使用
             "network_partition": {"target_host": "example.com"},
             "config_corruption": {"config_file": ".claude/settings.json"},
-            "database_lock": {}
+            "database_lock": {},
         }
 
         return kwargs_map.get(scenario.setup_func, {})
 
-    def _wait_for_failure_detection(self, scenario: FailureScenario, timeout: int = 10) -> bool:
+    def _wait_for_failure_detection(
+        self, scenario: FailureScenario, timeout: int = 10
+    ) -> bool:
         """等待故障被检测"""
         start_time = time.time()
 
@@ -737,7 +764,7 @@ class FailureRecoveryTestSuite:
                 input='{"prompt": "test"}',
                 text=True,
                 capture_output=True,
-                timeout=3
+                timeout=3,
             )
 
             # 根据场景判断是否检测到故障
@@ -777,7 +804,7 @@ class FailureRecoveryTestSuite:
         if scenario.name == "config_file_corruption":
             config_path = os.path.join(self.project_root, ".claude/settings.json")
             try:
-                with open(config_path, 'r') as f:
+                with open(config_path, "r") as f:
                     json.load(f)
                 return False  # 配置文件正常
             except (json.JSONDecodeError, FileNotFoundError):
@@ -878,7 +905,7 @@ class FailureRecoveryTestSuite:
         baseline_health: Dict[str, Any],
         detection_time_ms: float,
         recovery_time_ms: float,
-        error_logs: List[str]
+        error_logs: List[str],
     ) -> RecoveryTestResult:
         """评估恢复结果"""
 
@@ -906,7 +933,7 @@ class FailureRecoveryTestSuite:
             data_integrity_preserved=data_integrity_preserved,
             performance_impact=performance_impact,
             error_logs=error_logs,
-            recommendations=recommendations
+            recommendations=recommendations,
         )
 
     def _check_data_integrity(self) -> bool:
@@ -915,7 +942,7 @@ class FailureRecoveryTestSuite:
         critical_files = [
             ".claude/settings.json",
             ".claude/hooks/quality_gate.sh",
-            ".claude/hooks/smart_agent_selector.sh"
+            ".claude/hooks/smart_agent_selector.sh",
         ]
 
         for file_path in critical_files:
@@ -925,14 +952,16 @@ class FailureRecoveryTestSuite:
 
             # 检查文件是否可读
             try:
-                with open(full_path, 'r') as f:
+                with open(full_path, "r") as f:
                     f.read(100)  # 读取前100字符测试
             except Exception:
                 return False
 
         return True
 
-    def _calculate_performance_impact(self, baseline_health: Dict[str, Any]) -> Dict[str, float]:
+    def _calculate_performance_impact(
+        self, baseline_health: Dict[str, Any]
+    ) -> Dict[str, float]:
         """计算性能影响"""
         if not self.health_monitor.health_metrics or not baseline_health:
             return {}
@@ -963,7 +992,7 @@ class FailureRecoveryTestSuite:
         scenario: FailureScenario,
         recovery_successful: bool,
         system_stability: str,
-        performance_impact: Dict[str, float]
+        performance_impact: Dict[str, float],
     ) -> List[str]:
         """生成恢复建议"""
         recommendations = []
@@ -989,7 +1018,7 @@ class FailureRecoveryTestSuite:
             "hook_execution_timeout": "添加Hook超时机制和降级策略",
             "disk_space_exhaustion": "实施磁盘空间监控和自动清理",
             "memory_exhaustion": "添加内存使用限制和OOM保护",
-            "config_file_corruption": "实施配置文件备份和验证机制"
+            "config_file_corruption": "实施配置文件备份和验证机制",
         }
 
         if scenario.name in scenario_recommendations:
@@ -1009,23 +1038,19 @@ class FailureRecoveryReportGenerator:
         self.output_dir.mkdir(exist_ok=True)
 
     def generate_comprehensive_report(
-        self,
-        test_results: List[RecoveryTestResult],
-        timestamp: str
+        self, test_results: List[RecoveryTestResult], timestamp: str
     ) -> str:
         """生成综合故障恢复报告"""
         report_file = self.output_dir / f"failure_recovery_report_{timestamp}.md"
 
-        with open(report_file, 'w', encoding='utf-8') as f:
+        with open(report_file, "w", encoding="utf-8") as f:
             f.write(self._generate_markdown_report(test_results, timestamp))
 
         print(f"📊 故障恢复报告已生成: {report_file}")
         return str(report_file)
 
     def _generate_markdown_report(
-        self,
-        test_results: List[RecoveryTestResult],
-        timestamp: str
+        self, test_results: List[RecoveryTestResult], timestamp: str
     ) -> str:
         """生成Markdown报告内容"""
 
@@ -1035,11 +1060,25 @@ class FailureRecoveryReportGenerator:
         failed_recoveries = total_tests - successful_recoveries
 
         # 按严重程度分类
-        critical_failures = len([r for r in test_results if not r.recovery_successful and "critical" in r.scenario_name])
+        critical_failures = len(
+            [
+                r
+                for r in test_results
+                if not r.recovery_successful and "critical" in r.scenario_name
+            ]
+        )
 
         # 计算平均恢复时间
-        avg_detection_time = sum(r.detection_time_ms for r in test_results) / total_tests if total_tests > 0 else 0
-        avg_recovery_time = sum(r.recovery_time_ms for r in test_results) / total_tests if total_tests > 0 else 0
+        avg_detection_time = (
+            sum(r.detection_time_ms for r in test_results) / total_tests
+            if total_tests > 0
+            else 0
+        )
+        avg_recovery_time = (
+            sum(r.recovery_time_ms for r in test_results) / total_tests
+            if total_tests > 0
+            else 0
+        )
 
         report = f"""# Claude Enhancer 5.0 - 故障恢复测试报告
 
@@ -1053,7 +1092,9 @@ class FailureRecoveryReportGenerator:
 """
 
         # 计算整体评级
-        recovery_rate = successful_recoveries / total_tests * 100 if total_tests > 0 else 0
+        recovery_rate = (
+            successful_recoveries / total_tests * 100 if total_tests > 0 else 0
+        )
 
         if recovery_rate >= 90 and critical_failures == 0:
             grade = "A (优秀)"
@@ -1093,7 +1134,9 @@ class FailureRecoveryReportGenerator:
         for result in test_results:
             injection_icon = "✅" if result.failure_injected else "❌"
             recovery_icon = "✅" if result.recovery_successful else "❌"
-            stability_icon = {"stable": "✅", "degraded": "⚠️", "unstable": "❌"}.get(result.system_stability, "❓")
+            stability_icon = {"stable": "✅", "degraded": "⚠️", "unstable": "❌"}.get(
+                result.system_stability, "❓"
+            )
             integrity_icon = "✅" if result.data_integrity_preserved else "❌"
 
             report += f"| {result.scenario_name} | {injection_icon} | {recovery_icon} | {result.detection_time_ms:.2f}ms | {result.recovery_time_ms:.2f}ms | {stability_icon} {result.system_stability} | {integrity_icon} |\n"
@@ -1104,11 +1147,21 @@ class FailureRecoveryReportGenerator:
 """
 
         # 性能影响统计
-        cpu_impacts = [r.performance_impact.get("cpu_usage_change", 0) for r in test_results if r.performance_impact]
-        memory_impacts = [r.performance_impact.get("memory_usage_change", 0) for r in test_results if r.performance_impact]
+        cpu_impacts = [
+            r.performance_impact.get("cpu_usage_change", 0)
+            for r in test_results
+            if r.performance_impact
+        ]
+        memory_impacts = [
+            r.performance_impact.get("memory_usage_change", 0)
+            for r in test_results
+            if r.performance_impact
+        ]
 
         avg_cpu_impact = sum(cpu_impacts) / len(cpu_impacts) if cpu_impacts else 0
-        avg_memory_impact = sum(memory_impacts) / len(memory_impacts) if memory_impacts else 0
+        avg_memory_impact = (
+            sum(memory_impacts) / len(memory_impacts) if memory_impacts else 0
+        )
 
         report += f"""
 - **平均CPU影响**: {avg_cpu_impact:+.1f}%
@@ -1171,13 +1224,18 @@ class FailureRecoveryReportGenerator:
             recommendation_counts[rec] = recommendation_counts.get(rec, 0) + 1
 
         # 按频率排序
-        sorted_recommendations = sorted(recommendation_counts.items(), key=lambda x: x[1], reverse=True)
+        sorted_recommendations = sorted(
+            recommendation_counts.items(), key=lambda x: x[1], reverse=True
+        )
 
         # 分类建议
         urgent_keywords = ["失败", "关键", "严重", "立即", "紧急"]
 
         for rec, count in sorted_recommendations:
-            if any(keyword in rec for keyword in urgent_keywords) or count >= len(test_results) * 0.3:
+            if (
+                any(keyword in rec for keyword in urgent_keywords)
+                or count >= len(test_results) * 0.3
+            ):
                 immediate_actions.append(f"- {rec} (出现{count}次)")
             else:
                 long_term_actions.append(f"- {rec} (出现{count}次)")
@@ -1233,9 +1291,14 @@ class FailureRecoveryReportGenerator:
             # 从场景名称推断类别
             if "hook" in result.scenario_name:
                 category = "Hook级故障"
-            elif any(keyword in result.scenario_name for keyword in ["disk", "memory", "network"]):
+            elif any(
+                keyword in result.scenario_name
+                for keyword in ["disk", "memory", "network"]
+            ):
                 category = "系统级故障"
-            elif any(keyword in result.scenario_name for keyword in ["config", "database"]):
+            elif any(
+                keyword in result.scenario_name for keyword in ["config", "database"]
+            ):
                 category = "数据级故障"
             else:
                 category = "其他故障"
@@ -1248,8 +1311,12 @@ class FailureRecoveryReportGenerator:
                 category_stats[category]["successful"] += 1
 
         for category, stats in category_stats.items():
-            success_rate = stats["successful"] / stats["total"] * 100 if stats["total"] > 0 else 0
-            status_icon = "✅" if success_rate >= 80 else "⚠️" if success_rate >= 60 else "❌"
+            success_rate = (
+                stats["successful"] / stats["total"] * 100 if stats["total"] > 0 else 0
+            )
+            status_icon = (
+                "✅" if success_rate >= 80 else "⚠️" if success_rate >= 60 else "❌"
+            )
             report += f"- **{category}**: {success_rate:.1f}% ({stats['successful']}/{stats['total']}) {status_icon}\n"
 
         report += f"""
@@ -1345,7 +1412,9 @@ class FailureRecoveryTestFramework:
 
         # 生成报告
         print("\n📊 生成故障恢复报告...")
-        report_file = self.report_generator.generate_comprehensive_report(test_results, timestamp)
+        report_file = self.report_generator.generate_comprehensive_report(
+            test_results, timestamp
+        )
 
         total_time = time.time() - start_time
 
@@ -1358,7 +1427,9 @@ class FailureRecoveryTestFramework:
         # 显示关键结果
         total_tests = len(test_results)
         successful_recoveries = sum(1 for r in test_results if r.recovery_successful)
-        recovery_rate = successful_recoveries / total_tests * 100 if total_tests > 0 else 0
+        recovery_rate = (
+            successful_recoveries / total_tests * 100 if total_tests > 0 else 0
+        )
 
         print(f"📈 恢复成功率: {recovery_rate:.1f}%")
         print(f"✅ 成功恢复: {successful_recoveries}/{total_tests}")
@@ -1391,13 +1462,19 @@ if __name__ == "__main__":
         if args.list_scenarios:
             print("📋 可用的故障恢复测试场景:")
             for scenario in framework.recovery_suite.test_scenarios:
-                print(f"  - {scenario.name}: {scenario.description} ({scenario.severity})")
+                print(
+                    f"  - {scenario.name}: {scenario.description} ({scenario.severity})"
+                )
 
         elif args.scenario:
             # 运行特定场景
             scenario = next(
-                (s for s in framework.recovery_suite.test_scenarios if s.name == args.scenario),
-                None
+                (
+                    s
+                    for s in framework.recovery_suite.test_scenarios
+                    if s.name == args.scenario
+                ),
+                None,
             )
             if scenario:
                 print(f"🧪 运行故障场景: {scenario.name}")

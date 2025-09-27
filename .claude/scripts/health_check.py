@@ -14,36 +14,44 @@ from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Any, Tuple
 
+
 # 颜色输出
 class Colors:
-    RED = '\033[0;31m'
-    GREEN = '\033[0;32m'
-    YELLOW = '\033[1;33m'
-    BLUE = '\033[0;34m'
-    PURPLE = '\033[0;35m'
-    CYAN = '\033[0;36m'
-    NC = '\033[0m'  # No Color
+    RED = "\033[0;31m"
+    GREEN = "\033[0;32m"
+    YELLOW = "\033[1;33m"
+    BLUE = "\033[0;34m"
+    PURPLE = "\033[0;35m"
+    CYAN = "\033[0;36m"
+    NC = "\033[0m"  # No Color
+
 
 def print_colored(message: str, color: str = Colors.NC) -> None:
     """打印带颜色的消息"""
     print(f"{color}{message}{Colors.NC}")
 
+
 def print_success(message: str) -> None:
     print_colored(f"✅ {message}", Colors.GREEN)
+
 
 def print_error(message: str) -> None:
     print_colored(f"❌ {message}", Colors.RED)
 
+
 def print_warning(message: str) -> None:
     print_colored(f"⚠️  {message}", Colors.YELLOW)
 
+
 def print_info(message: str) -> None:
     print_colored(f"ℹ️  {message}", Colors.BLUE)
+
 
 def print_header(message: str) -> None:
     print_colored(f"\n{'='*60}", Colors.PURPLE)
     print_colored(f"🔍 {message}", Colors.PURPLE)
     print_colored(f"{'='*60}", Colors.PURPLE)
+
 
 class HealthChecker:
     """DocGate系统健康检查器"""
@@ -110,18 +118,18 @@ class HealthChecker:
                 self.log_success(f"{description}: {file_path.name}")
 
                 # 验证YAML/JSON格式
-                if file_path.suffix in ['.yaml', '.yml']:
+                if file_path.suffix in [".yaml", ".yml"]:
                     try:
-                        with open(file_path, 'r', encoding='utf-8') as f:
+                        with open(file_path, "r", encoding="utf-8") as f:
                             yaml.safe_load(f)
                         self.log_success(f"YAML格式正确: {file_path.name}")
                     except yaml.YAMLError as e:
                         self.log_issue(f"YAML格式错误 {file_path.name}: {e}")
                         all_good = False
 
-                elif file_path.suffix == '.json':
+                elif file_path.suffix == ".json":
                     try:
-                        with open(file_path, 'r', encoding='utf-8') as f:
+                        with open(file_path, "r", encoding="utf-8") as f:
                             json.load(f)
                         self.log_success(f"JSON格式正确: {file_path.name}")
                     except json.JSONDecodeError as e:
@@ -205,9 +213,11 @@ class HealthChecker:
 
                     # 测试脚本语法
                     try:
-                        result = subprocess.run([
-                            sys.executable, "-m", "py_compile", str(script_path)
-                        ], capture_output=True, text=True)
+                        result = subprocess.run(
+                            [sys.executable, "-m", "py_compile", str(script_path)],
+                            capture_output=True,
+                            text=True,
+                        )
 
                         if result.returncode == 0:
                             self.log_success(f"脚本语法正确: {script_name}")
@@ -245,7 +255,7 @@ class HealthChecker:
 
                 # 检查模板内容
                 try:
-                    with open(template_path, 'r', encoding='utf-8') as f:
+                    with open(template_path, "r", encoding="utf-8") as f:
                         content = f.read()
 
                     if "---" in content and "title:" in content:
@@ -314,12 +324,14 @@ last_updated: "2024-01-01"
 - 测试点2
 - 测试点3
 """
-                test_file.write_text(test_content, encoding='utf-8')
+                test_file.write_text(test_content, encoding="utf-8")
 
                 # 运行检查
-                result = subprocess.run([
-                    sys.executable, str(script_path), "--files", str(test_file)
-                ], capture_output=True, text=True)
+                result = subprocess.run(
+                    [sys.executable, str(script_path), "--files", str(test_file)],
+                    capture_output=True,
+                    text=True,
+                )
 
                 if result.returncode == 0:
                     self.log_success("DocGate检查脚本功能正常")
@@ -362,7 +374,7 @@ last_updated: "2024-01-01"
                 "successes": self.successes,
                 "warnings": self.warnings,
                 "issues": self.issues,
-            }
+            },
         }
 
         print_header("健康检查报告")
@@ -377,7 +389,7 @@ last_updated: "2024-01-01"
     def run_all_checks(self) -> bool:
         """运行所有检查"""
         print_colored("🏥 DocGate文档质量管理系统健康检查", Colors.PURPLE)
-        print_colored("="*60, Colors.PURPLE)
+        print_colored("=" * 60, Colors.PURPLE)
 
         checks = [
             self.check_directory_structure,
@@ -405,12 +417,13 @@ last_updated: "2024-01-01"
 
         # 保存报告
         report_file = self.project_root / "docgate_health_report.json"
-        with open(report_file, 'w', encoding='utf-8') as f:
+        with open(report_file, "w", encoding="utf-8") as f:
             json.dump(report, f, indent=2, ensure_ascii=False)
 
         print_info(f"详细报告已保存: {report_file}")
 
         return all_passed
+
 
 def main():
     """主函数"""
@@ -432,6 +445,7 @@ def main():
     except Exception as e:
         print_error(f"健康检查执行失败: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
