@@ -1,7 +1,7 @@
 {
   "version": "5.1.0",
-  "project": "Claude Enhancer 5.0 - Minimal Config",
-  "description": "最小化配置，确保SubAgent高亮显示正常",
+  "project": "Claude Enhancer 5.0",
+  "description": "使用官方默认高亮显示",
   "hooks": {
     "PreToolUse": [],
     "PostToolUse": []
