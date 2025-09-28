@@ -1,0 +1,14 @@
+# Claude Enhancer 5.3 Metrics Definition
+metrics:
+  - name: workflow_completion_rate
+    type: percentage
+    target: 95%
+  - name: agent_selection_accuracy
+    type: percentage  
+    target: 90%
+  - name: test_coverage
+    type: percentage
+    target: 80%
+  - name: performance_score
+    type: score
+    target: 90

@@ -1,0 +1,17 @@
+# Performance Budget for Claude Enhancer 5.3
+performance_budgets:
+  - name: workflow_start
+    latency: 100ms
+    throughput: 20 tasks/s
+  - name: agent_selection
+    latency: 50ms
+    throughput: 50 ops/s
+  - name: git_hooks
+    latency: 30ms
+    throughput: 100 ops/s
+  - name: quality_gate
+    latency: 20ms
+    throughput: 100 ops/s
+  - name: bdd_tests
+    latency: 500ms
+    throughput: 10 tests/s

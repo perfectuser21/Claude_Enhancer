@@ -1,0 +1,209 @@
+# Claude Enhancer 5.3 Service Level Objectives (SLO)
+# 服务等级目标配置
+
+global:
+  evaluation_window: 30d
+  grace_period: 5m
+  alert_channels:
+    - email
+    - slack
+
+slos:
+  # 1. API可用性SLO - 核心指标
+  - name: api_availability
+    description: Claude Enhancer API服务可用性
+    target: 99.9%
+    window:
+      rolling: 30d
+    error_budget: 43.2m  # 每月43.2分钟停机时间
+    indicator:
+      type: availability
+      spec:
+        endpoints:
+          - /api/auth/*
+          - /api/workflow/*
+          - /api/agents/*
+          - /api/tasks/*
+        success_criteria:
+          - status_code < 500
+          - response_time < 5000ms
+    burn_rate_alerts:
+      - window: 1h
+        burn_rate: 14.4
+        severity: critical
+      - window: 6h
+        burn_rate: 6
+        severity: warning
+    synthetic_probes:
+      - name: api_health_check
+        interval: 60s
+        endpoints:
+          - /api/health
+          - /api/status
+
+  # 2. 登录延迟SLO
+  - name: auth_latency
+    description: 用户认证延迟性能
+    target: 95%
+    window:
+      rolling: 7d
+    indicator:
+      type: latency
+      spec:
+        endpoint: /api/auth/login
+        method: POST
+        percentile: p95
+        threshold: 200ms
+
+  # 3. Agent选择性能SLO
+  - name: agent_selection_speed
+    description: Agent智能选择响应速度
+    target: 99%
+    window:
+      rolling: 24h
+    indicator:
+      type: latency
+      spec:
+        endpoint: /api/agents/select
+        method: POST
+        percentile: p99
+        threshold: 50ms
+
+  # 4. 工作流成功率SLO
+  - name: workflow_success_rate
+    description: 工作流执行成功率
+    target: 98%
+    window:
+      rolling: 7d
+    indicator:
+      type: custom
+      spec:
+        query: |
+          sum(workflow_completed{status="success"}) /
+          sum(workflow_completed)
+
+  # 5. 任务吞吐量SLO
+  - name: task_throughput
+    description: 任务处理吞吐量
+    target: 20
+    window:
+      rolling: 1h
+    indicator:
+      type: throughput
+      spec:
+        metric: tasks_processed_per_second
+        aggregation: avg
+        min_threshold: 20
+
+  # 6. 数据库查询性能SLO
+  - name: database_query_performance
+    description: 数据库查询响应时间
+    target: 95%
+    window:
+      rolling: 1d
+    indicator:
+      type: latency
+      spec:
+        metric: db_query_duration_seconds
+        percentile: p95
+        threshold: 0.1
+
+  # 7. 错误率SLO
+  - name: error_rate
+    description: 系统整体错误率
+    target: 99.9%
+    window:
+      rolling: 1h
+    indicator:
+      type: error_rate
+      spec:
+        numerator: http_requests_total{status=~"5.."}
+        denominator: http_requests_total
+        max_rate: 0.001
+
+  # 8. Git Hook执行时间SLO
+  - name: git_hook_performance
+    description: Git Hook执行性能
+    target: 99%
+    window:
+      rolling: 1d
+    indicator:
+      type: latency
+      spec:
+        metric: git_hook_duration_seconds
+        percentile: p99
+        threshold: 3
+
+  # 9. 内存使用SLO
+  - name: memory_usage
+    description: 系统内存使用率
+    target: 100%
+    window:
+      rolling: 1h
+    indicator:
+      type: resource
+      spec:
+        metric: memory_usage_percent
+        max_threshold: 80
+
+  # 10. CI/CD Pipeline成功率SLO
+  - name: cicd_success_rate
+    description: CI/CD管道成功率
+    target: 95%
+    window:
+      rolling: 7d
+    indicator:
+      type: custom
+      spec:
+        query: |
+          sum(pipeline_status{result="success"}) /
+          sum(pipeline_status)
+
+  # 11. BDD测试通过率SLO
+  - name: bdd_test_pass_rate
+    description: BDD验收测试通过率
+    target: 100%
+    window:
+      rolling: 1d
+    indicator:
+      type: custom
+      spec:
+        query: |
+          sum(bdd_scenarios{status="passed"}) /
+          sum(bdd_scenarios)
+
+# 错误预算策略
+error_budget_policies:
+  - name: freeze_releases
+    description: 错误预算耗尽时冻结发布
+    conditions:
+      - slo: api_availability
+        budget_remaining: 10%
+    actions:
+      - type: block_deployments
+      - type: notify
+        channels: [slack, email]
+
+# 告警配置
+alerts:
+  - name: api_availability_breach
+    slo: api_availability
+    condition: violation_duration > 5m
+    severity: critical
+    actions:
+      - notify: oncall
+      - create_incident: true
+      - auto_rollback: true
+
+# 合成监控探针
+synthetic_probes:
+  - name: user_journey_login
+    description: 用户登录流程监控
+    interval: 5m
+    steps:
+      - action: POST /api/auth/login
+        expect: status_code == 200
+      - action: GET /api/user/profile
+        expect: status_code == 200
+      - action: POST /api/auth/logout
+        expect: status_code == 200
