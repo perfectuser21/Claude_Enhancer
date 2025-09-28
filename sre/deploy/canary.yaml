@@ -1,0 +1,17 @@
+strategy: canary
+steps:
+  - percent: 10
+    bake_minutes: 10
+    abort_if:
+      - slo_breach_5m: "api_availability > 1%"
+      - error_rate_5m: "> 2%"
+  - percent: 50
+    bake_minutes: 15
+    abort_if:
+      - slo_breach_5m: "api_availability > 0.5%"
+      - error_rate_5m: "> 1%"
+  - percent: 100
+    validation_minutes: 5
+    rollback_on:
+      - any_p0_incident: true
+      - performance_degradation: "> 20%"

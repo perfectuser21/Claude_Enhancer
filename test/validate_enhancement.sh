@@ -147,7 +147,7 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 
 # 统计BDD场景数量
 if [ -d "$PROJECT_ROOT/acceptance/features" ]; then
-    SCENARIO_COUNT=$(find "$PROJECT_ROOT/acceptance/features" -name "*.feature" -exec grep -c "Scenario:" {} + 2>/dev/null | awk '{sum+=$1} END {print sum}')
+    SCENARIO_COUNT=$(grep -h "Scenario:" "$PROJECT_ROOT"/acceptance/features/*.feature "$PROJECT_ROOT"/acceptance/features/*/*.feature 2>/dev/null | wc -l)
     echo "BDD场景总数: $SCENARIO_COUNT"
     if [ "$SCENARIO_COUNT" -ge 25 ]; then
         echo -e "${GREEN}✓ BDD场景数量达标 (≥25)${NC}"

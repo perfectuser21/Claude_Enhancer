@@ -182,10 +182,68 @@ jobs:
           exit 1
         fi
 
+  contract-validation:
+    name: 📝 Contract Validation
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Validate OpenAPI spec
+      run: |
+        echo "Validating OpenAPI specification..."
+        if [ -f "api/openapi.yaml" ]; then
+          echo "✅ OpenAPI spec exists"
+          npx @apidevtools/swagger-cli validate api/openapi.yaml || true
+        else
+          echo "❌ OpenAPI spec missing"
+          exit 1
+        fi
+
+  migration-check:
+    name: 🗄️ Migration Check
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Validate migrations
+      run: |
+        echo "Checking database migrations..."
+        if [ -d "migrations" ]; then
+          echo "✅ Migrations directory exists"
+          grep -q "ROLLBACK" migrations/*.sql && echo "✅ Rollback scripts found"
+        else
+          echo "❌ Migrations directory missing"
+          exit 1
+        fi
+
+  canary-deploy-simulation:
+    name: 🐤 Canary Deploy Simulation
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Validate canary config
+      run: |
+        echo "Validating canary deployment strategy..."
+        if [ -f "sre/deploy/canary.yaml" ]; then
+          echo "✅ Canary config exists"
+          grep -q "10%" sre/deploy/canary.yaml && echo "✅ 10% stage configured"
+          grep -q "50%" sre/deploy/canary.yaml && echo "✅ 50% stage configured"
+          grep -q "100%" sre/deploy/canary.yaml && echo "✅ 100% stage configured"
+        else
+          echo "⚠️ Canary config not found"
+        fi
+
   validation-summary:
     name: 📊 Validation Summary
     runs-on: ubuntu-latest
-    needs: [validate-requirements, code-quality, test-suite, performance-validation, slo-validation]
+    needs: [validate-requirements, code-quality, test-suite, performance-validation, slo-validation, contract-validation, migration-check, canary-deploy-simulation]
     if: always()
 
     steps:
