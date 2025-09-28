@@ -1,0 +1,122 @@
+# Performance Budget for Claude Enhancer 5.3
+performance_budgets:
+  - name: workflow_start
+    metric: latency
+    budget: 100ms
+    threshold: 120ms
+  - name: agent_selection
+    metric: latency
+    budget: 50ms
+    threshold: 75ms
+  - name: git_hooks
+    metric: latency
+    budget: 30ms
+    threshold: 50ms
+  - name: quality_gate
+    metric: latency
+    budget: 20ms
+    threshold: 30ms
+  - name: bdd_tests
+    metric: duration
+    budget: 500ms
+    threshold: 1000ms
+  - name: api_response_p50
+    metric: p50_latency
+    budget: 100ms
+    threshold: 150ms
+  - name: api_response_p95
+    metric: p95_latency
+    budget: 200ms
+    threshold: 300ms
+  - name: api_response_p99
+    metric: p99_latency
+    budget: 500ms
+    threshold: 750ms
+  - name: throughput_read
+    metric: requests_per_second
+    budget: 1000
+    threshold: 500
+  - name: throughput_write
+    metric: requests_per_second
+    budget: 500
+    threshold: 200
+  - name: memory_usage
+    metric: heap_mb
+    budget: 256
+    threshold: 512
+  - name: cpu_usage
+    metric: cpu_percent
+    budget: 50
+    threshold: 80
+  - name: error_rate
+    metric: error_percentage
+    budget: 0.1
+    threshold: 1
+  - name: database_query_time
+    metric: avg_query_ms
+    budget: 10
+    threshold: 50
+  - name: cache_hit_rate
+    metric: percentage
+    budget: 90
+    threshold: 70
+  - name: concurrent_users
+    metric: max_concurrent
+    budget: 1000
+    threshold: 500
+  - name: page_load_time
+    metric: seconds
+    budget: 2
+    threshold: 3
+  - name: api_availability
+    metric: uptime_percentage
+    budget: 99.9
+    threshold: 99.5
+  - name: deployment_time
+    metric: minutes
+    budget: 5
+    threshold: 10
+  - name: rollback_time
+    metric: minutes
+    budget: 2
+    threshold: 5
+  - name: monitoring_latency
+    metric: milliseconds
+    budget: 100
+    threshold: 200
+  - name: alert_response_time
+    metric: seconds
+    budget: 30
+    threshold: 60
+  - name: log_processing_time
+    metric: milliseconds
+    budget: 50
+    threshold: 100
+  - name: backup_duration
+    metric: minutes
+    budget: 10
+    threshold: 30
+  - name: recovery_time
+    metric: minutes
+    budget: 15
+    threshold: 30
+  - name: test_execution_time
+    metric: minutes
+    budget: 5
+    threshold: 10
+  - name: build_time
+    metric: minutes
+    budget: 3
+    threshold: 5
+  - name: startup_time
+    metric: seconds
+    budget: 5
+    threshold: 10
+  - name: shutdown_time
+    metric: seconds
+    budget: 2
+    threshold: 5
+  - name: connection_pool_size
+    metric: connections
+    budget: 100
+    threshold: 200

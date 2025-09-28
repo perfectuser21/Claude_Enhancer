@@ -1,0 +1,344 @@
+openapi: 3.0.0
+info:
+  title: Claude Enhancer API
+  version: 5.3.0
+  description: Complete API specification for Claude Enhancer workflow system
+servers:
+  - url: http://localhost:8000/api/v1
+paths:
+  /health:
+    get:
+      summary: Health check
+      tags: [System]
+      responses:
+        '200':
+          description: System healthy
+  /metrics:
+    get:
+      summary: Get system metrics
+      tags: [Observability]
+      responses:
+        '200':
+          description: Metrics retrieved
+  /workflow/start:
+    post:
+      summary: Start a new workflow
+      tags: [Workflow]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowStart'
+      responses:
+        '200':
+          description: Workflow started successfully
+  /workflow/{id}:
+    get:
+      summary: Get workflow status
+      tags: [Workflow]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Workflow details
+    delete:
+      summary: Cancel workflow
+      tags: [Workflow]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Workflow cancelled
+  /agents/select:
+    post:
+      summary: Select agents for task
+      tags: [Agents]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentSelection'
+      responses:
+        '200':
+          description: Agents selected
+  /agents/available:
+    get:
+      summary: List available agents
+      tags: [Agents]
+      responses:
+        '200':
+          description: Agent list
+  /phases:
+    get:
+      summary: List all phases
+      tags: [Workflow]
+      responses:
+        '200':
+          description: Phase list
+  /phases/{phase}/transition:
+    post:
+      summary: Transition between phases
+      tags: [Workflow]
+      parameters:
+        - name: phase
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [P0, P1, P2, P3, P4, P5, P6, P7]
+      responses:
+        '200':
+          description: Transition successful
+  /phases/{phase}/validate:
+    get:
+      summary: Validate phase readiness
+      tags: [Workflow]
+      parameters:
+        - name: phase
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Validation result
+  /hooks/register:
+    post:
+      summary: Register a webhook
+      tags: [Hooks]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HookRegistration'
+      responses:
+        '201':
+          description: Hook registered
+  /hooks/{id}:
+    delete:
+      summary: Unregister a webhook
+      tags: [Hooks]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Hook unregistered
+  /slo:
+    get:
+      summary: Get SLO status
+      tags: [Observability]
+      responses:
+        '200':
+          description: SLO metrics
+  /slo/{name}/breach:
+    post:
+      summary: Report SLO breach
+      tags: [Observability]
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Breach recorded
+  /performance/budget:
+    get:
+      summary: Get performance budget
+      tags: [Observability]
+      responses:
+        '200':
+          description: Performance budget
+    put:
+      summary: Update performance budget
+      tags: [Observability]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PerformanceBudget'
+      responses:
+        '200':
+          description: Budget updated
+  /auth/login:
+    post:
+      summary: User login
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+  /auth/logout:
+    post:
+      summary: User logout
+      tags: [Auth]
+      responses:
+        '204':
+          description: Logged out
+  /auth/refresh:
+    post:
+      summary: Refresh token
+      tags: [Auth]
+      responses:
+        '200':
+          description: Token refreshed
+  /sessions:
+    get:
+      summary: List active sessions
+      tags: [Auth]
+      responses:
+        '200':
+          description: Session list
+  /sessions/{id}:
+    delete:
+      summary: Terminate session
+      tags: [Auth]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Session terminated
+  /spikes:
+    get:
+      summary: List spike results
+      tags: [Discovery]
+      responses:
+        '200':
+          description: Spike list
+    post:
+      summary: Create new spike
+      tags: [Discovery]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SpikeRequest'
+      responses:
+        '201':
+          description: Spike created
+  /migrations:
+    get:
+      summary: List migrations
+      tags: [Database]
+      responses:
+        '200':
+          description: Migration list
+    post:
+      summary: Run migration
+      tags: [Database]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MigrationRequest'
+      responses:
+        '200':
+          description: Migration executed
+  /migrations/rollback:
+    post:
+      summary: Rollback migration
+      tags: [Database]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RollbackRequest'
+      responses:
+        '200':
+          description: Rollback completed
+components:
+  schemas:
+    WorkflowStart:
+      type: object
+      required: [task, phase]
+      properties:
+        task:
+          type: string
+        phase:
+          type: string
+    AgentSelection:
+      type: object
+      required: [task, complexity]
+      properties:
+        task:
+          type: string
+        complexity:
+          type: integer
+          minimum: 1
+          maximum: 10
+    HookRegistration:
+      type: object
+      required: [url, events]
+      properties:
+        url:
+          type: string
+          format: uri
+        events:
+          type: array
+          items:
+            type: string
+    PerformanceBudget:
+      type: object
+      properties:
+        latency:
+          type: integer
+        throughput:
+          type: integer
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+    SpikeRequest:
+      type: object
+      required: [type, description]
+      properties:
+        type:
+          type: string
+        description:
+          type: string
+    MigrationRequest:
+      type: object
+      required: [version]
+      properties:
+        version:
+          type: string
+    RollbackRequest:
+      type: object
+      required: [target_version]
+      properties:
+        target_version:
+          type: string
