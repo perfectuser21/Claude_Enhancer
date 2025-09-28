@@ -1,0 +1,43 @@
+name: CE-Workflow-Active
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - main
+      - feature/*
+      - develop
+
+jobs:
+  check-workflow:
+    name: Check Workflow Active
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Check for .workflow/ACTIVE file
+        id: check-active
+        run: |
+          if [ -f ".workflow/ACTIVE" ]; then
+            echo "✅ Workflow is ACTIVE"
+            echo "File content:"
+            cat .workflow/ACTIVE
+            exit 0
+          else
+            echo "❌ Workflow is NOT ACTIVE"
+            echo "Error: .workflow/ACTIVE file not found"
+            echo "Please activate Claude Enhancer workflow before submitting PR"
+            exit 1
+          fi
+
+      - name: Report status
+        if: always()
+        run: |
+          if [ "${{ steps.check-active.outcome }}" == "success" ]; then
+            echo "::notice::Claude Enhancer workflow is properly activated ✅"
+          else
+            echo "::error::Claude Enhancer workflow must be activated before merging"
+          fi
