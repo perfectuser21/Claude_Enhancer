@@ -1,0 +1,226 @@
+{
+  "test_scenarios": {
+    "simple_tasks": [
+      {
+        "id": "simple_001",
+        "description": "Fix typo in user login form",
+        "input": {
+          "prompt": "fix typo in user login form",
+          "model": "claude-3-sonnet-20240229",
+          "max_tokens": 1000
+        },
+        "expected": {
+          "complexity": "simple",
+          "agent_count": 4,
+          "recommended_agents": ["backend-architect", "test-engineer", "security-auditor", "api-designer"]
+        }
+      },
+      {
+        "id": "simple_002",
+        "description": "Quick bug fix in validation",
+        "input": {
+          "prompt": "quick bug fix in form validation logic",
+          "model": "claude-3-sonnet-20240229"
+        },
+        "expected": {
+          "complexity": "simple",
+          "agent_count": 4
+        }
+      },
+      {
+        "id": "simple_003",
+        "description": "Minor UI adjustment",
+        "input": {
+          "description": "small change in button styling"
+        },
+        "expected": {
+          "complexity": "simple",
+          "agent_count": 4
+        }
+      }
+    ],
+    "standard_tasks": [
+      {
+        "id": "standard_001",
+        "description": "Implement user authentication system",
+        "input": {
+          "prompt": "implement user authentication system with JWT tokens",
+          "model": "claude-3-sonnet-20240229",
+          "max_tokens": 4000
+        },
+        "expected": {
+          "complexity": "standard",
+          "agent_count": 6,
+          "recommended_agents": ["backend-architect", "frontend-architect", "database-specialist", "test-engineer", "security-auditor", "api-designer"]
+        }
+      },
+      {
+        "id": "standard_002",
+        "description": "Create REST API for orders",
+        "input": {
+          "prompt": "create REST API for order management system",
+          "model": "claude-3-sonnet-20240229"
+        },
+        "expected": {
+          "complexity": "standard",
+          "agent_count": 6
+        }
+      },
+      {
+        "id": "standard_003",
+        "description": "Build dashboard with analytics",
+        "input": {
+          "description": "build React dashboard with real-time analytics"
+        },
+        "expected": {
+          "complexity": "standard",
+          "agent_count": 6
+        }
+      }
+    ],
+    "complex_tasks": [
+      {
+        "id": "complex_001",
+        "description": "Design microservices architecture",
+        "input": {
+          "prompt": "design complete microservices architecture with payment gateway integration",
+          "model": "claude-3-sonnet-20240229",
+          "max_tokens": 8000
+        },
+        "expected": {
+          "complexity": "complex",
+          "agent_count": 8,
+          "recommended_agents": ["system-architect", "backend-architect", "frontend-architect", "database-specialist", "security-auditor", "performance-engineer", "test-engineer", "technical-writer"]
+        }
+      },
+      {
+        "id": "complex_002",
+        "description": "Full system migration",
+        "input": {
+          "prompt": "migrate entire legacy system to modern cloud architecture"
+        },
+        "expected": {
+          "complexity": "complex",
+          "agent_count": 8
+        }
+      },
+      {
+        "id": "complex_003",
+        "description": "Enterprise integration platform",
+        "input": {
+          "description": "design enterprise-grade integration platform with security and monitoring"
+        },
+        "expected": {
+          "complexity": "complex",
+          "agent_count": 8
+        }
+      }
+    ]
+  },
+  "edge_cases": [
+    {
+      "id": "edge_001",
+      "description": "Empty input",
+      "input": "",
+      "expected": {
+        "should_handle_gracefully": true,
+        "error_message_contains": "No task description found"
+      }
+    },
+    {
+      "id": "edge_002",
+      "description": "Invalid JSON",
+      "input": "{ invalid json }",
+      "expected": {
+        "should_handle_gracefully": true,
+        "error_message_contains": "No task description found"
+      }
+    },
+    {
+      "id": "edge_003",
+      "description": "Very long description",
+      "input": {
+        "prompt": "implement a very comprehensive and complex enterprise-grade application system with advanced microservices architecture, sophisticated security features, real-time analytics, machine learning capabilities, distributed caching, message queuing, event sourcing, CQRS pattern implementation, containerization with Kubernetes, CI/CD pipelines, monitoring and logging, performance optimization, scalability features, high availability setup, disaster recovery, data backup strategies, user management, role-based access control, API gateway, service mesh, database sharding, read replicas, and comprehensive testing"
+      },
+      "expected": {
+        "complexity": "complex",
+        "agent_count": 8,
+        "should_truncate_display": true
+      }
+    }
+  ],
+  "performance_test_data": [
+    {
+      "id": "perf_001",
+      "iterations": 50,
+      "input": {
+        "prompt": "implement secure payment processing system",
+        "model": "claude-3-sonnet-20240229"
+      },
+      "performance_requirements": {
+        "max_response_time_ms": 100,
+        "success_rate_percent": 95
+      }
+    },
+    {
+      "id": "perf_002",
+      "iterations": 100,
+      "input": {
+        "description": "create high-performance trading system"
+      },
+      "performance_requirements": {
+        "max_response_time_ms": 100,
+        "success_rate_percent": 99
+      }
+    }
+  ],
+  "integration_scenarios": [
+    {
+      "id": "integration_001",
+      "name": "Full E2E Workflow",
+      "description": "Complete workflow from quality gate to agent selection to orchestration",
+      "steps": [
+        {
+          "name": "quality_gate_check",
+          "component": "quality_gate.sh",
+          "input": {
+            "prompt": "implement secure user authentication with OAuth2",
+            "model": "claude-3-sonnet-20240229"
+          },
+          "expected": {
+            "exit_code": 0,
+            "should_pass_through_input": true
+          }
+        },
+        {
+          "name": "agent_selection",
+          "component": "smart_agent_selector.sh",
+          "input_from_previous": true,
+          "expected": {
+            "exit_code": 0,
+            "complexity": "standard",
+            "agent_count": 6
+          }
+        },
+        {
+          "name": "orchestrator_verification",
+          "component": "lazy_orchestrator.py",
+          "method": "select_agents_intelligent",
+          "expected": {
+            "complexity": "standard",
+            "agent_count": 6,
+            "execution_mode": "parallel"
+          }
+        }
+      ]
+    }
+  ],
+  "test_config": {
+    "default_timeout_ms": 5000,
+    "max_retries": 3,
+    "warmup_iterations": 5,
+    "performance_test_iterations": 50,
+    "concurrent_test_threads": 5,
+    "log_level": "INFO"
+  }
+}

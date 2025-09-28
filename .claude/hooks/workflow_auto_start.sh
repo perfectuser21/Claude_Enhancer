@@ -4,6 +4,10 @@
 
 set -euo pipefail
 
+# 设置UTF-8支持
+export LC_ALL=C.UTF-8
+export LANG=C.UTF-8
+
 # 颜色定义
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -24,22 +28,40 @@ mkdir -p "$PHASE_DIR"
 is_programming_task() {
     local prompt="${1:-}"
 
-    # 编程任务关键词（中英文）
+    # 添加日志记录
+    echo "$(date +'%F %T') [workflow_auto_start] Checking task: $prompt" >> "$PROJECT_ROOT/.workflow/logs/hooks.log"
+
+    # 编程任务关键词（中英文 - 扩展版）
     local programming_keywords=(
-        "实现" "开发" "编写" "创建" "修复" "优化" "重构" "添加" "集成" "部署"
-        "implement" "develop" "write" "create" "fix" "optimize" "refactor" "add" "integrate" "deploy"
-        "代码" "功能" "组件" "模块" "系统" "架构" "API" "数据库" "测试" "文档"
-        "code" "feature" "component" "module" "system" "architecture" "database" "test" "document"
-        "hook" "agent" "workflow" "phase" "git" "docker" "CI" "CD"
+        # 中文动词
+        "实现" "开发" "编写" "创建" "修复" "修正" "修补" "修理" "优化" "重构" "添加" "新增" "集成" "部署" "更新" "改进" "调整" "完成" "设计" "构建" "测试" "调试" "分析" "迁移" "升级"
+        # 英文动词
+        "implement" "develop" "write" "create" "fix" "bug" "optimize" "refactor" "add" "integrate" "deploy" "update" "improve" "adjust" "complete" "design" "build" "test" "debug" "analyze" "migrate" "upgrade"
+        # 技术术语
+        "代码" "功能" "组件" "模块" "系统" "架构" "API" "数据库" "测试" "文档" "性能" "安全" "样式" "配置" "脚本" "接口" "服务" "缓存" "队列" "日志"
+        "code" "feature" "component" "module" "system" "architecture" "database" "test" "document" "performance" "security" "style" "config" "script" "interface" "service" "cache" "queue" "log"
+        # 工具和框架
+        "hook" "agent" "workflow" "phase" "git" "docker" "CI" "CD" "npm" "yarn" "webpack" "vite" "react" "vue" "angular" "node" "python" "java" "go" "rust"
+        # Git commit 关键词
+        "feat" "fix" "docs" "style" "refactor" "perf" "test" "build" "ci" "chore" "revert" "merge" "hotfix"
     )
 
+    # 标准化输入：处理全角符号和空格
+    local normalized_prompt="${prompt//：/:}"  # 全角冒号转半角
+    normalized_prompt="${normalized_prompt//，/,}"  # 全角逗号转半角
+    normalized_prompt="${normalized_prompt//。/.}"  # 全角句号转半角
+    normalized_prompt="${normalized_prompt,,}"  # 转小写
+
     for keyword in "${programming_keywords[@]}"; do
-        if [[ "${prompt,,}" == *"${keyword,,}"* ]]; then
+        if [[ "${normalized_prompt}" == *"${keyword,,}"* ]]; then
+            echo "$(date +'%F %T') [workflow_auto_start] Detected programming task with keyword: $keyword" >> "$PROJECT_ROOT/.workflow/logs/hooks.log"
             return 0
         fi
     done
 
-    return 1
+    # 如果没有匹配到关键词，默认作为编程任务（更安全的默认行为）
+    echo "$(date +'%F %T') [workflow_auto_start] No keyword matched, defaulting to programming task" >> "$PROJECT_ROOT/.workflow/logs/hooks.log"
+    return 0  # 改为默认是编程任务
 }
 
 # 获取当前Phase

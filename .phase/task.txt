@@ -1,1 +1,1 @@
-实现文档质量管理系统
+修复系统bugs: quality_gate超时、Agent选择功能、smart_agent_selector输出

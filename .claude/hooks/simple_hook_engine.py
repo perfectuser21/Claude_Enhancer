@@ -67,8 +67,9 @@ class SimpleHookEngine:
 
     def __init__(self):
         self.cache = SimpleHookCache()
-        self.hooks_dir = Path("/home/xx/dev/Claude_Enhancer/.claude/hooks")
-        self.timeout = 1.0  # 1秒超时
+        # 修复路径问题 - 使用正确的项目路径
+        self.hooks_dir = Path("/home/xx/dev/Claude Enhancer 5.0/.claude/hooks")
+        self.timeout = 3.0  # 增加到3秒超时，更合理
 
     def execute_hook(self, hook_name, context=None):
         """执行单个Hook"""
@@ -96,8 +97,9 @@ class SimpleHookEngine:
                     json.dumps(context) if isinstance(context, dict) else str(context)
                 )
 
+            # 修复路径空格问题 - 使用引号包裹
             result = subprocess.run(
-                f"bash {hook_script}",
+                f'bash "{hook_script}"',
                 shell=True,
                 capture_output=True,
                 text=True,
