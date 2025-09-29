@@ -1,4 +1,23 @@
-# Claude Enhancer 6-Phase工作流框架
+# Claude Enhancer 8-Phase工作流框架 + 工作流硬闸
+
+## 🛡️ 工作流硬闸（Workflow Guard）- v5.3新增
+
+**强制执行机制**：所有开发必须遵循标准化工作流，通过三层防护确保合规：
+
+1. **本地Pre-push Hook** - 未激活工作流不能推送
+2. **GitHub Actions CI** - PR必须包含ACTIVE文件
+3. **Branch Protection** - main分支强制通过所有检查
+
+### 使用流程
+```bash
+# 开始工作
+ce start "任务描述"  # 激活工作流，生成ACTIVE文件
+
+# 正常开发...
+
+# 完成工作
+ce stop              # 停用工作流，归档ACTIVE文件
+```
 
 ## 核心理念：完整生命周期，端到端管理
 
