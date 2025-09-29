@@ -1,0 +1,92 @@
+#!/bin/bash
+# ce start - 激活工作流，生成ACTIVE文件
+# Usage: ce start "任务描述"
+
+set -euo pipefail
+
+# 颜色输出
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+# 检查参数
+if [ $# -eq 0 ]; then
+    echo -e "${RED}❌ 错误：请提供任务描述${NC}"
+    echo "用法: ce start \"任务描述\""
+    exit 1
+fi
+
+TASK_DESC="$1"
+
+# 获取git仓库根目录
+if ! GIT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null); then
+    echo -e "${RED}❌ 错误：不在git仓库内${NC}"
+    exit 1
+fi
+
+cd "$GIT_ROOT"
+
+# 获取当前分支
+CURRENT_BRANCH=$(git branch --show-current)
+
+# 检查是否在main分支
+if [ "$CURRENT_BRANCH" = "main" ] || [ "$CURRENT_BRANCH" = "master" ]; then
+    echo -e "${RED}❌ 错误：不能在主分支激活工作流${NC}"
+    echo -e "${YELLOW}💡 提示：请先创建feature分支${NC}"
+    echo "   git checkout -b feature/your-feature-name"
+    exit 1
+fi
+
+# 获取用户信息
+GIT_USER=$(git config user.name || echo "unknown")
+TIMESTAMP=$(date '+%Y%m%d-%H%M%S')
+DATE=$(date '+%Y%m%d')
+
+# 生成ticket ID
+TICKET_SEQ=1
+if [ -d ".workflow/archive" ]; then
+    # 查找今日最大序号
+    MAX_SEQ=$(ls .workflow/archive/ACTIVE-*.txt 2>/dev/null | \
+              grep "T-${DATE}" | \
+              sed -E "s/.*T-${DATE}-([0-9]+).*/\1/" | \
+              sort -n | tail -1 || echo 0)
+    TICKET_SEQ=$((MAX_SEQ + 1))
+fi
+TICKET_ID="T-${DATE}-$(printf "%03d" $TICKET_SEQ)"
+
+# 创建.workflow目录
+mkdir -p .workflow
+
+# 检查是否已有ACTIVE文件
+if [ -f ".workflow/ACTIVE" ]; then
+    echo -e "${YELLOW}⚠️  已存在激活的工作流，更新中...${NC}"
+    # 读取原有ticket（保持不变）
+    EXISTING_TICKET=$(grep "^ticket=" .workflow/ACTIVE | cut -d= -f2 || echo "")
+    if [ -n "$EXISTING_TICKET" ]; then
+        TICKET_ID="$EXISTING_TICKET"
+    fi
+fi
+
+# 生成/更新ACTIVE文件
+cat > .workflow/ACTIVE << EOF
+ticket=${TICKET_ID}
+phase=P1
+branch=${CURRENT_BRANCH}
+owner=${GIT_USER}
+created_at=$(date '+%Y-%m-%d %H:%M:%S')
+ttl_hours=8
+note=${TASK_DESC}
+EOF
+
+echo -e "${GREEN}✅ 工作流已激活！${NC}"
+echo -e "📋 Ticket: ${TICKET_ID}"
+echo -e "🌿 分支: ${CURRENT_BRANCH}"
+echo -e "👤 负责人: ${GIT_USER}"
+echo -e "📝 任务: ${TASK_DESC}"
+echo ""
+echo -e "${GREEN}现在你可以：${NC}"
+echo "  1. 正常开发并git add/commit"
+echo "  2. git push 推送到远程"
+echo "  3. 创建PR并合并"
+echo "  4. 完成后运行: ce stop"

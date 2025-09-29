@@ -2,7 +2,7 @@
 # Version: 从VERSION文件读取
 # 单一配置源，取代分散的settings.json
 
-version: "5.1.0"  # 从VERSION文件读取
+version: "5.3.1"  # 从VERSION文件读取
 project: "Claude Enhancer"
 
 # 系统总则

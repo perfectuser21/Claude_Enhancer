@@ -1,0 +1,164 @@
+#!/bin/bash
+# ce-stop-enhanced - 增强版工作流停止（含工作区清理）
+
+set -euo pipefail
+
+# 颜色
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+NC='\033[0m'
+
+PROJECT_ROOT=$(git rev-parse --show-toplevel)
+
+echo -e "${CYAN}╔═══════════════════════════════════════════════════════╗${NC}"
+echo -e "${CYAN}║        Claude Enhancer 工作流停用器 v5.3.2           ║${NC}"
+echo -e "${CYAN}╚═══════════════════════════════════════════════════════╝${NC}"
+echo ""
+
+# 1. 检查ACTIVE文件
+if [ ! -f "$PROJECT_ROOT/.workflow/ACTIVE" ]; then
+    # 检查其他位置
+    ACTIVE_FILES=$(find /tmp -name "ACTIVE" -path "*/.workflow/*" 2>/dev/null || true)
+    if [ -z "$ACTIVE_FILES" ]; then
+        echo -e "${YELLOW}⚠️  没有激活的工作流${NC}"
+        exit 0
+    fi
+
+    # 使用找到的第一个ACTIVE
+    ACTIVE_PATH=$(echo "$ACTIVE_FILES" | head -1)
+    WORK_DIR=$(dirname $(dirname "$ACTIVE_PATH"))
+else
+    ACTIVE_PATH="$PROJECT_ROOT/.workflow/ACTIVE"
+    WORK_DIR="$PROJECT_ROOT"
+fi
+
+# 2. 读取工作流信息
+TICKET=$(grep "^ticket=" "$ACTIVE_PATH" | cut -d= -f2 || echo "unknown")
+BRANCH=$(grep "^branch=" "$ACTIVE_PATH" | cut -d= -f2 || echo "unknown")
+MODE=$(grep "^mode=" "$ACTIVE_PATH" | cut -d= -f2 || echo "--simple")
+WORK_DIR_SAVED=$(grep "^work_dir=" "$ACTIVE_PATH" | cut -d= -f2 || echo "$WORK_DIR")
+NOTE=$(grep "^note=" "$ACTIVE_PATH" | cut -d= -f2- || echo "unknown")
+
+echo -e "${BLUE}📊 当前工作流信息：${NC}"
+echo "  Ticket: $TICKET"
+echo "  分支: $BRANCH"
+echo "  模式: ${MODE#--}"
+echo "  工作目录: $WORK_DIR_SAVED"
+echo "  任务: $NOTE"
+echo ""
+
+# 3. 提交检查
+echo -e "${YELLOW}检查未提交的更改...${NC}"
+cd "$WORK_DIR_SAVED"
+
+if git status --porcelain | grep -q .; then
+    echo -e "${YELLOW}⚠️  检测到未提交的更改：${NC}"
+    git status --short
+
+    read -p "是否要提交这些更改？(y/N): " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        git add -A
+        git commit -m "chore: auto-commit before workflow stop [$TICKET]"
+        echo -e "${GREEN}✅ 更改已提交${NC}"
+    else
+        echo -e "${YELLOW}跳过提交（更改将保留在工作区）${NC}"
+    fi
+fi
+
+# 4. 归档ACTIVE文件
+echo -e "${BLUE}📁 归档工作流信息...${NC}"
+mkdir -p "$PROJECT_ROOT/.workflow/archive"
+ARCHIVE_FILE="$PROJECT_ROOT/.workflow/archive/ACTIVE-$(date '+%Y%m%d-%H%M%S')-${TICKET}.txt"
+cp "$ACTIVE_PATH" "$ARCHIVE_FILE"
+echo "" >> "$ARCHIVE_FILE"
+echo "# Stopped at: $(date '+%Y-%m-%d %H:%M:%S')" >> "$ARCHIVE_FILE"
+echo "# Stopped by: $(git config user.name || echo 'unknown')" >> "$ARCHIVE_FILE"
+
+# 5. 根据模式清理工作区
+case "$MODE" in
+    --worktree)
+        echo -e "${YELLOW}🧹 清理Git Worktree...${NC}"
+
+        # 切回主仓库
+        cd "$PROJECT_ROOT"
+
+        # 移除worktree
+        if [ -d "$WORK_DIR_SAVED" ]; then
+            git worktree remove "$WORK_DIR_SAVED" --force 2>/dev/null || true
+            echo -e "${GREEN}✅ Worktree已移除${NC}"
+        fi
+        ;;
+
+    --overlay)
+        echo -e "${YELLOW}🧹 清理OverlayFS...${NC}"
+
+        # 需要sudo
+        if sudo -n true 2>/dev/null; then
+            # 卸载overlay
+            sudo umount "$WORK_DIR_SAVED" 2>/dev/null || true
+
+            # 清理目录
+            OVERLAY_BASE=$(dirname $(dirname "$WORK_DIR_SAVED"))
+            if [ -d "$OVERLAY_BASE" ]; then
+                sudo rm -rf "$OVERLAY_BASE"
+                echo -e "${GREEN}✅ OverlayFS已清理${NC}"
+            fi
+        else
+            echo -e "${RED}⚠️  需要sudo权限清理OverlayFS${NC}"
+        fi
+        ;;
+
+    --simple|*)
+        echo -e "${BLUE}📝 简单模式，无需清理工作区${NC}"
+
+        # 如果有锁定标记，询问是否重新锁定
+        if [ -f "$PROJECT_ROOT/.workflow/.locked" ]; then
+            CURRENT_BRANCH=$(git branch --show-current)
+            if [ "$CURRENT_BRANCH" = "main" ] || [ "$CURRENT_BRANCH" = "master" ]; then
+                read -p "是否重新锁定主分支？(y/N): " -n 1 -r
+                echo
+                if [[ $REPLY =~ ^[Yy]$ ]]; then
+                    find "$PROJECT_ROOT" -type f -not -path "*/.git/*" -not -path "*/.workflow/*" \
+                        -exec chmod a-w {} \; 2>/dev/null || true
+                    echo -e "${GREEN}✅ 主分支已重新锁定${NC}"
+                fi
+            fi
+        fi
+        ;;
+esac
+
+# 6. 删除ACTIVE文件
+rm -f "$ACTIVE_PATH"
+
+# 7. 显示完成信息
+echo ""
+echo -e "${GREEN}╔═══════════════════════════════════════════════════════╗${NC}"
+echo -e "${GREEN}║              ✅ 工作流已成功停用！                   ║${NC}"
+echo -e "${GREEN}╚═══════════════════════════════════════════════════════╝${NC}"
+echo ""
+echo -e "${CYAN}📊 停用摘要：${NC}"
+echo "  Ticket: $TICKET"
+echo "  分支: $BRANCH"
+echo "  归档至: $ARCHIVE_FILE"
+echo ""
+
+# 8. 提供后续建议
+echo -e "${YELLOW}📝 后续操作建议：${NC}"
+echo "  1. 创建Pull Request:"
+echo "     ${GREEN}gh pr create${NC}"
+echo ""
+echo "  2. 合并到主分支后:"
+echo "     git checkout main"
+echo "     git pull origin main"
+echo ""
+echo "  3. 开始新任务:"
+echo "     ${GREEN}ce-start-enhanced \"新任务描述\"${NC}"
+echo ""
+
+echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${CYAN}感谢使用Claude Enhancer工作流系统！${NC}"
+echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"

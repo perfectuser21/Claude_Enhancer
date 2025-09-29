@@ -1,0 +1,10 @@
+ticket=T-20250929-001
+phase=P1
+branch=feature/check-list
+owner=perfectuser21
+created_at=2025-09-29 11:05:59
+ttl_hours=8
+note=测试工作流硬闸功能
+
+# Archived at: 2025-09-29 11:06:11
+# Archived by: perfectuser21

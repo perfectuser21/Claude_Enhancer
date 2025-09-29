@@ -1,0 +1,42 @@
+#!/bin/bash
+# ce - Claude Enhancer 工作流控制命令
+# Usage: ce start|stop [args]
+
+set -euo pipefail
+
+# 获取脚本所在目录
+BIN_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PROJECT_ROOT="$( cd "$BIN_DIR/.." && pwd )"
+SCRIPTS_DIR="$PROJECT_ROOT/scripts"
+
+# 检查参数
+if [ $# -eq 0 ]; then
+    echo "用法: ce <command> [args]"
+    echo ""
+    echo "可用命令:"
+    echo "  start \"任务描述\"  - 激活工作流"
+    echo "  stop             - 停用工作流"
+    echo ""
+    echo "示例:"
+    echo "  ce start \"修复登录bug\""
+    echo "  ce stop"
+    exit 1
+fi
+
+COMMAND="$1"
+shift
+
+# 执行对应命令
+case "$COMMAND" in
+    start)
+        exec "$SCRIPTS_DIR/ce-start" "$@"
+        ;;
+    stop)
+        exec "$SCRIPTS_DIR/ce-stop" "$@"
+        ;;
+    *)
+        echo "错误：未知命令 '$COMMAND'"
+        echo "运行 'ce' 查看可用命令"
+        exit 1
+        ;;
+esac

@@ -54,7 +54,7 @@ if [ -d .git ]; then
     echo "📌 安装Git Hooks..."
 
     # 备份现有hooks
-    for hook in pre-commit commit-msg; do
+    for hook in pre-commit commit-msg pre-push; do
         if [ -f .git/hooks/$hook ]; then
             cp .git/hooks/$hook .git/hooks/$hook.backup.$(date +%Y%m%d)
             echo "  备份: $hook → $hook.backup"
@@ -75,6 +75,20 @@ if [ -d .git ]; then
     echo "  ✅ Git Hooks已安装"
 fi
 
+# 2.5 安装工作流硬闸（Workflow Guard）- 新增
+echo "🛡️ 安装工作流硬闸..."
+if [ -f setup_hooks.sh ]; then
+    bash setup_hooks.sh > /dev/null 2>&1
+    echo "  ✅ 工作流硬闸已激活"
+    echo "  📝 使用: ce start \"任务\" 激活工作流"
+fi
+
+# 设置ce命令权限
+if [ -f scripts/ce-start ] && [ -f scripts/ce-stop ]; then
+    chmod +x scripts/ce-start scripts/ce-stop scripts/ce 2>/dev/null
+    echo "  ✅ ce命令已就绪"
+fi
+
 # 3. 创建配置软链接（可选）
 if [ ! -f .claude/config/unified_main.yaml ]; then
     echo "⚠️  未找到settings.json，跳过"
@@ -84,21 +98,26 @@ fi
 
 # 4. 显示使用说明
 echo ""
-echo "✨ 安装完成！"
+echo "✨ 安装完成！Claude Enhancer 5.3"
 echo ""
-echo "📋 使用方法："
-echo "  1. Claude会自动分析任务并选择4-6-8个Agent"
-echo "  2. Git提交时会自动检查代码质量"
-echo "  3. 查看 .claude/README.md 了解详情"
+echo "📋 核心功能："
+echo "  1. 🤖 智能Agent选择（4-6-8策略）"
+echo "  2. 🛡️ 工作流硬闸（强制执行标准流程）"
+echo "  3. ✅ 三层质量保证（Workflow + Claude Hooks + Git Hooks）"
+echo "  4. 📊 100/100保障力评分"
 echo ""
-echo "💡 工作流程："
-echo "  Phase 0-2: 需求分析和设计"
-echo "  Phase 3: Agent并行开发"
-echo "  Phase 4-7: 测试、提交、审查、部署"
+echo "💡 快速开始："
+echo "  1. ce start \"任务描述\" - 激活工作流"
+echo "  2. 正常开发（git add/commit/push）"
+echo "  3. ce stop - 完成后停用工作流"
 echo ""
-echo "🎯 Agent策略："
-echo "  简单任务：4个Agent"
-echo "  标准任务：6个Agent"
-echo "  复杂任务：8个Agent"
+echo "🎯 8-Phase工作流（P0-P7）："
+echo "  P0 探索 → P1 规划 → P2 骨架 → P3 实现"
+echo "  P4 测试 → P5 审查 → P6 发布 → P7 监控"
 echo ""
-echo "Happy coding with Claude Enhancer! 🚀"
+echo "📚 文档："
+echo "  • 工作流硬闸: docs/WORKFLOW_GUARD.md"
+echo "  • 系统架构: .claude/WORKFLOW.md"
+echo "  • 项目说明: CLAUDE.md"
+echo ""
+echo "Happy coding with Claude Enhancer 5.3! 🚀"

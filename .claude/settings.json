@@ -1,7 +1,7 @@
 {
-  "version": "5.1.0",
-  "project": "Claude Enhancer 5.0",
-  "description": "使用官方默认高亮显示 + 工作流强制执行",
+  "version": "5.3.0",
+  "project": "Claude Enhancer 5.3",
+  "description": "生产级AI编程工作流系统 - 含工作流硬闸(Workflow Guard)",
   "hooks": {
     "UserPromptSubmit": [
       ".claude/hooks/workflow_auto_start.sh"

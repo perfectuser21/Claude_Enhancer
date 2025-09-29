@@ -1,10 +1,16 @@
-# Claude Enhancer 5.1 - Enterprise-Grade AI Development Workflow System
+# Claude Enhancer 5.3.1 - Enterprise-Grade AI Development Workflow System
 
 ## 🎯 系统概览
 
-Claude Enhancer 5.1是为Claude Code Max 20X用户量身打造的企业级AI驱动开发工作流系统。本系统通过智能化的多Agent协作框架，实现从需求分析到生产部署的完整开发生命周期自动化管理。
+Claude Enhancer 5.3.1是为Claude Code Max 20X用户量身打造的企业级AI驱动开发工作流系统。本系统通过智能化的多Agent协作框架和工作流硬闸机制，实现从需求分析到生产部署的完整开发生命周期自动化管理。
 
-### 🚀 v5.1版本亮点
+### 🚀 v5.3.1版本亮点
+
+#### 工作流硬闸系统（Workflow Guard）
+- **强制工作流执行** - 三层防护确保规范遵循
+- **CLI工具集成** - ce start/stop命令简化操作
+- **自动化检查** - 本地Hook + CI验证双重保障
+- **智能分支管理** - 自动识别和保护开发分支
 
 #### 性能突破
 - **启动速度提升68.75%** - 优化的懒加载架构，瞬间响应
@@ -56,6 +62,45 @@ cd /your/project && ./.claude/install.sh
 # 验证安装
 python run_tests.py --type all
 ```
+
+### 🛡️ Workflow Guard 快速开始（新增）
+
+Claude Enhancer 5.0+ 引入了**工作流硬闸**机制，确保所有开发必须遵循标准化工作流程。
+
+#### 初始设置（仅需一次）
+```bash
+# 安装工作流守护hooks
+bash setup_hooks.sh
+
+# 验证安装（可选）
+bash scripts/self_test.sh
+```
+
+#### 日常开发流程
+```bash
+# 1. 创建feature分支
+git checkout -b feature/awesome-feature
+
+# 2. 激活工作流（必须！）
+./scripts/ce-start "实现用户认证功能"
+
+# 3. 正常开发
+git add .
+git commit -m "feat: add authentication"
+git push  # 有ACTIVE文件，推送成功
+
+# 4. 创建PR并合并
+
+# 5. 完成后停用工作流
+./scripts/ce-stop
+```
+
+#### 三层防护机制
+- **本地Hook**: 未激活工作流不能推送
+- **CI检查**: PR必须有ACTIVE文件才能通过
+- **分支保护**: main分支强制要求所有检查通过
+
+详细文档请参考 [工作流硬闸使用指南](docs/WORKFLOW_GUARD.md)
 
 ### 立即体验
 ```bash
