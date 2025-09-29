@@ -1,0 +1,7 @@
+ticket=T-20250929-002
+phase=P1
+branch=feature/check-list
+owner=perfectuser21
+created_at=2025-09-29 11:06:21
+ttl_hours=8
+note=实现工作流硬闸系统，强制执行Claude Enhancer标准工作流

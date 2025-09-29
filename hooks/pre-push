@@ -1,0 +1,92 @@
+#!/bin/bash
+# Pre-push hook: 检查工作流是否激活
+# 未激活则拒绝推送（开发分支）
+
+set -euo pipefail
+
+# 颜色输出
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+# 获取当前分支
+CURRENT_BRANCH=$(git branch --show-current)
+
+# 需要检查的分支模式
+PROTECTED_PATTERNS=(
+    "feature/*"
+    "hotfix/*"
+    "release/*"
+    "bugfix/*"
+    "develop"
+)
+
+# 检查是否匹配保护模式
+NEEDS_WORKFLOW=false
+for pattern in "${PROTECTED_PATTERNS[@]}"; do
+    case "$CURRENT_BRANCH" in
+        $pattern)
+            NEEDS_WORKFLOW=true
+            break
+            ;;
+    esac
+done
+
+# 如果不需要工作流，直接放行
+if [ "$NEEDS_WORKFLOW" = false ]; then
+    exit 0
+fi
+
+# 获取仓库根目录
+GIT_ROOT=$(git rev-parse --show-toplevel)
+
+# 检查ACTIVE文件
+if [ ! -f "$GIT_ROOT/.workflow/ACTIVE" ]; then
+    echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${RED}❌ 推送被拒绝：工作流未激活${NC}"
+    echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+    echo -e "${YELLOW}当前分支: ${CURRENT_BRANCH}${NC}"
+    echo -e "${YELLOW}此分支需要激活工作流才能推送${NC}"
+    echo ""
+    echo -e "${GREEN}解决方案：${NC}"
+    echo -e "  运行: ${GREEN}ce start \"你的任务描述\"${NC}"
+    echo ""
+    echo "示例："
+    echo "  ce start \"修复登录bug\""
+    echo "  ce start \"添加用户认证功能\""
+    echo ""
+    echo -e "${YELLOW}💡 提示：激活工作流后可正常推送${NC}"
+    exit 1
+fi
+
+# 验证ACTIVE文件的分支是否匹配
+ACTIVE_BRANCH=$(grep "^branch=" "$GIT_ROOT/.workflow/ACTIVE" | cut -d= -f2 || echo "")
+if [ "$ACTIVE_BRANCH" != "$CURRENT_BRANCH" ]; then
+    echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${RED}❌ 推送被拒绝：工作流分支不匹配${NC}"
+    echo -e "${RED}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+    echo -e "${YELLOW}当前分支: ${CURRENT_BRANCH}${NC}"
+    echo -e "${YELLOW}工作流分支: ${ACTIVE_BRANCH}${NC}"
+    echo ""
+    echo -e "${GREEN}解决方案：${NC}"
+    echo "  1. 切换到正确的分支: git checkout ${ACTIVE_BRANCH}"
+    echo "  2. 或重新激活工作流: ce start \"任务描述\""
+    exit 1
+fi
+
+# 读取工作流信息
+TICKET=$(grep "^ticket=" "$GIT_ROOT/.workflow/ACTIVE" | cut -d= -f2 || echo "unknown")
+OWNER=$(grep "^owner=" "$GIT_ROOT/.workflow/ACTIVE" | cut -d= -f2 || echo "unknown")
+NOTE=$(grep "^note=" "$GIT_ROOT/.workflow/ACTIVE" | cut -d= -f2- || echo "unknown")
+
+echo -e "${GREEN}✅ 工作流已激活，允许推送${NC}"
+echo -e "📋 Ticket: ${TICKET}"
+echo -e "👤 负责人: ${OWNER}"
+echo -e "📝 任务: ${NOTE}"
+echo ""
+
+# 放行推送
+exit 0

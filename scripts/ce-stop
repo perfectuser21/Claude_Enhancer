@@ -1,0 +1,59 @@
+#!/bin/bash
+# ce stop - 停用工作流，归档ACTIVE文件
+# Usage: ce stop
+
+set -euo pipefail
+
+# 颜色输出
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+# 获取git仓库根目录
+if ! GIT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null); then
+    echo -e "${RED}❌ 错误：不在git仓库内${NC}"
+    exit 1
+fi
+
+cd "$GIT_ROOT"
+
+# 检查是否有ACTIVE文件
+if [ ! -f ".workflow/ACTIVE" ]; then
+    echo -e "${YELLOW}⚠️  没有激活的工作流${NC}"
+    exit 0
+fi
+
+# 读取ACTIVE信息
+TICKET=$(grep "^ticket=" .workflow/ACTIVE | cut -d= -f2 || echo "unknown")
+BRANCH=$(grep "^branch=" .workflow/ACTIVE | cut -d= -f2 || echo "unknown")
+OWNER=$(grep "^owner=" .workflow/ACTIVE | cut -d= -f2 || echo "unknown")
+NOTE=$(grep "^note=" .workflow/ACTIVE | cut -d= -f2- || echo "unknown")
+
+# 创建归档目录
+mkdir -p .workflow/archive
+
+# 生成归档文件名
+TIMESTAMP=$(date '+%Y%m%d-%H%M%S')
+ARCHIVE_FILE=".workflow/archive/ACTIVE-${TIMESTAMP}-${TICKET}.txt"
+
+# 归档ACTIVE文件
+cp .workflow/ACTIVE "$ARCHIVE_FILE"
+
+# 添加归档信息
+echo "" >> "$ARCHIVE_FILE"
+echo "# Archived at: $(date '+%Y-%m-%d %H:%M:%S')" >> "$ARCHIVE_FILE"
+echo "# Archived by: $(git config user.name || echo 'unknown')" >> "$ARCHIVE_FILE"
+
+# 删除ACTIVE文件
+rm .workflow/ACTIVE
+
+echo -e "${GREEN}✅ 工作流已停用并归档！${NC}"
+echo -e "📋 Ticket: ${TICKET}"
+echo -e "🌿 分支: ${BRANCH}"
+echo -e "👤 负责人: ${OWNER}"
+echo -e "📝 任务: ${NOTE}"
+echo -e "📁 归档至: ${ARCHIVE_FILE}"
+echo ""
+echo -e "${YELLOW}⚠️  注意：后续推送需要重新激活工作流${NC}"
+echo "   运行: ce start \"新任务描述\""
