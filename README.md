@@ -1,10 +1,16 @@
-# Claude Enhancer 5.1 - Enterprise-Grade AI Development Workflow System
+# Claude Enhancer 5.3.1 - Enterprise-Grade AI Development Workflow System
 
 ## 🎯 系统概览
 
-Claude Enhancer 5.1是为Claude Code Max 20X用户量身打造的企业级AI驱动开发工作流系统。本系统通过智能化的多Agent协作框架，实现从需求分析到生产部署的完整开发生命周期自动化管理。
+Claude Enhancer 5.3.1是为Claude Code Max 20X用户量身打造的企业级AI驱动开发工作流系统。本系统通过智能化的多Agent协作框架和工作流硬闸机制，实现从需求分析到生产部署的完整开发生命周期自动化管理。
 
-### 🚀 v5.1版本亮点
+### 🚀 v5.3.1版本亮点
+
+#### 工作流硬闸系统（Workflow Guard）
+- **强制工作流执行** - 三层防护确保规范遵循
+- **CLI工具集成** - ce start/stop命令简化操作
+- **自动化检查** - 本地Hook + CI验证双重保障
+- **智能分支管理** - 自动识别和保护开发分支
 
 #### 性能突破
 - **启动速度提升68.75%** - 优化的懒加载架构，瞬间响应
