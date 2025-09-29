@@ -1,0 +1,173 @@
+#!/bin/bash
+# ce-start-enhanced - 增强版工作流启动（含工作区管理）
+
+set -euo pipefail
+
+# 颜色
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
+NC='\033[0m'
+
+# 检查参数
+if [ $# -eq 0 ]; then
+    echo -e "${RED}❌ 请提供任务描述${NC}"
+    echo "用法: ce-start-enhanced \"任务描述\" [--worktree|--overlay|--simple]"
+    exit 1
+fi
+
+TASK_DESC="$1"
+MODE="${2:---simple}"  # 默认简单模式
+
+# 获取项目信息
+PROJECT_ROOT=$(git rev-parse --show-toplevel)
+CURRENT_BRANCH=$(git branch --show-current)
+GIT_USER=$(git config user.name || echo "unknown")
+TIMESTAMP=$(date '+%Y%m%d-%H%M%S')
+DATE=$(date '+%Y%m%d')
+
+echo -e "${CYAN}╔═══════════════════════════════════════════════════════╗${NC}"
+echo -e "${CYAN}║        Claude Enhancer 增强工作流启动器 v5.3.2       ║${NC}"
+echo -e "${CYAN}╚═══════════════════════════════════════════════════════╝${NC}"
+echo ""
+
+# 1. 检查是否在main分支
+if [ "$CURRENT_BRANCH" = "main" ] || [ "$CURRENT_BRANCH" = "master" ]; then
+    echo -e "${YELLOW}⚠️  检测到在主分支${NC}"
+
+    # 检查是否锁定
+    if [ -f "$PROJECT_ROOT/.workflow/.locked" ]; then
+        echo -e "${GREEN}✅ 主分支已锁定（只读保护）${NC}"
+    else
+        echo -e "${YELLOW}建议先锁定主分支: ce-guard-setup.sh lock${NC}"
+    fi
+
+    # 必须切换分支
+    FEATURE_BRANCH="feature/T-${DATE}-$(printf "%03d" $((RANDOM % 1000)))"
+    echo -e "${CYAN}创建新分支: $FEATURE_BRANCH${NC}"
+    git checkout -b "$FEATURE_BRANCH"
+    CURRENT_BRANCH="$FEATURE_BRANCH"
+fi
+
+# 2. 生成Ticket ID
+TICKET_ID="T-${DATE}-$(printf "%03d" $((RANDOM % 1000)))"
+
+# 3. 根据模式创建工作区
+case "$MODE" in
+    --worktree)
+        echo -e "${BLUE}📂 使用Git Worktree模式...${NC}"
+
+        WORKTREE_DIR="/tmp/worktrees/$TICKET_ID"
+        mkdir -p "$(dirname "$WORKTREE_DIR")"
+
+        # 创建worktree
+        git worktree add "$WORKTREE_DIR" "$CURRENT_BRANCH"
+
+        echo -e "${GREEN}✅ Worktree创建成功: $WORKTREE_DIR${NC}"
+        WORK_DIR="$WORKTREE_DIR"
+        ;;
+
+    --overlay)
+        echo -e "${BLUE}🔀 使用OverlayFS模式...${NC}"
+
+        # 需要sudo权限
+        if ! sudo -n true 2>/dev/null; then
+            echo -e "${RED}❌ OverlayFS需要sudo权限${NC}"
+            echo "请先运行: sudo -v"
+            exit 1
+        fi
+
+        OVERLAY_DIR="/tmp/overlays/$TICKET_ID"
+        mkdir -p "$OVERLAY_DIR"/{upper,work,merged}
+
+        # 创建overlay挂载
+        sudo mount -t overlay overlay \
+            -o lowerdir="$PROJECT_ROOT",upperdir="$OVERLAY_DIR/upper",workdir="$OVERLAY_DIR/work" \
+            "$OVERLAY_DIR/merged"
+
+        echo -e "${GREEN}✅ OverlayFS创建成功: $OVERLAY_DIR/merged${NC}"
+        WORK_DIR="$OVERLAY_DIR/merged"
+        ;;
+
+    --simple|*)
+        echo -e "${BLUE}📝 使用简单模式...${NC}"
+
+        # 如果目录被锁定，先解锁当前分支文件
+        if [ -f "$PROJECT_ROOT/.workflow/.locked" ]; then
+            echo -e "${YELLOW}临时解锁当前分支文件...${NC}"
+            find "$PROJECT_ROOT" -type f -not -path "*/.git/*" \
+                -exec chmod u+w {} \; 2>/dev/null || true
+        fi
+
+        WORK_DIR="$PROJECT_ROOT"
+        ;;
+esac
+
+# 4. 创建ACTIVE文件
+mkdir -p "$WORK_DIR/.workflow"
+cat > "$WORK_DIR/.workflow/ACTIVE" << EOF
+ticket=${TICKET_ID}
+phase=P1
+branch=${CURRENT_BRANCH}
+owner=${GIT_USER}
+created_at=$(date '+%Y-%m-%d %H:%M:%S')
+ttl_hours=8
+note=${TASK_DESC}
+work_dir=${WORK_DIR}
+mode=${MODE}
+EOF
+
+# 5. 设置环境变量（供后续使用）
+export CLAUDE_WORK_DIR="$WORK_DIR"
+export CLAUDE_TICKET="$TICKET_ID"
+export CLAUDE_BRANCH="$CURRENT_BRANCH"
+
+# 6. 显示成功信息
+echo ""
+echo -e "${GREEN}╔═══════════════════════════════════════════════════════╗${NC}"
+echo -e "${GREEN}║              ✅ 工作流已成功激活！                   ║${NC}"
+echo -e "${GREEN}╚═══════════════════════════════════════════════════════╝${NC}"
+echo ""
+echo -e "${CYAN}📋 工作流信息：${NC}"
+echo "  Ticket: ${TICKET_ID}"
+echo "  分支: ${CURRENT_BRANCH}"
+echo "  模式: ${MODE#--}"
+echo "  工作目录: ${WORK_DIR}"
+echo "  任务: ${TASK_DESC}"
+echo ""
+
+# 7. 提供下一步指导
+echo -e "${YELLOW}📝 下一步操作：${NC}"
+
+if [ "$MODE" != "--simple" ]; then
+    echo "  1. 切换到工作目录:"
+    echo "     ${GREEN}cd ${WORK_DIR}${NC}"
+    echo ""
+fi
+
+echo "  2. 进行开发工作"
+echo "  3. 提交代码:"
+echo "     git add ."
+echo "     git commit -m \"your message\""
+echo "  4. 推送到远程:"
+echo "     git push origin ${CURRENT_BRANCH}"
+echo "  5. 完成后运行:"
+echo "     ${GREEN}ce-stop-enhanced${NC}"
+echo ""
+
+# 8. 如果可以，打开VS Code
+if command -v code &> /dev/null; then
+    read -p "是否打开VS Code？(y/N): " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        code "$WORK_DIR"
+        echo -e "${GREEN}✅ VS Code已打开${NC}"
+    fi
+fi
+
+echo -e "${MAGENTA}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${MAGENTA}Claude Enhancer - 从此刻起，所有修改都在工作流保护下！${NC}"
+echo -e "${MAGENTA}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
