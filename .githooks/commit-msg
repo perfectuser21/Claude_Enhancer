@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+set -euo pipefail
+export LANG=C.UTF-8
+export LC_ALL=C.UTF-8
+
+echo "$(date +'%F %T') [commit-msg] on $(git rev-parse --abbrev-ref HEAD)" >> .workflow/logs/hooks.log
+
+COMMIT_MSG_FILE=$1
+COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+# 规则1: 禁止直接提交到main
+if [[ "${CURRENT_BRANCH}" == "main" || "${CURRENT_BRANCH}" == "master" ]]; then
+    echo "❌ 错误: 禁止直接提交到${CURRENT_BRANCH}分支!"
+    echo "   请创建feature分支进行开发"
+    exit 1
+fi
+
+# 规则2: 分支名必须符合规范
+if ! echo "${CURRENT_BRANCH}" | grep -qE '^(P[0-7]|feature|fix|hotfix)/[0-9]{8}-[a-z0-9-]+$'; then
+    echo "❌ 错误: 分支名不符合规范!"
+    echo "   格式: P[0-7]/YYYYMMDD-description"
+    echo "   当前: ${CURRENT_BRANCH}"
+    exit 1
+fi
+
+# 规则3: 检查ACTIVE文件
+if [[ "${CURRENT_BRANCH}" =~ ^P[0-7]/ ]]; then
+    if [[ ! -f ".workflow/ACTIVE" ]]; then
+        echo "❌ 错误: 缺少.workflow/ACTIVE文件!"
+        echo "   请先创建ACTIVE文件"
+        exit 1
+    fi
+
+    # 验证ACTIVE格式
+    if ! grep -q "^phase:" .workflow/ACTIVE || \
+       ! grep -q "^ticket:" .workflow/ACTIVE || \
+       ! grep -q "^started_at:" .workflow/ACTIVE; then
+        echo "❌ 错误: ACTIVE文件格式不正确!"
+        echo "   必须包含: phase, ticket, started_at"
+        exit 1
+    fi
+fi
+
+echo "✅ commit-msg检查通过"

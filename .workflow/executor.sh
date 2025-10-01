@@ -119,9 +119,21 @@ get_current_phase() {
 
 set_current_phase() {
     local phase="$1"
+
+    # 同步更新两个位置
     echo "${phase}" > "${PHASE_DIR}/current"
+
+    # ACTIVE需要完整格式
+    cat > "${PROJECT_ROOT}/.workflow/ACTIVE" << EOF
+phase: ${phase}
+ticket: exec-$(date +%Y%m%d-%H%M%S)
+started_at: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+EOF
+
     echo "${phase}" > "${PHASE_DIR}/last_updated_$(date +%s)"
+
     log_info "切换到阶段: ${BOLD}${phase}${NC}"
+    log_info "已同步: .phase/current 和 .workflow/ACTIVE"
 }
 
 get_phase_info() {

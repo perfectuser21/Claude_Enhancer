@@ -1,6 +1,6 @@
 #!/bin/bash
 # Claude Enhancer 工作流自动启动器
-# 确保所有编程任务自动进入6-Phase工作流
+# 真正的Phase 0：自动分支创建和工作流启动
 
 set -euo pipefail
 
@@ -20,48 +20,144 @@ NC='\033[0m'
 # 项目根目录
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 PHASE_DIR="$PROJECT_ROOT/.phase"
+WORKFLOW_DIR="$PROJECT_ROOT/.workflow"
 
-# 创建Phase目录
-mkdir -p "$PHASE_DIR"
+# 创建必要目录
+mkdir -p "$PHASE_DIR" "$WORKFLOW_DIR/logs"
 
-# 检查是否是编程任务
-is_programming_task() {
+# ==================== 核心功能：执行触发检测 ====================
+# 只检测明确的"开始执行"触发词
+
+is_execution_trigger() {
     local prompt="${1:-}"
 
-    # 添加日志记录
-    echo "$(date +'%F %T') [workflow_auto_start] Checking task: $prompt" >> "$PROJECT_ROOT/.workflow/logs/hooks.log"
-
-    # 编程任务关键词（中英文 - 扩展版）
-    local programming_keywords=(
-        # 中文动词
-        "实现" "开发" "编写" "创建" "修复" "修正" "修补" "修理" "优化" "重构" "添加" "新增" "集成" "部署" "更新" "改进" "调整" "完成" "设计" "构建" "测试" "调试" "分析" "迁移" "升级"
-        # 英文动词
-        "implement" "develop" "write" "create" "fix" "bug" "optimize" "refactor" "add" "integrate" "deploy" "update" "improve" "adjust" "complete" "design" "build" "test" "debug" "analyze" "migrate" "upgrade"
-        # 技术术语
-        "代码" "功能" "组件" "模块" "系统" "架构" "API" "数据库" "测试" "文档" "性能" "安全" "样式" "配置" "脚本" "接口" "服务" "缓存" "队列" "日志"
-        "code" "feature" "component" "module" "system" "architecture" "database" "test" "document" "performance" "security" "style" "config" "script" "interface" "service" "cache" "queue" "log"
-        # 工具和框架
-        "hook" "agent" "workflow" "phase" "git" "docker" "CI" "CD" "npm" "yarn" "webpack" "vite" "react" "vue" "angular" "node" "python" "java" "go" "rust"
-        # Git commit 关键词
-        "feat" "fix" "docs" "style" "refactor" "perf" "test" "build" "ci" "chore" "revert" "merge" "hotfix"
+    # 明确的执行触发词（5个）
+    local execution_triggers=(
+        "现在开始实现"
+        "现在开始执行"
+        "开始工作流"
+        "let's implement"
+        "let's start"
     )
 
-    # 标准化输入：处理全角符号和空格
-    local normalized_prompt="${prompt//：/:}"  # 全角冒号转半角
-    normalized_prompt="${normalized_prompt//，/,}"  # 全角逗号转半角
-    normalized_prompt="${normalized_prompt//。/.}"  # 全角句号转半角
-    normalized_prompt="${normalized_prompt,,}"  # 转小写
+    # 标准化输入
+    local normalized="${prompt//：/:}"
+    normalized="${normalized//，/,}"
+    normalized="${normalized//。/.}"
+    normalized="${normalized,,}"  # 转小写
 
-    for keyword in "${programming_keywords[@]}"; do
-        if [[ "${normalized_prompt}" == *"${keyword,,}"* ]]; then
-            echo "$(date +'%F %T') [workflow_auto_start] Detected programming task with keyword: $keyword" >> "$PROJECT_ROOT/.workflow/logs/hooks.log"
+    # 检查触发词
+    for trigger in "${execution_triggers[@]}"; do
+        if [[ "$normalized" == *"${trigger,,}"* ]]; then
+            echo "$(date +'%F %T') [workflow_auto_start] Execution triggered by: $trigger" >> "$WORKFLOW_DIR/logs/hooks.log"
             return 0
         fi
     done
 
-    # 如果没有匹配到关键词，默认作为编程任务（更安全的默认行为）
-    echo "$(date +'%F %T') [workflow_auto_start] No keyword matched, defaulting to programming task" >> "$PROJECT_ROOT/.workflow/logs/hooks.log"
-    return 0  # 改为默认是编程任务
+    return 1
+}
+
+# ==================== 智能分支命名系统 ====================
+
+# 从任务描述生成slug
+generate_task_slug() {
+    local description="$1"
+
+    # 提取关键词（中英文）
+    local slug=$(echo "$description" | \
+        # 移除触发词
+        sed -E 's/(现在开始实现|现在开始执行|开始工作流|let'\''s implement|let'\''s start)//gi' | \
+        # 提取前5个有意义的词
+        grep -oE '[a-zA-Z0-9\u4e00-\u9fa5]+' | head -5 | \
+        # 转为小写并用-连接
+        tr '[:upper:]' '[:lower:]' | tr '\n' '-' | sed 's/-$//')
+
+    # 如果为空，使用默认值
+    if [[ -z "$slug" ]]; then
+        slug="task"
+    fi
+
+    echo "$slug"
+}
+
+# 检测任务类型（Phase）
+detect_task_phase() {
+    local description="$1"
+    local normalized="${description,,}"
+
+    # 规划类任务 → P1
+    if [[ "$normalized" =~ (规划|计划|分析|设计文档|需求) ]]; then
+        echo "P1"
+        return
+    fi
+
+    # 骨架类任务 → P2
+    if [[ "$normalized" =~ (架构|骨架|结构|框架设计) ]]; then
+        echo "P2"
+        return
+    fi
+
+    # 实现类任务 → P3（默认）
+    if [[ "$normalized" =~ (实现|开发|编写|创建|修复|优化|重构) ]]; then
+        echo "P3"
+        return
+    fi
+
+    # 测试类任务 → P4
+    if [[ "$normalized" =~ (测试|验证|检查) ]]; then
+        echo "P4"
+        return
+    fi
+
+    # 默认P3
+    echo "P3"
+}
+
+# 自动创建分支
+auto_create_branch() {
+    local description="$1"
+
+    # 检查是否已在feature分支
+    local current_branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")
+    if [[ "$current_branch" != "main" && "$current_branch" != "master" ]]; then
+        echo -e "${GREEN}✅ 已在分支: $current_branch${NC}"
+        return 0
+    fi
+
+    # 生成分支名
+    local phase=$(detect_task_phase "$description")
+    local slug=$(generate_task_slug "$description")
+    local date_str=$(date +%Y%m%d)
+    local branch_name="${phase}/${date_str}-${slug}"
+
+    echo -e "${CYAN}╔═══════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${CYAN}║          🚀 Phase 0: 自动创建工作分支                    ║${NC}"
+    echo -e "${CYAN}╚═══════════════════════════════════════════════════════════╝${NC}"
+    echo
+    echo -e "${BLUE}📍 任务描述：${NC}${description:0:60}..."
+    echo -e "${BLUE}🎯 检测Phase：${NC}${phase}"
+    echo -e "${BLUE}🌿 分支名称：${NC}${branch_name}"
+    echo
+
+    # 创建并切换分支
+    if git checkout -b "$branch_name" 2>/dev/null; then
+        echo -e "${GREEN}✅ 成功创建分支：$branch_name${NC}"
+        echo
+
+        # 记录Phase（ACTIVE需要完整格式）
+        echo "$phase" > "$PHASE_DIR/current"
+        cat > "$WORKFLOW_DIR/ACTIVE" << EOF
+phase: $phase
+ticket: auto-$(date +%Y%m%d-%H%M%S)
+started_at: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+EOF
+        echo "$(date '+%Y-%m-%d %H:%M:%S') - Auto created branch: $branch_name (Phase: $phase)" >> "$PHASE_DIR/history"
+
+        return 0
+    else
+        echo -e "${RED}❌ 创建分支失败${NC}"
+        return 1
+    fi
 }
 
 # 获取当前Phase
@@ -77,180 +173,98 @@ get_current_phase() {
 set_current_phase() {
     local phase="$1"
     echo "$phase" > "$PHASE_DIR/current"
+
+    # ACTIVE需要完整格式
+    cat > "$WORKFLOW_DIR/ACTIVE" << EOF
+phase: $phase
+ticket: manual-$(date +%Y%m%d-%H%M%S)
+started_at: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+EOF
+
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $phase" >> "$PHASE_DIR/history"
 }
 
-# 自动启动工作流
-auto_start_workflow() {
-    local current_phase=$(get_current_phase)
-    local task_description="${1:-编程任务}"
+# ==================== 主函数：智能工作流启动 ====================
 
-    echo -e "${CYAN}╔═══════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${CYAN}║          🚀 Claude Enhancer 工作流自动启动               ║${NC}"
-    echo -e "${CYAN}╚═══════════════════════════════════════════════════════════╝${NC}"
-    echo
-
-    # 如果当前没有在工作流中，自动启动
-    if [[ "$current_phase" == "P0" ]] || [[ -z "$current_phase" ]]; then
-        echo -e "${YELLOW}🔍 检测到编程任务：${NC}${task_description:0:50}..."
-        echo
-        echo -e "${GREEN}✅ 自动启动6-Phase工作流${NC}"
-        echo
-
-        # 显示工作流概览
-        echo -e "${BLUE}📋 工作流概览：${NC}"
-        echo "┌─────────────────────────────────────────────────────┐"
-        echo "│ Phase 1: 需求分析 - 理解任务，生成PLAN.md          │"
-        echo "│ Phase 2: 设计规划 - 架构设计，创建骨架             │"
-        echo "│ Phase 3: 实现开发 - 编码实现（多Agent并行）        │"
-        echo "│ Phase 4: 本地测试 - 单元/集成/性能测试             │"
-        echo "│ Phase 5: 代码提交 - Git提交，触发质量检查          │"
-        echo "│ Phase 6: 代码审查 - PR审查，合并部署               │"
-        echo "└─────────────────────────────────────────────────────┘"
-        echo
-
-        # 设置为Phase 1
-        set_current_phase "P1"
-
-        # 创建任务文件
-        echo "$task_description" > "$PHASE_DIR/task.txt"
-        echo "$(date '+%Y-%m-%d %H:%M:%S')" > "$PHASE_DIR/start_time.txt"
-
-        # 推荐Agent组合
-        echo -e "${MAGENTA}🤖 推荐Agent组合（基于任务复杂度）：${NC}"
-
-        # 分析任务复杂度
-        local complexity="standard"
-        if [[ "$task_description" == *"简单"* ]] || [[ "$task_description" == *"修复"* ]]; then
-            complexity="simple"
-        elif [[ "$task_description" == *"系统"* ]] || [[ "$task_description" == *"架构"* ]]; then
-            complexity="complex"
-        fi
-
-        case "$complexity" in
-            simple)
-                echo "  • 简单任务（4个Agent）："
-                echo "    - backend-architect（架构指导）"
-                echo "    - test-engineer（测试验证）"
-                echo "    - code-reviewer（代码审查）"
-                echo "    - documentation-writer（文档更新）"
-                ;;
-            complex)
-                echo "  • 复杂任务（8个Agent）："
-                echo "    - backend-architect（整体架构）"
-                echo "    - database-specialist（数据设计）"
-                echo "    - security-auditor（安全审查）"
-                echo "    - performance-engineer（性能优化）"
-                echo "    - test-engineer（测试策略）"
-                echo "    - api-designer（接口设计）"
-                echo "    - code-reviewer（代码质量）"
-                echo "    - documentation-writer（完整文档）"
-                ;;
-            *)
-                echo "  • 标准任务（6个Agent）："
-                echo "    - backend-architect（架构设计）"
-                echo "    - database-specialist（数据层）"
-                echo "    - test-engineer（测试覆盖）"
-                echo "    - security-auditor（安全检查）"
-                echo "    - code-reviewer（代码审查）"
-                echo "    - documentation-writer（文档同步）"
-                ;;
-        esac
-        echo
-
-        # 下一步提示
-        echo -e "${GREEN}📝 下一步行动：${NC}"
-        echo "1. 开始Phase 1：创建 docs/PLAN.md"
-        echo "2. 分析需求，列出任务清单"
-        echo "3. 使用推荐的Agent组合并行执行"
-        echo
-
-        # 创建初始PLAN.md模板
-        mkdir -p "$PROJECT_ROOT/docs"
-        if [[ ! -f "$PROJECT_ROOT/docs/PLAN.md" ]]; then
-            cat > "$PROJECT_ROOT/docs/PLAN.md" << 'EOF'
-# 任务计划
-
-## 任务描述
-[任务描述]
-
-## 任务清单
-- [ ] 任务1
-- [ ] 任务2
-- [ ] 任务3
-- [ ] 任务4
-- [ ] 任务5
-
-## 受影响文件
-- 文件1
-- 文件2
-- 文件3
-
-## 技术方案
-[技术实现方案]
-
-## 测试计划
-[测试策略]
-
-## 回滚方案
-[如何回滚]
-
-## 风险评估
-[潜在风险]
-
----
-*生成时间：$(date '+%Y-%m-%d %H:%M:%S')*
-EOF
-            echo -e "${GREEN}✅ 已创建PLAN.md模板${NC}"
-        fi
-
-        return 0
-
-    else
-        # 已在工作流中，显示当前状态
-        echo -e "${BLUE}📍 当前Phase: ${current_phase}${NC}"
-
-        case "$current_phase" in
-            P1)
-                echo -e "${YELLOW}⏳ Phase 1进行中：需求分析${NC}"
-                echo "  请完成 docs/PLAN.md"
-                ;;
-            P2)
-                echo -e "${YELLOW}⏳ Phase 2进行中：设计规划${NC}"
-                echo "  请创建架构骨架"
-                ;;
-            P3)
-                echo -e "${YELLOW}⏳ Phase 3进行中：实现开发${NC}"
-                echo "  使用多Agent并行开发"
-                ;;
-            P4)
-                echo -e "${YELLOW}⏳ Phase 4进行中：本地测试${NC}"
-                echo "  运行测试套件"
-                ;;
-            P5)
-                echo -e "${YELLOW}⏳ Phase 5进行中：代码提交${NC}"
-                echo "  Git提交和质量检查"
-                ;;
-            P6)
-                echo -e "${YELLOW}⏳ Phase 6进行中：代码审查${NC}"
-                echo "  PR审查和合并"
-                ;;
-        esac
-
-        return 0
-    fi
-}
-
-# 主函数
 main() {
     local prompt="${1:-}"
 
-    # 检查是否是编程任务
-    if is_programming_task "$prompt"; then
-        auto_start_workflow "$prompt"
+    # 检查是否触发执行模式
+    if is_execution_trigger "$prompt"; then
+        echo -e "${CYAN}╔═══════════════════════════════════════════════════════════╗${NC}"
+        echo -e "${CYAN}║          🚀 Claude Enhancer 执行模式启动                 ║${NC}"
+        echo -e "${CYAN}╚═══════════════════════════════════════════════════════════╝${NC}"
+        echo
+
+        # Phase 0: 自动创建分支
+        if auto_create_branch "$prompt"; then
+            local phase=$(get_current_phase)
+
+            # 显示工作流概览
+            echo -e "${BLUE}📋 8-Phase工作流：${NC}"
+            echo "┌─────────────────────────────────────────────────────┐"
+            echo "│ ✅ P0: 分支创建 - 已完成                            │"
+            echo "│ P1: 规划 - 需求分析，生成PLAN.md                   │"
+            echo "│ P2: 骨架 - 架构设计，创建目录结构                  │"
+            echo "│ P3: 实现 - 编码开发（多Agent并行）                 │"
+            echo "│ P4: 测试 - 单元/集成/性能/BDD测试                  │"
+            echo "│ P5: 审查 - 代码审查，生成REVIEW.md                 │"
+            echo "│ P6: 发布 - 文档更新，打tag，健康检查               │"
+            echo "│ P7: 监控 - 生产监控，SLO跟踪                       │"
+            echo "└─────────────────────────────────────────────────────┘"
+            echo
+
+            # 推荐Agent策略
+            echo -e "${MAGENTA}🤖 Agent策略（4-6-8原则）：${NC}"
+            local complexity="standard"
+            if [[ "$prompt" =~ (简单|修复|bug) ]]; then
+                complexity="simple"
+            elif [[ "$prompt" =~ (系统|架构|复杂|完整) ]]; then
+                complexity="complex"
+            fi
+
+            case "$complexity" in
+                simple)
+                    echo "  • 简单任务（4个Agent）："
+                    echo "    - backend-architect, test-engineer"
+                    echo "    - code-reviewer, documentation-writer"
+                    ;;
+                complex)
+                    echo "  • 复杂任务（8个Agent）："
+                    echo "    - backend-architect, database-specialist"
+                    echo "    - security-auditor, performance-engineer"
+                    echo "    - test-engineer, api-designer"
+                    echo "    - code-reviewer, documentation-writer"
+                    ;;
+                *)
+                    echo "  • 标准任务（6个Agent）："
+                    echo "    - backend-architect, database-specialist"
+                    echo "    - test-engineer, security-auditor"
+                    echo "    - code-reviewer, documentation-writer"
+                    ;;
+            esac
+            echo
+
+            # 下一步提示
+            echo -e "${GREEN}📝 下一步：${NC}"
+            if [[ "$phase" == "P1" ]]; then
+                echo "1. 创建 docs/PLAN.md（需求分析）"
+                echo "2. 使用推荐的Agent组合并行执行"
+            else
+                echo "1. 当前Phase: $phase"
+                echo "2. 使用推荐的Agent组合并行执行"
+            fi
+            echo
+
+            return 0
+        else
+            echo -e "${RED}❌ 工作流启动失败${NC}"
+            return 1
+        fi
     else
-        # 非编程任务，直接通过
-        echo -e "${GREEN}✓ 非编程任务，无需工作流${NC}"
+        # 非执行触发词，保持讨论模式
+        # 静默通过，不输出任何信息
+        return 0
     fi
 }
 
