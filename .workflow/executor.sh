@@ -6,6 +6,42 @@
 
 set -euo pipefail
 
+# Cleanup trap - Track temporary resources
+TEMP_FILES=()
+TEMP_DIRS=()
+
+cleanup() {
+    local exit_code=$?
+    echo "[CLEANUP] Removing temporary resources..." >&2
+    
+    # Clean temp files
+    for temp_file in "${TEMP_FILES[@]}"; do
+        [[ -f "$temp_file" ]] && rm -f "$temp_file" 2>/dev/null || true
+    done
+    
+    # Clean temp directories
+    for temp_dir in "${TEMP_DIRS[@]}"; do
+        [[ -d "$temp_dir" ]] && rm -rf "$temp_dir" 2>/dev/null || true
+    done
+    
+    # Clean Python cache in script directory
+    find "${SCRIPT_DIR}" -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+    
+    # Rotate log if too large (keep last 100 lines)
+    if [[ -f "${LOG_FILE}" ]]; then
+        local line_count=$(wc -l < "${LOG_FILE}" 2>/dev/null || echo 0)
+        if [[ $line_count -gt 1000 ]]; then
+            tail -n 100 "${LOG_FILE}" > "${LOG_FILE}.tmp"
+            mv "${LOG_FILE}.tmp" "${LOG_FILE}"
+        fi
+    fi
+    
+    exit $exit_code
+}
+
+trap cleanup EXIT INT TERM HUP
+
+
 # 全局配置
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"

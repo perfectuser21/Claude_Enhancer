@@ -2,9 +2,53 @@
 # Claude Enhancer 工作流自动启动器
 # 真正的Phase 0：自动分支创建和工作流启动
 
+# === DEBUG: 记录hook被调用 ===
+DEBUG_LOG="/home/xx/dev/Claude Enhancer 5.0/.workflow/logs/hook_debug.log"
+mkdir -p "$(dirname "$DEBUG_LOG")"
+echo "$(date '+%F %T') [DEBUG] workflow_auto_start.sh CALLED" >> "$DEBUG_LOG"
+echo "$(date '+%F %T') [DEBUG] Args count: $#" >> "$DEBUG_LOG"
+echo "$(date '+%F %T') [DEBUG] Args: $@" >> "$DEBUG_LOG"
+echo "$(date '+%F %T') [DEBUG] Arg1: ${1:-EMPTY}" >> "$DEBUG_LOG"
+echo "$(date '+%F %T') [DEBUG] PWD: $PWD" >> "$DEBUG_LOG"
+echo "---" >> "$DEBUG_LOG"
+# === END DEBUG ===
+
 set -euo pipefail
 
+# Cleanup trap
+TEMP_FILES=()
+
+cleanup() {
+    local exit_code=$?
+    
+    # Rotate debug log if too large (keep last 500 lines)
+    if [[ -f "$DEBUG_LOG" ]]; then
+        local line_count=$(wc -l < "$DEBUG_LOG" 2>/dev/null || echo 0)
+        if [[ $line_count -gt 1000 ]]; then
+            tail -n 500 "$DEBUG_LOG" > "$DEBUG_LOG.tmp"
+            mv "$DEBUG_LOG.tmp" "$DEBUG_LOG"
+        fi
+    fi
+    
+    # Clean incomplete state files
+    if [[ -f "$WORKFLOW_DIR/ACTIVE" ]] && [[ ! -f "$PHASE_DIR/current" ]]; then
+        rm -f "$WORKFLOW_DIR/ACTIVE" 2>/dev/null || true
+    fi
+    
+    # Clean temp files
+    for temp_file in "${TEMP_FILES[@]}"; do
+        [[ -f "$temp_file" ]] && rm -f "$temp_file" 2>/dev/null || true
+    done
+    
+    exit $exit_code
+}
+
+trap cleanup EXIT INT TERM HUP
+
+
 # 设置UTF-8支持
+export LC_ALL=C.UTF-8
+export LANG=C.UTF-8
 export LC_ALL=C.UTF-8
 export LANG=C.UTF-8
 

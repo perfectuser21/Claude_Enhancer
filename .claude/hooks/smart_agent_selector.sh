@@ -3,6 +3,28 @@
 
 set -e
 
+cleanup() {
+    local exit_code=$?
+    
+    # Rotate log if > 10000 lines
+    local log_file="/tmp/claude_agent_selection.log"
+    if [[ -f "$log_file" ]]; then
+        local lines=$(wc -l < "$log_file" 2>/dev/null || echo 0)
+        if [[ $lines -gt 10000 ]]; then
+            tail -n 5000 "$log_file" > "$log_file.tmp"
+            mv "$log_file.tmp" "$log_file"
+        fi
+    fi
+    
+    # Clean lock file
+    rm -f "/tmp/claude_agent_selection.log.lock" 2>/dev/null || true
+    
+    exit $exit_code
+}
+
+trap cleanup EXIT INT TERM HUP
+
+
 # 设置UTF-8支持
 export LC_ALL=C.UTF-8
 export LANG=C.UTF-8

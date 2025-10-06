@@ -325,7 +325,7 @@ test_real_chaos_attack() {
 
     # 精确模拟测试脚本的权限移除操作
     log_defense "INFO" "  🔧 移除所有hooks执行权限（模拟chaos攻击）..."
-    chmod -x "$HOOKS_DIR/"* 2>/dev/null || true
+    find "$HOOKS_DIR" -maxdepth 1 -type f -exec chmod -x {} ; 2>/dev/null || true
 
     # 验证权限是否真的被移除
     local removed_hooks=0
@@ -375,7 +375,7 @@ test_real_chaos_attack() {
     log_defense "INFO" "🎯 测试2: Git提交拦截能力"
 
     # 再次移除权限（确保测试条件）
-    chmod -x "$HOOKS_DIR/"* 2>/dev/null || true
+    find "$HOOKS_DIR" -maxdepth 1 -type f -exec chmod -x {} ; 2>/dev/null || true
 
     # 创建一个临时测试文件
     local test_commit_file="$PROJECT_ROOT/.test_chaos_commit"
