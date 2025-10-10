@@ -3,6 +3,7 @@
 [![Version](https://img.shields.io/badge/version-5.3.5-blue.svg)](https://github.com/claude-enhancer/claude-enhancer)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/claude-enhancer/claude-enhancer/actions)
+[![Branch Protection](https://github.com/perfectuser21/Claude_Enhancer/actions/workflows/bp-guard.yml/badge.svg)](https://github.com/perfectuser21/Claude_Enhancer/actions/workflows/bp-guard.yml)
 [![Quality Score](https://img.shields.io/badge/quality-100%2F100-brightgreen.svg)](docs/P5_REVIEW_PHASE_COMPLETE.md)
 [![Security](https://img.shields.io/badge/security-85%2F100-yellow.svg)](docs/SECURITY_REVIEW.md)
 [![Coverage](https://img.shields.io/badge/coverage-80%25+-brightgreen.svg)](test/coverage)
