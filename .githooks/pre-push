@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+export LANG=C.UTF-8
+export LC_ALL=C.UTF-8
+
+echo "$(date +'%F %T') [pre-push] on $(git rev-parse --abbrev-ref HEAD)" >> .workflow/logs/hooks.log
+
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+# 禁止推送到main
+if [[ "${CURRENT_BRANCH}" == "main" || "${CURRENT_BRANCH}" == "master" ]]; then
+    echo "❌ 错误: 禁止直接推送到${CURRENT_BRANCH}!"
+    exit 1
+fi
+
+# 检查分支规范
+if ! echo "${CURRENT_BRANCH}" | grep -qE '^(P[0-7]|feature|fix|hotfix)/[0-9]{8}-[a-z0-9-]+$'; then
+    echo "❌ 错误: 分支名不符合推送规范!"
+    exit 1
+fi
+
+echo "✅ pre-push检查通过"

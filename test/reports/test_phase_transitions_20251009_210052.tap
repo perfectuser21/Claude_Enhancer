@@ -1,0 +1,109 @@
+1..17
+not ok 1 Phase transition: P0 -> P1 discovery to planning
+# (in test file test/integration/test_phase_transitions.bats, line 28)
+#   `assert_output "P0"' failed with status 127
+# /home/xx/dev/Claude Enhancer 5.0/test/integration/test_phase_transitions.bats: line 28: assert_output: command not found
+not ok 2 Phase transition: P1 -> P2 planning to skeleton
+# (in test file test/integration/test_phase_transitions.bats, line 85)
+#   `assert_output "P2"' failed with status 127
+# [main 9f51afc] docs: add plan
+#  1 file changed, 19 insertions(+)
+#  create mode 100644 docs/PLAN.md
+# /home/xx/dev/Claude Enhancer 5.0/test/integration/test_phase_transitions.bats: line 85: assert_output: command not found
+not ok 3 Phase transition: P2 -> P3 skeleton to implementation
+# (in test file test/integration/test_phase_transitions.bats, line 97)
+#   `assert_output "P2"' failed with status 127
+# /home/xx/dev/Claude Enhancer 5.0/test/integration/test_phase_transitions.bats: line 97: assert_output: command not found
+not ok 4 Phase transition: P3 -> P4 implementation to testing
+# (in test file test/integration/test_phase_transitions.bats, line 119)
+#   `assert_output "P3"' failed with status 127
+# /home/xx/dev/Claude Enhancer 5.0/test/integration/test_phase_transitions.bats: line 119: assert_output: command not found
+not ok 5 Phase transition: P4 -> P5 testing to review
+# (in test file test/integration/test_phase_transitions.bats, line 143)
+#   `assert_output "P4"' failed with status 127
+# /home/xx/dev/Claude Enhancer 5.0/test/integration/test_phase_transitions.bats: line 143: assert_output: command not found
+not ok 6 Phase transition: P5 -> P6 review to release
+# (in test file test/integration/test_phase_transitions.bats, line 167)
+#   `assert_output "P5"' failed with status 127
+# /home/xx/dev/Claude Enhancer 5.0/test/integration/test_phase_transitions.bats: line 167: assert_output: command not found
+not ok 7 Phase transition: P6 -> P7 release to monitoring
+# (in test file test/integration/test_phase_transitions.bats, line 202)
+#   `assert_output "P7"' failed with status 127
+# [main 4cf1978] docs: add README
+#  1 file changed, 10 insertions(+)
+#  create mode 100644 docs/README.md
+# /home/xx/dev/Claude Enhancer 5.0/test/integration/test_phase_transitions.bats: line 202: assert_output: command not found
+# Starting complete lifecycle test
+not ok 8 Phase transition: Complete P0->P7 full lifecycle
+# (in test file test/integration/test_phase_transitions.bats, line 306)
+#   `assert_output "P7"' failed with status 127
+# [main b8363eb] docs: discovery
+#  1 file changed, 1 insertion(+)
+#  create mode 100644 docs/P0_DISCOVERY.md
+# [main 8320d13] docs: plan
+#  1 file changed, 19 insertions(+)
+#  create mode 100644 docs/PLAN.md
+# [main 9826e9d] feat: skeleton
+#  2 files changed, 11 insertions(+)
+#  create mode 100644 docs/SKELETON-NOTES.md
+#  create mode 100644 src/auth/login.ts
+# [main ae39407] feat: implement
+#  3 files changed, 49 insertions(+)
+#  create mode 100644 docs/CHANGELOG.md
+#  create mode 100644 src/auth/auth.service.ts
+# [main 8bc13d1] test: add tests
+#  3 files changed, 71 insertions(+)
+#  create mode 100644 docs/TEST-REPORT.md
+#  create mode 100644 test/auth/boundary.test.ts
+#  create mode 100644 test/auth/login.test.ts
+# [main b2c2560] docs: review
+#  1 file changed, 13 insertions(+)
+#  create mode 100644 docs/REVIEW.md
+# [main 9e786b5] docs: release
+#  1 file changed, 10 insertions(+)
+#  create mode 100644 docs/README.md
+# [main 709fb5f] docs: monitor
+#  1 file changed, 1 insertion(+)
+#  create mode 100644 observability/P7_MONITOR_REPORT.md
+# /home/xx/dev/Claude Enhancer 5.0/test/integration/test_phase_transitions.bats: line 306: assert_output: command not found
+not ok 9 Phase transition: Skip phase detection (P1 -> P3)
+# (in test file test/integration/test_phase_transitions.bats, line 323)
+#   `assert_output "P3"' failed with status 127
+# [main 0166381] docs: plan
+#  1 file changed, 19 insertions(+)
+#  create mode 100644 docs/PLAN.md
+# /home/xx/dev/Claude Enhancer 5.0/test/integration/test_phase_transitions.bats: line 323: assert_output: command not found
+not ok 10 Phase transition: Backward transition (rollback)
+# (in test file test/integration/test_phase_transitions.bats, line 338)
+#   `assert_output "P4"' failed with status 127
+# /home/xx/dev/Claude Enhancer 5.0/test/integration/test_phase_transitions.bats: line 338: assert_output: command not found
+not ok 11 Phase transition: Multiple forward-backward cycles
+# (in test file test/integration/test_phase_transitions.bats, line 378)
+#   `assert_output "P1"' failed with status 127
+# [main bece093] docs: plan
+#  1 file changed, 19 insertions(+)
+#  create mode 100644 docs/PLAN.md
+# [main 1e1614a] feat: skeleton
+#  1 file changed, 0 insertions(+), 0 deletions(-)
+#  create mode 100644 src/file.ts
+# /home/xx/dev/Claude Enhancer 5.0/test/integration/test_phase_transitions.bats: line 378: assert_output: command not found
+# Final phase after race: P3
+ok 12 Phase transition: Concurrent phase changes (race condition)
+not ok 13 Phase transition: Phase validation before transition
+# (in test file test/integration/test_phase_transitions.bats, line 423)
+#   `assert_output "P2"' failed with status 127
+# /home/xx/dev/Claude Enhancer 5.0/test/integration/test_phase_transitions.bats: line 423: assert_output: command not found
+not ok 14 Phase transition: Phase persistence across restarts
+# (in test file test/integration/test_phase_transitions.bats, line 439)
+#   `assert_output "P3"' failed with status 127
+# /home/xx/dev/Claude Enhancer 5.0/test/integration/test_phase_transitions.bats: line 439: assert_output: command not found
+ok 15 Phase transition: ACTIVE file synchronization
+# 6 phase transitions took 16ms
+not ok 16 Phase transition: Rapid sequential transitions
+# (in test file test/integration/test_phase_transitions.bats, line 476)
+#   `assert_output "P6"' failed with status 127
+# /home/xx/dev/Claude Enhancer 5.0/test/integration/test_phase_transitions.bats: line 476: assert_output: command not found
+not ok 17 Phase transition: Invalid phase handling
+# (in test file test/integration/test_phase_transitions.bats, line 484)
+#   `assert_output "INVALID"' failed with status 127
+# /home/xx/dev/Claude Enhancer 5.0/test/integration/test_phase_transitions.bats: line 484: assert_output: command not found

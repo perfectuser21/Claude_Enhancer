@@ -1,0 +1,28 @@
+# CODEOWNERS for Claude Enhancer
+# 代码所有者配置 - 自动分配审查者
+
+# 默认审查者（所有文件）
+# * @team-reviewers
+
+# 工作流相关文件（需要额外审查）
+.workflow/** @workflow-owners @security-team
+.phase/** @workflow-owners
+
+# Git Hooks（安全关键）
+.git/hooks/** @security-team
+
+# GitHub Actions（DevOps + 安全）
+.github/workflows/** @devops-team @security-team
+.github/CODEOWNERS @devops-team
+
+# 文档
+docs/** @technical-writers
+*.md @technical-writers
+
+# 测试
+test/** @qa-team
+
+# 配置文件
+*.yml @devops-team
+*.yaml @devops-team
+*.json @devops-team

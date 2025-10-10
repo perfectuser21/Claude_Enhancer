@@ -1,6 +1,12 @@
 #!/bin/bash
 # Claude Enhancer 质量门禁 - 安全的质量检查
 
+# 统一日志记录（激活追踪）
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+LOG_FILE="$PROJECT_ROOT/.workflow/logs/claude_hooks.log"
+mkdir -p "$(dirname "$LOG_FILE")"
+echo "$(date +'%F %T') [quality_gate.sh] triggered by ${USER:-claude}" >> "$LOG_FILE"
+
 set -e
 
 # 读取输入
@@ -11,33 +17,33 @@ check_quality() {
     local task="$1"
     local warnings=()
     local score=100
-    
+
     # 1. 检查任务描述长度
     if [ ${#task} -lt 10 ]; then
         warnings+=("⚠️ 任务描述过短 (${#task}字符)")
         ((score-=10))
     fi
-    
+
     # 2. 检查是否包含基本信息
     if ! echo "$task" | grep -qE "(实现|修复|优化|测试|部署)"; then
         warnings+=("💡 建议包含明确的动作词")
         ((score-=5))
     fi
-    
+
     # 3. 安全检查 - 禁止危险操作
     if echo "$task" | grep -qE "(删除全部|rm -rf|格式化|destroy)"; then
         warnings+=("🚨 检测到潜在危险操作")
         ((score-=50))
     fi
-    
+
     # 输出质量报告
     echo "🎯 质量评分: ${score}/100" >&2
-    
+
     if [ ${#warnings[@]} -gt 0 ]; then
         echo "📋 质量建议:" >&2
         printf "  %s\n" "${warnings[@]}" >&2
     fi
-    
+
     if [ $score -ge 70 ]; then
         echo "✅ 质量检查通过" >&2
         return 0

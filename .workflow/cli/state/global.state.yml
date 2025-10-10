@@ -1,0 +1,8 @@
+active_terminals: []
+active_branches: []
+resource_locks: {}
+last_cleanup: null
+statistics:
+  total_sessions: 0
+  total_branches: 0
+  total_merges: 0

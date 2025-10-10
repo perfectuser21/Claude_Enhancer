@@ -13,6 +13,7 @@ import json
 import logging
 import subprocess
 import tempfile
+import re
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
@@ -20,6 +21,7 @@ from dataclasses import dataclass, asdict
 from contextlib import contextmanager
 
 import psycopg2
+from psycopg2 import sql
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
 
@@ -468,8 +470,20 @@ class DatabaseBackupManager:
             self.logger.warning(f"终止连接失败: {e}")
 
     def _recreate_database(self):
-        """重建数据库"""
+        """重建数据库 - FIXED FOR CVE-2025-0003 SQL INJECTION"""
         try:
+            # 验证数据库名称安全性
+            db_name = self.config["database"]
+
+            # 严格的数据库名称验证（PostgreSQL标识符规则）
+            if not re.match(r'^[a-zA-Z_][a-zA-Z0-9_]*$', db_name):
+                raise ValueError(f"Invalid database name: {db_name}. Must start with letter/underscore and contain only alphanumeric/underscore characters.")
+
+            # PostgreSQL标识符最大长度限制
+            if len(db_name) > 63:
+                raise ValueError(f"Database name too long: {db_name}. Maximum length is 63 characters.")
+
+            # 连接到postgres管理数据库
             admin_conn = psycopg2.connect(
                 host=self.config["host"],
                 port=self.config["port"],
@@ -480,12 +494,23 @@ class DatabaseBackupManager:
             admin_conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
 
             with admin_conn.cursor() as cursor:
-                # 删除数据库
-                cursor.execute(f'DROP DATABASE IF EXISTS "{self.config["database"]}"')
-                # 重建数据库
-                cursor.execute(f'CREATE DATABASE "{self.config["database"]}"')
+                # 使用sql.Identifier防止SQL注入
+                # DROP DATABASE
+                cursor.execute(
+                    sql.SQL("DROP DATABASE IF EXISTS {db}").format(
+                        db=sql.Identifier(db_name)
+                    )
+                )
+
+                # CREATE DATABASE
+                cursor.execute(
+                    sql.SQL("CREATE DATABASE {db}").format(
+                        db=sql.Identifier(db_name)
+                    )
+                )
 
             admin_conn.close()
+            self.logger.info(f"Database {db_name} rebuilt successfully")
 
         except Exception as e:
             self.logger.error(f"重建数据库失败: {e}")

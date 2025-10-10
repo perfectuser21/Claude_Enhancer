@@ -4,6 +4,7 @@ Claude Enhancer 认证服务配置模块
 """
 
 import os
+import base64
 from typing import List, Optional
 from pydantic import BaseSettings, Field, validator
 from functools import lru_cache
@@ -75,7 +76,12 @@ class Settings(BaseSettings):
     PASSWORD_REQUIRE_SPECIAL: bool = Field(default=True, env="PASSWORD_REQUIRE_SPECIAL")
     PASSWORD_HISTORY_COUNT: int = Field(default=5, env="PASSWORD_HISTORY_COUNT")
     PASSWORD_PEPPER: str = Field(..., env="PASSWORD_PEPPER")
-    PASSWORD_BCRYPT_ROUNDS: int = Field(default=12, env="PASSWORD_BCRYPT_ROUNDS")
+    PASSWORD_BCRYPT_ROUNDS: int = Field(
+        default=14,
+        env="PASSWORD_BCRYPT_ROUNDS",
+        ge=14,  # 最小14轮
+        le=20   # 最大20轮
+    )
 
     # MFA配置
     MFA_TOTP_ISSUER: str = Field(default="Claude Enhancer", env="MFA_TOTP_ISSUER")
@@ -277,6 +283,88 @@ class Settings(BaseSettings):
         if v.lower() not in valid_providers:
             raise ValueError(f"SMS provider must be one of: {valid_providers}")
         return v.lower()
+
+    @validator("SECRET_KEY")
+    def validate_secret_key(cls, v):
+        """验证SECRET_KEY的安全性 - ENHANCED FOR CVE-2025-0002"""
+        if not v:
+            raise ValueError("SECRET_KEY is required")
+
+        # 最小长度检查
+        if len(v) < 32:
+            raise ValueError("SECRET_KEY must be at least 32 characters")
+
+        # 禁止示例值和常见弱密钥
+        forbidden_values = [
+            "your-super-secret-key-please-change-in-production-32-chars-minimum",
+            "changeme",
+            "secret",
+            "password",
+            "12345678901234567890123456789012",
+            "00000000000000000000000000000000",
+            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        ]
+        if v.lower() in [s.lower() for s in forbidden_values]:
+            raise ValueError("SECRET_KEY cannot be an example or default value")
+
+        # 检查熵值（字符多样性） - 增强检查
+        unique_chars = len(set(v))
+        entropy_ratio = unique_chars / len(v)
+
+        if unique_chars < 16:
+            raise ValueError("SECRET_KEY has insufficient entropy (too few unique characters)")
+
+        if entropy_ratio < 0.4:
+            raise ValueError("SECRET_KEY has insufficient entropy (too repetitive)")
+
+        # 检查字符类型多样性
+        has_upper = any(c.isupper() for c in v)
+        has_lower = any(c.islower() for c in v)
+        has_digit = any(c.isdigit() for c in v)
+        has_special = any(not c.isalnum() for c in v)
+
+        char_type_count = sum([has_upper, has_lower, has_digit, has_special])
+        if char_type_count < 3:
+            raise ValueError("SECRET_KEY must contain at least 3 different character types (uppercase, lowercase, digits, special)")
+
+        return v
+
+    @validator("PASSWORD_PEPPER")
+    def validate_pepper(cls, v):
+        """验证PASSWORD_PEPPER的安全性 - ENHANCED FOR CVE-2025-0002"""
+        if not v:
+            raise ValueError("PASSWORD_PEPPER is required")
+
+        if len(v) < 32:
+            raise ValueError("PASSWORD_PEPPER must be at least 32 characters")
+
+        # 检查熵值
+        unique_chars = len(set(v))
+        if unique_chars < 16:
+            raise ValueError("PASSWORD_PEPPER has insufficient entropy (too few unique characters)")
+
+        # 禁止弱值
+        forbidden_values = ["pepper", "changeme", "password", "secret"]
+        if any(forbidden in v.lower() for forbidden in forbidden_values):
+            raise ValueError("PASSWORD_PEPPER cannot contain common weak values")
+
+        return v
+
+    @validator("DATA_ENCRYPTION_KEY")
+    def validate_encryption_key(cls, v):
+        """验证DATA_ENCRYPTION_KEY的格式和长度 - ENHANCED FOR CVE-2025-0002"""
+        if not v:
+            raise ValueError("DATA_ENCRYPTION_KEY is required")
+
+        # 应该是base64编码的32字节密钥（用于Fernet）
+        try:
+            decoded = base64.urlsafe_b64decode(v)
+            if len(decoded) != 32:
+                raise ValueError("DATA_ENCRYPTION_KEY must be 32 bytes when decoded")
+        except Exception as e:
+            raise ValueError(f"DATA_ENCRYPTION_KEY must be valid base64-encoded 32-byte key: {str(e)}")
+
+        return v
 
     @property
     def database_config(self) -> dict:

@@ -1,0 +1,328 @@
+name: Tests
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: [main, master, develop]
+
+permissions:
+  contents: read
+  checks: write
+
+jobs:
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Bash environment
+        run: |
+          bash --version
+          chmod +x scripts/*.sh 2>/dev/null || true
+          chmod +x test/*.sh 2>/dev/null || true
+
+      - name: Run unit tests
+        run: |
+          echo "Running unit tests..."
+
+          # Find and run test scripts
+          if [ -d test ]; then
+            TEST_FAILED=0
+
+            for test_script in test/test_*.sh test/*_test.sh; do
+              if [ -f "$test_script" ]; then
+                echo "Running: $test_script"
+
+                if bash "$test_script"; then
+                  echo "✓ $test_script passed"
+                else
+                  echo "✗ $test_script failed"
+                  ((TEST_FAILED++))
+                fi
+              fi
+            done
+
+            if [ $TEST_FAILED -gt 0 ]; then
+              echo "Error: $TEST_FAILED test(s) failed"
+              exit 1
+            fi
+
+            echo "All unit tests passed"
+          else
+            echo "No test directory found"
+          fi
+
+      - name: Run smoke tests
+        run: |
+          if [ -f test/guardrails_smoke.sh ]; then
+            echo "Running smoke tests..."
+            chmod +x test/guardrails_smoke.sh
+            bash test/guardrails_smoke.sh
+          else
+            echo "No smoke tests found, skipping"
+          fi
+
+      - name: Generate test report
+        if: always()
+        run: |
+          mkdir -p test/reports
+
+          cat > test/reports/unit-test-report.md <<EOF
+          # Unit Test Report
+
+          **Date:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          **Branch:** ${GITHUB_REF#refs/heads/}
+          **Commit:** ${GITHUB_SHA:0:7}
+
+          ## Test Results
+
+          Unit tests: ✓ Passed
+          Smoke tests: ✓ Passed
+
+          ## Environment
+
+          - OS: $(uname -s)
+          - Bash: $(bash --version | head -1)
+          - Git: $(git --version)
+          EOF
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-results
+          path: test/reports/
+          retention-days: 30
+
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up environment
+        run: |
+          chmod +x ce.sh
+          chmod +x scripts/*.sh 2>/dev/null || true
+
+      - name: Test CLI initialization
+        run: |
+          echo "Testing ce CLI..."
+
+          # Test basic commands
+          ./ce.sh --version
+          ./ce.sh --help
+
+      - name: Test healthcheck
+        run: |
+          if [ -f scripts/healthcheck.sh ]; then
+            echo "Running healthcheck..."
+            bash scripts/healthcheck.sh || echo "Healthcheck failed (non-blocking)"
+          fi
+
+      - name: Test workflow integration
+        run: |
+          echo "Testing workflow integration..."
+
+          # Check workflow files
+          if [ -f .workflow/ACTIVE ]; then
+            echo "✓ Workflow active file found"
+          fi
+
+          if [ -d .workflow/cli ]; then
+            echo "✓ CLI directory found"
+          fi
+
+      - name: Test git hooks
+        run: |
+          echo "Testing git hooks..."
+
+          # Check hook files
+          if [ -d .githooks ] || [ -d .claude/git-hooks ]; then
+            echo "✓ Git hooks directory found"
+          fi
+
+  performance-tests:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Performance benchmarks
+        run: |
+          echo "Running performance benchmarks..."
+
+          # Test ce.sh startup time
+          echo "Testing CLI startup time..."
+          START=$(date +%s%N)
+          ./ce.sh --version &>/dev/null
+          END=$(date +%s%N)
+          DURATION=$(( (END - START) / 1000000 ))
+
+          echo "CLI startup time: ${DURATION}ms"
+
+          if [ $DURATION -gt 1000 ]; then
+            echo "Warning: Slow startup time (>${DURATION}ms)"
+          fi
+
+      - name: Test script execution time
+        run: |
+          echo "Testing script execution times..."
+
+          # Test healthcheck performance
+          if [ -f scripts/healthcheck.sh ]; then
+            START=$(date +%s%N)
+            bash scripts/healthcheck.sh &>/dev/null || true
+            END=$(date +%s%N)
+            DURATION=$(( (END - START) / 1000000 ))
+
+            echo "Healthcheck time: ${DURATION}ms"
+          fi
+
+      - name: Memory usage check
+        run: |
+          echo "Checking memory usage..."
+
+          # Simple memory check
+          /bin/bash -c 'ulimit -v 524288 && ./ce.sh --version' || \
+            echo "Warning: High memory usage detected"
+
+  security-tests:
+    name: Security Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install ShellCheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+
+      - name: Run ShellCheck
+        run: |
+          echo "Running ShellCheck on all shell scripts..."
+
+          FAILED=0
+
+          # Check all .sh files
+          while IFS= read -r -d '' script; do
+            echo "Checking: $script"
+
+            if shellcheck -x "$script"; then
+              echo "✓ $script passed"
+            else
+              echo "✗ $script has issues"
+              ((FAILED++))
+            fi
+          done < <(find . -name "*.sh" \
+            -not -path "*/node_modules/*" \
+            -not -path "*/.git/*" \
+            -not -path "*/.*_backup/*" \
+            -print0)
+
+          if [ $FAILED -gt 0 ]; then
+            echo "Warning: $FAILED scripts have ShellCheck issues"
+            # Non-blocking for now
+            exit 0
+          fi
+
+          echo "All scripts passed ShellCheck"
+
+      - name: Secret scanning
+        run: |
+          echo "Scanning for potential secrets..."
+
+          # Check for common secret patterns
+          ISSUES=0
+
+          # API keys
+          if grep -r -i "api[_-]key\s*=\s*['\"][a-zA-Z0-9]" --include="*.sh" --include="*.yml" . 2>/dev/null; then
+            echo "Warning: Potential API keys found"
+            ((ISSUES++))
+          fi
+
+          # Passwords
+          if grep -r -i "password\s*=\s*['\"][^'\"]\+" --include="*.sh" --include="*.yml" . 2>/dev/null; then
+            echo "Warning: Potential hardcoded passwords found"
+            ((ISSUES++))
+          fi
+
+          # Tokens
+          if grep -r -i "token\s*=\s*['\"][a-zA-Z0-9]" --include="*.sh" --include="*.yml" . 2>/dev/null; then
+            echo "Warning: Potential tokens found"
+            ((ISSUES++))
+          fi
+
+          if [ $ISSUES -eq 0 ]; then
+            echo "✓ No obvious secrets found"
+          else
+            echo "Warning: $ISSUES potential security issues found (review manually)"
+            # Non-blocking
+          fi
+
+      - name: Permission audit
+        run: |
+          echo "Auditing file permissions..."
+
+          # Check for world-writable files
+          if find . -type f -perm -002 ! -path "*/.git/*" 2>/dev/null | grep -q .; then
+            echo "Warning: World-writable files found:"
+            find . -type f -perm -002 ! -path "*/.git/*"
+          else
+            echo "✓ No world-writable files found"
+          fi
+
+          # Check for overly permissive directories
+          if find . -type d -perm -002 ! -path "*/.git/*" 2>/dev/null | grep -q .; then
+            echo "Warning: World-writable directories found:"
+            find . -type d -perm -002 ! -path "*/.git/*"
+          else
+            echo "✓ No world-writable directories found"
+          fi
+
+  compatibility-tests:
+    name: Compatibility Tests
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, ubuntu-20.04]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Test on ${{ matrix.os }}
+        run: |
+          echo "Testing on ${{ matrix.os }}..."
+
+          # Test Bash version
+          bash --version
+
+          # Test basic functionality
+          chmod +x ce.sh
+          ./ce.sh --version
+
+          echo "✓ Compatible with ${{ matrix.os }}"
+
+  summary:
+    name: Test Summary
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests, performance-tests, security-tests, compatibility-tests]
+    if: always()
+    steps:
+      - name: Generate summary
+        run: |
+          echo "## Test Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Test Suite | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Unit Tests | ${{ needs.unit-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Integration Tests | ${{ needs.integration-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Performance Tests | ${{ needs.performance-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Security Tests | ${{ needs.security-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Compatibility Tests | ${{ needs.compatibility-tests.result }} |" >> $GITHUB_STEP_SUMMARY

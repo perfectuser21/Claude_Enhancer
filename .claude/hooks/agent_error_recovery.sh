@@ -1,6 +1,12 @@
 #!/bin/bash
 # Agent错误自动恢复
 
+# 统一日志记录（激活追踪）
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+LOG_FILE="$PROJECT_ROOT/.workflow/logs/claude_hooks.log"
+mkdir -p "$(dirname "$LOG_FILE")"
+echo "$(date +'%F %T') [agent_error_recovery.sh] triggered by ${USER:-claude}" >> "$LOG_FILE"
+
 MAX_RETRIES=2
 RETRY_DELAY=0.5
 

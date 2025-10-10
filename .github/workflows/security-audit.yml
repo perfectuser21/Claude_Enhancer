@@ -1,0 +1,295 @@
+# Security Audit CI/CD Pipeline
+# 强制GPG验签和安全检查
+name: Security Audit
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: [main, master]
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  # ═══════════════════════════════════════════════════════════════════
+  # Job 1: 安全漏洞扫描
+  # ═══════════════════════════════════════════════════════════════════
+  vulnerability-scan:
+    name: "Vulnerability Scan"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Scan for unprotected rm -rf
+        run: |
+          echo "🔍 Scanning for dangerous rm -rf usage..."
+          
+          VIOLATIONS=0
+          
+          # 查找所有使用rm -rf的地方
+          FILES=$(grep -r "rm -rf" \
+                  --include="*.sh" \
+                  --exclude-dir=".git" \
+                  --exclude-dir="node_modules" \
+                  --exclude="*_SECURE.sh" \
+                  --exclude="security_exploit_test.sh" \
+                  . || true)
+          
+          if [[ -n "$FILES" ]]; then
+            echo "$FILES" | while read -r line; do
+              file=$(echo "$line" | cut -d: -f1)
+              
+              # 检查是否使用了safe_rm_rf
+              if ! grep -q "safe_rm_rf" "$file"; then
+                echo "❌ VIOLATION: Unprotected rm -rf in $file"
+                echo "   $line"
+                ((VIOLATIONS++))
+              fi
+            done
+            
+            if [[ $VIOLATIONS -gt 0 ]]; then
+              echo ""
+              echo "❌ ERROR: Found $VIOLATIONS unprotected rm -rf usage"
+              echo "Required: Use safe_rm_rf() instead"
+              exit 1
+            fi
+          fi
+          
+          echo "✅ No unprotected rm -rf found"
+
+      - name: Scan for weak signing systems
+        run: |
+          echo "🔍 Scanning for weak signature systems..."
+          
+          # 检查是否仍在使用SHA256自签名
+          if grep -r "sha256sum.*sig" \
+             --include="*.sh" \
+             --exclude="*_GPG.sh" \
+             .workflow/scripts/ 2>/dev/null; then
+            echo "❌ ERROR: Weak SHA256 self-signing detected"
+            echo "Required: Use GPG or minisign cryptographic signing"
+            exit 1
+          fi
+          
+          echo "✅ No weak signing systems detected"
+
+  # ═══════════════════════════════════════════════════════════════════
+  # Job 2: GPG签名验证（强制）
+  # ═══════════════════════════════════════════════════════════════════
+  gpg-signature-verification:
+    name: "GPG Signature Verification"
+    runs-on: ubuntu-latest
+    needs: vulnerability-scan
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup GPG
+        run: |
+          echo "🔑 Setting up GPG..."
+          
+          # 安装GPG
+          sudo apt-get update -qq
+          sudo apt-get install -y gnupg
+          
+          # 导入可信公钥（如果存在）
+          if [[ -f .gates/trusted.asc ]]; then
+            gpg --import .gates/trusted.asc
+            echo "✓ Trusted public key imported"
+          else
+            echo "⚠️  No trusted public key found (.gates/trusted.asc)"
+            echo "   Gates verification will use any available key"
+          fi
+
+      - name: Verify all gate signatures
+        run: |
+          echo "🔍 Verifying gate signatures..."
+          
+          TOTAL=0
+          VALID=0
+          INVALID=0
+          UNSIGNED=0
+          
+          for ok_file in .gates/*.ok; do
+            [[ ! -f "$ok_file" ]] && continue
+            
+            ((TOTAL++))
+            gate_num=$(basename "$ok_file" .ok)
+            sig_file="${ok_file}.sig"
+            
+            echo ""
+            echo "Checking gate $gate_num..."
+            
+            if [[ ! -f "$sig_file" ]]; then
+              echo "  ⚠️  No signature (legacy gate)"
+              ((UNSIGNED++))
+              continue
+            fi
+            
+            # 检查是否为GPG签名（armored格式）
+            if grep -q "BEGIN PGP SIGNATURE" "$sig_file"; then
+              # GPG签名验证
+              if gpg --verify "$sig_file" "$ok_file" 2>&1; then
+                echo "  ✅ Valid GPG signature"
+                ((VALID++))
+              else
+                echo "  ❌ Invalid or untrusted GPG signature"
+                ((INVALID++))
+              fi
+            else
+              # 旧的SHA256签名（不安全）
+              echo "  ⚠️  Using weak SHA256 signature"
+              echo "  ❌ SECURITY POLICY: SHA256 self-signing no longer accepted"
+              ((INVALID++))
+            fi
+          done
+          
+          echo ""
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "Verification Summary:"
+          echo "  Total gates:    $TOTAL"
+          echo "  Valid (GPG):    $VALID"
+          echo "  Invalid/Weak:   $INVALID"
+          echo "  Unsigned:       $UNSIGNED"
+          
+          # 策略：任何invalid或使用弱签名的都失败
+          if [[ $INVALID -gt 0 ]]; then
+            echo ""
+            echo "❌ SECURITY POLICY VIOLATION"
+            echo "All gates must use GPG cryptographic signatures"
+            echo ""
+            echo "To fix:"
+            echo "  ./.workflow/scripts/sign_gate_GPG.sh P<N> <num> create"
+            exit 1
+          fi
+          
+          if [[ $VALID -gt 0 || $UNSIGNED -eq $TOTAL ]]; then
+            echo ""
+            echo "✅ Signature verification passed"
+          fi
+
+  # ═══════════════════════════════════════════════════════════════════
+  # Job 3: 安全测试套件
+  # ═══════════════════════════════════════════════════════════════════
+  security-exploit-tests:
+    name: "Security Exploit Tests"
+    runs-on: ubuntu-latest
+    needs: vulnerability-scan
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup GPG for testing
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y gnupg
+          
+          # 生成测试密钥
+          cat > /tmp/gpg_gen.conf << EOF
+%no-protection
+Key-Type: RSA
+Key-Length: 2048
+Name-Real: CI Test Key
+Name-Email: ci@test.local
+Expire-Date: 0
+%commit
+EOF
+          gpg --batch --gen-key /tmp/gpg_gen.conf
+          
+          # 导出环境变量
+          KEY_ID=$(gpg --list-secret-keys --keyid-format LONG | grep -A1 '^sec' | tail -1 | awk '{print $1}')
+          echo "CE_GPG_KEY=$KEY_ID" >> $GITHUB_ENV
+
+      - name: Run exploit tests
+        run: |
+          echo "🔐 Running security exploit tests..."
+          chmod +x test/security_exploit_test.sh
+          ./test/security_exploit_test.sh
+
+      - name: Test report
+        if: always()
+        run: |
+          echo "Security test completed"
+
+  # ═══════════════════════════════════════════════════════════════════
+  # Job 4: 代码安全扫描
+  # ═══════════════════════════════════════════════════════════════════
+  code-security-scan:
+    name: "Code Security Scan"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: ShellCheck security scan
+        run: |
+          echo "🔍 Running ShellCheck security analysis..."
+          
+          sudo apt-get update -qq
+          sudo apt-get install -y shellcheck
+          
+          find . -name "*.sh" \
+            -not -path "./node_modules/*" \
+            -not -path "./.git/*" \
+            -exec shellcheck -S error {} \;
+
+      - name: Secret detection
+        run: |
+          echo "🔍 Scanning for hardcoded secrets..."
+          
+          VIOLATIONS=0
+          
+          # 检查私钥
+          if grep -r "BEGIN.*PRIVATE KEY" \
+              --exclude-dir=.git \
+              --exclude-dir=node_modules \
+              --exclude="*.md" \
+              . ; then
+            echo "❌ Found private keys!"
+            ((VIOLATIONS++))
+          fi
+          
+          # 检查AWS密钥
+          if grep -rE "AKIA[0-9A-Z]{16}" \
+              --exclude-dir=.git \
+              --exclude="*.md" \
+              . ; then
+            echo "❌ Found AWS keys!"
+            ((VIOLATIONS++))
+          fi
+          
+          if [[ $VIOLATIONS -gt 0 ]]; then
+            echo "❌ Security violations detected"
+            exit 1
+          fi
+          
+          echo "✅ No secrets found"
+
+  # ═══════════════════════════════════════════════════════════════════
+  # 最终汇总
+  # ═══════════════════════════════════════════════════════════════════
+  security-summary:
+    name: "Security Audit Summary"
+    runs-on: ubuntu-latest
+    needs:
+      - vulnerability-scan
+      - gpg-signature-verification
+      - security-exploit-tests
+      - code-security-scan
+    steps:
+      - name: Summary
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "✅ Security Audit Passed"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "✓ Vulnerability scan"
+          echo "✓ GPG signature verification"
+          echo "✓ Security exploit tests"
+          echo "✓ Code security scan"
+          echo ""
+          echo "🔒 System is secure"

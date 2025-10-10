@@ -102,14 +102,48 @@ class RateLimiter:
             }
 
         except Exception as e:
-            logger.error(f"Rate limit check failed: {e}")
-            # 如果检查失败，默认允许请求
+            logger.error(f"Rate limit check failed, using local fallback: {e}")
+            # SECURITY FIX CVE-2025-0005: Fail-closed with local fallback
+            return self._check_local_rate_limit(key, limit, window)
+
+    def _check_local_rate_limit(self, key: str, limit: int, window: int) -> Dict[str, Any]:
+        """Local in-memory rate limiting as fallback (fail-closed) - FIXED FOR CVE-2025-0005"""
+        # Import at method level to avoid global dependency
+        import threading
+        from collections import defaultdict
+        from datetime import datetime, timedelta
+
+        # Initialize local cache if not exists
+        if not hasattr(self, '_local_cache'):
+            self._local_cache = defaultdict(list)
+            self._cache_lock = threading.Lock()
+
+        with self._cache_lock:
+            current_time = datetime.now()
+            window_start = current_time - timedelta(seconds=window)
+
+            # Remove expired entries
+            self._local_cache[key] = [
+                ts for ts in self._local_cache[key]
+                if ts > window_start
+            ]
+
+            # Add current request
+            self._local_cache[key].append(current_time)
+
+            current_requests = len(self._local_cache[key])
+
+            # IMPORTANT: Conservative limit during degraded mode (50% or max 10)
+            degraded_limit = min(limit // 2, 10)
+            is_allowed = current_requests <= degraded_limit
+
             return {
-                "allowed": True,
-                "limit": limit,
-                "remaining": limit,
-                "reset_time": int(time.time()) + window,
-                "retry_after": 0,
+                "allowed": is_allowed,
+                "limit": degraded_limit,  # Return degraded limit
+                "remaining": max(0, degraded_limit - current_requests),
+                "reset_time": int((current_time + timedelta(seconds=window)).timestamp()),
+                "retry_after": window if not is_allowed else 0,
+                "degraded_mode": True,  # Signal degraded mode
             }
 
     async def get_client_key(self, request: Request, identifier: str = None) -> str:

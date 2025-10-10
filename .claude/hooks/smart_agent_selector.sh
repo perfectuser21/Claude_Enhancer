@@ -1,7 +1,35 @@
 #!/bin/bash
 # Claude Enhancer Smart Agent Selector v5.2 - Enhanced Output Version
 
+# 统一日志记录（激活追踪）
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+LOG_FILE="$PROJECT_ROOT/.workflow/logs/claude_hooks.log"
+mkdir -p "$(dirname "$LOG_FILE")"
+echo "$(date +'%F %T') [smart_agent_selector.sh] triggered by ${USER:-claude}" >> "$LOG_FILE"
+
 set -e
+
+cleanup() {
+    local exit_code=$?
+
+    # Rotate log if > 10000 lines
+    local log_file="/tmp/claude_agent_selection.log"
+    if [[ -f "$log_file" ]]; then
+        local lines=$(wc -l < "$log_file" 2>/dev/null || echo 0)
+        if [[ $lines -gt 10000 ]]; then
+            tail -n 5000 "$log_file" > "$log_file.tmp"
+            mv "$log_file.tmp" "$log_file"
+        fi
+    fi
+
+    # Clean lock file
+    rm -f "/tmp/claude_agent_selection.log.lock" 2>/dev/null || true
+
+    exit $exit_code
+}
+
+trap cleanup EXIT INT TERM HUP
+
 
 # 设置UTF-8支持
 export LC_ALL=C.UTF-8

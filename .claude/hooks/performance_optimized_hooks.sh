@@ -2,7 +2,7 @@
 # Performance-Optimized Git Hooks for Document Quality Management
 # 性能优化的Git Hooks - 文档质量管理三层防护
 
-set -e
+set -euo pipefail
 
 # 性能配置
 PERFORMANCE_MODE="${CLAUDE_PERFORMANCE_MODE:-balanced}"  # fast, balanced, thorough
@@ -140,8 +140,12 @@ parallel_check() {
         fi
     done
 
-    # 清理临时文件
-    rm -rf "$temp_dir"
+    # 清理临时文件（安全检查）
+    if [[ -n "$temp_dir" && "$temp_dir" == /tmp/* && -d "$temp_dir" ]]; then
+        rm -rf "$temp_dir"
+    else
+        echo "⚠️ Warning: Invalid temp_dir path, skipping cleanup: $temp_dir" >&2
+    fi
 
     return $total_issues
 }
@@ -311,10 +315,10 @@ if __name__ == '__main__':
     import sys
     sys.exit(asyncio.run(run_check()))
 " 2>/dev/null; then
-            rm -f "$temp_file"
+            [[ -n "$temp_file" && -f "$temp_file" ]] && rm -f "$temp_file"
             return 0
         else
-            rm -f "$temp_file"
+            [[ -n "$temp_file" && -f "$temp_file" ]] && rm -f "$temp_file"
             return 1
         fi
     else
@@ -388,8 +392,10 @@ benchmark() {
         echo "❌ Benchmark failed"
     fi
 
-    # 清理测试文件
-    rm -f "${test_files[@]}"
+    # 清理测试文件（安全检查）
+    for test_file in "${test_files[@]}"; do
+        [[ -n "$test_file" && -f "$test_file" && "$test_file" == test_doc_*.md ]] && rm -f "$test_file"
+    done
 }
 
 # 如果直接运行此脚本

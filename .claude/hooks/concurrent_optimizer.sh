@@ -2,6 +2,12 @@
 # Claude Enhancer - 并发优化器
 # 智能并发控制和资源优化
 
+# 统一日志记录（激活追踪）
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+LOG_FILE="$PROJECT_ROOT/.workflow/logs/claude_hooks.log"
+mkdir -p "$(dirname "$LOG_FILE")"
+echo "$(date +'%F %T') [concurrent_optimizer.sh] triggered by ${USER:-claude}" >> "$LOG_FILE"
+
 set -euo pipefail
 
 # 性能优化配置

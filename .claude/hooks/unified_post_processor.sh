@@ -2,6 +2,12 @@
 # Claude Enhancer - 统一后处理器
 # 智能结果分析、进度跟踪、性能优化
 
+# 统一日志记录（激活追踪）
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+LOG_FILE="$PROJECT_ROOT/.workflow/logs/claude_hooks.log"
+mkdir -p "$(dirname "$LOG_FILE")"
+echo "$(date +'%F %T') [unified_post_processor.sh] triggered by ${USER:-claude}" >> "$LOG_FILE"
+
 set -e
 
 readonly PROGRESS_FILE="/tmp/claude_phase_progress"

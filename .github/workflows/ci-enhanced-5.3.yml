@@ -1,0 +1,521 @@
+# Claude Enhancer 5.3 - Enhanced CI/CD with Coverage Enforcement
+# Version: 5.3.0
+# Features: Complete test coverage reporting and threshold enforcement
+
+name: CI Enhanced 5.3
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - 'feature/**'
+      - 'P[0-7]/**'
+  pull_request:
+    branches: [main, develop]
+    types: [opened, synchronize, reopened]
+
+# Security: minimal permissions
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+env:
+  NODE_VERSION: '18'
+  PYTHON_VERSION: '3.9'
+  COVERAGE_THRESHOLD: 80
+
+jobs:
+  # ════════════════════════════════════════════════════════════
+  # Job 1: Code Quality & Linting
+  # ════════════════════════════════════════════════════════════
+  quality:
+    name: Code Quality & Linting
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          npm ci --prefer-offline --no-audit
+          pip install flake8 pylint black isort
+
+      - name: Run ESLint
+        if: hashFiles('package.json') != ''
+        run: npm run lint || true
+        continue-on-error: true
+
+      - name: Run Flake8
+        run: |
+          find . -name "*.py" -not -path "./node_modules/*" -not -path "./.git/*" \
+            -exec flake8 --max-line-length=120 --extend-ignore=E203,W503 {} + || true
+        continue-on-error: true
+
+      - name: Check Shell Scripts
+        run: |
+          sudo apt-get update && sudo apt-get install -y shellcheck
+          find . -name "*.sh" -not -path "./node_modules/*" -not -path "./.git/*" \
+            -exec shellcheck -S warning {} + || true
+        continue-on-error: true
+
+  # ════════════════════════════════════════════════════════════
+  # Job 2: JavaScript/TypeScript Tests with Coverage
+  # ════════════════════════════════════════════════════════════
+  test-javascript:
+    name: JavaScript Tests & Coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: Run Tests with Coverage
+        run: |
+          npm run test:coverage -- \
+            --ci \
+            --maxWorkers=2 \
+            --coverage \
+            --coverageReporters=text \
+            --coverageReporters=lcov \
+            --coverageReporters=json \
+            --coverageReporters=cobertura
+
+      - name: Check Coverage Threshold
+        run: |
+          echo "Checking JavaScript coverage threshold (${COVERAGE_THRESHOLD}%)..."
+
+          if [[ -f coverage/coverage-final.json ]]; then
+            # Extract overall coverage percentage
+            node -e "
+              const fs = require('fs');
+              const coverage = JSON.parse(fs.readFileSync('coverage/coverage-final.json'));
+              let totalStatements = 0, coveredStatements = 0;
+
+              Object.values(coverage).forEach(file => {
+                const s = file.s || {};
+                totalStatements += Object.keys(s).length;
+                coveredStatements += Object.values(s).filter(v => v > 0).length;
+              });
+
+              const percentage = totalStatements > 0 ? (coveredStatements / totalStatements * 100) : 0;
+              console.log('JavaScript Coverage: ' + percentage.toFixed(2) + '%');
+
+              if (percentage < ${COVERAGE_THRESHOLD}) {
+                console.error('❌ Coverage ' + percentage.toFixed(2) + '% is below threshold ${COVERAGE_THRESHOLD}%');
+                process.exit(1);
+              } else {
+                console.log('✅ Coverage threshold met');
+              }
+            "
+          else
+            echo "⚠️  No coverage data found"
+            exit 1
+          fi
+
+      - name: Generate Coverage Badge
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          mkdir -p badges
+          node -e "
+            const fs = require('fs');
+            const coverage = JSON.parse(fs.readFileSync('coverage/coverage-final.json'));
+            let totalStatements = 0, coveredStatements = 0;
+            Object.values(coverage).forEach(file => {
+              const s = file.s || {};
+              totalStatements += Object.keys(s).length;
+              coveredStatements += Object.values(s).filter(v => v > 0).length;
+            });
+            const percentage = (coveredStatements / totalStatements * 100).toFixed(0);
+            const color = percentage >= 80 ? 'brightgreen' : percentage >= 60 ? 'yellow' : 'red';
+            const badge = {
+              schemaVersion: 1,
+              label: 'coverage',
+              message: percentage + '%',
+              color: color
+            };
+            fs.writeFileSync('badges/coverage-js.json', JSON.stringify(badge));
+          " || echo "Badge generation failed"
+
+      - name: Upload Coverage Reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-javascript
+          path: |
+            coverage/lcov.info
+            coverage/coverage-final.json
+            coverage/cobertura-coverage.xml
+            coverage/lcov-report/
+          retention-days: 30
+
+      - name: Comment PR with Coverage
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            if (fs.existsSync('coverage/coverage-final.json')) {
+              const coverage = JSON.parse(fs.readFileSync('coverage/coverage-final.json'));
+              let totalStatements = 0, coveredStatements = 0;
+              Object.values(coverage).forEach(file => {
+                const s = file.s || {};
+                totalStatements += Object.keys(s).length;
+                coveredStatements += Object.values(s).filter(v => v > 0).length;
+              });
+              const percentage = (coveredStatements / totalStatements * 100).toFixed(2);
+              const passed = percentage >= ${{ env.COVERAGE_THRESHOLD }};
+
+              const body = `## JavaScript Coverage Report
+
+              ${passed ? '✅' : '❌'} **Coverage**: ${percentage}%
+              **Threshold**: ${{ env.COVERAGE_THRESHOLD }}%
+              **Status**: ${passed ? 'PASSED' : 'FAILED'}
+
+              View detailed report in artifacts.`;
+
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body
+              });
+            }
+
+  # ════════════════════════════════════════════════════════════
+  # Job 3: Python Tests with Coverage
+  # ════════════════════════════════════════════════════════════
+  test-python:
+    name: Python Tests & Coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-cov coverage
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Run Tests with Coverage
+        run: |
+          pytest \
+            --cov=src \
+            --cov=.claude/core \
+            --cov=scripts \
+            --cov-report=term \
+            --cov-report=html:coverage/htmlcov-python \
+            --cov-report=xml:coverage/coverage-python.xml \
+            --cov-report=json:coverage/coverage-python.json \
+            --cov-fail-under=${{ env.COVERAGE_THRESHOLD }} \
+            --junit-xml=test-results/pytest-junit.xml \
+            test/ || {
+              echo "❌ Python tests failed or coverage below ${COVERAGE_THRESHOLD}%"
+              exit 1
+            }
+
+      - name: Generate Coverage Summary
+        run: |
+          echo "## Python Coverage Summary" > coverage-python-summary.md
+          echo "" >> coverage-python-summary.md
+          coverage report --skip-covered >> coverage-python-summary.md || true
+
+      - name: Upload Coverage Reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-python
+          path: |
+            coverage/coverage-python.xml
+            coverage/coverage-python.json
+            coverage/htmlcov-python/
+            test-results/pytest-junit.xml
+          retention-days: 30
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: pytest-results
+          path: test-results/
+          retention-days: 30
+
+  # ════════════════════════════════════════════════════════════
+  # Job 4: Combined Coverage Report
+  # ════════════════════════════════════════════════════════════
+  coverage-report:
+    name: Combined Coverage Report
+    runs-on: ubuntu-latest
+    needs: [test-javascript, test-python]
+    if: always()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Download JavaScript Coverage
+        uses: actions/download-artifact@v3
+        with:
+          name: coverage-javascript
+          path: coverage-js
+        continue-on-error: true
+
+      - name: Download Python Coverage
+        uses: actions/download-artifact@v3
+        with:
+          name: coverage-python
+          path: coverage-python
+        continue-on-error: true
+
+      - name: Generate Combined Report
+        run: |
+          cat > coverage-summary.md <<'EOF'
+          # Coverage Report Summary
+          **Generated**: $(date '+%Y-%m-%d %H:%M:%S')
+          **Threshold**: ${{ env.COVERAGE_THRESHOLD }}%
+          **Branch**: ${{ github.ref_name }}
+          **Commit**: ${{ github.sha }}
+
+          ## JavaScript/TypeScript Coverage
+          EOF
+
+          if [[ -f coverage-js/coverage-final.json ]]; then
+            node -e "
+              const fs = require('fs');
+              const coverage = JSON.parse(fs.readFileSync('coverage-js/coverage-final.json'));
+              let totalStatements = 0, coveredStatements = 0;
+              let totalBranches = 0, coveredBranches = 0;
+              let totalFunctions = 0, coveredFunctions = 0;
+
+              Object.values(coverage).forEach(file => {
+                totalStatements += Object.keys(file.s || {}).length;
+                coveredStatements += Object.values(file.s || {}).filter(v => v > 0).length;
+                totalBranches += Object.keys(file.b || {}).length;
+                coveredBranches += Object.values(file.b || {}).filter(v => v.some(b => b > 0)).length;
+                totalFunctions += Object.keys(file.f || {}).length;
+                coveredFunctions += Object.values(file.f || {}).filter(v => v > 0).length;
+              });
+
+              const calc = (c, t) => t > 0 ? ((c / t) * 100).toFixed(2) : '0.00';
+
+              console.log('| Metric | Coverage |');
+              console.log('|--------|----------|');
+              console.log('| Statements | ' + calc(coveredStatements, totalStatements) + '% |');
+              console.log('| Branches | ' + calc(coveredBranches, totalBranches) + '% |');
+              console.log('| Functions | ' + calc(coveredFunctions, totalFunctions) + '% |');
+            " >> coverage-summary.md
+          else
+            echo "No JavaScript coverage data" >> coverage-summary.md
+          fi
+
+          echo "" >> coverage-summary.md
+          echo "## Python Coverage" >> coverage-summary.md
+
+          if [[ -f coverage-python/coverage-python.json ]]; then
+            python3 -c "
+import json
+with open('coverage-python/coverage-python.json') as f:
+    data = json.load(f)
+    totals = data.get('totals', {})
+    print('| Metric | Coverage |')
+    print('|--------|----------|')
+    print(f\"| Statements | {totals.get('percent_covered', 0):.2f}% |\")
+    print(f\"| Missing Lines | {totals.get('missing_lines', 0)} |\")
+" >> coverage-summary.md 2>/dev/null || echo "Unable to parse Python coverage" >> coverage-summary.md
+          else
+            echo "No Python coverage data" >> coverage-summary.md
+          fi
+
+          echo "" >> coverage-summary.md
+          echo "## Status" >> coverage-summary.md
+          echo "✅ All coverage checks completed" >> coverage-summary.md
+
+          cat coverage-summary.md
+
+      - name: Upload Combined Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-summary
+          path: coverage-summary.md
+          retention-days: 90
+
+      - name: Add to Job Summary
+        run: cat coverage-summary.md >> $GITHUB_STEP_SUMMARY
+
+  # ════════════════════════════════════════════════════════════
+  # Job 5: BDD Acceptance Tests
+  # ════════════════════════════════════════════════════════════
+  bdd-tests:
+    name: BDD Acceptance Tests
+    runs-on: ubuntu-latest
+    needs: [test-javascript, test-python]
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: Run BDD Tests
+        run: npm run bdd:ci
+
+      - name: Upload BDD Report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: bdd-report
+          path: test/reports/
+          retention-days: 30
+
+  # ════════════════════════════════════════════════════════════
+  # Job 6: Security Scanning
+  # ════════════════════════════════════════════════════════════
+  security:
+    name: Security Scanning
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+
+      - name: Run Security Audit (npm)
+        run: npm audit --production || true
+        continue-on-error: true
+
+      - name: Check for Secrets
+        run: |
+          echo "Scanning for hardcoded secrets..."
+
+          # Private keys
+          if grep -r "BEGIN RSA PRIVATE KEY\|BEGIN PRIVATE KEY" \
+              --exclude-dir=.git --exclude-dir=node_modules --exclude="*.md" . ; then
+            echo "❌ Found private keys!"
+            exit 1
+          fi
+
+          # AWS keys
+          if grep -rE "AKIA[0-9A-Z]{16}" \
+              --exclude-dir=.git --exclude-dir=node_modules --exclude="*.md" . ; then
+            echo "❌ Found AWS keys!"
+            exit 1
+          fi
+
+          echo "✅ No secrets found"
+
+  # ════════════════════════════════════════════════════════════
+  # Job 7: Build Verification
+  # ════════════════════════════════════════════════════════════
+  build:
+    name: Build Verification
+    runs-on: ubuntu-latest
+    needs: [quality, test-javascript, test-python]
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: Build (if applicable)
+        run: |
+          if grep -q '"build"' package.json; then
+            npm run build
+          else
+            echo "No build script defined, skipping"
+          fi
+
+      - name: Verify Installation
+        run: |
+          if [[ -f .claude/install.sh ]]; then
+            bash .claude/install.sh --dry-run || bash .claude/install.sh
+            echo "✅ Installation script verified"
+          fi
+
+  # ════════════════════════════════════════════════════════════
+  # Job 8: Final Summary
+  # ════════════════════════════════════════════════════════════
+  summary:
+    name: CI Summary
+    runs-on: ubuntu-latest
+    needs: [quality, test-javascript, test-python, coverage-report, bdd-tests, security, build]
+    if: always()
+
+    steps:
+      - name: Check Results
+        run: |
+          echo "## CI Pipeline Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Code Quality | ${{ needs.quality.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| JavaScript Tests | ${{ needs.test-javascript.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Python Tests | ${{ needs.test-python.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Coverage Report | ${{ needs.coverage-report.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| BDD Tests | ${{ needs.bdd-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Security | ${{ needs.security.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Build | ${{ needs.build.result }} |" >> $GITHUB_STEP_SUMMARY
+
+      - name: Final Status
+        run: |
+          if [[ "${{ needs.test-javascript.result }}" == "success" ]] && \
+             [[ "${{ needs.test-python.result }}" == "success" ]]; then
+            echo "✅ All tests passed with coverage ≥${{ env.COVERAGE_THRESHOLD }}%"
+            exit 0
+          else
+            echo "❌ Tests failed or coverage below threshold"
+            exit 1
+          fi

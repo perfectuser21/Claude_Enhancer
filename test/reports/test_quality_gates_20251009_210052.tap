@@ -1,0 +1,24 @@
+1..14
+ok 1 Quality gate: P0 discovery validation
+ok 2 Quality gate: P1 plan validation - task count
+ok 3 Quality gate: P1 plan validation - required sections
+ok 4 Quality gate: P3 changelog validation
+ok 5 Quality gate: P4 test coverage validation
+ok 6 Quality gate: P4 test report validation
+ok 7 Quality gate: P5 review validation - three sections
+# REWORK decision detected - should block P6 transition
+ok 8 Quality gate: P5 review REWORK scenario
+ok 9 Quality gate: P6 README validation - three sections
+not ok 10 Quality gate: P6 version tag validation
+# (in test file test/integration/test_quality_gates.bats, line 429)
+#   `assert_output "v1.0.0"' failed with status 127
+# [main 0d9935c] docs: README
+#  1 file changed, 10 insertions(+)
+#  create mode 100644 docs/README.md
+# /home/xx/dev/Claude Enhancer 5.0/test/integration/test_quality_gates.bats: line 429: assert_output: command not found
+ok 11 Quality gate: P7 monitoring validation
+ok 12 Quality gate: Security scan validation
+ok 13 Quality gate: Build validation
+# Testing all phase gates
+# All phase gates validated successfully
+ok 14 Quality gate: All phases comprehensive validation

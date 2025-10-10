@@ -1,0 +1,145 @@
+# Claude Enhancer Workflow Manifest
+# Version: 1.0.0
+# Purpose: 定义8-Phase执行顺序、并行策略和默认配置
+# Created: 2025-10-09 (CE-ISSUE-001 修复)
+
+version: "1.0.0"
+project: "Claude Enhancer 5.0"
+
+# 8-Phase工作流定义（P0-P7）
+phases:
+  - id: P0
+    name: Discovery
+    description: "技术探索与可行性验证"
+    parallel: false
+    depends_on: []
+    timeout: 1800  # 30min
+    allow_failure: false
+    retry: 0
+
+  - id: P1
+    name: Planning
+    description: "需求分析与详细规划"
+    parallel: false
+    depends_on: [P0]
+    timeout: 2700  # 45min
+    allow_failure: false
+    retry: 0
+
+  - id: P2
+    name: Skeleton
+    description: "架构设计与骨架创建"
+    parallel: false
+    depends_on: [P1]
+    timeout: 1800  # 30min
+    allow_failure: false
+    retry: 0
+
+  - id: P3
+    name: Implementation
+    description: "功能实现与代码开发"
+    parallel: true  # 可启用并行组
+    depends_on: [P2]
+    timeout: 7200  # 2h
+    allow_failure: false
+    retry: 1
+    max_parallel_agents: 8
+
+  - id: P4
+    name: Testing
+    description: "测试验证与质量保证"
+    parallel: true  # 可并行运行不同测试类型
+    depends_on: [P3]
+    timeout: 3600  # 1h
+    allow_failure: false
+    retry: 2  # 测试允许重试
+    max_parallel_agents: 6
+
+  - id: P5
+    name: Review
+    description: "代码审查与质量评审"
+    parallel: false
+    depends_on: [P4]
+    timeout: 2700  # 45min
+    allow_failure: false
+    retry: 0
+
+  - id: P6
+    name: Release
+    description: "文档更新与版本发布"
+    parallel: false
+    depends_on: [P5]
+    timeout: 1800  # 30min
+    allow_failure: false
+    retry: 0
+
+  - id: P7
+    name: Monitor
+    description: "健康监控与SLO验证"
+    parallel: false
+    depends_on: [P6]
+    timeout: 900  # 15min
+    allow_failure: true  # 监控失败不阻断
+    retry: 0
+
+# 默认配置
+defaults:
+  timeout: 3600  # 默认1小时超时
+  allow_failure: false
+  retry: 0
+  max_parallel_agents: 4
+  shell: "/bin/bash"
+  set_flags: "set -euo pipefail"
+
+# 执行策略
+execution:
+  strategy: "sequential"  # 默认串行，除非phase.parallel=true
+  fail_fast: true  # 快速失败
+  continue_on_error: false
+  dry_run_available: true  # 支持--dry-run模式
+
+# 并行配置（引用STAGES.yml获取详细并行组）
+parallelism:
+  enabled: true
+  config_file: ".workflow/STAGES.yml"
+  conflict_detection: true
+  downgrade_on_conflict: true
+
+# 状态管理
+state:
+  current_file: ".phase/current"
+  active_file: ".workflow/ACTIVE"
+  sync_check: true  # 启用状态同步检查
+  expiry_hours: 24  # ACTIVE文件24小时过期
+
+# Gates集成
+gates:
+  config_file: ".workflow/gates.yml"
+  strict_mode: true  # 严格模式：必须通过gate才能进入下一phase
+  auto_sign: false  # 不自动签署，需显式调用sign_gate.sh
+
+# 日志配置
+logging:
+  enabled: true
+  level: "INFO"
+  output_dir: ".workflow/logs"
+  rotation:
+    enabled: true
+    max_size_mb: 10
+    max_files: 5
+  format: "[{timestamp}] [{level}] [{phase}] {message}"
+
+# 通知配置
+notifications:
+  enabled: false  # 默认关闭
+  on_phase_complete: false
+  on_gate_fail: false
+  on_workflow_complete: false
+
+# 元数据
+metadata:
+  created_at: "2025-10-09"
+  created_by: "Claude Code"
+  purpose: "修复CE-ISSUE-001: 缺少manifest定义"
+  version_control: "git"
+  license: "MIT"

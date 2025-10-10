@@ -2,6 +2,12 @@
 # Claude Enhancer - 自动清理检查Hook
 # 当垃圾文件过多时提醒清理
 
+# 统一日志记录（激活追踪）
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+LOG_FILE="$PROJECT_ROOT/.workflow/logs/claude_hooks.log"
+mkdir -p "$(dirname "$LOG_FILE")"
+echo "$(date +'%F %T') [auto_cleanup_check.sh] triggered by ${USER:-claude}" >> "$LOG_FILE"
+
 set -e
 
 # 计算垃圾文件

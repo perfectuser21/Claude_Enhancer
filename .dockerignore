@@ -1,0 +1,61 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Node
+node_modules
+npm-debug.log
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+.pytest_cache
+.coverage
+htmlcov
+
+# Backup directories
+.chaos_backup
+.performance_backup
+.upgrade_backup
+
+# Build artifacts
+dist
+*.tar.gz
+*.zip
+
+# Logs
+*.log
+logs
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp
+temp
+*.tmp
+
+# Documentation builds
+docs/_build
+site
+
+# Test artifacts
+test/reports
+coverage
+
+# Claude Enhancer state (will be mounted as volume)
+.workflow/cli/state
+.gates/*.ok
+.gates/*.sig

@@ -1,0 +1,7 @@
+phase=P6
+gate=06
+head=25e1661a4610534cff822756d999640a3c04ca22
+script=sign_gate.sh@v1
+time=2025-10-09T15:06:40+08:00
+user=root
+sha256=9e81f9313a16c47f368fe9e89c5a1155b1c0ddf2ba97e0bfaaebf5cc27471a16

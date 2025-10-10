@@ -10,6 +10,23 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
+# Lock file tracking for cleanup
+LOCK_DIR=""
+
+cleanup() {
+    local exit_code=$?
+    
+    # Release lock if we have it
+    if [[ -n "$LOCK_DIR" ]] && [[ -d "$LOCK_DIR" ]]; then
+        rmdir "$LOCK_DIR" 2>/dev/null || true
+        echo "[CLEANUP] Lock released" >&2
+    fi
+    
+    exit $exit_code
+}
+
+trap cleanup EXIT INT TERM HUP
+
 # 目录定义
 TICKETS_DIR=".tickets"
 LIMITS_DIR=".limits"
@@ -38,13 +55,13 @@ create_ticket() {
     local max_limit=$(get_phase_limit "$phase")
 
     # 使用简单的mkdir作为原子锁
-    local lock_dir="/tmp/claude_ticket.lock"
+    LOCK_DIR="/tmp/claude_ticket.lock"
     local max_wait=20  # 最多等待2秒（20 * 0.1秒）
     local waited=0
 
     # 尝试获取锁
     while [ "$waited" -lt "$max_wait" ]; do
-        if mkdir "$lock_dir" 2>/dev/null; then
+        if mkdir "$LOCK_DIR" 2>/dev/null; then
             # 成功获取锁
             break
         fi
@@ -64,7 +81,7 @@ create_ticket() {
     if [ "$active" -ge "$max_limit" ]; then
         echo -e "${RED}❌ 无法创建工单：活动工单数($active)已达$phase上限($max_limit)${NC}"
         echo "请先完成现有工单或等待空闲位置"
-        rmdir "$lock_dir" 2>/dev/null  # 释放锁
+        rmdir "$LOCK_DIR" 2>/dev/null; LOCK_DIR=""  # Release and clear
         return 1
     fi
 
@@ -85,7 +102,7 @@ create_ticket() {
 EOF
 
     # 释放锁
-    rmdir "$lock_dir" 2>/dev/null
+    rmdir "$LOCK_DIR" 2>/dev/null; LOCK_DIR=""  # Release and clear
 
     echo -e "${GREEN}✅ 创建工单：$ticket_id${NC}"
     echo "   Phase: $phase"

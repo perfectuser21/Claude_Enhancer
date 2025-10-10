@@ -1,0 +1,290 @@
+# Stop-Ship Fixes Validation Workflow
+# 在CI中运行所有Stop-Ship修复的验证测试
+
+name: Stop-Ship Validation
+
+on:
+  pull_request:
+    branches: [main, master]
+    paths:
+      - '.claude/hooks/**'
+      - '.git/hooks/**'
+      - '.workflow/**'
+      - 'test/stop_ship_*.bats'
+      - 'test/validate_stop_ship_fixes.sh'
+  push:
+    branches: [main, master, 'feature/**', 'P*/**']
+    paths:
+      - '.claude/hooks/**'
+      - '.git/hooks/**'
+      - '.workflow/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  # Job 1: Setup and Install BATS
+  setup:
+    name: Setup Test Environment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install BATS
+        run: |
+          npm install -g bats
+          bats --version
+
+      - name: Verify test files
+        run: |
+          ls -la test/stop_ship_*.bats
+          echo "Found $(ls -1 test/stop_ship_*.bats | wc -l) test suites"
+
+  # Job 2: P0 - rm -rf Safety
+  test-p0-rm-rf-safety:
+    name: "P0: rm -rf Safety Protection"
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install BATS
+        run: npm install -g bats
+
+      - name: Run rm -rf safety tests
+        run: |
+          chmod +x test/stop_ship_01_rm_rf_safety.bats
+          bats test/stop_ship_01_rm_rf_safety.bats
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: p0-rm-rf-results
+          path: |
+            test/reports/*
+            /tmp/ce_test_*
+
+  # Job 3: P1-1 - commit-msg Block
+  test-p1-1-commit-msg:
+    name: "P1-1: commit-msg Force Block"
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install BATS
+        run: npm install -g bats
+
+      - name: Setup git hooks
+        run: |
+          chmod +x .git/hooks/*
+          mkdir -p .phase
+          echo "P3" > .phase/current
+
+      - name: Run commit-msg tests
+        run: |
+          chmod +x test/stop_ship_02_commit_msg_block.bats
+          bats test/stop_ship_02_commit_msg_block.bats
+
+  # Job 4: P1-2 - Coverage Threshold
+  test-p1-2-coverage:
+    name: "P1-2: Coverage Threshold"
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install BATS
+        run: npm install -g bats
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Run coverage threshold tests
+        run: |
+          chmod +x test/stop_ship_03_coverage_threshold.bats
+          bats test/stop_ship_03_coverage_threshold.bats
+
+  # Job 5: P1-3 - Parallel Mutex
+  test-p1-3-mutex:
+    name: "P1-3: Parallel Task Mutex"
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install BATS
+        run: npm install -g bats
+
+      - name: Run parallel mutex tests
+        run: |
+          chmod +x test/stop_ship_04_parallel_mutex.bats
+          bats test/stop_ship_04_parallel_mutex.bats
+
+  # Job 6: P1-4 - Signature Verification
+  test-p1-4-signature:
+    name: "P1-4: Gate Signature Verification"
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install BATS
+        run: npm install -g bats
+
+      - name: Run signature verification tests
+        run: |
+          chmod +x test/stop_ship_05_signature_verification.bats
+          bats test/stop_ship_05_signature_verification.bats
+
+  # Job 7: P1-5 - Version Consistency
+  test-p1-5-version:
+    name: "P1-5: Version Consistency"
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install BATS
+        run: npm install -g bats
+
+      - name: Run version consistency tests
+        run: |
+          chmod +x test/stop_ship_06_version_consistency.bats
+          bats test/stop_ship_06_version_consistency.bats
+
+  # Job 8: P1-6 - Hooks Activation
+  test-p1-6-hooks:
+    name: "P1-6: Hooks Activation"
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install BATS
+        run: npm install -g bats
+
+      - name: Setup environment
+        run: |
+          mkdir -p .workflow/logs
+          chmod +x .git/hooks/*
+
+      - name: Run hooks activation tests
+        run: |
+          chmod +x test/stop_ship_07_hooks_activation.bats
+          bats test/stop_ship_07_hooks_activation.bats
+
+  # Job 9: Master Validation
+  master-validation:
+    name: "Master Validation Suite"
+    runs-on: ubuntu-latest
+    needs:
+      - test-p0-rm-rf-safety
+      - test-p1-1-commit-msg
+      - test-p1-2-coverage
+      - test-p1-3-mutex
+      - test-p1-4-signature
+      - test-p1-5-version
+      - test-p1-6-hooks
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install BATS
+        run: npm install -g bats
+
+      - name: Setup complete environment
+        run: |
+          mkdir -p .phase .workflow/logs
+          echo "P3" > .phase/current
+          chmod +x .git/hooks/*
+          chmod +x test/*.sh
+
+      - name: Run master validation
+        run: |
+          bash test/validate_stop_ship_fixes.sh
+
+      - name: Upload validation report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: stop-ship-validation-report
+          path: test/reports/stop_ship_fixes_*.md
+
+      - name: Comment PR with results
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const reportFiles = fs.readdirSync('test/reports')
+              .filter(f => f.startsWith('stop_ship_fixes_'));
+
+            if (reportFiles.length > 0) {
+              const report = fs.readFileSync(`test/reports/${reportFiles[0]}`, 'utf8');
+
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: `## Stop-Ship Fixes Validation Results\n\n${report}`
+              });
+            }
+
+  # Job 10: Summary Report
+  summary:
+    name: "Validation Summary"
+    runs-on: ubuntu-latest
+    needs: master-validation
+    if: always()
+    steps:
+      - name: Generate summary
+        run: |
+          echo "# Stop-Ship Validation Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Fix | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| P0: rm -rf Safety | ${{ needs.test-p0-rm-rf-safety.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| P1-1: commit-msg Block | ${{ needs.test-p1-1-commit-msg.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| P1-2: Coverage Threshold | ${{ needs.test-p1-2-coverage.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| P1-3: Parallel Mutex | ${{ needs.test-p1-3-mutex.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| P1-4: Signature Verification | ${{ needs.test-p1-4-signature.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| P1-5: Version Consistency | ${{ needs.test-p1-5-version.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| P1-6: Hooks Activation | ${{ needs.test-p1-6-hooks.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [[ "${{ needs.master-validation.result }}" == "success" ]]; then
+            echo "## ✅ All Validations Passed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "All Stop-Ship fixes have been validated successfully." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## ❌ Validation Failed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Some Stop-Ship fixes failed validation. Please review the errors above." >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Fail if master validation failed
+        if: needs.master-validation.result != 'success'
+        run: exit 1

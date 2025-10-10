@@ -1,0 +1,11 @@
+# Claude Enhancer 权限锁定文件
+# 生成时间: 2025-09-29 18:35:50
+# 用途: 防止chaos测试破坏关键文件权限
+
+CRITICAL_FILES_PERMISSIONS:
+/home/xx/dev/Claude Enhancer 5.0/.git/hooks/pre-push:755
+/home/xx/dev/Claude Enhancer 5.0/.git/hooks/commit-msg:755
+/home/xx/dev/Claude Enhancer 5.0/scripts/chaos_defense.sh:755
+/home/xx/dev/Claude Enhancer 5.0/.git/hooks/pre-commit:755
+/home/xx/dev/Claude Enhancer 5.0/scripts/permission_health_check.sh:755
+/home/xx/dev/Claude Enhancer 5.0/scripts/fix_permissions.sh:755
