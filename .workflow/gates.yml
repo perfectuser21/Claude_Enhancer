@@ -119,11 +119,12 @@ phases:
 
   P6:
     name: "Docs & Release"
-    allow_paths: ["docs/README.md", "docs/CHANGELOG.md", ".tags/**"]
+    allow_paths: ["README.md", "docs/**", ".tags/**", ".phase/current"]
     must_produce:
-      - "docs/README.md 必含：安装、使用、注意事项 三段"
+      - "README.md 或 docs/README.md 必含：安装、使用、注意事项 三段"
       - "docs/CHANGELOG.md 版本号递增并写影响面"
       - "发布 tag 与 Release Notes"
+      - "docs/PR-*.md 包含完整的PR描述（可选）"
     gates:
       - "README 三段齐"
       - "CHANGELOG 版本号+影响面齐"
