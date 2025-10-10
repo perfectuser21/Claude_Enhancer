@@ -62,13 +62,16 @@ phases:
 
   P2:
     name: "Skeleton"
-    allow_paths: ["src/**", "docs/SKELETON-NOTES.md"]
+    allow_paths: ["src/**", ".claude/**", ".workflow/**", "CLAUDE.md", "docs/SKELETON-NOTES.md"]
     must_produce:
       - "根据 PLAN.md 新建目录/接口骨架；不得新增计划外目录"
       - "必要说明写入 docs/SKELETON-NOTES.md"
+      - "工作流基础设施（.claude/hooks, .workflow/等）属于项目骨架"
+      - "项目规范文件（CLAUDE.md）定义项目骨架的开发规范"
     gates:
       - "src/ 新增目录均在 PLAN 受影响清单内"
       - "接口文件存在且命名遵循项目规范"
+      - "工作流文件修改需在SKELETON-NOTES.md中说明"
     on_pass:
       - "create: .gates/02.ok"
       - "set: .phase/current=P3"

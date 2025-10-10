@@ -20,6 +20,85 @@ Claude Enhancer是专为追求极致质量的开发者设计的AI驱动编程工
 - **5.2**: 压力测试验证，工作流机制成熟稳定
 - **5.3**: 保障力升级，达到100/100生产级标准
 
+## 🔴 规则0：分支前置检查（Phase -1）
+**优先级：最高 | 在所有开发任务之前强制执行**
+
+### 🎯 核心原则
+```
+新任务 = 新分支（No Exceptions）
+```
+
+### 📋 强制检查清单
+在进入执行模式（P0-P7）之前，必须完成：
+
+1. **分析当前分支**
+   ```bash
+   当前分支是什么？
+   └─ main/master → 必须创建新分支
+   └─ feature/xxx → 检查是否与当前任务相关
+   └─ 他人的分支 → 禁止修改
+   ```
+
+2. **判断任务类型**
+   - 新功能开发 → `feature/功能描述`
+   - Bug修复 → `bugfix/问题描述`
+   - 性能优化 → `perf/优化内容`
+   - 文档更新 → `docs/文档主题`
+   - 实验性改动 → `experiment/实验内容`
+
+3. **创建适配分支**
+   ```bash
+   # 如果当前分支不适合，立即创建新分支
+   git checkout -b feature/任务名称
+   ```
+
+### ⚠️ 强制规则（违反将被Hook阻止）
+
+❌ **禁止行为**：
+- 在 main/master 分支直接修改
+- 在不相关的 feature 分支上开发新任务
+- 在他人的分支上进行修改
+- 跳过分支检查直接开始编码
+
+✅ **正确流程**：
+```
+用户请求 → 分析任务 → 检查分支 → 创建新分支 → 执行P0-P7
+                                    ↑
+                          关键步骤，不可跳过
+```
+
+### 🤖 AI多终端并行场景
+
+**场景**：用户在多个Terminal同时开发不同功能
+```
+Terminal 1 (Claude实例A):
+git checkout -b feature/user-authentication
+└─ 执行P0-P7：用户认证系统
+
+Terminal 2 (Claude实例B):
+git checkout -b feature/payment-integration
+└─ 执行P0-P7：支付集成
+
+Terminal 3 (Claude实例C):
+git checkout -b feature/multi-terminal-workflow
+└─ 执行P0-P7：多终端工作流
+```
+
+**优势**：
+- ✅ 功能隔离，互不干扰
+- ✅ 独立PR，清晰审查
+- ✅ 回滚容易，风险可控
+- ✅ 并行开发，效率最大化
+
+### 🛡️ 执行保障
+
+**由以下机制强制执行**：
+1. `.claude/hooks/branch_helper.sh` - PreToolUse硬阻止
+2. `.git/hooks/pre-commit` - Git层面二次检查
+3. CLAUDE.md规则 - AI行为约束
+
+---
+
 ## 🚀 核心工作流：8-Phase系统（P0-P7）
 
 ### 完整开发周期
