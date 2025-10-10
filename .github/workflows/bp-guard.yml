@@ -48,6 +48,63 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Check for Branch Protection configuration drift
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "🔍 Checking for configuration drift..."
+
+          # Get live configuration from GitHub
+          gh api repos/${{ github.repository }}/branches/main/protection > .bp_live.json 2>/dev/null || {
+            echo "::error::Failed to fetch live Branch Protection configuration"
+            exit 1
+          }
+
+          # Find the latest golden snapshot
+          GOLDEN_SNAPSHOT=$(ls -t .workflow/backups/bp_snapshot_*.json 2>/dev/null | head -1)
+
+          if [ -z "$GOLDEN_SNAPSHOT" ]; then
+            echo "::warning::No golden snapshot found, skipping drift check"
+            echo "::warning::Run './scripts/save_bp.sh' to create a baseline"
+            exit 0
+          fi
+
+          echo "📸 Comparing against golden snapshot: $GOLDEN_SNAPSHOT"
+
+          # Extract key protection settings for comparison
+          GOLDEN_LINEAR=$(jq -r '.required_linear_history.enabled // false' "$GOLDEN_SNAPSHOT")
+          GOLDEN_FORCE=$(jq -r '.allow_force_pushes.enabled // false' "$GOLDEN_SNAPSHOT")
+          GOLDEN_DELETE=$(jq -r '.allow_deletions.enabled // false' "$GOLDEN_SNAPSHOT")
+
+          LIVE_LINEAR=$(jq -r '.required_linear_history.enabled // false' .bp_live.json)
+          LIVE_FORCE=$(jq -r '.allow_force_pushes.enabled // false' .bp_live.json)
+          LIVE_DELETE=$(jq -r '.allow_deletions.enabled // false' .bp_live.json)
+
+          DRIFT_DETECTED=0
+
+          if [ "$GOLDEN_LINEAR" != "$LIVE_LINEAR" ]; then
+            echo "::error::❌ DRIFT: Linear History changed ($GOLDEN_LINEAR → $LIVE_LINEAR)"
+            DRIFT_DETECTED=1
+          fi
+
+          if [ "$GOLDEN_FORCE" != "$LIVE_FORCE" ]; then
+            echo "::error::❌ DRIFT: Allow Force Push changed ($GOLDEN_FORCE → $LIVE_FORCE)"
+            DRIFT_DETECTED=1
+          fi
+
+          if [ "$GOLDEN_DELETE" != "$LIVE_DELETE" ]; then
+            echo "::error::❌ DRIFT: Allow Delete Branch changed ($GOLDEN_DELETE → $LIVE_DELETE)"
+            DRIFT_DETECTED=1
+          fi
+
+          if [ $DRIFT_DETECTED -eq 1 ]; then
+            echo "::error::🚨 Branch Protection configuration has drifted from golden state!"
+            echo "::error::Run './scripts/restore_bp.sh' to restore the golden configuration"
+            exit 1
+          fi
+
+          echo "✅ No configuration drift detected"
+
       - name: Run Branch Protection verification probe
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
