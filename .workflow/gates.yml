@@ -143,7 +143,7 @@ phases:
 
   P6:
     name: "Docs & Release"
-    allow_paths: ["README.md", "docs/**", ".tags/**", ".phase/current"]
+    allow_paths: ["README.md", "CHANGELOG.md", "VERSION", "docs/**", ".tags/**", ".phase/current"]
     must_produce:
       - "README.md 或 docs/README.md 必含：安装、使用、注意事项 三段"
       - "docs/CHANGELOG.md 版本号递增并写影响面"
