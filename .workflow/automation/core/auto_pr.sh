@@ -1,126 +1,492 @@
 #!/usr/bin/env bash
 # Auto PR Script for Claude Enhancer v5.4.0
-# Purpose: Automated pull request creation with template and validation
+# Purpose: Automated pull request creation with templates and validation
 # Used by: Claude automation, P6 release workflow
+# Tier: 3 (Medium Risk - Conditional automation)
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=../utils/common.sh
 source "${SCRIPT_DIR}/../utils/common.sh"
+# shellcheck source=../security/audit_log.sh
+source "${SCRIPT_DIR}/../security/audit_log.sh"
 
 # Configuration
-AUTO_MERGE="${CE_AUTO_MERGE:-0}"
+AUTO_PR="${CE_AUTO_PR:-0}"
 DRAFT="${CE_PR_DRAFT:-0}"
 DRY_RUN="${CE_DRY_RUN:-0}"
+AUTO_ASSIGN="${CE_PR_AUTO_ASSIGN:-1}"
+AUTO_LABEL="${CE_PR_AUTO_LABEL:-1}"
 
-# Functions
+# PR templates directory
+TEMPLATES_DIR="${SCRIPT_DIR}/../templates/pr"
+
+# ============================================================
+# PR TITLE GENERATION
+# ============================================================
 
 generate_pr_title() {
     local branch="$1"
 
-    # Extract feature type and description from branch name
-    if [[ "$branch" =~ ^(feature|bugfix|perf|docs|experiment)/(.+)$ ]]; then
+    log_debug "Generating PR title for branch: $branch"
+
+    # Strategy 1: Extract from branch name
+    if [[ "$branch" =~ ^(feature|feat|bugfix|fix|perf|docs|experiment|chore)/(.+)$ ]]; then
         local type="${BASH_REMATCH[1]}"
         local description="${BASH_REMATCH[2]}"
 
-        # Convert kebab-case to Title Case
-        local title=$(echo "$description" | tr '-' ' ' | awk '{for(i=1;i<=NF;i++)sub(/./,toupper(substr($i,1,1)),$i)}1')
+        # Normalize type
+        case "$type" in
+            feat) type="feature" ;;
+            fix) type="bugfix" ;;
+        esac
 
+        # Convert kebab-case to Title Case
+        local title=$(echo "$description" | tr '-' ' ' | sed 's/_/ /g' | \
+            awk '{for(i=1;i<=NF;i++)sub(/./,toupper(substr($i,1,1)),$i)}1')
+
+        # Generate title based on type
         case "$type" in
             feature) echo "feat: $title" ;;
             bugfix) echo "fix: $title" ;;
             perf) echo "perf: $title" ;;
             docs) echo "docs: $title" ;;
             experiment) echo "experiment: $title" ;;
+            chore) echo "chore: $title" ;;
+            *) echo "$title" ;;
         esac
     else
-        echo "Update from $branch"
+        # Strategy 2: Use latest commit message
+        local latest_commit=$(git log -1 --pretty=format:"%s" 2>/dev/null || echo "")
+
+        if [[ -n "$latest_commit" ]]; then
+            echo "$latest_commit"
+        else
+            # Fallback
+            echo "Update from $branch"
+        fi
     fi
 }
+
+# ============================================================
+# PR BODY GENERATION
+# ============================================================
 
 generate_pr_body() {
     local branch="$1"
     local base_branch="$2"
 
+    log_debug "Generating PR body: $branch → $base_branch"
+
     # Get commit messages since branching
-    local commits=$(git log --pretty=format:"- %s" "${base_branch}..HEAD")
+    local commits=$(git log --pretty=format:"- %s (%h)" "${base_branch}..HEAD" 2>/dev/null || echo "No commits")
 
     # Detect phase from latest commit
-    local latest_commit=$(git log -1 --pretty=format:"%s")
+    local latest_commit=$(git log -1 --pretty=format:"%s" 2>/dev/null || echo "")
     local phase=$(detect_phase "$latest_commit")
     local phase_name=$(get_phase_name "$phase")
 
-    # Count changes
-    local files_changed=$(git diff --name-only "${base_branch}..HEAD" | wc -l)
-    local insertions=$(git diff --shortstat "${base_branch}..HEAD" | grep -oE '[0-9]+ insertion' | grep -oE '[0-9]+' || echo "0")
-    local deletions=$(git diff --shortstat "${base_branch}..HEAD" | grep -oE '[0-9]+ deletion' | grep -oE '[0-9]+' || echo "0")
+    # Get change statistics
+    local stats=$(get_change_stats "$base_branch")
 
+    # Detect change type
+    local change_type=$(detect_change_type "$branch" "$base_branch")
+
+    # Generate checklist
+    local checklist=$(generate_pr_checklist "$change_type")
+
+    # Build PR body
     cat <<EOF
 ## 📋 Summary
 
 This PR implements changes from branch \`$branch\`.
 
+**Type**: $change_type
 **Phase**: P${phase} - ${phase_name}
+
+## 🎯 Motivation
+
+<!-- Why is this change needed? What problem does it solve? -->
 
 ## 🔄 Changes
 
+<details>
+<summary>Commit History (click to expand)</summary>
+
 $commits
 
-## 📊 Stats
+</details>
 
-- **Files changed**: $files_changed
-- **Insertions**: +$insertions
-- **Deletions**: -$deletions
+## 📊 Statistics
+
+$stats
+
+## 🧪 Testing
+
+<!-- Describe the testing you've done -->
+
+- [ ] Unit tests added/updated
+- [ ] Integration tests added/updated
+- [ ] Manual testing completed
+- [ ] All tests passing
+
+## 📸 Screenshots (if applicable)
+
+<!-- Add screenshots for UI changes -->
 
 ## ✅ Checklist
 
-- [ ] Code follows project style guidelines
-- [ ] Tests have been added/updated
-- [ ] Documentation has been updated
-- [ ] All CI checks pass
-- [ ] Quality score ≥ 8.0/10
+$checklist
 
-## 🤖 Generated by Claude Enhancer v5.4.0
+## 🔗 Related Issues
+
+<!-- Link related issues: Closes #123, Relates to #456 -->
+
+## 📝 Additional Notes
+
+<!-- Any additional context or notes for reviewers -->
+
+---
+
+**Generated by Claude Enhancer v5.4.0**
+Branch: \`$branch\` → \`$base_branch\`
 EOF
 }
+
+get_change_stats() {
+    local base_branch="$1"
+
+    local files_changed=$(git diff --name-only "${base_branch}..HEAD" 2>/dev/null | wc -l)
+    local insertions=$(git diff --shortstat "${base_branch}..HEAD" 2>/dev/null | \
+        grep -oE '[0-9]+ insertion' | grep -oE '[0-9]+' || echo "0")
+    local deletions=$(git diff --shortstat "${base_branch}..HEAD" 2>/dev/null | \
+        grep -oE '[0-9]+ deletion' | grep -oE '[0-9]+' || echo "0")
+
+    # Calculate net change
+    local net_change=$((insertions - deletions))
+    local net_sign=""
+    if [[ $net_change -gt 0 ]]; then
+        net_sign="+"
+    fi
+
+    cat <<EOF
+- **Files changed**: $files_changed
+- **Insertions**: +$insertions
+- **Deletions**: -$deletions
+- **Net change**: ${net_sign}${net_change} lines
+EOF
+}
+
+detect_change_type() {
+    local branch="$1"
+    local base_branch="$2"
+
+    # Detect from branch name
+    if [[ "$branch" =~ ^feature/ ]]; then
+        echo "New Feature"
+    elif [[ "$branch" =~ ^bugfix/|^fix/ ]]; then
+        echo "Bug Fix"
+    elif [[ "$branch" =~ ^perf/ ]]; then
+        echo "Performance Improvement"
+    elif [[ "$branch" =~ ^docs/ ]]; then
+        echo "Documentation"
+    elif [[ "$branch" =~ ^refactor/ ]]; then
+        echo "Refactoring"
+    elif [[ "$branch" =~ ^test/ ]]; then
+        echo "Testing"
+    elif [[ "$branch" =~ ^experiment/ ]]; then
+        echo "Experimental"
+    else
+        # Detect from commits
+        local commits=$(git log --pretty=format:"%s" "${base_branch}..HEAD" 2>/dev/null)
+
+        if echo "$commits" | grep -qi "^feat"; then
+            echo "New Feature"
+        elif echo "$commits" | grep -qi "^fix"; then
+            echo "Bug Fix"
+        elif echo "$commits" | grep -qi "^perf"; then
+            echo "Performance Improvement"
+        elif echo "$commits" | grep -qi "^docs"; then
+            echo "Documentation"
+        else
+            echo "General Update"
+        fi
+    fi
+}
+
+generate_pr_checklist() {
+    local change_type="$1"
+
+    local checklist="- [ ] Code follows project style guidelines
+- [ ] Self-review completed
+- [ ] Comments added for complex logic
+- [ ] Documentation updated
+- [ ] No breaking changes (or documented)
+- [ ] All CI checks passing
+- [ ] Quality score ≥ 8.0/10"
+
+    # Add type-specific items
+    case "$change_type" in
+        "New Feature")
+            checklist="$checklist
+- [ ] Feature flag added (if applicable)
+- [ ] Migration plan documented
+- [ ] Rollback strategy defined"
+            ;;
+        "Bug Fix")
+            checklist="$checklist
+- [ ] Root cause identified
+- [ ] Regression test added
+- [ ] Fix verified in production-like environment"
+            ;;
+        "Performance Improvement")
+            checklist="$checklist
+- [ ] Benchmark results documented
+- [ ] No performance regression in other areas
+- [ ] Profiling data attached"
+            ;;
+    esac
+
+    echo "$checklist"
+}
+
+# ============================================================
+# PR LABEL DETECTION
+# ============================================================
+
+detect_pr_labels() {
+    local branch="$1"
+    local base_branch="$2"
+
+    local labels=()
+
+    # Type-based labels
+    if [[ "$branch" =~ ^feature/ ]]; then
+        labels+=("enhancement")
+    elif [[ "$branch" =~ ^bugfix/|^fix/ ]]; then
+        labels+=("bug")
+    elif [[ "$branch" =~ ^perf/ ]]; then
+        labels+=("performance")
+    elif [[ "$branch" =~ ^docs/ ]]; then
+        labels+=("documentation")
+    elif [[ "$branch" =~ ^experiment/ ]]; then
+        labels+=("experimental")
+    fi
+
+    # Size-based labels
+    local files_changed=$(git diff --name-only "${base_branch}..HEAD" 2>/dev/null | wc -l)
+    if [[ $files_changed -lt 5 ]]; then
+        labels+=("size/small")
+    elif [[ $files_changed -lt 20 ]]; then
+        labels+=("size/medium")
+    else
+        labels+=("size/large")
+    fi
+
+    # Phase-based labels
+    local latest_commit=$(git log -1 --pretty=format:"%s" 2>/dev/null || echo "")
+    local phase=$(detect_phase "$latest_commit")
+    if [[ "$phase" != "unknown" ]]; then
+        labels+=("phase/P${phase}")
+    fi
+
+    # Priority detection (from commit messages or branch name)
+    if echo "$branch" | grep -qi "urgent\|hotfix\|critical"; then
+        labels+=("priority/high")
+    fi
+
+    # Return comma-separated labels
+    IFS=','
+    echo "${labels[*]}"
+}
+
+# ============================================================
+# PR ASSIGNEE DETECTION
+# ============================================================
+
+detect_pr_assignee() {
+    # Get current git user
+    local git_user=$(git config user.name 2>/dev/null || echo "")
+    local git_email=$(git config user.email 2>/dev/null || echo "")
+
+    # Try to get GitHub username
+    local gh_username=$(gh api user --jq '.login' 2>/dev/null || echo "")
+
+    if [[ -n "$gh_username" ]]; then
+        echo "$gh_username"
+    else
+        echo ""
+    fi
+}
+
+# ============================================================
+# PR VALIDATION
+# ============================================================
+
+validate_pr_prerequisites() {
+    local branch="$1"
+    local base_branch="$2"
+
+    log_info "Validating PR prerequisites..."
+
+    # Check 1: Branch must be pushed
+    if ! remote_branch_exists "$branch"; then
+        log_error "Branch '$branch' is not pushed to remote"
+        log_info "Push first: ${SCRIPT_DIR}/auto_push.sh"
+        return 1
+    fi
+
+    # Check 2: Branch must have commits ahead of base
+    local ahead=$(git rev-list --count "${base_branch}..HEAD" 2>/dev/null || echo "0")
+    if [[ "$ahead" -eq 0 ]]; then
+        log_error "No commits to include in PR"
+        log_error "Branch '$branch' is up-to-date with '$base_branch'"
+        return 1
+    fi
+
+    # Check 3: No merge conflicts with base
+    log_info "Checking for merge conflicts..."
+    if ! check_merge_conflicts "$branch" "$base_branch"; then
+        log_error "Merge conflicts detected with base branch"
+        log_error "Resolve conflicts before creating PR"
+        return 1
+    fi
+
+    # Check 4: CI status (if available)
+    if command -v gh &>/dev/null; then
+        check_ci_status "$branch"
+    fi
+
+    log_success "All PR prerequisites validated"
+    return 0
+}
+
+check_merge_conflicts() {
+    local branch="$1"
+    local base_branch="$2"
+
+    # Try merge in dry-run mode
+    local merge_base=$(git merge-base HEAD "origin/${base_branch}" 2>/dev/null || echo "")
+
+    if [[ -z "$merge_base" ]]; then
+        log_warning "Cannot determine merge base"
+        return 0  # Proceed anyway
+    fi
+
+    # Check if there would be conflicts
+    if git merge-tree "$merge_base" HEAD "origin/${base_branch}" 2>/dev/null | grep -q "^changed in both"; then
+        return 1
+    fi
+
+    return 0
+}
+
+check_ci_status() {
+    local branch="$1"
+
+    log_debug "Checking CI status for branch: $branch"
+
+    # Get latest commit SHA
+    local commit_sha=$(git rev-parse HEAD)
+
+    # Check CI status using GitHub CLI
+    local status=$(gh api "repos/:owner/:repo/commits/${commit_sha}/status" \
+        --jq '.state' 2>/dev/null || echo "unknown")
+
+    case "$status" in
+        success)
+            log_success "CI checks passing"
+            ;;
+        pending)
+            log_warning "CI checks in progress"
+            ;;
+        failure)
+            log_error "CI checks failing"
+            log_warning "Consider fixing CI before creating PR"
+            ;;
+        *)
+            log_debug "CI status: $status"
+            ;;
+    esac
+}
+
+# ============================================================
+# PR CREATION
+# ============================================================
 
 create_pull_request() {
     local branch="$1"
     local base_branch="${2:-$(get_default_branch)}"
 
-    # Check if branch is pushed
-    if ! remote_branch_exists "$branch"; then
-        log_error "Branch $branch is not pushed to remote"
-        log_info "Run: ./automation/core/auto_push.sh"
-        return 1
-    fi
+    log_info "Creating pull request: $branch → $base_branch"
+
+    # Audit the attempt
+    audit_git_operation "pr_create_attempt" "$branch" "started" "Base: $base_branch"
+
+    # Validate prerequisites
+    validate_pr_prerequisites "$branch" "$base_branch" || return 1
 
     # Check if PR already exists
-    local existing_pr=$(gh pr list --head "$branch" --json number --jq '.[0].number' 2>/dev/null || echo "")
-    if [[ -n "$existing_pr" ]]; then
-        log_warning "PR already exists: #$existing_pr"
-        log_info "View at: $(gh pr view "$existing_pr" --json url --jq '.url')"
-        return 0
+    if command -v gh &>/dev/null; then
+        local existing_pr=$(gh pr list --head "$branch" --json number --jq '.[0].number' 2>/dev/null || echo "")
+        if [[ -n "$existing_pr" ]]; then
+            local pr_url=$(gh pr view "$existing_pr" --json url --jq '.url' 2>/dev/null)
+            log_warning "PR already exists: #$existing_pr"
+            log_info "URL: $pr_url"
+            audit_git_operation "pr_create" "$branch" "exists" "PR #$existing_pr"
+            return 0
+        fi
+    else
+        log_error "GitHub CLI (gh) not installed"
+        log_info "Install: https://cli.github.com"
+        return 1
     fi
 
     # Generate title and body
     local title=$(generate_pr_title "$branch")
     local body=$(generate_pr_body "$branch" "$base_branch")
 
-    # Prepare flags
+    log_info "PR Title: $title"
+
+    # Prepare gh pr create flags
     local flags=("--base" "$base_branch" "--head" "$branch" "--title" "$title" "--body" "$body")
 
+    # Draft mode
     if [[ "$DRAFT" == "1" ]]; then
         flags+=("--draft")
-        log_info "Creating draft PR"
+        log_info "Creating as draft PR"
+    fi
+
+    # Auto-assign
+    if [[ "$AUTO_ASSIGN" == "1" ]]; then
+        local assignee=$(detect_pr_assignee)
+        if [[ -n "$assignee" ]]; then
+            flags+=("--assignee" "$assignee")
+            log_info "Auto-assigning to: $assignee"
+        fi
+    fi
+
+    # Auto-label
+    if [[ "$AUTO_LABEL" == "1" ]]; then
+        local labels=$(detect_pr_labels "$branch" "$base_branch")
+        if [[ -n "$labels" ]]; then
+            flags+=("--label" "$labels")
+            log_info "Adding labels: $labels"
+        fi
     fi
 
     # Dry run mode
     if [[ "$DRY_RUN" == "1" ]]; then
-        log_info "DRY RUN: Would create PR with title: $title"
+        log_info "DRY RUN: Would create PR with:"
+        log_info "  Title: $title"
+        log_info "  Flags: ${flags[*]}"
         echo ""
+        echo "--- PR Body Preview ---"
         echo "$body"
+        echo "--- End Preview ---"
+        echo ""
+        audit_git_operation "pr_create" "$branch" "dry_run" "Title: $title"
         return 0
     fi
 
@@ -128,39 +494,189 @@ create_pull_request() {
     log_info "Creating pull request..."
     local pr_url
     if pr_url=$(gh pr create "${flags[@]}" 2>&1); then
-        log_success "Pull request created: $pr_url"
+        log_success "Pull request created successfully"
+        log_info "URL: $pr_url"
 
         # Extract PR number
-        local pr_number=$(echo "$pr_url" | grep -oE '[0-9]+$')
+        local pr_number=$(echo "$pr_url" | grep -oE '[0-9]+$' || echo "")
 
-        # Add to merge queue if auto-merge enabled
-        if [[ "$AUTO_MERGE" == "1" ]]; then
-            log_info "Adding to merge queue..."
-            "${SCRIPT_DIR}/../queue/merge_queue_manager.sh" enqueue "$pr_number"
+        if [[ -n "$pr_number" ]]; then
+            # Add comment with additional info
+            add_pr_metadata "$pr_number" "$branch"
+
+            # Check if auto-merge is enabled
+            if [[ "${CE_AUTO_MERGE:-0}" == "1" ]]; then
+                log_info "Auto-merge enabled, adding to merge queue..."
+                add_to_merge_queue "$pr_number"
+            fi
         fi
+
+        # Audit successful creation
+        audit_git_operation "pr_create" "$branch" "success" "PR #$pr_number: $title"
+
+        # Show next steps
+        show_pr_next_steps "$pr_number" "$pr_url"
 
         return 0
     else
-        log_error "Failed to create PR: $pr_url"
+        log_error "Failed to create PR"
+        log_error "$pr_url"
+        audit_git_operation "pr_create" "$branch" "failed" "Error: $pr_url"
         return 1
     fi
 }
 
-# Main execution
+# ============================================================
+# PR METADATA & ENRICHMENT
+# ============================================================
+
+add_pr_metadata() {
+    local pr_number="$1"
+    local branch="$2"
+
+    log_debug "Adding metadata to PR #$pr_number"
+
+    # Add comment with environment info
+    local metadata="<!-- Claude Enhancer Metadata -->
+**Environment Info**:
+- Branch: \`$branch\`
+- Created by: Claude Enhancer v5.4.0
+- Timestamp: $(date --iso-8601=seconds)
+- User: ${USER:-unknown}
+"
+
+    # Add quality metrics if available
+    if [[ -f ".claude/quality_report.json" ]]; then
+        local quality_score=$(grep -o '"overall_score":[^,}]*' .claude/quality_report.json | cut -d':' -f2 || echo "N/A")
+        metadata="$metadata
+- Quality Score: $quality_score/10"
+    fi
+
+    # Post comment
+    echo "$metadata" | gh pr comment "$pr_number" --body-file - 2>/dev/null || true
+}
+
+add_to_merge_queue() {
+    local pr_number="$1"
+
+    if [[ -f "${SCRIPT_DIR}/../queue/merge_queue_manager.sh" ]]; then
+        log_info "Adding PR #$pr_number to merge queue..."
+        "${SCRIPT_DIR}/../queue/merge_queue_manager.sh" enqueue "$pr_number" || true
+    else
+        log_warning "Merge queue manager not found"
+    fi
+}
+
+show_pr_next_steps() {
+    local pr_number="$1"
+    local pr_url="$2"
+
+    echo ""
+    log_info "╔════════════════════════════════════════╗"
+    log_info "║         Next Steps                     ║"
+    log_info "╠════════════════════════════════════════╣"
+    log_info "  1. Review the PR: $pr_url"
+    log_info "  2. Wait for CI checks to complete"
+    log_info "  3. Request reviews from team members"
+    log_info "  4. Address review feedback if any"
+
+    if [[ "${CE_AUTO_MERGE:-0}" == "1" ]]; then
+        log_info "  5. Auto-merge will trigger after approval"
+    else
+        log_info "  5. Merge manually after approval"
+    fi
+
+    log_info "╚════════════════════════════════════════╝"
+    echo ""
+
+    # Show useful commands
+    log_info "Useful commands:"
+    log_info "  gh pr view $pr_number           # View PR details"
+    log_info "  gh pr checks $pr_number         # Check CI status"
+    log_info "  gh pr review $pr_number         # Review the PR"
+    log_info "  gh pr merge $pr_number          # Merge the PR"
+}
+
+# ============================================================
+# MAIN EXECUTION
+# ============================================================
+
 main() {
     local branch="${1:-$(get_current_branch)}"
     local base_branch="${2:-$(get_default_branch)}"
 
+    log_info "Auto PR - Claude Enhancer v5.4.0"
     log_info "Creating PR: $branch → $base_branch"
 
     # Check environment
-    check_environment
+    check_environment || exit 1
 
     # Create PR
     create_pull_request "$branch" "$base_branch"
 }
 
+# Show help
+show_help() {
+    cat <<EOF
+Usage: $0 [branch] [base_branch]
+
+Automated pull request creation with smart templates and validation.
+
+Arguments:
+  branch        Source branch (default: current branch)
+  base_branch   Target branch (default: main/master)
+
+Environment Variables:
+  CE_EXECUTION_MODE=1    Enable automation mode
+  CE_AUTO_PR=1           Enable automatic PR creation (Tier 3)
+  CE_PR_DRAFT=1          Create as draft PR
+  CE_PR_AUTO_ASSIGN=1    Auto-assign PR to creator (default: 1)
+  CE_PR_AUTO_LABEL=1     Auto-detect and apply labels (default: 1)
+  CE_AUTO_MERGE=1        Add to merge queue after creation
+  CE_DRY_RUN=1           Dry run mode (show PR preview)
+
+Examples:
+  # Create PR from current branch
+  $0
+
+  # Create PR from specific branch
+  $0 feature/authentication
+
+  # Create PR to different base
+  $0 feature/auth develop
+
+  # Create draft PR
+  CE_PR_DRAFT=1 $0
+
+  # Preview PR without creating
+  CE_DRY_RUN=1 $0
+
+Features:
+  ✓ Smart title generation from branch name
+  ✓ Comprehensive PR body template
+  ✓ Automatic label detection
+  ✓ Change statistics
+  ✓ Phase detection
+  ✓ CI status checking
+  ✓ Merge conflict detection
+  ✓ Auto-assignment
+
+Auto-detected Labels:
+  - Type: enhancement, bug, documentation, performance
+  - Size: size/small, size/medium, size/large
+  - Phase: phase/P0 through phase/P7
+  - Priority: priority/high (for urgent/hotfix branches)
+
+Tier: 3 (Medium Risk - Requires CE_AUTO_PR=1)
+EOF
+}
+
 # Run main if executed directly
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
+        show_help
+        exit 0
+    fi
+
     main "$@"
 fi

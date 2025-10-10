@@ -95,7 +95,14 @@ phases:
 
   P3:
     name: "Implement"
-    allow_paths: ["src/**", "docs/CHANGELOG.md"]
+    allow_paths: [
+      "src/**",
+      ".workflow/automation/**",
+      ".claude/hooks/**",
+      "test/**",
+      "docs/**",
+      "CLAUDE.md"
+    ]
     must_produce:
       - "实现功能代码，可构建"
       - "docs/CHANGELOG.md 的 Unreleased 段新增本次条目（简述范围/影响）"
