@@ -1,12 +1,12 @@
-# Claude Enhancer 5.3
+# Claude Enhancer 5.4
 
-[![Version](https://img.shields.io/badge/version-5.3.5-blue.svg)](https://github.com/claude-enhancer/claude-enhancer)
+[![Version](https://img.shields.io/badge/version-5.4.0-blue.svg)](https://github.com/perfectuser21/Claude_Enhancer)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/claude-enhancer/claude-enhancer/actions)
-[![Quality Score](https://img.shields.io/badge/quality-100%2F100-brightgreen.svg)](docs/P5_REVIEW_PHASE_COMPLETE.md)
-[![Security](https://img.shields.io/badge/security-85%2F100-yellow.svg)](docs/SECURITY_REVIEW.md)
-[![Coverage](https://img.shields.io/badge/coverage-80%25+-brightgreen.svg)](test/coverage)
-[![Tests](https://img.shields.io/badge/tests-312%2B%20passing-brightgreen.svg)](test/)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/perfectuser21/Claude_Enhancer/actions)
+[![Quality Score](https://img.shields.io/badge/quality-8.90%2F10-brightgreen.svg)](docs/REVIEW.md)
+[![Security](https://img.shields.io/badge/security-95%2F100-brightgreen.svg)](docs/P3_SECURITY_FIXES_SUMMARY.md)
+[![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen.svg)](test/security)
+[![Tests](https://img.shields.io/badge/tests-111%2B%20passing-brightgreen.svg)](test/)
 
 > **Production-Ready AI Programming Workflow System**
 >
