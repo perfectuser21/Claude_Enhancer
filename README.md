@@ -1,6 +1,6 @@
 # Claude Enhancer 5.3
 
-[![Version](https://img.shields.io/badge/version-5.3.4-blue.svg)](https://github.com/claude-enhancer/claude-enhancer)
+[![Version](https://img.shields.io/badge/version-5.3.5-blue.svg)](https://github.com/claude-enhancer/claude-enhancer)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/claude-enhancer/claude-enhancer/actions)
 [![Quality Score](https://img.shields.io/badge/quality-100%2F100-brightgreen.svg)](docs/P5_REVIEW_PHASE_COMPLETE.md)
@@ -59,6 +59,37 @@ When using AI assistants like Claude Code, you face:
 ```
 
 ## ✨ Key Features
+
+### 🛡️ Rule 0: Smart Branch Management (Phase -1)
+
+**Priority: Highest | Enforced before all development tasks**
+
+```
+Core Principle: New Task = New Branch (No Exceptions)
+```
+
+Before entering the P0-P7 workflow, Claude Enhancer automatically:
+
+1. **Analyzes current branch**
+   - `main/master` → Must create new branch
+   - `feature/xxx` → Checks if related to current task
+   - Others' branches → Blocks modifications
+
+2. **Intelligent decision making** (Not mechanical "ask every time")
+   - 🟢 **Obviously matching** (continue/fix) → Direct execution, no fuss
+   - 🟡 **Uncertain** (boundary unclear) → Brief inquiry with options
+   - 🔴 **Obviously mismatched** (new feature) → Suggest new branch with reasons
+
+3. **Multi-terminal AI parallel development support**
+   ```
+   Terminal 1: feature/user-auth    ← Claude instance A
+   Terminal 2: feature/payment      ← Claude instance B
+   Terminal 3: feature/monitoring   ← Claude instance C
+
+   Each branch isolated, independently verified through P0-P7
+   ```
+
+**Enforcement**: `.claude/hooks/branch_helper.sh` + Git hooks provide hard enforcement in execution mode.
 
 ### 🔄 8-Phase Workflow (P0-P7)
 
@@ -494,7 +525,7 @@ Include:
 
 <div align="center">
 
-**Claude Enhancer v5.3.4** - Production-Ready AI Programming Workflow System
+**Claude Enhancer v5.3.5** - Production-Ready AI Programming Workflow System
 
 *From Idea to Production with Confidence*
 
