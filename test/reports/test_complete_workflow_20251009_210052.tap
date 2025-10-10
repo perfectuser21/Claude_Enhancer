@@ -1,0 +1,70 @@
+1..9
+not ok 1 Complete P1 workflow: Plan phase from start to completion
+# (in test file test/integration/test_complete_workflow.bats, line 28)
+#   `assert_output "P1"' failed with status 127
+# /home/xx/dev/Claude Enhancer 5.0/test/integration/test_complete_workflow.bats: line 28: assert_output: command not found
+not ok 2 Complete P1->P2 workflow: Progress from Plan to Skeleton
+# (in test file test/integration/test_complete_workflow.bats, line 60)
+#   `assert_output "P1"' failed with status 127
+# /home/xx/dev/Claude Enhancer 5.0/test/integration/test_complete_workflow.bats: line 60: assert_output: command not found
+not ok 3 Complete P1->P2->P3 workflow: Full implementation cycle
+# (in test file test/integration/test_complete_workflow.bats, line 93)
+#   `assert_output "P2"' failed with status 127
+# /home/xx/dev/Claude Enhancer 5.0/test/integration/test_complete_workflow.bats: line 93: assert_output: command not found
+not ok 4 Complete P1->P2->P3->P4 workflow: Add testing
+# (in test file test/integration/test_complete_workflow.bats, line 128)
+#   `assert_output "P3"' failed with status 127
+# /home/xx/dev/Claude Enhancer 5.0/test/integration/test_complete_workflow.bats: line 128: assert_output: command not found
+not ok 5 Complete P1->P2->P3->P4->P5 workflow: Code review
+# (in test file test/integration/test_complete_workflow.bats, line 163)
+#   `assert_output "P4"' failed with status 127
+# /home/xx/dev/Claude Enhancer 5.0/test/integration/test_complete_workflow.bats: line 163: assert_output: command not found
+not ok 6 Complete P1->P2->P3->P4->P5->P6 workflow: Release preparation
+# (in test file test/integration/test_complete_workflow.bats, line 203)
+#   `assert_output "P5"' failed with status 127
+# /home/xx/dev/Claude Enhancer 5.0/test/integration/test_complete_workflow.bats: line 203: assert_output: command not found
+# Starting complete workflow test
+# Phase 1: Planning
+# Phase 2: Skeleton
+# Phase 3: Implementation
+# Phase 4: Testing
+# Phase 5: Review
+# Phase 6: Release
+not ok 7 Full workflow: Complete lifecycle P1->P6 in single test
+# (in test file test/integration/test_complete_workflow.bats, line 323)
+#   `assert_output "P6"' failed with status 127
+# [main cbe8a9c] docs: add plan
+#  1 file changed, 19 insertions(+)
+#  create mode 100644 docs/PLAN.md
+# [main bb29f4f] feat: skeleton
+#  2 files changed, 11 insertions(+)
+#  create mode 100644 docs/SKELETON-NOTES.md
+#  create mode 100644 src/auth/login.ts
+# [main de13838] feat: implement
+#  3 files changed, 49 insertions(+)
+#  create mode 100644 docs/CHANGELOG.md
+#  create mode 100644 src/auth/auth.service.ts
+# [main 58e7b13] test: add tests
+#  3 files changed, 71 insertions(+)
+#  create mode 100644 docs/TEST-REPORT.md
+#  create mode 100644 test/auth/boundary.test.ts
+#  create mode 100644 test/auth/login.test.ts
+# [main 692f504] docs: review
+#  1 file changed, 13 insertions(+)
+#  create mode 100644 docs/REVIEW.md
+# [main b3f8d59] docs: release
+#  2 files changed, 11 insertions(+), 7 deletions(-)
+#  create mode 100644 docs/README.md
+# /home/xx/dev/Claude Enhancer 5.0/test/integration/test_complete_workflow.bats: line 323: assert_output: command not found
+not ok 8 Workflow rollback: Revert from P3 to P2
+# (in test file test/integration/test_complete_workflow.bats, line 333)
+#   `assert_output "P3"' failed with status 127
+# /home/xx/dev/Claude Enhancer 5.0/test/integration/test_complete_workflow.bats: line 333: assert_output: command not found
+not ok 9 Workflow checkpoint: Save and restore state
+# (in test file test/integration/test_complete_workflow.bats, line 367)
+#   `assert_output "P4"' failed with status 127
+# [main 464e304] test: add tests
+#  2 files changed, 54 insertions(+)
+#  create mode 100644 test/auth/boundary.test.ts
+#  create mode 100644 test/auth/login.test.ts
+# /home/xx/dev/Claude Enhancer 5.0/test/integration/test_complete_workflow.bats: line 367: assert_output: command not found

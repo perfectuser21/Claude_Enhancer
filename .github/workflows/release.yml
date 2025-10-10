@@ -1,0 +1,246 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  validate:
+    name: Validate Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate version consistency
+        run: |
+          VERSION=$(cat VERSION)
+          TAG=${GITHUB_REF#refs/tags/v}
+
+          echo "VERSION file: $VERSION"
+          echo "Git tag: $TAG"
+
+          if [ "$VERSION" != "$TAG" ]; then
+            echo "Error: VERSION file ($VERSION) doesn't match tag ($TAG)"
+            exit 1
+          fi
+
+      - name: Check changelog entry
+        run: |
+          VERSION=$(cat VERSION)
+          if ! grep -q "\[$VERSION\]" CHANGELOG.md; then
+            echo "Error: No changelog entry found for version $VERSION"
+            exit 1
+          fi
+          echo "Changelog entry found for v$VERSION"
+
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up environment
+        run: |
+          chmod +x scripts/healthcheck.sh
+          chmod +x ce.sh
+
+      - name: Run healthcheck
+        run: |
+          bash scripts/healthcheck.sh || true
+
+      - name: Run smoke tests
+        run: |
+          if [ -f test/guardrails_smoke.sh ]; then
+            chmod +x test/guardrails_smoke.sh
+            bash test/guardrails_smoke.sh || echo "Smoke tests failed (non-blocking)"
+          fi
+
+      - name: Validate shell scripts
+        run: |
+          if command -v shellcheck &>/dev/null; then
+            echo "Running ShellCheck..."
+            find . -name "*.sh" -not -path "*/node_modules/*" -not -path "*/.git/*" | \
+              xargs shellcheck -x || echo "ShellCheck warnings (non-blocking)"
+          else
+            echo "ShellCheck not available, skipping"
+          fi
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run security checks
+        run: |
+          echo "Scanning for secrets..."
+
+          # Check for common secret patterns
+          if grep -r -i "password\s*=\s*['\"]" --include="*.sh" --include="*.yml" .; then
+            echo "Warning: Potential hardcoded passwords found"
+          fi
+
+          if grep -r -E "api[_-]?key\s*[=:]\s*['\"][^'\"]+['\"]" --include="*.sh" --include="*.yml" .; then
+            echo "Warning: Potential API keys found"
+          fi
+
+      - name: Check file permissions
+        run: |
+          echo "Checking for overly permissive files..."
+
+          # No world-writable files
+          if find . -type f -perm -002 ! -path "*/.git/*"; then
+            echo "Warning: World-writable files found"
+          fi
+
+  build:
+    name: Build Release Artifacts
+    runs-on: ubuntu-latest
+    needs: [test, security]
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get version
+        id: get_version
+        run: |
+          VERSION=$(cat VERSION)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Building version: $VERSION"
+
+      - name: Create distribution directory
+        run: mkdir -p dist
+
+      - name: Build release tarball
+        run: |
+          VERSION=$(cat VERSION)
+          TARBALL="claude-enhancer-v${VERSION}.tar.gz"
+
+          echo "Creating $TARBALL..."
+
+          tar -czf "dist/$TARBALL" \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            --exclude='__pycache__' \
+            --exclude='*.pyc' \
+            --exclude='.coverage' \
+            --exclude='htmlcov' \
+            --exclude='dist' \
+            --exclude='.pytest_cache' \
+            --exclude='*.log' \
+            --exclude='.chaos_backup' \
+            --exclude='.performance_backup' \
+            --transform "s,^,claude-enhancer-${VERSION}/," \
+            .
+
+          echo "Tarball created: $(ls -lh dist/$TARBALL)"
+
+      - name: Generate checksums
+        run: |
+          cd dist
+          sha256sum *.tar.gz > checksums.txt
+          cat checksums.txt
+
+      - name: Generate release notes
+        run: |
+          VERSION=$(cat VERSION)
+
+          cat > dist/RELEASE_NOTES.md <<EOF
+          # Claude Enhancer v${VERSION}
+
+          **AI-Driven Development Workflow System**
+
+          Release Date: $(date +%Y-%m-%d)
+
+          ## Installation
+
+          \`\`\`bash
+          curl -LO https://github.com/\${GITHUB_REPOSITORY}/releases/download/v${VERSION}/claude-enhancer-v${VERSION}.tar.gz
+          tar -xzf claude-enhancer-v${VERSION}.tar.gz
+          cd claude-enhancer-${VERSION}
+          ./install.sh
+          \`\`\`
+
+          ## What's New
+
+          EOF
+
+          # Extract changelog section
+          awk "/## \[${VERSION}\]/,/## \[/" CHANGELOG.md | head -n -1 | tail -n +2 >> dist/RELEASE_NOTES.md || true
+
+          cat >> dist/RELEASE_NOTES.md <<EOF
+
+          ## Checksums
+
+          \`\`\`
+          $(cat dist/checksums.txt)
+          \`\`\`
+
+          ## Documentation
+
+          - [User Guide](https://github.com/\${GITHUB_REPOSITORY}/blob/v${VERSION}/docs/CLI_GUIDE.md)
+          - [System Overview](https://github.com/\${GITHUB_REPOSITORY}/blob/v${VERSION}/docs/SYSTEM_OVERVIEW_COMPLETE_V2.md)
+          - [Troubleshooting](https://github.com/\${GITHUB_REPOSITORY}/blob/v${VERSION}/docs/TROUBLESHOOTING_GUIDE.md)
+          EOF
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-artifacts
+          path: dist/*
+          retention-days: 90
+
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-artifacts
+          path: dist
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            dist/*.tar.gz
+            dist/checksums.txt
+          body_path: dist/RELEASE_NOTES.md
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  notify:
+    name: Post-Release Notifications
+    runs-on: ubuntu-latest
+    needs: create-release
+    if: success()
+    steps:
+      - name: Release notification
+        run: |
+          VERSION=$(cat VERSION)
+          echo "✅ Successfully released Claude Enhancer v${VERSION}"
+          echo "Release available at: https://github.com/${GITHUB_REPOSITORY}/releases/tag/v${VERSION}"

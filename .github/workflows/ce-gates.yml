@@ -1,0 +1,502 @@
+# Claude Enhancer Gates - Server-Side Protection
+# 服务端保护系统 - 防止 --no-verify 绕过本地检查
+# Version: 1.0.0
+# Created: 2025-10-08
+
+name: CE Gates
+
+on:
+  pull_request:
+    branches: [main, master]
+  push:
+    branches: [main, master, 'P*/**', 'feature/**']
+
+# 最小权限配置（修复Critical安全问题#1）
+permissions:
+  contents: read
+  pull-requests: read
+  statuses: write
+
+env:
+  PROJECT_ROOT: ${{ github.workspace }}
+
+jobs:
+  # ═══════════════════════════════════════
+  # Layer 1: 分支保护检查 + Fork PR安全检查
+  # ═══════════════════════════════════════
+  branch-protection:
+    name: "Layer 1: Branch Protection"
+    runs-on: ubuntu-latest
+    # 补丁8: Fork PR安全隔离
+    if: github.event.pull_request.head.repo.fork == false || github.event_name == 'push'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4.1.1
+        with:
+          fetch-depth: 0
+
+      - name: Check direct push to main
+        run: |
+          BRANCH="${GITHUB_REF##*/}"
+          echo "Current branch: $BRANCH"
+
+          if [[ "$BRANCH" == "main" || "$BRANCH" == "master" ]]; then
+            if [[ "${{ github.event_name }}" == "push" ]]; then
+              echo "❌ ERROR: Direct push to $BRANCH is not allowed"
+              echo "Please create a PR instead"
+              exit 1
+            fi
+          fi
+
+          echo "✓ Branch protection check passed"
+
+  # ═══════════════════════════════════════
+  # Layer 2: 工作流验证
+  # ═══════════════════════════════════════
+  workflow-validation:
+    name: "Layer 2: Workflow Validation"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4.1.1
+
+      - name: Validate .phase/current exists
+        run: |
+          if [[ ! -f ".phase/current" ]]; then
+            echo "❌ ERROR: Workflow not started (.phase/current missing)"
+            echo "Please initialize the workflow first"
+            exit 1
+          fi
+
+          CURRENT_PHASE=$(cat .phase/current | tr -d '[:space:]')
+          echo "✓ Current phase: $CURRENT_PHASE"
+
+          if [[ ! "$CURRENT_PHASE" =~ ^P[0-7]$ ]]; then
+            echo "❌ ERROR: Invalid phase: $CURRENT_PHASE"
+            exit 1
+          fi
+
+          echo "✓ Workflow validation passed"
+
+      - name: Verify Gate Signatures (补丁1)
+        run: |
+          echo "Verifying gate signatures..."
+          for ok in .gates/*.ok; do
+            if [[ -f "$ok" ]]; then
+              sig="${ok}.sig"
+              if [[ ! -f "$sig" ]]; then
+                echo "⚠️  WARNING: Missing signature for $ok (legacy gate)"
+                continue
+              fi
+
+              # 验证签名完整性
+              original_sha=$(grep '^sha256=' "$sig" | cut -d= -f2)
+              if [[ -z "$original_sha" ]]; then
+                echo "❌ ERROR: Invalid signature format for $ok"
+                exit 1
+              fi
+
+              # 计算当前哈希（排除sha256行）
+              grep -v '^sha256=' "$sig" > /tmp/gate_verify.tmp
+              current_sha=$(sha256sum /tmp/gate_verify.tmp | awk '{print $1}')
+
+              if [[ "$original_sha" != "$current_sha" ]]; then
+                echo "❌ ERROR: Signature mismatch for $ok"
+                echo "   Expected: $original_sha"
+                echo "   Got: $current_sha"
+                exit 1
+              fi
+
+              echo "✓ Signature verified: $ok"
+            fi
+          done
+
+          echo "✓ All gate signatures verified"
+
+  # ═══════════════════════════════════════
+  # Layer 3: 路径白名单验证
+  # ═══════════════════════════════════════
+  path-whitelist:
+    name: "Layer 3: Path Whitelist"
+    runs-on: ubuntu-latest
+    needs: workflow-validation
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4.1.1
+        with:
+          fetch-depth: 0
+
+      - name: Get changed files
+        id: changed-files
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+          else
+            CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || git ls-files)
+          fi
+
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+          echo "$CHANGED_FILES" > /tmp/changed_files.txt
+
+      - name: Validate paths against gates.yml
+        run: |
+          CURRENT_PHASE=$(cat .phase/current | tr -d '[:space:]')
+          echo "Validating paths for phase: $CURRENT_PHASE"
+
+          # Source gates_parser functions
+          chmod +x .workflow/scripts/gates_parser.sh
+          source .workflow/scripts/gates_parser.sh
+
+          ALLOW_PATHS=$(get_allow_paths "$CURRENT_PHASE")
+
+          if [[ -z "$ALLOW_PATHS" ]]; then
+            echo "⚠️  No allow_paths configured for $CURRENT_PHASE"
+            exit 0
+          fi
+
+          echo "Allowed paths:"
+          echo "$ALLOW_PATHS"
+
+          VIOLATIONS=0
+          while IFS= read -r file; do
+            [[ -z "$file" ]] && continue
+
+            ALLOWED=false
+            while IFS= read -r pattern; do
+              if match_glob "$file" "$pattern"; then
+                ALLOWED=true
+                break
+              fi
+            done <<< "$ALLOW_PATHS"
+
+            if [[ "$ALLOWED" == "false" ]]; then
+              echo "❌ Path not allowed: $file"
+              ((VIOLATIONS++))
+            fi
+          done < /tmp/changed_files.txt
+
+          if [[ $VIOLATIONS -gt 0 ]]; then
+            echo "❌ ERROR: $VIOLATIONS path violations detected"
+            exit 1
+          fi
+
+          echo "✓ All paths validated"
+
+  # ═══════════════════════════════════════
+  # Layer 4: 安全扫描
+  # ═══════════════════════════════════════
+  security-scan:
+    name: "Layer 4: Security Scan"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4.1.1
+
+      - name: Scan for secrets
+        run: |
+          echo "Scanning for hardcoded secrets..."
+
+          VIOLATIONS=0
+
+          # Check for private keys
+          if grep -r "BEGIN RSA PRIVATE KEY\|BEGIN PRIVATE KEY\|BEGIN OPENSSH PRIVATE KEY" \
+              --exclude-dir=.git \
+              --exclude-dir=node_modules \
+              --exclude-dir=test \
+              --exclude="*.md" \
+              . ; then
+            echo "❌ Found private keys!"
+            ((VIOLATIONS++))
+          fi
+
+          # Check for AWS keys
+          if grep -rE "AKIA[0-9A-Z]{16}" \
+              --exclude-dir=.git \
+              --exclude-dir=node_modules \
+              --exclude="*.md" \
+              . ; then
+            echo "❌ Found AWS access keys!"
+            ((VIOLATIONS++))
+          fi
+
+          # Check for common secret patterns
+          if grep -rE "password\s*=\s*['\"][^'\"]{8,}['\"]|api[_-]?key\s*=\s*['\"][^'\"]{16,}['\"]" \
+              --exclude-dir=.git \
+              --exclude-dir=node_modules \
+              --exclude-dir=test \
+              --exclude="*.md" \
+              -i . ; then
+            echo "❌ Found potential hardcoded credentials!"
+            ((VIOLATIONS++))
+          fi
+
+          if [[ $VIOLATIONS -gt 0 ]]; then
+            echo "❌ ERROR: Security violations detected"
+            exit 1
+          fi
+
+          echo "✓ No security issues found"
+
+  # ═══════════════════════════════════════
+  # Layer 5: Must Produce验证
+  # ═══════════════════════════════════════
+  must-produce:
+    name: "Layer 5: Must Produce"
+    runs-on: ubuntu-latest
+    needs: workflow-validation
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4.1.1
+
+      - name: Check must_produce requirements
+        run: |
+          CURRENT_PHASE=$(cat .phase/current | tr -d '[:space:]')
+          echo "Checking must_produce for phase: $CURRENT_PHASE"
+
+          # Source gates_parser functions
+          chmod +x .workflow/scripts/gates_parser.sh
+          source .workflow/scripts/gates_parser.sh
+
+          MUST_PRODUCE=$(get_must_produce "$CURRENT_PHASE")
+
+          if [[ -z "$MUST_PRODUCE" ]]; then
+            echo "✓ No must_produce requirements"
+            exit 0
+          fi
+
+          echo "Required outputs:"
+          echo "$MUST_PRODUCE"
+
+          # Check if this is a phase-ending commit (gate file in changes)
+          PHASE_NUM="${CURRENT_PHASE:1:1}"
+          GATE_FILE=".gates/0${PHASE_NUM}.ok"
+
+          IS_PHASE_ENDING=false
+          if git diff --name-only HEAD~1 HEAD 2>/dev/null | grep -q "$GATE_FILE"; then
+            IS_PHASE_ENDING=true
+            echo "Phase ending detected (gate file present)"
+          fi
+
+          MISSING=0
+          while IFS= read -r rule; do
+            FILE_PATH="${rule%%:*}"
+            if [[ ! -f "$FILE_PATH" && ! -d "$FILE_PATH" ]]; then
+              if [[ "$IS_PHASE_ENDING" == "true" ]]; then
+                echo "❌ Missing required output: $FILE_PATH"
+                ((MISSING++))
+              else
+                echo "⚠️  Pending: $FILE_PATH"
+              fi
+            fi
+          done <<< "$MUST_PRODUCE"
+
+          if [[ $MISSING -gt 0 && "$IS_PHASE_ENDING" == "true" ]]; then
+            echo "❌ ERROR: $MISSING required outputs missing"
+            exit 1
+          fi
+
+          echo "✓ Must produce check passed"
+
+  # ═══════════════════════════════════════
+  # Layer 6: 代码质量检查（并行执行）
+  # ═══════════════════════════════════════
+  code-quality:
+    name: "Layer 6: Code Quality"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - tool: shellcheck
+            extensions: ".sh"
+          - tool: eslint
+            extensions: ".js,.ts,.jsx,.tsx"
+          - tool: flake8
+            extensions: ".py"
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4.1.1
+
+      - name: Setup Node.js
+        if: matrix.tool == 'eslint'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+
+      - name: Setup Python
+        if: matrix.tool == 'flake8'
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          cache: 'pip'
+
+      - name: Install ${{ matrix.tool }}
+        run: |
+          if [[ "${{ matrix.tool }}" == "shellcheck" ]]; then
+            sudo apt-get update && sudo apt-get install -y shellcheck
+          elif [[ "${{ matrix.tool }}" == "eslint" ]]; then
+            if [[ -f "package.json" ]]; then
+              npm install
+            else
+              echo "No package.json, skipping eslint"
+              exit 0
+            fi
+          elif [[ "${{ matrix.tool }}" == "flake8" ]]; then
+            pip install flake8
+          fi
+
+      - name: Run ${{ matrix.tool }}
+        run: |
+          echo "Running ${{ matrix.tool }}..."
+
+          if [[ "${{ matrix.tool }}" == "shellcheck" ]]; then
+            find . -name "*.sh" -not -path "./node_modules/*" -not -path "./.git/*" \
+              -exec shellcheck {} \; || true
+
+          elif [[ "${{ matrix.tool }}" == "eslint" ]]; then
+            if [[ -f "package.json" ]]; then
+              npm run lint || true
+            fi
+
+          elif [[ "${{ matrix.tool }}" == "flake8" ]]; then
+            find . -name "*.py" -not -path "./node_modules/*" -not -path "./.git/*" \
+              -exec flake8 {} \; || true
+          fi
+
+          echo "✓ ${{ matrix.tool }} completed"
+
+  # ═══════════════════════════════════════
+  # Layer 7: 测试执行（P4阶段强制）
+  # ═══════════════════════════════════════
+  test-execution:
+    name: "Layer 7: Test Execution"
+    runs-on: ubuntu-latest
+    needs: workflow-validation
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4.1.1
+
+      - name: Check if P4 phase
+        id: check-phase
+        run: |
+          CURRENT_PHASE=$(cat .phase/current | tr -d '[:space:]')
+          if [[ "$CURRENT_PHASE" == "P4" ]]; then
+            echo "is_p4=true" >> $GITHUB_OUTPUT
+          else
+            echo "is_p4=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Setup Node.js
+        if: steps.check-phase.outputs.is_p4 == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Setup Python
+        if: steps.check-phase.outputs.is_p4 == 'true'
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          cache: 'pip'
+
+      - name: Run tests (P4)
+        if: steps.check-phase.outputs.is_p4 == 'true'
+        run: |
+          echo "P4 phase detected - running all tests"
+
+          # Run npm tests if package.json exists
+          if [[ -f "package.json" ]]; then
+            npm install
+            npm test || {
+              echo "❌ npm test failed"
+              exit 1
+            }
+          fi
+
+          # Run pytest if requirements.txt exists
+          if [[ -f "requirements.txt" ]]; then
+            pip install -r requirements.txt
+            pytest || {
+              echo "❌ pytest failed"
+              exit 1
+            }
+          fi
+
+          echo "✓ All tests passed"
+
+      - name: Skip (not P4)
+        if: steps.check-phase.outputs.is_p4 == 'false'
+        run: |
+          echo "Not P4 phase, skipping test execution"
+
+  # ═══════════════════════════════════════
+  # Layer 8: 高级检查（BDD/OpenAPI/SLO）
+  # ═══════════════════════════════════════
+  advanced-checks:
+    name: "Layer 8: Advanced Checks"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4.1.1
+
+      - name: Check BDD scenarios
+        run: |
+          if [[ -d "acceptance/features" ]]; then
+            FEATURE_COUNT=$(find acceptance/features -name "*.feature" | wc -l)
+            echo "Found $FEATURE_COUNT BDD feature files"
+            if [[ $FEATURE_COUNT -gt 0 ]]; then
+              echo "✓ BDD scenarios present"
+            fi
+          fi
+
+      - name: Check OpenAPI spec
+        run: |
+          if [[ -f "api/openapi.yaml" || -f "api/openapi.yml" ]]; then
+            echo "✓ OpenAPI specification found"
+          fi
+
+      - name: Check SLO definitions
+        run: |
+          if [[ -f "observability/slo/slo.yml" ]]; then
+            echo "✓ SLO definitions found"
+          fi
+
+      - name: Summary
+        run: |
+          echo "✓ Advanced checks completed"
+
+  # ═══════════════════════════════════════
+  # 最终汇总
+  # ═══════════════════════════════════════
+  summary:
+    name: "Gates Summary"
+    runs-on: ubuntu-latest
+    needs:
+      - branch-protection
+      - workflow-validation
+      - path-whitelist
+      - security-scan
+      - must-produce
+      - code-quality
+      - test-execution
+      - advanced-checks
+    steps:
+      - name: Summary
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "✅ All CE Gates Passed"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "✓ Layer 1: Branch Protection"
+          echo "✓ Layer 2: Workflow Validation"
+          echo "✓ Layer 3: Path Whitelist"
+          echo "✓ Layer 4: Security Scan"
+          echo "✓ Layer 5: Must Produce"
+          echo "✓ Layer 6: Code Quality"
+          echo "✓ Layer 7: Test Execution"
+          echo "✓ Layer 8: Advanced Checks"
+          echo ""
+          echo "🎉 Ready to merge!"

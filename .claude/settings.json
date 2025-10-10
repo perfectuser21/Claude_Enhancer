@@ -1,21 +1,25 @@
 {
-  "version": "5.1.0",
+  "version": "5.3.4",
   "project": "Claude Enhancer 5.0",
-  "description": "使用官方默认高亮显示 + 工作流强制执行",
+  "description": "使用官方默认高亮显示 + 工作流强制执行 + 增强质量保障",
   "hooks": {
     "UserPromptSubmit": [
       ".claude/hooks/workflow_auto_start.sh"
     ],
     "PrePrompt": [
       ".claude/hooks/workflow_enforcer.sh",
-      ".claude/hooks/smart_agent_selector.sh"
+      ".claude/hooks/smart_agent_selector.sh",
+      ".claude/hooks/gap_scan.sh"
     ],
     "PreToolUse": [
       ".claude/hooks/branch_helper.sh",
-      ".claude/hooks/quality_gate.sh"
+      ".claude/hooks/quality_gate.sh",
+      ".claude/hooks/auto_cleanup_check.sh",
+      ".claude/hooks/concurrent_optimizer.sh"
     ],
     "PostToolUse": [
-      ".claude/hooks/unified_post_processor.sh"
+      ".claude/hooks/unified_post_processor.sh",
+      ".claude/hooks/agent_error_recovery.sh"
     ]
   }
 }

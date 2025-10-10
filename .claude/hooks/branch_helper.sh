@@ -1,6 +1,12 @@
 #!/bin/bash
 # Claude Enhancer - Branch创建辅助
 
+# 统一日志记录（激活追踪）
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+LOG_FILE="$PROJECT_ROOT/.workflow/logs/claude_hooks.log"
+mkdir -p "$(dirname "$LOG_FILE")"
+echo "$(date +'%F %T') [branch_helper.sh] triggered by ${USER:-claude}" >> "$LOG_FILE"
+
 # 获取当前分支
 current_branch=$(git rev-parse --abbrev-ref HEAD)
 

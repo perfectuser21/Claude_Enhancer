@@ -1,0 +1,9 @@
+{
+  "initialized_at": "2025-10-10T14:28:54+08:00",
+  "timeout": 5,
+  "checks_enabled": [
+    "liveness",
+    "readiness",
+    "startup"
+  ]
+}

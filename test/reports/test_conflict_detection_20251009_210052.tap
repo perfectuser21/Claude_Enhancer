@@ -1,0 +1,34 @@
+1..9
+# Testing same file conflict detection
+# Conflict detected as expected
+# Conflict in config.ts confirmed
+ok 1 Conflict detection: Two terminals edit same file
+ok 2 Conflict detection: Same line modification in different branches
+# Multi-file conflicts detected correctly
+ok 3 Conflict detection: Multi-file conflict scenario
+ok 4 Conflict resolution: Manual merge with conflict markers
+# Delete vs modify conflict detected
+ok 5 Conflict detection: Deletion vs modification conflict
+ok 6 Conflict detection: Directory structure conflict
+# Binary file conflict detected
+ok 7 Conflict detection: Binary file conflict
+# File locked by: t1:1760014862
+ok 8 Conflict prevention: File locking mechanism simulation
+not ok 9 Conflict detection: Complex three-way merge
+# (in test file test/integration/test_conflict_detection.bats, line 507)
+#   `git merge --no-ff feature-t2-methodB -m "Merge t2" 2>&1' failed
+# [main 15ae0a1] feat: add complex class
+#  1 file changed, 4 insertions(+)
+#  create mode 100644 src/complex.ts
+# [feature-t1-methodA a0cf02b] feat(t1): modify methodA
+#  1 file changed, 1 insertion(+), 1 deletion(-)
+# [feature-t2-methodB 617de39] feat(t2): modify methodB
+#  1 file changed, 1 insertion(+), 1 deletion(-)
+# [feature-t3-both 49f438e] feat(t3): modify both methods
+#  1 file changed, 2 insertions(+), 2 deletions(-)
+# Merge made by the 'ort' strategy.
+#  src/complex.ts | 2 +-
+#  1 file changed, 1 insertion(+), 1 deletion(-)
+# Auto-merging src/complex.ts
+# CONFLICT (content): Merge conflict in src/complex.ts
+# Automatic merge failed; fix conflicts and then commit the result.

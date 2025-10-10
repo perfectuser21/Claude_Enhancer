@@ -1,0 +1,128 @@
+# Coverage.py configuration for Claude Enhancer 5.3
+# Python coverage reporting with strict thresholds
+
+[run]
+# Source directories to measure
+source =
+    src
+    .claude/core
+    scripts
+
+# Branch coverage
+branch = True
+
+# Parallel mode for distributed testing
+parallel = False
+
+# Omit patterns
+omit =
+    */test/*
+    */tests/*
+    */__pycache__/*
+    */site-packages/*
+    */dist-packages/*
+    */node_modules/*
+    */.venv/*
+    */venv/*
+    */.git/*
+    */migrations/*
+    */deprecated/*
+    */.performance_backup/*
+    */backup*/*
+    */conftest.py
+    */setup.py
+    */__init__.py
+    */test_*.py
+    */*_test.py
+
+# Data file location
+data_file = .coverage
+
+# Plugins
+plugins =
+
+[report]
+# Precision for percentages
+precision = 2
+
+# Show missing line numbers
+show_missing = True
+
+# Skip covered files
+skip_covered = False
+
+# Skip empty files
+skip_empty = False
+
+# Sort by name
+sort = Name
+
+# Exclude lines from coverage
+exclude_lines =
+    # Standard pragmas
+    pragma: no cover
+    pragma: nocover
+
+    # Debug-only code
+    def __repr__
+    def __str__
+
+    # Defensive programming
+    raise AssertionError
+    raise NotImplementedError
+
+    # Non-runnable code
+    if __name__ == .__main__.:
+    if TYPE_CHECKING:
+    if typing.TYPE_CHECKING:
+
+    # Abstract methods
+    @abstract
+    @abstractmethod
+
+    # Pass statements
+    pass
+
+    # Ellipsis
+    \.\.\.
+
+    # Type checking
+    @overload
+
+    # Logger calls (optional)
+    logger\.debug
+
+# Fail if coverage is below threshold
+fail_under = 80
+
+[html]
+# HTML output directory
+directory = htmlcov
+
+# Title for HTML report
+title = Claude Enhancer 5.3 Coverage Report
+
+# Show contexts
+show_contexts = True
+
+[xml]
+# XML output file
+output = coverage.xml
+
+[json]
+# JSON output file
+output = coverage.json
+
+# Pretty print JSON
+pretty_print = True
+
+# Show contexts in JSON
+show_contexts = True
+
+[paths]
+# Path mapping for different environments
+source =
+    src
+    /home/*/Claude Enhancer 5.0/src
+    /workspace/src
+    C:\Users\*\Claude Enhancer 5.0\src

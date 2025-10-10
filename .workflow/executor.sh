@@ -13,20 +13,20 @@ TEMP_DIRS=()
 cleanup() {
     local exit_code=$?
     echo "[CLEANUP] Removing temporary resources..." >&2
-    
+
     # Clean temp files
     for temp_file in "${TEMP_FILES[@]}"; do
         [[ -f "$temp_file" ]] && rm -f "$temp_file" 2>/dev/null || true
     done
-    
+
     # Clean temp directories
     for temp_dir in "${TEMP_DIRS[@]}"; do
         [[ -d "$temp_dir" ]] && rm -rf "$temp_dir" 2>/dev/null || true
     done
-    
+
     # Clean Python cache in script directory
     find "${SCRIPT_DIR}" -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
-    
+
     # Rotate log if too large (keep last 100 lines)
     if [[ -f "${LOG_FILE}" ]]; then
         local line_count=$(wc -l < "${LOG_FILE}" 2>/dev/null || echo 0)
@@ -35,7 +35,7 @@ cleanup() {
             mv "${LOG_FILE}.tmp" "${LOG_FILE}"
         fi
     fi
-    
+
     exit $exit_code
 }
 
@@ -60,6 +60,42 @@ readonly PURPLE='\033[0;35m'
 readonly CYAN='\033[0;36m'
 readonly BOLD='\033[1m'
 readonly NC='\033[0m' # No Color
+
+# ==================== 日志轮转系统 (CE-ISSUE-009) ====================
+
+check_and_rotate_logs() {
+    # 轮转所有日志文件（超过10MB）
+    local max_size=$((10 * 1024 * 1024))  # 10MB
+
+    # 检查executor.log
+    if [[ -f "${LOG_FILE}" ]]; then
+        local size=$(stat -c '%s' "${LOG_FILE}" 2>/dev/null || stat -f '%z' "${LOG_FILE}" 2>/dev/null || echo "0")
+        if [[ $size -gt $max_size ]]; then
+            echo "[LOG_ROTATE] 轮转日志: ${LOG_FILE} ($(($size / 1024 / 1024))MB)" >&2
+            mv "${LOG_FILE}" "${LOG_FILE}.1"
+            gzip -f "${LOG_FILE}.1" 2>/dev/null || true
+
+            # 删除旧的备份（保留最多5个）
+            local backup_count=$(find "$(dirname "${LOG_FILE}")" -name "$(basename "${LOG_FILE}").*.gz" 2>/dev/null | wc -l)
+            if [[ $backup_count -gt 5 ]]; then
+                find "$(dirname "${LOG_FILE}")" -name "$(basename "${LOG_FILE}").*.gz" -type f -printf '%T+ %p\n' 2>/dev/null | \
+                    sort | head -n $((backup_count - 5)) | cut -d' ' -f2- | xargs rm -f 2>/dev/null || true
+            fi
+        fi
+    fi
+
+    # 检查.workflow/logs/目录下的所有日志
+    if [[ -d "${SCRIPT_DIR}/logs" ]]; then
+        find "${SCRIPT_DIR}/logs" -type f -name "*.log" 2>/dev/null | while read -r log_file; do
+            local size=$(stat -c '%s' "$log_file" 2>/dev/null || stat -f '%z' "$log_file" 2>/dev/null || echo "0")
+            if [[ $size -gt $max_size ]]; then
+                echo "[LOG_ROTATE] 轮转日志: $log_file" >&2
+                mv "$log_file" "$log_file.1"
+                gzip -f "$log_file.1" 2>/dev/null || true
+            fi
+        done
+    fi
+}
 
 # ==================== 日志系统 ====================
 
@@ -706,6 +742,7 @@ ${YELLOW}命令:${NC}
   ${GREEN}hooks${NC}         手动触发Claude Hooks集成
   ${GREEN}test${NC}          测试phase推进功能
   ${GREEN}clean${NC}         清理临时文件和日志
+  ${GREEN}--dry-run${NC}     显示执行计划（不实际执行）
 
 ${YELLOW}示例:${NC}
   $0 init              # 初始化系统
@@ -714,6 +751,7 @@ ${YELLOW}示例:${NC}
   $0 next              # 进入下一阶段
   $0 goto P3           # 跳转到P3阶段
   $0 suggest           # 获取智能建议
+  $0 --dry-run         # 显示执行计划
 
 ${YELLOW}集成特性:${NC}
   • 智能Gates验证引擎
@@ -722,13 +760,36 @@ ${YELLOW}集成特性:${NC}
   • 实时状态监控
   • 智能推荐系统
   • 完整的日志记录
+  • Dry-run执行计划可视化
 
 EOF
 }
 
 main() {
+    # 日志轮转检查（CE-ISSUE-009）
+    check_and_rotate_logs
+
     # 确保日志目录存在
     mkdir -p "$(dirname "${LOG_FILE}")"
+
+    # Dry-run模式检测（CE-ISSUE-004）
+    if [[ "${1:-}" == "--dry-run" ]]; then
+        echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo -e "${CYAN}  🔍 DRY-RUN模式：仅显示执行计划，不实际执行${NC}"
+        echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo ""
+
+        # 调用plan_renderer.sh生成执行计划
+        if [[ -f "${SCRIPT_DIR}/scripts/plan_renderer.sh" ]]; then
+            bash "${SCRIPT_DIR}/scripts/plan_renderer.sh"
+        else
+            echo -e "${RED}❌ ERROR: plan_renderer.sh 不存在${NC}"
+            echo "  路径: ${SCRIPT_DIR}/scripts/plan_renderer.sh"
+            exit 1
+        fi
+
+        exit 0
+    fi
 
     local command="${1:-status}"
 

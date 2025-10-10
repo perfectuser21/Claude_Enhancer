@@ -1,64 +1,138 @@
-#!/bin/bash
-# Fix Git Hooks Permissions - Claude Enhancer 5.0
-# DevOps Engineer Agent - Simple & Efficient
-
+#!/usr/bin/env bash
+# fix_permissions.sh - Standardize file permissions across CLI system
 set -euo pipefail
 
-# Colors for clean output
-readonly RED='\033[0;31m'
-readonly GREEN='\033[0;32m'
-readonly YELLOW='\033[1;33m'
-readonly BLUE='\033[0;34m'
-readonly NC='\033[0m'
+echo "===================================================="
+echo "  Claude Enhancer - Fix File Permissions"
+echo "===================================================="
+echo ""
 
-# Project root and key directories
-readonly PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-readonly GITHOOKS_DIR="$PROJECT_ROOT/.githooks"
-readonly GIT_HOOKS_DIR="$PROJECT_ROOT/.git/hooks"
+PROJECT_ROOT="/home/xx/dev/Claude Enhancer 5.0"
 
-# Logging functions
-log_info() { echo -e "${GREEN}[INFO]${NC} $1"; }
-log_warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
-log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+RESET='\033[0m'
 
-echo -e "${BLUE}🔧 Git Hooks Permission Fix${NC}"
-echo "══════════════════════════════════════════════════════════"
+fixed_count=0
+error_count=0
 
-# 1. Check .githooks directory
-if [[ ! -d "$GITHOOKS_DIR" ]]; then
-    log_error ".githooks directory not found"
-    exit 1
-fi
+# Function to set and verify permissions
+set_perms() {
+    local file="$1"
+    local target_perms="$2"
+    local description="$3"
+    
+    if [[ ! -e "$file" ]]; then
+        echo -e "${YELLOW}[SKIP]${RESET} $file (not found)"
+        return 0
+    fi
+    
+    local current_perms
+    current_perms=$(stat -c '%a' "$file" 2>/dev/null || stat -f '%Lp' "$file" 2>/dev/null)
+    
+    if [[ "$current_perms" == "$target_perms" ]]; then
+        echo -e "${GREEN}[OK]${RESET} $file ($current_perms) - $description"
+        return 0
+    fi
+    
+    echo -n "Fixing: $file ($current_perms → $target_perms)... "
+    
+    if chmod "$target_perms" "$file" 2>/dev/null; then
+        # Verify
+        local new_perms
+        new_perms=$(stat -c '%a' "$file" 2>/dev/null || stat -f '%Lp' "$file" 2>/dev/null)
+        
+        if [[ "$new_perms" == "$target_perms" ]]; then
+            echo -e "${GREEN}✓${RESET}"
+            ((fixed_count++))
+            return 0
+        else
+            echo -e "${RED}✗ (verification failed: got $new_perms)${RESET}"
+            ((error_count++))
+            return 1
+        fi
+    else
+        echo -e "${RED}✗ (chmod failed)${RESET}"
+        ((error_count++))
+        return 1
+    fi
+}
 
-log_info "Fixing permissions for .githooks/*"
+echo -e "${BLUE}[1/5]${RESET} Fixing command file permissions (755 - executable)..."
+echo ""
 
-# 2. Fix permissions for all files in .githooks
-find "$GITHOOKS_DIR" -type f -exec chmod +x {} \;
-
-# 3. Verify and set git config
-current_hooks_path=$(git config --get core.hooksPath 2>/dev/null || echo "")
-
-if [[ "$current_hooks_path" != ".githooks" ]]; then
-    log_info "Setting git config core.hooksPath to .githooks"
-    git config core.hooksPath .githooks
-else
-    log_info "Git hooks path already configured correctly"
-fi
-
-# 4. Enable file mode tracking
-git config --local core.filemode true 2>/dev/null || true
-
-# 5. Verification and results
-echo -e "\n${BLUE}📊 Verification Results${NC}"
-echo "──────────────────────────────────────────────────────────"
-
-echo "📁 Hooks Directory: $(find "$GITHOOKS_DIR" -type f | wc -l) files"
-echo "🔧 Git Config: core.hooksPath = $(git config --get core.hooksPath)"
-echo "✅ Executable Files:"
-
-find "$GITHOOKS_DIR" -type f -executable | while read -r file; do
-    echo "   $(basename "$file") - $(stat -c '%A' "$file")"
+for cmd_file in "$PROJECT_ROOT"/.workflow/cli/commands/*.sh; do
+    [[ -f "$cmd_file" ]] && set_perms "$cmd_file" "755" "Command script"
 done
 
-log_info "Permission fix completed successfully"
-exit 0
+echo ""
+echo -e "${BLUE}[2/5]${RESET} Fixing library file permissions (755 - executable, sourced)..."
+echo ""
+
+for lib_file in "$PROJECT_ROOT"/.workflow/cli/lib/*.sh; do
+    [[ -f "$lib_file" ]] && set_perms "$lib_file" "755" "Library script"
+done
+
+echo ""
+echo -e "${BLUE}[3/5]${RESET} Fixing main CLI files (755 - executable)..."
+echo ""
+
+set_perms "$PROJECT_ROOT/ce.sh" "755" "Main CLI entry point"
+[[ -f "$PROJECT_ROOT/.workflow/cli/install.sh" ]] && set_perms "$PROJECT_ROOT/.workflow/cli/install.sh" "755" "Install script"
+[[ -f "$PROJECT_ROOT/.workflow/cli/uninstall.sh" ]] && set_perms "$PROJECT_ROOT/.workflow/cli/uninstall.sh" "755" "Uninstall script"
+
+echo ""
+echo -e "${BLUE}[4/5]${RESET} Fixing state file permissions (600 - secure data)..."
+echo ""
+
+if [[ -d "$PROJECT_ROOT/.workflow/state" ]]; then
+    find "$PROJECT_ROOT/.workflow/state" -type f \( -name "*.yml" -o -name "*.json" -o -name "*.state" \) -print0 2>/dev/null | \
+        while IFS= read -r -d '' state_file; do
+            set_perms "$state_file" "600" "State data file"
+        done
+else
+    echo -e "${YELLOW}[SKIP]${RESET} .workflow/state directory not found"
+fi
+
+echo ""
+echo -e "${BLUE}[5/5]${RESET} Fixing directory permissions..."
+echo ""
+
+# Ensure state directories are secure
+if [[ -d "$PROJECT_ROOT/.workflow/state" ]]; then
+    set_perms "$PROJECT_ROOT/.workflow/state" "700" "State directory"
+    
+    if [[ -d "$PROJECT_ROOT/.workflow/state/sessions" ]]; then
+        set_perms "$PROJECT_ROOT/.workflow/state/sessions" "700" "Sessions directory"
+    fi
+    
+    if [[ -d "$PROJECT_ROOT/.workflow/state/locks" ]]; then
+        set_perms "$PROJECT_ROOT/.workflow/state/locks" "700" "Locks directory"
+    fi
+fi
+
+# Regular directories should be 755
+find "$PROJECT_ROOT/.workflow/cli" -type d -not -path "*/.workflow/state*" -print0 2>/dev/null | \
+    while IFS= read -r -d '' dir; do
+        set_perms "$dir" "755" "Regular directory"
+    done
+
+echo ""
+echo "===================================================="
+echo "  Permission Fix Complete"
+echo "===================================================="
+echo ""
+echo -e "Fixed: ${GREEN}$fixed_count${RESET} files"
+echo -e "Errors: ${RED}$error_count${RESET} files"
+echo ""
+
+if [[ $error_count -gt 0 ]]; then
+    echo -e "${YELLOW}⚠ Some permissions could not be fixed${RESET}"
+    exit 1
+else
+    echo -e "${GREEN}✓ All permissions corrected${RESET}"
+    exit 0
+fi

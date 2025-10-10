@@ -1,4 +1,4 @@
-# Workflow Gates v1 — 六阶段自动化
+# Workflow Gates v2 — 八阶段自动化（P0-P7）
 meta:
   subagent_invocation: "Only main Claude Code agent may invoke sub-agents. Sub-agents MUST NOT invoke sub-agents."
   merge_strategy: "squash"              # main 分支一律 squash
@@ -6,12 +6,15 @@ meta:
   auto_rollback_on_health_fail: true    # 健康检查失败立即回滚上一 tag
 
 parallel_limits:
+  P0: 3
   P1: 4
   P2: 6
   P3: 8
   P4: 6
   P5: 4
   P6: 2
+  P7: 3
+
 parallel_autotune:
   success_streak_add: 2    # 连续两次一次过，上限 +2（不超过阶段限额）
   fail_streak_sub: 2       # 连续两次 gate 失败，上限 -2（不低于2）
@@ -20,9 +23,27 @@ test_depth:
   pre_push: ["unit", "boundary", "smoke"]   # push 前跑的集
   nightly_ci: ["integration", "contract"]   # 夜间 CI 额外跑
 
-phase_order: [P1, P2, P3, P4, P5, P6]
+phase_order: [P0, P1, P2, P3, P4, P5, P6, P7]
 
 phases:
+  P0:
+    name: "Discovery"
+    allow_paths: ["docs/P0_*.md", "docs/*_DISCOVERY.md", "docs/spike/**"]
+    must_produce:
+      - "docs/P0_*_DISCOVERY.md: 包含可行性分析、技术spike、风险评估"
+      - "可行性结论明确（GO/NO-GO/NEEDS-DECISION）"
+      - "技术spike至少验证2个关键技术点"
+      - "风险评估包含：技术风险、业务风险、时间风险"
+    gates:
+      - "必须存在P0发现文档"
+      - "必须包含可行性结论（GO/NO-GO/NEEDS-DECISION）"
+      - "技术spike验证点 >= 2"
+      - "风险评估完整（技术/业务/时间三个维度）"
+      - "如果结论为NO-GO，需提供替代方案或终止理由"
+    on_pass:
+      - "create: .gates/00.ok"
+      - "set: .phase/current=P1"
+
   P1:
     name: "Plan"
     allow_paths: ["docs/PLAN.md"]
@@ -107,4 +128,23 @@ phases:
       - "post-merge healthcheck 通过（否则自动回滚上一 tag）"
     on_pass:
       - "create: .gates/06.ok"
-      - "set: .phase/current=P1"
+      - "set: .phase/current=P7"
+
+  P7:
+    name: "Monitor"
+    allow_paths: ["observability/**", "docs/*_MONITOR.md", "docs/P7_*.md"]
+    must_produce:
+      - "observability/*_MONITOR_REPORT.md: 包含健康检查、SLO验证、完整性验证"
+      - "所有关键指标验证通过"
+      - "系统状态=HEALTHY"
+      - "生成监控报告包含：服务健康度、SLO合规性、性能基线"
+    gates:
+      - "健康检查通过（所有关键服务响应正常）"
+      - "SLO指标达标（可用性、延迟、错误率）"
+      - "无critical issues"
+      - "监控报告完整（健康检查+SLO+性能基线）"
+      - "回滚演练验证通过（可选，生产环境建议）"
+    on_pass:
+      - "create: .gates/07.ok"
+      - "set: .phase/current=DONE"
+      - "notify: 系统已进入生产监控阶段，持续跟踪SLO指标"

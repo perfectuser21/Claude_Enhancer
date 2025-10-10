@@ -1,0 +1,34 @@
+# CE CLI Configuration
+version: "1.0.0"
+
+# Terminal settings
+terminal:
+  default_id: "t1"
+  auto_detect: true
+  idle_timeout: 3600  # 1 hour
+
+# Branch settings
+branch:
+  naming_pattern: "feature/<phase>-<terminal>-<timestamp>-<name>"
+  max_active_per_terminal: 5
+  auto_cleanup_merged: true
+
+# State settings
+state:
+  auto_save: true
+  save_interval: 60  # seconds
+  cleanup_interval: 3600  # 1 hour
+  max_stale_age: 86400  # 24 hours
+
+# Performance settings
+performance:
+  cache_ttl: 300  # 5 minutes
+  parallel_workers: 4
+  max_retry: 3
+  retry_delay: 5  # seconds
+
+# Integration settings
+integration:
+  use_gh_cli: auto  # auto, always, never
+  git_hooks: true
+  phase_tracking: true

@@ -2,6 +2,12 @@
 # Claude Enhancer 工作流强制执行器
 # 确保所有编程任务按照8-Phase工作流执行
 
+# 统一日志记录（激活追踪）
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+LOG_FILE="$PROJECT_ROOT/.workflow/logs/claude_hooks.log"
+mkdir -p "$(dirname "$LOG_FILE")"
+echo "$(date +'%F %T') [workflow_enforcer.sh] triggered by ${USER:-claude} args: $*" >> "$LOG_FILE"
+
 set -euo pipefail
 
 # 颜色定义
@@ -11,9 +17,6 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 MAGENTA='\033[0;35m'
 NC='\033[0m'
-
-# 项目根目录
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 # 获取当前Phase
 get_current_phase() {
