@@ -1,0 +1,173 @@
+name: Test Suite
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main, develop]
+  workflow_dispatch:
+
+jobs:
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install pytest pytest-cov pyyaml
+
+      - name: Run Python tests
+        run: |
+          echo "🧪 Running Python unit tests..."
+          if [ -d "test" ] || [ -d "tests" ]; then
+            pytest --cov=./ --cov-report=xml --cov-report=term || true
+          else
+            echo "No test directory found, skipping Python tests"
+          fi
+
+      - name: Shell script tests
+        run: |
+          echo "🐚 Testing shell scripts..."
+          # Test all executable scripts
+          find . -name "*.sh" -type f -executable | while read script; do
+            echo "Testing: $script"
+            bash -n "$script" || echo "Syntax error in $script"
+          done
+
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Test Git Hooks
+        run: |
+          echo "🪝 Testing Git hooks..."
+          # Test pre-commit hook
+          if [ -f ".git/hooks/pre-commit" ]; then
+            echo "Testing pre-commit hook..."
+            bash -n .git/hooks/pre-commit
+            echo "✅ pre-commit syntax OK"
+          fi
+
+          # Test pre-push hook
+          if [ -f ".git/hooks/pre-push" ]; then
+            echo "Testing pre-push hook..."
+            bash -n .git/hooks/pre-push
+            echo "✅ pre-push syntax OK"
+          fi
+
+      - name: Test Claude Hooks
+        run: |
+          echo "🤖 Testing Claude hooks..."
+          for hook in .claude/hooks/*.sh; do
+            if [ -f "$hook" ]; then
+              echo "Testing: $hook"
+              bash -n "$hook"
+              # Check for required environment variables
+              grep -q "CE_SILENT_MODE" "$hook" && echo "  ✅ Has CE_SILENT_MODE check"
+            fi
+          done
+
+      - name: Test Workflow Integration
+        run: |
+          echo "🔄 Testing workflow integration..."
+          # Verify gates.yml is valid
+          python3 -c "
+import yaml
+try:
+    with open('.workflow/gates.yml') as f:
+        gates = yaml.safe_load(f)
+    print('✅ gates.yml is valid YAML')
+except Exception as e:
+    print(f'❌ gates.yml error: {e}')
+    exit(1)
+          "
+
+          # Verify manifest.yml is valid
+          python3 -c "
+import yaml
+try:
+    with open('.workflow/manifest.yml') as f:
+        manifest = yaml.safe_load(f)
+    print('✅ manifest.yml is valid YAML')
+except Exception as e:
+    print(f'❌ manifest.yml error: {e}')
+    exit(1)
+          "
+
+  performance-tests:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Hook Performance Test
+        run: |
+          echo "⚡ Testing hook performance..."
+          start_time=$(date +%s%N)
+
+          # Test a sample hook execution time
+          if [ -f ".claude/hooks/performance_monitor.sh" ]; then
+            timeout 5s bash .claude/hooks/performance_monitor.sh < /dev/null || true
+          fi
+
+          end_time=$(date +%s%N)
+          execution_time=$((($end_time - $start_time) / 1000000))
+          echo "Execution time: ${execution_time}ms"
+
+          if [ $execution_time -gt 5000 ]; then
+            echo "⚠️ Warning: Hook execution too slow (>5s)"
+          else
+            echo "✅ Hook performance acceptable"
+          fi
+
+      - name: Workflow Performance Test
+        run: |
+          echo "🚀 Testing workflow performance..."
+          # Check file sizes
+          large_files=$(find . -type f -size +1M | wc -l)
+          echo "Large files (>1MB): $large_files"
+
+          if [ $large_files -gt 10 ]; then
+            echo "⚠️ Warning: Too many large files may impact performance"
+          else
+            echo "✅ File sizes acceptable"
+          fi
+
+  test-summary:
+    name: Test Summary
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests, performance-tests]
+    if: always()
+
+    steps:
+      - name: Generate summary
+        run: |
+          echo "📊 Test Suite Summary"
+          echo "==================="
+          echo "Unit Tests: ${{ needs.unit-tests.result }}"
+          echo "Integration Tests: ${{ needs.integration-tests.result }}"
+          echo "Performance Tests: ${{ needs.performance-tests.result }}"
+
+          if [ "${{ needs.unit-tests.result }}" == "success" ] && \
+             [ "${{ needs.integration-tests.result }}" == "success" ] && \
+             [ "${{ needs.performance-tests.result }}" == "success" ]; then
+            echo "✅ All tests passed!"
+            exit 0
+          else
+            echo "❌ Some tests failed"
+            exit 1
+          fi

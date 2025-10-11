@@ -1,0 +1,267 @@
+# Claude Enhancer v6.0 统一配置文件
+# 这是所有配置的单一真相源
+
+version: "6.0.0"
+project: "Claude Enhancer"
+description: "统一、不矛盾、彻底能用的AI编程工作流系统"
+
+# 环境变量配置
+environment:
+  # 主控制开关
+  CE_AUTO_MODE: true                # 总自动化开关
+  CE_SILENT_MODE: false              # 静默模式（生产环境设为true）
+  CE_COMPACT_OUTPUT: false           # 紧凑输出模式
+
+  # 自动化行为
+  CE_AUTO_CREATE_BRANCH: true       # 自动创建feature分支
+  CE_AUTO_CONFIRM: true              # 自动确认提示
+  CE_AUTO_SELECT_DEFAULT: true       # 自动选择默认选项
+
+  # 日志配置
+  CE_LOG_LEVEL: "INFO"              # 日志级别: DEBUG/INFO/WARN/ERROR
+  CE_LOG_FILE: ".claude/logs/ce.log" # 日志文件路径
+
+# 8-Phase 工作流配置
+workflow:
+  # Phase定义
+  phases:
+    - id: P0
+      name: Discovery
+      timeout: 1800  # 30分钟
+      auto_skip: false
+
+    - id: P1
+      name: Planning
+      timeout: 3600  # 1小时
+      must_produce: ["docs/PLAN.md"]
+
+    - id: P2
+      name: Skeleton
+      timeout: 1800
+      must_produce: ["src/", "test/"]
+
+    - id: P3
+      name: Implementation
+      timeout: 7200  # 2小时
+      allow_parallel: true
+
+    - id: P4
+      name: Testing
+      timeout: 3600
+      required_coverage: 80  # 最低覆盖率80%
+
+    - id: P5
+      name: Review
+      timeout: 1800
+      must_produce: ["docs/REVIEW.md"]
+
+    - id: P6
+      name: Release
+      timeout: 1800
+      auto_tag: true
+
+    - id: P7
+      name: Monitor
+      timeout: 600
+
+  # Gates规则
+  gates:
+    strict_mode: true              # 严格模式
+    allow_skip_phase: false        # 不允许跳过Phase
+    enforce_sequence: true         # 强制顺序执行
+
+# GitHub集成配置
+github:
+  repository: "perfectuser21/Claude_Enhancer"
+  default_branch: "main"
+
+  # Branch Protection配置
+  branch_protection:
+    enabled: true
+    required_status_checks:
+      strict: true
+      contexts:
+        - "ce-unified-gates"
+        - "test-suite"
+        - "security-scan"
+
+    enforce_admins: false
+    required_linear_history: true
+    allow_force_pushes: false
+    allow_deletions: false
+
+  # 自动合并配置
+  auto_merge:
+    enabled: true
+    method: "squash"              # squash/merge/rebase
+    delete_branch_on_merge: true
+    wait_for_checks: true
+
+# Claude Hooks配置
+hooks:
+  # Hook执行配置
+  execution:
+    timeout: 5000                 # 默认5秒超时
+    parallel: true                # 并行执行
+    continue_on_error: false      # 错误时停止
+
+  # Hook分组（按执行时机）
+  groups:
+    pre_prompt:
+      - "workflow_enforcer.sh"
+      - "smart_agent_selector.sh"
+      - "gap_scan.sh"
+
+    pre_tool:
+      - "branch_helper.sh"
+      - "quality_gate.sh"
+      - "auto_cleanup_check.sh"
+      - "concurrent_optimizer.sh"
+
+    post_tool:
+      - "unified_post_processor.sh"
+      - "agent_error_recovery.sh"
+
+    user_prompt:
+      - "workflow_auto_start.sh"
+
+  # Hook统计
+  total_count: 27
+  silent_mode_coverage: 100  # 100%支持静默模式
+
+# CI/CD配置
+ci_cd:
+  # 工作流文件
+  workflows:
+    - name: "ce-unified-gates"
+      trigger: ["pull_request", "push"]
+      required: true
+
+    - name: "test-suite"
+      trigger: ["pull_request", "push"]
+      required: true
+
+    - name: "security-scan"
+      trigger: ["pull_request", "push", "schedule"]
+      required: true
+
+    - name: "bp-guard"
+      trigger: ["schedule", "workflow_dispatch"]
+      schedule: "0 3 * * 1"  # 每周一
+
+    - name: "release"
+      trigger: ["workflow_dispatch"]
+      manual_only: true
+
+# Agent策略配置
+agents:
+  # 策略规则
+  strategy:
+    simple_task_agents: 4         # 简单任务
+    standard_task_agents: 6       # 标准任务
+    complex_task_agents: 8        # 复杂任务
+
+  # 推荐组合
+  recommended_combinations:
+    authentication:
+      - "backend-architect"
+      - "security-auditor"
+      - "api-designer"
+      - "database-specialist"
+      - "test-engineer"
+      - "technical-writer"
+
+    api_development:
+      - "api-designer"
+      - "backend-architect"
+      - "test-engineer"
+      - "technical-writer"
+
+    database:
+      - "database-specialist"
+      - "backend-architect"
+      - "performance-engineer"
+
+    frontend:
+      - "frontend-specialist"
+      - "ux-designer"
+      - "test-engineer"
+      - "accessibility-auditor"
+
+# 质量标准
+quality:
+  # 代码质量
+  code:
+    test_coverage_minimum: 80
+    max_complexity: 10
+    max_file_length: 500
+    max_function_length: 50
+
+  # 文档质量
+  documentation:
+    required_files:
+      - "README.md"
+      - "CHANGELOG.md"
+      - "LICENSE"
+      - "docs/SYSTEM_OVERVIEW.md"
+
+  # 安全标准
+  security:
+    scan_on_commit: true
+    block_on_vulnerabilities: true
+    secret_detection: true
+
+# 性能配置
+performance:
+  # Hook性能
+  hook_max_execution_time: 5000   # 5秒
+  hook_warn_threshold: 3000       # 3秒警告
+
+  # CI性能
+  ci_timeout: 600000              # 10分钟
+  ci_cache_enabled: true
+
+  # 文件限制
+  max_file_size: 1048576          # 1MB
+  warn_large_files: true
+
+# 日志和监控
+monitoring:
+  # 日志配置
+  logging:
+    enabled: true
+    level: "INFO"
+    rotate: true
+    max_size: "10MB"
+    max_files: 5
+
+  # 指标收集
+  metrics:
+    enabled: true
+    collect_performance: true
+    collect_errors: true
+
+  # 告警配置
+  alerts:
+    email: null                   # 可配置邮箱
+    slack: null                   # 可配置Slack webhook
+
+# 版本管理
+versioning:
+  strategy: "semantic"            # 语义化版本
+  auto_increment: false           # 自动增加版本号
+  tag_prefix: "v"                # 标签前缀
+
+# 实验性功能
+experimental:
+  features:
+    ai_code_review: false         # AI代码审查
+    auto_refactor: false          # 自动重构
+    predictive_testing: false     # 预测性测试
+
+# 配置元数据
+metadata:
+  created: "2025-10-11"
+  last_modified: "2025-10-11"
+  author: "Claude Enhancer Team"
+  config_version: "1.0.0"
