@@ -172,7 +172,11 @@ smart_delay() {
     if [[ $running_hooks -gt $optimal_concurrency ]]; then
         local delay_time=$(echo "scale=2; 0.05 * ($running_hooks - $optimal_concurrency)" | bc 2>/dev/null || echo "0.05")
 
-        echo "🕐 智能延迟: ${delay_time}s (等待Hook完成)" >&2
+        if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+            echo "🕐 智能延迟: ${delay_time}s (等待Hook完成)" >&2
+        elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
+            echo "[Optimizer] 延迟${delay_time}s" >&2
+        fi
         sleep "$delay_time"
     fi
 }
@@ -195,17 +199,23 @@ main() {
 
     # 输出优化建议（仅在有重要信息时）
     if echo "$advice" | grep -q "⚠️\|🔄"; then
-        {
-            echo "🔧 并发优化建议:"
-            echo "   $advice"
-            echo "   推荐并发度: $optimal_concurrency"
-            echo "   当前运行: $running_hooks Hook(s)"
-        } >&2
+        if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+            {
+                echo "🔧 并发优化建议:"
+                echo "   $advice"
+                echo "   推荐并发度: $optimal_concurrency"
+                echo "   当前运行: $running_hooks Hook(s)"
+            } >&2
+        elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
+            echo "[Optimizer] $advice (并发:$optimal_concurrency)" >&2
+        fi
     elif [[ "${DEBUG_HOOKS:-false}" == "true" ]]; then
-        {
-            echo "🔧 并发状态: CPU:$(echo "$system_load" | cut -d',' -f1)% MEM:$(echo "$system_load" | cut -d',' -f2)% LOAD:$(echo "$system_load" | cut -d',' -f3)"
-            echo "   并发度: $optimal_concurrency (运行中:$running_hooks)"
-        } >&2
+        if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+            {
+                echo "🔧 并发状态: CPU:$(echo "$system_load" | cut -d',' -f1)% MEM:$(echo "$system_load" | cut -d',' -f2)% LOAD:$(echo "$system_load" | cut -d',' -f3)"
+                echo "   并发度: $optimal_concurrency (运行中:$running_hooks)"
+            } >&2
+        fi
     fi
 
     # 应用智能延迟
@@ -236,10 +246,16 @@ main() {
 # 特殊功能：并发统计
 if [[ "${1:-}" == "--stats" ]]; then
     if [[ -f "${CONCURRENCY_CACHE}/config" ]]; then
-        echo "📊 并发优化统计:"
-        cat "${CONCURRENCY_CACHE}/config" 2>/dev/null || echo "无缓存数据"
+        if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+            echo "📊 并发优化统计:"
+            cat "${CONCURRENCY_CACHE}/config" 2>/dev/null || echo "无缓存数据"
+        elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
+            echo "[Optimizer] Stats: $(grep optimal_concurrency "${CONCURRENCY_CACHE}/config" | cut -d':' -f2 | tr -d ' ,')"
+        fi
     else
-        echo "暂无并发优化数据"
+        if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+            echo "暂无并发优化数据"
+        fi
     fi
     exit 0
 fi
@@ -247,12 +263,18 @@ fi
 # 特殊功能：设置最大并发度
 if [[ "${1:-}" == "--set-max" ]] && [[ -n "${2:-}" ]]; then
     if [[ "$2" =~ ^[0-9]+$ ]] && [[ "$2" -ge 1 ]] && [[ "$2" -le 8 ]]; then
-        echo "设置最大并发度为: $2"
+        if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+            echo "设置最大并发度为: $2"
+        elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
+            echo "[Optimizer] Max=$2"
+        fi
         # 这里可以写入配置文件
         echo "MAX_CONCURRENT_HOOKS=$2" > "${CONCURRENCY_CACHE}/max_concurrency"
         exit 0
     else
-        echo "错误: 并发度必须是1-8之间的数字" >&2
+        if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+            echo "错误: 并发度必须是1-8之间的数字" >&2
+        fi
         exit 1
     fi
 fi

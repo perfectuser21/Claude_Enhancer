@@ -40,19 +40,29 @@ check_quality() {
         ((score-=50))
     fi
 
-    # 输出质量报告
-    echo "🎯 质量评分: ${score}/100" >&2
+    # 根据静默模式决定是否输出质量报告
+    if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+        echo "🎯 质量评分: ${score}/100" >&2
 
-    if [ ${#warnings[@]} -gt 0 ]; then
-        echo "📋 质量建议:" >&2
-        printf "  %s\n" "${warnings[@]}" >&2
+        if [ ${#warnings[@]} -gt 0 ]; then
+            echo "📋 质量建议:" >&2
+            printf "  %s\n" "${warnings[@]}" >&2
+        fi
+    elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
+        # 紧凑模式：一行输出
+        echo "[Quality] Score: ${score}/100" >&2
     fi
+    # CE_SILENT_MODE=true时完全不输出
 
     if [ $score -ge 70 ]; then
-        echo "✅ 质量检查通过" >&2
+        if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+            echo "✅ 质量检查通过" >&2
+        fi
         return 0
     else
-        echo "⚠️ 质量评分较低，建议优化" >&2
+        if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+            echo "⚠️ 质量评分较低，建议优化" >&2
+        fi
         return 0  # 不阻止执行，只给建议
     fi
 }

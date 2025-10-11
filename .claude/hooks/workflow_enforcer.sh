@@ -56,81 +56,111 @@ is_programming_task() {
 enforce_workflow() {
     local current_phase=$(get_current_phase)
 
-    echo -e "${RED}╔═══════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${RED}║            🛑 工作流强制执行 - 阻塞模式                   ║${NC}"
-    echo -e "${RED}╚═══════════════════════════════════════════════════════════╝${NC}"
-    echo
+    # 根据静默模式决定是否输出
+    if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+        echo -e "${RED}╔═══════════════════════════════════════════════════════════╗${NC}"
+        echo -e "${RED}║            🛑 工作流强制执行 - 阻塞模式                   ║${NC}"
+        echo -e "${RED}╚═══════════════════════════════════════════════════════════╝${NC}"
+        echo
 
-    echo -e "${YELLOW}⚠️  检测到编程任务，但未按工作流执行！${NC}"
-    echo
-    echo -e "${BLUE}📍 当前Phase: ${current_phase}${NC}"
-    echo
+        echo -e "${YELLOW}⚠️  检测到编程任务，但未按工作流执行！${NC}"
+        echo
+        echo -e "${BLUE}📍 当前Phase: ${current_phase}${NC}"
+        echo
+    elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
+        # 紧凑模式输出
+        echo "[Workflow] ⚠️ 未按工作流执行 (Phase: ${current_phase})"
+    fi
 
     case "$current_phase" in
         "P0"|"")
-            echo -e "${RED}❌ 错误：必须先创建分支（Phase 0）${NC}"
-            echo -e "${GREEN}✅ 请执行：git checkout -b feature/your-feature${NC}"
-            echo
-            echo -e "${YELLOW}工作流要求：${NC}"
-            echo "  1. Phase 0: 创建feature分支"
-            echo "  2. Phase 1: 创建计划文档 (docs/PLAN.md)"
-            echo "  3. Phase 2: 设计架构骨架"
-            echo "  4. Phase 3: 实现功能（4-6-8 Agent策略）"
-            echo "  5. Phase 4: 本地测试"
-            echo "  6. Phase 5: 代码提交"
-            echo "  7. Phase 6: 代码审查"
-            echo
-            echo -e "${RED}🚫 操作已阻塞！请按工作流执行。${NC}"
+            if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+                echo -e "${RED}❌ 错误：必须先创建分支（Phase 0）${NC}"
+                echo -e "${GREEN}✅ 请执行：git checkout -b feature/your-feature${NC}"
+                echo
+                echo -e "${YELLOW}工作流要求：${NC}"
+                echo "  1. Phase 0: 创建feature分支"
+                echo "  2. Phase 1: 创建计划文档 (docs/PLAN.md)"
+                echo "  3. Phase 2: 设计架构骨架"
+                echo "  4. Phase 3: 实现功能（4-6-8 Agent策略）"
+                echo "  5. Phase 4: 本地测试"
+                echo "  6. Phase 5: 代码提交"
+                echo "  7. Phase 6: 代码审查"
+                echo
+                echo -e "${RED}🚫 操作已阻塞！请按工作流执行。${NC}"
+            elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
+                echo "[Workflow] ❌ 需要创建分支 (Phase 0)"
+            fi
             exit 1
             ;;
 
         "P1")
             if [[ ! -f "$PROJECT_ROOT/docs/PLAN.md" ]]; then
-                echo -e "${RED}❌ 错误：Phase 1需要创建计划文档${NC}"
-                echo -e "${GREEN}✅ 请先创建：docs/PLAN.md${NC}"
-                echo
-                echo "计划文档必须包含："
-                echo "  - ## 任务清单（至少5项）"
-                echo "  - ## 受影响文件清单"
-                echo "  - ## 回滚方案"
-                echo
-                echo -e "${RED}🚫 操作已阻塞！${NC}"
+                if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+                    echo -e "${RED}❌ 错误：Phase 1需要创建计划文档${NC}"
+                    echo -e "${GREEN}✅ 请先创建：docs/PLAN.md${NC}"
+                    echo
+                    echo "计划文档必须包含："
+                    echo "  - ## 任务清单（至少5项）"
+                    echo "  - ## 受影响文件清单"
+                    echo "  - ## 回滚方案"
+                    echo
+                    echo -e "${RED}🚫 操作已阻塞！${NC}"
+                elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
+                    echo "[Workflow] ❌ 需要计划文档 docs/PLAN.md"
+                fi
                 exit 1
             fi
             ;;
 
         "P2")
-            echo -e "${YELLOW}📐 Phase 2: 请先完成架构设计${NC}"
-            echo "  - 创建必要的目录结构"
-            echo "  - 定义接口和数据结构"
-            echo "  - 记录设计决策"
+            if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+                echo -e "${YELLOW}📐 Phase 2: 请先完成架构设计${NC}"
+                echo "  - 创建必要的目录结构"
+                echo "  - 定义接口和数据结构"
+                echo "  - 记录设计决策"
+            elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
+                echo "[Workflow] 📐 Phase 2: 架构设计"
+            fi
             ;;
 
         "P3")
-            echo -e "${GREEN}✅ Phase 3: 可以开始实现${NC}"
-            echo "  - 使用4-6-8 Agent策略"
-            echo "  - 简单任务：4个Agent"
-            echo "  - 标准任务：6个Agent"
-            echo "  - 复杂任务：8个Agent"
+            if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+                echo -e "${GREEN}✅ Phase 3: 可以开始实现${NC}"
+                echo "  - 使用4-6-8 Agent策略"
+                echo "  - 简单任务：4个Agent"
+                echo "  - 标准任务：6个Agent"
+                echo "  - 复杂任务：8个Agent"
+            elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
+                echo "[Workflow] ✅ Phase 3: 可以实现"
+            fi
             ;;
 
         *)
-            echo -e "${BLUE}ℹ️  当前在Phase ${current_phase}${NC}"
+            if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+                echo -e "${BLUE}ℹ️  当前在Phase ${current_phase}${NC}"
+            elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
+                echo "[Workflow] Phase: ${current_phase}"
+            fi
             ;;
     esac
 
     # 显示正确的执行命令
-    echo
-    echo -e "${MAGENTA}📋 推荐执行步骤：${NC}"
-    echo "  1. 查看当前状态："
-    echo "     ${GREEN}./.workflow/executor.sh status${NC}"
-    echo
-    echo "  2. 验证当前Phase："
-    echo "     ${GREEN}./.workflow/executor.sh validate${NC}"
-    echo
-    echo "  3. 进入下一Phase："
-    echo "     ${GREEN}./.workflow/executor.sh next${NC}"
-    echo
+    if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+        echo
+        echo -e "${MAGENTA}📋 推荐执行步骤：${NC}"
+        echo "  1. 查看当前状态："
+        echo "     ${GREEN}./.workflow/executor.sh status${NC}"
+        echo
+        echo "  2. 验证当前Phase："
+        echo "     ${GREEN}./.workflow/executor.sh validate${NC}"
+        echo
+        echo "  3. 进入下一Phase："
+        echo "     ${GREEN}./.workflow/executor.sh next${NC}"
+        echo
+    elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
+        echo "[Workflow] 使用 ./.workflow/executor.sh 管理流程"
+    fi
 
     # 返回阻塞信号
     return 1

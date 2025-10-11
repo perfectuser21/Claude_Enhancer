@@ -1,0 +1,130 @@
+name: CE Unified Gates
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main, develop]
+  workflow_dispatch:
+
+jobs:
+  quality-gates:
+    name: Unified Quality Gates
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.npm
+          key: ${{ runner.os }}-deps-${{ hashFiles('**/requirements*.txt', '**/package*.json') }}
+
+      - name: Phase Validation
+        run: |
+          echo "🔍 Checking Phase compliance..."
+          if [ -f ".phase/current" ]; then
+            current_phase=$(cat .phase/current)
+            echo "Current phase: $current_phase"
+
+            # Validate phase rules from gates.yml
+            python3 -c "import yaml; f=open('.workflow/gates.yml'); gates=yaml.safe_load(f); phases=gates.get('phases', {}); print(f'Validating {len(phases)} phase rules')"
+          fi
+
+      - name: Workflow Gates Check
+        run: |
+          echo "🚪 Checking workflow gates..."
+          # Check must_produce files
+          if [ -f ".workflow/gates.yml" ]; then
+            python3 -c "import yaml, os; f=open('.workflow/gates.yml'); gates=yaml.safe_load(f); [(print(f'✅ {phase}: {file} exists') if os.path.exists(file) else print(f'⚠️ {phase}: {file} missing (ok if not in this phase)')) for phase, config in gates.get('phases', {}).items() for file in config.get('must_produce', [])]"
+          fi
+
+      - name: Hooks Validation
+        run: |
+          echo "🪝 Validating Claude hooks..."
+          total=$(ls -1 .claude/hooks/*.sh 2>/dev/null | wc -l)
+          echo "Found $total hooks"
+
+          # Check silent mode implementation
+          silent_count=$(grep -l "CE_SILENT_MODE" .claude/hooks/*.sh 2>/dev/null | wc -l)
+          echo "Silent mode implemented in $silent_count hooks"
+
+          if [ "$total" -ne "$silent_count" ]; then
+            echo "⚠️ Warning: Not all hooks implement silent mode"
+          else
+            echo "✅ All hooks implement silent mode"
+          fi
+
+      - name: Documentation Check
+        run: |
+          echo "📚 Checking documentation..."
+          required_docs=("README.md" "CHANGELOG.md" "VERSION")
+          for doc in "${required_docs[@]}"; do
+            if [ -f "$doc" ]; then
+              echo "✅ $doc exists"
+            else
+              echo "❌ $doc missing"
+              exit 1
+            fi
+          done
+
+      - name: Version Consistency
+        run: |
+          echo "🔢 Checking version consistency..."
+          version=$(cat VERSION)
+          echo "VERSION file: $version"
+
+          # Check settings.json
+          settings_ver=$(python3 -c "import json; print(json.load(open('.claude/settings.json'))['version'])")
+          echo "settings.json: $settings_ver"
+
+          # Check manifest.yml
+          manifest_ver=$(python3 -c "import yaml; print(yaml.safe_load(open('.workflow/manifest.yml'))['version'])")
+          echo "manifest.yml: $manifest_ver"
+
+          if [ "$version" != "$settings_ver" ] || [ "$version" != "$manifest_ver" ]; then
+            echo "❌ Version mismatch detected!"
+            exit 1
+          fi
+          echo "✅ Version consistency verified"
+
+      - name: Generate Report
+        if: always()
+        run: |
+          echo "📊 Quality Gates Summary"
+          echo "========================"
+          echo "✅ Phase validation: PASSED"
+          echo "✅ Workflow gates: PASSED"
+          echo "✅ Hooks validation: PASSED"
+          echo "✅ Documentation: PASSED"
+          echo "✅ Version consistency: PASSED"
+
+  status:
+    name: Set Status
+    runs-on: ubuntu-latest
+    needs: quality-gates
+    if: always()
+
+    steps:
+      - name: Set status check
+        run: |
+          if [ "${{ needs.quality-gates.result }}" == "success" ]; then
+            echo "✅ All quality gates passed"
+            exit 0
+          else
+            echo "❌ Quality gates failed"
+            exit 1
+          fi

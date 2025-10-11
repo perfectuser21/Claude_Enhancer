@@ -26,7 +26,11 @@ recover_agent() {
         # 检查Agent状态
         if [ -f "/tmp/agent_${agent_name}.lock" ]; then
             rm -f "/tmp/agent_${agent_name}.lock"
-            echo "🔧 Recovered agent: $agent_name"
+            if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+                echo "🔧 Recovered agent: $agent_name"
+            elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
+                echo "[Recovery] $agent_name"
+            fi
             return 0
         fi
 

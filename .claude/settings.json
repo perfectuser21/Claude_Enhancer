@@ -1,6 +1,6 @@
 {
-  "version": "5.5.0",
-  "project": "Claude Enhancer 5.0",
+  "version": "6.0.0",
+  "project": "Claude Enhancer",
   "description": "使用官方默认高亮显示 + 工作流强制执行 + 增强质量保障 + 全自动模式",
   "permissions": {
     "allow": [

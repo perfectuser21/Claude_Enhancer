@@ -12,13 +12,29 @@ echo "$(date +'%F %T') [gap_scan.sh] triggered by ${USER:-claude}" >> "$LOG_FILE
 
 set -euo pipefail
 
-echo "== CE-5.3 Gap Scan =="
+# 根据静默模式决定输出函数
+if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+    echo "== CE-5.3 Gap Scan =="
+fi
 pass=0; fail=0; warn=0
 
-section(){ printf "\n-- %s --\n" "$1"; }
-ok(){ echo "✓ $*"; pass=$((pass+1)); }
-ng(){ echo "✗ $*"; fail=$((fail+1)); }
-wf(){ echo "⚠ $*"; warn=$((warn+1)); }
+if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+    section(){ printf "\n-- %s --\n" "$1"; }
+    ok(){ echo "✓ $*"; pass=$((pass+1)); }
+    ng(){ echo "✗ $*"; fail=$((fail+1)); }
+    wf(){ echo "⚠ $*"; warn=$((warn+1)); }
+elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
+    section(){ :; }  # 紧凑模式不输出section
+    ok(){ pass=$((pass+1)); }
+    ng(){ echo "[Gap] ✗ $*"; fail=$((fail+1)); }
+    wf(){ warn=$((warn+1)); }
+else
+    # 完全静默模式
+    section(){ :; }
+    ok(){ pass=$((pass+1)); }
+    ng(){ fail=$((fail+1)); }
+    wf(){ warn=$((warn+1)); }
+fi
 
 # 目标：场景≥25、SLO≥10、性能指标≥30、CI jobs≥7、hooks硬拦截
 section "Counts & Contracts"
@@ -55,5 +71,9 @@ mig=$(ls migrations/* 2>/dev/null | wc -l | tr -d ' ')
 grep -qiE '(down|rollback)' -n migrations/* 2>/dev/null \
   && ok "迁移含回滚 (files:$mig)" || ng "迁移缺少回滚标记"
 
-echo -e "\n== Summary ==\nPASS:$pass  FAIL:$fail  WARN:$warn"
+if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+    echo -e "\n== Summary ==\nPASS:$pass  FAIL:$fail  WARN:$warn"
+elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
+    echo "[Gap] PASS:$pass FAIL:$fail WARN:$warn"
+fi
 (( fail == 0 )) || exit 1

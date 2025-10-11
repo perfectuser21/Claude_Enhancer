@@ -98,16 +98,16 @@ show_status() {
     echo -e "${BLUE}📊 Claude Enhancer 自动模式状态${NC}"
     echo "================================"
 
-    if [[ -f "$PROJECT_ROOT/.claude/.auto_mode_enabled" ]] || [[ "$CE_AUTO_MODE" == "true" ]]; then
+    if [[ -f "$PROJECT_ROOT/.claude/.auto_mode_enabled" ]] || [[ "${CE_AUTO_MODE:-}" == "true" ]]; then
         echo -e "状态: ${GREEN}已启用${NC}"
         echo ""
         echo "当前设置:"
-        echo "  CE_AUTO_MODE=$CE_AUTO_MODE"
-        echo "  CE_AUTO_CREATE_BRANCH=$CE_AUTO_CREATE_BRANCH"
-        echo "  CE_AUTO_SELECT_DEFAULT=$CE_AUTO_SELECT_DEFAULT"
-        echo "  CE_AUTO_CONFIRM=$CE_AUTO_CONFIRM"
-        echo "  CE_SILENT_AGENT_SELECTION=$CE_SILENT_AGENT_SELECTION"
-        echo "  CE_COMPACT_OUTPUT=$CE_COMPACT_OUTPUT"
+        echo "  CE_AUTO_MODE=${CE_AUTO_MODE:-not set}"
+        echo "  CE_AUTO_CREATE_BRANCH=${CE_AUTO_CREATE_BRANCH:-not set}"
+        echo "  CE_AUTO_SELECT_DEFAULT=${CE_AUTO_SELECT_DEFAULT:-not set}"
+        echo "  CE_AUTO_CONFIRM=${CE_AUTO_CONFIRM:-not set}"
+        echo "  CE_SILENT_AGENT_SELECTION=${CE_SILENT_AGENT_SELECTION:-not set}"
+        echo "  CE_COMPACT_OUTPUT=${CE_COMPACT_OUTPUT:-not set}"
     else
         echo -e "状态: ${RED}未启用${NC}"
         echo ""
