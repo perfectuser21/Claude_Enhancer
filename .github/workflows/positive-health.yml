@@ -26,6 +26,10 @@ jobs:
   health-check:
     name: Positive System Health Check
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
 
     outputs:
       health_score: ${{ steps.calculate_score.outputs.score }}

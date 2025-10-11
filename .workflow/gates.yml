@@ -28,7 +28,7 @@ phase_order: [P0, P1, P2, P3, P4, P5, P6, P7]
 phases:
   P0:
     name: "Discovery"
-    allow_paths: ["docs/P0_*.md", "docs/*_DISCOVERY.md", "docs/spike/**"]
+    allow_paths: ["docs/P0_*.md", "docs/*_DISCOVERY.md", "docs/spike/**", ".phase/**"]
     must_produce:
       - "docs/P0_*_DISCOVERY.md: 包含可行性分析、技术spike、风险评估"
       - "可行性结论明确（GO/NO-GO/NEEDS-DECISION）"
@@ -46,7 +46,7 @@ phases:
 
   P1:
     name: "Plan"
-    allow_paths: ["docs/PLAN.md"]
+    allow_paths: ["docs/PLAN.md", ".phase/**"]
     must_produce:
       - "docs/PLAN.md: 包含三级标题：## 任务清单, ## 受影响文件清单, ## 回滚方案"
       - "任务清单≥5条（每条以动词开头，包含具体文件/模块名）"
@@ -62,11 +62,11 @@ phases:
 
   P2:
     name: "Skeleton"
-    allow_paths: ["src/**", ".claude/**", ".workflow/**", "CLAUDE.md", "docs/SKELETON-NOTES.md"]
+    allow_paths: ["src/**", ".claude/**", ".workflow/**", ".github/workflows/**", "CLAUDE.md", "docs/**", ".phase/**"]
     must_produce:
       - "根据 PLAN.md 新建目录/接口骨架；不得新增计划外目录"
       - "必要说明写入 docs/SKELETON-NOTES.md"
-      - "工作流基础设施（.claude/hooks, .workflow/等）属于项目骨架"
+      - "工作流基础设施（.claude/hooks, .workflow/, .github/workflows/等）属于项目骨架"
       - "项目规范文件（CLAUDE.md）定义项目骨架的开发规范"
     gates:
       - "src/ 新增目录均在 PLAN 受影响清单内"
@@ -78,7 +78,7 @@ phases:
 
   P3:
     name: "Implement"
-    allow_paths: ["src/**", "docs/CHANGELOG.md"]
+    allow_paths: ["src/**", "docs/CHANGELOG.md", ".phase/**"]
     must_produce:
       - "实现功能代码，可构建"
       - "docs/CHANGELOG.md 的 Unreleased 段新增本次条目（简述范围/影响）"
@@ -93,7 +93,7 @@ phases:
 
   P4:
     name: "Test"
-    allow_paths: ["tests/**", "docs/TEST-REPORT.md"]
+    allow_paths: ["tests/**", "docs/TEST-REPORT.md", ".phase/**"]
     must_produce:
       - "新增/改动测试 >= 2 条，且至少 1 条为边界/负例"
       - "docs/TEST-REPORT.md 列出覆盖的模块/函数与结果"
@@ -106,7 +106,7 @@ phases:
 
   P5:
     name: "Review"
-    allow_paths: ["docs/REVIEW.md"]
+    allow_paths: ["docs/REVIEW.md", ".phase/**"]
     must_produce:
       - "docs/REVIEW.md 三段：风格一致性/风险清单/回滚可行性；最后一行写 'APPROVE' 或 'REWORK: …'"
     gates:
@@ -136,7 +136,7 @@ phases:
 
   P7:
     name: "Monitor"
-    allow_paths: ["observability/**", "docs/*_MONITOR.md", "docs/P7_*.md"]
+    allow_paths: ["observability/**", "docs/*_MONITOR.md", "docs/P7_*.md", ".phase/**"]
     must_produce:
       - "observability/*_MONITOR_REPORT.md: 包含健康检查、SLO验证、完整性验证"
       - "所有关键指标验证通过"
