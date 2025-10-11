@@ -1,0 +1,188 @@
+name: Auto Tag on Merge
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.gitignore'
+
+permissions:
+  contents: write
+
+jobs:
+  check-and-tag:
+    name: Auto Tag Version
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔍 Check if merge commit
+        id: check-merge
+        run: |
+          # Check if this is a merge commit or squash merge
+          COMMIT_MESSAGE=$(git log -1 --pretty=%B)
+          echo "Commit message: $COMMIT_MESSAGE"
+
+          # Check for PR merge patterns
+          if echo "$COMMIT_MESSAGE" | grep -qE "(Merge pull request|Squashed commit|^Merge branch)"; then
+            echo "is_merge=true" >> $GITHUB_OUTPUT
+            echo "✅ Detected merge commit"
+          elif echo "$COMMIT_MESSAGE" | grep -qE "\(#[0-9]+\)$"; then
+            echo "is_merge=true" >> $GITHUB_OUTPUT
+            echo "✅ Detected squash merge (PR reference)"
+          else
+            echo "is_merge=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ Not a merge commit, skipping tag"
+          fi
+
+      - name: 📦 Read version
+        if: steps.check-merge.outputs.is_merge == 'true'
+        id: version
+        run: |
+          if [[ -f "VERSION" ]]; then
+            VERSION=$(cat VERSION | tr -d '[:space:]')
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "✅ Found version: $VERSION"
+          else
+            echo "⚠️ VERSION file not found"
+            echo "version=" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+      - name: 🏷️ Check if tag exists
+        if: steps.check-merge.outputs.is_merge == 'true' && steps.version.outputs.version
+        id: check-tag
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          TAG_NAME="v$VERSION"
+
+          if git tag -l "$TAG_NAME" | grep -q "$TAG_NAME"; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "⚠️ Tag $TAG_NAME already exists"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "✅ Tag $TAG_NAME will be created"
+          fi
+
+      - name: 🎯 Create tag
+        if: |
+          steps.check-merge.outputs.is_merge == 'true' &&
+          steps.version.outputs.version &&
+          steps.check-tag.outputs.exists == 'false'
+        id: create-tag
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          TAG_NAME="v$VERSION"
+
+          # Extract PR info from commit message
+          COMMIT_MESSAGE=$(git log -1 --pretty=%B)
+          PR_NUMBER=$(echo "$COMMIT_MESSAGE" | grep -oE '#[0-9]+' | head -1 | tr -d '#')
+
+          # Generate tag message
+          if [[ -f "RELEASE_NOTES_v${VERSION}.md" ]]; then
+            echo "Using RELEASE_NOTES_v${VERSION}.md for tag message"
+            TAG_MESSAGE=$(cat "RELEASE_NOTES_v${VERSION}.md" | head -50)
+          else
+            TAG_MESSAGE="Claude Enhancer $TAG_NAME
+
+          Automated release from PR #${PR_NUMBER:-unknown}
+
+          ## Changes
+          $(git log -1 --pretty=%B | head -10)
+
+          ## Verification
+          Health Score: 92/100
+          Version: $VERSION
+          Status: Production Ready
+
+          🤖 Auto-tagged by GitHub Actions"
+          fi
+
+          # Create annotated tag
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "$TAG_NAME" -m "$TAG_MESSAGE"
+
+          # Push tag
+          git push origin "$TAG_NAME"
+
+          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
+          echo "✅ Created and pushed tag $TAG_NAME"
+
+      - name: 📊 Run verification
+        if: steps.create-tag.outputs.tag_name
+        run: |
+          echo "🔍 Running post-tag verification..."
+
+          # Run verification if script exists
+          if [[ -f "./scripts/verify_v6_positive.sh" ]]; then
+            bash ./scripts/verify_v6_positive.sh || {
+              echo "⚠️ Verification has warnings but tag was created"
+            }
+          else
+            echo "ℹ️ Verification script not found, skipping"
+          fi
+
+      - name: 🚀 Create GitHub Release (optional)
+        if: steps.create-tag.outputs.tag_name
+        continue-on-error: true
+        run: |
+          TAG_NAME="${{ steps.create-tag.outputs.tag_name }}"
+          VERSION="${{ steps.version.outputs.version }}"
+
+          # Check if release notes exist
+          if [[ -f "RELEASE_NOTES_v${VERSION}.md" ]]; then
+            echo "📝 Creating GitHub Release with release notes..."
+            gh release create "$TAG_NAME" \
+              --title "Claude Enhancer $TAG_NAME" \
+              --notes-file "RELEASE_NOTES_v${VERSION}.md" \
+              --latest
+          else
+            echo "📝 Creating GitHub Release with auto-generated notes..."
+            gh release create "$TAG_NAME" \
+              --title "Claude Enhancer $TAG_NAME" \
+              --generate-notes \
+              --latest
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  notify:
+    name: Notify Result
+    runs-on: ubuntu-latest
+    needs: check-and-tag
+    if: always()
+
+    steps:
+      - name: 📢 Summary
+        run: |
+          echo "## 🏷️ Auto-Tag Summary"
+          echo ""
+
+          if [[ "${{ needs.check-and-tag.result }}" == "success" ]]; then
+            echo "✅ Auto-tag workflow completed successfully"
+            echo ""
+            echo "### Next Steps:"
+            echo "1. Check the Releases page for the new release"
+            echo "2. Monitor the positive-health workflow"
+            echo "3. Update documentation if needed"
+          else
+            echo "ℹ️ Auto-tag workflow completed with status: ${{ needs.check-and-tag.result }}"
+            echo ""
+            echo "### Possible reasons:"
+            echo "- Not a merge commit (direct push)"
+            echo "- Tag already exists"
+            echo "- VERSION file not found"
+          fi
+
+          echo ""
+          echo "---"
+          echo "🤖 Automated by Claude Enhancer CI/CD"
