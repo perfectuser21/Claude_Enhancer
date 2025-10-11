@@ -1,4 +1,8 @@
 #!/bin/bash
+# Auto-mode detection
+if [[ "$CE_AUTO_MODE" == "true" ]]; then
+    export CE_SILENT_MODE=true
+fi
 # Claude Enhancer 任务类型检测器
 # 在用户输入后立即分析并提醒正确的工作流程
 

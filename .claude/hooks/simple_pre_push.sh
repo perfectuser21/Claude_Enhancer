@@ -1,4 +1,8 @@
 #!/bin/bash
+# Auto-mode detection
+if [[ "$CE_AUTO_MODE" == "true" ]]; then
+    export CE_SILENT_MODE=true
+fi
 # 简单的pre-push hook - 推送前的最后检查
 
 echo "🚀 推送前检查..."

@@ -1,4 +1,8 @@
 #!/bin/bash
+# Auto-mode detection
+if [[ "$CE_AUTO_MODE" == "true" ]]; then
+    export CE_SILENT_MODE=true
+fi
 # SystemPrompt Workflow Enforcer
 # Ensures Claude Code automatically follows Claude Enhancer 5.0 workflow
 # Version: 5.0.0

@@ -1,4 +1,8 @@
 #!/bin/bash
+# Auto-mode detection
+if [[ "$CE_AUTO_MODE" == "true" ]]; then
+    export CE_SILENT_MODE=true
+fi
 # Workflow Auto-Trigger Integration Hook
 # Integrates auto_trigger.sh with Claude Enhancer 5.0 hook system
 # Version: 5.0.0

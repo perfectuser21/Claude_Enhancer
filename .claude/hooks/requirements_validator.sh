@@ -1,4 +1,8 @@
 #!/bin/bash
+# Auto-mode detection
+if [[ "$CE_AUTO_MODE" == "true" ]]; then
+    export CE_SILENT_MODE=true
+fi
 # P1阶段需求验证器
 echo "ℹ️ Requirements validator active"
 

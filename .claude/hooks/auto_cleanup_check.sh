@@ -1,4 +1,8 @@
 #!/bin/bash
+# Auto-mode detection
+if [[ "$CE_AUTO_MODE" == "true" ]]; then
+    export CE_SILENT_MODE=true
+fi
 # Claude Enhancer - 自动清理检查Hook
 # 当垃圾文件过多时提醒清理
 

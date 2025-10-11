@@ -1,4 +1,8 @@
 #!/bin/bash
+# Auto-mode detection
+if [[ "$CE_AUTO_MODE" == "true" ]]; then
+    export CE_SILENT_MODE=true
+fi
 # Claude Enhancer - 高性能Hook引擎启动脚本
 # 一键切换到高性能模式
 

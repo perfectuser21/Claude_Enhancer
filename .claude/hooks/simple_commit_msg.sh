@@ -1,4 +1,8 @@
 #!/bin/bash
+# Auto-mode detection
+if [[ "$CE_AUTO_MODE" == "true" ]]; then
+    export CE_SILENT_MODE=true
+fi
 # 简单的commit-msg hook - 确保有意义的提交信息
 
 commit_regex='^(feat|fix|docs|style|refactor|test|chore|perf|build|ci): .{3,}'

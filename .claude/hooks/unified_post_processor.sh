@@ -1,4 +1,8 @@
 #!/bin/bash
+# Auto-mode detection
+if [[ "$CE_AUTO_MODE" == "true" ]]; then
+    export CE_SILENT_MODE=true
+fi
 # Claude Enhancer - 统一后处理器
 # 智能结果分析、进度跟踪、性能优化
 

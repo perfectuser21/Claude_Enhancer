@@ -1,4 +1,8 @@
 #!/bin/bash
+# Auto-mode detection
+if [[ "$CE_AUTO_MODE" == "true" ]]; then
+    export CE_SILENT_MODE=true
+fi
 # Claude Enhancer - 智能错误恢复系统
 # 高性能错误检测和自动恢复机制
 

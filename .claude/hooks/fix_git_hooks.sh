@@ -1,4 +1,8 @@
 #!/bin/bash
+# Auto-mode detection
+if [[ "$CE_AUTO_MODE" == "true" ]]; then
+    export CE_SILENT_MODE=true
+fi
 # Git Hooks一致性修复脚本
 
 echo "🔧 修复Git Hooks执行一致性问题"

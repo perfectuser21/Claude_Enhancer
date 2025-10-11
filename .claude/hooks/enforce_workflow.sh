@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# Auto-mode detection
+if [[ "$CE_AUTO_MODE" == "true" ]]; then
+    export CE_SILENT_MODE=true
+fi
 # Claude Enhancer 工作流强制执行器 - 确保AI始终遵循8-Phase工作流
 
 set -euo pipefail

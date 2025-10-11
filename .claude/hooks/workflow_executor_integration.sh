@@ -1,4 +1,8 @@
 #!/bin/bash
+# Auto-mode detection
+if [[ "$CE_AUTO_MODE" == "true" ]]; then
+    export CE_SILENT_MODE=true
+fi
 # =============================================================================
 # Claude Enhancer 5.0 - Workflow Executor Integration Hook
 # 将workflow executor集成到Claude hooks系统

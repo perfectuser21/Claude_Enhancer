@@ -1,4 +1,8 @@
 #!/bin/bash
+# Auto-mode detection
+if [[ "$CE_AUTO_MODE" == "true" ]]; then
+    export CE_SILENT_MODE=true
+fi
 # 优化的pre-commit hook - 使用Claude Enhancer Plus Git优化系统
 
 # 检查是否有Node.js环境来运行优化版本
