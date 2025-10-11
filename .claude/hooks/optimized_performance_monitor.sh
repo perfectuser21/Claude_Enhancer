@@ -122,11 +122,17 @@ main() {
     local execution_time=$(echo "scale=3; $(date +%s.%N) - $start_time" | bc 2>/dev/null || echo "0.001")
 
     # 输出结果（仅在有告警或调试模式时输出到stderr）
-    if [[ -n "$alerts" ]] || [[ "${DEBUG_HOOKS:-false}" == "true" ]]; then
-        {
-            echo "📊 Performance: $system_stats,$claude_stats,$disk_stats (${execution_time}s)"
-            [[ -n "$alerts" ]] && echo "$alerts"
-        } >&2
+    if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+        if [[ -n "$alerts" ]] || [[ "${DEBUG_HOOKS:-false}" == "true" ]]; then
+            {
+                echo "📊 Performance: $system_stats,$claude_stats,$disk_stats (${execution_time}s)"
+                [[ -n "$alerts" ]] && echo "$alerts"
+            } >&2
+        fi
+    elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
+        if [[ -n "$alerts" ]]; then
+            echo "[PerfMon] $alerts" >&2
+        fi
     fi
 
     # 更新Hook统计（异步）

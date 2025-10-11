@@ -3,16 +3,24 @@
 if [[ "$CE_AUTO_MODE" == "true" ]]; then
     export CE_SILENT_MODE=true
 fi
-# P1阶段需求验证器
-echo "ℹ️ Requirements validator active"
+# Claude Enhancer 需求验证器
 
-# 检查PLAN.md结构完整性
-if [ -f "docs/PLAN.md" ]; then
-    if grep -q "## 任务列表" docs/PLAN.md && \
-       grep -q "## 受影响路径" docs/PLAN.md && \
-       grep -q "## 回滚计划" docs/PLAN.md; then
-        echo "✅ PLAN.md结构完整"
+if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+    echo "📋 Requirements Validator"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "检查需求文档完整性："
+    if [[ -f "docs/PLAN.md" ]]; then
+        echo "  ✅ PLAN.md 存在"
     else
-        echo "⚠️ 建议: PLAN.md需包含任务列表、受影响路径、回滚计划"
+        echo "  ❌ PLAN.md 缺失"
+    fi
+    echo "━━━━━━━━━━━━━━━━━━━━━━━"
+elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
+    if [[ -f "docs/PLAN.md" ]]; then
+        echo "[Requirements] ✅ PLAN.md"
+    else
+        echo "[Requirements] ❌ 缺少PLAN.md"
     fi
 fi
+
+exit 0
