@@ -1,7 +1,7 @@
 {
-  "version": "6.0.0",
+  "version": "6.1.0",
   "project": "Claude Enhancer",
-  "description": "使用官方默认高亮显示 + 工作流强制执行 + 增强质量保障 + 全自动模式",
+  "description": "完全自动化模式 - Bypass Permissions + 零人工确认 + P0-P7自主执行",
   "permissions": {
     "allow": [
       "Bash(**)",
@@ -13,9 +13,16 @@
       "Task",
       "TodoWrite",
       "WebSearch",
-      "WebFetch"
-    ]
+      "WebFetch",
+      "NotebookEdit",
+      "KillShell",
+      "BashOutput",
+      "SlashCommand"
+    ],
+    "bypassPermissionsMode": true,
+    "defaultMode": "auto"
   },
+  "autoConfirm": true,
   "hooks": {
     "UserPromptSubmit": [
       ".claude/hooks/workflow_auto_start.sh"

@@ -62,7 +62,7 @@ phases:
 
   P2:
     name: "Skeleton"
-    allow_paths: ["src/**", ".claude/**", ".workflow/**", ".github/workflows/**", "CLAUDE.md", "docs/**", ".phase/**"]
+    allow_paths: ["src/**", ".claude/**", ".workflow/**", ".github/workflows/**", "CLAUDE.md", "VERSION", "docs/**", ".phase/**"]
     must_produce:
       - "根据 PLAN.md 新建目录/接口骨架；不得新增计划外目录"
       - "必要说明写入 docs/SKELETON-NOTES.md"
