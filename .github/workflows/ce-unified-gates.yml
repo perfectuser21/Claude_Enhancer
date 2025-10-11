@@ -41,13 +41,7 @@ jobs:
             echo "Current phase: $current_phase"
 
             # Validate phase rules from gates.yml
-            python3 -c "
-import yaml
-with open('.workflow/gates.yml') as f:
-    gates = yaml.safe_load(f)
-    phases = gates.get('phases', {})
-    print(f'Validating {len(phases)} phase rules')
-            "
+            python3 -c "import yaml; f=open('.workflow/gates.yml'); gates=yaml.safe_load(f); phases=gates.get('phases', {}); print(f'Validating {len(phases)} phase rules')"
           fi
 
       - name: Workflow Gates Check
@@ -55,17 +49,7 @@ with open('.workflow/gates.yml') as f:
           echo "🚪 Checking workflow gates..."
           # Check must_produce files
           if [ -f ".workflow/gates.yml" ]; then
-            python3 -c "
-import yaml, os
-with open('.workflow/gates.yml') as f:
-    gates = yaml.safe_load(f)
-    for phase, config in gates.get('phases', {}).items():
-        for file in config.get('must_produce', []):
-            if os.path.exists(file):
-                print(f'✅ {phase}: {file} exists')
-            else:
-                print(f'⚠️ {phase}: {file} missing (ok if not in this phase)')
-            "
+            python3 -c "import yaml, os; f=open('.workflow/gates.yml'); gates=yaml.safe_load(f); [(print(f'✅ {phase}: {file} exists') if os.path.exists(file) else print(f'⚠️ {phase}: {file} missing (ok if not in this phase)')) for phase, config in gates.get('phases', {}).items() for file in config.get('must_produce', [])]"
           fi
 
       - name: Hooks Validation

@@ -11,14 +11,21 @@ auto_confirm() {
 
     # 如果启用自动确认，直接返回默认值
     if [[ "${CE_AUTO_CONFIRM:-false}" == "true" ]]; then
-        if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+        # 只在非静默模式且紧凑输出关闭时显示
+        if [[ "${CE_SILENT_MODE:-false}" != "true" ]] && [[ "${CE_COMPACT_OUTPUT:-false}" != "true" ]]; then
             echo "[AUTO-CONFIRM] $prompt → $default" >&2
         fi
         echo "$default"
         return 0
     fi
 
-    # 否则正常询问用户
+    # 否则正常询问用户（除非在静默模式）
+    if [[ "${CE_SILENT_MODE:-false}" == "true" ]]; then
+        # 静默模式下使用默认值，不询问
+        echo "$default"
+        return 0
+    fi
+
     read -p "$prompt " response
     echo "${response:-$default}"
 }
@@ -37,10 +44,17 @@ auto_select_default() {
     # 如果启用自动选择默认值
     if [[ "${CE_AUTO_SELECT_DEFAULT:-false}" == "true" ]]; then
         local selected="${option_array[$((default_index-1))]}"
-        if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+        # 只在非静默模式且紧凑输出关闭时显示
+        if [[ "${CE_SILENT_MODE:-false}" != "true" ]] && [[ "${CE_COMPACT_OUTPUT:-false}" != "true" ]]; then
             echo "[AUTO-SELECT] $prompt → $selected (option $default_index)" >&2
         fi
         echo "$selected"
+        return 0
+    fi
+
+    # 静默模式下直接使用默认值
+    if [[ "${CE_SILENT_MODE:-false}" == "true" ]]; then
+        echo "${option_array[$((default_index-1))]}"
         return 0
     fi
 
@@ -69,8 +83,13 @@ smart_auto_confirm() {
     local danger_level="${2:-low}"  # low, medium, high
     local default="${3:-y}"
 
-    # 高危操作永不自动确认
+    # 高危操作永不自动确认（但静默模式下跳过）
     if [[ "$danger_level" == "high" ]]; then
+        if [[ "${CE_SILENT_MODE:-false}" == "true" ]]; then
+            # 静默模式下高危操作默认拒绝
+            echo "n"
+            return
+        fi
         read -p "⚠️ $prompt (需要手动确认) " response
         echo "${response:-n}"
         return
@@ -82,6 +101,10 @@ smart_auto_confirm() {
             if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
                 echo "[AUTO-CONFIRM-MEDIUM] $prompt → $default" >&2
             fi
+            echo "$default"
+            return 0
+        elif [[ "${CE_SILENT_MODE:-false}" == "true" ]]; then
+            # 静默模式但未启用中等危险自动确认，使用默认值
             echo "$default"
             return 0
         else

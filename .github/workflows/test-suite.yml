@@ -83,28 +83,10 @@ jobs:
         run: |
           echo "🔄 Testing workflow integration..."
           # Verify gates.yml is valid
-          python3 -c "
-import yaml
-try:
-    with open('.workflow/gates.yml') as f:
-        gates = yaml.safe_load(f)
-    print('✅ gates.yml is valid YAML')
-except Exception as e:
-    print(f'❌ gates.yml error: {e}')
-    exit(1)
-          "
+          python3 -c "import yaml; exec(\"try:\\n  f=open('.workflow/gates.yml'); gates=yaml.safe_load(f); print('✅ gates.yml is valid YAML')\\nexcept Exception as e:\\n  print(f'❌ gates.yml error: {e}'); exit(1)\")"
 
           # Verify manifest.yml is valid
-          python3 -c "
-import yaml
-try:
-    with open('.workflow/manifest.yml') as f:
-        manifest = yaml.safe_load(f)
-    print('✅ manifest.yml is valid YAML')
-except Exception as e:
-    print(f'❌ manifest.yml error: {e}')
-    exit(1)
-          "
+          python3 -c "import yaml; exec(\"try:\\n  f=open('.workflow/manifest.yml'); manifest=yaml.safe_load(f); print('✅ manifest.yml is valid YAML')\\nexcept Exception as e:\\n  print(f'❌ manifest.yml error: {e}'); exit(1)\")"
 
   performance-tests:
     name: Performance Tests
