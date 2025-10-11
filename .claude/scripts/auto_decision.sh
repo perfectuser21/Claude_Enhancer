@@ -2,7 +2,7 @@
 # Claude Enhancer Auto Decision Manager v5.5.0
 # 自动决策管理器 - 控制自动模式的开关
 
-set -e
+set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 AUTO_CONFIG="$PROJECT_ROOT/.claude/auto.config"

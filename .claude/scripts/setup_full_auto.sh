@@ -2,7 +2,7 @@
 # Claude Enhancer Full Auto Setup v5.5.0
 # 一键配置完全自动化模式
 
-set -e
+set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
