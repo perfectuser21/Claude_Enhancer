@@ -82,34 +82,65 @@ show_branch_guidance() {
 # 主逻辑
 if [[ "$current_branch" == "main" ]] || [[ "$current_branch" == "master" ]]; then
     if [[ "$EXECUTION_MODE" == "true" ]]; then
-        # 执行模式：硬阻止
-        echo "" >&2
-        echo "🚨 Claude Enhancer - 分支检查失败" >&2
-        echo "═══════════════════════════════════════════" >&2
-        echo "" >&2
-        echo "❌ 错误：不能在 $current_branch 分支上直接修改文件" >&2
-        echo "" >&2
-        echo "📋 规则0：新任务 = 新分支（强制执行）" >&2
-        echo "" >&2
-        echo "🔧 解决方案：" >&2
-        echo "  1. 创建新的feature分支：" >&2
-        echo "     git checkout -b feature/任务描述" >&2
-        echo "" >&2
-        echo "  2. 然后重新执行你的操作" >&2
-        echo "" >&2
-        echo "📝 分支命名示例：" >&2
-        echo "  • feature/add-user-auth" >&2
-        echo "  • feature/multi-terminal-workflow" >&2
-        echo "  • bugfix/fix-login-error" >&2
-        echo "" >&2
-        echo "═══════════════════════════════════════════" >&2
-        echo "" >&2
+        # 检查是否启用自动创建分支
+        if [[ "${CE_AUTO_CREATE_BRANCH:-false}" == "true" ]]; then
+            # 自动创建分支模式
+            local date_str=$(date +%Y%m%d-%H%M%S)
+            local new_branch="feature/auto-${date_str}"
 
-        # 记录阻止日志
-        echo "$(date +'%F %T') [branch_helper.sh] BLOCKED: attempt to modify on $current_branch" >> "$LOG_FILE"
+            if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+                echo "" >&2
+                echo "🌿 Claude Enhancer - 自动创建分支" >&2
+                echo "═══════════════════════════════════════════" >&2
+                echo "" >&2
+                echo "📍 检测到在 $current_branch 分支" >&2
+                echo "🚀 自动创建新分支: $new_branch" >&2
+                echo "" >&2
+            fi
 
-        # 硬阻止
-        exit 1
+            # 创建并切换到新分支
+            if git checkout -b "$new_branch" 2>/dev/null; then
+                if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+                    echo "✅ 成功创建并切换到: $new_branch" >&2
+                    echo "" >&2
+                fi
+                echo "$(date +'%F %T') [branch_helper.sh] AUTO-CREATED: $new_branch from $current_branch" >> "$LOG_FILE"
+                # 成功创建，继续执行
+                exit 0
+            else
+                echo "❌ 自动创建分支失败，请手动创建" >&2
+                exit 1
+            fi
+        else
+            # 执行模式：硬阻止
+            echo "" >&2
+            echo "🚨 Claude Enhancer - 分支检查失败" >&2
+            echo "═══════════════════════════════════════════" >&2
+            echo "" >&2
+            echo "❌ 错误：不能在 $current_branch 分支上直接修改文件" >&2
+            echo "" >&2
+            echo "📋 规则0：新任务 = 新分支（强制执行）" >&2
+            echo "" >&2
+            echo "🔧 解决方案：" >&2
+            echo "  1. 创建新的feature分支：" >&2
+            echo "     git checkout -b feature/任务描述" >&2
+            echo "" >&2
+            echo "  2. 或启用自动创建：export CE_AUTO_CREATE_BRANCH=true" >&2
+            echo "" >&2
+            echo "📝 分支命名示例：" >&2
+            echo "  • feature/add-user-auth" >&2
+            echo "  • feature/multi-terminal-workflow" >&2
+            echo "  • bugfix/fix-login-error" >&2
+            echo "" >&2
+            echo "═══════════════════════════════════════════" >&2
+            echo "" >&2
+
+            # 记录阻止日志
+            echo "$(date +'%F %T') [branch_helper.sh] BLOCKED: attempt to modify on $current_branch" >> "$LOG_FILE"
+
+            # 硬阻止
+            exit 1
+        fi
     else
         # 非执行模式：友好提示
         show_branch_guidance

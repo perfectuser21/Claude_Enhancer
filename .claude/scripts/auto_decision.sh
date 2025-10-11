@@ -98,7 +98,7 @@ show_status() {
     echo -e "${BLUE}📊 Claude Enhancer 自动模式状态${NC}"
     echo "================================"
 
-    if [[ -f "$PROJECT_ROOT/.claude/.auto_mode_enabled" ]] || [[ "$CE_AUTO_MODE" == "true" ]]; then
+    if [[ -f "$PROJECT_ROOT/.claude/.auto_mode_enabled" ]] || [[ "${CE_AUTO_MODE:-}" == "true" ]]; then
         echo -e "状态: ${GREEN}已启用${NC}"
         echo ""
         echo "当前设置:"
