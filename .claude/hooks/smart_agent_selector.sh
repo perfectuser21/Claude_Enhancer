@@ -113,26 +113,33 @@ if [ -n "$TASK_DESC" ]; then
         *) AGENT_COUNT="6" ;;
     esac
 
-    # Enhanced Output - 输出到stderr确保可见性
-    echo "" >&2
-    echo "╔════════════════════════════════════════════════════════════╗" >&2
-    echo "║        🚀 Claude Enhancer Agent Selector v5.2             ║" >&2
-    echo "╚════════════════════════════════════════════════════════════╝" >&2
-    echo "" >&2
-    echo "📋 任务分析 (Task Analysis):" >&2
-    echo "   └─ $(echo "$TASK_DESC" | head -c 60)..." >&2
-    echo "" >&2
-    echo "🎯 复杂度评估 (Complexity Assessment):" >&2
-    echo "   └─ $COMPLEXITY 级别 → 需要 $AGENT_COUNT 个Agent" >&2
-    echo "" >&2
-    echo "🤖 推荐Agent组合 (Recommended Agents):" >&2
-    for agent in $(echo "$RECOMMENDED_AGENTS" | tr ',' '\n'); do
-        echo "   ✓ $(echo "$agent" | xargs)" >&2
-    done
-    echo "" >&2
-    echo "⚡ 执行模式: 并行执行 (Parallel Execution)" >&2
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
-    echo "" >&2
+    # Enhanced Output - 根据静默模式决定是否输出
+    if [[ "${CE_SILENT_MODE:-false}" != "true" ]] && [[ "${CE_COMPACT_OUTPUT:-false}" != "true" ]]; then
+        # 完整输出模式
+        echo "" >&2
+        echo "╔════════════════════════════════════════════════════════════╗" >&2
+        echo "║        🚀 Claude Enhancer Agent Selector v5.2             ║" >&2
+        echo "╚════════════════════════════════════════════════════════════╝" >&2
+        echo "" >&2
+        echo "📋 任务分析 (Task Analysis):" >&2
+        echo "   └─ $(echo "$TASK_DESC" | head -c 60)..." >&2
+        echo "" >&2
+        echo "🎯 复杂度评估 (Complexity Assessment):" >&2
+        echo "   └─ $COMPLEXITY 级别 → 需要 $AGENT_COUNT 个Agent" >&2
+        echo "" >&2
+        echo "🤖 推荐Agent组合 (Recommended Agents):" >&2
+        for agent in $(echo "$RECOMMENDED_AGENTS" | tr ',' '\n'); do
+            echo "   ✓ $(echo "$agent" | xargs)" >&2
+        done
+        echo "" >&2
+        echo "⚡ 执行模式: 并行执行 (Parallel Execution)" >&2
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" >&2
+        echo "" >&2
+    elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
+        # 紧凑输出模式
+        echo "[Agent Selector] $COMPLEXITY task → $AGENT_COUNT agents: $RECOMMENDED_AGENTS" >&2
+    fi
+    # CE_SILENT_MODE=true 时完全不输出
 
     # Safe logging with detailed information
     {
