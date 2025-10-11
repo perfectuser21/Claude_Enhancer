@@ -105,6 +105,34 @@ jobs:
 
           echo "✅ No configuration drift detected"
 
+      - name: Verify Git Hooks Execution Permissions
+        run: |
+          echo "🔍 Checking Git hooks execution permissions..."
+          CRITICAL_HOOKS=("pre-commit" "commit-msg" "pre-push")
+          FAILED=0
+
+          for hook in "${CRITICAL_HOOKS[@]}"; do
+            HOOK_PATH=".git/hooks/$hook"
+            if [ -f "$HOOK_PATH" ]; then
+              if [ -x "$HOOK_PATH" ]; then
+                echo "✅ $hook: executable"
+              else
+                echo "::error::❌ $hook: NOT executable (protection disabled!)"
+                FAILED=1
+              fi
+            else
+              echo "::warning::⚠️ $hook: not found"
+            fi
+          done
+
+          if [ $FAILED -eq 1 ]; then
+            echo "::error::🚨 Critical hooks missing execution permissions!"
+            echo "::error::Fix with: chmod +x .git/hooks/pre-commit .git/hooks/commit-msg .git/hooks/pre-push"
+            exit 1
+          fi
+
+          echo "✅ All critical hooks have correct permissions"
+
       - name: Run Branch Protection verification probe
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
