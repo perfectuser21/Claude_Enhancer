@@ -31,36 +31,64 @@ analyze_execution_result() {
         "Task")
             status="agent_coordination"
             phase_progress="P3_implementation_active"
-            echo "🤖 Agent并行执行完成" >&2
+            if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+                echo "🤖 Agent并行执行完成" >&2
+            elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
+                echo "[Post] Agent执行完成" >&2
+            fi
             ;;
         "Write"|"Edit"|"MultiEdit")
             status="code_generation"
             phase_progress="P3_implementation_progress"
             local files_modified=$(git diff --name-only 2>/dev/null | wc -l)
-            echo "📝 代码修改: ${files_modified} 个文件" >&2
+            if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+                echo "📝 代码修改: ${files_modified} 个文件" >&2
+            elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
+                echo "[Post] 修改${files_modified}文件" >&2
+            fi
             ;;
         "Bash")
             if echo "$success_pattern" | grep -q "git.*commit"; then
                 status="commit_completed"
                 phase_progress="P5_commit_done"
-                echo "📝 代码提交完成" >&2
+                if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+                    echo "📝 代码提交完成" >&2
+                elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
+                    echo "[Post] 提交完成" >&2
+                fi
             elif echo "$success_pattern" | grep -q "test\|pytest\|jest"; then
                 status="testing_completed"
                 phase_progress="P4_testing_done"
-                echo "🧪 测试执行完成" >&2
+                if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+                    echo "🧪 测试执行完成" >&2
+                elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
+                    echo "[Post] 测试完成" >&2
+                fi
             elif echo "$success_pattern" | grep -q "git.*push"; then
                 status="push_completed"
                 phase_progress="P6_review_ready"
-                echo "🚀 代码推送完成" >&2
+                if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+                    echo "🚀 代码推送完成" >&2
+                elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
+                    echo "[Post] 推送完成" >&2
+                fi
             else
                 status="command_executed"
-                echo "⚡ 命令执行完成" >&2
+                if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+                    echo "⚡ 命令执行完成" >&2
+                elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
+                    echo "[Post] 执行完成" >&2
+                fi
             fi
             ;;
         "Read"|"Grep"|"Glob")
             status="analysis_completed"
             phase_progress="P1_analysis_progress"
-            echo "🔍 分析完成" >&2
+            if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+                echo "🔍 分析完成" >&2
+            elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
+                echo "[Post] 分析完成" >&2
+            fi
             ;;
     esac
 
@@ -94,29 +122,33 @@ update_workflow_progress() {
     fi
 
     # Provide phase-specific guidance
-    case "$current_phase" in
-        "P1_analysis")
-            echo "📊 Phase 1: 需求分析中..." >&2
-            ;;
-        "P2_design")
-            echo "🎨 Phase 2: 设计规划阶段" >&2
-            ;;
-        "P3_implementation")
-            echo "⚙️ Phase 3: 实现开发中..." >&2
-            ;;
-        "P4_testing")
-            echo "🧪 Phase 4: 测试验证阶段" >&2
-            echo "💡 建议: 运行 npm test 或 pytest" >&2
-            ;;
-        "P5_commit")
-            echo "📝 Phase 5: 准备提交代码" >&2
-            echo "💡 建议: 检查 git status" >&2
-            ;;
-        "P6_review")
-            echo "👀 Phase 6: 代码审查阶段" >&2
-            echo "💡 建议: 创建 Pull Request" >&2
-            ;;
-    esac
+    if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+        case "$current_phase" in
+            "P1_analysis")
+                echo "📊 Phase 1: 需求分析中..." >&2
+                ;;
+            "P2_design")
+                echo "🎨 Phase 2: 设计规划阶段" >&2
+                ;;
+            "P3_implementation")
+                echo "⚙️ Phase 3: 实现开发中..." >&2
+                ;;
+            "P4_testing")
+                echo "🧪 Phase 4: 测试验证阶段" >&2
+                echo "💡 建议: 运行 npm test 或 pytest" >&2
+                ;;
+            "P5_commit")
+                echo "📝 Phase 5: 准备提交代码" >&2
+                echo "💡 建议: 检查 git status" >&2
+                ;;
+            "P6_review")
+                echo "👀 Phase 6: 代码审查阶段" >&2
+                echo "💡 建议: 创建 Pull Request" >&2
+                ;;
+        esac
+    elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
+        echo "[Post] Phase: $current_phase" >&2
+    fi
 }
 
 # Performance monitoring
@@ -130,7 +162,11 @@ monitor_execution_performance() {
         local duration_ms=$(( (end_time - start_time) / 1000000 ))
 
         if [[ $duration_ms -gt 1000 ]]; then
-            echo "⏱️ 执行时间: ${duration_ms}ms" >&2
+            if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+                echo "⏱️ 执行时间: ${duration_ms}ms" >&2
+            elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
+                echo "[Post] ${duration_ms}ms" >&2
+            fi
 
             # Log slow executions for optimization
             if [[ $duration_ms -gt 5000 ]]; then
@@ -157,34 +193,38 @@ provide_smart_suggestions() {
         local usage_count=$(echo "$tool_count" | head -1 | awk '{print $1}')
 
         if [[ $usage_count -gt 3 ]]; then
-            case "$most_used_tool" in
-                "Read")
-                    echo "💡 优化建议: 考虑使用 Grep 进行更精准的搜索" >&2
-                    ;;
-                "Edit")
-                    echo "💡 优化建议: 多次编辑可考虑使用 MultiEdit" >&2
-                    ;;
-                "Bash")
-                    echo "💡 优化建议: 频繁命令执行，考虑写成脚本" >&2
-                    ;;
-            esac
+            if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+                case "$most_used_tool" in
+                    "Read")
+                        echo "💡 优化建议: 考虑使用 Grep 进行更精准的搜索" >&2
+                        ;;
+                    "Edit")
+                        echo "💡 优化建议: 多次编辑可考虑使用 MultiEdit" >&2
+                        ;;
+                    "Bash")
+                        echo "💡 优化建议: 频繁命令执行，考虑写成脚本" >&2
+                        ;;
+                esac
+            fi
         fi
     fi
 
     # Context-specific suggestions
-    case "$tool_name" in
-        "Task")
-            echo "💡 下一步建议: 使用 Write/Edit 实现Agent建议" >&2
-            ;;
-        "Write"|"Edit")
-            echo "💡 下一步建议: 运行测试验证代码" >&2
-            ;;
-        "Bash")
-            if echo "$execution_context" | grep -q "test"; then
-                echo "💡 下一步建议: 如果测试通过，可以提交代码" >&2
-            fi
-            ;;
-    esac
+    if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+        case "$tool_name" in
+            "Task")
+                echo "💡 下一步建议: 使用 Write/Edit 实现Agent建议" >&2
+                ;;
+            "Write"|"Edit")
+                echo "💡 下一步建议: 运行测试验证代码" >&2
+                ;;
+            "Bash")
+                if echo "$execution_context" | grep -q "test"; then
+                    echo "💡 下一步建议: 如果测试通过，可以提交代码" >&2
+                fi
+                ;;
+        esac
+    fi
 }
 
 # Error pattern detection
@@ -194,8 +234,12 @@ detect_error_patterns() {
 
     # Check for common error indicators
     if echo "$output_content" | grep -qi "error\|failed\|exception"; then
-        echo "⚠️ 检测到可能的错误信息" >&2
-        echo "🔧 建议: 查看详细错误信息并进行调试" >&2
+        if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+            echo "⚠️ 检测到可能的错误信息" >&2
+            echo "🔧 建议: 查看详细错误信息并进行调试" >&2
+        elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
+            echo "[Post] ⚠️ 错误检测" >&2
+        fi
 
         # Log error pattern for analysis
         echo "$(date +%s),$tool_name,error_detected" >> "/tmp/claude_error_patterns" 2>/dev/null || true
@@ -209,7 +253,11 @@ optimize_resource_usage() {
     # Clean up old cache files
     if [[ $(find /tmp -name "claude_*" -type f 2>/dev/null | wc -l) -gt 50 ]]; then
         find /tmp -name "claude_*" -type f -mtime +1 -delete 2>/dev/null || true
-        echo "🧹 清理了过期缓存文件" >&2
+        if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+            echo "🧹 清理了过期缓存文件" >&2
+        elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
+            echo "[Post] 缓存清理" >&2
+        fi
     fi
 
     # Rotate large log files

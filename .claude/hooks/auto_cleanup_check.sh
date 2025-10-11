@@ -27,24 +27,32 @@ WARN_THRESHOLD=20
 CRITICAL_THRESHOLD=50
 
 if [ "$TOTAL_JUNK" -gt "$WARN_THRESHOLD" ]; then
-    echo "🧹 清理提醒"
-    echo "━━━━━━━━━━━━━━━━━━━━━"
-    echo "🗑️ 垃圾文件统计:"
-    [ "$TEMP_FILES" -gt 0 ] && echo "  • 临时文件: $TEMP_FILES 个"
-    [ "$TEST_SCRIPTS" -gt 0 ] && echo "  • 测试脚本: $TEST_SCRIPTS 个"
-    [ "$REPORT_FILES" -gt 0 ] && echo "  • 报告文件: $REPORT_FILES 个"
-    [ "$BACKUP_FILES" -gt 0 ] && echo "  • 备份文件: $BACKUP_FILES 个"
-    echo "  • 总计: $TOTAL_JUNK 个"
+    if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+        echo "🧹 清理提醒"
+        echo "━━━━━━━━━━━━━━━━━━━━━"
+        echo "🗑️ 垃圾文件统计:"
+        [ "$TEMP_FILES" -gt 0 ] && echo "  • 临时文件: $TEMP_FILES 个"
+        [ "$TEST_SCRIPTS" -gt 0 ] && echo "  • 测试脚本: $TEST_SCRIPTS 个"
+        [ "$REPORT_FILES" -gt 0 ] && echo "  • 报告文件: $REPORT_FILES 个"
+        [ "$BACKUP_FILES" -gt 0 ] && echo "  • 备份文件: $BACKUP_FILES 个"
+        echo "  • 总计: $TOTAL_JUNK 个"
 
-    if [ "$TOTAL_JUNK" -gt "$CRITICAL_THRESHOLD" ]; then
-        echo
-        echo "🔴 建议立即清理！"
-        echo "执行: .claude/scripts/hyper_performance_cleanup.sh"
-    else
-        echo
-        echo "🟡 建议适时清理"
+        if [ "$TOTAL_JUNK" -gt "$CRITICAL_THRESHOLD" ]; then
+            echo
+            echo "🔴 建议立即清理！"
+            echo "执行: .claude/scripts/hyper_performance_cleanup.sh"
+        else
+            echo
+            echo "🟡 建议适时清理"
+        fi
+        echo "━━━━━━━━━━━━━━━━━━━━━"
+    elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
+        if [ "$TOTAL_JUNK" -gt "$CRITICAL_THRESHOLD" ]; then
+            echo "[Cleanup] 🔴 需清理: ${TOTAL_JUNK}个文件"
+        else
+            echo "[Cleanup] 🟡 建议清理: ${TOTAL_JUNK}个文件"
+        fi
     fi
-    echo "━━━━━━━━━━━━━━━━━━━━━"
 fi
 
 exit 0
