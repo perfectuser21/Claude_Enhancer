@@ -1,0 +1,141 @@
+name: Branch-Protection Guard
+on:
+  schedule:
+    - cron: "0 3 * * 1"  # Every Monday at 03:00 UTC
+  push:
+    paths:
+      - ".git/hooks/**"
+      - ".workflow/**"
+      - "bp_verify.sh"
+      - ".github/workflows/**"
+      - ".claude/hooks/**"
+    branches: ["main"]
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Setup GitHub CLI
+        uses: cli/gh-extension-install@v1
+        with:
+          extension: "gh"
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+
+      - name: Setup gh auth
+        run: gh auth setup-git
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check for Branch Protection configuration drift
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "🔍 Checking for configuration drift..."
+
+          # Get live configuration from GitHub
+          gh api repos/${{ github.repository }}/branches/main/protection > .bp_live.json 2>/dev/null || {
+            echo "::error::Failed to fetch live Branch Protection configuration"
+            exit 1
+          }
+
+          # Find the latest golden snapshot
+          GOLDEN_SNAPSHOT=$(ls -t .workflow/backups/bp_snapshot_*.json 2>/dev/null | head -1)
+
+          if [ -z "$GOLDEN_SNAPSHOT" ]; then
+            echo "::warning::No golden snapshot found, skipping drift check"
+            echo "::warning::Run './scripts/save_bp.sh' to create a baseline"
+            exit 0
+          fi
+
+          echo "📸 Comparing against golden snapshot: $GOLDEN_SNAPSHOT"
+
+          # Extract key protection settings for comparison
+          GOLDEN_LINEAR=$(jq -r '.required_linear_history.enabled // false' "$GOLDEN_SNAPSHOT")
+          GOLDEN_FORCE=$(jq -r '.allow_force_pushes.enabled // false' "$GOLDEN_SNAPSHOT")
+          GOLDEN_DELETE=$(jq -r '.allow_deletions.enabled // false' "$GOLDEN_SNAPSHOT")
+
+          LIVE_LINEAR=$(jq -r '.required_linear_history.enabled // false' .bp_live.json)
+          LIVE_FORCE=$(jq -r '.allow_force_pushes.enabled // false' .bp_live.json)
+          LIVE_DELETE=$(jq -r '.allow_deletions.enabled // false' .bp_live.json)
+
+          DRIFT_DETECTED=0
+
+          if [ "$GOLDEN_LINEAR" != "$LIVE_LINEAR" ]; then
+            echo "::error::❌ DRIFT: Linear History changed ($GOLDEN_LINEAR → $LIVE_LINEAR)"
+            DRIFT_DETECTED=1
+          fi
+
+          if [ "$GOLDEN_FORCE" != "$LIVE_FORCE" ]; then
+            echo "::error::❌ DRIFT: Allow Force Push changed ($GOLDEN_FORCE → $LIVE_FORCE)"
+            DRIFT_DETECTED=1
+          fi
+
+          if [ "$GOLDEN_DELETE" != "$LIVE_DELETE" ]; then
+            echo "::error::❌ DRIFT: Allow Delete Branch changed ($GOLDEN_DELETE → $LIVE_DELETE)"
+            DRIFT_DETECTED=1
+          fi
+
+          if [ $DRIFT_DETECTED -eq 1 ]; then
+            echo "::error::🚨 Branch Protection configuration has drifted from golden state!"
+            echo "::error::Run './scripts/restore_bp.sh' to restore the golden configuration"
+            exit 1
+          fi
+
+          echo "✅ No configuration drift detected"
+
+      - name: Run Branch Protection verification probe
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          chmod +x ./bp_verify.sh
+          ./bp_verify.sh || {
+            echo "::error::Branch Protection verification failed! Check artifacts for evidence."
+            exit 1
+          }
+
+      - name: Upload probe evidence logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bp-probe-artifacts-${{ github.run_number }}
+          path: |
+            /tmp/commit.log
+            /tmp/push_main.log
+            /tmp/push_main_nov.log
+            /tmp/merge_attempt.log
+          retention-days: 90
+
+      - name: Check for protection degradation
+        if: failure()
+        run: |
+          echo "::warning::⚠️ Branch Protection verification failed!"
+          echo "::warning::This indicates one or more protection layers have been compromised."
+          echo "::warning::Review the uploaded artifacts and restore protection using scripts/restore_bp.sh"
+
+      - name: Report success
+        if: success()
+        run: |
+          echo "✅ All 3 protection layers verified successfully"
+          echo "📊 Evidence logs uploaded to artifacts"

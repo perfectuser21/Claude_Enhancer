@@ -1,4 +1,8 @@
 #!/bin/bash
+# Auto-mode detection
+if [[ "$CE_AUTO_MODE" == "true" ]]; then
+    export CE_SILENT_MODE=true
+fi
 # 动态获取Claude Enhancer项目路径
 CLAUDE_ENHANCER_HOME="${CLAUDE_ENHANCER_HOME:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
 export CLAUDE_ENHANCER_HOME

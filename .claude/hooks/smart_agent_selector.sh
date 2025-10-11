@@ -1,4 +1,8 @@
 #!/bin/bash
+# Auto-mode detection
+if [[ "$CE_AUTO_MODE" == "true" ]]; then
+    export CE_SILENT_MODE=true
+fi
 # Claude Enhancer Smart Agent Selector v5.2 - Enhanced Output Version
 
 # 统一日志记录（激活追踪）

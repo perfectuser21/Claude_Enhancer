@@ -1,4 +1,8 @@
 #!/bin/bash
+# Auto-mode detection
+if [[ "$CE_AUTO_MODE" == "true" ]]; then
+    export CE_SILENT_MODE=true
+fi
 # Hook Wrapper with Timeout Protection and Error Handling
 # Usage: hook_wrapper.sh <hook_script> [timeout_seconds]
 

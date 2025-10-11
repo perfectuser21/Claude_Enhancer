@@ -1,4 +1,8 @@
 #!/bin/bash
+# Auto-mode detection
+if [[ "$CE_AUTO_MODE" == "true" ]]; then
+    export CE_SILENT_MODE=true
+fi
 # 优化版Agent选择器 - 使用缓存减少重复计算
 
 CACHE_FILE="/tmp/claude_agent_cache.json"

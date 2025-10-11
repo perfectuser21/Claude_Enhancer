@@ -1,4 +1,8 @@
 #!/bin/bash
+# Auto-mode detection
+if [[ "$CE_AUTO_MODE" == "true" ]]; then
+    export CE_SILENT_MODE=true
+fi
 # Claude Enhancer - Branch强制检查（规则0：Phase -1）
 # 版本：2.0 - 升级为强制执行模式
 

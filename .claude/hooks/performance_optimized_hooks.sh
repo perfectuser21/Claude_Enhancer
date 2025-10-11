@@ -1,4 +1,8 @@
 #!/bin/bash
+# Auto-mode detection
+if [[ "$CE_AUTO_MODE" == "true" ]]; then
+    export CE_SILENT_MODE=true
+fi
 # Performance-Optimized Git Hooks for Document Quality Management
 # 性能优化的Git Hooks - 文档质量管理三层防护
 

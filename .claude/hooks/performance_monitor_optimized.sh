@@ -1,4 +1,8 @@
 #!/bin/bash
+# Auto-mode detection
+if [[ "$CE_AUTO_MODE" == "true" ]]; then
+    export CE_SILENT_MODE=true
+fi
 # 优化版性能监控 - 异步记录
 
 LOG_FILE="/tmp/claude_performance.log"
