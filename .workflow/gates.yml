@@ -78,11 +78,12 @@ phases:
 
   P3:
     name: "Implement"
-    allow_paths: ["src/**", "docs/CHANGELOG.md", ".phase/**"]
+    allow_paths: ["src/**", ".claude/hooks/**", "scripts/**", "docs/CHANGELOG.md", ".phase/**"]
     must_produce:
       - "实现功能代码，可构建"
       - "docs/CHANGELOG.md 的 Unreleased 段新增本次条目（简述范围/影响）"
       - "每个 ticket 生成一段 '变更点清单'（可写在 commit message 中）"
+      - "工作流hooks实现（.claude/hooks/）属于核心功能实现"
     gates:
       - "构建/编译通过"
       - "CHANGELOG Unreleased 段存在新增条目"
