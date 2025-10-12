@@ -62,7 +62,7 @@ phases:
 
   P2:
     name: "Skeleton"
-    allow_paths: ["src/**", ".claude/**", ".workflow/**", ".github/workflows/**", ".gates/**", "scripts/**", "test/**", "CLAUDE.md", "VERSION", "docs/**", ".phase/**"]
+    allow_paths: ["src/**", ".claude/**", ".workflow/**", ".github/workflows/**", ".gates/**", "scripts/**", "test/**", "CLAUDE.md", "VERSION", "CHANGELOG.md", "docs/**", ".phase/**"]
     must_produce:
       - "根据 PLAN.md 新建目录/接口骨架；不得新增计划外目录"
       - "必要说明写入 docs/SKELETON-NOTES.md"
@@ -78,7 +78,7 @@ phases:
 
   P3:
     name: "Implement"
-    allow_paths: ["src/**", ".claude/hooks/**", "scripts/**", "docs/CHANGELOG.md", ".phase/**"]
+    allow_paths: ["src/**", ".claude/hooks/**", "scripts/**", "CHANGELOG.md", "docs/CHANGELOG.md", ".phase/**"]
     must_produce:
       - "实现功能代码，可构建"
       - "docs/CHANGELOG.md 的 Unreleased 段新增本次条目（简述范围/影响）"

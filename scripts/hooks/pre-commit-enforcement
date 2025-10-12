@@ -1,0 +1,167 @@
+#!/usr/bin/env bash
+# Pre-commit Enforcement Hook
+# Validates task namespace and agent evidence before allowing commits
+#
+# This is the enhanced version that enforces Claude Enhancer workflow
+# Install to .git/hooks/pre-commit
+
+set -euo pipefail
+
+# Initialize environment
+ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+CLAUDE_CORE="${ROOT}/.claude/core"
+CONFIG="${ROOT}/.claude/config.yml"
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Source core libraries if available
+if [ -f "${CLAUDE_CORE}/task_namespace.sh" ]; then
+  # shellcheck source=../../.claude/core/task_namespace.sh
+  source "${CLAUDE_CORE}/task_namespace.sh"
+else
+  # Enforcement not yet set up, allow commit
+  exit 0
+fi
+
+# Load configuration
+ENFORCEMENT_ENABLED=true
+ENFORCEMENT_MODE="strict"
+MIN_AGENTS_FULL=3
+MIN_AGENTS_FAST=0
+
+if command -v yq >/dev/null 2>&1 && [ -f "$CONFIG" ]; then
+  ENFORCEMENT_ENABLED=$(yq e '.enforcement.enabled' "$CONFIG" 2>/dev/null || echo "true")
+  ENFORCEMENT_MODE=$(yq e '.enforcement.mode' "$CONFIG" 2>/dev/null || echo "strict")
+  MIN_AGENTS_FULL=$(yq e '.enforcement.agent_evidence.min_agents.full_lane' "$CONFIG" 2>/dev/null || echo "3")
+  MIN_AGENTS_FAST=$(yq e '.enforcement.agent_evidence.min_agents.fast_lane' "$CONFIG" 2>/dev/null || echo "0")
+fi
+
+# Check if enforcement is enabled
+if [ "$ENFORCEMENT_ENABLED" != "true" ]; then
+  exit 0
+fi
+
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BLUE}Claude Enhancer Enforcement Check${NC}"
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+
+# Get current task
+TASK_ID=$(get_current_task)
+
+if [ -z "$TASK_ID" ]; then
+  echo -e "${YELLOW}⚠️  No active task found${NC}"
+  echo "   Enforcement checks skipped (no task namespace active)"
+  exit 0
+fi
+
+TASK_DIR=$(get_task_dir "$TASK_ID")
+
+if [ ! -d "$TASK_DIR" ]; then
+  echo -e "${RED}❌ Task directory not found: $TASK_DIR${NC}"
+  exit 1
+fi
+
+echo -e "${GREEN}📋 Active Task:${NC} $TASK_ID"
+echo ""
+
+# Load task metadata
+TASK_META="${TASK_DIR}/task_meta.json"
+if [ ! -f "$TASK_META" ]; then
+  echo -e "${RED}❌ Task metadata missing${NC}"
+  exit 1
+fi
+
+TASK_PHASE=$(jq -r '.phase' "$TASK_META" 2>/dev/null || echo "unknown")
+TASK_LANE=$(jq -r '.lane // "full"' "$TASK_META" 2>/dev/null || echo "full")
+
+echo -e "${BLUE}Phase:${NC} $TASK_PHASE"
+echo -e "${BLUE}Lane:${NC} $TASK_LANE"
+echo ""
+
+# Determine minimum agents required
+MIN_AGENTS=$MIN_AGENTS_FULL
+if [ "$TASK_LANE" = "fast" ]; then
+  MIN_AGENTS=$MIN_AGENTS_FAST
+fi
+
+# Check agent evidence
+echo -e "${BLUE}[AGENT EVIDENCE]${NC}"
+
+AGENT_COUNT=$(get_agent_count "$TASK_ID")
+echo "   Agent invocations: $AGENT_COUNT"
+echo "   Required minimum ($TASK_LANE lane): $MIN_AGENTS"
+
+if [ "$AGENT_COUNT" -lt "$MIN_AGENTS" ]; then
+  echo ""
+  echo -e "${RED}❌ Insufficient agent evidence${NC}"
+  echo ""
+  echo "   The $TASK_LANE lane requires at least $MIN_AGENTS agents,"
+  echo "   but only $AGENT_COUNT were invoked."
+  echo ""
+  echo "   This ensures proper multi-agent collaboration"
+  echo "   as defined in Claude Enhancer workflow."
+  echo ""
+
+  if [ "$ENFORCEMENT_MODE" = "strict" ]; then
+    echo -e "${RED}⛔ Commit blocked (strict mode)${NC}"
+    exit 1
+  else
+    echo -e "${YELLOW}⚠️  Warning only (advisory mode)${NC}"
+  fi
+else
+  echo -e "${GREEN}   ✅ Agent count satisfied${NC}"
+fi
+
+# List agents invoked
+AGENTS_FILE="${TASK_DIR}/agents.json"
+if [ -f "$AGENTS_FILE" ]; then
+  UNIQUE_AGENTS=$(jq -r '.invocations[].agent' "$AGENTS_FILE" 2>/dev/null | sort -u | wc -l)
+  echo "   Unique agents: $UNIQUE_AGENTS"
+
+  if [ "$UNIQUE_AGENTS" -gt 0 ]; then
+    echo "   Agents invoked:"
+    jq -r '.invocations[].agent' "$AGENTS_FILE" 2>/dev/null | sort -u | while read -r agent; do
+      COUNT=$(jq --arg agent "$agent" '[.invocations[] | select(.agent == $agent)] | length' "$AGENTS_FILE" 2>/dev/null || echo "0")
+      echo "      - $agent (${COUNT}x)"
+    done
+  fi
+fi
+
+echo ""
+
+# Fast lane detection
+echo -e "${BLUE}[FAST LANE CHECK]${NC}"
+
+# Count modified files
+MODIFIED_COUNT=$(git diff --cached --name-only | wc -l)
+echo "   Modified files: $MODIFIED_COUNT"
+
+# Check file types
+DOCS_ONLY=true
+git diff --cached --name-only | while read -r file; do
+  if [[ ! "$file" =~ \.(md|txt|rst)$ ]] && [[ ! "$file" =~ ^docs/ ]]; then
+    DOCS_ONLY=false
+    break
+  fi
+done
+
+if [ "$DOCS_ONLY" = true ] && [ "$MODIFIED_COUNT" -le 3 ]; then
+  echo -e "${GREEN}   ✅ Fast lane eligible (docs-only, ≤3 files)${NC}"
+  echo "      This change could use fast lane (0 agents required)"
+else
+  echo -e "${BLUE}   ℹ️  Full lane required${NC}"
+fi
+
+echo ""
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${GREEN}✅ Enforcement checks passed${NC}"
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+
+exit 0

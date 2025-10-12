@@ -1,5 +1,66 @@
 # Changelog
 
+## [Unreleased]
+
+### Added - Enforcement Optimization (v6.2)
+
+#### 🎯 Core Enforcement Infrastructure
+1. **Agent Evidence Collection** (.claude/hooks/agent_evidence_collector.sh)
+   - PreToolUse hook intercepts agent invocations
+   - Records evidence to task-isolated namespaces (.gates/<task_id>/)
+   - Validates minimum agent counts per lane (full=3, fast=0)
+   - Atomic evidence recording with flock-based locking
+   - Impact: Enforces multi-agent collaboration requirement
+
+2. **Pre-commit Enforcement** (scripts/hooks/pre-commit-enforcement)
+   - Validates task namespace and agent evidence
+   - Checks minimum agent counts before allowing commits
+   - Provides detailed feedback on enforcement status
+   - Supports strict/advisory modes via config
+   - Impact: Blocks commits that don't meet quality standards
+
+3. **Fast Lane Auto-Detection** (scripts/fast_lane_detector.sh)
+   - Analyzes commits to detect trivial changes
+   - Criteria: docs-only, comments-only, whitespace fixes
+   - Auto-updates task lane based on analysis
+   - Reduces friction for documentation updates
+   - Impact: Streamlines trivial changes without compromising quality
+
+#### 🔧 Infrastructure Enhancements
+4. **Task Namespace System** (.claude/core/task_namespace.sh, .gates/)
+   - Atomic task ID generation with collision prevention
+   - Task-isolated evidence and agent tracking
+   - Central registry for active/completed tasks
+   - Concurrent-safe operations with flock
+   - Impact: Prevents conflicts in multi-terminal scenarios
+
+5. **Configuration Framework** (.claude/config.yml)
+   - Central enforcement configuration (v6.2.0)
+   - Lane-based agent requirements
+   - Fast lane settings and thresholds
+   - Hook timeout and bypass detection settings
+   - Impact: Flexible enforcement policies
+
+#### 📝 gates.yml Updates
+6. **Infrastructure Project Support**
+   - Added .claude/hooks/** to P3 allow_paths
+   - Added scripts/** to P3 allow_paths
+   - Clarified P2 (skeleton) vs P3 (implementation) distinction
+   - Impact: Enables workflow infrastructure development
+
+### Scope & Impact
+- **Files Modified**: 8 new files, 1 updated (gates.yml)
+- **Lines of Code**: ~1,200 lines of enforcement logic
+- **Affected Phases**: P2 (infrastructure), P3 (implementation)
+- **Breaking Changes**: None (additive only)
+- **Rollback Plan**: 4-stage rollback documented in docs/
+
+### Next Steps (P4-P7)
+- P4: Comprehensive testing (unit, integration, stress)
+- P5: Code review and quality validation
+- P6: Documentation, tagging, release
+- P7: Production monitoring and SLO tracking
+
 ## [5.3.4] - 2025-10-09
 
 ### Fixed (Stop-Ship Issues)
