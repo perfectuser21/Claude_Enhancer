@@ -627,7 +627,7 @@ class TaskActivity(BaseModel):
 
     description = Column(Text, nullable=True, comment="活动描述")
 
-    metadata = Column(JSONB, nullable=True, comment="额外的元数据")
+    extra_metadata = Column(JSONB, nullable=True, comment="额外的元数据")
 
     # 关联关系
     task = relationship("Task", back_populates="activities")
@@ -676,7 +676,7 @@ class Notification(BaseModel):
 
     action_url = Column(String(500), nullable=True, comment="行动URL")
 
-    metadata = Column(JSONB, nullable=True, comment="额外数据")
+    extra_metadata = Column(JSONB, nullable=True, comment="额外数据")
 
     # 关联关系
     user = relationship("User")

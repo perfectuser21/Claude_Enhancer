@@ -163,7 +163,7 @@ class AuditLog(BaseModel):
     response_time = Column(Integer, nullable=True, comment="响应时间 (毫秒)")
 
     # 扩展信息
-    metadata = Column(JSONB, nullable=True, comment="扩展元数据 (JSON格式)")
+    extra_metadata = Column(JSONB, nullable=True, comment="扩展元数据 (JSON格式)")
 
     # 关联关系
     user = relationship("User")
@@ -189,7 +189,7 @@ class AuditLog(BaseModel):
         success: bool = True,
         error_message: Optional[str] = None,
         response_time: Optional[int] = None,
-        metadata: Optional[Dict[str, Any]] = None,
+        extra_metadata: Optional[Dict[str, Any]] = None,
     ) -> "AuditLog":
         """
         创建审计日志记录
@@ -212,7 +212,7 @@ class AuditLog(BaseModel):
             success: 是否成功
             error_message: 错误信息
             response_time: 响应时间
-            metadata: 扩展元数据
+            extra_metadata: 扩展元数据
 
         Returns:
             新创建的审计日志对象
@@ -235,7 +235,7 @@ class AuditLog(BaseModel):
             success=success,
             error_message=error_message,
             response_time=response_time,
-            metadata=metadata,
+            extra_metadata=extra_metadata,
             timestamp=datetime.utcnow(),
         )
 

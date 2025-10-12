@@ -26,6 +26,14 @@ atomic_json_update() {
   local value="$3"
   local retry=0
 
+  # Pre-validate that value is valid JSON (if it looks like JSON)
+  if [[ "$value" =~ ^[{\[] ]] || [[ "$value" =~ ^\" ]]; then
+    if ! echo "$value" | jq empty 2>/dev/null; then
+      echo "❌ Invalid JSON value provided" >&2
+      return 1
+    fi
+  fi
+
   while (( retry < MAX_RETRIES )); do
     (
       flock -w $LOCK_TIMEOUT 200 || exit 1
@@ -36,9 +44,9 @@ atomic_json_update() {
 
       local temp
       temp=$(mktemp)
-      jq "$jq_filter = $value" "$file" > "$temp"
+      jq "$jq_filter = $value" "$file" > "$temp" 2>/dev/null || exit 1
 
-      # Validate JSON
+      # Validate output JSON
       if jq empty "$temp" 2>/dev/null; then
         mv "$temp" "$file"
         exit 0
@@ -50,13 +58,13 @@ atomic_json_update() {
     ) 200>"${file}.lock"
 
     local status=$?
-    rm -f "${file}.lock"
+    # Do NOT remove lock file - flock handles it, and removing causes race conditions
 
     if [ $status -eq 0 ]; then
       return 0
     fi
 
-    ((retry++))
+    ((retry++)) || true
     sleep "$(echo "$RETRY_DELAY * $retry" | bc)"
   done
 
