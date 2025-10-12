@@ -1,0 +1,12 @@
+{
+  "version": "1.0.0",
+  "created_at": "2025-10-11T00:00:00Z",
+  "tasks": {},
+  "active_task_id": null,
+  "metadata": {
+    "total_tasks": 0,
+    "completed_tasks": 0,
+    "failed_tasks": 0,
+    "last_cleanup": null
+  }
+}
