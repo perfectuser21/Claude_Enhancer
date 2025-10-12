@@ -132,7 +132,7 @@ class Session(BaseModel):
     risk_score = Column(Integer, default=0, nullable=False, comment="风险评分 (0-100)")
 
     # 扩展信息
-    metadata = Column(JSONB, nullable=True, comment="扩展元数据 (JSON)")
+    extra_metadata = Column(JSONB, nullable=True, comment="扩展元数据 (JSON)")
 
     # 关联关系
     user = relationship("User", back_populates="sessions")
@@ -238,10 +238,10 @@ class Session(BaseModel):
             reason: 撤销原因
         """
         self.status = SessionStatus.REVOKED
-        if reason and self.metadata:
-            self.metadata["revocation_reason"] = reason
+        if reason and self.extra_metadata:
+            self.extra_metadata["revocation_reason"] = reason
         elif reason:
-            self.metadata = {"revocation_reason": reason}
+            self.extra_metadata = {"revocation_reason": reason}
 
     def update_activity(self, ip_address: str = None) -> None:
         """

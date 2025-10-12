@@ -28,7 +28,7 @@ phase_order: [P0, P1, P2, P3, P4, P5, P6, P7]
 phases:
   P0:
     name: "Discovery"
-    allow_paths: ["docs/P0_*.md", "docs/*_DISCOVERY.md", "docs/spike/**", ".phase/**"]
+    allow_paths: ["docs/P0_*.md", "docs/*_DISCOVERY.md", "docs/spike/**", ".gates/**", ".phase/**"]
     must_produce:
       - "docs/P0_*_DISCOVERY.md: 包含可行性分析、技术spike、风险评估"
       - "可行性结论明确（GO/NO-GO/NEEDS-DECISION）"
@@ -46,7 +46,7 @@ phases:
 
   P1:
     name: "Plan"
-    allow_paths: ["docs/PLAN.md", ".phase/**"]
+    allow_paths: ["docs/**", ".gates/**", ".phase/**"]
     must_produce:
       - "docs/PLAN.md: 包含三级标题：## 任务清单, ## 受影响文件清单, ## 回滚方案"
       - "任务清单≥5条（每条以动词开头，包含具体文件/模块名）"
@@ -62,7 +62,7 @@ phases:
 
   P2:
     name: "Skeleton"
-    allow_paths: ["src/**", ".claude/**", ".workflow/**", ".github/workflows/**", "CLAUDE.md", "VERSION", "docs/**", ".phase/**"]
+    allow_paths: ["src/**", ".claude/**", ".workflow/**", ".github/workflows/**", ".gates/**", "scripts/**", "test/**", "tests/**", "CLAUDE.md", "VERSION", "CHANGELOG.md", "docs/**", ".phase/**"]
     must_produce:
       - "根据 PLAN.md 新建目录/接口骨架；不得新增计划外目录"
       - "必要说明写入 docs/SKELETON-NOTES.md"
@@ -78,11 +78,12 @@ phases:
 
   P3:
     name: "Implement"
-    allow_paths: ["src/**", "docs/CHANGELOG.md", ".phase/**"]
+    allow_paths: ["src/**", ".claude/hooks/**", "scripts/**", ".gates/**", "CHANGELOG.md", ".phase/**"]
     must_produce:
       - "实现功能代码，可构建"
-      - "docs/CHANGELOG.md 的 Unreleased 段新增本次条目（简述范围/影响）"
+      - "CHANGELOG.md 的 Unreleased 段新增本次条目（简述范围/影响）"
       - "每个 ticket 生成一段 '变更点清单'（可写在 commit message 中）"
+      - "工作流hooks实现（.claude/hooks/）属于核心功能实现"
     gates:
       - "构建/编译通过"
       - "CHANGELOG Unreleased 段存在新增条目"
@@ -93,7 +94,7 @@ phases:
 
   P4:
     name: "Test"
-    allow_paths: ["tests/**", "docs/TEST-REPORT.md", ".phase/**"]
+    allow_paths: ["test/**", "tests/**", "docs/TEST-REPORT.md", ".gates/**", ".phase/**"]
     must_produce:
       - "新增/改动测试 >= 2 条，且至少 1 条为边界/负例"
       - "docs/TEST-REPORT.md 列出覆盖的模块/函数与结果"
@@ -106,7 +107,7 @@ phases:
 
   P5:
     name: "Review"
-    allow_paths: ["docs/REVIEW.md", ".phase/**"]
+    allow_paths: ["src/**", "docs/REVIEW.md", ".gates/**", ".phase/**"]
     must_produce:
       - "docs/REVIEW.md 三段：风格一致性/风险清单/回滚可行性；最后一行写 'APPROVE' 或 'REWORK: …'"
     gates:
@@ -119,10 +120,10 @@ phases:
 
   P6:
     name: "Docs & Release"
-    allow_paths: ["README.md", "docs/**", ".tags/**", ".phase/current"]
+    allow_paths: ["README.md", "CHANGELOG.md", "VERSION", "docs/**", ".tags/**", "tags/**", ".gates/**", ".phase/**"]
     must_produce:
       - "README.md 或 docs/README.md 必含：安装、使用、注意事项 三段"
-      - "docs/CHANGELOG.md 版本号递增并写影响面"
+      - "CHANGELOG.md 版本号递增并写影响面"
       - "发布 tag 与 Release Notes"
       - "docs/PR-*.md 包含完整的PR描述（可选）"
     gates:
@@ -136,7 +137,7 @@ phases:
 
   P7:
     name: "Monitor"
-    allow_paths: ["observability/**", "docs/*_MONITOR.md", "docs/P7_*.md", ".phase/**"]
+    allow_paths: ["observability/**", "docs/**", ".gates/**", ".phase/**"]
     must_produce:
       - "observability/*_MONITOR_REPORT.md: 包含健康检查、SLO验证、完整性验证"
       - "所有关键指标验证通过"

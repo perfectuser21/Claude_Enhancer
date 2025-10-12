@@ -1,6 +1,6 @@
 # Claude Enhancer 5.3
 
-[![Version](https://img.shields.io/badge/version-5.3.5-blue.svg)](https://github.com/claude-enhancer/claude-enhancer)
+[![Version](https://img.shields.io/badge/version-6.2.0-blue.svg)](https://github.com/claude-enhancer/claude-enhancer)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/claude-enhancer/claude-enhancer/actions)
 [![Branch Protection](https://github.com/perfectuser21/Claude_Enhancer/actions/workflows/bp-guard.yml/badge.svg)](https://github.com/perfectuser21/Claude_Enhancer/actions/workflows/bp-guard.yml)

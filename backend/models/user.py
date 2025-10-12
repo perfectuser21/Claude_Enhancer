@@ -321,7 +321,7 @@ class UserProfile(BaseModel):
     social_links = Column(JSONB, nullable=True, comment="社交账号链接 (JSON格式)")
 
     # 扩展字段 (JSON格式存储自定义数据)
-    metadata = Column(JSONB, nullable=True, comment="扩展元数据 (JSON格式)")
+    extra_metadata = Column(JSONB, nullable=True, comment="扩展元数据 (JSON格式)")
 
     # 关联关系
     user = relationship("User", back_populates="profile")
