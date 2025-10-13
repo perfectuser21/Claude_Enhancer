@@ -476,6 +476,7 @@ async def main():
         while True:
             await asyncio.sleep(1)
     except KeyboardInterrupt:
+        pass  # User interrupted server
     # print("\n🛑 停止服务器...")
     finally:
         await runner.cleanup()
