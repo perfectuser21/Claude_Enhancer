@@ -111,12 +111,12 @@ jobs:
             else
               git commit -m "chore: automated quality maintenance [skip ci]
 
-- Document cleanup executed
-- Metrics verification completed
-- Archive structure validated
+              - Document cleanup executed
+              - Metrics verification completed
+              - Archive structure validated
 
-🤖 Generated with Claude Code
-Co-Authored-By: Claude <noreply@anthropic.com>" || echo "⚠️ Commit failed (may be no changes)"
+              🤖 Generated with Claude Code
+              Co-Authored-By: Claude <noreply@anthropic.com>" || echo "⚠️ Commit failed (may be no changes)"
 
               # Push if on main branch
               current_branch=$(git rev-parse --abbrev-ref HEAD)
