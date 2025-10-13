@@ -19,7 +19,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, func, text
 from fastapi import HTTPException, status, UploadFile
 
-from backend.repositories.base_repository import BaseRepository
+from src.repositories.base_repository import BaseRepository
 from src.task_management.models import (
     Task,
     TaskStatus,

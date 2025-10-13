@@ -897,6 +897,22 @@ class LazyAgentOrchestrator:
 
         return self.get_performance_stats()
 
+    def select_agents_fast(self, task_description: str, **kwargs):
+        """Fast agent selection - alias for backward compatibility
+        
+        This is an alias for select_agents_intelligent() to maintain
+        backward compatibility with code that calls select_agents_fast().
+        
+        Args:
+            task_description: Description of the task
+            **kwargs: Additional arguments passed to select_agents_intelligent()
+            
+        Returns:
+            Dict with selected agents and metadata
+        """
+        return self.select_agents_intelligent(task_description, **kwargs)
+
+
 
 # Performance testing
 def benchmark_orchestrator_performance(iterations: int = 20):

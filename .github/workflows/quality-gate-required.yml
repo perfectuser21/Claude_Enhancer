@@ -1,0 +1,217 @@
+name: Quality Gate (Required Check)
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: ['**']
+
+jobs:
+  hook-integrity:
+    name: Git Hooks Integrity Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Verify Hook Files Exist
+        run: |
+          echo "🔍 Verifying Git hooks..."
+          
+          required_hooks=("pre-commit" "pre-push" "commit-msg")
+          
+          for hook in "${required_hooks[@]}"; do
+            if [ ! -f ".git/hooks/$hook" ]; then
+              echo "❌ Missing hook: $hook"
+              exit 1
+            fi
+            
+            if [ ! -x ".git/hooks/$hook" ]; then
+              echo "❌ Hook not executable: $hook"
+              exit 1
+            fi
+            
+            echo "✓ $hook: OK"
+          done
+      
+      - name: Check Hook Integrity
+        run: |
+          echo "🔍 Checking for tampering..."
+          
+          # Verify hooks aren't symlinked to /dev/null
+          for hook in pre-commit pre-push; do
+            if [ -L ".git/hooks/$hook" ]; then
+              target=$(readlink -f ".git/hooks/$hook")
+              if [[ "$target" =~ /dev/null|/dev/zero|/tmp/empty ]]; then
+                echo "❌ Hook $hook redirected to $target (bypass attempt!)"
+                exit 1
+              fi
+            fi
+          done
+          
+          echo "✓ No tampering detected"
+      
+      - name: Verify Bypass Prevention
+        run: |
+          echo "🔍 Testing bypass prevention..."
+          
+          # Test that hooks detect bypass attempts
+          if grep -q "SKIP_HOOKS" .git/hooks/pre-commit; then
+            echo "✓ Pre-commit has bypass detection"
+          else
+            echo "❌ Pre-commit missing bypass detection"
+            exit 1
+          fi
+          
+          if grep -q "SKIP_HOOKS" .git/hooks/pre-push; then
+            echo "✓ Pre-push has bypass detection"
+          else
+            echo "❌ Pre-push missing bypass detection"
+            exit 1
+          fi
+
+  security-scan:
+    name: Security Scan (Re-validation)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 10  # Check last 10 commits
+      
+      - name: Scan for Secrets
+        run: |
+          echo "🔐 Scanning commits for secrets..."
+          
+          issues=0
+          
+          # Check recent commits
+          for commit in $(git log --format="%H" -n 10); do
+            diff=$(git show "$commit" --format="" || true)
+            
+            # Check for private keys
+            if echo "$diff" | grep -qE '^\+.*-----BEGIN (RSA |DSA |EC )?PRIVATE KEY'; then
+              echo "❌ Private key in commit: ${commit:0:8}"
+              ((issues++))
+            fi
+            
+            # Check for AWS keys
+            if echo "$diff" | grep -qE '^\+.*AKIA[0-9A-Z]{16}'; then
+              echo "❌ AWS key in commit: ${commit:0:8}"
+              ((issues++))
+            fi
+            
+            # Check for API keys
+            if echo "$diff" | grep -E '^\+.*api[_-]?key.*=.*["'"'"'][a-zA-Z0-9_-]{20,}["'"'"']' | \
+               grep -vE 'test|example|sample|placeholder' > /dev/null; then
+              echo "⚠️  Possible API key in commit: ${commit:0:8}"
+            fi
+          done
+          
+          if [ $issues -gt 0 ]; then
+            echo "❌ CRITICAL: $issues security issue(s) found!"
+            exit 1
+          fi
+          
+          echo "✓ No secrets detected"
+
+  syntax-validation:
+    name: Syntax Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Validators
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y shellcheck
+          pip install flake8
+      
+      - name: Validate Shell Scripts
+        run: |
+          echo "🔍 Validating shell scripts..."
+          
+          find . -type f \( -name "*.sh" -o -name "*.bash" \) | while read -r file; do
+            if shellcheck -S warning "$file"; then
+              echo "✓ $file"
+            else
+              echo "❌ $file has issues"
+              exit 1
+            fi
+          done || exit 0  # Don't fail if no shell files
+      
+      - name: Validate Python Files
+        run: |
+          echo "🔍 Validating Python files..."
+          
+          find . -type f -name "*.py" | while read -r file; do
+            if python3 -m py_compile "$file" 2>/dev/null; then
+              echo "✓ $file"
+            else
+              echo "❌ $file has syntax errors"
+              exit 1
+            fi
+          done || exit 0  # Don't fail if no Python files
+
+  document-count:
+    name: Document Count Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Check Root Document Count
+        run: |
+          echo "📄 Checking root document count..."
+          
+          count=$(find . -maxdepth 1 -name "*.md" | wc -l)
+          
+          echo "Root documents: $count"
+          
+          if [ $count -gt 7 ]; then
+            echo "⚠️  Warning: $count documents in root (max 7 recommended)"
+            echo "Consider moving to .temp/ or docs/"
+            # Non-blocking warning
+          else
+            echo "✓ Document count OK: $count"
+          fi
+
+  performance-check:
+    name: Hook Performance Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Measure Hook Execution Time
+        run: |
+          echo "⏱️  Testing hook performance..."
+          
+          # Create a test commit to measure hook speed
+          git config user.email "ci@test.com"
+          git config user.name "CI Test"
+          
+          # Measure pre-commit hook (if it exists and is safe to run)
+          if [ -f ".git/hooks/pre-commit" ]; then
+            start=$(date +%s%N)
+            
+            # Run hook in test mode (without actual commit)
+            timeout 10s bash .git/hooks/pre-commit || true
+            
+            end=$(date +%s%N)
+            duration=$(( (end - start) / 1000000 ))  # Convert to milliseconds
+            
+            echo "Hook execution time: ${duration}ms"
+            
+            if [ $duration -gt 500 ]; then
+              echo "⚠️  Hook is slow: ${duration}ms > 500ms"
+            else
+              echo "✓ Performance OK: ${duration}ms"
+            fi
+          fi

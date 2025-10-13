@@ -21,7 +21,7 @@ from sqlalchemy.orm import Session, joinedload, selectinload, contains_eager
 from sqlalchemy.sql import Select
 from sqlalchemy.exc import IntegrityError
 
-from backend.repositories.base_repository import BaseRepository
+from src.repositories.base_repository import BaseRepository
 from src.task_management.models import (
     Task,
     TaskStatus,

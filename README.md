@@ -1,4 +1,4 @@
-# Claude Enhancer 5.3
+# Claude Enhancer 6.2.0
 
 [![Version](https://img.shields.io/badge/version-6.2.0-blue.svg)](https://github.com/claude-enhancer/claude-enhancer)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
@@ -48,7 +48,7 @@ When using AI assistants like Claude Code, you face:
    ┌─────────┴─────────┐
    │  Quality Gates     │  ← Enforced by Git Hooks
    │  + BDD Testing     │  ← 65 executable scenarios
-   │  + Performance SLOs│  ← 90 monitored metrics
+   │  + Performance SLOs│  ← 30 monitored budgets
    └─────────┬─────────┘
              │
    ┌─────────┴────────────────────────────────┬─────────────┐
@@ -113,8 +113,8 @@ Every development task follows a structured path:
 Layer 1: Contract-Driven
          ├─ OpenAPI Specifications (API contracts)
          ├─ BDD Scenarios (65 executable acceptance tests)
-         ├─ Performance Budgets (90 monitored metrics)
-         └─ SLO Definitions (15 service level objectives)
+         ├─ Performance Budgets (30 monitored metrics)
+         └─ SLO Definitions (11 service level objectives)
 
 Layer 2: Workflow Framework
          └─ 8 standardized phases (P0-P7)
@@ -145,9 +145,10 @@ Work across multiple terminals without conflicts:
 | Metric | Value | Status |
 |--------|-------|--------|
 | Quality Assurance Score | 100/100 | ✅ Perfect |
-| BDD Scenarios | 65 (28 features) | ✅ Excellent |
-| Performance Metrics | 90 tracked | ✅ Comprehensive |
-| Service Level Objectives | 15 SLOs | ✅ Production-ready |
+| BDD Scenarios | 65 (35 features) | ✅ Excellent |
+| Performance Budgets | 30 tracked | ✅ Comprehensive |
+| Service Level Objectives | 11 SLOs | ✅ Production-ready |
+| CI/CD Workflows | 8 workflows | ✅ Automated |
 | Test Cases | 312+ | ✅ Robust |
 | Code Coverage | 80%+ | ✅ Target met |
 | Security Score | 85/100 | ⚠️ Good (improving) |
@@ -175,9 +176,12 @@ cp -r /path/to/claude-enhancer/.phase ./
 bash .claude/install.sh
 
 # 3. Verify installation
-bash test/validate_enhancement.sh
-# Expected: ✅ 100/100 Quality Score
+python3 scripts/auto_metrics.py --check-only
+bash scripts/cleanup_documents.sh
+# Expected: ✅ All metrics accurate, ≤7 core documents
 ```
+
+For detailed installation instructions, see [INSTALLATION.md](INSTALLATION.md).
 
 ### Your First Workflow (15 minutes)
 
@@ -221,7 +225,7 @@ echo "P6" > .phase/current
 ### System Components
 
 ```
-Claude Enhancer v5.3.4
+Claude Enhancer v6.2.0
 │
 ├─ 11 Core Modules (~12,500 lines, 307 functions)
 │  ├─ 01_state_management.sh      - Session tracking & persistence
@@ -247,9 +251,14 @@ Claude Enhancer v5.3.4
 │
 ├─ Quality Assurance Assets
 │  ├─ 65 BDD Scenarios (acceptance/features/)
-│  ├─ 90 Performance Metrics (metrics/perf_budget.yml)
-│  ├─ 15 SLO Definitions (observability/slo/slo.yml)
-│  └─ 9 CI Jobs (.github/workflows/ci-enhanced-5.3.yml)
+│  ├─ 30 Performance Budgets (metrics/perf_budget.yml)
+│  ├─ 11 SLO Definitions (observability/slo/slo.yml)
+│  └─ 8 CI Workflows (.github/workflows/)
+│
+├─ Automation Scripts (NEW v6.2)
+│  ├─ auto_metrics.py           - Prevent documentation inflation
+│  ├─ cleanup_documents.sh      - Document lifecycle management
+│  └─ pre_write_document.sh     - Real-time document validation
 │
 └─ Testing Infrastructure (312+ tests)
    ├─ 150 Unit Tests (test/unit/)
@@ -257,6 +266,8 @@ Claude Enhancer v5.3.4
    ├─ 105 Performance Tests (test/performance/)
    └─ 65 BDD Tests (acceptance/features/)
 ```
+
+For complete architecture details, see [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ### Agent Strategy (4-6-8 Principle)
 
@@ -355,24 +366,22 @@ Every `git commit` triggers:
 
 ## 📚 Documentation
 
-### Getting Started
+### Core Documentation
 
-- **[Installation Guide](docs/INSTALLATION.md)** - Detailed setup with troubleshooting
+- **[README.md](README.md)** - This file, project overview
+- **[INSTALLATION.md](INSTALLATION.md)** - Complete installation guide
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Technical architecture and design
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Contribution workflow
+- **[CLAUDE.md](CLAUDE.md)** - Claude-specific workflows
+- **[CHANGELOG.md](CHANGELOG.md)** - Version history
+
+### Additional Documentation
+
 - **[Quick Reference](QUICK_REFERENCE.md)** - Command cheat sheet
 - **[User Guide](docs/USER_GUIDE.md)** - Complete usage documentation
-
-### Workflow & Concepts
-
 - **[8-Phase Workflow](.claude/WORKFLOW.md)** - Phase-by-phase guide
 - **[Agent Strategy](.claude/AGENT_STRATEGY.md)** - Agent selection principles
-- **[AI Contract](docs/AI_CONTRACT.md)** - AI operation guidelines
 - **[Git Workflow](docs/GIT_AUTOMATION_GUIDE.md)** - Git integration details
-
-### Developer Documentation
-
-- **[Architecture](docs/ARCHITECTURE.md)** - System design and components
-- **[API Reference](docs/API_REFERENCE.md)** - Complete function documentation
-- **[Contributing](CONTRIBUTING.md)** - How to contribute
 - **[Troubleshooting](docs/TROUBLESHOOTING_GUIDE.md)** - Common issues (1,441 lines)
 
 ### Quality & Security
@@ -381,16 +390,11 @@ Every `git commit` triggers:
 - **[Security Audit](docs/SECURITY_REVIEW.md)** - Security assessment (762 lines)
 - **[Test Report](docs/P4_TESTING_PHASE_COMPLETE.md)** - Testing summary
 
-### Release Information
-
-- **[Changelog](CHANGELOG.md)** - Complete version history
-- **[Release Notes](RELEASE_NOTES_v1.0.0.md)** - What's new in v1.0.0
-
 ## 📈 Performance
 
 ### Benchmarks
 
-| Metric | v5.0 Baseline | v5.3 Current | Improvement |
+| Metric | v5.0 Baseline | v6.2 Current | Improvement |
 |--------|--------------|--------------|-------------|
 | Startup time | 3.2s | 1.3s | **59% faster** |
 | Hook execution | 120ms | 72ms | **40% faster** |
@@ -408,7 +412,7 @@ Every `git commit` triggers:
 
 ## 🔒 Security
 
-**Current Score: 85/100** (⚠️ 3 P1 vulnerabilities documented, fixes planned for v5.4)
+**Current Score: 85/100** (⚠️ 3 P1 vulnerabilities documented, fixes planned for v6.3)
 
 ### Security Features
 
@@ -425,9 +429,9 @@ Every `git commit` triggers:
 
 ### Known Security Issues (from P5 Review)
 
-1. **VUL-001 (CVSS 9.8)**: Command injection in executor.sh - **Fix planned v5.4**
-2. **VUL-002 (CVSS 7.5)**: Unquoted variable expansion - **Fix planned v5.4**
-3. **VUL-003 (CVSS 8.2)**: Eval usage security risk - **Fix planned v5.4**
+1. **VUL-001 (CVSS 9.8)**: Command injection in executor.sh - **Fix planned v6.3**
+2. **VUL-002 (CVSS 7.5)**: Unquoted variable expansion - **Fix planned v6.3**
+3. **VUL-003 (CVSS 8.2)**: Eval usage security risk - **Fix planned v6.3**
 
 See [SECURITY_REVIEW.md](docs/SECURITY_REVIEW.md) for complete audit (762 lines).
 
@@ -496,14 +500,14 @@ Include:
 
 ## 🗺️ Roadmap
 
-### v5.4 (Q1 2025)
+### v6.3 (Q1 2025)
 
 - [ ] Fix 3 P1 security vulnerabilities
 - [ ] Complete API documentation (307/307 functions)
 - [ ] Web dashboard for workflow monitoring
 - [ ] Plugin system for custom agents
 
-### v6.0 (Q2 2025)
+### v7.0 (Q2 2025)
 
 - [ ] Kubernetes & Docker support
 - [ ] Distributed multi-node execution
@@ -514,7 +518,7 @@ Include:
 
 ```
 ╔═══════════════════════════════════════╗
-║   Claude Enhancer 5.3 Certified      ║
+║   Claude Enhancer 6.2.0 Certified    ║
 ║   Quality Score: 100/100             ║
 ║   Test Coverage: 80%+                ║
 ║   Tests: 312+ passing                ║
@@ -526,7 +530,7 @@ Include:
 
 <div align="center">
 
-**Claude Enhancer v5.3.5** - Production-Ready AI Programming Workflow System
+**Claude Enhancer v6.2.0** - Production-Ready AI Programming Workflow System
 
 *From Idea to Production with Confidence*
 

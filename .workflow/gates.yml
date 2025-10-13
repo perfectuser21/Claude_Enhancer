@@ -1,9 +1,18 @@
 # Workflow Gates v2 — 八阶段自动化（P0-P7）
+# Enhanced with AI Self-Validation System (v6.0)
+
 meta:
   subagent_invocation: "Only main Claude Code agent may invoke sub-agents. Sub-agents MUST NOT invoke sub-agents."
   merge_strategy: "squash"              # main 分支一律 squash
   post_merge_healthcheck: true          # 合并后冒烟检查
   auto_rollback_on_health_fail: true    # 健康检查失败立即回滚上一 tag
+
+  # AI Self-Validation Settings (NEW)
+  pre_write_validation:
+    enabled: true
+    hook: .claude/hooks/quality/pre_write_validation.sh
+    blocking: true
+    performance_budget_ms: 100
 
 parallel_limits:
   P0: 3
@@ -24,6 +33,37 @@ test_depth:
   nightly_ci: ["integration", "contract"]   # 夜间 CI 额外跑
 
 phase_order: [P0, P1, P2, P3, P4, P5, P6, P7]
+
+# Pre-Tool Quality Gates (NEW - AI Self-Validation)
+pre_tool_gates:
+  Write:
+    enabled: true
+    validations:
+      - name: syntax_check
+        hook: .claude/hooks/quality/pre_write_validation.sh
+        blocking: true
+        timeout_ms: 100
+      - name: security_scan
+        description: "Scan for hardcoded secrets and vulnerabilities"
+        blocking: true
+      - name: test_existence
+        description: "Verify test files exist for source files"
+        blocking: false  # Warning only
+        exclude_patterns:
+          - ".temp/**"
+          - "test/**"
+          - "**/*.test.*"
+          - "**/*.spec.*"
+
+  Edit:
+    enabled: true
+    validations:
+      - name: syntax_check
+        hook: .claude/hooks/quality/pre_write_validation.sh
+        blocking: true
+        timeout_ms: 100
+      - name: security_scan
+        blocking: true
 
 phases:
   P0:
@@ -84,10 +124,22 @@ phases:
       - "CHANGELOG.md 的 Unreleased 段新增本次条目（简述范围/影响）"
       - "每个 ticket 生成一段 '变更点清单'（可写在 commit message 中）"
       - "工作流hooks实现（.claude/hooks/）属于核心功能实现"
+    # NEW: Enhanced gates with AI self-validation
+    quality_gates:
+      - name: pre_write_validation
+        description: "AI validates code before writing"
+        hook: .claude/hooks/quality/pre_write_validation.sh
+        blocking: true
+        checks:
+          - syntax_validation
+          - security_scan
+          - test_existence
+          - code_quality
     gates:
       - "构建/编译通过"
       - "CHANGELOG Unreleased 段存在新增条目"
       - "不得改动非白名单目录"
+      - "所有pre-write验证通过（NEW）"
     on_pass:
       - "create: .gates/03.ok"
       - "set: .phase/current=P4"
@@ -101,6 +153,7 @@ phases:
     gates:
       - "pre-push: unit+boundary+smoke 必须绿"
       - "报告存在并含覆盖点清单"
+      - "测试文件也通过pre-write验证（NEW）"
     on_pass:
       - "create: .gates/04.ok"
       - "set: .phase/current=P5"
@@ -153,3 +206,23 @@ phases:
       - "create: .gates/07.ok"
       - "set: .phase/current=DONE"
       - "notify: 系统已进入生产监控阶段，持续跟踪SLO指标"
+
+# Validation Performance Tracking (NEW)
+performance_tracking:
+  enabled: true
+  log_path: .temp/quality_gates/performance.log
+  alert_threshold_ms: 200
+  metrics:
+    - validation_duration
+    - blocking_count
+    - pass_rate
+
+# Reporting Configuration (NEW)
+reporting:
+  enabled: true
+  output_path: .temp/quality_gates/reports
+  formats:
+    - json
+    - markdown
+  summary_on_failure: true
+  daily_summary: true

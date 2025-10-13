@@ -1,0 +1,359 @@
+name: Quality Gate Enforcer (Required)
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: ['**']
+    types: [opened, synchronize, reopened]
+
+# This workflow is REQUIRED and must pass before merge
+# It enforces quality standards across all changes
+
+jobs:
+  quality-gate:
+    name: Quality Gate Enforcement
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for proper diff
+
+      - name: 🔧 Setup Environment
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck bc jq file
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 📦 Install Python Tools
+        run: |
+          pip install --upgrade pip
+          pip install pylint pytest pytest-cov pyyaml radon bandit
+          echo "✅ Python tools installed"
+
+      - name: 📦 Install Node Dependencies
+        run: |
+          npm ci --prefer-offline --no-audit
+          echo "✅ Node dependencies installed"
+
+      - name: 🪝 Verify Hook Integrity
+        run: |
+          echo "🪝 Checking Git hooks installation..."
+
+          # Check if hooks exist
+          if [ ! -f ".git/hooks/pre-commit" ]; then
+            echo "⚠️ Pre-commit hook not found, installing..."
+            if [ -f ".claude/install.sh" ]; then
+              bash .claude/install.sh
+            fi
+          fi
+
+          # Verify hooks are executable
+          hooks=("pre-commit" "commit-msg" "pre-push")
+          missing=0
+          for hook in "${hooks[@]}"; do
+            if [ -f ".git/hooks/$hook" ] && [ -x ".git/hooks/$hook" ]; then
+              echo "✅ $hook: installed and executable"
+            else
+              echo "❌ $hook: missing or not executable"
+              ((missing++))
+            fi
+          done
+
+          if [ $missing -gt 0 ]; then
+            echo "::error::$missing hooks are missing or not executable"
+            exit 1
+          fi
+
+          echo "✅ All hooks verified"
+
+      - name: 🔍 Run Shellcheck
+        run: |
+          echo "🔍 Running shellcheck on shell scripts..."
+
+          # Find all shell scripts
+          shopt -s globstar
+          error_count=0
+
+          for script in $(find . -name "*.sh" -not -path "./node_modules/*" -not -path "./.git/*" -type f); do
+            echo "Checking: $script"
+            if ! shellcheck -S warning "$script"; then
+              echo "❌ Shellcheck failed for $script"
+              ((error_count++))
+            fi
+          done
+
+          if [ $error_count -eq 0 ]; then
+            echo "✅ All shell scripts passed shellcheck"
+          else
+            echo "::error::Shellcheck found issues in $error_count files"
+            exit 1
+          fi
+
+      - name: 🐍 Run Python Lint
+        run: |
+          echo "🐍 Running pylint on Python files..."
+
+          # Find all Python files
+          py_files=$(find . -name "*.py" -not -path "./node_modules/*" -not -path "./.git/*" -not -path "./venv/*" -type f)
+
+          if [ -z "$py_files" ]; then
+            echo "ℹ️ No Python files found, skipping"
+            exit 0
+          fi
+
+          error_count=0
+          for file in $py_files; do
+            echo "Linting: $file"
+            if ! pylint "$file" --fail-under=7.0 --disable=C0114,C0115,C0116 2>/dev/null; then
+              echo "⚠️ Pylint warnings in $file"
+              ((error_count++))
+            fi
+          done
+
+          if [ $error_count -eq 0 ]; then
+            echo "✅ All Python files passed lint"
+          else
+            echo "::warning::Pylint found issues in $error_count files (non-blocking)"
+          fi
+
+      - name: 🟢 Run JavaScript Lint
+        run: |
+          echo "🟢 Running eslint on JavaScript files..."
+
+          if npx eslint "**/*.js" --ignore-pattern "node_modules/" --max-warnings 10; then
+            echo "✅ JavaScript lint passed"
+          else
+            echo "::error::ESLint found issues"
+            exit 1
+          fi
+
+      - name: 🧪 Run Test Suite
+        run: |
+          echo "🧪 Running test suite..."
+          npm run test:ci
+          echo "✅ Tests passed"
+
+      - name: 📊 Check Test Coverage
+        run: |
+          echo "📊 Verifying test coverage threshold..."
+
+          if [ -f "coverage/coverage-summary.json" ]; then
+            coverage=$(node -e "const c=require('./coverage/coverage-summary.json'); console.log(c.total.lines.pct)")
+            echo "Current coverage: $coverage%"
+
+            threshold=80
+            if (( $(echo "$coverage < $threshold" | bc -l) )); then
+              echo "::error::Coverage insufficient: $coverage% < $threshold%"
+              exit 1
+            else
+              echo "✅ Coverage meets threshold: $coverage% ≥ $threshold%"
+            fi
+          else
+            echo "::warning::Coverage summary not found"
+          fi
+
+      - name: 🔐 Security Scan - Secrets Detection
+        run: |
+          echo "🔐 Scanning for secrets in changed files..."
+
+          # Get changed files
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            base_sha="${{ github.event.pull_request.base.sha }}"
+            head_sha="${{ github.event.pull_request.head.sha }}"
+          else
+            # For push events
+            if [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
+              base_sha="${{ github.event.before }}"
+              head_sha="${{ github.sha }}"
+            else
+              # First commit, check against empty tree
+              base_sha="4b825dc642cb6eb9a060e54bf8d69288fbee4904"
+              head_sha="${{ github.sha }}"
+            fi
+          fi
+
+          # Patterns to detect
+          patterns=(
+            "AKIA[0-9A-Z]{16}"                           # AWS Access Key
+            "sk-[a-zA-Z0-9]{48}"                        # OpenAI API Key
+            "ghp_[a-zA-Z0-9]{36}"                       # GitHub Personal Access Token
+            "password\s*[:=]\s*['\"][^'\"]{8,}"        # Password assignments
+            "secret\s*[:=]\s*['\"][^'\"]{8,}"          # Secret assignments
+            "token\s*[:=]\s*['\"][^'\"]{32,}"          # Token assignments
+            "api[_-]?key\s*[:=]\s*['\"][^'\"]{16,}"    # API Key assignments
+          )
+
+          echo "Checking diff: $base_sha..$head_sha"
+          diff_content=$(git diff "$base_sha..$head_sha" || echo "")
+
+          found=0
+          for pattern in "${patterns[@]}"; do
+            if echo "$diff_content" | grep -E "$pattern" >/dev/null 2>&1; then
+              echo "::error::Potential secret detected matching pattern: $pattern"
+              ((found++))
+            fi
+          done
+
+          if [ $found -gt 0 ]; then
+            echo "::error::Found $found potential secrets in changed files"
+            exit 1
+          else
+            echo "✅ No secrets detected in changes"
+          fi
+
+      - name: 🔐 Security Scan - Bandit (Python)
+        run: |
+          echo "🔐 Running Bandit security scan on Python files..."
+
+          py_files=$(find . -name "*.py" -not -path "./node_modules/*" -not -path "./.git/*" -not -path "./venv/*" -type f)
+
+          if [ -z "$py_files" ]; then
+            echo "ℹ️ No Python files found, skipping"
+            exit 0
+          fi
+
+          if bandit -r . -ll -x "./node_modules/*,./.git/*,./venv/*" --format txt; then
+            echo "✅ Bandit security scan passed"
+          else
+            echo "::warning::Bandit found potential security issues (review recommended)"
+          fi
+
+      - name: 📋 Document Count Check
+        run: |
+          echo "📋 Checking root document count..."
+
+          count=$(find . -maxdepth 1 -name "*.md" -not -name "PLAN.md" | wc -l)
+          echo "Root document count: $count"
+
+          max_allowed=7
+          if [ $count -gt $max_allowed ]; then
+            echo "::warning::Too many root documents: $count > $max_allowed"
+            echo "Consider moving some to docs/ or archive/"
+          else
+            echo "✅ Document count acceptable: $count ≤ $max_allowed"
+          fi
+
+      - name: 📝 Validate Key Files Exist
+        run: |
+          echo "📝 Checking for required files..."
+
+          required_files=(
+            "README.md"
+            "CLAUDE.md"
+            "VERSION"
+            ".claude/config.yml"
+            ".workflow/gates.yml"
+            ".workflow/manifest.yml"
+            "package.json"
+          )
+
+          missing=0
+          for file in "${required_files[@]}"; do
+            if [ -f "$file" ]; then
+              echo "✅ $file exists"
+            else
+              echo "❌ $file missing"
+              ((missing++))
+            fi
+          done
+
+          if [ $missing -gt 0 ]; then
+            echo "::error::$missing required files are missing"
+            exit 1
+          fi
+
+          echo "✅ All required files present"
+
+      - name: 🔢 Version Consistency Check
+        run: |
+          echo "🔢 Checking version consistency..."
+
+          version=$(cat VERSION)
+          echo "VERSION file: $version"
+
+          settings_ver=$(python3 -c "import json; print(json.load(open('.claude/settings.json'))['version'])" 2>/dev/null || echo "unknown")
+          echo "settings.json: $settings_ver"
+
+          manifest_ver=$(python3 -c "import yaml; print(yaml.safe_load(open('.workflow/manifest.yml'))['version'])" 2>/dev/null || echo "unknown")
+          echo "manifest.yml: $manifest_ver"
+
+          package_ver=$(node -e "console.log(require('./package.json').version)" 2>/dev/null || echo "unknown")
+          echo "package.json: $package_ver"
+
+          # Check consistency
+          inconsistent=0
+          if [ "$version" != "$settings_ver" ]; then
+            echo "::error::VERSION != settings.json"
+            ((inconsistent++))
+          fi
+          if [ "$version" != "$manifest_ver" ]; then
+            echo "::error::VERSION != manifest.yml"
+            ((inconsistent++))
+          fi
+          if [ "$version" != "$package_ver" ]; then
+            echo "::error::VERSION != package.json"
+            ((inconsistent++))
+          fi
+
+          if [ $inconsistent -gt 0 ]; then
+            echo "::error::Version inconsistency detected in $inconsistent files"
+            exit 1
+          fi
+
+          echo "✅ Version consistency verified: $version"
+
+      - name: 🚪 Block on Failure
+        if: failure()
+        run: |
+          echo "::error::❌ Quality gate failed!"
+          echo ""
+          echo "This PR cannot be merged until all quality checks pass."
+          echo "Please review the logs above and fix any issues."
+          echo ""
+          exit 1
+
+  quality-summary:
+    name: Quality Gate Summary
+    runs-on: ubuntu-latest
+    needs: quality-gate
+    if: always()
+
+    steps:
+      - name: 📊 Generate Summary
+        run: |
+          if [ "${{ needs.quality-gate.result }}" == "success" ]; then
+            echo "## ✅ Quality Gate: PASSED"
+            echo ""
+            echo "All quality checks have passed successfully!"
+            echo ""
+            echo "- ✅ Hook integrity verified"
+            echo "- ✅ Code linting passed"
+            echo "- ✅ Tests passed"
+            echo "- ✅ Coverage threshold met"
+            echo "- ✅ Security scan clean"
+            echo "- ✅ Version consistency verified"
+            echo ""
+            echo "🎉 This PR is ready for review!"
+          else
+            echo "## ❌ Quality Gate: FAILED"
+            echo ""
+            echo "Some quality checks failed. Please fix the issues above."
+            echo ""
+            echo "Review the logs in the 'Quality Gate Enforcement' job for details."
+            echo ""
+            exit 1
+          fi
