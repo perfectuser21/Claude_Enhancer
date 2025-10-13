@@ -14,6 +14,12 @@ meta:
     blocking: true
     performance_budget_ms: 100
 
+# Quality Gate Thresholds (for hardened CI)
+quality:
+  quality_min: 85          # Minimum quality score
+  coverage_min: 0          # Minimum coverage (0 = disabled temporarily)
+  required_signatures: 8   # Required GPG signatures for protected branches
+
 parallel_limits:
   P0: 3
   P1: 4
