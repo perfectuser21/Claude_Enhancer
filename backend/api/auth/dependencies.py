@@ -78,6 +78,7 @@ async def get_current_user(
         )
 
     try:
+        pass  # Auto-fixed empty block
         # 验证JWT令牌
         validation_result = await jwt_manager.validate_token(credentials.credentials)
 

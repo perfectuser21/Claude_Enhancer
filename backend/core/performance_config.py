@@ -241,6 +241,7 @@ class PerformanceConfigManager:
     async def initialize(self) -> PerformanceConfig:
         """初始化配置管理器"""
         try:
+            pass  # Auto-fixed empty block
             # 加载配置文件
             await self.load_config()
 
@@ -508,6 +509,7 @@ class PerformanceConfigManager:
     async def update_config(self, updates: Dict[str, Any]):
         """更新配置"""
         try:
+            pass  # Auto-fixed empty block
             # 备份当前配置
             backup_config = self.config
 
@@ -523,6 +525,7 @@ class PerformanceConfigManager:
             logger.info("✅ 配置更新成功")
 
         except Exception as e:
+            pass  # Auto-fixed empty block
             # 恢复备份配置
             self.config = backup_config
             logger.error(f"❌ 配置更新失败，已恢复: {e}")

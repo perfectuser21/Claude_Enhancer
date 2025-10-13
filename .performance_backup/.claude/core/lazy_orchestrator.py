@@ -133,6 +133,7 @@ class LazyAgentManager:
             return self.loaded_agents[agent_name]
 
         with self.loading_lock:
+            pass  # Auto-fixed empty block
             # Double-check after acquiring lock
             if agent_name in self.loaded_agents:
                 self.metrics["cache_hits"] += 1
@@ -573,6 +574,7 @@ def benchmark_orchestrator_performance(iterations: int = 20):
     selection_times = []
 
     for i in range(iterations):
+        pass  # Auto-fixed empty block
         # Measure startup
         start = time.time()
         orchestrator = LazyAgentOrchestrator()
@@ -625,6 +627,7 @@ if __name__ == "__main__":
         print("\n📊 Performance Stats:")
         print(json.dumps(stats, indent=2))
     else:
+        pass  # Auto-fixed empty block
         # Interactive test
         orchestrator = LazyAgentOrchestrator()
 

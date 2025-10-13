@@ -188,6 +188,7 @@ class PerformanceTestService:
 
                 user = self.users.get(email)
                 if not user or user["password_hash"] != f"hash_{password}":
+                    pass  # Auto-fixed empty block
                     # Simulate password verification delay
                     await asyncio.sleep(0.005)  # 5ms delay for failed auth
                     return False, "", (time.time() - start_time) * 1000
@@ -656,6 +657,7 @@ class TestStressScenarios:
 
             # Sustained activity
             while not stop_event.is_set():
+                pass  # Auto-fixed empty block
                 # Validate token
                 valid, response_time = await performance_service.validate_token(token)
                 metrics.add_response_time(response_time, valid)

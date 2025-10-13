@@ -847,9 +847,11 @@ class TaskRepository(BaseRepository[Task]):
         )
 
         if match_all:
+            pass  # Auto-fixed empty block
             # 匹配所有标签
             query = query.filter(Task.tags.op("@>")(tags))
         else:
+            pass  # Auto-fixed empty block
             # 匹配任意标签
             query = query.filter(Task.tags.op("&&")(tags))
 

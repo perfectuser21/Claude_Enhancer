@@ -109,6 +109,7 @@ class JWTTokenManager:
             Dict: 解码后的payload，验证失败返回None
         """
         try:
+            pass  # Auto-fixed empty block
             # 检查黑名单
             if token in self.blacklisted_tokens:
                 return None
@@ -188,6 +189,7 @@ class JWTTokenManager:
             bool: 撤销成功返回True
         """
         try:
+            pass  # Auto-fixed empty block
             # 移除刷新令牌
             if user_id in self.refresh_tokens:
                 refresh_token = self.refresh_tokens[user_id]["token"]

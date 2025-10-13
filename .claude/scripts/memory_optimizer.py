@@ -280,6 +280,7 @@ class AgentInstancePool:
     def get_agent_instance(self, agent_name: str, factory_func) -> Any:
         """获取Agent实例（复用或创建）"""
         with self.lock:
+            pass  # Auto-fixed empty block
             # 尝试从池中获取可用实例
             if agent_name in self.pool:
                 while self.pool[agent_name]:
@@ -316,6 +317,7 @@ class AgentInstancePool:
     def _cleanup_callback(self, weak_ref):
         """实例被垃圾回收时的回调"""
         with self.lock:
+            pass  # Auto-fixed empty block
             # 从活动实例中移除
             keys_to_remove = []
             for key, ref in self.active_instances.items():
@@ -328,6 +330,7 @@ class AgentInstancePool:
     def _force_cleanup(self):
         """强制清理一些实例"""
         with self.lock:
+            pass  # Auto-fixed empty block
             # 清理池中的弱引用
             for agent_name, refs in list(self.pool.items()):
                 self.pool[agent_name] = [ref for ref in refs if ref() is not None]
@@ -396,10 +399,12 @@ class CacheOptimizer:
     def _optimize_cache(self, name: str, cache: Any):
         """优化单个缓存"""
         if hasattr(cache, "clear"):
+            pass  # Auto-fixed empty block
             # 如果是字典类型的缓存
             if isinstance(cache, dict):
                 self._optimize_dict_cache(cache)
             else:
+                pass  # Auto-fixed empty block
                 # 对于其他类型，直接清理一半
                 if hasattr(cache, "__len__") and len(cache) > 100:
                     cache.clear()
@@ -505,6 +510,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "demo":
         run_memory_optimization_demo()
     else:
+        pass  # Auto-fixed empty block
         # 简单的内存检查
         manager = IntelligentMemoryManager()
         snapshot = manager._capture_memory_snapshot()

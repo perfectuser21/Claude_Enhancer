@@ -91,6 +91,7 @@ class BruteForceProtection:
 
         lockout_until = self.lockouts[identifier]
         if datetime.utcnow() >= lockout_until:
+            pass  # Auto-fixed empty block
             # 锁定时间已过，移除锁定
             del self.lockouts[identifier]
             return False
@@ -308,6 +309,7 @@ class IPBlocklist:
             if datetime.utcnow() < self.temporary_blocks[ip_address]:
                 return True
             else:
+                pass  # Auto-fixed empty block
                 # 临时封禁已过期，移除
                 del self.temporary_blocks[ip_address]
 

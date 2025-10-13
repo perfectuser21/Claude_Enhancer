@@ -82,6 +82,7 @@ class UserService:
         """创建新用户"""
         async with get_async_session() as session:
             try:
+                pass  # Auto-fixed empty block
                 # 验证邮箱格式
                 try:
                     validated_email = validate_email(user_data["email"])
@@ -197,6 +198,7 @@ class UserService:
         """用户认证"""
         async with get_async_session() as session:
             try:
+                pass  # Auto-fixed empty block
                 # 检查用户是否存在
                 user = await self._get_user_by_email(session, email)
                 if not user:
@@ -228,6 +230,7 @@ class UserService:
                 )
 
                 if not verification_result.is_valid:
+                    pass  # Auto-fixed empty block
                     # 记录失败尝试
                     await self._record_failed_attempt(str(user.id), login_context)
                     await self._log_failed_login(
@@ -269,6 +272,7 @@ class UserService:
     async def get_user_permissions(self, user_id: str) -> List[str]:
         """获取用户权限"""
         try:
+            pass  # Auto-fixed empty block
             # 先从缓存获取
             cache_key = f"user_permissions:{user_id}"
             cached_permissions = await self.redis_client.get(cache_key)
@@ -314,6 +318,7 @@ class UserService:
     async def verify_email(self, verification_token: str, ip_address: str) -> bool:
         """验证邮箱"""
         try:
+            pass  # Auto-fixed empty block
             # 验证令牌
             user_id = await self._verify_token(verification_token, "email_verification")
             if not user_id:
@@ -361,6 +366,7 @@ class UserService:
             try:
                 user = await self._get_user_by_email(session, email)
                 if not user:
+                    pass  # Auto-fixed empty block
                     # 为了安全，不暴露用户是否存在
                     return
 
@@ -400,6 +406,7 @@ class UserService:
     ) -> str:
         """重置密码"""
         try:
+            pass  # Auto-fixed empty block
             # 验证重置令牌
             user_id = await self._verify_token(reset_token, "password_reset")
             if not user_id:
@@ -595,6 +602,7 @@ class UserService:
         await self.redis_client.expire(attempts_key, 3600)  # 1小时过期
 
         if attempt_count >= settings.ACCOUNT_LOCKOUT_ATTEMPTS:
+            pass  # Auto-fixed empty block
             # 锁定账户
             lockout_duration = settings.ACCOUNT_LOCKOUT_DURATION
             locked_until = datetime.utcnow() + timedelta(seconds=lockout_duration)
@@ -670,6 +678,7 @@ class UserService:
     ):
         """处理密码风险因素"""
         if "password_breach" in risk_factors:
+            pass  # Auto-fixed empty block
             # 强制用户重置密码
             reset_token = await self._generate_reset_token(str(user.id))
 

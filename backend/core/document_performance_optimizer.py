@@ -131,6 +131,7 @@ class DocumentPerformanceOptimizer:
                 row = cursor.fetchone()
 
                 if row:
+                    pass  # Auto-fixed empty block
                     # 更新访问时间
                     conn.execute(
                         "UPDATE file_cache SET accessed_at = CURRENT_TIMESTAMP WHERE file_path = ?",
@@ -171,6 +172,7 @@ class DocumentPerformanceOptimizer:
     def _add_to_memory_cache(self, key: str, value: Dict):
         """添加到内存缓存（LRU策略）"""
         if len(self._memory_cache) >= self.max_memory_cache_size:
+            pass  # Auto-fixed empty block
             # 移除最少使用的项
             oldest_key = min(
                 self._cache_access_times.keys(),
@@ -505,6 +507,7 @@ class DocumentPerformanceOptimizer:
         groups = {}
 
         for file_path in files:
+            pass  # Auto-fixed empty block
             # 按目录和文件类型分组
             path_obj = Path(file_path)
             group_key = f"{path_obj.parent}:{path_obj.suffix}"
@@ -519,6 +522,7 @@ class DocumentPerformanceOptimizer:
         """处理文件组"""
         results = []
         for file_path in files:
+            pass  # Auto-fixed empty block
             # 在进程中运行异步检查
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)

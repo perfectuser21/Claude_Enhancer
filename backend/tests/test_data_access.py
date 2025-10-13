@@ -122,6 +122,7 @@ class TestUserModel:
     def test_user_relationships(self):
         """测试用户关联关系"""
         with transaction() as session:
+            pass  # Auto-fixed empty block
             # 创建用户
             user = User(username="relation_user", email="relation@example.com")
             user.set_password("test123")
@@ -154,6 +155,7 @@ class TestSessionModel:
     def test_session_creation(self):
         """测试会话创建"""
         with transaction() as session_db:
+            pass  # Auto-fixed empty block
             # 先创建用户
             user = User(username="session_user", email="session@example.com")
             user.set_password("test123")
@@ -182,6 +184,7 @@ class TestSessionModel:
     def test_session_expiration(self):
         """测试会话过期"""
         with transaction() as session_db:
+            pass  # Auto-fixed empty block
             # 创建用户
             user = User(username="expire_user", email="expire@example.com")
             user.set_password("test123")
@@ -452,6 +455,7 @@ class TestAuditLog:
     def test_audit_log_creation(self):
         """测试审计日志创建"""
         with transaction() as session:
+            pass  # Auto-fixed empty block
             # 创建用户
             user = User(username="audit_user", email="audit@example.com")
             user.set_password("test123")

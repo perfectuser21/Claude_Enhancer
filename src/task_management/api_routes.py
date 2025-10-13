@@ -290,6 +290,7 @@ def create_task_router(
         更新任务的各项信息。只有有权限的用户才能更新任务。
         """
         try:
+            pass  # Auto-fixed empty block
             # 只更新提供的字段
             update_dict = update_data.dict(exclude_unset=True)
 

@@ -199,6 +199,7 @@ class DatabaseManager:
     def init_default_data(self):
         """初始化默认数据"""
         with self.get_session() as session:
+            pass  # Auto-fixed empty block
             # 创建系统标签
             existing_labels = session.query(Label).filter_by(is_system=True).count()
             if existing_labels == 0:

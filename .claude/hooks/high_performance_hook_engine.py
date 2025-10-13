@@ -136,6 +136,7 @@ class PerformanceCache:
                     logger.debug(f"Cache hit for hook {hook_name}")
                     return result
                 else:
+                    pass  # Auto-fixed empty block
                     # 缓存过期
                     del self.cache[key]
                     del self.access_times[key]
@@ -147,6 +148,7 @@ class PerformanceCache:
         key = self._generate_key(hook_name, context)
 
         with self.lock:
+            pass  # Auto-fixed empty block
             # 如果缓存满了，删除最久未访问的条目
             if len(self.cache) >= self.max_size:
                 oldest_key = min(
@@ -287,6 +289,7 @@ class HighPerformanceHookEngine:
         start_time = time.time()
 
         try:
+            pass  # Auto-fixed empty block
             # 检查缓存
             cached_result = self.cache.get(
                 hook_config.name, context, hook_config.cache_ttl
@@ -321,6 +324,7 @@ class HighPerformanceHookEngine:
             circuit_breaker = self.circuit_breakers[hook_config.name]
 
             if hook_config.async_mode:
+                pass  # Auto-fixed empty block
                 # 在线程池中执行
                 loop = asyncio.get_event_loop()
                 proc_result = await loop.run_in_executor(

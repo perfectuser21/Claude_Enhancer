@@ -424,6 +424,7 @@ async def list_checks(
     - `score:desc` - 按质量评分倒序（仅已完成）
     """
     try:
+        pass  # Auto-fixed empty block
         # 这里应该调用实际的服务方法来获取检查列表
         # 为示例目的，返回模拟数据
         items = []  # 实际数据
@@ -570,6 +571,7 @@ async def get_quality_report(
     - **改进建议**: 整体文档改进方向
     """
     try:
+        pass  # Auto-fixed empty block
         # 获取报告数据
         report = await docgate_service.get_report(
             check_id=check_id, user_id=str(current_user.id)
@@ -589,6 +591,7 @@ async def get_quality_report(
         if format.lower() == "json":
             return ApiResponse(success=True, data=report, message="质量报告获取成功")
         elif format.lower() == "html":
+            pass  # Auto-fixed empty block
             # 生成HTML报告
             html_content = await generate_html_report(report)
             return StreamingResponse(
@@ -599,6 +602,7 @@ async def get_quality_report(
                 },
             )
         elif format.lower() == "pdf":
+            pass  # Auto-fixed empty block
             # 生成PDF报告
             pdf_path = await generate_pdf_report(report)
             return FileResponse(
@@ -661,6 +665,7 @@ async def download_report(
     - JSON: `quality_report_{check_id}_{timestamp}.json`
     """
     try:
+        pass  # Auto-fixed empty block
         # 获取报告
         report = await docgate_service.get_report(
             check_id=check_id, user_id=str(current_user.id)
@@ -1076,6 +1081,7 @@ async def get_system_health(
     - **unhealthy**: 系统故障
     """
     try:
+        pass  # Auto-fixed empty block
         # 实际实现中应该检查各个服务的状态
         health_data = SystemHealth(
             status="healthy",
@@ -1148,6 +1154,7 @@ async def get_usage_stats(
     - 最长支持1年的历史数据
     """
     try:
+        pass  # Auto-fixed empty block
         # 设置默认时间范围
         if not to_date:
             to_date = datetime.utcnow()

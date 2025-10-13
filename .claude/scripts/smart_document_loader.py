@@ -424,6 +424,7 @@ class SmartDocumentLoader:
                 optimized_docs.append(doc)
                 current_tokens += doc.size_tokens
             elif doc.priority == Priority.P0_CRITICAL:
+                pass  # Auto-fixed empty block
                 # 关键文档必须加载，移除其他文档为其腾出空间
                 optimized_docs = [
                     d for d in optimized_docs if d.priority == Priority.P0_CRITICAL

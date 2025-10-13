@@ -180,6 +180,7 @@ def backup():
     backup_file = backup_dir / f"task_manager_backup_{timestamp}.sql"
 
     try:
+        pass  # Auto-fixed empty block
         # 使用pg_dump备份数据库
         cmd = ["pg_dump", settings.DATABASE_URL, "-f", str(backup_file), "--verbose"]
 

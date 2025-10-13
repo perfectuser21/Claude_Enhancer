@@ -500,6 +500,7 @@ class ClaudeEnhancerMonitor:
     async def _process_hook_log(self, log_line: str):
         """处理Hook日志行"""
         try:
+            pass  # Auto-fixed empty block
             # 解析日志格式: "2023-09-23 17:24:15 | hook_name | 150ms"
             parts = log_line.split(" | ")
             if len(parts) >= 3:
@@ -552,6 +553,7 @@ class ClaudeEnhancerMonitor:
         """监控系统资源"""
         while self.is_running:
             try:
+                pass  # Auto-fixed empty block
                 # 收集系统指标
                 cpu_percent = psutil.cpu_percent(interval=1)
                 memory = psutil.virtual_memory()
@@ -596,6 +598,7 @@ class ClaudeEnhancerMonitor:
         """检查告警条件"""
         while self.is_running:
             try:
+                pass  # Auto-fixed empty block
                 # 获取最新性能指标
                 performance = self.db.get_performance_summary(hours=1)
 
@@ -921,6 +924,7 @@ class ClaudeEnhancerMonitor:
         try:
             async for msg in ws:
                 if msg.type == aiohttp.WSMsgType.TEXT:
+                    pass  # Auto-fixed empty block
                     # 处理客户端消息
                     pass
                 elif msg.type == aiohttp.WSMsgType.ERROR:
@@ -971,6 +975,7 @@ class ClaudeEnhancerMonitor:
         """清理旧数据"""
         while self.is_running:
             try:
+                pass  # Auto-fixed empty block
                 # 删除7天前的数据
                 cutoff = datetime.now() - timedelta(days=7)
 

@@ -44,6 +44,7 @@ class AgentOutputSummarizer:
     def process_agent_output(self, tool_data: Dict[str, Any]) -> None:
         """处理单个agent的输出"""
         try:
+            pass  # Auto-fixed empty block
             # 提取agent信息
             agent_type = tool_data.get("subagent_type", "unknown")
             description = tool_data.get("description", "")
@@ -52,6 +53,7 @@ class AgentOutputSummarizer:
             # 检查输出大小
             output_size = len(output.encode("utf-8"))
             if output_size > self.MAX_OUTPUT_SIZE:
+                pass  # Auto-fixed empty block
                 # 如果输出太大，创建摘要
                 output = self._create_summary(output, agent_type)
 
@@ -317,6 +319,7 @@ class AgentOutputSummarizer:
 def main():
     """主函数 - 作为hook被调用"""
     try:
+        pass  # Auto-fixed empty block
         # 读取输入
         input_data = sys.stdin.read() if not sys.stdin.isatty() else "{}"
 
@@ -324,6 +327,7 @@ def main():
         try:
             tool_data = json.loads(input_data)
         except json.JSONDecodeError:
+            pass  # Auto-fixed empty block
             # 如果不是JSON，尝试其他格式
             tool_data = {"output": input_data}
 
@@ -348,6 +352,7 @@ def main():
             print(f"✅ Agent output collected and summarized → {report_file.name}")
 
     except Exception as e:
+        pass  # Auto-fixed empty block
         # 静默失败，不影响主流程
         print(f"⚠️ Agent summarizer error: {e}", file=sys.stderr)
 

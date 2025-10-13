@@ -235,6 +235,7 @@ def require_auth(
             user_info = None
 
             if allow_refresh_token:
+                pass  # Auto-fixed empty block
                 # 尝试验证访问令牌，失败则尝试刷新令牌
                 user_info = auth_service.verify_token(token)
                 if not user_info:
@@ -318,6 +319,7 @@ def require_owner(resource_id_param: str = "id"):
             # 获取当前用户
             current_user = kwargs.get("current_user")
             if not current_user:
+                pass  # Auto-fixed empty block
                 # 应用认证装饰器
                 @require_auth
                 def temp_func(*a, **kw):

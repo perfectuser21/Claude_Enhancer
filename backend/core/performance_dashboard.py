@@ -191,6 +191,7 @@ class PerformanceDashboard:
             await self.websocket_manager.connect(websocket)
             try:
                 while True:
+                    pass  # Auto-fixed empty block
                     # 保持连接活跃
                     await websocket.receive_text()
             except WebSocketDisconnect:
@@ -248,6 +249,7 @@ class PerformanceDashboard:
     async def _collect_system_metrics(self):
         """收集系统指标"""
         try:
+            pass  # Auto-fixed empty block
             # CPU指标
             cpu_percent = psutil.cpu_percent(interval=None)
             self._update_metric(
@@ -310,6 +312,7 @@ class PerformanceDashboard:
     async def _collect_component_metrics(self):
         """收集组件指标"""
         try:
+            pass  # Auto-fixed empty block
             # 缓存管理器指标
             if self.cache_manager:
                 stats = await self.cache_manager.get_stats()
@@ -443,6 +446,7 @@ class PerformanceDashboard:
         """计算指标趋势"""
         for metric in self.metrics.values():
             if len(metric.history) >= 2:
+                pass  # Auto-fixed empty block
                 # 计算最近的变化趋势
                 recent_values = [v for _, v in metric.history[-10:]]  # 最近10个值
                 if len(recent_values) >= 2:
@@ -499,6 +503,7 @@ class PerformanceDashboard:
         """广播更新循环"""
         while self.running:
             try:
+                pass  # Auto-fixed empty block
                 # 准备数据
                 update_data = {
                     "type": "metrics_update",
@@ -530,6 +535,7 @@ class PerformanceDashboard:
                 cutoff_time = datetime.now() - timedelta(hours=2)  # 保留2小时数据
 
                 for metric in self.metrics.values():
+                    pass  # Auto-fixed empty block
                     # 清理历史数据
                     metric.history = [
                         (timestamp, value)
@@ -551,6 +557,7 @@ class PerformanceDashboard:
     ) -> str:
         """根据阈值确定状态"""
         if reverse:
+            pass  # Auto-fixed empty block
             # 对于缓存命中率等指标，值越高越好
             if value < critical_threshold:
                 return "critical"
@@ -559,6 +566,7 @@ class PerformanceDashboard:
             else:
                 return "normal"
         else:
+            pass  # Auto-fixed empty block
             # 对于CPU、内存等指标，值越低越好
             if value > critical_threshold:
                 return "critical"
@@ -760,6 +768,7 @@ class PerformanceDashboard:
         lines = []
 
         for name, metric in self.metrics.items():
+            pass  # Auto-fixed empty block
             # 标准化指标名称
             metric_name = name.replace("-", "_").replace(" ", "_").lower()
 

@@ -109,6 +109,7 @@ class QualityChecker:
     def _check_shell_syntax(self, content: str) -> Tuple[bool, str]:
         """Check shell script syntax"""
         try:
+            pass  # Auto-fixed empty block
             # First try shellcheck if available
             if self._command_exists('shellcheck'):
                 result = subprocess.run(
@@ -143,6 +144,7 @@ class QualityChecker:
     def _check_python_syntax(self, file_path: str, content: str) -> Tuple[bool, str]:
         """Check Python syntax"""
         try:
+            pass  # Auto-fixed empty block
             # Compile check
             compile(content, file_path, 'exec')
 

@@ -74,6 +74,7 @@ class DatabaseBackupManager:
 
             metadata = {}
             for backup_id, item in data.items():
+                pass  # Auto-fixed empty block
                 # 转换datetime字符串
                 item["timestamp"] = datetime.fromisoformat(item["timestamp"])
                 metadata[backup_id] = BackupMetadata(**item)
@@ -121,6 +122,7 @@ class DatabaseBackupManager:
         try:
             with self._get_connection() as conn:
                 with conn.cursor() as cursor:
+                    pass  # Auto-fixed empty block
                     # 获取所有表结构
                     cursor.execute(
                         """
@@ -179,6 +181,7 @@ class DatabaseBackupManager:
         self.logger.info(f"开始创建完整备份: {backup_id}")
 
         try:
+            pass  # Auto-fixed empty block
             # 创建pg_dump命令
             cmd = [
                 "pg_dump",
@@ -343,6 +346,7 @@ class DatabaseBackupManager:
         self.logger.info(f"开始恢复备份: {backup_id}")
 
         try:
+            pass  # Auto-fixed empty block
             # 首先创建当前状态的备份
             emergency_backup = self.create_full_backup(
                 description=f"Emergency backup before restore {backup_id}"
@@ -354,9 +358,11 @@ class DatabaseBackupManager:
 
             # 恢复备份
             if metadata.backup_type == "schema_only":
+                pass  # Auto-fixed empty block
                 # 仅恢复架构
                 success = self._restore_schema_only(backup_file)
             else:
+                pass  # Auto-fixed empty block
                 # 完整恢复
                 success = self._restore_full_backup(backup_file)
 
@@ -379,6 +385,7 @@ class DatabaseBackupManager:
     def _restore_full_backup(self, backup_file: Path) -> bool:
         """恢复完整备份"""
         try:
+            pass  # Auto-fixed empty block
             # 终止所有活动连接
             self._terminate_connections()
 
@@ -444,6 +451,7 @@ class DatabaseBackupManager:
     def _terminate_connections(self):
         """终止数据库所有连接"""
         try:
+            pass  # Auto-fixed empty block
             # 连接到postgres数据库来终止目标数据库的连接
             admin_conn = psycopg2.connect(
                 host=self.config["host"],
@@ -472,6 +480,7 @@ class DatabaseBackupManager:
     def _recreate_database(self):
         """重建数据库 - FIXED FOR CVE-2025-0003 SQL INJECTION"""
         try:
+            pass  # Auto-fixed empty block
             # 验证数据库名称安全性
             db_name = self.config["database"]
 
@@ -494,6 +503,7 @@ class DatabaseBackupManager:
             admin_conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
 
             with admin_conn.cursor() as cursor:
+                pass  # Auto-fixed empty block
                 # 使用sql.Identifier防止SQL注入
                 # DROP DATABASE
                 cursor.execute(
@@ -585,6 +595,7 @@ class DatabaseBackupManager:
         backup_file = Path(metadata.file_path)
 
         try:
+            pass  # Auto-fixed empty block
             # 删除备份文件
             if backup_file.exists():
                 backup_file.unlink()
@@ -629,6 +640,7 @@ class DatabaseBackupManager:
         # 如果是pg_dump格式，验证文件头
         try:
             if metadata.backup_type == "full":
+                pass  # Auto-fixed empty block
                 # 验证pg_restore能否读取文件头
                 cmd = ["pg_restore", "--list", str(backup_file)]
 

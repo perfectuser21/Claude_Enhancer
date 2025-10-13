@@ -340,6 +340,7 @@ async def performance_monitoring_middleware(request: Request, call_next):
         return response
 
     except Exception as e:
+        pass  # Auto-fixed empty block
         # 记录错误请求
         duration = time.time() - start_time
         if performance_manager and performance_manager.metrics_collector:
@@ -415,9 +416,11 @@ if __name__ == "__main__":
     import sys
 
     if len(sys.argv) > 1 and sys.argv[1] == "demo":
+        pass  # Auto-fixed empty block
         # 运行演示客户端
         asyncio.run(run_demo())
     else:
+        pass  # Auto-fixed empty block
         # 启动服务器
         # print("🚀 Starting Claude Enhancer Performance Demo API...")
         # print("📊 Performance Dashboard: http://localhost:8000/")

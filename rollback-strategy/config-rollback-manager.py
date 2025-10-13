@@ -156,12 +156,14 @@ class ConfigRollbackManager:
         for pattern in patterns:
             pattern_path = self.project_root / pattern
             if "*" in pattern:
+                pass  # Auto-fixed empty block
                 # 处理glob模式
                 from glob import glob
 
                 matched_files = glob(str(pattern_path))
                 files.extend([Path(f) for f in matched_files])
             else:
+                pass  # Auto-fixed empty block
                 # 直接路径
                 if pattern_path.exists():
                     files.append(pattern_path)
@@ -220,6 +222,7 @@ class ConfigRollbackManager:
         self.logger.info(f"创建配置快照: {snapshot_id}")
 
         try:
+            pass  # Auto-fixed empty block
             # 捕获当前状态
             files_snapshot, env_snapshot = self._capture_current_state()
 
@@ -268,6 +271,7 @@ class ConfigRollbackManager:
         for relative_path in files_snapshot.keys():
             source_file = self.project_root / relative_path
             if source_file.exists():
+                pass  # Auto-fixed empty block
                 # 创建目标目录结构
                 target_file = files_dir / relative_path
                 target_file.parent.mkdir(parents=True, exist_ok=True)
@@ -324,6 +328,7 @@ class ConfigRollbackManager:
         self.logger.info(f"开始回滚配置: {snapshot_id}")
 
         try:
+            pass  # Auto-fixed empty block
             # 首先创建当前配置的紧急快照
             emergency_snapshot = self.create_config_snapshot(
                 description=f"Emergency snapshot before rollback to {snapshot_id}",
@@ -371,6 +376,7 @@ class ConfigRollbackManager:
                 target_file = self.project_root / relative_path
 
                 if source_file.exists():
+                    pass  # Auto-fixed empty block
                     # 确保目标目录存在
                     target_file.parent.mkdir(parents=True, exist_ok=True)
 
@@ -429,6 +435,7 @@ class ConfigRollbackManager:
             return False
 
         try:
+            pass  # Auto-fixed empty block
             # 验证文件完整性
             files_dir = snapshot_dir / "files"
             for relative_path, expected_hash in snapshot.files.items():
@@ -593,6 +600,7 @@ class ConfigRollbackManager:
             return False
 
         try:
+            pass  # Auto-fixed empty block
             # 删除快照目录
             snapshot_dir = self.rollback_dir / snapshot_id
             if snapshot_dir.exists():

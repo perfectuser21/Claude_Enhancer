@@ -66,6 +66,7 @@ class PerformanceMonitor:
     def collect_system_metrics(self) -> Dict:
         """收集系统性能指标"""
         try:
+            pass  # Auto-fixed empty block
             # CPU使用率
             cpu_percent = psutil.cpu_percent(interval=0.1)
 
@@ -108,6 +109,7 @@ class PerformanceMonitor:
         }
 
         try:
+            pass  # Auto-fixed empty block
             # 解析性能日志
             if self.log_files["performance"].exists():
                 with open(self.log_files["performance"], "r") as f:
@@ -328,6 +330,7 @@ class PerformanceMonitor:
 
         while self.is_monitoring:
             try:
+                pass  # Auto-fixed empty block
                 # 收集指标
                 metrics = self.collect_metrics()
                 self.metrics_history.append(metrics)

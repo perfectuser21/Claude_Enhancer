@@ -49,6 +49,7 @@ class MigrationManager:
     def _setup_alembic_config(self):
         """设置Alembic配置"""
         try:
+            pass  # Auto-fixed empty block
             # 创建迁移目录
             Path(self.migrations_dir).mkdir(parents=True, exist_ok=True)
 
@@ -123,6 +124,7 @@ datefmt = %H:%M:%S
             是否初始化成功
         """
         try:
+            pass  # Auto-fixed empty block
             # 初始化Alembic环境
             command.init(self.alembic_cfg, self.migrations_dir)
 

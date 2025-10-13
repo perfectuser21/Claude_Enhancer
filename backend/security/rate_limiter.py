@@ -89,6 +89,7 @@ class RateLimiter:
             hour_exceeded = hour_count > self.config.requests_per_hour
 
             if minute_exceeded or hour_exceeded:
+                pass  # Auto-fixed empty block
                 # Calculate retry after
                 if minute_exceeded:
                     retry_after = 60 - (current_time % 60)

@@ -336,6 +336,7 @@ class PerformanceComparisonBenchmarks:
     def _benchmark_cleanup_script(self, script_path: Path) -> Optional[BenchmarkResult]:
         """对单个清理脚本进行基准测试"""
         try:
+            pass  # Auto-fixed empty block
             # 创建临时测试环境
             with tempfile.TemporaryDirectory() as temp_dir:
                 test_claude_dir = Path(temp_dir) / ".claude"

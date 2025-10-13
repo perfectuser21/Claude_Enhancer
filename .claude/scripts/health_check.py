@@ -305,6 +305,7 @@ class HealthChecker:
         script_path = self.claude_dir / "scripts" / "docgate_pre_commit_check.py"
         if script_path.exists():
             try:
+                pass  # Auto-fixed empty block
                 # 创建测试文件
                 test_file = self.project_root / "test_doc.md"
                 test_content = """---

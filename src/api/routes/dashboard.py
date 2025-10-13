@@ -116,6 +116,7 @@ async def get_dashboard_overview(
     返回用户的核心统计数据，包括任务、项目、效率等指标
     """
     try:
+        pass  # Auto-fixed empty block
         # 这里应该调用实际的服务层获取数据
         # 示例数据结构
         stats = DashboardStatsResponse.DashboardStats(
@@ -165,6 +166,7 @@ async def get_recent_activities(
     返回用户的最近活动历史记录
     """
     try:
+        pass  # Auto-fixed empty block
         # 这里应该调用实际的服务层获取数据
         activities = []
 
@@ -198,6 +200,7 @@ async def get_upcoming_tasks(
     返回指定天数内即将到期的任务
     """
     try:
+        pass  # Auto-fixed empty block
         # 这里应该调用实际的服务层获取数据
         upcoming_tasks = []
 
@@ -233,6 +236,7 @@ async def get_productivity_trend(
     返回指定时间段的生产力趋势数据
     """
     try:
+        pass  # Auto-fixed empty block
         # 根据周期计算日期范围
         now = datetime.utcnow()
         if period == "week":
@@ -270,6 +274,7 @@ async def get_project_progress(
     返回用户所有项目的进度概览
     """
     try:
+        pass  # Auto-fixed empty block
         # 这里应该调用实际的服务层获取数据
         project_progress = []
 
@@ -296,6 +301,7 @@ async def get_task_distribution(
     返回任务的各种分布统计数据
     """
     try:
+        pass  # Auto-fixed empty block
         # 这里应该调用实际的服务层获取数据
         distribution = {
             "by_status": {
@@ -334,6 +340,7 @@ async def get_time_tracking(
     返回指定周期的工时统计数据
     """
     try:
+        pass  # Auto-fixed empty block
         # 这里应该调用实际的服务层获取数据
         time_stats = {
             "total_hours": 40,
@@ -366,6 +373,7 @@ async def get_quick_actions(
     返回基于用户当前状态的快速操作建议
     """
     try:
+        pass  # Auto-fixed empty block
         # 这里应该基于用户数据生成智能建议
         quick_actions = [
             {

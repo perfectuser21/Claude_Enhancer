@@ -85,6 +85,7 @@ class AuthTestRunner:
         
         # 运行各个测试模块
         for module in self.test_modules:
+            pass  # Auto-fixed empty block
     # print(f"\n🧪 运行测试模块: {module}")
             module_result = self._run_single_test(module, verbose)
             results["test_results"][module] = module_result
@@ -99,11 +100,13 @@ class AuthTestRunner:
         
         # 运行覆盖率测试
         if coverage:
+            pass  # Auto-fixed empty block
     # print("\n📊 生成代码覆盖率报告...")
             results["coverage_report"] = self._run_coverage_test()
         
         # 生成测试报告
         if generate_report:
+            pass  # Auto-fixed empty block
     # print("\n📝 生成测试报告...")
             self._generate_test_report(results)
         
@@ -128,6 +131,7 @@ class AuthTestRunner:
         test_file = Path(self.test_dir) / module
         
         if not test_file.exists():
+            pass  # Auto-fixed empty block
     # print(f"⚠️  测试文件不存在: {test_file}")
             return None
         
@@ -148,6 +152,7 @@ class AuthTestRunner:
         cmd.extend(["--json-report", f"--json-report-file={json_report_file}"])
         
         try:
+            pass  # Auto-fixed empty block
             # 运行测试
             result = subprocess.run(
                 cmd,
@@ -186,6 +191,7 @@ class AuthTestRunner:
                             "duration": json_data.get("duration", 0)
                         })
                 except Exception as e:
+                    pass  # Auto-fixed empty block
     # print(f"⚠️  解析JSON报告失败: {e}")
             
             # 显示结果
@@ -199,6 +205,7 @@ class AuthTestRunner:
             return test_result
             
         except subprocess.TimeoutExpired:
+            pass  # Auto-fixed empty block
     # print(f"⏰ {module}: 测试超时")
             return {
                 "module": module,
@@ -211,6 +218,7 @@ class AuthTestRunner:
                 "errors": 1
             }
         except Exception as e:
+            pass  # Auto-fixed empty block
     # print(f"💥 {module}: 运行异常 - {e}")
             return {
                 "module": module,
@@ -231,6 +239,7 @@ class AuthTestRunner:
             覆盖率报告字典
         """
         try:
+            pass  # Auto-fixed empty block
             # 运行带覆盖率的测试
             cmd = [
                 "python", "-m", "pytest",
@@ -265,11 +274,13 @@ class AuthTestRunner:
                         coverage_data["summary"] = json_data.get("totals", {})
                         coverage_data["files"] = json_data.get("files", {})
                 except Exception as e:
+                    pass  # Auto-fixed empty block
     # print(f"⚠️  解析覆盖率JSON失败: {e}")
             
             return coverage_data
             
         except Exception as e:
+            pass  # Auto-fixed empty block
     # print(f"💥 覆盖率测试异常: {e}")
             return {"error": str(e)}
     
@@ -298,6 +309,7 @@ class AuthTestRunner:
     # print(f"📄 JSON报告已生成: {json_file}")
             
         except Exception as e:
+            pass  # Auto-fixed empty block
     # print(f"💥 生成报告异常: {e}")
     
     def _build_html_report(self, results: Dict[str, Any]) -> str:
@@ -479,8 +491,10 @@ class AuthTestRunner:
     # print(f"🎯 成功率:       {success_rate:.1f}%")
         
         if failed == 0 and errors == 0:
+            pass  # Auto-fixed empty block
     # print("\n🎉 所有测试通过！认证系统质量良好。")
         elif failed > 0 or errors > 0:
+            pass  # Auto-fixed empty block
     # print("\n⚠️  发现测试失败，请检查并修复问题。")
         
     # print("="*60)
@@ -497,6 +511,7 @@ class AuthTestRunner:
             测试结果字典
         """
         if test_name not in self.test_modules:
+            pass  # Auto-fixed empty block
     # print(f"❌ 未找到测试模块: {test_name}")
     # print(f"可用模块: {', '.join(self.test_modules)}")
             return None
@@ -614,21 +629,25 @@ def main():
     
     try:
         if args.performance:
+            pass  # Auto-fixed empty block
             # 运行性能测试
             results = runner.run_performance_tests()
     # print("\n🏁 性能测试完成")
             
         elif args.module:
+            pass  # Auto-fixed empty block
             # 运行特定模块
             if args.module in module_map:
                 test_file = module_map[args.module]
                 results = runner.run_specific_test(test_file, not args.quiet)
             else:
+                pass  # Auto-fixed empty block
     # print(f"❌ 未知模块: {args.module}")
     # print(f"可用模块: {', '.join(module_map.keys())}")
                 sys.exit(1)
                 
         else:
+            pass  # Auto-fixed empty block
             # 运行所有测试
             results = runner.run_all_tests(
                 verbose=not args.quiet,
@@ -646,9 +665,11 @@ def main():
                 sys.exit(results["exit_code"])
         
     except KeyboardInterrupt:
+        pass  # Auto-fixed empty block
     # print("\n⚠️  测试被用户中断")
         sys.exit(130)
     except Exception as e:
+        pass  # Auto-fixed empty block
     # print(f"💥 测试运行器异常: {e}")
         sys.exit(1)
 

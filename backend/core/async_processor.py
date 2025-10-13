@@ -118,6 +118,7 @@ class AsyncProcessor:
     async def initialize(self):
         """初始化异步处理器"""
         try:
+            pass  # Auto-fixed empty block
             # 初始化RabbitMQ连接
             await self._setup_rabbitmq()
 
@@ -172,6 +173,7 @@ class AsyncProcessor:
 
         while self.running:
             try:
+                pass  # Auto-fixed empty block
                 # 获取任务（按优先级）
                 priority, task = await asyncio.wait_for(
                     self.pending_queue.get(), timeout=1.0
@@ -186,6 +188,7 @@ class AsyncProcessor:
                 self.stats["active_workers"] -= 1
 
             except asyncio.TimeoutError:
+                pass  # Auto-fixed empty block
                 # 队列为空，继续等待
                 continue
             except Exception as e:
@@ -202,6 +205,7 @@ class AsyncProcessor:
         logger.debug(f"🔄 开始处理任务: {task.name} (ID: {task.id}) - 工作进程: {worker_name}")
 
         try:
+            pass  # Auto-fixed empty block
             # 执行任务（带超时）
             if task.timeout:
                 task.result = await asyncio.wait_for(
@@ -227,11 +231,13 @@ class AsyncProcessor:
             logger.debug(f"✅ 任务完成: {task.name} - 耗时: {processing_time:.2f}s")
 
         except asyncio.TimeoutError:
+            pass  # Auto-fixed empty block
             # 任务超时
             task.error = f"Task timeout after {task.timeout}s"
             await self._handle_task_failure(task, start_time)
 
         except Exception as e:
+            pass  # Auto-fixed empty block
             # 任务执行失败
             task.error = f"{type(e).__name__}: {str(e)}"
             await self._handle_task_failure(task, start_time)
@@ -255,6 +261,7 @@ class AsyncProcessor:
             self.stats["retried_tasks"] += 1
 
         else:
+            pass  # Auto-fixed empty block
             # 重试次数用尽，标记为失败
             task.status = TaskStatus.FAILED
             task.completed_at = datetime.now()
@@ -368,6 +375,7 @@ class AsyncProcessor:
     ):
         """发送邮件"""
         try:
+            pass  # Auto-fixed empty block
             # 创建邮件消息
             msg = (
                 MIMEMultipart("alternative")

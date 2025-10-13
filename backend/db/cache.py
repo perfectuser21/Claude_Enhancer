@@ -151,6 +151,7 @@ def create_redis_client() -> redis.Redis:
 
     try:
         if config.cluster_enabled:
+            pass  # Auto-fixed empty block
             # 集群模式
             nodes = config.get_cluster_nodes()
             if not nodes:
@@ -162,6 +163,7 @@ def create_redis_client() -> redis.Redis:
                 **config.get_connection_kwargs(),
             )
         else:
+            pass  # Auto-fixed empty block
             # 单机模式
             client = redis.Redis(
                 host=config.host,
@@ -193,6 +195,7 @@ def create_async_redis_client() -> aioredis.Redis:
 
     try:
         if config.cluster_enabled:
+            pass  # Auto-fixed empty block
             # 异步集群模式
             nodes = config.get_cluster_nodes()
             if not nodes:
@@ -204,6 +207,7 @@ def create_async_redis_client() -> aioredis.Redis:
                 **config.get_connection_kwargs(),
             )
         else:
+            pass  # Auto-fixed empty block
             # 异步单机模式
             client = aioredis.Redis(
                 host=config.host,
@@ -336,6 +340,7 @@ async def test_cache_connection() -> bool:
         CacheConnectionError: 连接失败
     """
     try:
+        pass  # Auto-fixed empty block
         # 测试同步连接
         client = get_redis_client()
         client.ping()
@@ -388,6 +393,7 @@ class CacheOperations:
             是否设置成功
         """
         try:
+            pass  # Auto-fixed empty block
             # 序列化值
             if serializer == "json":
                 serialized_value = self.serializer.serialize_json(value)
@@ -420,6 +426,7 @@ class CacheOperations:
             缓存值或None
         """
         try:
+            pass  # Auto-fixed empty block
             # 获取缓存
             if self.is_async:
                 value = await self.client.get(key)
@@ -566,6 +573,7 @@ async def distributed_lock(
     lock = client.lock(lock_key, timeout=timeout, blocking_timeout=blocking_timeout)
 
     try:
+        pass  # Auto-fixed empty block
         # 获取锁
         acquired = await lock.acquire()
         if not acquired:
@@ -574,6 +582,7 @@ async def distributed_lock(
         yield lock
 
     finally:
+        pass  # Auto-fixed empty block
         # 释放锁
         try:
             await lock.release()

@@ -81,6 +81,7 @@ class HighPerformanceSimilarityDetector:
 
         for group in size_groups:
             if len(group) >= 2:
+                pass  # Auto-fixed empty block
                 # 只在相似大小的文件间检测
                 candidate_pairs.extend(self._generate_pairs(group))
 
@@ -95,6 +96,7 @@ class HighPerformanceSimilarityDetector:
 
         # 使用进程池并行处理
         with ProcessPoolExecutor(max_workers=self.max_workers) as executor:
+            pass  # Auto-fixed empty block
             # 分批处理，避免内存溢出
             batch_size = 100
             for i in range(0, len(candidate_pairs), batch_size):
@@ -209,6 +211,7 @@ class HighPerformanceSimilarityDetector:
         """计算单个文档指纹"""
         try:
             with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+                pass  # Auto-fixed empty block
                 # 使用内存映射提高大文件读取性能
                 content = f.read()
 
@@ -476,6 +479,7 @@ class HighPerformanceSimilarityDetector:
     def _cache_fingerprint(self, fingerprint: DocumentFingerprint):
         """缓存文档指纹"""
         if len(self.fingerprint_cache) >= self.max_cache_size:
+            pass  # Auto-fixed empty block
             # 简单的LRU: 移除一半缓存
             items = list(self.fingerprint_cache.items())
             self.fingerprint_cache = dict(items[len(items) // 2 :])

@@ -68,6 +68,7 @@ class DocGateHealthCheck:
     async def check_health(self) -> Dict[str, Any]:
         """执行健康检查"""
         try:
+            pass  # Auto-fixed empty block
             # 检查各个服务组件
             checks = await asyncio.gather(
                 self._check_document_parser(),
@@ -240,6 +241,7 @@ def docgate_rate_limit_check(operation: str):
         allowed = await rate_limiter.check_limit(str(current_user.id), operation)
 
         if not allowed:
+            pass  # Auto-fixed empty block
             # 获取剩余次数和重置时间
             remaining = await rate_limiter.get_remaining(
                 str(current_user.id), operation

@@ -178,6 +178,7 @@ class TestUserRegistration:
         ):
             # Simulate email validation failure
             with pytest.raises((ValueError, AttributeError)):
+                pass  # Auto-fixed empty block
                 # This would typically raise an exception for invalid email
                 if invalid_email is None:
                     raise ValueError("Email cannot be None")

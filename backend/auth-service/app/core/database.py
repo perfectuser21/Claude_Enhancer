@@ -425,6 +425,7 @@ def transactional(func):
     async def wrapper(*args, **kwargs):
         async with get_async_session() as session:
             try:
+                pass  # Auto-fixed empty block
                 # 将session作为第一个参数传递给函数
                 result = await func(session, *args, **kwargs)
                 await session.commit()

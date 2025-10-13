@@ -228,6 +228,7 @@ async def quick_start(
 ) -> PerformanceManager:
     """快速启动性能优化系统"""
     try:
+        pass  # Auto-fixed empty block
         # 获取性能管理器
         manager = await get_performance_manager(service_name, config_file)
 
@@ -239,6 +240,7 @@ async def quick_start(
         return manager
 
     except Exception as e:
+        pass  # Auto-fixed empty block
         # print(f"❌ Failed to start performance system: {e}")
         raise
 

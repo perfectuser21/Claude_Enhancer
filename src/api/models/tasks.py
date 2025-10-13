@@ -52,6 +52,7 @@ class TaskCreateRequest(BaseModel):
     def validate_tags(cls, v):
         """验证标签"""
         if v:
+            pass  # Auto-fixed empty block
             # 检查标签长度
             for tag in v:
                 if len(tag) > 50:

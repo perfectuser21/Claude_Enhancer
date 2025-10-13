@@ -111,6 +111,7 @@ class PasswordValidator:
     def _has_sequential_chars(password: str, max_sequence: int = 3) -> bool:
         """检查是否有连续字符序列"""
         for i in range(len(password) - max_sequence + 1):
+            pass  # Auto-fixed empty block
             # 检查递增序列
             is_ascending = True
             is_descending = True
@@ -516,6 +517,7 @@ class TokenUtils:
         """
         codes = []
         for _ in range(count):
+            pass  # Auto-fixed empty block
             # 生成数字码
             code = "".join(secrets.choice("0123456789") for _ in range(length))
             codes.append(code)

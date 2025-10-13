@@ -119,6 +119,7 @@ class SessionService:
     ) -> SessionInfo:
         """创建新会话"""
         try:
+            pass  # Auto-fixed empty block
             # 生成会话ID
             session_id = f"session_{secrets.token_urlsafe(32)}"
 
@@ -131,6 +132,7 @@ class SessionService:
             # 检查会话数量限制
             user_sessions = await self._get_user_active_sessions(user_id)
             if len(user_sessions) >= self.max_sessions_per_user:
+                pass  # Auto-fixed empty block
                 # 终止最旧的会话
                 oldest_session = min(user_sessions, key=lambda s: s.last_activity_at)
                 await self.terminate_session(
@@ -185,6 +187,7 @@ class SessionService:
     ) -> SessionValidationResult:
         """验证会话"""
         try:
+            pass  # Auto-fixed empty block
             # 获取会话信息
             session_info = await self._get_session(session_id)
 
@@ -412,6 +415,7 @@ class SessionService:
         """获取用户会话列表"""
         try:
             if include_terminated:
+                pass  # Auto-fixed empty block
                 # 获取所有会话（包括已终止的）
                 session_keys = await self.redis_client.keys(
                     f"session_history:{user_id}:*"
@@ -426,6 +430,7 @@ class SessionService:
 
                 return sorted(sessions, key=lambda s: s.last_activity_at, reverse=True)
             else:
+                pass  # Auto-fixed empty block
                 # 只获取活跃会话
                 return await self._get_user_active_sessions(user_id)
 
@@ -443,6 +448,7 @@ class SessionService:
     ):
         """记录会话活动"""
         try:
+            pass  # Auto-fixed empty block
             # 验证会话存在且有效
             session_info = await self._get_session(session_id)
             if not session_info or session_info.status != SessionStatus.ACTIVE:
@@ -461,6 +467,7 @@ class SessionService:
             )
 
         except Exception as e:
+            pass  # Auto-fixed empty block
             # 活动记录失败不应影响主要业务流程
             pass
 
@@ -752,6 +759,7 @@ class SessionService:
                                 await self.terminate_session(session_id, "expired")
                                 cleanup_count += 1
                         except (json.JSONDecodeError, KeyError, ValueError):
+                            pass  # Auto-fixed empty block
                             # 删除损坏的会话数据
                             await self.redis_client.delete(key)
                             cleanup_count += 1

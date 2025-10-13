@@ -118,6 +118,7 @@ class MobileUXTester:
             for pattern in button_patterns:
                 matches = re.findall(pattern, content, re.IGNORECASE | re.DOTALL)
                 for match in matches:
+                    pass  # Auto-fixed empty block
                     # Check for touch target size
                     has_min_height = re.search(r"min-height:\s*([0-9]+)", match)
                     has_height = re.search(r"height:\s*([0-9]+)", match)
@@ -150,6 +151,7 @@ class MobileUXTester:
             # Check for hover effects that don't work on touch
             hover_patterns = re.findall(r":hover\s*{[^}]*}", content, re.IGNORECASE)
             if hover_patterns:
+                pass  # Auto-fixed empty block
                 # Check if there are corresponding touch/active states
                 has_active = ":active" in content
                 has_focus = ":focus" in content
@@ -558,6 +560,7 @@ class MobileUXTester:
             for pattern in nav_link_patterns:
                 matches = re.findall(pattern, content, re.IGNORECASE | re.DOTALL)
                 for match in matches:
+                    pass  # Auto-fixed empty block
                     # Check for adequate padding for touch targets
                     padding_match = re.search(r"padding:\s*([0-9]+)", match)
                     if padding_match:
@@ -672,6 +675,7 @@ class MobileUXTester:
                 r"input[^{]*{[^}]*}", content, re.IGNORECASE | re.DOTALL
             )
             for style in input_styles:
+                pass  # Auto-fixed empty block
                 # Check for minimum height
                 height_match = re.search(r"height:\s*([0-9]+)", style)
                 min_height_match = re.search(r"min-height:\s*([0-9]+)", style)

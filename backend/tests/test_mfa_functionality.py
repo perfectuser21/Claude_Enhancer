@@ -314,11 +314,13 @@ class MFAService:
         if not is_valid and user_id in self.backup_codes:
             code_hash = hashlib.sha256(verification_code.encode()).hexdigest()
             if code_hash in self.backup_codes[user_id]:
+                pass  # Auto-fixed empty block
                 # 使用后删除备用码
                 self.backup_codes[user_id].remove(code_hash)
                 is_valid = True
 
         if is_valid:
+            pass  # Auto-fixed empty block
             # 清理成功的挑战
             del self.active_challenges[mfa_token]
             return {"valid": True, "user_id": user_id}
@@ -385,6 +387,7 @@ class MFAService:
 
         for trusted_device in self.trusted_devices[user_id]:
             if trusted_device["fingerprint"] == device_fingerprint:
+                pass  # Auto-fixed empty block
                 # 检查是否过期
                 if datetime.utcnow() < trusted_device["expires_at"]:
                     return True

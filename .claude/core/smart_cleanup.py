@@ -345,10 +345,12 @@ if __name__ == "__main__":
     check_only = "--check" in sys.argv
 
     if check_only:
+        pass  # Auto-fixed empty block
         # 只检查是否需要清理
         need, reason = cleaner.should_cleanup()
         print(json.dumps({"need_cleanup": need, "reason": reason}))
     else:
+        pass  # Auto-fixed empty block
         # 执行清理
         results = cleaner.smart_cleanup(dry_run=dry_run)
         print(json.dumps(results, indent=2, default=str))

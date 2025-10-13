@@ -60,6 +60,7 @@ class PerformanceTestRunner:
         logger.info("🚀 启动模拟性能测试服务器...")
 
         try:
+            pass  # Auto-fixed empty block
             # 启动模拟服务器
             self.server_process = subprocess.Popen(
                 [sys.executable, "mock_performance_server.py"],
@@ -74,6 +75,7 @@ class PerformanceTestRunner:
 
             while wait_time < max_wait:
                 try:
+                    pass  # Auto-fixed empty block
                     # 检查服务器是否响应
                     import aiohttp
                     async with aiohttp.ClientSession() as session:
@@ -100,6 +102,7 @@ class PerformanceTestRunner:
         if self.server_process:
             logger.info("🛑 停止模拟服务器...")
             try:
+                pass  # Auto-fixed empty block
                 # 发送终止信号
                 if hasattr(os, 'killpg'):
                     os.killpg(os.getpgid(self.server_process.pid), signal.SIGTERM)
@@ -110,6 +113,7 @@ class PerformanceTestRunner:
                 try:
                     self.server_process.wait(timeout=5)
                 except subprocess.TimeoutExpired:
+                    pass  # Auto-fixed empty block
                     # 强制终止
                     if hasattr(os, 'killpg'):
                         os.killpg(os.getpgid(self.server_process.pid), signal.SIGKILL)
@@ -125,6 +129,7 @@ class PerformanceTestRunner:
         logger.info("⚡ 开始执行综合性能测试...")
 
         try:
+            pass  # Auto-fixed empty block
             # 导入测试模块
             from comprehensive_performance_test import ComprehensivePerformanceTester
 
@@ -228,14 +233,18 @@ class PerformanceTestRunner:
 
         # 性能瓶颈
         if report.bottlenecks:
+            pass  # Auto-fixed empty block
     # print(f"\n⚠️ 发现的性能瓶颈 ({len(report.bottlenecks)}个):")
             for i, bottleneck in enumerate(report.bottlenecks, 1):
+                pass  # Auto-fixed empty block
     # print(f"  {i}. {bottleneck}")
 
         # 优化建议
         if report.recommendations:
+            pass  # Auto-fixed empty block
     # print(f"\n💡 优化建议 ({len(report.recommendations)}个):")
             for i, recommendation in enumerate(report.recommendations, 1):
+                pass  # Auto-fixed empty block
     # print(f"  {i}. {recommendation}")
 
         # 图表信息
@@ -243,8 +252,10 @@ class PerformanceTestRunner:
         if charts_dir.exists():
             charts = list(charts_dir.glob("*.png"))
             if charts:
+                pass  # Auto-fixed empty block
     # print(f"\n📈 生成的图表文件 ({len(charts)}个):")
                 for chart in charts:
+                    pass  # Auto-fixed empty block
     # print(f"  📊 {chart.name}")
 
     # print("\n" + "="*80)
@@ -257,6 +268,7 @@ async def main():
     runner = PerformanceTestRunner()
 
     try:
+        pass  # Auto-fixed empty block
         # 1. 检查依赖
         if not await runner.check_dependencies():
             return 1
@@ -281,6 +293,7 @@ async def main():
         try:
             await asyncio.wait_for(asyncio.to_thread(input), timeout=10.0)
         except asyncio.TimeoutError:
+            pass  # Auto-fixed empty block
     # print("⏰ 超时，自动开始测试...")
 
         # 4. 运行性能测试
@@ -290,6 +303,7 @@ async def main():
         return 0
 
     except KeyboardInterrupt:
+        pass  # Auto-fixed empty block
     # print("\n❌ 用户中断测试")
         return 1
 
@@ -298,6 +312,7 @@ async def main():
         return 1
 
     finally:
+        pass  # Auto-fixed empty block
         # 清理
         await runner.stop_mock_server()
 

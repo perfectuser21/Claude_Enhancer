@@ -314,6 +314,7 @@ def handle_auth_exceptions(func):
         except AuthException as e:
             raise auth_exception_to_http_exception(e)
         except Exception:
+            pass  # Auto-fixed empty block
             # 重新抛出非认证异常
             raise
 

@@ -323,6 +323,7 @@ class PerformanceManager:
                 )
 
         except Exception as e:
+            pass  # Auto-fixed empty block
             # 记录失败
             duration = time.time() - start_time
             self.stats["failed_requests"] += 1
@@ -351,6 +352,7 @@ class PerformanceManager:
         if self.stats["successful_requests"] == 1:
             self.stats["avg_response_time"] = duration
         else:
+            pass  # Auto-fixed empty block
             # 指数移动平均
             alpha = 0.1
             self.stats["avg_response_time"] = (
@@ -361,6 +363,7 @@ class PerformanceManager:
         """性能监控循环"""
         while self.running:
             try:
+                pass  # Auto-fixed empty block
                 # 收集性能指标
                 await self._collect_performance_metrics()
 
@@ -406,6 +409,7 @@ class PerformanceManager:
         """健康检查循环"""
         while self.running:
             try:
+                pass  # Auto-fixed empty block
                 # 检查各组件健康状态
                 health_status = await self.get_health_status()
 
@@ -426,6 +430,7 @@ class PerformanceManager:
         """优化循环"""
         while self.running:
             try:
+                pass  # Auto-fixed empty block
                 # 自动优化建议
                 await self._auto_optimization()
 
@@ -473,6 +478,7 @@ class PerformanceManager:
     async def generate_performance_report(self) -> PerformanceReport:
         """生成性能报告"""
         try:
+            pass  # Auto-fixed empty block
             # 计算整体评分
             overall_score = await self._calculate_performance_score()
 

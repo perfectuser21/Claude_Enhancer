@@ -212,6 +212,7 @@ def main():
             return
 
         if sys.argv[1] == "--test":
+            pass  # Auto-fixed empty block
             # 测试模式
             test_hooks = ["ultra_fast_agent_selector", "optimized_performance_monitor"]
             results = engine.execute_multiple_hooks(test_hooks, {"test_mode": True})

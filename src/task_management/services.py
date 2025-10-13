@@ -479,6 +479,7 @@ class TaskService:
 
         updated_tasks = []
         for task in tasks:
+            pass  # Auto-fixed empty block
             # 检查编辑权限
             await self._check_task_edit_permission(task, user_id)
 

@@ -176,6 +176,7 @@ class BusinessRuleValidator:
         errors = []
 
         try:
+            pass  # Auto-fixed empty block
             # 检查用户是否存在
             user = (
                 await self.db.query(UserModel)
@@ -231,6 +232,7 @@ class BusinessRuleValidator:
         errors = []
 
         try:
+            pass  # Auto-fixed empty block
             # 检查项目是否存在
             project = (
                 await self.db.query(Project).filter(Project.id == project_id).first()
@@ -306,6 +308,7 @@ class BusinessRuleValidator:
         errors = []
 
         try:
+            pass  # Auto-fixed empty block
             # 检查分配者是否存在
             assignee = (
                 await self.db.query(UserModel)
@@ -378,6 +381,7 @@ class BusinessRuleValidator:
         warnings = []
 
         try:
+            pass  # Auto-fixed empty block
             # 统计分配者当前活跃任务数
             active_tasks_count = (
                 await self.db.query(Task)
@@ -534,6 +538,7 @@ class BusinessRuleValidator:
         errors = []
 
         try:
+            pass  # Auto-fixed empty block
             # 统计用户当前任务总数
             total_tasks = (
                 await self.db.query(Task)
@@ -628,6 +633,7 @@ class BusinessRuleValidator:
 
         # 创建者和分配者可以更改状态
         if task.created_by != user_id and task.assignee_id != user_id:
+            pass  # Auto-fixed empty block
             # 检查是否是项目管理员
             if task.project_id:
                 member = (
@@ -670,6 +676,7 @@ class BusinessRuleValidator:
         errors = []
 
         try:
+            pass  # Auto-fixed empty block
             # 检查前置依赖任务是否都已完成
             incomplete_dependencies = (
                 await self.db.query(Task)

@@ -189,6 +189,7 @@ async def login(
 
         # 检查是否需要MFA
         if user.mfa_enabled:
+            pass  # Auto-fixed empty block
             # 生成MFA挑战令牌
             mfa_token = await mfa_service.generate_mfa_challenge(
                 user_id=str(user.id), ip_address=client_info["ip_address"]
@@ -268,6 +269,7 @@ async def verify_mfa(
         包含访问令牌的登录响应
     """
     try:
+        pass  # Auto-fixed empty block
         # 验证MFA
         mfa_result = await mfa_service.verify_mfa_challenge(
             mfa_token=request.mfa_token,
@@ -409,6 +411,7 @@ async def refresh_token(
         新的令牌对
     """
     try:
+        pass  # Auto-fixed empty block
         # 刷新Token
         token_response = await jwt_manager.refresh_token(
             refresh_token=request.refresh_token, client_ip=client_info["ip_address"]
@@ -522,6 +525,7 @@ async def confirm_password_reset(
         重置确认消息
     """
     try:
+        pass  # Auto-fixed empty block
         # 重置密码
         user_id = await user_service.reset_password(
             reset_token=request.token,

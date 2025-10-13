@@ -149,6 +149,7 @@ class HookValidator:
             }
 
         else:
+            pass  # Auto-fixed empty block
             # 基础执行测试
             success, output, duration = self._run_hook(hook_name, {"test": "basic"}, 5)
 
@@ -438,6 +439,7 @@ def main():
     validator = HookValidator(project_root)
 
     try:
+        pass  # Auto-fixed empty block
         # 执行验证
         results = validator.validate_all_hooks(config_file)
 

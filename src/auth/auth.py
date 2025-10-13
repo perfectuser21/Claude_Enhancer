@@ -138,6 +138,7 @@ class AuthService:
             Dict: 注册结果
         """
         try:
+            pass  # Auto-fixed empty block
             # 验证输入
             if not username or not email or not password:
                 return {
@@ -224,6 +225,7 @@ class AuthService:
             Dict: 登录结果，包含令牌信息
         """
         try:
+            pass  # Auto-fixed empty block
             # 查找用户
             user = self._find_user(email_or_username)
             if not user:
@@ -260,6 +262,7 @@ class AuthService:
 
             # 设置令牌过期时间
             if remember_me:
+                pass  # Auto-fixed empty block
                 # 记住登录状态时延长令牌有效期
                 self.jwt_manager.access_token_expire_minutes = 60 * 24  # 24小时
                 self.jwt_manager.refresh_token_expire_days = 30  # 30天
@@ -297,10 +300,12 @@ class AuthService:
             Dict: 登出结果
         """
         try:
+            pass  # Auto-fixed empty block
             # 将令牌加入黑名单
             token_blacklist.add_token(access_token, "User logout")
 
             if refresh_token:
+                pass  # Auto-fixed empty block
                 # 验证并撤销刷新令牌
                 payload = self.jwt_manager.verify_token(refresh_token, "refresh")
                 if payload:
@@ -328,6 +333,7 @@ class AuthService:
             Dict: 刷新结果
         """
         try:
+            pass  # Auto-fixed empty block
             # 验证刷新令牌
             payload = self.jwt_manager.verify_token(refresh_token, "refresh")
             if not payload:

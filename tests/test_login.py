@@ -222,6 +222,7 @@ def demo_decorators():
 
         # 模拟带令牌的调用（实际使用中令牌会从HTTP头获取）
         try:
+            pass  # Auto-fixed empty block
             # 这里简化演示，实际使用中装饰器会自动从请求中提取令牌
             user_info = auth_service.verify_token(token)
             if user_info:
@@ -264,6 +265,7 @@ def run_complete_demo():
     print("=" * 60)
 
     try:
+        pass  # Auto-fixed empty block
         # 1. 用户注册
         demo_user_registration()
 

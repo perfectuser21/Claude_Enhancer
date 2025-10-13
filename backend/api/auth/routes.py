@@ -132,6 +132,7 @@ async def register(
         )
 
     except ValueError as e:
+        pass  # Auto-fixed empty block
         # 业务逻辑错误（如用户已存在）
         SecurityEvent.log_auth_failure(
             event_type="register_failure",
@@ -213,6 +214,7 @@ async def login(
         )
 
         if not user:
+            pass  # Auto-fixed empty block
             # 记录认证失败
             SecurityEvent.log_auth_failure(
                 event_type="login_failure",
@@ -464,6 +466,7 @@ async def get_user_profile(
     - 权限列表
     """
     try:
+        pass  # Auto-fixed empty block
         # 获取最新的用户信息
         user = await user_service.get_user_by_id(str(current_user.id))
         if not user:
@@ -646,6 +649,7 @@ async def verify_mfa(
         )
 
         if not mfa_result["valid"]:
+            pass  # Auto-fixed empty block
             # 记录MFA验证失败
             SecurityEvent.log_auth_failure(
                 event_type="mfa_verification_failure",
@@ -748,6 +752,7 @@ async def change_password(
 ) -> StandardResponse:
     """修改用户密码"""
     try:
+        pass  # Auto-fixed empty block
         # 验证当前密码
         password_valid = await user_service.verify_password(
             str(current_user.id), request.current_password

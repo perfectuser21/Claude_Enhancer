@@ -75,6 +75,7 @@ class RealAuthSecurityTester:
 
         for payload in sql_payloads:
             try:
+                pass  # Auto-fixed empty block
                 # Test registration
                 reg_result = self.auth_service.register(
                     payload, "test@example.com", "Password123!"
@@ -428,6 +429,7 @@ class RealAuthSecurityTester:
         # Test permission escalation
         # Try to modify user roles/permissions (if supported)
         try:
+            pass  # Auto-fixed empty block
             # This would depend on the specific implementation
             print("  ✅ Authorization bypass tests completed")
         except Exception as e:

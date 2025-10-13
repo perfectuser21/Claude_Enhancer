@@ -148,6 +148,7 @@ class TestSQLInjectionAttacks:
                     )
 
             except Exception as e:
+                pass  # Auto-fixed empty block
                 # Exceptions during attack attempts are acceptable
                 security_suite.log_attack_vector("sql_injection_login", payload, {"success": False, "error": str(e)})
 
@@ -236,6 +237,7 @@ class TestXSSAttacks:
         ]
 
         for payload in xss_payloads:
+            pass  # Auto-fixed empty block
             # Test XSS in various fields
             test_scenarios = [
                 ("email_field", f"{payload}@example.com"),
@@ -263,9 +265,11 @@ class TestXSSAttacks:
 
                     # XSS should be sanitized/blocked
                     if result.get("success") and field_name in ["email_field", "password_field"]:
+                        pass  # Auto-fixed empty block
                         # Login with XSS shouldn't succeed anyway
                         pass
                     elif result.get("success") and field_name == "name_field":
+                        pass  # Auto-fixed empty block
                         # Check if XSS payload was stored unsanitized
                         security_suite.log_vulnerability(
                             "xss",
@@ -310,11 +314,13 @@ class TestXSSAttacks:
                 security_suite.log_attack_vector("xss_stored_registration", payload, registration_result)
 
                 if registration_result.get("success"):
+                    pass  # Auto-fixed empty block
                     # Login and check if XSS persists
                     await env.database.update_user(user_data["email"], {"is_verified": True})
                     login_result = await env.login_user(user_data["email"], user_data["password"])
 
                     if login_result.get("success"):
+                        pass  # Auto-fixed empty block
                         # In a real test, we'd check if the returned user data contains unsanitized XSS
                         user_info = await env.database.get_user(user_data["email"])
                         stored_name = user_info.get("first_name", "")
@@ -384,11 +390,13 @@ class TestBruteForceAttacks:
 
                 # Check for rate limiting after several attempts
                 if i > 5 and "rate limit" in result.get("error", "").lower():
+                    pass  # Auto-fixed empty block
     # print(f"  Rate limiting triggered after {i} attempts")
                     break
 
                 # Check for account lockout
                 if "locked" in result.get("error", "").lower():
+                    pass  # Auto-fixed empty block
     # print(f"  Account lockout triggered after {i} attempts")
                     break
 
@@ -431,6 +439,7 @@ class TestBruteForceAttacks:
             """Simulate attack from single IP"""
             for password in passwords_per_ip:
                 try:
+                    pass  # Auto-fixed empty block
                     # In a real implementation, this would use the IP for rate limiting
                     result = await env.login_user(target_user.email, password)
                     security_suite.log_attack_vector("distributed_brute_force", f"{ip_address}:{password}", result)
@@ -488,6 +497,7 @@ class TestAdvancedAttackVectors:
         nonexisting_user_times = []
 
         for i in range(10):
+            pass  # Auto-fixed empty block
             # Time login attempt for existing user
             start_time = time.time()
             await env.login_user(known_user.email, "wrong_password")
@@ -546,6 +556,7 @@ class TestAdvancedAttackVectors:
 
         for email in test_emails:
             try:
+                pass  # Auto-fixed empty block
                 # Attempt registration
                 user_data = {
                     "email": email,
@@ -599,6 +610,7 @@ class TestAdvancedAttackVectors:
 
         # Step 1: Get initial session/token before login
         try:
+            pass  # Auto-fixed empty block
             # Attempt to get or set a session before authentication
             pre_login_token = env.jwt_service.generate_token(
                 user_id="anonymous",
@@ -634,6 +646,7 @@ class TestAdvancedAttackVectors:
                     )
 
         except Exception as e:
+            pass  # Auto-fixed empty block
     # print(f"Session fixation test error: {e}")
 
     # print(f"\n🔗 Session Fixation Test Completed")
@@ -680,6 +693,7 @@ class TestAdvancedAttackVectors:
 
     # print(f"\n🛡️ CSRF Protection Analysis:")
         for test in csrf_test_results:
+            pass  # Auto-fixed empty block
     # print(f"  {test['test']}: {'PROTECTED' if test['protected'] else 'VULNERABLE'}")
 
 

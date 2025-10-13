@@ -343,6 +343,7 @@ class ConcurrencyBenchmarkSuite:
             execution_times = []
 
             with ThreadPoolExecutor(max_workers=level) as executor:
+                pass  # Auto-fixed empty block
                 # 提交任务
                 task_count = level * 2  # 每个并发级别执行2倍任务数
                 futures = []
@@ -471,6 +472,7 @@ class MemoryLeakDetector:
         leak_rate = 0
 
         if len(memory_snapshots) >= 3:
+            pass  # Auto-fixed empty block
             # 计算内存增长趋势
             memory_values = [snapshot["memory_mb"] for snapshot in memory_snapshots]
             iterations_values = [snapshot["iteration"] for snapshot in memory_snapshots]

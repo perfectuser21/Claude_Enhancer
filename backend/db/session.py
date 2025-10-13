@@ -244,6 +244,7 @@ class TransactionManager:
         while retries <= self.max_retries:
             try:
                 with get_db_session() as session:
+                    pass  # Auto-fixed empty block
                     # 设置只读模式
                     if read_only:
                         session.execute("SET TRANSACTION READ ONLY")
@@ -319,6 +320,7 @@ class TransactionManager:
             数据库会话管理器
         """
         with self.transaction() as session:
+            pass  # Auto-fixed empty block
             # 设置批量操作优化
             session.session.execute("SET synchronous_commit = OFF")
             session.session.execute("SET wal_buffers = '16MB'")
@@ -420,6 +422,7 @@ def transactional(read_only: bool = False, retry: bool = True):
         def wrapper(*args, **kwargs):
             # 检查是否已经在事务中
             if hasattr(args[0], "session") and isinstance(args[0].session, Session):
+                pass  # Auto-fixed empty block
                 # 已在事务中，直接执行
                 return func(*args, **kwargs)
 
@@ -428,6 +431,7 @@ def transactional(read_only: bool = False, retry: bool = True):
                 TransactionManager() if retry else TransactionManager(max_retries=0)
             )
             with manager.transaction(read_only=read_only) as session:
+                pass  # Auto-fixed empty block
                 # 将会话注入到第一个参数（通常是self）
                 if args and hasattr(args[0], "__dict__"):
                     original_session = getattr(args[0], "session", None)
@@ -441,6 +445,7 @@ def transactional(read_only: bool = False, retry: bool = True):
                         else:
                             delattr(args[0], "session")
                 else:
+                    pass  # Auto-fixed empty block
                     # 将会话作为关键字参数传递
                     kwargs["session"] = session.session
                     return func(*args, **kwargs)
@@ -490,6 +495,7 @@ def async_transactional(read_only: bool = False, retry: bool = True):
                         else:
                             delattr(args[0], "session")
                 else:
+                    pass  # Auto-fixed empty block
                     # 将会话作为关键字参数传递
                     kwargs["session"] = session.session
                     return await func(*args, **kwargs)

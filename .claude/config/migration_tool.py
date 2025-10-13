@@ -598,6 +598,7 @@ def main():
         legacy_files = migrator.discover_legacy_configs()
 
         if not legacy_files:
+            pass  # Auto-fixed empty block
             # print("✅ No legacy configuration files found")
             return
 

@@ -72,6 +72,7 @@ class PerformanceCollector:
         signal.signal(signal.SIGTERM, self._signal_handler)
 
         try:
+            pass  # Auto-fixed empty block
             # 如果日志文件不存在，创建它
             if not self.log_file.exists():
                 self.log_file.touch()
@@ -135,6 +136,7 @@ class PerformanceCollector:
     async def _parse_log_line(self, line: str):
         """解析日志行"""
         try:
+            pass  # Auto-fixed empty block
             # 解析格式: "2023-09-23 17:24:15 | hook_name | 150ms"
             pattern = r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) \| ([^|]+) \| (\d+)ms"
             match = re.match(pattern, line)
@@ -158,6 +160,7 @@ class PerformanceCollector:
                 await self._handle_performance_data(perf_data)
 
             else:
+                pass  # Auto-fixed empty block
                 # 尝试解析错误信息
                 if "ERROR" in line or "FAILED" in line:
                     await self._handle_error_line(line)
@@ -201,6 +204,7 @@ class PerformanceCollector:
     async def _handle_performance_data(self, perf_data: HookPerformanceData):
         """处理性能数据"""
         try:
+            pass  # Auto-fixed empty block
             # 更新统计信息
             self._update_stats(perf_data)
 
@@ -265,6 +269,7 @@ class PerformanceCollector:
     async def _check_performance_thresholds(self, perf_data: HookPerformanceData):
         """检查性能阈值"""
         try:
+            pass  # Auto-fixed empty block
             # 定义阈值
             slow_threshold = 1000  # 1秒
             very_slow_threshold = 3000  # 3秒
@@ -313,6 +318,7 @@ class PerformanceCollector:
     async def _handle_error_line(self, line: str):
         """处理错误行"""
         try:
+            pass  # Auto-fixed empty block
             # 简单的错误解析
             timestamp = datetime.now()
 
@@ -413,11 +419,13 @@ async def main():
     collector = PerformanceCollector()
 
     try:
+        pass  # Auto-fixed empty block
         # 启动收集器
         await collector.start_collecting()
     except KeyboardInterrupt:
         logger.info("收到停止信号")
     finally:
+        pass  # Auto-fixed empty block
         # 生成最终报告
         await collector.generate_report()
         logger.info("性能收集器已停止")

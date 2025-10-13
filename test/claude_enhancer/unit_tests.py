@@ -395,6 +395,7 @@ class TestDataValidation(unittest.TestCase):
             if timeout is None:
                 continue
             if isinstance(timeout, str):
+                pass  # Auto-fixed empty block
                 # 字符串超时值应该被检测为无效
                 self.assertIsInstance(timeout, str)
             elif isinstance(timeout, (int, float)) and timeout <= 0:

@@ -696,6 +696,7 @@ async def health_check(db: Session = Depends(get_db)) -> Dict[str, Any]:
     返回系统状态和基本统计信息。
     """
     try:
+        pass  # Auto-fixed empty block
         # 检查数据库连接
         repository = TaskRepository(db)
         total_tasks = await repository.count()
@@ -764,6 +765,7 @@ async def export_tasks(
             "tasks": [task.dict() for task in tasks],
         }
     elif format == "csv":
+        pass  # Auto-fixed empty block
         # 这里应该返回CSV格式的响应
         # 简化实现，实际应该使用适当的CSV库
         import csv

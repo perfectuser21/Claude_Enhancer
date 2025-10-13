@@ -471,6 +471,7 @@ class TaskService:
             success = await self.repository.soft_delete(task_id)
 
         if success:
+            pass  # Auto-fixed empty block
             # 5. 记录活动日志
             if self.config.enable_activity_logging:
                 await self._log_task_activity(
@@ -521,6 +522,7 @@ class TaskService:
 
         # 2. 执行搜索
         if request.query:
+            pass  # Auto-fixed empty block
             # 全文搜索
             tasks = await self.repository.search_with_fulltext(
                 query_text=request.query,
@@ -530,6 +532,7 @@ class TaskService:
             )
             total_count = len(tasks)  # 简化处理，实际应该单独查询总数
         else:
+            pass  # Auto-fixed empty block
             # 普通筛选
             result = await self.repository.search_tasks(
                 user_id=user_id,
@@ -933,6 +936,7 @@ class TaskService:
         overdue_count = 0
 
         for task in tasks:
+            pass  # Auto-fixed empty block
             # 状态统计
             status_counts[task.status] = status_counts.get(task.status, 0) + 1
 

@@ -300,6 +300,7 @@ class MetricsCollector:
             return
 
         try:
+            pass  # Auto-fixed empty block
             # CPU指标
             cpu_percent = psutil.cpu_percent(interval=None)
             self.set_gauge("system_cpu_percent", cpu_percent)
@@ -349,6 +350,7 @@ class MetricsCollector:
             return
 
         try:
+            pass  # Auto-fixed empty block
             # 服务运行时间
             uptime = time.time() - self.stats["system_uptime"]
             self.set_gauge("service_uptime_seconds", uptime)
@@ -439,6 +441,7 @@ class MetricsCollector:
             # 处理告警
             if alert_triggered:
                 if rule_id not in self.alerts or self.alerts[rule_id].resolved:
+                    pass  # Auto-fixed empty block
                     # 新告警
                     alert = Alert(
                         id=rule_id,
@@ -455,6 +458,7 @@ class MetricsCollector:
                     await self._trigger_alert(alert)
 
             else:
+                pass  # Auto-fixed empty block
                 # 告警恢复
                 if rule_id in self.alerts and not self.alerts[rule_id].resolved:
                     self.alerts[rule_id].resolved = True
@@ -615,6 +619,7 @@ class MetricsCollector:
                 cutoff_time = datetime.now() - self.config.retention_period
 
                 for key, history in self.metrics_history.items():
+                    pass  # Auto-fixed empty block
                     # 移除过期数据
                     while history and history[0].timestamp < cutoff_time:
                         history.popleft()
