@@ -1,0 +1,347 @@
+name: Hardened Quality Gates (GPG + Artifacts)
+
+on:
+  pull_request:
+    branches: ['**']
+  push:
+    branches: [main, master, production]
+  workflow_dispatch:
+
+env:
+  # Quality thresholds
+  QUALITY_MIN: 85
+  COVERAGE_MIN: 80
+  REQUIRED_SIGS: 8
+
+  # GPG fingerprint for verification (update with actual fingerprint)
+  GPG_FINGERPRINT: "ABCD1234EFGH5678IJKL9012MNOP3456QRST7890"
+
+jobs:
+  gpg-verify:
+    name: 🔐 GPG Signature Verification
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/production'
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Import GPG Public Key
+        run: |
+          echo "${{ secrets.GPG_PUBLIC_KEY }}" | gpg --import
+          gpg --list-keys
+
+      - name: Verify Commit Signatures
+        run: |
+          echo "🔍 Verifying GPG signatures on commits..."
+
+          # Get commits in this push/PR
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            COMMITS=$(git log origin/${{ github.base_ref }}..HEAD --format="%H")
+          else
+            COMMITS=$(git log -1 --format="%H")
+          fi
+
+          UNSIGNED_COUNT=0
+          INVALID_COUNT=0
+
+          for commit in $COMMITS; do
+            echo "Checking commit: $commit"
+
+            # Check if commit is signed
+            if ! git verify-commit "$commit" 2>/dev/null; then
+              echo "❌ Commit $commit is NOT signed or signature invalid"
+              ((UNSIGNED_COUNT++))
+            else
+              # Verify fingerprint matches expected
+              FINGERPRINT=$(git show --show-signature "$commit" 2>&1 | grep -oP 'fingerprint: \K[A-F0-9]+' | head -1)
+
+              if [ "$FINGERPRINT" != "${{ env.GPG_FINGERPRINT }}" ]; then
+                echo "⚠️  Commit $commit signed with unexpected key: $FINGERPRINT"
+                echo "   Expected: ${{ env.GPG_FINGERPRINT }}"
+                ((INVALID_COUNT++))
+              else
+                echo "✅ Commit $commit verified with correct GPG key"
+              fi
+            fi
+          done
+
+          if [ $UNSIGNED_COUNT -gt 0 ] || [ $INVALID_COUNT -gt 0 ]; then
+            echo ""
+            echo "❌ GPG VERIFICATION FAILED"
+            echo "   Unsigned commits: $UNSIGNED_COUNT"
+            echo "   Invalid fingerprints: $INVALID_COUNT"
+            exit 1
+          fi
+
+          echo ""
+          echo "✅ All commits properly signed with authorized GPG key"
+
+  quality-gate:
+    name: 🚦 Quality Gate Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install yq for YAML parsing
+        run: |
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+
+      - name: Run Quality Gate Check
+        id: gate_check
+        run: |
+          # Source the final gate library
+          source .workflow/lib/final_gate.sh
+
+          # Set CI environment
+          export CI=true
+          export GITHUB_ACTIONS=true
+
+          # Run gate check and capture result
+          if final_gate_check; then
+            echo "result=pass" >> $GITHUB_OUTPUT
+            echo "✅ Quality gate PASSED"
+          else
+            echo "result=fail" >> $GITHUB_OUTPUT
+            echo "❌ Quality gate FAILED"
+            exit 1
+          fi
+
+      - name: Upload Quality Report as Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-gate-report-${{ github.run_number }}
+          path: |
+            .workflow/_reports/quality_score.txt
+            coverage/coverage.xml
+            coverage/lcov.info
+            .gates/*.ok.sig
+          retention-days: 30
+
+      - name: Generate Evidence Report
+        if: always()
+        run: |
+          mkdir -p evidence
+
+          REPORT_FILE="evidence/gate_check_$(date +%Y%m%d_%H%M%S).md"
+
+          cat > "$REPORT_FILE" <<EOF
+          # Quality Gate Evidence Report
+
+          **Run ID**: ${{ github.run_id }}
+          **Run Number**: ${{ github.run_number }}
+          **Timestamp**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          **Branch**: ${{ github.ref_name }}
+          **Commit**: ${{ github.sha }}
+          **Actor**: ${{ github.actor }}
+          **Event**: ${{ github.event_name }}
+
+          ## Gate Result
+
+          **Status**: ${{ steps.gate_check.outputs.result }}
+
+          ## Quality Metrics
+
+          ### Quality Score
+          \`\`\`
+          $(cat .workflow/_reports/quality_score.txt 2>/dev/null || echo "N/A")
+          \`\`\`
+
+          ### Coverage
+          \`\`\`
+          $(if [ -f "coverage/coverage.xml" ]; then
+              python3 - <<'PY'
+          import xml.etree.ElementTree as ET
+          try:
+            t=ET.parse("coverage/coverage.xml")
+            root=t.getroot()
+            if "line-rate" in root.attrib:
+              print(f"{float(root.attrib['line-rate']) * 100:.1f}%")
+            else:
+              c=root.find(".//counter[@type='LINE']")
+              if c is not None:
+                covered=int(c.get("covered",0))
+                missed=int(c.get("missed",0))
+                pct=100.0*covered/(covered+missed) if covered+missed>0 else 0.0
+                print(f"{pct:.1f}%")
+              else:
+                print("N/A")
+          except:
+            print("N/A")
+          PY
+            else
+              echo "N/A"
+            fi)
+          \`\`\`
+
+          ### Gate Signatures
+          \`\`\`
+          $(ls -1 .gates/*.ok.sig 2>/dev/null | wc -l || echo "0") / ${{ env.REQUIRED_SIGS }} required
+          \`\`\`
+
+          ## Thresholds
+
+          - Quality Score: ≥ ${{ env.QUALITY_MIN }}
+          - Coverage: ≥ ${{ env.COVERAGE_MIN }}%
+          - Signatures (Protected): ≥ ${{ env.REQUIRED_SIGS }}
+
+          ## Artifacts
+
+          - Quality score: \`.workflow/_reports/quality_score.txt\`
+          - Coverage report: \`coverage/coverage.xml\`
+          - Gate signatures: \`.gates/*.ok.sig\`
+
+          EOF
+
+          cat "$REPORT_FILE"
+
+      - name: Upload Evidence Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evidence-report-${{ github.run_number }}
+          path: evidence/*.md
+          retention-days: 90
+
+  hook-integrity:
+    name: 🔒 Git Hooks Integrity Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify Hook Files Exist
+        run: |
+          echo "🔍 Verifying git hooks integrity..."
+
+          REQUIRED_HOOKS=(
+            ".githooks/pre-commit"
+            ".githooks/pre-push"
+            ".githooks/commit-msg"
+          )
+
+          MISSING_HOOKS=0
+
+          for hook in "${REQUIRED_HOOKS[@]}"; do
+            if [ ! -f "$hook" ]; then
+              echo "❌ Missing hook: $hook"
+              ((MISSING_HOOKS++))
+            else
+              echo "✅ Found: $hook"
+            fi
+          done
+
+          if [ $MISSING_HOOKS -gt 0 ]; then
+            echo ""
+            echo "❌ HOOK INTEGRITY CHECK FAILED"
+            echo "   Missing hooks: $MISSING_HOOKS"
+            exit 1
+          fi
+
+          echo ""
+          echo "✅ All required hooks present"
+
+      - name: Verify Hook Permissions
+        run: |
+          echo "🔍 Checking hook execute permissions..."
+
+          HOOKS=(.githooks/pre-commit .githooks/pre-push .githooks/commit-msg)
+          NON_EXECUTABLE=0
+
+          for hook in "${HOOKS[@]}"; do
+            if [ ! -x "$hook" ]; then
+              echo "❌ Hook not executable: $hook"
+              ((NON_EXECUTABLE++))
+            else
+              echo "✅ Executable: $hook"
+            fi
+          done
+
+          if [ $NON_EXECUTABLE -gt 0 ]; then
+            echo ""
+            echo "❌ PERMISSION CHECK FAILED"
+            echo "   Non-executable hooks: $NON_EXECUTABLE"
+            exit 1
+          fi
+
+          echo ""
+          echo "✅ All hooks have execute permissions"
+
+      - name: Verify Final Gate Library
+        run: |
+          echo "🔍 Verifying final gate library..."
+
+          if [ ! -f ".workflow/lib/final_gate.sh" ]; then
+            echo "❌ Missing final_gate.sh library"
+            exit 1
+          fi
+
+          if ! grep -q "final_gate_check()" .workflow/lib/final_gate.sh; then
+            echo "❌ final_gate_check function not found in library"
+            exit 1
+          fi
+
+          echo "✅ Final gate library verified"
+
+      - name: Shellcheck Hook Scripts
+        run: |
+          echo "🔍 Running shellcheck on hooks..."
+
+          if ! command -v shellcheck &> /dev/null; then
+            sudo apt-get update && sudo apt-get install -y shellcheck
+          fi
+
+          HOOKS=(.githooks/pre-commit .githooks/pre-push .githooks/commit-msg .workflow/lib/final_gate.sh)
+          ERRORS=0
+
+          for hook in "${HOOKS[@]}"; do
+            echo "Checking: $hook"
+            if ! shellcheck -S warning -e SC2034 -e SC2155 -e SC2164 "$hook"; then
+              echo "❌ Shellcheck errors in $hook"
+              ((ERRORS++))
+            else
+              echo "✅ Clean: $hook"
+            fi
+          done
+
+          if [ $ERRORS -gt 0 ]; then
+            echo ""
+            echo "❌ SHELLCHECK FAILED"
+            echo "   Scripts with errors: $ERRORS"
+            exit 1
+          fi
+
+          echo ""
+          echo "✅ All hooks pass shellcheck"
+
+  summary:
+    name: 📊 Hardened Gate Summary
+    runs-on: ubuntu-latest
+    needs: [quality-gate, hook-integrity]
+    if: always()
+
+    steps:
+      - name: Generate Summary
+        run: |
+          echo "# 🏆 Hardened Quality Gate Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Quality Gate | ${{ needs.quality-gate.result == 'success' && '✅ PASS' || '❌ FAIL' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Hook Integrity | ${{ needs.hook-integrity.result == 'success' && '✅ PASS' || '❌ FAIL' }} |" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ github.ref }}" = "refs/heads/main" ] || [ "${{ github.ref }}" = "refs/heads/master" ]; then
+            echo "| GPG Verification | ${{ needs.gpg-verify.result == 'success' && '✅ PASS' || '❌ FAIL' }} |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Artifacts**: Quality reports and evidence saved for 30-90 days" >> $GITHUB_STEP_SUMMARY

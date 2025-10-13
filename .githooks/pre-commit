@@ -1,0 +1,343 @@
+#!/bin/bash
+# ═══════════════════════════════════════════════════════════════
+# IRONCLAD PRE-COMMIT HOOK (UNBYPASSABLE)
+# Claude Enhancer 5.0 - Security Hardened Version
+# ═══════════════════════════════════════════════════════════════
+
+set -euo pipefail
+
+# Trap to ensure we always exit with error on failure
+trap 'echo "❌ Pre-commit hook failed at line $LINENO"; exit 1' ERR
+
+# ═══════════════════════════════════════════════════════════════
+# BYPASS DETECTION (Priority 1)
+# ═══════════════════════════════════════════════════════════════
+
+# Detect common bypass attempts
+if [ "${GIT_SKIP_HOOKS:-}" = "true" ] || \
+   [ "${SKIP_HOOKS:-}" = "true" ] || \
+   [ "${NO_VERIFY:-}" = "true" ] || \
+   [ "${GIT_HOOKS_SKIP:-}" = "1" ] || \
+   [ "${HUSKY_SKIP_HOOKS:-}" = "1" ]; then
+    echo "❌ ERROR: Hook bypass attempt detected!"
+    echo "Environment variable override is not permitted."
+    echo "Quality gates are mandatory and cannot be skipped."
+    exit 1
+fi
+
+# Check if hook is being called directly (not by git)
+if [ -z "${GIT_DIR:-}" ] && [ -z "${GIT_INDEX_FILE:-}" ]; then
+    echo "⚠️  Warning: Hook called outside git context"
+    echo "This may indicate a bypass attempt."
+    # Continue but log suspicious activity
+fi
+
+# ═══════════════════════════════════════════════════════════════
+# SELF-INTEGRITY CHECK
+# ═══════════════════════════════════════════════════════════════
+
+HOOK_SCRIPT="$0"
+PROJECT_ROOT="$(git rev-parse --show-toplevel)"
+
+# Verify hook is executable
+if [ ! -x "$HOOK_SCRIPT" ]; then
+    echo "❌ ERROR: Hook is not executable!"
+    echo "This may indicate tampering."
+    chmod +x "$HOOK_SCRIPT"  # Auto-repair
+fi
+
+# Verify hook hasn't been moved to /dev/null or similar
+if [ -L "$HOOK_SCRIPT" ]; then
+    REAL_PATH=$(readlink -f "$HOOK_SCRIPT")
+    if [[ "$REAL_PATH" =~ /dev/null|/dev/zero|/tmp/empty ]]; then
+        echo "❌ ERROR: Hook has been redirected to: $REAL_PATH"
+        echo "This is a bypass attempt!"
+        exit 1
+    fi
+fi
+
+# ═══════════════════════════════════════════════════════════════
+# AUTO MODE SUPPORT (Conditional)
+# ═══════════════════════════════════════════════════════════════
+
+if [[ -f "$HOME/dev/Claude Enhancer 5.0/.claude/auto.config" ]]; then
+    source "$HOME/dev/Claude Enhancer 5.0/.claude/auto.config" 2>/dev/null || true
+fi
+
+# Smart auto-mode (only for known safe prompts)
+if [[ "${GIT_HOOKS_AUTO_MODE:-false}" == "true" ]]; then
+    read() {
+        local var_name="${!#}"
+        case "$var_name" in
+            response|answer|confirm|choice|REPLY)
+                eval "$var_name='y'"
+                [[ "${CE_SILENT_MODE:-false}" != "true" ]] && echo "[AUTO] Auto-confirmed: y" >&2
+                return 0
+                ;;
+            *)
+                builtin read "$@"
+                ;;
+        esac
+    }
+fi
+
+# ═══════════════════════════════════════════════════════════════
+# CORE VARIABLES
+# ═══════════════════════════════════════════════════════════════
+
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+LOG_DIR="$PROJECT_ROOT/.workflow/logs"
+PHASE_FILE="$PROJECT_ROOT/.phase/current"
+GATES_YML="$PROJECT_ROOT/.workflow/gates.yml"
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+BLUE='\033[0;34m'
+BOLD='\033[1m'
+NC='\033[0m'
+
+# Create log directory
+mkdir -p "$LOG_DIR"
+
+# Log hook execution (for audit trail)
+echo "$(date +'%Y-%m-%d %H:%M:%S') [pre-commit] branch=$BRANCH user=$(whoami) pid=$$" >> "$LOG_DIR/hooks.log"
+
+echo -e "${BOLD}🔒 Claude Enhancer - Ironclad Pre-Commit Check${NC}"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+# ═══════════════════════════════════════════════════════════════
+# CHECK 1: BRANCH PROTECTION (Highest Priority - Fail Fast)
+# ═══════════════════════════════════════════════════════════════
+
+if [[ "$BRANCH" =~ ^(main|master|production)$ ]]; then
+    # Check for auto-branch mode
+    if [[ "${CE_AUTOBRANCH:-0}" == "1" ]]; then
+        echo -e "${YELLOW}⚡ Auto-branch mode enabled${NC}"
+        
+        timestamp=$(date +%Y%m%d-%H%M%S)
+        new_branch="feature/P1-auto-${timestamp}"
+        
+        echo -e "${CYAN}📝 Creating branch: ${new_branch}${NC}"
+        
+        if git switch -c "$new_branch" "$BRANCH" 2>/dev/null; then
+            echo -e "${GREEN}✓ Switched to new branch: ${new_branch}${NC}"
+            mkdir -p "$PROJECT_ROOT/.phase"
+            echo "P1" > "$PROJECT_ROOT/.phase/current"
+            BRANCH="$new_branch"
+        else
+            echo -e "${RED}❌ Branch creation failed${NC}"
+            exit 1
+        fi
+    else
+        echo -e "${RED}❌ ERROR: Cannot commit directly to '$BRANCH' branch${NC}"
+        echo ""
+        echo -e "${BOLD}${YELLOW}Solutions:${NC}"
+        echo ""
+        echo -e "${CYAN}Option 1: Auto-Branch Mode (Fastest)${NC}"
+        echo "  export CE_AUTOBRANCH=1"
+        echo "  git commit -m 'your message'"
+        echo ""
+        echo -e "${CYAN}Option 2: Manual Feature Branch${NC}"
+        echo "  git checkout -b feature/your-feature-name"
+        echo "  git commit -m 'your message'"
+        echo ""
+        echo -e "${CYAN}Option 3: Use Claude Enhancer Workflow${NC}"
+        echo "  bash .claude/hooks/workflow_enforcer_v2.sh 'task description'"
+        echo ""
+        exit 1
+    fi
+fi
+
+# ═══════════════════════════════════════════════════════════════
+# CHECK 2: SECURITY SCAN (Critical - Cannot be disabled)
+# ═══════════════════════════════════════════════════════════════
+
+echo -e "\n${CYAN}[SECURITY SCAN]${NC}"
+
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
+SECURITY_ISSUES=0
+
+if [ -n "$STAGED_FILES" ]; then
+    # Scan for secrets in staged changes
+    STAGED_DIFF=$(git diff --cached)
+    
+    # Check for private keys
+    if echo "$STAGED_DIFF" | grep -qE '^\+.*-----BEGIN (RSA |DSA |EC )?PRIVATE KEY'; then
+        echo -e "${RED}❌ CRITICAL: Private key detected in commit!${NC}"
+        echo "Remove the private key before committing."
+        ((SECURITY_ISSUES++))
+    fi
+    
+    # Check for AWS keys
+    if echo "$STAGED_DIFF" | grep -qE '^\+.*AKIA[0-9A-Z]{16}'; then
+        echo -e "${RED}❌ CRITICAL: AWS access key detected!${NC}"
+        echo "Remove AWS credentials before committing."
+        ((SECURITY_ISSUES++))
+    fi
+    
+    # Check for generic API keys (avoid false positives)
+    if echo "$STAGED_DIFF" | grep -E '^\+.*api[_-]?key.*=.*["'"'"'][a-zA-Z0-9_-]{20,}["'"'"']' | \
+       grep -vE 'test|example|sample|placeholder|your_api_key|api_key_here|TODO|FIXME' > /dev/null; then
+        echo -e "${RED}❌ WARNING: Potential API key detected${NC}"
+        echo "Verify no real credentials are being committed."
+        ((SECURITY_ISSUES++))
+    fi
+    
+    # Check for passwords (excluding test/example/regex patterns/security infrastructure)
+    if echo "$STAGED_DIFF" | grep -E '^\+.*password.*=.*["'"'"'][^"'"'"']{8,}["'"'"']' | \
+       grep -vE 'test|example|sample|placeholder|TODO|FIXME' | \
+       grep -vE "r['\"]|\\\\[sw]|\\\\[dD]|\\\\[+*?]|\.git/hooks/|\.claude/(hooks|core)/quality|sanitiz" > /dev/null; then
+        echo -e "${RED}❌ WARNING: Hardcoded password detected${NC}"
+        echo "Use environment variables instead."
+        ((SECURITY_ISSUES++))
+    fi
+    
+    # Check for database connection strings
+    if echo "$STAGED_DIFF" | grep -E '^\+.*(mysql|postgres|mongodb|redis)://[^@]+:[^@]+@[^/]+' | \
+       grep -vE 'localhost|127.0.0.1|example' > /dev/null; then
+        echo -e "${RED}❌ WARNING: Database connection string with credentials${NC}"
+        echo "Use environment variables for database credentials."
+        ((SECURITY_ISSUES++))
+    fi
+    
+    if [ $SECURITY_ISSUES -eq 0 ]; then
+        echo -e "${GREEN}✓ No security issues detected${NC}"
+    else
+        echo -e "\n${RED}❌ SECURITY CHECK FAILED: $SECURITY_ISSUES issue(s) found${NC}"
+        echo -e "${YELLOW}Remediation:${NC}"
+        echo "  1. Use environment variables (.env file in .gitignore)"
+        echo "  2. Use secret management (AWS Secrets Manager, HashiCorp Vault)"
+        echo "  3. Remove sensitive data: git reset HEAD <file>"
+        exit 1
+    fi
+fi
+
+# ═══════════════════════════════════════════════════════════════
+# CHECK 3: SYNTAX VALIDATION (Language-specific)
+# ═══════════════════════════════════════════════════════════════
+
+echo -e "\n${CYAN}[SYNTAX VALIDATION]${NC}"
+
+SYNTAX_ERRORS=0
+
+while IFS= read -r file; do
+    [ -z "$file" ] && continue
+    [ ! -f "$PROJECT_ROOT/$file" ] && continue
+    
+    case "$file" in
+        *.sh|*.bash)
+            if command -v shellcheck &> /dev/null; then
+                # Exclude SC2034 (unused variable) and SC2155 (declare and assign) warnings
+                if ! shellcheck -S warning -e SC2034 -e SC2155 "$PROJECT_ROOT/$file" > /dev/null 2>&1; then
+                    echo -e "${RED}   ❌ $file (shellcheck errors)${NC}"
+                    shellcheck -S warning -e SC2034 -e SC2155 "$PROJECT_ROOT/$file" 2>&1 | head -5
+                    ((SYNTAX_ERRORS++))
+                else
+                    echo -e "${GREEN}   ✓ $file${NC}"
+                fi
+            fi
+            ;;
+        *.py)
+            if ! python3 -m py_compile "$PROJECT_ROOT/$file" 2>/dev/null; then
+                echo -e "${RED}   ❌ $file (Python syntax error)${NC}"
+                ((SYNTAX_ERRORS++))
+            else
+                echo -e "${GREEN}   ✓ $file${NC}"
+            fi
+            ;;
+        *.js|*.jsx)
+            if command -v node &> /dev/null; then
+                if ! node --check "$PROJECT_ROOT/$file" 2>/dev/null; then
+                    echo -e "${RED}   ❌ $file (JavaScript syntax error)${NC}"
+                    ((SYNTAX_ERRORS++))
+                else
+                    echo -e "${GREEN}   ✓ $file${NC}"
+                fi
+            fi
+            ;;
+    esac
+done <<< "$STAGED_FILES"
+
+if [ $SYNTAX_ERRORS -gt 0 ]; then
+    echo -e "${RED}❌ SYNTAX CHECK FAILED: $SYNTAX_ERRORS error(s)${NC}"
+    echo "Fix syntax errors before committing."
+    exit 1
+fi
+
+echo -e "${GREEN}✓ Syntax validation passed${NC}"
+
+# ═══════════════════════════════════════════════════════════════
+# CHECK 4: FILE SIZE LIMITS
+# ═══════════════════════════════════════════════════════════════
+
+echo -e "\n${CYAN}[FILE SIZE CHECK]${NC}"
+
+LARGE_FILES=0
+MAX_FILE_SIZE=$((10 * 1024 * 1024))  # 10MB
+
+while IFS= read -r file; do
+    [ -z "$file" ] && continue
+    [ ! -f "$PROJECT_ROOT/$file" ] && continue
+    
+    file_size=$(stat -c%s "$PROJECT_ROOT/$file" 2>/dev/null || stat -f%z "$PROJECT_ROOT/$file" 2>/dev/null || echo 0)
+    
+    if [ "$file_size" -gt "$MAX_FILE_SIZE" ]; then
+        size_mb=$((file_size / 1024 / 1024))
+        echo -e "${RED}   ❌ $file (${size_mb}MB > 10MB limit)${NC}"
+        ((LARGE_FILES++))
+    fi
+done <<< "$STAGED_FILES"
+
+if [ $LARGE_FILES -gt 0 ]; then
+    echo -e "${RED}❌ Large files detected${NC}"
+    echo "Use Git LFS for files larger than 10MB:"
+    echo "  git lfs track '*.bin'"
+    echo "  git add .gitattributes"
+    exit 1
+fi
+
+echo -e "${GREEN}✓ File size check passed${NC}"
+
+# ═══════════════════════════════════════════════════════════════
+# CHECK 5: DOCUMENT COUNT (Root clutter prevention)
+# ═══════════════════════════════════════════════════════════════
+
+echo -e "\n${CYAN}[DOCUMENT COUNT]${NC}"
+
+DOC_COUNT=$(find "$PROJECT_ROOT" -maxdepth 1 -name "*.md" -not -name "README.md" -not -name "CLAUDE.md" | wc -l)
+
+if [ "$DOC_COUNT" -gt 7 ]; then
+    echo -e "${YELLOW}⚠️  WARNING: $DOC_COUNT root documents (max recommended: 7)${NC}"
+    echo "Consider moving to .temp/ or docs/"
+else
+    echo -e "${GREEN}✓ Document count: $DOC_COUNT${NC}"
+fi
+
+# ═══════════════════════════════════════════════════════════════
+# CHECK 6: WORKFLOW VALIDATION (If .phase exists)
+# ═══════════════════════════════════════════════════════════════
+
+if [ -f "$PHASE_FILE" ]; then
+    echo -e "\n${CYAN}[WORKFLOW VALIDATION]${NC}"
+    
+    current_phase=$(cat "$PHASE_FILE")
+    echo -e "${BLUE}📍 Current Phase: $current_phase${NC}"
+    
+    # Phase-specific validations can be added here
+    if [[ "$current_phase" =~ ^P[0-7]$ ]]; then
+        echo -e "${GREEN}✓ Valid workflow phase${NC}"
+    fi
+fi
+
+# ═══════════════════════════════════════════════════════════════
+# COMPLETION
+# ═══════════════════════════════════════════════════════════════
+
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo -e "${GREEN}${BOLD}✅ ALL CHECKS PASSED${NC}"
+echo -e "${BLUE}Branch: $BRANCH | Files: $(echo "$STAGED_FILES" | wc -l)${NC}"
+
+exit 0

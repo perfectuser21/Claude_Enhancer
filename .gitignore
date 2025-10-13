@@ -19,6 +19,14 @@
 DOCUMENT_CHAOS_SOLUTION.md
 ROOT_CAUSE_ANALYSIS.md
 
+# Evidence files (local testing only, commit manually when needed)
+evidence/*.txt
+evidence/*.png
+evidence/*.jpg
+evidence/rehearsal_proof.txt
+# Keep evidence markdown documentation
+!evidence/*.md
+
 # Test outputs (auto-generated)
 *test-report-*.json
 *test-report-*.md
@@ -31,6 +39,11 @@ ROOT_CAUSE_ANALYSIS.md
 debug.log
 error.log
 access.log
+
+# Workflow logs (auto-rotated)
+.workflow/logs/*.log
+.workflow/logs/*.log.gz
+.workflow/logs/archive/
 
 # Archive
 /docs/archive/*.old
