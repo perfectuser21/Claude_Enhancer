@@ -64,8 +64,8 @@ def create_database_engine() -> Engine:
         pass  # Auto-fixed empty block
         # 创建引擎
         engine = create_engine(
-            pool_pre_ping=True,  # 连接预检查
             config.get_sync_url(),
+            pool_pre_ping=True,  # 连接预检查
             **config.get_engine_kwargs(),
             poolclass=QueuePool,
             pool_reset_on_return="commit",
