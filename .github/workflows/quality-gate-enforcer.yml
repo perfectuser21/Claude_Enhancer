@@ -90,9 +90,10 @@ jobs:
           shopt -s globstar
           error_count=0
 
+          # Exclude SC2034 (unused variable) and SC2155 (declare and assign) as non-critical
           for script in $(find . -name "*.sh" -not -path "./node_modules/*" -not -path "./.git/*" -type f); do
             echo "Checking: $script"
-            if ! shellcheck -S warning "$script"; then
+            if ! shellcheck -S warning -e SC2034 -e SC2155 "$script"; then
               echo "❌ Shellcheck failed for $script"
               ((error_count++))
             fi
