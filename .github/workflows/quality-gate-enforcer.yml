@@ -167,15 +167,23 @@ jobs:
           echo "🟢 Checking JavaScript syntax..."
 
           # Simple syntax check with Node.js
-          js_files=$(find . -name "*.js" -not -path "./node_modules/*" -not -path "./.git/*" -type f)
+          # Skip JSX files (React components) - they're checked by build process
+          js_files=$(find . -name "*.js" -not -path "./node_modules/*" -not -path "./.git/*" -not -path "./frontend/*" -type f)
 
           if [ -z "$js_files" ]; then
-            echo "ℹ️ No JavaScript files found"
+            echo "ℹ️ No non-JSX JavaScript files found"
+            echo "ℹ️ JSX/React files are checked by build process"
             exit 0
           fi
 
           error_count=0
           for file in $js_files; do
+            # Skip if file contains JSX syntax
+            if grep -q "<.*>" "$file" 2>/dev/null; then
+              echo "ℹ️ Skipping JSX file: $file"
+              continue
+            fi
+
             if ! node --check "$file" 2>/dev/null; then
               echo "❌ Syntax error: $file"
               node --check "$file"  # Show error
@@ -184,7 +192,7 @@ jobs:
           done
 
           if [ $error_count -eq 0 ]; then
-            echo "✅ All JavaScript files have valid syntax"
+            echo "✅ All non-JSX JavaScript files have valid syntax"
           else
             echo "::error::Found syntax errors in $error_count files"
             exit 1
