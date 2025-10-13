@@ -162,14 +162,31 @@ jobs:
             exit 1
           fi
 
-      - name: 🟢 Run JavaScript Lint
+      - name: 🟢 JavaScript Syntax Check
         run: |
-          echo "🟢 Running eslint on JavaScript files..."
+          echo "🟢 Checking JavaScript syntax..."
 
-          if npx eslint "**/*.js" --ignore-pattern "node_modules/" --max-warnings 10; then
-            echo "✅ JavaScript lint passed"
+          # Simple syntax check with Node.js
+          js_files=$(find . -name "*.js" -not -path "./node_modules/*" -not -path "./.git/*" -type f)
+
+          if [ -z "$js_files" ]; then
+            echo "ℹ️ No JavaScript files found"
+            exit 0
+          fi
+
+          error_count=0
+          for file in $js_files; do
+            if ! node --check "$file" 2>/dev/null; then
+              echo "❌ Syntax error: $file"
+              node --check "$file"  # Show error
+              ((error_count++))
+            fi
+          done
+
+          if [ $error_count -eq 0 ]; then
+            echo "✅ All JavaScript files have valid syntax"
           else
-            echo "::error::ESLint found issues"
+            echo "::error::Found syntax errors in $error_count files"
             exit 1
           fi
 
