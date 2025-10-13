@@ -115,7 +115,8 @@ jobs:
           # Python error checking (errors only, important dirs)
           if find ./src ./backend ./.claude -name "*.py" 2>/dev/null | grep -q .; then
             echo "Checking Python files for errors..."
-            pylint $(find ./src ./backend ./.claude -name "*.py" 2>/dev/null) --errors-only --disable=E0401,E1101 || echo "❌ Python errors found"
+            # E0213: Pydantic @validator uses cls, not self
+            pylint $(find ./src ./backend ./.claude -name "*.py" 2>/dev/null) --errors-only --disable=E0401,E1101,E0213 || echo "❌ Python errors found"
           fi
 
           # JavaScript linting

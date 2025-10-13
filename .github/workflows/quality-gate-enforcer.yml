@@ -141,8 +141,11 @@ jobs:
           for file in $py_files; do
             echo "Checking: $file"
             # --errors-only: Only report errors (E,F), not warnings (W) or conventions (C)
-            # Still disable false positives from dynamic imports
-            if ! pylint "$file" --errors-only --disable=E0401,E1101 2>/dev/null; then
+            # Disable false positives:
+            # E0401: import-error (dynamic imports)
+            # E1101: no-member (dynamic attributes)
+            # E0213: no-self-argument (Pydantic @validator uses cls, not self)
+            if ! pylint "$file" --errors-only --disable=E0401,E1101,E0213 2>/dev/null; then
               echo "❌ Errors found in $file"
               ((error_count++))
             fi
