@@ -78,6 +78,7 @@ class PerformanceTestSuite:
         cpu_usage = []
 
         for i in range(iterations):
+            pass  # Auto-fixed empty block
             # Start memory tracing
             tracemalloc.start()
             initial_memory = self.process.memory_info().rss / 1024 / 1024  # MB
@@ -347,6 +348,7 @@ class PerformanceTestSuite:
         }
 
         try:
+            pass  # Auto-fixed empty block
             # Startup performance
             results["startup_performance"] = self.measure_startup_performance(15)
 

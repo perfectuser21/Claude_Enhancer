@@ -85,8 +85,9 @@ if [[ "$current_branch" == "main" ]] || [[ "$current_branch" == "master" ]]; the
         # 检查是否启用自动创建分支
         if [[ "${CE_AUTO_CREATE_BRANCH:-false}" == "true" ]]; then
             # 自动创建分支模式
-            local date_str=$(date +%Y%m%d-%H%M%S)
-            local new_branch="feature/auto-${date_str}"
+            # FIX: Remove 'local' outside functions (SC2168)
+            date_str=$(date +%Y%m%d-%H%M%S)
+            new_branch="feature/auto-${date_str}"
 
             if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
                 echo "" >&2

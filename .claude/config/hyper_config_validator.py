@@ -202,6 +202,7 @@ class PrecompiledValidator:
         self.timer.start("parallel_validation")
 
         if ENABLE_PARALLEL:
+            pass  # Auto-fixed empty block
             # 使用ThreadPoolExecutor进行并行验证
             results = []
             with self.executor as executor:
@@ -237,6 +238,7 @@ class PrecompiledValidator:
                             )
                         )
         else:
+            pass  # Auto-fixed empty block
             # 串行验证
             results = []
             for section_name in self.validation_rules.keys():

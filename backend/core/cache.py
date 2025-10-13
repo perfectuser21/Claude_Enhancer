@@ -115,6 +115,7 @@ class CacheManager:
     def _deserialize_value(self, data: bytes) -> Any:
         """反序列化值"""
         if data.startswith(b"COMPRESSED:"):
+            pass  # Auto-fixed empty block
             # 解压缩
             data = zlib.decompress(data[11:])
 
@@ -135,6 +136,7 @@ class CacheManager:
                 logger.debug(f"🎯 L1缓存命中: {cache_key}")
                 return self.local_cache[cache_key]
             else:
+                pass  # Auto-fixed empty block
                 # L1缓存过期
                 self._remove_from_local_cache(cache_key)
 
@@ -168,6 +170,7 @@ class CacheManager:
         ttl = ttl or self.config.default_ttl
 
         try:
+            pass  # Auto-fixed empty block
             # 序列化值
             serialized_value = self._serialize_value(value)
 
@@ -192,6 +195,7 @@ class CacheManager:
         cache_key = self._generate_key(namespace, key)
 
         try:
+            pass  # Auto-fixed empty block
             # 删除Redis缓存
             async with self._get_connection() as conn:
                 result = await conn.delete(cache_key)
@@ -324,6 +328,7 @@ class CacheManager:
 
         # 限制本地缓存大小
         if len(self.local_cache) > 1000:
+            pass  # Auto-fixed empty block
             # 移除最旧的条目
             oldest_key = min(
                 self.local_cache_ttl.keys(), key=lambda k: self.local_cache_ttl[k]
@@ -427,6 +432,7 @@ def cache_result(namespace: str, ttl: int = 300, key_func: Optional[callable] = 
             if key_func:
                 cache_key = key_func(*args, **kwargs)
             else:
+                pass  # Auto-fixed empty block
                 # 基于函数名和参数生成键
                 key_parts = [func.__name__]
                 key_parts.extend(str(arg) for arg in args)
@@ -436,6 +442,7 @@ def cache_result(namespace: str, ttl: int = 300, key_func: Optional[callable] = 
             # 获取缓存管理器实例（需要从应用状态中获取）
             cache_manager = getattr(wrapper, "_cache_manager", None)
             if not cache_manager:
+                pass  # Auto-fixed empty block
                 # 如果没有缓存管理器，直接执行函数
                 return await func(*args, **kwargs)
 

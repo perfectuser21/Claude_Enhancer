@@ -117,6 +117,7 @@ class PasswordValidator:
     def _has_sequential_chars(password: str, max_sequence: int = 3) -> bool:
         """检查是否有连续字符序列"""
         for i in range(len(password) - max_sequence + 1):
+            pass  # Auto-fixed empty block
             # 检查递增序列
             is_ascending = True
             is_descending = True
@@ -579,6 +580,7 @@ class TestPasswordManager:
         ]
 
         for password in unicode_passwords:
+            pass  # Auto-fixed empty block
             # 哈希Unicode密码
             password_hash, salt = password_manager.hash_password(password)
 
@@ -599,6 +601,7 @@ class TestPasswordManager:
         ]
 
         for password in edge_cases:
+            pass  # Auto-fixed empty block
             # 这些应该能哈希但强度验证会失败
             password_hash, salt = password_manager.hash_password(password)
             assert isinstance(password_hash, str)

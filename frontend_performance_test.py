@@ -126,6 +126,7 @@ class FrontendPerformanceTester:
             vitals = CoreWebVitals()
 
             try:
+                pass  # Auto-fixed empty block
                 # 测量页面响应时间
                 start_time = time.time()
                 async with self.session.get(f"{self.base_url}{page}") as response:
@@ -173,6 +174,7 @@ class FrontendPerformanceTester:
         metrics = ResourceMetrics()
 
         try:
+            pass  # Auto-fixed empty block
             # 测试主页面
             async with self.session.get(self.base_url) as response:
                 content = await response.text()
@@ -226,6 +228,7 @@ class FrontendPerformanceTester:
         metrics = JavaScriptMetrics()
 
         try:
+            pass  # Auto-fixed empty block
             # 尝试获取前端资源信息
             js_files = [
                 "/static/js/main.js",
@@ -246,6 +249,7 @@ class FrontendPerformanceTester:
                     pass
 
             if total_size == 0:
+                pass  # Auto-fixed empty block
                 # 使用模拟数据
                 total_size = 512000  # 512KB
 
@@ -284,6 +288,7 @@ class FrontendPerformanceTester:
         rendering_metrics = {}
 
         try:
+            pass  # Auto-fixed empty block
             # 模拟不同页面的渲染测试
             test_scenarios = [
                 {"name": "首页渲染", "complexity": 1.0},
@@ -354,6 +359,7 @@ class FrontendPerformanceTester:
         memory_metrics = {}
 
         try:
+            pass  # Auto-fixed empty block
             # 模拟内存使用测试
             initial_memory = psutil.virtual_memory().used / 1024 / 1024  # MB
 
@@ -367,6 +373,7 @@ class FrontendPerformanceTester:
             ]
 
             for i, operation in enumerate(operations):
+                pass  # Auto-fixed empty block
                 # 模拟内存增长
                 memory_increase = (i + 1) * 5 + (i * i * 2)  # 非线性增长
                 current_memory = initial_memory + memory_increase
@@ -418,6 +425,7 @@ class FrontendReportGenerator:
             # 为每个页面创建雷达图数据
             pages = list(page_vitals.keys())
             if pages:
+                pass  # Auto-fixed empty block
                 # 选择第一个页面进行详细展示
                 main_page = pages[0]
                 vitals = page_vitals[main_page]

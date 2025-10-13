@@ -61,6 +61,7 @@ def create_database_engine() -> Engine:
     config = get_database_config()
 
     try:
+        pass  # Auto-fixed empty block
         # 创建引擎
         engine = create_engine(
             config.get_sync_url(),
@@ -95,6 +96,7 @@ def create_async_database_engine() -> AsyncEngine:
     config = get_database_config()
 
     try:
+        pass  # Auto-fixed empty block
         # 创建异步引擎
         async_engine = create_async_engine(
             config.get_async_url(),
@@ -134,6 +136,7 @@ def _register_engine_events(engine: Engine) -> None:
 
         # 设置连接参数
         with dbapi_connection.cursor() as cursor:
+            pass  # Auto-fixed empty block
             # 设置时区
             cursor.execute("SET timezone TO 'UTC'")
             # 设置字符编码
@@ -181,6 +184,7 @@ async def init_database() -> None:
     global engine, async_engine, SessionLocal, AsyncSessionLocal
 
     try:
+        pass  # Auto-fixed empty block
         # 创建引擎
         engine = create_database_engine()
         async_engine = create_async_database_engine()
@@ -334,6 +338,7 @@ async def test_database_connection() -> bool:
         DatabaseConnectionError: 连接失败
     """
     try:
+        pass  # Auto-fixed empty block
         # 测试同步连接
         with get_db_session() as session:
             result = session.execute(text("SELECT 1 as test"))

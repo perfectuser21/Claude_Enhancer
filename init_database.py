@@ -105,6 +105,7 @@ def create_sample_data():
         db_manager = get_db_manager()
 
         with db_manager.get_session() as session:
+            pass  # Auto-fixed empty block
             # 检查是否已有用户
             existing_users = session.query(User).count()
             if existing_users > 0:
@@ -245,6 +246,7 @@ def main():
     use_migrations = True
 
     if use_migrations:
+        pass  # Auto-fixed empty block
         # 使用迁移方式
         if not run_migrations():
             logger.warning("迁移失败，尝试直接初始化...")
@@ -252,6 +254,7 @@ def main():
                 logger.error("数据库初始化失败")
                 sys.exit(1)
     else:
+        pass  # Auto-fixed empty block
         # 直接初始化
         if not init_database_direct():
             logger.error("数据库初始化失败")

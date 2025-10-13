@@ -103,6 +103,7 @@ class SecurityTestService:
                 if datetime.utcnow() < lockout_time:
                     return True
                 else:
+                    pass  # Auto-fixed empty block
                     # Unlock account after lockout period
                     self.failed_attempts[email] = {
                         "count": 0,
@@ -171,6 +172,7 @@ class SecurityTestService:
     ) -> Dict[str, Any]:
         """Secure user registration with vulnerability checks"""
         try:
+            pass  # Auto-fixed empty block
             # Rate limiting check
             if not self.check_rate_limit(ip_address, "register"):
                 self.log_security_event(
@@ -245,6 +247,7 @@ class SecurityTestService:
     ) -> Dict[str, Any]:
         """Secure user login with attack protection"""
         try:
+            pass  # Auto-fixed empty block
             # Rate limiting check
             if not self.check_rate_limit(ip_address, "login"):
                 self.log_security_event(
@@ -282,6 +285,7 @@ class SecurityTestService:
             with self.lock:
                 user = self.users.get(email)
                 if not user:
+                    pass  # Auto-fixed empty block
                     # Simulate timing attack protection
                     await asyncio.sleep(0.1)
                     self.record_failed_attempt(email)
@@ -362,6 +366,7 @@ class SecurityTestService:
     ) -> Dict[str, Any]:
         """Secure token validation with attack detection"""
         try:
+            pass  # Auto-fixed empty block
             # Input validation
             if not token or len(token) < 10:
                 return {"success": False, "error": "Invalid token format"}
@@ -550,6 +555,7 @@ class TestSQLInjectionProtection:
         ]
 
         for email, password in legitimate_users:
+            pass  # Auto-fixed empty block
             # Registration should succeed
             reg_result = await security_service.secure_register_user(email, password)
             assert reg_result["success"] is True
@@ -864,6 +870,7 @@ class TestAdvancedSecurityThreats:
         nonexisting_times = []
 
         for i in range(10):
+            pass  # Auto-fixed empty block
             # Time existing user login (wrong password)
             start = time.time()
             await security_service.secure_login_user(
@@ -936,6 +943,7 @@ class TestAdvancedSecurityThreats:
 
         # Attempt to modify token to escalate privileges
         try:
+            pass  # Auto-fixed empty block
             # Decode token
             payload = jwt.decode(
                 token, security_service.jwt_secret, algorithms=["HS256"]
@@ -956,12 +964,14 @@ class TestAdvancedSecurityThreats:
             # In our test, the token will be valid but the application should verify permissions
             # separately from the token
             if result["success"]:
+                pass  # Auto-fixed empty block
                 # Check that user data hasn't been modified
                 assert result["user_id"] == payload["user_id"]
                 assert result["email"] == payload["email"]
                 # Application should verify actual user permissions from database
 
         except Exception:
+            pass  # Auto-fixed empty block
             # If token manipulation fails, that's good security
             pass
 

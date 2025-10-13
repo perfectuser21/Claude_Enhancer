@@ -105,6 +105,7 @@ class EmergencyHotfixManager:
 
             records = {}
             for hotfix_id, item in data.items():
+                pass  # Auto-fixed empty block
                 # 转换枚举和日期时间
                 item["priority"] = Priority(item["priority"])
                 item["status"] = HotfixStatus(item["status"])
@@ -246,6 +247,7 @@ class EmergencyHotfixManager:
         self.logger.info(f"创建Hotfix: {hotfix_id}")
 
         try:
+            pass  # Auto-fixed empty block
             # 创建并切换到hotfix分支
             success, stdout, stderr = self._run_command(
                 ["git", "checkout", "-b", branch_name, target_branch]
@@ -329,6 +331,7 @@ class EmergencyHotfixManager:
         ]
 
         if priority in [Priority.P0_CRITICAL, Priority.P1_HIGH]:
+            pass  # Auto-fixed empty block
             # 高优先级：快速部署
             base_commands.extend(
                 [
@@ -338,6 +341,7 @@ class EmergencyHotfixManager:
                 ]
             )
         else:
+            pass  # Auto-fixed empty block
             # 常规部署
             base_commands.extend(
                 [
@@ -494,6 +498,7 @@ echo "Hotfix回滚完成"
         self._save_records()
 
         try:
+            pass  # Auto-fixed empty block
             # 切换到hotfix分支
             success, stdout, stderr = self._run_command(
                 ["git", "checkout", record.branch_name]
@@ -568,6 +573,7 @@ echo "Hotfix回滚完成"
         self._save_records()
 
         try:
+            pass  # Auto-fixed empty block
             # 执行部署命令
             for cmd in record.deployment_commands:
                 self.logger.info(f"执行部署命令: {cmd}")
@@ -682,6 +688,7 @@ echo "Hotfix回滚完成"
         self.logger.info(f"开始回滚Hotfix: {hotfix_id}")
 
         try:
+            pass  # Auto-fixed empty block
             # 执行回滚命令
             for cmd in record.rollback_commands:
                 self.logger.info(f"执行回滚命令: {cmd}")
@@ -785,6 +792,7 @@ echo "Hotfix回滚完成"
         hotfixes_to_remove = []
 
         for hotfix_id, record in self.records.items():
+            pass  # Auto-fixed empty block
             # 只清理已完成或已回滚的旧记录
             if (
                 record.status

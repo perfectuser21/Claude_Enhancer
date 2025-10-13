@@ -17,7 +17,8 @@ DEBUG_LOG="$PROJECT_ROOT/.workflow/logs/hook_debug.log"
 mkdir -p "$(dirname "$DEBUG_LOG")"
 echo "$(date '+%F %T') [DEBUG] workflow_auto_start.sh CALLED" >> "$DEBUG_LOG"
 echo "$(date '+%F %T') [DEBUG] Args count: $#" >> "$DEBUG_LOG"
-echo "$(date '+%F %T') [DEBUG] Args: $@" >> "$DEBUG_LOG"
+# FIX: Use $* for safe expansion (SC2145)
+echo "$(date '+%F %T') [DEBUG] Args: $*" >> "$DEBUG_LOG"
 echo "$(date '+%F %T') [DEBUG] Arg1: ${1:-EMPTY}" >> "$DEBUG_LOG"
 echo "$(date '+%F %T') [DEBUG] PWD: $PWD" >> "$DEBUG_LOG"
 echo "---" >> "$DEBUG_LOG"
@@ -33,7 +34,8 @@ cleanup() {
 
     # Rotate debug log if too large (keep last 500 lines)
     if [[ -f "$DEBUG_LOG" ]]; then
-        local line_count=$(wc -l < "$DEBUG_LOG" 2>/dev/null || echo 0)
+        local line_count
+        line_count=$(wc -l < "$DEBUG_LOG" 2>/dev/null || echo 0)
         if [[ $line_count -gt 1000 ]]; then
             tail -n 500 "$DEBUG_LOG" > "$DEBUG_LOG.tmp"
             mv "$DEBUG_LOG.tmp" "$DEBUG_LOG"
@@ -63,7 +65,7 @@ export LANG=C.UTF-8
 # 颜色定义
 RED='\033[0;31m'
 GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
+_YELLOW='\033[1;33m'  # Reserved for future use
 BLUE='\033[0;34m'
 MAGENTA='\033[0;35m'
 CYAN='\033[0;36m'
@@ -114,7 +116,8 @@ generate_task_slug() {
     local description="$1"
 
     # 提取关键词（中英文）
-    local slug=$(echo "$description" | \
+    local slug
+    slug=$(echo "$description" | \
         # 移除触发词
         sed -E 's/(现在开始实现|现在开始执行|开始工作流|let'\''s implement|let'\''s start)//gi' | \
         # 提取前5个有意义的词
@@ -168,16 +171,20 @@ auto_create_branch() {
     local description="$1"
 
     # 检查是否已在feature分支
-    local current_branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")
+    local current_branch
+    current_branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")
     if [[ "$current_branch" != "main" && "$current_branch" != "master" ]]; then
         echo -e "${GREEN}✅ 已在分支: $current_branch${NC}"
         return 0
     fi
 
     # 生成分支名
-    local phase=$(detect_task_phase "$description")
-    local slug=$(generate_task_slug "$description")
-    local date_str=$(date +%Y%m%d)
+    local phase
+    phase=$(detect_task_phase "$description")
+    local slug
+    slug=$(generate_task_slug "$description")
+    local date_str
+    date_str=$(date +%Y%m%d)
     local branch_name="${phase}/${date_str}-${slug}"
 
     echo -e "${CYAN}╔═══════════════════════════════════════════════════════════╗${NC}"
@@ -253,7 +260,8 @@ main() {
 
         # Phase 0: 自动创建分支
         if auto_create_branch "$prompt"; then
-            local phase=$(get_current_phase)
+            local phase
+            phase=$(get_current_phase)
 
             # 显示工作流概览
             echo -e "${BLUE}📋 8-Phase工作流：${NC}"

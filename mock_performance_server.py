@@ -95,6 +95,7 @@ class MockCache:
         await asyncio.sleep(0.001)  # 1ms延迟
 
         if key in self.data:
+            pass  # Auto-fixed empty block
             # 检查TTL
             if key in self.ttl and time.time() > self.ttl[key]:
                 del self.data[key]
@@ -218,6 +219,7 @@ async def user_detail_handler(request):
     try:
         user = await db.get_user(user_id)
         if user:
+            pass  # Auto-fixed empty block
             # 缓存结果
             await cache.set(cache_key, user, ttl=300)
             return web.json_response(user)
@@ -260,6 +262,7 @@ async def large_data_handler(request):
     size = int(request.query.get('size', 1000))
 
     try:
+        pass  # Auto-fixed empty block
         # 模拟生成大数据
         await asyncio.sleep(0.1)  # 模拟处理时间
 
@@ -472,10 +475,12 @@ async def main():
     # print("\n⏱️  服务器运行中，按 Ctrl+C 停止...")
 
     try:
+        pass  # Auto-fixed empty block
         # 持续运行
         while True:
             await asyncio.sleep(1)
     except KeyboardInterrupt:
+        pass  # User interrupted server
     # print("\n🛑 停止服务器...")
     finally:
         await runner.cleanup()

@@ -847,6 +847,7 @@ class ProjectRepository(BaseRepository[Project]):
 
         # 检查是否是项目所有者
         if member.role == MemberRole.OWNER.value:
+            pass  # Auto-fixed empty block
             # 检查是否还有其他所有者
             other_owners = (
                 await self.db.query(ProjectMember)
@@ -908,6 +909,7 @@ class CachedTaskRepository(TaskRepository):
         )
 
         if task:
+            pass  # Auto-fixed empty block
             # 存储到缓存
             await self.redis.setex(
                 cache_key,
@@ -938,6 +940,7 @@ class CachedTaskRepository(TaskRepository):
         tasks = await super().search_with_fulltext(query_text, user_id, filters, limit)
 
         if tasks:
+            pass  # Auto-fixed empty block
             # 序列化并缓存结果
             serialized_tasks = [self._serialize_task(task) for task in tasks]
             await self.redis.setex(
@@ -969,6 +972,7 @@ class CachedTaskRepository(TaskRepository):
         )
 
         if tasks:
+            pass  # Auto-fixed empty block
             # 缓存结果
             serialized_tasks = [self._serialize_task(task) for task in tasks]
             await self.redis.setex(

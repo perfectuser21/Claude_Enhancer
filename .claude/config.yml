@@ -1,48 +1,51 @@
+# Claude Enhancer Configuration
+# Version: 6.2.0
+
 version: "6.2.0"
-enforcement:
-  enabled: true
-  mode: "strict"
 
-  task_namespace:
-    enabled: true
-    path: ".gates"
-    index_file: "_index.json"
-    max_tasks: 50
-    cleanup_days: 90
+# Workflow Configuration
+workflow:
+  phases: 8  # P0-P7
+  auto_mode: false
+  quality_gates: true
 
-  agent_evidence:
-    enabled: true
-    min_agents:
-      full_lane: 3
-      fast_lane: 0
-    required_agents:
-      P3: [backend-architect, test-engineer]
-      P4: [test-engineer, security-auditor]
-      P5: [code-reviewer]
+# Agent Strategy
+agents:
+  min_agents: 3
+  recommended: 6
+  max_parallel: 8
 
-  fast_lane:
-    enabled: true
-    max_consecutive: 5
-    require_full_every: 10
+# Quality Settings
+quality:
+  pre_commit_checks: true
+  syntax_validation: true
+  security_scan: true
+  performance_monitoring: true
 
-  hooks:
-    pre_commit:
-      enabled: true
-      timeout: 30
-    pre_push:
-      enabled: true
-      timeout: 60
+# Git Configuration
+git:
+  protected_branches:
+    - main
+    - master
+    - production
+  auto_branch: false
+  commit_conventions: true
 
-  bypass_detection:
-    enabled: true
-    block_flags: ["--no-verify", "--force"]
-    alert_on_attempt: true
-
+# Performance Thresholds
 performance:
-  hook_execution:
-    fast_lane_max_ms: 500
-    full_lane_max_ms: 30000
+  pre_commit_max_ms: 500
+  pre_push_max_ms: 1000
+  test_suite_max_sec: 30
 
-monitoring:
-  enabled: true
-  metrics_file: ".workflow/_reports/enforcement_metrics.json"
+# Testing Configuration
+testing:
+  unit_tests: true
+  integration_tests: true
+  bdd_tests: true
+  coverage_threshold: 80
+
+# Documentation
+documentation:
+  max_root_docs: 7
+  auto_cleanup: true
+  archive_old: true

@@ -41,6 +41,7 @@ async def get_current_user(
     从JWT Token中解析用户信息
     """
     try:
+        pass  # Auto-fixed empty block
         # 解码JWT Token
         payload = jwt.decode(
             credentials.credentials,

@@ -90,6 +90,7 @@ class PasswordService:
     async def hash_password(self, password: str, user_id: str = None) -> str:
         """加密密码"""
         try:
+            pass  # Auto-fixed empty block
             # 预处理：添加pepper
             seasoned_password = password.encode() + self.pepper
 
@@ -125,6 +126,7 @@ class PasswordService:
     ) -> PasswordValidationResult:
         """验证密码"""
         try:
+            pass  # Auto-fixed empty block
             # 预处理：添加pepper
             seasoned_password = password.encode() + self.pepper
 
@@ -136,6 +138,7 @@ class PasswordService:
 
             # 如果密码正确，进行安全检查
             if is_valid and user_id:
+                pass  # Auto-fixed empty block
                 # 检查密码是否在已泄露数据库中
                 breach_detected = await self._check_password_breach(password)
                 if breach_detected:
@@ -326,6 +329,7 @@ class PasswordService:
     ) -> Dict[str, Any]:
         """检查密码是否过期"""
         try:
+            pass  # Auto-fixed empty block
             # 密码有效期（90天）
             password_max_age = timedelta(days=90)
             age = datetime.utcnow() - password_created_at
@@ -369,6 +373,7 @@ class PasswordService:
     async def _check_password_breach(self, password: str) -> bool:
         """检查密码是否在已知泄露数据库中"""
         try:
+            pass  # Auto-fixed empty block
             # 使用SHA-1哈希的前5位查询HaveIBeenPwned API
             sha1_hash = hashlib.sha1(password.encode()).hexdigest().upper()
             prefix = sha1_hash[:5]
@@ -386,6 +391,7 @@ class PasswordService:
             return sha1_hash in common_passwords
 
         except Exception:
+            pass  # Auto-fixed empty block
             # 如果检查失败，为了安全起见返回False
             return False
 
@@ -400,6 +406,7 @@ class PasswordService:
 
             for encrypted_hash in history:
                 try:
+                    pass  # Auto-fixed empty block
                     # 解密历史密码哈希
                     decrypted_hash = self.fernet.decrypt(
                         encrypted_hash.encode()
@@ -409,12 +416,14 @@ class PasswordService:
                     if bcrypt.checkpw(seasoned_password, decrypted_hash.encode()):
                         return True
                 except Exception:
+                    pass  # Auto-fixed empty block
                     # 忽略解密失败的记录
                     continue
 
             return False
 
         except Exception:
+            pass  # Auto-fixed empty block
             # 如果检查失败，为了安全起见返回False
             return False
 

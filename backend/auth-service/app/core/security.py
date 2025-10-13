@@ -160,6 +160,7 @@ class RateLimiter:
         # 检查代理头部
         forwarded_for = request.headers.get("X-Forwarded-For")
         if forwarded_for:
+            pass  # Auto-fixed empty block
             # 取第一个IP（最原始的客户端IP）
             return forwarded_for.split(",")[0].strip()
 
@@ -190,6 +191,7 @@ class RequestValidator:
         validation_result = {"is_valid": True, "violations": [], "risk_score": 0}
 
         try:
+            pass  # Auto-fixed empty block
             # 检查请求大小
             content_length = request.headers.get("content-length")
             if content_length and int(content_length) > self.max_request_size:
@@ -301,6 +303,7 @@ class RequestValidator:
     def _is_valid_host(self, host: str) -> bool:
         """验证Host头部"""
         try:
+            pass  # Auto-fixed empty block
             # 简化的Host验证
             parsed = urlparse(f"http://{host}")
             return bool(parsed.hostname)
@@ -324,6 +327,7 @@ class SecurityMiddleware(BaseHTTPMiddleware):
         start_time = time.time()
 
         try:
+            pass  # Auto-fixed empty block
             # 1. 请求验证
             if settings.SECURITY_HEADERS_ENABLED:
                 validation_result = await self.request_validator.validate_request(

@@ -1,0 +1,363 @@
+name: Daily Quality Check
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # 2 AM UTC daily
+  workflow_dispatch:  # Manual trigger
+    inputs:
+      cleanup_mode:
+        description: 'Cleanup mode (full/quick)'
+        required: false
+        default: 'quick'
+        type: choice
+        options:
+          - full
+          - quick
+
+jobs:
+  document-cleanup:
+    name: Document Cleanup & Metrics
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 📦 Install dependencies
+        run: |
+          pip install pyyaml jq
+          sudo apt-get update
+          sudo apt-get install -y bc
+
+      - name: 🧹 Run Document Cleanup
+        run: |
+          echo "🧹 Starting document cleanup..."
+          if [ -f "scripts/cleanup_documents.sh" ]; then
+            bash scripts/cleanup_documents.sh
+            echo "✅ Cleanup completed"
+          else
+            echo "⚠️ Cleanup script not found, skipping"
+          fi
+
+      - name: 📊 Verify Metrics Accuracy
+        run: |
+          echo "📊 Verifying metrics..."
+          if [ -f "scripts/auto_metrics.py" ]; then
+            python3 scripts/auto_metrics.py
+            echo "✅ Metrics verified"
+          else
+            echo "⚠️ Metrics script not found, skipping"
+          fi
+
+      - name: 📋 Check Document Count
+        id: doc_check
+        run: |
+          echo "📋 Checking root document count..."
+          count=$(find . -maxdepth 1 -name "*.md" -not -name "PLAN.md" | wc -l)
+          echo "Document count: $count"
+          echo "doc_count=$count" >> $GITHUB_OUTPUT
+
+          max_allowed=7
+          if [ $count -gt $max_allowed ]; then
+            echo "❌ Root documents exceed limit: $count > $max_allowed"
+            echo "⚠️ Consider moving some documents to docs/ or archive/"
+            echo "status=warning" >> $GITHUB_OUTPUT
+          else
+            echo "✅ Document count acceptable: $count ≤ $max_allowed"
+            echo "status=ok" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 🏷️ Check Archive Structure
+        run: |
+          echo "🏷️ Checking archive organization..."
+
+          # Check if archive exists
+          if [ -d "archive" ]; then
+            archive_count=$(find archive -type f | wc -l)
+            echo "✅ Archive directory exists with $archive_count files"
+          else
+            echo "ℹ️ No archive directory found"
+          fi
+
+          # Check temp cleanup
+          if [ -d ".temp" ]; then
+            temp_size=$(du -sh .temp 2>/dev/null | cut -f1)
+            echo "📁 .temp directory size: $temp_size"
+          fi
+
+      - name: 📝 Commit Cleanup Results
+        if: success()
+        run: |
+          git config user.name "Quality Bot"
+          git config user.email "noreply@anthropic.com"
+
+          # Check for changes
+          if [ -n "$(git status --porcelain)" ]; then
+            git add .temp/ evidence/ archive/ CLAUDE.md README.md 2>/dev/null || true
+
+            if git diff --staged --quiet; then
+              echo "ℹ️ No changes to commit"
+            else
+              git commit -m "chore: automated quality maintenance [skip ci]
+
+              - Document cleanup executed
+              - Metrics verification completed
+              - Archive structure validated
+
+              🤖 Generated with Claude Code
+              Co-Authored-By: Claude <noreply@anthropic.com>" || echo "⚠️ Commit failed (may be no changes)"
+
+              # Push if on main branch
+              current_branch=$(git rev-parse --abbrev-ref HEAD)
+              if [ "$current_branch" == "main" ] || [ "$current_branch" == "master" ]; then
+                git push origin "$current_branch" || echo "⚠️ Push failed"
+              else
+                echo "ℹ️ Not on main branch, skipping push"
+              fi
+            fi
+          else
+            echo "ℹ️ No changes detected"
+          fi
+
+  coverage-check:
+    name: Test Coverage Verification
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: |
+          npm ci --prefer-offline --no-audit
+
+      - name: 🧪 Run tests with coverage
+        run: |
+          npm run test:ci
+          echo "✅ Tests completed"
+
+      - name: 📊 Verify Coverage Threshold
+        id: coverage_check
+        run: |
+          if [ -f "coverage/coverage-summary.json" ]; then
+            coverage=$(node -e "const c=require('./coverage/coverage-summary.json'); console.log(c.total.lines.pct)")
+            echo "Coverage: $coverage%"
+            echo "coverage=$coverage" >> $GITHUB_OUTPUT
+
+            threshold=80
+            if (( $(echo "$coverage < $threshold" | bc -l) )); then
+              echo "❌ Coverage below threshold: $coverage% < $threshold%"
+              echo "status=failed" >> $GITHUB_OUTPUT
+              exit 1
+            else
+              echo "✅ Coverage meets threshold: $coverage% ≥ $threshold%"
+              echo "status=passed" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "⚠️ No coverage summary found"
+            echo "status=skipped" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 📤 Upload Coverage Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 30
+
+      - name: 🚨 Alert on Coverage Drop
+        if: failure()
+        run: |
+          echo "::error::Coverage dropped below 80% threshold"
+          echo "::warning::Please add tests to improve coverage"
+
+  security-scan:
+    name: Security & Secrets Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔐 Scan for Secrets
+        run: |
+          echo "🔐 Scanning for potential secrets..."
+
+          # Patterns to check
+          patterns=(
+            "AKIA[0-9A-Z]{16}"  # AWS Access Key
+            "password\s*=\s*['\"][^'\"]{8,}"
+            "secret\s*=\s*['\"][^'\"]{8,}"
+            "token\s*=\s*['\"][^'\"]{32,}"
+            "api[_-]?key\s*=\s*['\"][^'\"]{16,}"
+          )
+
+          found=0
+          for pattern in "${patterns[@]}"; do
+            if git log -p | grep -E "$pattern" >/dev/null 2>&1; then
+              echo "⚠️ Potential secret pattern detected: $pattern"
+              ((found++))
+            fi
+          done
+
+          if [ $found -gt 0 ]; then
+            echo "::warning::Found $found potential secret patterns"
+          else
+            echo "✅ No obvious secrets found"
+          fi
+
+      - name: 📋 Check Gitignore Coverage
+        run: |
+          echo "📋 Verifying .gitignore coverage..."
+
+          critical_patterns=(".env" "*.key" "*.pem" "secrets/" "credentials")
+          missing=0
+
+          for pattern in "${critical_patterns[@]}"; do
+            if grep -q "$pattern" .gitignore; then
+              echo "✅ $pattern is ignored"
+            else
+              echo "⚠️ $pattern not found in .gitignore"
+              ((missing++))
+            fi
+          done
+
+          if [ $missing -eq 0 ]; then
+            echo "✅ All critical patterns covered"
+          else
+            echo "::warning::$missing critical patterns missing from .gitignore"
+          fi
+
+  performance-check:
+    name: Performance Monitoring
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: ⏱️ Measure Hook Performance
+        run: |
+          echo "⏱️ Measuring hook execution time..."
+
+          # Install hooks if not present
+          if [ ! -f ".git/hooks/pre-commit" ]; then
+            if [ -f ".claude/install.sh" ]; then
+              bash .claude/install.sh
+            fi
+          fi
+
+          # Create test commit
+          echo "test_$(date +%s)" > test_perf.txt
+          git add test_perf.txt 2>/dev/null || true
+
+          # Measure pre-commit time
+          if [ -f ".git/hooks/pre-commit" ]; then
+            start=$(date +%s%3N)
+            bash .git/hooks/pre-commit < /dev/null 2>/dev/null || true
+            end=$(date +%s%3N)
+            duration=$((end - start))
+
+            echo "Pre-commit hook: ${duration}ms"
+
+            threshold=500
+            if [ $duration -gt $threshold ]; then
+              echo "::warning::Hook performance degraded: ${duration}ms > ${threshold}ms"
+            else
+              echo "✅ Hook performance acceptable: ${duration}ms ≤ ${threshold}ms"
+            fi
+          else
+            echo "⚠️ Pre-commit hook not found"
+          fi
+
+          # Cleanup
+          rm -f test_perf.txt
+
+      - name: 🧪 Test Suite Performance
+        run: |
+          echo "🧪 Measuring test suite performance..."
+
+          start=$(date +%s%3N)
+          npm test --silent 2>/dev/null || true
+          end=$(date +%s%3N)
+          duration=$((end - start))
+
+          echo "Test suite: ${duration}ms"
+
+          # Store for trending
+          mkdir -p .temp/metrics
+          echo "${duration}" > .temp/metrics/test_duration.txt
+          echo "$(date -u +%Y-%m-%d) ${duration}" >> .temp/metrics/test_history.log
+
+  quality-report:
+    name: Generate Quality Report
+    runs-on: ubuntu-latest
+    needs: [document-cleanup, coverage-check, security-scan, performance-check]
+    if: always()
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📊 Generate Summary Report
+        run: |
+          cat > .temp/analysis/daily_quality_report.md << 'EOF'
+          # 📊 Daily Quality Check Report
+
+          **Date**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          **Workflow Run**: #${{ github.run_number }}
+
+          ## ✅ Check Results
+
+          | Component | Status | Notes |
+          |-----------|--------|-------|
+          | Document Cleanup | ${{ needs.document-cleanup.result == 'success' && '✅ Pass' || '❌ Fail' }} | Root document count verified |
+          | Test Coverage | ${{ needs.coverage-check.result == 'success' && '✅ Pass' || '❌ Fail' }} | Coverage threshold check |
+          | Security Scan | ${{ needs.security-scan.result == 'success' && '✅ Pass' || '❌ Fail' }} | Secrets and gitignore verified |
+          | Performance | ${{ needs.performance-check.result == 'success' && '✅ Pass' || '❌ Fail' }} | Hook and test performance |
+
+          ## 📈 Metrics
+
+          - **Overall Status**: ${{ needs.document-cleanup.result == 'success' && needs.coverage-check.result == 'success' && needs.security-scan.result == 'success' && needs.performance-check.result == 'success' && '🟢 HEALTHY' || '🟡 NEEDS ATTENTION' }}
+          - **Automated**: ✅ Fully automated daily checks
+          - **Next Run**: Tomorrow at 02:00 UTC
+
+          ## 🎯 Action Items
+
+          1. Review any warnings in job logs
+          2. Address coverage drops if any
+          3. Clean up old documents if count high
+          4. Monitor performance trends
+
+          ---
+          *Generated by Daily Quality Check Workflow*
+          EOF
+
+          cat .temp/analysis/daily_quality_report.md
+
+      - name: 📤 Upload Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: daily-quality-report
+          path: .temp/analysis/daily_quality_report.md
+          retention-days: 90

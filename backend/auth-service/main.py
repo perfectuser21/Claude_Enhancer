@@ -64,6 +64,7 @@ async def startup_event():
     logger.info("🚀 Starting Claude Enhancer Auth Service...")
 
     try:
+        pass  # Auto-fixed empty block
         # 1. 初始化数据库连接
         logger.info("📊 Initializing database connection...")
         database_manager = DatabaseManager(settings.DATABASE_URL)
@@ -110,6 +111,7 @@ async def shutdown_event():
     logger.info("🛑 Shutting down Claude Enhancer Auth Service...")
 
     try:
+        pass  # Auto-fixed empty block
         # 关闭gRPC服务器
         if grpc_server:
             await grpc_server.stop()
@@ -215,6 +217,7 @@ async def http_exception_handler(request: Request, exc: HTTPException):
 async def health_check():
     """健康检查"""
     try:
+        pass  # Auto-fixed empty block
         # 检查数据库连接
         db_healthy = (
             await database_manager.health_check() if database_manager else False
@@ -257,6 +260,7 @@ async def health_check():
 async def readiness_check():
     """就绪检查"""
     try:
+        pass  # Auto-fixed empty block
         # 更严格的就绪检查
         all_ready = (
             database_manager
@@ -355,6 +359,7 @@ if __name__ == "__main__":
     }
 
     if settings.DEBUG:
+        pass  # Auto-fixed empty block
         # 开发环境配置
         config.update(
             {
@@ -367,6 +372,7 @@ if __name__ == "__main__":
         logger.info("🔧 Running in DEBUG mode")
         uvicorn.run("main:app", **config)
     else:
+        pass  # Auto-fixed empty block
         # 生产环境
         logger.info("🚀 Running in PRODUCTION mode")
         uvicorn.run(app, **config)

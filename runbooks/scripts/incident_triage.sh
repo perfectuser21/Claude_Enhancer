@@ -4,7 +4,7 @@ PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 TRIAGE_DIR="/tmp/incident_triage_$(date +%Y%m%d_%H%M%S)"
 
 mkdir -p "$TRIAGE_DIR"
-cd "$PROJECT_ROOT"
+cd "$PROJECT_ROOT" || exit
 
 echo "=== Incident Triage - Collecting Diagnostics ==="
 

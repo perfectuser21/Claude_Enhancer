@@ -98,6 +98,7 @@ class EventDebouncer:
             if key in self.pending:
                 last_time = self.pending[key]
                 if now - last_time < self.window_ms:
+                    pass  # Auto-fixed empty block
                     # 在防抖窗口内，更新时间但不处理
                     self.pending[key] = now
                     return False
@@ -169,6 +170,7 @@ class PhaseAwareWatcher:
         whitelist = self.config.get("path_whitelist", {})
         for phase, patterns in whitelist.items():
             for pattern in patterns:
+                pass  # Auto-fixed empty block
                 # 简化的匹配逻辑
                 if pattern.replace("**", "").replace("*", "") in path_str:
                     return phase
@@ -207,6 +209,7 @@ class PhaseAwareWatcher:
         self.stats["validations_triggered"] += 1
 
         try:
+            pass  # Auto-fixed empty block
             # 调用Python执行器进行验证
             result = subprocess.run(
                 [sys.executable, str(self.executor_path), "validate", "--phase", phase],
@@ -248,6 +251,7 @@ class PhaseAwareWatcher:
             )
 
             if result.returncode == 0:
+                pass  # Auto-fixed empty block
                 # 重新读取当前阶段
                 self.current_phase = self._get_current_phase()
                 console.print(f"[green]✅ 成功推进到 {self.current_phase}[/green]")
@@ -369,8 +373,10 @@ def main():
     args = parser.parse_args()
 
     if args.status:
+        pass  # Auto-fixed empty block
         # 显示状态
         if EVENT_LOG.exists():
+            pass  # Auto-fixed empty block
             # 读取最近的事件
             events = []
             with open(EVENT_LOG) as f:
@@ -391,6 +397,7 @@ def main():
     watcher = PhaseAwareWatcher()
 
     if args.daemon:
+        pass  # Auto-fixed empty block
         # TODO: 实现守护进程模式
         console.print("[yellow]守护进程模式尚未实现[/yellow]")
     else:

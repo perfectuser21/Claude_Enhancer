@@ -180,6 +180,7 @@ class MigrationRollbackManager:
         self.logger.info(f"开始回滚从 {current_revision} 到 {target_revision}")
 
         try:
+            pass  # Auto-fixed empty block
             # 首先创建当前状态的紧急快照
             emergency_snapshot = self.create_migration_snapshot(
                 description=f"Emergency snapshot before rollback to {target_revision}",
@@ -199,6 +200,7 @@ class MigrationRollbackManager:
                     self.logger.error("数据库备份恢复失败")
                     return False
             else:
+                pass  # Auto-fixed empty block
                 # 方案2: 使用migration downgrade
                 self.logger.info("使用迁移降级")
                 if not self.migration_manager.downgrade(target_revision):
@@ -361,6 +363,7 @@ class MigrationRollbackManager:
         snapshot = self.snapshots[revision]
 
         try:
+            pass  # Auto-fixed empty block
             # 删除关联的备份（可选）
             if snapshot.backup_id:
                 self.logger.info(f"同时删除关联备份: {snapshot.backup_id}")
@@ -510,6 +513,7 @@ if __name__ == "__main__":
             sys.exit(1)
 
     elif args.command == "rollback":
+        pass  # Auto-fixed empty block
         # 先验证安全性
         is_safe, warnings = migration_rollback_manager.validate_rollback_safety(
             args.revision

@@ -74,6 +74,7 @@ class CacheManager:
     ) -> str:
         """生成缓存键"""
         if files:
+            pass  # Auto-fixed empty block
             # 计算文件内容的哈希
             hasher = hashlib.sha256()
             for file_path in sorted(files):
@@ -93,6 +94,7 @@ class CacheManager:
         cache_file = self.cache_dir / f"kv-{cache_key}.json"
 
         if cache_file.exists():
+            pass  # Auto-fixed empty block
             # 检查TTL（5分钟）
             if time.time() - cache_file.stat().st_mtime < 300:
                 try:
@@ -208,6 +210,7 @@ class PhaseValidator:
         whitelist = self.config.get("path_whitelist", {}).get(phase, [])
 
         for pattern in whitelist:
+            pass  # Auto-fixed empty block
             # 转换为Path并查找匹配文件
             for path in BASE_DIR.glob(pattern):
                 if path.is_file():
@@ -248,6 +251,7 @@ class PhaseValidator:
             return False
 
         elif gate_type == "test_pass":
+            pass  # Auto-fixed empty block
             # 运行测试命令
             cmd = gate.get("command", "")
             if cmd:

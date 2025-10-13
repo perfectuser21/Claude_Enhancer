@@ -132,6 +132,7 @@ class WebSocketManager:
     ) -> bool:
         """连接用户"""
         try:
+            pass  # Auto-fixed empty block
             # 如果用户已经连接，先断开旧连接
             if user_id in self.connections:
                 await self.disconnect_user(user_id)
@@ -182,6 +183,7 @@ class WebSocketManager:
         connection = self.connections[user_id]
 
         try:
+            pass  # Auto-fixed empty block
             # 从所有房间移除用户
             for room_id in list(connection.rooms):
                 await self.leave_room(user_id, room_id)
@@ -194,6 +196,7 @@ class WebSocketManager:
             logger.error(f"断开连接时出错: {e}")
 
         finally:
+            pass  # Auto-fixed empty block
             # 清理连接记录
             del self.connections[user_id]
             self.user_websockets.pop(user_id, None)

@@ -35,6 +35,7 @@ class APIEndpointTester:
     async def start_server(self):
         """Start the API server for testing"""
         try:
+            pass  # Auto-fixed empty block
             # Check if server is already running
             async with aiohttp.ClientSession() as session:
                 try:
@@ -93,11 +94,13 @@ class APIEndpointTester:
         """Stop the API server"""
         if self.server_process:
             try:
+                pass  # Auto-fixed empty block
                 # Send SIGTERM to the process group
                 os.killpg(os.getpgid(self.server_process.pid), signal.SIGTERM)
                 self.server_process.wait(timeout=10)
                 logger.info("✅ Server stopped successfully")
             except subprocess.TimeoutExpired:
+                pass  # Auto-fixed empty block
                 # Force kill if it doesn't stop gracefully
                 os.killpg(os.getpgid(self.server_process.pid), signal.SIGKILL)
                 logger.warning("⚠️ Server force killed")
@@ -417,6 +420,7 @@ class APIEndpointTester:
         ]
 
         if not server_started:
+            pass  # Auto-fixed empty block
             # Run mock tests if server can't start
             logger.warning("⚠️ Running mock API tests (server not available)")
             return await self.run_mock_tests()
@@ -438,6 +442,7 @@ class APIEndpointTester:
                     }
 
         finally:
+            pass  # Auto-fixed empty block
             # Stop server
             await self.stop_server()
 

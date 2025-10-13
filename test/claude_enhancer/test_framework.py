@@ -75,6 +75,7 @@ class SystemMonitor:
         def monitor():
             while self.monitoring:
                 try:
+                    pass  # Auto-fixed empty block
                     # CPU使用率
                     cpu_percent = psutil.cpu_percent(interval=None)
                     self.metrics["cpu_percent"].append(cpu_percent)
@@ -152,6 +153,7 @@ class AccurateTestRunner:
         """创建隔离的测试环境"""
         self.temp_dir = tempfile.mkdtemp(prefix="claude_test_")
         try:
+            pass  # Auto-fixed empty block
             # 复制必要的配置文件到临时目录
             test_claude_dir = Path(self.temp_dir) / ".claude"
             test_claude_dir.mkdir(parents=True)
@@ -181,6 +183,7 @@ class AccurateTestRunner:
         start_time = time.perf_counter()
 
         try:
+            pass  # Auto-fixed empty block
             # 开始资源监控
             monitor.start_monitoring()
 
@@ -282,6 +285,7 @@ class AccurateTestRunner:
         self.logger.info(f"Found {len(hook_files)} executable hook files")
 
         for hook_file in hook_files:
+            pass  # Auto-fixed empty block
             # 测试Hook的基本功能
             test_commands = [
                 f"bash {hook_file} --help",
@@ -311,6 +315,7 @@ class AccurateTestRunner:
         performance_scripts = []
 
         if scripts_dir.exists():
+            pass  # Auto-fixed empty block
             # 查找所有性能相关的脚本
             for script_file in scripts_dir.glob("*performance*.sh"):
                 if self.verify_file_exists_and_executable(script_file):
@@ -323,6 +328,7 @@ class AccurateTestRunner:
         self.logger.info(f"Found {len(performance_scripts)} performance script files")
 
         for script_file in performance_scripts:
+            pass  # Auto-fixed empty block
             # 使用隔离环境测试
             with self.isolated_environment() as test_env_dir:
                 result = self.run_command_with_monitoring(
@@ -394,6 +400,7 @@ class AccurateTestRunner:
         ]
 
         if executable_hooks:
+            pass  # Auto-fixed empty block
             # 选择一个轻量级的Hook进行压力测试
             test_hook = executable_hooks[0]
 
@@ -533,6 +540,7 @@ class ComprehensiveTestSuite:
         # 测试Hook系统与配置的集成
         settings_file = self.runner.claude_dir / "settings.json"
         if settings_file.exists():
+            pass  # Auto-fixed empty block
             # 验证Hook配置的完整性
             cmd = f"""
             python3 -c "

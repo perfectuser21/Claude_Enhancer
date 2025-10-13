@@ -280,6 +280,7 @@ class ConfigurationLoader:
         def substitute_env_vars(obj: Any) -> Any:
             """Recursively substitute environment variables."""
             if isinstance(obj, str):
+                pass  # Auto-fixed empty block
                 # Pattern: ${ENV_VAR} or ${ENV_VAR:default}
                 pattern = r"\$\{([^}]+)\}"
                 matches = re.findall(pattern, obj)
@@ -341,6 +342,7 @@ class ConfigurationLoader:
         warnings = []
 
         try:
+            pass  # Auto-fixed empty block
             # Extract metadata
             metadata_dict = config.get("metadata", {})
             metadata = ConfigMetadata(
@@ -407,6 +409,7 @@ class ConfigurationLoader:
             # Environment-specific validation
             env = metadata.environment
             if env == "production":
+                pass  # Auto-fixed empty block
                 # Production requires stricter settings
                 if config.get("system", {}).get("mode") != "enforcement":
                     errors.append("Production environment must use enforcement mode")
@@ -543,6 +546,7 @@ class ConfigurationLoader:
             raise ConfigurationError(f"Legacy config file not found: {legacy_path}")
 
         try:
+            pass  # Auto-fixed empty block
             # Load legacy configuration
             with open(legacy_file, "r", encoding="utf-8") as f:
                 if legacy_file.suffix == ".json":

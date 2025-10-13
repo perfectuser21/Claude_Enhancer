@@ -451,6 +451,7 @@ class UXAccessibilityTester:
 
             # Check for focus styles on form elements
             if ".form-input:focus" in css_content:
+                pass  # Auto-fixed empty block
                 # Good - has focus styles
                 pass
             else:

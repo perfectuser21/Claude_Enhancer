@@ -1,0 +1,172 @@
+name: 'Setup Quality Tools'
+description: 'Install all quality checking tools for Claude Enhancer'
+author: 'Claude Enhancer Team'
+
+branding:
+  icon: 'check-circle'
+  color: 'green'
+
+inputs:
+  python-version:
+    description: 'Python version to install'
+    required: false
+    default: '3.11'
+  node-version:
+    description: 'Node.js version to install'
+    required: false
+    default: '18'
+  install-optional:
+    description: 'Install optional tools (slower but more complete)'
+    required: false
+    default: 'false'
+
+outputs:
+  tools-installed:
+    description: 'List of installed tools'
+    value: ${{ steps.summary.outputs.tools }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: 📦 Install System Tools
+      shell: bash
+      run: |
+        echo "📦 Installing system-level tools..."
+        sudo apt-get update -qq
+        sudo apt-get install -y -qq \
+          shellcheck \
+          bc \
+          jq \
+          file \
+          curl \
+          git
+        echo "✅ System tools installed"
+
+    - name: 🐍 Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+        cache: 'pip'
+
+    - name: 📦 Install Python Tools
+      shell: bash
+      run: |
+        echo "📦 Installing Python quality tools..."
+        pip install --upgrade pip setuptools wheel
+        pip install \
+          pylint \
+          pytest \
+          pytest-cov \
+          pytest-xdist \
+          pyyaml \
+          radon \
+          bandit \
+          black \
+          flake8 \
+          mypy
+        echo "✅ Python tools installed"
+
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: 'npm'
+
+    - name: 📦 Install Node Tools (Global)
+      shell: bash
+      run: |
+        echo "📦 Installing Node.js quality tools..."
+        npm install -g \
+          eslint \
+          prettier \
+          jest \
+          @cucumber/cucumber \
+          npm-check-updates \
+          depcheck
+        echo "✅ Node tools installed"
+
+    - name: 📦 Install Optional Tools
+      if: inputs.install-optional == 'true'
+      shell: bash
+      run: |
+        echo "📦 Installing optional tools..."
+
+        # Markdown linting
+        npm install -g markdownlint-cli
+
+        # Security scanners
+        pip install safety
+
+        # Code complexity
+        pip install mccabe
+
+        # Additional formatters
+        pip install autopep8 isort
+
+        echo "✅ Optional tools installed"
+
+    - name: 🔍 Verify Installations
+      shell: bash
+      run: |
+        echo "🔍 Verifying tool installations..."
+
+        # System tools
+        shellcheck --version
+        jq --version
+        bc --version | head -1
+
+        # Python tools
+        pylint --version | head -1
+        pytest --version
+        black --version
+        bandit --version
+
+        # Node tools
+        eslint --version
+        prettier --version
+        jest --version
+
+        echo "✅ All tools verified"
+
+    - name: 📋 Generate Summary
+      id: summary
+      shell: bash
+      run: |
+        tools="shellcheck,pylint,pytest,eslint,prettier,jest,bandit,black"
+        if [ "${{ inputs.install-optional }}" == "true" ]; then
+          tools="$tools,markdownlint,safety,mccabe"
+        fi
+        echo "tools=$tools" >> $GITHUB_OUTPUT
+        echo "✅ Installed tools: $tools"
+
+    - name: 💾 Cache Tool Installations
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cache/pip
+          ~/.npm
+          ~/.local/bin
+        key: quality-tools-${{ runner.os }}-py${{ inputs.python-version }}-node${{ inputs.node-version }}-${{ hashFiles('**/package*.json', '**/requirements*.txt') }}
+        restore-keys: |
+          quality-tools-${{ runner.os }}-py${{ inputs.python-version }}-node${{ inputs.node-version }}-
+          quality-tools-${{ runner.os }}-
+
+    - name: 🎉 Setup Complete
+      shell: bash
+      run: |
+        echo "🎉 Quality tools setup complete!"
+        echo ""
+        echo "Available tools:"
+        echo "  - Shellcheck (shell scripts)"
+        echo "  - Pylint (Python linting)"
+        echo "  - Pytest (Python testing)"
+        echo "  - ESLint (JavaScript linting)"
+        echo "  - Prettier (code formatting)"
+        echo "  - Jest (JavaScript testing)"
+        echo "  - Bandit (Python security)"
+        echo "  - Black (Python formatting)"
+        if [ "${{ inputs.install-optional }}" == "true" ]; then
+          echo "  - Markdownlint (Markdown)"
+          echo "  - Safety (dependency security)"
+          echo "  - McCabe (complexity)"
+        fi

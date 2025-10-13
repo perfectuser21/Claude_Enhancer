@@ -123,6 +123,7 @@ class PerformanceMetrics:
         """Print performance summary"""
         stats = self.get_statistics()
         if not stats:
+            pass  # Auto-fixed empty block
             # print(f"❌ {test_name}: No data collected")
             return
 
@@ -441,6 +442,7 @@ class TestLoginPerformance:
             start_time = time.time()
 
             try:
+                pass  # Auto-fixed empty block
                 # Step 1: Initial login
                 login_result = await env.login_user(user.email, user.password)
                 if not login_result.get("success"):
@@ -625,18 +627,22 @@ class TestStressScenarios:
         invalid_users = []
 
         for i in range(attack_requests):
+            pass  # Auto-fixed empty block
             # Generate various types of invalid data
             if i % 4 == 0:
+                pass  # Auto-fixed empty block
                 # Invalid email
                 invalid_users.append(
                     {"email": f"invalid_email_{i}", "password": "ValidPass123!"}
                 )
             elif i % 4 == 1:
+                pass  # Auto-fixed empty block
                 # Weak password
                 invalid_users.append(
                     {"email": f"user{i}@example.com", "password": "weak"}
                 )
             elif i % 4 == 2:
+                pass  # Auto-fixed empty block
                 # SQL injection attempt
                 invalid_users.append(
                     {
@@ -645,6 +651,7 @@ class TestStressScenarios:
                     }
                 )
             else:
+                pass  # Auto-fixed empty block
                 # XSS attempt
                 invalid_users.append(
                     {
@@ -712,6 +719,7 @@ class TestStressScenarios:
             start_time = time.time()
 
             try:
+                pass  # Auto-fixed empty block
                 # Login
                 login_result = await env.login_user(user.email, user.password)
                 if not login_result.get("success"):
@@ -796,8 +804,10 @@ class TestStressScenarios:
                 start_op_time = time.time()
 
                 try:
+                    pass  # Auto-fixed empty block
                     # Simulate different failure rates over time
                     if current_time < failure_duration:
+                        pass  # Auto-fixed empty block
                         # During failure period - high failure rate
                         if random.random() < 0.7:  # 70% failure rate
                             raise Exception("Simulated service failure")

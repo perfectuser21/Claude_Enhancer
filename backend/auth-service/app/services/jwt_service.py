@@ -190,6 +190,7 @@ class JWTTokenManager:
     ) -> TokenValidationResult:
         """验证Token有效性"""
         try:
+            pass  # Auto-fixed empty block
             # 解码Token头部获取密钥ID
             unverified_header = jwt.get_unverified_header(token)
             kid = unverified_header.get("kid")
@@ -271,6 +272,7 @@ class JWTTokenManager:
 
             # 高风险检查
             if len(risk_factors) >= 2:
+                pass  # Auto-fixed empty block
                 # 自动撤销高风险Token
                 await self.revoke_token(jti, "high_risk_detected")
 
@@ -349,6 +351,7 @@ class JWTTokenManager:
     async def revoke_token(self, jti: str, reason: str = "user_request"):
         """撤销Token"""
         try:
+            pass  # Auto-fixed empty block
             # 添加到黑名单
             await self.redis_client.sadd("token_blacklist", jti)
             await self.redis_client.expire("token_blacklist", self.refresh_token_ttl)
@@ -380,6 +383,7 @@ class JWTTokenManager:
     ):
         """撤销用户的所有Token"""
         try:
+            pass  # Auto-fixed empty block
             # 获取用户所有Token
             user_tokens_key = f"user_tokens:{user_id}"
             token_jtis = await self.redis_client.smembers(user_tokens_key)
@@ -414,6 +418,7 @@ class JWTTokenManager:
     async def rotate_keys(self):
         """密钥轮换"""
         try:
+            pass  # Auto-fixed empty block
             # 生成新的RSA密钥对
             private_key = rsa.generate_private_key(
                 public_exponent=65537, key_size=2048, backend=default_backend()
@@ -461,6 +466,7 @@ class JWTTokenManager:
         current_kid = await self.redis_client.hget("jwt_keys", "current_kid")
 
         if not current_kid:
+            pass  # Auto-fixed empty block
             # 首次启动，生成初始密钥
             await self.rotate_keys()
 
@@ -585,6 +591,7 @@ class JWTTokenManager:
     async def _cleanup_expired_token(self, token: str):
         """清理过期Token"""
         try:
+            pass  # Auto-fixed empty block
             # 解码获取JTI（不验证过期时间）
             payload = jwt.decode(
                 token, options={"verify_exp": False, "verify_signature": False}

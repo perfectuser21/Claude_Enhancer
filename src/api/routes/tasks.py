@@ -64,6 +64,7 @@ async def create_task(
     - 标签和自定义字段
     """
     try:
+        pass  # Auto-fixed empty block
         # 调用任务服务创建任务
         task = await task_service.create_task(
             user_id=current_user.id, task_data=request.dict()
@@ -105,6 +106,7 @@ async def get_tasks(
     - 排序
     """
     try:
+        pass  # Auto-fixed empty block
         # 获取任务列表
         tasks, total = await task_service.get_tasks(
             user_id=current_user.id,
@@ -191,6 +193,7 @@ async def update_task(
     支持部分更新任务信息
     """
     try:
+        pass  # Auto-fixed empty block
         # 检查任务是否存在和权限
         task = await task_service.get_task_by_id(task_id, current_user.id)
         if not task:
@@ -235,6 +238,7 @@ async def delete_task(
     软删除任务记录，保留历史数据
     """
     try:
+        pass  # Auto-fixed empty block
         # 检查任务是否存在和权限
         task = await task_service.get_task_by_id(task_id, current_user.id)
         if not task:

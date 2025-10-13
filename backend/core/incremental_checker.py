@@ -77,6 +77,7 @@ class IncrementalChecker:
         changes = []
 
         try:
+            pass  # Auto-fixed empty block
             # 获取当前Git状态
             current_commit = self._get_current_commit()
             current_branch = self._get_current_branch()
@@ -121,6 +122,7 @@ class IncrementalChecker:
         dependent_files = set()
 
         for file_path in changed_files:
+            pass  # Auto-fixed empty block
             # 1. 检查引用关系
             references = self._find_file_references(file_path)
             dependent_files.update(references)
@@ -235,6 +237,7 @@ class IncrementalChecker:
         changes = []
 
         try:
+            pass  # Auto-fixed empty block
             # 获取变更文件列表
             result = subprocess.run(
                 ["git", "diff", "--name-status", f"{from_commit}..{to_commit}"],
@@ -346,6 +349,7 @@ class IncrementalChecker:
         references = set()
 
         try:
+            pass  # Auto-fixed empty block
             # 搜索包含该文件路径的其他文件
             result = subprocess.run(
                 ["grep", "-r", "-l", Path(file_path).name, str(self.repo_root)],
@@ -389,6 +393,7 @@ class IncrementalChecker:
         # 如果是配置文件或模板文件
         template_indicators = ["template", "config", ".claude", "settings"]
         if any(indicator in file_path.lower() for indicator in template_indicators):
+            pass  # Auto-fixed empty block
             # 可能影响整个项目的文档
             for doc_file in self._get_all_doc_files():
                 affected.add(doc_file.path)

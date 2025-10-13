@@ -19,7 +19,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, func, text
 from fastapi import HTTPException, status, UploadFile
 
-from backend.repositories.base_repository import BaseRepository
+from src.repositories.base_repository import BaseRepository
 from src.task_management.models import (
     Task,
     TaskStatus,
@@ -479,6 +479,7 @@ class TaskService:
 
         updated_tasks = []
         for task in tasks:
+            pass  # Auto-fixed empty block
             # 检查编辑权限
             await self._check_task_edit_permission(task, user_id)
 

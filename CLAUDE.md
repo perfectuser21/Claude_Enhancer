@@ -305,6 +305,179 @@ feature/payment-system → "支付"
 
 ---
 
+## 🚨 规则1：文档管理铁律（AI行为规范）
+**优先级：最高 | 防止文档泛滥和信息混乱**
+
+### 🎯 核心原则
+```
+核心文档（7个）= 永久保留
+临时分析 = .temp/（7天自动删除）
+给AI的 ≠ 给用户的
+```
+
+### ❌ 绝对禁止的行为
+
+#### 禁止1：在根目录创建新文档
+```
+❌ 禁止：README_NEW.md、ANALYSIS_REPORT.md、SUMMARY.md
+✅ 允许：更新7个核心文档（README.md、CLAUDE.md等）
+✅ 临时：写入 .temp/analysis/report_20251013.md
+```
+
+#### 禁止2：创建临时报告文件
+```
+❌ 禁止模式：
+- *_REPORT.md
+- *_ANALYSIS.md
+- *_AUDIT.md
+- *_SUMMARY.md
+- DOCUMENT_*.md
+
+✅ 正确做法：
+- 写入 .temp/analysis/ （AI自己看）
+- 或者直接在对话中说明（用户看）
+```
+
+#### 禁止3：创建重复内容的文档
+```
+❌ 禁止：README2.md、CLAUDE_NEW.md、INSTALL_GUIDE.md（已有INSTALLATION.md）
+✅ 允许：更新现有文档
+```
+
+### ✅ 强制规则
+
+#### 规则1.1：核心文档白名单（只能更新，不能新建）
+```
+7个核心文档（永久保留）：
+├─ README.md          ✅ 可更新
+├─ CLAUDE.md         ✅ 可更新（本文件）
+├─ INSTALLATION.md   ✅ 可更新
+├─ ARCHITECTURE.md   ✅ 可更新
+├─ CONTRIBUTING.md   ✅ 可更新
+├─ CHANGELOG.md      ✅ 可追加
+└─ LICENSE.md        ✅ 通常不改
+
+其他任何根目录.md文件 ❌ 禁止创建
+```
+
+#### 规则1.2：临时数据放在 .temp/
+```bash
+AI生成的临时分析、报告、审计结果：
+✅ 写入: .temp/analysis/code_review_20251013.md
+✅ 写入: .temp/reports/test_results.json
+❌ 禁止: CODE_REVIEW_REPORT.md（根目录）
+```
+
+**生命周期管理**：
+- `.temp/` - 7天后自动删除
+- `evidence/` - 30天后归档
+- `archive/` - 1年后提示清理
+
+#### 规则1.3：创建文档前必须询问（除非在.temp/）
+```
+在调用Write工具创建.md文件之前：
+
+1. 检查是否在核心清单中
+2. 如果不在 → 询问用户：
+   "我需要创建 XXX.md 来记录分析结果，您希望：
+   A. 放在 .temp/ （7天后自动删除）
+   B. 放在 evidence/ （30天后归档）
+   C. 不创建，口头告诉我
+   D. 创建为永久文档（需要说明理由）"
+3. 等待用户选择
+
+例外：.temp/ 目录可以自由创建，无需询问
+```
+
+#### 规则1.4：信息传递方式
+```
+AI需要传递分析结果时的3种方式：
+
+方式A: 直接在对话中说明（简短）✅ 推荐
+"我发现了3个关键bug：1) Shell语法错误... 2) ..."
+
+方式B: 写入临时文件（详细）✅ 可选
+.temp/analysis/audit_20251013.md
+（用户不会看到，但AI可引用）
+
+方式C: 更新核心文档（永久）⚠️ 谨慎
+只有用户明确要求时，才更新 README.md 等
+
+❌ 禁止：每次都创建根目录报告文件
+```
+
+### 🔒 强制执行机制
+
+#### 层1：Pre-Write Hook（AI写文件前拦截）
+```bash
+.claude/hooks/pre_write_document.sh
+# 在AI调用Write/Edit工具之前自动运行
+# 如果文件不在白名单 → 阻止并提示
+```
+
+#### 层2：Post-Commit自动清理
+```bash
+scripts/cleanup_documents.sh
+# 每次commit后自动运行
+# 移除未授权文档到 .temp/quarantine/
+```
+
+#### 层3：CI/CD验证
+```yaml
+# .github/workflows/daily-quality-check.yml
+# 每天检查根目录文档数量
+# 超过7个 → CI失败 + 自动清理
+```
+
+### 📊 文档分类策略
+
+```yaml
+核心文档（location: /）:
+  ttl: permanent
+  files: [README.md, CLAUDE.md, INSTALLATION.md, ARCHITECTURE.md,
+          CONTRIBUTING.md, CHANGELOG.md, LICENSE.md]
+  rules: AI禁止删除、AI禁止创建新的
+
+临时分析（location: /.temp/）:
+  ttl: 7 days
+  pattern: "*_REPORT.md, *_ANALYSIS.md"
+  rules: AI可以自由创建、自动删除、用户不可见
+
+工作证据（location: /evidence/）:
+  ttl: 30 days
+  files: "*.log, *_evidence.md"
+  rules: CI自动生成、30天后归档
+
+文档结构化（location: /docs/）:
+  ttl: permanent
+  structure: {guides/, api/, architecture/, troubleshooting/}
+  rules: 必须有明确分类、不能放在根目录
+```
+
+### 🎯 AI承诺
+
+**我承诺**：
+- ✅ 只更新核心7个文档，不创建新的
+- ✅ 临时分析写入 .temp/，不污染根目录
+- ✅ 创建永久文档前先询问用户
+- ✅ 遵守文档生命周期管理
+
+**我不会**：
+- ❌ 每次任务都生成一堆报告文件
+- ❌ 在根目录创建 *_REPORT.md
+- ❌ 给用户看"给AI自己的"临时分析
+- ❌ 让文档数量失控（>7个）
+
+### ✅ 成功标准
+
+**3个月验证**：
+- [ ] 根目录文档≤7个（永久保持）
+- [ ] .temp/自动清理（7天TTL）
+- [ ] 用户找文档<30秒（信息清晰）
+- [ ] AI不再生成垃圾文档
+
+---
+
 ## 🚀 核心工作流：8-Phase系统（P0-P7）
 
 ### 完整开发周期

@@ -53,6 +53,7 @@ def get_database_url():
         db_config = get_database_config()
         return db_config.sync_database_url
     except Exception:
+        pass  # Auto-fixed empty block
         # 如果配置失败，使用默认值
         return "postgresql://postgres:password@localhost:5432/task_management"
 

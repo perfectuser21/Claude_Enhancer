@@ -1,0 +1,103 @@
+name: Tech Debt Tracker (Non-blocking)
+
+on:
+  schedule:
+    - cron: '0 3 * * 1'  # Every Monday 3 AM
+  workflow_dispatch:
+
+jobs:
+  scan-all-issues:
+    name: Full Codebase Quality Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install ShellCheck
+        run: sudo apt-get install -y shellcheck
+
+      - name: 🔍 Scan ALL Shell Scripts
+        run: |
+          echo "📊 Scanning entire codebase for quality issues..."
+          echo "ℹ️  This is for tracking only, does NOT block PRs"
+          echo ""
+
+          total_files=0
+          files_with_issues=0
+
+          # Scan all .sh files
+          while IFS= read -r script; do
+            ((total_files++))
+
+            if ! shellcheck -S warning -e SC2034 -e SC2155 -e SC2164 "$script" > /dev/null 2>&1; then
+              ((files_with_issues++))
+              echo "⚠️  Issues in: $script"
+            fi
+          done < <(find . -name "*.sh" -not -path "./node_modules/*" -not -path "./.git/*" -not -path "./.husky/*" -type f)
+
+          echo ""
+          echo "═══════════════════════════════════════"
+          echo "📊 Quality Metrics Summary"
+          echo "═══════════════════════════════════════"
+          echo "Total shell scripts: $total_files"
+          echo "Scripts with issues: $files_with_issues"
+
+          clean_files=$((total_files - files_with_issues))
+          percentage=$((clean_files * 100 / total_files))
+
+          echo "Clean scripts: $clean_files ($percentage%)"
+          echo ""
+
+          # Create badge/metric
+          mkdir -p .temp/metrics
+          echo "$percentage" > .temp/metrics/shellcheck_pass_rate.txt
+
+          # Quality trend
+          if [ $percentage -lt 50 ]; then
+            echo "🔴 Quality Status: POOR (< 50%)"
+          elif [ $percentage -lt 80 ]; then
+            echo "🟡 Quality Status: FAIR (50-80%)"
+          else
+            echo "🟢 Quality Status: GOOD (> 80%)"
+          fi
+
+          echo ""
+          echo "💡 This scan does NOT block development"
+          echo "💡 Use this data to prioritize tech debt cleanup"
+
+      - name: 📝 Generate Tech Debt Report
+        run: |
+          cat > tech_debt_report.md << 'EOF'
+          # 📊 Claude Enhancer Tech Debt Report
+
+          **Generated**: $(date -u +"%Y-%m-%d %H:%M UTC")
+
+          ## Shell Script Quality
+
+          - **Total Scripts**: $(find . -name "*.sh" -not -path "./node_modules/*" -not -path "./.git/*" -type f | wc -l)
+          - **Clean Rate**: $(cat .temp/metrics/shellcheck_pass_rate.txt)%
+
+          ## Improvement Plan
+
+          1. **Weekly Goal**: Fix 2-3 scripts per week
+          2. **Priority**: Focus on core system scripts first
+          3. **Non-blocking**: Tech debt cleanup happens in background
+
+          ## Philosophy
+
+          - ✅ New code must be clean (enforced by PR checks)
+          - 📊 Old code tracked (this report)
+          - 🎯 Gradual improvement (weekly cleanup)
+
+          ---
+          *This is a tracking report, not a blocker*
+          EOF
+
+          cat tech_debt_report.md
+
+      - name: 📤 Upload Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: tech-debt-report
+          path: tech_debt_report.md
+          retention-days: 90

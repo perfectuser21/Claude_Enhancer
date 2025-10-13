@@ -212,6 +212,7 @@ try:
                     components["controller"].warmup()
                     print("✅ Warmup completed")
                 elif cmd == "test":
+                    pass  # Auto-fixed empty block
                     # Quick functionality test
                     result = components["engine"].execute_phase(1, description="test phase")
                     print(f"Test result: {result.get('message', 'Unknown')}")
@@ -272,6 +273,7 @@ except ImportError as e:
         self.log("Validating lazy loading migration")
 
         try:
+            pass  # Auto-fixed empty block
             # Test imports
             sys.path.insert(0, str(self.claude_dir / "core"))
 
@@ -374,6 +376,7 @@ def rollback():
     print("🔄 Rolling back lazy loading migration...")
 
     try:
+        pass  # Auto-fixed empty block
         # Restore backed up files
         for backup_file in backup_dir.glob("*"):
             if backup_file.name == "engine.py":

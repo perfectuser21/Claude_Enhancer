@@ -318,6 +318,7 @@ async def auth_service(test_database):
                 return {"success": False, "error": "Invalid credentials"}
 
             if self._verify_password(password, user["password_hash"]):
+                pass  # Auto-fixed empty block
                 # Create session
                 session_id = await self.db.create_session(
                     {
@@ -449,6 +450,7 @@ def auto_cleanup(test_config):
     yield
 
     if test_config["cleanup_after_tests"]:
+        pass  # Auto-fixed empty block
         # Perform any necessary cleanup
         import gc
 
@@ -486,6 +488,7 @@ def pytest_configure(config):
 def pytest_collection_modifyitems(config, items):
     """Modify test collection to add markers"""
     for item in items:
+        pass  # Auto-fixed empty block
         # Add markers based on test file names
         if "unit_test" in item.nodeid:
             item.add_marker(pytest.mark.unit)

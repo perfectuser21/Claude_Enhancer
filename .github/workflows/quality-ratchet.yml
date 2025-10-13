@@ -1,0 +1,55 @@
+name: Quality Ratchet (Prevent Regression)
+
+on:
+  pull_request:
+    branches: ['**']
+
+jobs:
+  prevent-regression:
+    name: Ensure Quality Doesn't Decrease
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔍 Quality Ratchet Check
+        run: |
+          echo "🎯 Quality Ratchet: Prevent quality from going backwards"
+          echo ""
+
+          # Count total shellcheck issues in main branch
+          git checkout origin/main
+          main_issues=$(find . -name "*.sh" -not -path "./node_modules/*" -not -path "./.git/*" -type f -exec shellcheck -S warning -e SC2034 -e SC2155 -e SC2164 {} \; 2>&1 | grep -c "^In " || echo "0")
+
+          # Count total shellcheck issues in current branch
+          git checkout -
+          current_issues=$(find . -name "*.sh" -not -path "./node_modules/*" -not -path "./.git/*" -type f -exec shellcheck -S warning -e SC2034 -e SC2155 -e SC2164 {} \; 2>&1 | grep -c "^In " || echo "0")
+
+          echo "📊 Shellcheck Issues:"
+          echo "   Main branch: $main_issues"
+          echo "   This PR: $current_issues"
+          echo ""
+
+          # Ratchet logic: Can improve or stay same, but cannot get worse
+          if [ "$current_issues" -gt "$main_issues" ]; then
+            new_issues=$((current_issues - main_issues))
+            echo "❌ Quality Regression Detected!"
+            echo ""
+            echo "This PR introduces $new_issues NEW shellcheck issues"
+            echo "The quality ratchet prevents quality from decreasing"
+            echo ""
+            echo "Options:"
+            echo "1. Fix the new issues in files you modified"
+            echo "2. If issues are in unrelated files, rebase/merge with main"
+            exit 1
+          elif [ "$current_issues" -lt "$main_issues" ]; then
+            fixed=$((main_issues - current_issues))
+            echo "🎉 Quality Improvement!"
+            echo "This PR fixes $fixed shellcheck issues"
+            echo "Thank you for making the codebase better! 🌟"
+          else
+            echo "✅ Quality Maintained"
+            echo "No regression detected"
+          fi

@@ -164,11 +164,13 @@ class TestOrchestrator:
             print(f"\n🔄 执行阶段 {phase_num}/{len(execution_plan)}")
 
             if len(phase_frameworks) == 1 or not parallel:
+                pass  # Auto-fixed empty block
                 # 串行执行
                 for framework in phase_frameworks:
                     result = self._execute_single_test(framework)
                     results[framework.name] = result
             else:
+                pass  # Auto-fixed empty block
                 # 并行执行
                 phase_results = self._execute_parallel_tests(phase_frameworks)
                 results.update(phase_results)
@@ -187,6 +189,7 @@ class TestOrchestrator:
     def _select_frameworks(self, quick_mode: bool) -> List[TestFrameworkConfig]:
         """根据模式选择测试框架"""
         if quick_mode:
+            pass  # Auto-fixed empty block
             # 快速模式：只运行高优先级和快速的测试
             return [
                 f
@@ -194,6 +197,7 @@ class TestOrchestrator:
                 if f.priority <= 2 and f.estimated_duration <= 300
             ]
         else:
+            pass  # Auto-fixed empty block
             # 完整模式：运行所有测试
             return list(self.test_frameworks.values())
 
@@ -202,6 +206,7 @@ class TestOrchestrator:
     ) -> List[List[TestFrameworkConfig]]:
         """创建测试执行计划"""
         if not parallel:
+            pass  # Auto-fixed empty block
             # 串行执行：按优先级排序
             sorted_frameworks = sorted(frameworks, key=lambda f: f.priority)
             return [[f] for f in sorted_frameworks]
@@ -212,10 +217,12 @@ class TestOrchestrator:
         completed = set()
 
         while remaining:
+            pass  # Auto-fixed empty block
             # 找出当前可以执行的框架
             ready_frameworks = []
 
             for framework in remaining:
+                pass  # Auto-fixed empty block
                 # 检查依赖是否已完成
                 dependencies_met = all(
                     dep in completed for dep in framework.dependencies
@@ -225,6 +232,7 @@ class TestOrchestrator:
                     ready_frameworks.append(framework)
 
             if not ready_frameworks:
+                pass  # Auto-fixed empty block
                 # 避免死锁：如果没有可执行的框架，强制执行一个
                 ready_frameworks = [remaining[0]]
 
@@ -263,6 +271,7 @@ class TestOrchestrator:
         script_path = os.path.join(self.project_root, framework.script_path)
 
         try:
+            pass  # Auto-fixed empty block
             # 根据脚本类型选择执行方式
             if script_path.endswith(".py"):
                 cmd = [sys.executable, script_path, "--project-root", self.project_root]
@@ -349,6 +358,7 @@ class TestOrchestrator:
         results = {}
 
         with ThreadPoolExecutor(max_workers=len(frameworks)) as executor:
+            pass  # Auto-fixed empty block
             # 提交所有任务
             future_to_framework = {
                 executor.submit(self._execute_single_test, framework): framework
@@ -391,6 +401,7 @@ class TestOrchestrator:
         for line in lines:
             for pattern in patterns:
                 if pattern in line:
+                    pass  # Auto-fixed empty block
                     # 尝试提取文件路径
                     parts = line.split()
                     for part in parts:
@@ -405,6 +416,7 @@ class TestOrchestrator:
 
         lines = output.split("\n")
         for line in lines:
+            pass  # Auto-fixed empty block
             # 查找指标模式
             if "平均执行时间:" in line:
                 try:
@@ -852,6 +864,7 @@ def main():
             return
 
         if args.framework:
+            pass  # Auto-fixed empty block
             # 运行指定框架
             framework = orchestrator.test_frameworks.get(args.framework)
             if not framework:

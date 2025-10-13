@@ -98,6 +98,7 @@ class MFAService:
     async def setup_totp(self, user_id: str, user_email: str) -> Dict[str, Any]:
         """设置TOTP多因子认证"""
         try:
+            pass  # Auto-fixed empty block
             # 生成TOTP密钥
             secret = pyotp.random_base32()
 
@@ -160,6 +161,7 @@ class MFAService:
             is_valid = totp.verify(verification_code, valid_window=self.totp_window)
 
             if is_valid:
+                pass  # Auto-fixed empty block
                 # 标记为已验证
                 setup_info["verified"] = True
                 setup_info["verified_at"] = datetime.utcnow().isoformat()
@@ -240,6 +242,7 @@ class MFAService:
     ) -> str:
         """生成多因子认证挑战"""
         try:
+            pass  # Auto-fixed empty block
             # 获取用户的MFA方法
             available_methods = await self._get_user_mfa_methods(user_id)
 
@@ -289,6 +292,7 @@ class MFAService:
     ) -> Dict[str, Any]:
         """验证多因子认证挑战"""
         try:
+            pass  # Auto-fixed empty block
             # 获取挑战信息
             challenge_key = f"mfa_challenge:{mfa_token}"
             challenge_data = await self.redis_client.get(challenge_key)
@@ -325,6 +329,7 @@ class MFAService:
                 )
 
             if is_valid:
+                pass  # Auto-fixed empty block
                 # 清理成功的挑战
                 await self.redis_client.delete(challenge_key)
 
@@ -353,10 +358,12 @@ class MFAService:
                     "method_used": challenge.method_type,
                 }
             else:
+                pass  # Auto-fixed empty block
                 # 减少尝试次数
                 challenge.attempts_remaining -= 1
 
                 if challenge.attempts_remaining > 0:
+                    pass  # Auto-fixed empty block
                     # 更新挑战
                     await self.redis_client.setex(
                         challenge_key,
@@ -364,6 +371,7 @@ class MFAService:
                         challenge.json(),
                     )
                 else:
+                    pass  # Auto-fixed empty block
                     # 删除已用尽的挑战
                     await self.redis_client.delete(challenge_key)
 
@@ -436,6 +444,7 @@ class MFAService:
             # 查找匹配的未使用备用码
             for backup_code in backup_codes:
                 if not backup_code.get("used") and backup_code["code"] == code:
+                    pass  # Auto-fixed empty block
                     # 标记为已使用
                     backup_code["used"] = True
                     backup_code["used_at"] = datetime.utcnow().isoformat()
@@ -540,6 +549,7 @@ class MFAService:
         """生成备用码"""
         codes = []
         for _ in range(self.backup_codes_count):
+            pass  # Auto-fixed empty block
             # 生成 8 位数字备用码
             code = secrets.randbelow(100000000)
             codes.append(f"{code:08d}")
@@ -569,6 +579,7 @@ class MFAService:
     async def disable_mfa(self, user_id: str) -> bool:
         """禁用多因子认证"""
         try:
+            pass  # Auto-fixed empty block
             # 删除所有MFA方法
             totp_key = f"mfa_methods:{user_id}:totp"
             backup_key = f"mfa_backup_codes:{user_id}"

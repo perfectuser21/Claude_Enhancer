@@ -76,6 +76,7 @@ class FailureInjector:
         failure_id = f"{failure_type}_{int(time.time())}"
 
         try:
+            pass  # Auto-fixed empty block
             # 注入故障
             if failure_type == "hook_corruption":
                 self._inject_hook_corruption(**kwargs)
@@ -107,6 +108,7 @@ class FailureInjector:
             yield failure_id
 
         finally:
+            pass  # Auto-fixed empty block
             # 清理故障
             self._cleanup_failure(failure_id)
 
@@ -115,6 +117,7 @@ class FailureInjector:
         hook_path = os.path.join(self.project_root, ".claude/hooks", hook_name)
 
         if os.path.exists(hook_path):
+            pass  # Auto-fixed empty block
             # 备份原文件
             backup_path = f"{hook_path}.backup"
             shutil.copy2(hook_path, backup_path)
@@ -142,6 +145,7 @@ class FailureInjector:
         hook_path = os.path.join(self.project_root, ".claude/hooks", hook_name)
 
         if os.path.exists(hook_path):
+            pass  # Auto-fixed empty block
             # 记录原权限
             original_mode = os.stat(hook_path).st_mode
             self.cleanup_tasks.append(("restore_permissions", hook_path, original_mode))
@@ -181,6 +185,7 @@ class FailureInjector:
 
         try:
             with open(dummy_file, "wb") as f:
+                pass  # Auto-fixed empty block
                 # 写入指定大小的数据
                 chunk_size = 1024 * 1024  # 1MB chunks
                 for _ in range(size_mb):
@@ -188,6 +193,7 @@ class FailureInjector:
 
             self.cleanup_tasks.append(("remove_file", dummy_file))
         except OSError:
+            pass  # Auto-fixed empty block
             # 磁盘可能已满
             pass
 
@@ -198,6 +204,7 @@ class FailureInjector:
         hosts_file = "/etc/hosts"
 
         if os.path.exists(hosts_file) and os.access(hosts_file, os.W_OK):
+            pass  # Auto-fixed empty block
             # 备份hosts文件
             backup_file = f"{hosts_file}.backup_{int(time.time())}"
             try:
@@ -208,6 +215,7 @@ class FailureInjector:
                 with open(hosts_file, "a") as f:
                     f.write(f"\n127.0.0.1 {target_host}\n")
             except PermissionError:
+                pass  # Auto-fixed empty block
                 # 没有权限修改hosts文件
                 pass
 
@@ -217,6 +225,7 @@ class FailureInjector:
         # 创建内存消耗进程
         def memory_hog():
             try:
+                pass  # Auto-fixed empty block
                 # 分配大量内存
                 memory_blocks = []
                 block_size = 1024 * 1024  # 1MB per block
@@ -252,12 +261,14 @@ class FailureInjector:
     def _inject_database_lock(self, db_file: str = None):
         """注入数据库锁定"""
         if db_file is None:
+            pass  # Auto-fixed empty block
             # 查找项目中的数据库文件
             db_files = list(Path(self.project_root).rglob("*.db"))
             if db_files:
                 db_file = str(db_files[0])
 
         if db_file and os.path.exists(db_file):
+            pass  # Auto-fixed empty block
             # 创建锁文件
             lock_file = f"{db_file}.lock"
             with open(lock_file, "w") as f:
@@ -292,6 +303,7 @@ class FailureInjector:
                     pass
 
                 elif task_type == "process_killed":
+                    pass  # Auto-fixed empty block
                     # 进程已被终止，无需清理
                     pass
 
@@ -374,6 +386,7 @@ class SystemHealthMonitor:
         health = {"readable": True, "writable": True, "critical_files_exist": True}
 
         try:
+            pass  # Auto-fixed empty block
             # 测试读写能力
             test_file = os.path.join(self.project_root, "test/.health_check_tmp")
             os.makedirs(os.path.dirname(test_file), exist_ok=True)
@@ -415,6 +428,7 @@ class SystemHealthMonitor:
         }
 
         try:
+            pass  # Auto-fixed empty block
             # 测试本地连接
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.settimeout(1)
@@ -425,6 +439,7 @@ class SystemHealthMonitor:
             pass
 
         try:
+            pass  # Auto-fixed empty block
             # 测试外部连接
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.settimeout(2)
@@ -435,6 +450,7 @@ class SystemHealthMonitor:
             pass
 
         try:
+            pass  # Auto-fixed empty block
             # 测试DNS解析
             socket.gethostbyname("google.com")
             network_health["dns_working"] = True
@@ -669,6 +685,7 @@ class FailureRecoveryTestSuite:
         error_logs = []
 
         try:
+            pass  # Auto-fixed empty block
             # 注入故障
             failure_kwargs = self._get_failure_kwargs(scenario)
 
@@ -686,6 +703,7 @@ class FailureRecoveryTestSuite:
                 detection_time_ms = (time.time() - detection_start) * 1000
 
                 if failure_detected:
+                    pass  # Auto-fixed empty block
                     # 等待系统恢复
                     recovery_start = time.time()
                     recovery_successful = self._wait_for_recovery(
@@ -701,6 +719,7 @@ class FailureRecoveryTestSuite:
             recovery_successful = False
 
         finally:
+            pass  # Auto-fixed empty block
             # 停止监控
             self.health_monitor.stop_monitoring()
 
@@ -739,6 +758,7 @@ class FailureRecoveryTestSuite:
         start_time = time.time()
 
         while time.time() - start_time < timeout:
+            pass  # Auto-fixed empty block
             # 根据故障类型执行检测逻辑
             if scenario.category == "hook":
                 if self._test_hook_failure_detection(scenario):
@@ -757,6 +777,7 @@ class FailureRecoveryTestSuite:
     def _test_hook_failure_detection(self, scenario: FailureScenario) -> bool:
         """测试Hook故障检测"""
         try:
+            pass  # Auto-fixed empty block
             # 尝试执行Hook
             hook_path = os.path.join(self.project_root, ".claude/hooks/quality_gate.sh")
             result = subprocess.run(
@@ -811,6 +832,7 @@ class FailureRecoveryTestSuite:
                 return True  # 配置文件损坏或不存在
 
         elif scenario.name == "database_lock_contention":
+            pass  # Auto-fixed empty block
             # 检查是否存在锁文件
             db_files = list(Path(self.project_root).rglob("*.db"))
             for db_file in db_files:
@@ -825,6 +847,7 @@ class FailureRecoveryTestSuite:
         start_time = time.time()
 
         while time.time() - start_time < timeout:
+            pass  # Auto-fixed empty block
             # 根据场景验证恢复状态
             if self._verify_recovery_state(scenario):
                 return True
@@ -867,15 +890,18 @@ class FailureRecoveryTestSuite:
         current_health = self.health_monitor.health_metrics[-1]
 
         if scenario.name == "disk_space_exhaustion":
+            pass  # Auto-fixed empty block
             # 系统应该能够继续运行，即使磁盘空间不足
             fs_health = current_health.get("file_system_health", {})
             return fs_health.get("readable", False)
 
         elif scenario.name == "memory_exhaustion":
+            pass  # Auto-fixed empty block
             # 系统应该保持稳定，不崩溃
             return current_health.get("cpu_usage", 0) < 90  # CPU使用率不应过高
 
         elif scenario.name == "network_partition":
+            pass  # Auto-fixed empty block
             # 网络问题可能持续，但系统应该保持本地功能
             network_health = current_health.get("network_health", {})
             return network_health.get("localhost_reachable", False)
@@ -885,6 +911,7 @@ class FailureRecoveryTestSuite:
     def _verify_data_recovery(self, scenario: FailureScenario) -> bool:
         """验证数据恢复"""
         if scenario.name == "config_file_corruption":
+            pass  # Auto-fixed empty block
             # 系统应该能够使用默认配置或恢复配置
             # 检查是否有备份配置可用
             config_path = os.path.join(self.project_root, ".claude/settings.json")
@@ -892,6 +919,7 @@ class FailureRecoveryTestSuite:
             return os.path.exists(backup_path) or os.path.exists(config_path)
 
         elif scenario.name == "database_lock_contention":
+            pass  # Auto-fixed empty block
             # 锁应该被释放，或者系统应该能够处理锁争用
             return True  # 简化处理，认为锁争用是可以处理的
 
@@ -1288,6 +1316,7 @@ class FailureRecoveryReportGenerator:
         # 按类别统计成功率
         category_stats = {}
         for result in test_results:
+            pass  # Auto-fixed empty block
             # 从场景名称推断类别
             if "hook" in result.scenario_name:
                 category = "Hook级故障"
@@ -1467,6 +1496,7 @@ if __name__ == "__main__":
                 )
 
         elif args.scenario:
+            pass  # Auto-fixed empty block
             # 运行特定场景
             scenario = next(
                 (

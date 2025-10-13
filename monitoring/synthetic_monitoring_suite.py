@@ -214,6 +214,7 @@ class SyntheticMonitoringSuite:
         start_time = time.time()
 
         try:
+            pass  # Auto-fixed empty block
             # 1. 尝试未认证访问保护资源
             protected_url = urljoin(self.base_url, '/api/v1/users/me')
             async with self.session.get(protected_url) as response:
@@ -273,6 +274,7 @@ class SyntheticMonitoringSuite:
         start_time = time.time()
 
         try:
+            pass  # Auto-fixed empty block
             # 生成随机测试数据
             test_email = f"test_{random.randint(10000, 99999)}@example.com"
             registration_data = {
@@ -322,6 +324,7 @@ class SyntheticMonitoringSuite:
         start_time = time.time()
 
         try:
+            pass  # Auto-fixed empty block
             # 通过健康检查端点检查数据库状态
             db_health_url = urljoin(self.base_url, '/health/database')
             async with self.session.get(db_health_url) as response:
@@ -370,6 +373,7 @@ class SyntheticMonitoringSuite:
         start_time = time.time()
 
         try:
+            pass  # Auto-fixed empty block
             # 模拟缓存测试请求
             cache_test_url = urljoin(self.base_url, '/api/v1/cache/test')
 
@@ -419,6 +423,7 @@ class SyntheticMonitoringSuite:
         start_time = time.time()
 
         try:
+            pass  # Auto-fixed empty block
             # 测试404错误处理
             not_found_url = urljoin(self.base_url, '/api/v1/nonexistent')
             async with self.session.get(not_found_url) as response:
@@ -461,6 +466,7 @@ class SyntheticMonitoringSuite:
         start_time = time.time()
 
         try:
+            pass  # Auto-fixed empty block
             # 执行多个并发请求来测试性能
             concurrent_requests = 10
             request_url = urljoin(self.base_url, '/api/v1/status')
@@ -587,6 +593,7 @@ class SyntheticMonitoringSuite:
         start_time = time.time()
 
         try:
+            pass  # Auto-fixed empty block
             # 快速发送多个请求来测试速率限制
             test_url = urljoin(self.base_url, '/api/v1/status')
             requests_count = 50
@@ -689,6 +696,7 @@ class SyntheticMonitoringSuite:
         start_time = time.time()
 
         try:
+            pass  # Auto-fixed empty block
             # 这里可以添加具体的业务逻辑验证
             # 例如：数据一致性检查、业务规则验证等
 
@@ -774,6 +782,7 @@ class SyntheticMonitoringSuite:
     async def send_metrics_to_prometheus(self):
         """将监控结果发送到Prometheus指标端点"""
         try:
+            pass  # Auto-fixed empty block
             # 构造Prometheus格式的指标
             metrics_lines = []
 
@@ -892,8 +901,10 @@ async def main():
         # print(f"健康状态: {summary['health_status']}")
 
         if summary['failed_tests']:
+            pass  # Auto-fixed empty block
             # print("\n失败的测试:")
             for test in summary['failed_tests']:
+                pass  # Auto-fixed empty block
                 # print(f"  - {test['test_name']}: {test['error']}")
 
         # print("="*80)

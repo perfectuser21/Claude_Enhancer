@@ -190,6 +190,7 @@ class WebSocketHandlers:
         room_id = message.room_id
 
         if room_id:
+            pass  # Auto-fixed empty block
             # 记录用户输入状态
             if room_id not in self.typing_users:
                 self.typing_users[room_id] = {}
@@ -262,6 +263,7 @@ class WebSocketHandlers:
     async def send_system_status(self, user_id: str):
         """发送系统状态信息给用户"""
         try:
+            pass  # Auto-fixed empty block
             # 获取在线用户列表
             online_users = websocket_manager.get_online_users()
 
@@ -288,6 +290,7 @@ class WebSocketHandlers:
     async def notify_task_stakeholders(self, task_data: Dict[str, Any], message: str):
         """通知任务相关人员"""
         try:
+            pass  # Auto-fixed empty block
             # 通知任务创建者
             creator_id = task_data.get("creator_id")
             if creator_id:
@@ -381,6 +384,7 @@ class WebSocketHandlers:
             await asyncio.sleep(delay)
 
             if room_id in self.typing_users and user_id in self.typing_users[room_id]:
+                pass  # Auto-fixed empty block
                 # 检查是否超过了设定时间
                 last_typing = self.typing_users[room_id][user_id]
                 if (datetime.utcnow() - last_typing).seconds >= delay:

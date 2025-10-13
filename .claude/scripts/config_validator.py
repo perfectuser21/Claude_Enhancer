@@ -227,6 +227,7 @@ class ConfigValidator:
             return False
 
         for task_name, task_config in task_types.items():
+            pass  # Auto-fixed empty block
             # Validate required fields
             required_fields = ["keywords", "required_agents", "minimum_count"]
             for field in required_fields:

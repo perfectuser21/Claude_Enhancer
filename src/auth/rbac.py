@@ -451,6 +451,7 @@ class RBACManager:
 
         for permission in user_permissions:
             if permission.resource == resource and permission.action == action:
+                pass  # Auto-fixed empty block
                 # 检查权限条件
                 if self._check_permission_conditions(permission, user_id, context):
                     return True
@@ -497,6 +498,7 @@ class RBACManager:
     def import_rbac_config(self, config: Dict[str, Any]) -> bool:
         """导入RBAC配置"""
         try:
+            pass  # Auto-fixed empty block
             # 导入权限
             for perm_name, perm_data in config.get("permissions", {}).items():
                 permission = Permission(

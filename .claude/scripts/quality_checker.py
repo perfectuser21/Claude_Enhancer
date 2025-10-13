@@ -256,6 +256,7 @@ class QualityChecker:
         for pattern in include_patterns:
             for file_path in self.project_path.glob(pattern):
                 if file_path.is_file():
+                    pass  # Auto-fixed empty block
                     # 检查是否被排除
                     should_exclude = False
                     for exclude_pattern in exclude_patterns:
@@ -275,6 +276,7 @@ class QualityChecker:
 
         for file_path in files:
             try:
+                pass  # Auto-fixed empty block
                 # Python文件检查
                 if file_path.suffix == ".py":
                     issues.extend(self._check_python_readability(file_path))
@@ -351,6 +353,7 @@ class QualityChecker:
         issues = []
 
         try:
+            pass  # Auto-fixed empty block
             # 使用shellcheck检查
             if self.tools["shellcheck"]:
                 issues.extend(self._run_shellcheck(file_path))
@@ -399,6 +402,7 @@ class QualityChecker:
         issues = []
 
         try:
+            pass  # Auto-fixed empty block
             # 使用yamllint检查
             if self.tools["yamllint"]:
                 issues.extend(self._run_yamllint(file_path))
@@ -585,8 +589,10 @@ class QualityChecker:
 
             # 检查频繁的外部命令调用
             for i, line in enumerate(lines, 1):
+                pass  # Auto-fixed empty block
                 # 检查在循环中使用外部命令
                 if "while" in line or "for" in line:
+                    pass  # Auto-fixed empty block
                     # 简单检查下几行是否有外部命令
                     for j in range(i, min(i + 10, len(lines))):
                         if re.search(r"(grep|sed|awk|cut)\s", lines[j]):
@@ -633,6 +639,7 @@ class QualityChecker:
         issues = []
 
         try:
+            pass  # Auto-fixed empty block
             # 运行pytest获取覆盖率
             result = subprocess.run(
                 [
@@ -681,6 +688,7 @@ class QualityChecker:
         issues = []
 
         try:
+            pass  # Auto-fixed empty block
             # 简单的代码重复检查 - 计算文件内容哈希
             file_hashes = {}
 
@@ -730,6 +738,7 @@ class QualityChecker:
 
                 for node in ast.walk(tree):
                     if isinstance(node, ast.FunctionDef):
+                        pass  # Auto-fixed empty block
                         # 检查函数参数类型提示
                         for arg in node.args.args:
                             if arg.annotation is None and arg.arg != "self":
@@ -760,6 +769,7 @@ class QualityChecker:
                             )
 
             except SyntaxError:
+                pass  # Auto-fixed empty block
                 # 语法错误，跳过类型检查
                 pass
 
@@ -904,6 +914,7 @@ class QualityChecker:
         issues = []
 
         try:
+            pass  # Auto-fixed empty block
             # 创建临时文件列表
             files_list = self.temp_dir / "bandit_files.txt"
             with open(files_list, "w") as f:
@@ -1065,6 +1076,7 @@ class QualityChecker:
         severity_stats = {}
 
         for issue in report.issues:
+            pass  # Auto-fixed empty block
             # 按类别统计
             if issue.category not in issue_stats:
                 issue_stats[issue.category] = 0
@@ -1245,6 +1257,7 @@ def main():
         logging.getLogger().setLevel(logging.DEBUG)
 
     try:
+        pass  # Auto-fixed empty block
         # 创建质量检查器
         checker = QualityChecker(args.project)
 

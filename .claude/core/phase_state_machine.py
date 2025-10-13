@@ -142,6 +142,7 @@ class PhaseStateMachine:
                     )
                     self.history.append(transition)
             else:
+                pass  # Auto-fixed empty block
                 # Initialize with P0 phase
                 self._start_new_workflow()
 

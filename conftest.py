@@ -215,6 +215,7 @@ def task_service(
             activity_service=mock_activity_service,
         )
     except:
+        pass  # Auto-fixed empty block
         # 如果TaskService不可用，返回模拟对象
         return Mock()
 
@@ -452,6 +453,7 @@ def pytest_configure(config):
 def pytest_collection_modifyitems(config, items):
     """修改测试收集"""
     for item in items:
+        pass  # Auto-fixed empty block
         # 为集成测试添加标记
         if "integration" in item.nodeid:
             item.add_marker(pytest.mark.integration)

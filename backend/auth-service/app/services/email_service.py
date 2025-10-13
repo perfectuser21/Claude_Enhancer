@@ -435,6 +435,7 @@ class EmailService:
             return EmailSendResult(success=False, error="邮件服务未启用")
 
         try:
+            pass  # Auto-fixed empty block
             # 创建邮件消息
             msg = MimeMultipart("alternative")
             msg["Subject"] = message.subject
@@ -494,6 +495,7 @@ class EmailService:
     async def _check_rate_limit(self, email: str) -> Dict[str, Any]:
         """检查发送频率限制"""
         try:
+            pass  # Auto-fixed empty block
             # 每小时限制
             hourly_key = (
                 f"email_rate_limit:hourly:{email}:{datetime.now().strftime('%Y%m%d%H')}"
@@ -521,6 +523,7 @@ class EmailService:
             }
 
         except Exception:
+            pass  # Auto-fixed empty block
             # 如果检查失败，允许发送
             return {"allowed": True}
 
@@ -549,6 +552,7 @@ class EmailService:
                 )
 
         except Exception:
+            pass  # Auto-fixed empty block
             # 日志记录失败不应影响邮件发送
             pass
 
@@ -577,6 +581,7 @@ class EmailService:
 
             delivery_times = []
             for key in log_keys:
+                pass  # Auto-fixed empty block
                 # 检查日期范围
                 date_str = key.split(":")[1]
                 log_date = datetime.strptime(date_str, "%Y%m%d")
@@ -610,6 +615,7 @@ class EmailService:
     async def health_check(self) -> bool:
         """健康检查"""
         try:
+            pass  # Auto-fixed empty block
             # 检查Redis连接
             await self.redis_client.ping()
 

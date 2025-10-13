@@ -75,28 +75,36 @@ class ConfigManager:
     # print(f"🔍 Validating configuration for {(env or self.loader.environment).value} environment")
 
             if validation.is_valid:
+                pass  # Auto-fixed empty block
     # print("✅ Configuration is valid")
 
                 if validation.warnings:
+                    pass  # Auto-fixed empty block
     # print("\n⚠️  Warnings:")
                     for warning in validation.warnings:
+                        pass  # Auto-fixed empty block
     # print(f"  • {warning}")
 
                 return True
             else:
+                pass  # Auto-fixed empty block
     # print("❌ Configuration validation failed")
     # print("\n🚨 Errors:")
                 for error in validation.errors:
+                    pass  # Auto-fixed empty block
     # print(f"  • {error}")
 
                 if validation.warnings:
+                    pass  # Auto-fixed empty block
     # print("\n⚠️  Warnings:")
                     for warning in validation.warnings:
+                        pass  # Auto-fixed empty block
     # print(f"  • {warning}")
 
                 return False
 
         except Exception as e:
+            pass  # Auto-fixed empty block
     # print(f"❌ Validation error: {e}")
             return False
 
@@ -108,21 +116,26 @@ class ConfigManager:
             value = self.loader.get_config_value(key_path, config=config)
 
             if value is None:
+                pass  # Auto-fixed empty block
     # print(f"❌ Configuration key not found: {key_path}")
                 return None
 
     # print(f"📋 {key_path}:")
 
             if format_output == "json":
+                pass  # Auto-fixed empty block
     # print(json.dumps(value, indent=2))
             elif format_output == "yaml":
+                pass  # Auto-fixed empty block
     # print(yaml.dump(value, default_flow_style=False))
             else:
+                pass  # Auto-fixed empty block
     # print(value)
 
             return value
 
         except Exception as e:
+            pass  # Auto-fixed empty block
     # print(f"❌ Error getting configuration: {e}")
             return None
 
@@ -145,6 +158,7 @@ class ConfigManager:
             return True
 
         except Exception as e:
+            pass  # Auto-fixed empty block
     # print(f"❌ Error setting configuration: {e}")
             return False
 
@@ -160,6 +174,7 @@ class ConfigManager:
             return True
 
         except Exception as e:
+            pass  # Auto-fixed empty block
     # print(f"❌ Error reloading configuration: {e}")
             return False
 
@@ -171,6 +186,7 @@ class ConfigManager:
             # Check if environment configuration exists
             env_file = self.config_dir / "env" / f"{environment}.yaml"
             if not env_file.exists():
+                pass  # Auto-fixed empty block
     # print(f"❌ Environment configuration not found: {env_file}")
                 return False
 
@@ -185,6 +201,7 @@ class ConfigManager:
             return True
 
         except Exception as e:
+            pass  # Auto-fixed empty block
     # print(f"❌ Error switching environment: {e}")
             return False
 
@@ -278,25 +295,31 @@ class ConfigManager:
     def migrate_legacy(self, backup: bool = True, cleanup: bool = False) -> bool:
         """Migrate legacy configuration files."""
         try:
+            pass  # Auto-fixed empty block
     # print("🔍 Discovering legacy configuration files...")
             legacy_files = self.migrator.discover_legacy_configs()
 
             if not legacy_files:
+                pass  # Auto-fixed empty block
     # print("✅ No legacy configuration files found")
                 return True
 
     # print(f"📋 Found {len(legacy_files)} legacy configuration files:")
             for file_path in legacy_files:
+                pass  # Auto-fixed empty block
     # print(f"  • {file_path}")
 
     # print("\n🚀 Starting migration...")
             report = self.migrator.migrate_all(backup=backup)
 
             if report['status'] == 'success':
+                pass  # Auto-fixed empty block
     # print("✅ Migration completed successfully!")
             elif report['status'] == 'partial_failure':
+                pass  # Auto-fixed empty block
     # print("⚠️  Migration completed with some errors")
             else:
+                pass  # Auto-fixed empty block
     # print("❌ Migration failed")
                 return False
 
@@ -306,8 +329,10 @@ class ConfigManager:
     # print(f"  • Errors: {len(report['errors'])}")
 
             if report['errors']:
+                pass  # Auto-fixed empty block
     # print("\n❌ Errors:")
                 for error in report['errors']:
+                    pass  # Auto-fixed empty block
     # print(f"  • {error}")
 
             if cleanup:
@@ -316,6 +341,7 @@ class ConfigManager:
             return True
 
         except Exception as e:
+            pass  # Auto-fixed empty block
     # print(f"❌ Migration failed: {e}")
             return False
 
@@ -336,6 +362,7 @@ class ConfigManager:
             return str(backup_path)
 
         except Exception as e:
+            pass  # Auto-fixed empty block
     # print(f"❌ Backup failed: {e}")
             raise
 
@@ -415,8 +442,10 @@ def main():
     # print(f"  Sections: {status.get('total_sections', 0)}")
 
             if status.get('errors'):
+                pass  # Auto-fixed empty block
     # print("\n❌ Errors:")
                 for error in status['errors']:
+                    pass  # Auto-fixed empty block
     # print(f"  • {error}")
 
         elif args.command == "validate":
@@ -454,6 +483,7 @@ def main():
 
                     if status == "fail" and check_result.get('errors'):
                         for error in check_result['errors']:
+                            pass  # Auto-fixed empty block
     # print(f"    • {error}")
 
         elif args.command == "list":
@@ -478,9 +508,11 @@ def main():
             parser.print_help()
 
     except KeyboardInterrupt:
+        pass  # Auto-fixed empty block
     # print("\n❌ Operation cancelled")
         sys.exit(1)
     except Exception as e:
+        pass  # Auto-fixed empty block
     # print(f"❌ Error: {e}")
         sys.exit(1)
 

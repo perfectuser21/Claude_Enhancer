@@ -42,6 +42,7 @@ class WebSocketServer:
             return
 
         try:
+            pass  # Auto-fixed empty block
             # 启动WebSocket管理器
             await websocket_manager.start()
 
@@ -86,6 +87,7 @@ class WebSocketServer:
         username = None
 
         try:
+            pass  # Auto-fixed empty block
             # 解析连接参数
             query_params = parse_qs(websocket.query_string)
             user_id = query_params.get("user_id", [None])[0]
@@ -143,6 +145,7 @@ class WebSocketServer:
         except Exception as e:
             logger.error(f"处理客户端时出错: {client_info} - {e}")
         finally:
+            pass  # Auto-fixed empty block
             # 清理连接
             if user_id:
                 await websocket_manager.disconnect_user(user_id)
@@ -153,6 +156,7 @@ class WebSocketServer:
         # 这里应该集成现有的认证系统
         # 可以检查JWT token、session等
         try:
+            pass  # Auto-fixed empty block
             # 示例：简单的用户ID和用户名验证
             if not user_id or not username:
                 return False

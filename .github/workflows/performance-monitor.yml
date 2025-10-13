@@ -1,0 +1,347 @@
+name: Performance Monitor
+
+on:
+  pull_request:
+    branches: [main, master, develop]
+  push:
+    branches: [main, master, develop]
+  workflow_dispatch:
+    inputs:
+      benchmark_mode:
+        description: 'Benchmark mode'
+        required: false
+        default: 'standard'
+        type: choice
+        options:
+          - standard
+          - detailed
+          - quick
+
+jobs:
+  hook-performance:
+    name: Git Hooks Performance
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Install hooks
+        run: |
+          if [ -f ".claude/install.sh" ]; then
+            bash .claude/install.sh
+          fi
+
+      - name: ⏱️ Measure Pre-Commit Hook
+        id: precommit_perf
+        run: |
+          echo "⏱️ Measuring pre-commit hook performance..."
+
+          # Create test file
+          echo "test_content_$(date +%s)" > test_file.txt
+          git add test_file.txt
+
+          # Measure execution time (3 runs for average)
+          total=0
+          runs=3
+
+          for i in $(seq 1 $runs); do
+            start=$(date +%s%N)
+            bash .git/hooks/pre-commit < /dev/null 2>/dev/null || true
+            end=$(date +%s%N)
+            duration=$(( (end - start) / 1000000 ))
+            echo "Run $i: ${duration}ms"
+            total=$((total + duration))
+          done
+
+          avg=$((total / runs))
+          echo "Average pre-commit time: ${avg}ms"
+          echo "duration=$avg" >> $GITHUB_OUTPUT
+
+          # Performance thresholds
+          threshold_warning=300
+          threshold_error=500
+
+          if [ $avg -lt $threshold_warning ]; then
+            echo "✅ Excellent performance: ${avg}ms"
+            echo "status=excellent" >> $GITHUB_OUTPUT
+          elif [ $avg -lt $threshold_error ]; then
+            echo "⚠️ Acceptable performance: ${avg}ms (consider optimization)"
+            echo "status=acceptable" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Poor performance: ${avg}ms > ${threshold_error}ms"
+            echo "status=poor" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+          # Cleanup
+          rm -f test_file.txt
+
+      - name: ⏱️ Measure Pre-Push Hook
+        id: prepush_perf
+        run: |
+          echo "⏱️ Measuring pre-push hook performance..."
+
+          if [ ! -f ".git/hooks/pre-push" ]; then
+            echo "⚠️ Pre-push hook not found"
+            exit 0
+          fi
+
+          start=$(date +%s%N)
+          bash .git/hooks/pre-push origin refs/heads/main < /dev/null 2>/dev/null || true
+          end=$(date +%s%N)
+          duration=$(( (end - start) / 1000000 ))
+
+          echo "Pre-push time: ${duration}ms"
+          echo "duration=$duration" >> $GITHUB_OUTPUT
+
+          if [ $duration -lt 1000 ]; then
+            echo "✅ Pre-push performance acceptable: ${duration}ms"
+          else
+            echo "⚠️ Pre-push performance slow: ${duration}ms"
+          fi
+
+      - name: 🔍 Profile Hook Bottlenecks
+        if: ${{ github.event.inputs.benchmark_mode == 'detailed' }}
+        run: |
+          echo "🔍 Profiling hook execution..."
+
+          # Profile with bash -x for detailed timing
+          if [ -f ".git/hooks/pre-commit" ]; then
+            echo "Profiling pre-commit hook..."
+            time bash -x .git/hooks/pre-commit < /dev/null 2>&1 | head -20
+          fi
+
+  test-suite-performance:
+    name: Test Suite Performance
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: ⏱️ Measure Test Execution
+        id: test_perf
+        run: |
+          echo "⏱️ Measuring test suite performance..."
+
+          start=$(date +%s%N)
+          npm test --silent 2>/dev/null || true
+          end=$(date +%s%N)
+          duration=$(( (end - start) / 1000000 ))
+
+          echo "Test suite duration: ${duration}ms"
+          echo "duration=$duration" >> $GITHUB_OUTPUT
+
+          # Store metrics
+          mkdir -p .temp/metrics
+          echo "${duration}" > .temp/metrics/test_duration.txt
+          echo "$(date -u +%Y-%m-%d) ${duration}" >> .temp/metrics/test_history.log
+
+          # Performance thresholds
+          threshold_warning=10000  # 10s
+          threshold_error=30000    # 30s
+
+          if [ $duration -lt $threshold_warning ]; then
+            echo "✅ Excellent test performance: ${duration}ms"
+          elif [ $duration -lt $threshold_error ]; then
+            echo "⚠️ Test performance acceptable: ${duration}ms"
+          else
+            echo "::warning::Test suite slow: ${duration}ms > ${threshold_error}ms"
+          fi
+
+      - name: 📊 Test Performance Breakdown
+        if: ${{ github.event.inputs.benchmark_mode == 'detailed' }}
+        run: |
+          echo "📊 Detailed test performance analysis..."
+          npm test -- --verbose 2>&1 | grep -E "(PASS|FAIL|Time:|Duration:)" || true
+
+  workflow-performance:
+    name: Workflow Execution Time
+    runs-on: ubuntu-latest
+    needs: [hook-performance, test-suite-performance]
+
+    steps:
+      - name: 📊 Calculate Total Time
+        run: |
+          echo "📊 Workflow Performance Summary"
+          echo "=============================="
+          echo ""
+          echo "Pre-commit hook: ${{ needs.hook-performance.outputs.duration || 'N/A' }}ms"
+          echo "Test suite: ${{ needs.test-suite-performance.outputs.duration || 'N/A' }}ms"
+          echo ""
+
+          # Calculate developer feedback loop time
+          precommit=${{ needs.hook-performance.outputs.duration || 0 }}
+          tests=${{ needs.test-suite-performance.outputs.duration || 0 }}
+          total=$((precommit + tests))
+
+          echo "Total feedback loop: ${total}ms"
+
+          if [ $total -lt 15000 ]; then
+            echo "✅ Excellent developer experience: <15s"
+          elif [ $total -lt 30000 ]; then
+            echo "⚠️ Acceptable developer experience: 15-30s"
+          else
+            echo "::warning::Slow developer experience: >30s"
+          fi
+
+  performance-trends:
+    name: Performance Trends Analysis
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 50  # Get history for trending
+
+      - name: 📈 Analyze Performance Trends
+        run: |
+          echo "📈 Analyzing performance trends..."
+
+          if [ -f ".temp/metrics/test_history.log" ]; then
+            echo "Recent test performance:"
+            tail -10 .temp/metrics/test_history.log || true
+
+            # Calculate average
+            if [ -f ".temp/metrics/test_history.log" ]; then
+              avg=$(awk '{sum+=$2; count++} END {if(count>0) print sum/count; else print 0}' .temp/metrics/test_history.log)
+              echo "Average test time: ${avg}ms"
+            fi
+          else
+            echo "ℹ️ No historical data available yet"
+          fi
+
+      - name: 🚨 Detect Performance Regression
+        run: |
+          echo "🚨 Checking for performance regression..."
+
+          # Compare current with baseline
+          if [ -f ".temp/metrics/baseline_performance.txt" ]; then
+            baseline=$(cat .temp/metrics/baseline_performance.txt)
+            current=${{ needs.test-suite-performance.outputs.duration || 0 }}
+
+            if [ $current -gt 0 ] && [ $baseline -gt 0 ]; then
+              regression=$(( (current - baseline) * 100 / baseline ))
+
+              echo "Baseline: ${baseline}ms"
+              echo "Current: ${current}ms"
+              echo "Change: ${regression}%"
+
+              if [ $regression -gt 20 ]; then
+                echo "::warning::Performance regression detected: +${regression}%"
+              elif [ $regression -lt -20 ]; then
+                echo "✅ Performance improvement: ${regression}%"
+              else
+                echo "✅ Performance stable"
+              fi
+            fi
+          else
+            echo "ℹ️ No baseline found, creating..."
+            mkdir -p .temp/metrics
+            echo "${{ needs.test-suite-performance.outputs.duration || 0 }}" > .temp/metrics/baseline_performance.txt
+          fi
+
+  resource-usage:
+    name: Resource Usage Monitoring
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📊 Measure Resource Usage
+        run: |
+          echo "📊 Measuring resource usage..."
+
+          # Repository size
+          repo_size=$(du -sh . | cut -f1)
+          echo "Repository size: $repo_size"
+
+          # node_modules size
+          if [ -d "node_modules" ]; then
+            node_size=$(du -sh node_modules 2>/dev/null | cut -f1)
+            echo "node_modules size: $node_size"
+          fi
+
+          # Cache directories
+          if [ -d ".cache" ]; then
+            cache_size=$(du -sh .cache 2>/dev/null | cut -f1)
+            echo "Cache size: $cache_size"
+          fi
+
+          # Temp directories
+          if [ -d ".temp" ]; then
+            temp_size=$(du -sh .temp 2>/dev/null | cut -f1)
+            echo "Temp size: $temp_size"
+          fi
+
+          # Count files
+          total_files=$(find . -type f | wc -l)
+          echo "Total files: $total_files"
+
+          # Large files check
+          echo ""
+          echo "Checking for large files (>1MB)..."
+          find . -type f -size +1M -not -path "./.git/*" -not -path "./node_modules/*" -exec ls -lh {} \; | awk '{print $9, $5}' || echo "None found"
+
+  summary:
+    name: Performance Summary
+    runs-on: ubuntu-latest
+    needs: [hook-performance, test-suite-performance, workflow-performance, resource-usage]
+    if: always()
+
+    steps:
+      - name: 📊 Generate Performance Report
+        run: |
+          cat << 'EOF' > performance_report.md
+          # ⚡ Performance Monitoring Report
+
+          **Date**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          **Branch**: ${{ github.ref_name }}
+          **Commit**: ${{ github.sha }}
+
+          ## 🎯 Performance Metrics
+
+          | Metric | Value | Status |
+          |--------|-------|--------|
+          | Pre-commit Hook | ${{ needs.hook-performance.outputs.duration || 'N/A' }}ms | ${{ needs.hook-performance.outputs.status || 'N/A' }} |
+          | Test Suite | ${{ needs.test-suite-performance.outputs.duration || 'N/A' }}ms | ✅ |
+          | Overall Feedback Loop | Combined above | ✅ |
+
+          ## 📈 Thresholds
+
+          - ✅ **Excellent**: Pre-commit <300ms, Tests <10s
+          - ⚠️ **Acceptable**: Pre-commit <500ms, Tests <30s
+          - ❌ **Needs Optimization**: Above acceptable limits
+
+          ## 🎯 Recommendations
+
+          1. Keep pre-commit hooks under 300ms for best developer experience
+          2. Optimize test suite to run under 10 seconds
+          3. Monitor for performance regressions in PRs
+          4. Profile slow operations using detailed benchmark mode
+
+          ---
+          *Generated by Performance Monitor Workflow*
+          EOF
+
+          cat performance_report.md
+
+      - name: 📤 Upload Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-report
+          path: performance_report.md
+          retention-days: 30

@@ -119,7 +119,7 @@ class LazyLoadingPhaseController {
         try {
             const definition = await loadPromise;
             this.componentCache.set(cacheKey, definition);
-            this._enforceCache CacheSize();
+            this._enforceCacheSize();
             return definition;
         } finally {
             this.loadingPromises.delete(cacheKey);

@@ -21,7 +21,7 @@ from sqlalchemy.orm import Session, joinedload, selectinload, contains_eager
 from sqlalchemy.sql import Select
 from sqlalchemy.exc import IntegrityError
 
-from backend.repositories.base_repository import BaseRepository
+from src.repositories.base_repository import BaseRepository
 from src.task_management.models import (
     Task,
     TaskStatus,
@@ -847,9 +847,11 @@ class TaskRepository(BaseRepository[Task]):
         )
 
         if match_all:
+            pass  # Auto-fixed empty block
             # 匹配所有标签
             query = query.filter(Task.tags.op("@>")(tags))
         else:
+            pass  # Auto-fixed empty block
             # 匹配任意标签
             query = query.filter(Task.tags.op("&&")(tags))
 

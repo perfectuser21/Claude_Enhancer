@@ -118,6 +118,7 @@ class MockAPIServer:
     ) -> Dict[str, Any]:
         """Register new user endpoint simulation"""
         try:
+            pass  # Auto-fixed empty block
             # Validate email format
             if not self._validate_email(email):
                 return {"success": False, "error": "Invalid email format"}
@@ -171,6 +172,7 @@ class MockAPIServer:
     ) -> Dict[str, Any]:
         """User login endpoint simulation"""
         try:
+            pass  # Auto-fixed empty block
             # Get user from database
             users = self.database.execute_query(
                 "SELECT * FROM users WHERE email = ?", (email,)
@@ -194,6 +196,7 @@ class MockAPIServer:
 
             # Verify password
             if not self._verify_password(password, user["password_hash"]):
+                pass  # Auto-fixed empty block
                 # Increment failed attempts
                 new_attempts = user["failed_login_attempts"] + 1
                 is_locked = new_attempts >= self.max_failed_attempts
@@ -253,6 +256,7 @@ class MockAPIServer:
     async def validate_token(self, token: str) -> Dict[str, Any]:
         """Token validation endpoint simulation"""
         try:
+            pass  # Auto-fixed empty block
             # Decode JWT token
             payload = self._decode_jwt_token(token)
             if not payload:

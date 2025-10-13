@@ -66,6 +66,7 @@ class UserService:
         """
         try:
             with transaction() as session:
+                pass  # Auto-fixed empty block
                 # 检查用户是否已存在
                 existing_user = (
                     session.session.query(User)
@@ -164,6 +165,7 @@ class UserService:
             await self.init_cache()
 
         try:
+            pass  # Auto-fixed empty block
             # 先从缓存获取
             user_key = CacheKeyManager.user_key(user_id)
             cached_user = await self.cache.get(user_key)
@@ -215,6 +217,7 @@ class UserService:
         """
         try:
             with readonly_transaction() as session:
+                pass  # Auto-fixed empty block
                 # 构建查询
                 query = session.session.query(User).filter(User.is_deleted == False)
 
@@ -242,9 +245,11 @@ class UserService:
         """
         try:
             with transaction() as session:
+                pass  # Auto-fixed empty block
                 # 预处理数据
                 processed_data = []
                 for user_data in users_data:
+                    pass  # Auto-fixed empty block
                     # 设置密码哈希
                     user = User()
                     user.set_password(user_data.get("password", "default123"))
@@ -356,6 +361,7 @@ class SessionService:
             session_id = await self.cache.get(auth_key)
 
             if session_id:
+                pass  # Auto-fixed empty block
                 # 从缓存获取会话信息
                 session_key = CacheKeyManager.session_key(session_id)
                 session_data = await self.cache.get(session_key)
@@ -377,6 +383,7 @@ class SessionService:
                 session = result.scalar_one_or_none()
 
                 if session and session.is_active:
+                    pass  # Auto-fixed empty block
                     # 更新缓存
                     session_key = CacheKeyManager.session_key(session.session_id)
                     await self.cache.set(session_key, session.to_dict(), ttl=3600)
@@ -398,6 +405,7 @@ async def demo_database_operations():
     logger.info("=== 数据访问层演示开始 ===")
 
     try:
+        pass  # Auto-fixed empty block
         # 初始化数据库和缓存
         await init_database()
         await init_cache()
@@ -468,6 +476,7 @@ async def demo_database_operations():
         logger.error(f"演示过程中出错: {e}")
 
     finally:
+        pass  # Auto-fixed empty block
         # 清理资源
         await close_cache()
         await close_database()
