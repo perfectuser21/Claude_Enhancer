@@ -1071,24 +1071,24 @@ async def main():
         await tester.save_report_to_file(report)
 
         # 打印摘要
-    print("\n" + "="*80)
-    print("🎯 PERFECT21 性能测试报告摘要")
-    print("="*80)
-    print(f"整体性能评分: {report.overall_score:.1f}/100")
-    print(f"测试时间: {report.timestamp.strftime('%Y-%m-%d %H:%M:%S')}")
-    print(f"测试项目数: {len(report.test_results)}")
+        print("\n" + "="*80)
+        print("🎯 PERFECT21 性能测试报告摘要")
+        print("="*80)
+        print(f"整体性能评分: {report.overall_score:.1f}/100")
+        print(f"测试时间: {report.timestamp.strftime('%Y-%m-%d %H:%M:%S')}")
+        print(f"测试项目数: {len(report.test_results)}")
 
         if report.bottlenecks:
-        print(f"\n⚠️ 发现的瓶颈 ({len(report.bottlenecks)}个):")
+            print(f"\n⚠️ 发现的瓶颈 ({len(report.bottlenecks)}个):")
             for bottleneck in report.bottlenecks:
                 print(f"  - {bottleneck}")
 
         if report.recommendations:
-        print(f"\n💡 优化建议 ({len(report.recommendations)}个):")
+            print(f"\n💡 优化建议 ({len(report.recommendations)}个):")
             for recommendation in report.recommendations:
-            print(f"  - {recommendation}")
+                print(f"  - {recommendation}")
 
-    print("\n📊 详细测试结果:")
+        print("\n📊 详细测试结果:")
         for result in report.test_results:
             print(f"\n{result.test_name}:")
             print(f"  RPS: {result.requests_per_second:.1f}")
@@ -1100,9 +1100,9 @@ async def main():
             if result.cache_hit_rate_percent > 0:
                 print(f"  缓存命中率: {result.cache_hit_rate_percent:.1f}%")
 
-    print(f"\n📁 报告文件: performance_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json")
-    print("📈 图表文件: performance_charts/ 目录")
-    # print("="*80)
+        print(f"\n📁 报告文件: performance_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json")
+        print("📈 图表文件: performance_charts/ 目录")
+        # print("="*80)
 
         return 0
 
