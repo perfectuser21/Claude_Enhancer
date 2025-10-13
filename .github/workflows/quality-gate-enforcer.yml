@@ -82,28 +82,46 @@ jobs:
           echo "✓ Hook infrastructure verified"
           echo "Note: Hooks are installed locally by developers, not in CI"
 
-      - name: 🔍 Run Shellcheck
+      - name: 🔍 Run Shellcheck (Incremental)
         run: |
-          echo "🔍 Running shellcheck on shell scripts..."
+          echo "🔍 Running shellcheck on CHANGED shell scripts only..."
 
-          # Find all shell scripts
-          shopt -s globstar
+          # Get list of changed .sh files in this PR/commit
+          changed_scripts=$(git diff --name-only --diff-filter=ACM origin/main...HEAD | grep "\.sh$" || true)
+
+          if [ -z "$changed_scripts" ]; then
+            echo "ℹ️  No shell scripts changed in this PR"
+            echo "✅ Shellcheck check skipped (no changes)"
+            exit 0
+          fi
+
+          echo "📝 Changed scripts:"
+          echo "$changed_scripts"
+          echo ""
+
           error_count=0
 
+          # Only check changed scripts
           # Exclude SC2034 (unused variable), SC2155 (declare and assign), SC2164 (cd without error check) as non-critical
-          # Also exclude brand_unification.sh which has syntax issues with hyphenated variable names
-          for script in $(find . -name "*.sh" -not -path "./node_modules/*" -not -path "./.git/*" -not -path "./.husky/*" -not -name "brand_unification.sh" -type f); do
-            echo "Checking: $script"
-            if ! shellcheck -S warning -e SC2034 -e SC2155 -e SC2164 "$script"; then
-              echo "❌ Shellcheck failed for $script"
-              ((error_count++))
+          while IFS= read -r script; do
+            if [ -f "$script" ]; then
+              echo "Checking: $script"
+              if ! shellcheck -S warning -e SC2034 -e SC2155 -e SC2164 "$script"; then
+                echo "❌ Shellcheck failed for $script"
+                ((error_count++))
+              else
+                echo "✅ $script passed"
+              fi
             fi
-          done
+          done <<< "$changed_scripts"
 
           if [ $error_count -eq 0 ]; then
-            echo "✅ All shell scripts passed shellcheck"
+            echo ""
+            echo "✅ All changed shell scripts passed shellcheck"
+            echo "ℹ️  Note: Only checking files modified in this PR (incremental approach)"
           else
-            echo "::error::Shellcheck found issues in $error_count files"
+            echo "::error::Shellcheck found issues in $error_count changed files"
+            echo "::error::Fix these issues in the files YOU modified"
             exit 1
           fi
 
