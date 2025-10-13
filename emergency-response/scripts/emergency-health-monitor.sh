@@ -387,3 +387,54 @@ Claude Enhancer 5.1 应急健康监控工具
 环境变量:
     SLACK_WEBHOOK_URL    # Slack告警Webhook URL
 
+EOF
+}
+
+# 主程序
+main() {
+    # 解析命令行参数
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            -c|--continuous)
+                CONTINUOUS=true
+                shift
+                ;;
+            -i|--interval)
+                CHECK_INTERVAL="$2"
+                shift 2
+                ;;
+            -n|--namespace)
+                NAMESPACE="$2"
+                shift 2
+                ;;
+            -e|--endpoint)
+                HEALTH_ENDPOINT="$2"
+                shift 2
+                ;;
+            -h|--help)
+                show_help
+                exit 0
+                ;;
+            *)
+                echo "未知选项: $1"
+                show_help
+                exit 1
+                ;;
+        esac
+    done
+
+    # 检查依赖
+    if ! command -v kubectl &> /dev/null; then
+        log_error "kubectl未安装，无法进行K8s健康检查"
+    fi
+
+    # 执行健康检查
+    if [ "$CONTINUOUS" = true ]; then
+        monitor_continuously
+    else
+        perform_health_check
+    fi
+}
+
+# 执行主程序
+main "$@"
