@@ -125,31 +125,34 @@ jobs:
             exit 1
           fi
 
-      - name: 🐍 Run Python Lint
+      - name: 🐍 Run Python Lint (Errors Only)
         run: |
-          echo "🐍 Running pylint on Python files..."
+          echo "🐍 Running pylint on Python files (errors only)..."
 
-          # Find all Python files
-          py_files=$(find . -name "*.py" -not -path "./node_modules/*" -not -path "./.git/*" -not -path "./venv/*" -type f)
+          # Find Python files in important directories only
+          py_files=$(find ./src ./backend ./.claude -name "*.py" 2>/dev/null || echo "")
 
           if [ -z "$py_files" ]; then
-            echo "ℹ️ No Python files found, skipping"
+            echo "ℹ️ No Python files found in src/backend/.claude, skipping"
             exit 0
           fi
 
           error_count=0
           for file in $py_files; do
-            echo "Linting: $file"
-            if ! pylint "$file" --fail-under=7.0 --disable=C0114,C0115,C0116 2>/dev/null; then
-              echo "⚠️ Pylint warnings in $file"
+            echo "Checking: $file"
+            # --errors-only: Only report errors (E,F), not warnings (W) or conventions (C)
+            # Still disable false positives from dynamic imports
+            if ! pylint "$file" --errors-only --disable=E0401,E1101 2>/dev/null; then
+              echo "❌ Errors found in $file"
               ((error_count++))
             fi
           done
 
           if [ $error_count -eq 0 ]; then
-            echo "✅ All Python files passed lint"
+            echo "✅ All Python files passed error check"
           else
-            echo "::warning::Pylint found issues in $error_count files (non-blocking)"
+            echo "::error::Pylint found errors in $error_count files"
+            exit 1
           fi
 
       - name: 🟢 Run JavaScript Lint

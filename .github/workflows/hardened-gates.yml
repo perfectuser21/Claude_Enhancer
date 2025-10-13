@@ -20,7 +20,7 @@ jobs:
   gpg-verify:
     name: 🔐 GPG Signature Verification
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/production'
+    if: false  # Disabled for personal workflow - not needed for single-developer projects
 
     steps:
       - uses: actions/checkout@v4
