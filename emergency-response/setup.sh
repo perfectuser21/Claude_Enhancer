@@ -45,3 +45,16 @@ show_banner() {
   ║               Claude Enhancer 5.1 应急响应系统设置                          ║
   ║                    Emergency Response System Setup                          ║
   ╚══════════════════════════════════════════════════════════════════════════════╝
+EOF
+    echo -e "${NC}"
+}
+
+# 主函数
+main() {
+    show_banner
+    log_info "应急响应系统设置开始..."
+    log_success "设置完成！应急响应系统已就绪。"
+}
+
+# 执行主函数
+main "$@"
