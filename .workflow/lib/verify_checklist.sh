@@ -48,7 +48,7 @@ verify_checklist() {
     local passed=0
     local failed=0
 
-    > "$DETAILS_FILE"  # 清空详细日志
+    : > "$DETAILS_FILE"  # 清空详细日志
 
     # 读取CHECKLIST.md中的每一项
     while IFS= read -r line; do
