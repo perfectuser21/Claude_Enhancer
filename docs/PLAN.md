@@ -1,11 +1,20 @@
 # PLAN: Claude Enhancer Enforcement Optimization
 
+<<<<<<< Updated upstream
 **Task ID**: enforcement-optimization-20251011
 **Phase**: P1 (Planning)
 **Timeline**: 8 days (5 core + 3 buffer)
 **Strategy**: Conservative 4-phase rollout with comprehensive testing
 **Date**: 2025-10-11
 **Version**: 1.0.0
+=======
+## 📋 修复总览
+- **文档版本**: v1.0.0
+- **创建时间**: 2025-09-28
+- **修复范围**: Agent系统、质量检查、性能优化
+- **预期完成**: P0-P7 完整修复流程
+- **风险等级**: 🟡 中等风险（系统可用，修复为增强）
+>>>>>>> Stashed changes
 
 ---
 
@@ -485,6 +494,7 @@ echo "🚨 ROLLBACK COMPLETE: Reverted to v6.1.0" | tee rollback-notice.txt
 ### 回滚验证清单
 
 ```bash
+<<<<<<< Updated upstream
 # 运行回滚后验证
 ./test/post_rollback_validation.sh
 
@@ -495,6 +505,11 @@ echo "🚨 ROLLBACK COMPLETE: Reverted to v6.1.0" | tee rollback-notice.txt
 # ✓ 开发者可以正常提交
 # ✓ CI/CD pipeline通过
 # ✓ 现有gate文件未损坏
+=======
+# 模拟完整的P0-P7工作流
+echo "P1" > .phase/current
+# 执行各Phase操作，验证Agent选择和质量检查正常工作
+>>>>>>> Stashed changes
 ```
 
 ### 数据备份和恢复
