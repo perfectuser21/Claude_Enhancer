@@ -113,12 +113,12 @@ run_migration_tests() {
     TOTAL_TESTS=$((TOTAL_TESTS + 1))
 
     local min_lines=50
-    if [ $(wc -l < "$PROJECT_ROOT/.claude/core/engine.py") -lt $min_lines ]; then
+    if [ "$(wc -l < "$PROJECT_ROOT/.claude/core/engine.py")" -lt "$min_lines" ]; then
         print_fail "engine.py too small (< $min_lines lines)"
         return 1
     fi
 
-    if [ $(wc -l < "$PROJECT_ROOT/.claude/core/orchestrator.py") -lt $min_lines ]; then
+    if [ "$(wc -l < "$PROJECT_ROOT/.claude/core/orchestrator.py")" -lt "$min_lines" ]; then
         print_fail "orchestrator.py too small (< $min_lines lines)"
         return 1
     fi
