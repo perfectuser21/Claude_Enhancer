@@ -1,0 +1,157 @@
+# Claude Enhancer Pre-Commit Self-Check Rules
+# Version: 1.0.0
+# Purpose: Enforce consistency and prevent contradictory commits
+
+version: "1.0"
+project_name: "Claude Enhancer"
+
+rules:
+  version_consistency:
+    enabled: true
+    severity: critical
+    description: "VERSION file must match CLAUDE.md version declarations"
+    files:
+      - VERSION
+      - CLAUDE.md
+    pattern: "Claude Enhancer (\\d+\\.\\d+(\\.\\d+)?)"
+    action: block
+
+  positioning_consistency:
+    enabled: true
+    severity: critical
+    description: "Project positioning must be consistent (personal, not enterprise)"
+    files:
+      - CLAUDE.md
+    forbidden_keywords:
+      - "企业级"
+      - "enterprise-level"
+      - "enterprise-grade"
+    required_keywords:
+      - "个人"
+      - "personal"
+    title_pattern: ".*个人.*"
+    action: block
+
+  complexity_thresholds:
+    enabled: true
+    severity: warning
+    description: "Keep system complexity under control"
+    limits:
+      workflows:
+        path: ".github/workflows/"
+        max: 8
+        current_exception: 15  # Temporary, should be reduced
+      bdd_scenarios:
+        path: "acceptance/features/"
+        pattern: "*.feature"
+        max: 15
+        current_exception: 35  # Temporary, should be reduced
+      claude_hooks:
+        path: ".claude/hooks/"
+        pattern: "*.sh"
+        exclude_paths:
+          - ".claude/hooks/archive/"
+          - ".claude/hooks/quality/"
+        max: 6
+        current_exception: 27  # Active hooks only
+    action: warn
+
+  backup_cleanup:
+    enabled: true
+    severity: warning
+    description: "Keep only the latest backup directory"
+    path: ".git/hooks/backup_*"
+    keep_latest: 1
+    action: auto_clean
+
+  document_duplication:
+    enabled: true
+    severity: warning
+    description: "Detect duplicate content between CLAUDE.md files"
+    files:
+      - "CLAUDE.md"
+      - "/root/.claude/CLAUDE.md"
+    similarity_threshold: 85  # Percentage
+    action: warn
+
+  forbidden_root_documents:
+    enabled: true
+    severity: critical
+    description: "Prevent unauthorized document creation in root"
+    allowed_files:
+      - README.md
+      - CLAUDE.md
+      - INSTALLATION.md
+      - ARCHITECTURE.md
+      - CONTRIBUTING.md
+      - CHANGELOG.md
+      - LICENSE.md
+      - VERSION
+    pattern: "*.md"
+    action: block
+
+  git_hook_integrity:
+    enabled: true
+    severity: critical
+    description: "Verify Git hooks are executable and up-to-date"
+    hooks:
+      - pre-commit
+      - commit-msg
+      - pre-push
+    required_permissions: "755"
+    action: block
+
+  temporary_file_lifecycle:
+    enabled: true
+    severity: info
+    description: "Enforce temporary file lifecycle management"
+    paths:
+      temp:
+        path: ".temp/"
+        ttl_days: 7
+      evidence:
+        path: "evidence/"
+        ttl_days: 30
+      archive:
+        path: "archive/"
+        ttl_days: 365
+    action: notify
+
+# Exception handling
+exceptions:
+  # Temporary exceptions that should be removed
+  temporary:
+    - rule: complexity_thresholds.workflows
+      reason: "Legacy workflows pending consolidation"
+      expires: "2025-11-01"
+    - rule: complexity_thresholds.bdd_scenarios
+      reason: "Generated scenarios need manual review"
+      expires: "2025-11-01"
+    - rule: complexity_thresholds.claude_hooks
+      reason: "Hooks consolidation in progress"
+      expires: "2025-10-20"
+
+  # Permanent exceptions
+  permanent: []
+
+# Auto-fix configurations
+auto_fix:
+  version_sync:
+    enabled: false  # Manual intervention required
+    description: "Cannot auto-fix version mismatches"
+  
+  backup_cleanup:
+    enabled: true
+    description: "Automatically remove old backup directories"
+  
+  temp_cleanup:
+    enabled: true
+    description: "Automatically remove expired temporary files"
+
+# Reporting
+reporting:
+  format: "console"
+  verbosity: "detailed"
+  fail_on_warning: false
+  fail_on_critical: true
+  output_file: ".temp/self-check-report.txt"

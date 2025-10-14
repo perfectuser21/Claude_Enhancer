@@ -1,0 +1,21 @@
+{
+  "_description": "Index of archived decisions - Quick reference to historical decisions",
+  "_purpose": "Allow AI to quickly find relevant past decisions without loading full archives",
+  "_last_updated": "2025-10-14T07:33:25.064681",
+  "_version": "1.0",
+  "archives": {
+    "2025-10": "质量门禁简化、定位明确为个人工具、文档清理、自愈系统创建 (详见 memory-archive/2025-10.json)",
+    "2025-08": "尝试添加性能分析工具, 临时修复日志问题"
+  },
+  "_usage": {
+    "for_ai": "When you need context about old decisions, check this index first. If you need full details, load the specific archive file.",
+    "for_humans": "Quick overview of what happened each month. Full details are in the archive files.",
+    "update_frequency": "Updated automatically by memory-compressor.py"
+  },
+  "_size_tracking": {
+    "current_month": "2025-10",
+    "oldest_month": "2025-08",
+    "total_archives": 1,
+    "estimated_total_size_kb": 0.74
+  }
+}
