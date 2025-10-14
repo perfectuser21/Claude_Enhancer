@@ -1,0 +1,33 @@
+# Basic Features Configuration
+# =============================
+
+name: "basic"
+version: "2.0.0"
+enabled: true
+priority: 1
+
+description: "Essential functionality for core workflow"
+
+features:
+  workflow_management:
+    enabled: true
+    description: "8-Phase workflow system (P0-P7)"
+
+  branch_protection:
+    enabled: true
+    description: "Branch protection and Rule 0 enforcement"
+
+  quality_gates:
+    enabled: true
+    description: "Quality gate checks and validation"
+
+  git_integration:
+    enabled: true
+    description: "Git hooks and commit management"
+
+dependencies: []
+
+# Performance targets
+performance:
+  load_time_ms: 30
+  memory_mb: 10

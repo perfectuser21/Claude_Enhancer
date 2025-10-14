@@ -83,13 +83,23 @@ mkdir -p "$PHASE_DIR" "$WORKFLOW_DIR/logs"
 is_execution_trigger() {
     local prompt="${1:-}"
 
-    # 明确的执行触发词（5个）
+    # 明确的执行触发词（13个 - 已扩展）
     local execution_triggers=(
+        # 原有5个触发词
         "现在开始实现"
         "现在开始执行"
         "开始工作流"
         "let's implement"
         "let's start"
+        # 新增8个自然触发词
+        "开始行动吧"
+        "开始做吧"
+        "开始实现"
+        "开始执行"
+        "启动工作流"
+        "start implementation"
+        "let's begin"
+        "let's do it"
     )
 
     # 标准化输入

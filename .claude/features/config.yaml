@@ -1,0 +1,52 @@
+# Claude Enhancer v2.0 - Feature Configuration
+# ============================================
+# Main feature registry for personal AI-driven development
+
+version: "2.0.0"
+
+# Feature registry
+features:
+  basic:
+    enabled: true
+    description: "Essential functionality for core workflow"
+    dependencies: []
+    priority: 1
+
+  standard:
+    enabled: true
+    description: "Common development tools and helpers"
+    dependencies: ["basic"]
+    priority: 2
+
+  advanced:
+    enabled: false
+    description: "Optional enhancements and experimental features"
+    dependencies: ["basic", "standard"]
+    priority: 3
+
+# Feature dependencies
+# Standard depends on Basic
+# Advanced depends on both Basic and Standard
+feature_dependencies:
+  standard: ["basic"]
+  advanced: ["basic", "standard"]
+
+# Enabled/Disabled tracking
+enabled_features:
+  - basic
+  - standard
+
+disabled_features:
+  - advanced
+
+# Performance settings
+performance:
+  lazy_loading: true
+  cache_enabled: true
+  max_load_time_ms: 100
+
+# Personal use optimizations
+personal_mode:
+  enabled: true
+  skip_team_features: true
+  single_user_optimizations: true
