@@ -1,11 +1,7 @@
-<<<<<<< Updated upstream
-# Workflow Gates v2 — 八阶段自动化（P0-P7）
-# Enhanced with AI Self-Validation System (v6.0)
-
-=======
 # Workflow Gates v2 — 完整8阶段自动化 (P0-P7)
+# Enhanced with AI Self-Validation System (v6.0)
 # 更新：2025-10-07 - 添加P0探索阶段和P7监控阶段
->>>>>>> Stashed changes
+
 meta:
   subagent_invocation: "Only main Claude Code agent may invoke sub-agents. Sub-agents MUST NOT invoke sub-agents."
   merge_strategy: "squash"              # main 分支一律 squash
@@ -26,16 +22,6 @@ quality:
   required_signatures: 8   # Required GPG signatures for protected branches
 
 parallel_limits:
-<<<<<<< Updated upstream
-  P0: 3
-  P1: 4
-  P2: 6
-  P3: 8
-  P4: 6
-  P5: 4
-  P6: 2
-  P7: 3
-=======
   P0: 3   # 探索阶段：少量专家快速验证
   P1: 4   # 规划阶段：分析师+架构师
   P2: 6   # 骨架阶段：多个模块并行搭建
@@ -44,7 +30,6 @@ parallel_limits:
   P5: 4   # 审查阶段：专注质量审核
   P6: 2   # 发布阶段：谨慎发布
   P7: 3   # 监控阶段：观察运行状态
->>>>>>> Stashed changes
 
 parallel_autotune:
   success_streak_add: 2    # 连续两次一次过，上限 +2（不超过阶段限额）
@@ -55,9 +40,8 @@ test_depth:
   nightly_ci: ["integration", "contract"]   # 夜间 CI 额外跑
 
 phase_order: [P0, P1, P2, P3, P4, P5, P6, P7]
-<<<<<<< Updated upstream
 
-# Pre-Tool Quality Gates (NEW - AI Self-Validation)
+# Pre-Tool Quality Gates (AI Self-Validation)
 pre_tool_gates:
   Write:
     enabled: true
@@ -90,10 +74,20 @@ pre_tool_gates:
 
 phases:
   P0:
-    name: "Discovery"
-    allow_paths: ["docs/P0_*.md", "docs/*_DISCOVERY.md", "docs/spike/**", ".gates/**", ".phase/**"]
+    name: "Explore - 技术探索"
+    description: "技术可行性验证、风险评估、原型验证"
+    allow_paths:
+      - "docs/SPIKE.md"
+      - "docs/FEASIBILITY.md"
+      - "docs/P0_*.md"
+      - "docs/*_DISCOVERY.md"
+      - "docs/spike/**"
+      - "experiments/**"
+      - ".exploration/**"
+      - ".gates/**"
+      - ".phase/**"
     must_produce:
-      - "docs/P0_*_DISCOVERY.md: 包含可行性分析、技术spike、风险评估"
+      - "docs/P0_*_DISCOVERY.md 或 docs/SPIKE.md: 包含可行性分析、技术spike、风险评估"
       - "可行性结论明确（GO/NO-GO/NEEDS-DECISION）"
       - "技术spike至少验证2个关键技术点"
       - "风险评估包含：技术风险、业务风险、时间风险"
@@ -103,32 +97,6 @@ phases:
       - "技术spike验证点 >= 2"
       - "风险评估完整（技术/业务/时间三个维度）"
       - "如果结论为NO-GO，需提供替代方案或终止理由"
-    on_pass:
-      - "create: .gates/00.ok"
-      - "set: .phase/current=P1"
-
-  P1:
-    name: "Plan"
-    allow_paths: ["docs/**", ".gates/**", ".phase/**"]
-=======
-
-phases:
-  P0:
-    name: "Explore - 技术探索"
-    description: "技术可行性验证、风险评估、原型验证"
-    allow_paths:
-      - "docs/SPIKE.md"
-      - "docs/FEASIBILITY.md"
-      - "experiments/**"
-      - ".exploration/**"
-    must_produce:
-      - "docs/SPIKE.md: 技术探索报告，包含可行性分析"
-      - "明确的GO/NO-GO决策"
-      - "关键技术风险清单"
-    gates:
-      - "必须存在 docs/SPIKE.md"
-      - "包含GO/NO-GO决策"
-      - "列出3个以上技术风险"
     on_pass:
       - "create: .gates/00.ok"
       - "set: .phase/current=P1"
@@ -142,7 +110,9 @@ phases:
     description: "需求分析、任务分解、影响评估"
     allow_paths:
       - "docs/PLAN.md"
->>>>>>> Stashed changes
+      - "docs/**"
+      - ".gates/**"
+      - ".phase/**"
     must_produce:
       - "docs/PLAN.md: 包含三级标题：## 任务清单, ## 受影响文件清单, ## 回滚方案"
       - "任务清单≥5条（每条以动词开头，包含具体文件/模块名）"
@@ -162,34 +132,35 @@ phases:
       - "risk-manager"
 
   P2:
-<<<<<<< Updated upstream
-    name: "Skeleton"
-    allow_paths: ["src/**", ".claude/**", ".workflow/**", ".github/workflows/**", ".gates/**", "scripts/**", "test/**", "tests/**", "CLAUDE.md", "VERSION", "CHANGELOG.md", "docs/**", ".phase/**"]
-    must_produce:
-      - "根据 PLAN.md 新建目录/接口骨架；不得新增计划外目录"
-      - "必要说明写入 docs/SKELETON-NOTES.md"
-      - "工作流基础设施（.claude/hooks, .workflow/, .github/workflows/等）属于项目骨架"
-      - "项目规范文件（CLAUDE.md）定义项目骨架的开发规范"
-    gates:
-      - "src/ 新增目录均在 PLAN 受影响清单内"
-      - "接口文件存在且命名遵循项目规范"
-      - "工作流文件修改需在SKELETON-NOTES.md中说明"
-=======
     name: "Skeleton - 骨架搭建"
     description: "架构设计、目录结构、接口定义"
     allow_paths:
       - "src/**"
       - "docs/SKELETON-NOTES.md"
       - "docs/ARCHITECTURE.md"
+      - ".claude/**"
+      - ".workflow/**"
+      - ".github/workflows/**"
+      - ".gates/**"
+      - ".phase/**"
+      - "scripts/**"
+      - "test/**"
+      - "tests/**"
+      - "CLAUDE.md"
+      - "VERSION"
+      - "CHANGELOG.md"
+      - "docs/**"
     must_produce:
       - "根据 PLAN.md 新建目录/接口骨架；不得新增计划外目录"
       - "必要说明写入 docs/SKELETON-NOTES.md"
       - "关键接口和数据结构定义"
+      - "工作流基础设施（.claude/hooks, .workflow/, .github/workflows/等）属于项目骨架"
+      - "项目规范文件（CLAUDE.md）定义项目骨架的开发规范"
     gates:
       - "src/ 新增目录均在 PLAN 受影响清单内"
       - "接口文件存在且命名遵循项目规范"
+      - "工作流文件修改需在SKELETON-NOTES.md中说明"
       - "架构文档更新"
->>>>>>> Stashed changes
     on_pass:
       - "create: .gates/02.ok"
       - "set: .phase/current=P3"
@@ -202,24 +173,24 @@ phases:
       - "technical-writer"
 
   P3:
-<<<<<<< Updated upstream
-    name: "Implement"
-    allow_paths: ["src/**", ".claude/hooks/**", "scripts/**", ".gates/**", "CHANGELOG.md", ".phase/**"]
-=======
     name: "Implement - 实现"
     description: "编码开发、功能实现、代码提交"
     allow_paths:
       - "src/**"
-      - "docs/CHANGELOG.md"
       - "lib/**"
       - "utils/**"
->>>>>>> Stashed changes
+      - ".claude/hooks/**"
+      - "scripts/**"
+      - ".gates/**"
+      - ".phase/**"
+      - "docs/CHANGELOG.md"
+      - "CHANGELOG.md"
     must_produce:
       - "实现功能代码，可构建"
       - "CHANGELOG.md 的 Unreleased 段新增本次条目（简述范围/影响）"
       - "每个 ticket 生成一段 '变更点清单'（可写在 commit message 中）"
       - "工作流hooks实现（.claude/hooks/）属于核心功能实现"
-    # NEW: Enhanced gates with AI self-validation
+    # Enhanced gates with AI self-validation
     quality_gates:
       - name: pre_write_validation
         description: "AI validates code before writing"
@@ -234,7 +205,7 @@ phases:
       - "构建/编译通过"
       - "CHANGELOG Unreleased 段存在新增条目"
       - "不得改动非白名单目录"
-      - "所有pre-write验证通过（NEW）"
+      - "所有pre-write验证通过"
     on_pass:
       - "create: .gates/03.ok"
       - "set: .phase/current=P4"
@@ -249,10 +220,6 @@ phases:
       - "technical-writer"
 
   P4:
-<<<<<<< Updated upstream
-    name: "Test"
-    allow_paths: ["test/**", "tests/**", "docs/TEST-REPORT.md", ".gates/**", ".phase/**"]
-=======
     name: "Test - 测试"
     description: "单元测试、集成测试、性能测试"
     allow_paths:
@@ -260,7 +227,8 @@ phases:
       - "test/**"
       - "docs/TEST-REPORT.md"
       - "docs/COVERAGE-REPORT.md"
->>>>>>> Stashed changes
+      - ".gates/**"
+      - ".phase/**"
     must_produce:
       - "新增/改动测试 >= 2 条，且至少 1 条为边界/负例"
       - "docs/TEST-REPORT.md 列出覆盖的模块/函数与结果"
@@ -268,11 +236,8 @@ phases:
     gates:
       - "pre-push: unit+boundary+smoke 必须绿"
       - "报告存在并含覆盖点清单"
-<<<<<<< Updated upstream
-      - "测试文件也通过pre-write验证（NEW）"
-=======
       - "关键路径测试覆盖"
->>>>>>> Stashed changes
+      - "测试文件也通过pre-write验证"
     on_pass:
       - "create: .gates/04.ok"
       - "set: .phase/current=P5"
@@ -285,16 +250,14 @@ phases:
       - "technical-writer"
 
   P5:
-<<<<<<< Updated upstream
-    name: "Review"
-    allow_paths: ["src/**", "docs/REVIEW.md", ".gates/**", ".phase/**"]
-=======
     name: "Review - 审查"
     description: "代码审查、质量检查、安全审计"
     allow_paths:
+      - "src/**"
       - "docs/REVIEW.md"
       - "docs/SECURITY-AUDIT.md"
->>>>>>> Stashed changes
+      - ".gates/**"
+      - ".phase/**"
     must_produce:
       - "docs/REVIEW.md 三段：风格一致性/风险清单/回滚可行性；最后一行写 'APPROVE' 或 'REWORK: …'"
       - "安全审计结果"
@@ -314,29 +277,28 @@ phases:
       - "technical-writer"
 
   P6:
-<<<<<<< Updated upstream
-    name: "Docs & Release"
-    allow_paths: ["README.md", "CHANGELOG.md", "VERSION", "docs/**", ".tags/**", "tags/**", ".gates/**", ".phase/**"]
-=======
     name: "Release - 发布"
     description: "文档更新、版本发布、部署准备"
     allow_paths:
+      - "README.md"
       - "docs/README.md"
+      - "CHANGELOG.md"
       - "docs/CHANGELOG.md"
       - "docs/RELEASE-NOTES.md"
+      - "VERSION"
+      - "docs/**"
       - ".tags/**"
+      - "tags/**"
+      - ".gates/**"
+      - ".phase/**"
       - "package.json"
       - "version.txt"
->>>>>>> Stashed changes
     must_produce:
       - "README.md 或 docs/README.md 必含：安装、使用、注意事项 三段"
       - "CHANGELOG.md 版本号递增并写影响面"
       - "发布 tag 与 Release Notes"
-<<<<<<< Updated upstream
       - "docs/PR-*.md 包含完整的PR描述（可选）"
-=======
       - "部署文档更新"
->>>>>>> Stashed changes
     gates:
       - "README 三段齐"
       - "CHANGELOG 版本号+影响面齐"
@@ -345,47 +307,6 @@ phases:
     on_pass:
       - "create: .gates/06.ok"
       - "set: .phase/current=P7"
-<<<<<<< Updated upstream
-
-  P7:
-    name: "Monitor"
-    allow_paths: ["observability/**", "docs/**", ".gates/**", ".phase/**"]
-    must_produce:
-      - "observability/*_MONITOR_REPORT.md: 包含健康检查、SLO验证、完整性验证"
-      - "所有关键指标验证通过"
-      - "系统状态=HEALTHY"
-      - "生成监控报告包含：服务健康度、SLO合规性、性能基线"
-    gates:
-      - "健康检查通过（所有关键服务响应正常）"
-      - "SLO指标达标（可用性、延迟、错误率）"
-      - "无critical issues"
-      - "监控报告完整（健康检查+SLO+性能基线）"
-      - "回滚演练验证通过（可选，生产环境建议）"
-    on_pass:
-      - "create: .gates/07.ok"
-      - "set: .phase/current=DONE"
-      - "notify: 系统已进入生产监控阶段，持续跟踪SLO指标"
-
-# Validation Performance Tracking (NEW)
-performance_tracking:
-  enabled: true
-  log_path: .temp/quality_gates/performance.log
-  alert_threshold_ms: 200
-  metrics:
-    - validation_duration
-    - blocking_count
-    - pass_rate
-
-# Reporting Configuration (NEW)
-reporting:
-  enabled: true
-  output_path: .temp/quality_gates/reports
-  formats:
-    - json
-    - markdown
-  summary_on_failure: true
-  daily_summary: true
-=======
     recommended_agents:
       - "release-manager"
       - "technical-writer"
@@ -394,21 +315,35 @@ reporting:
     name: "Monitor - 监控"
     description: "生产监控、性能追踪、问题响应"
     allow_paths:
+      - "observability/**"
       - "docs/MONITORING.md"
       - "docs/RUNBOOK.md"
+      - "docs/**"
       - ".monitoring/**"
       - "dashboards/**"
+      - ".gates/**"
+      - ".phase/**"
     must_produce:
+      - "observability/*_MONITOR_REPORT.md: 包含健康检查、SLO验证、完整性验证"
       - "监控指标定义（SLI/SLO/SLA）"
       - "告警规则配置"
       - "运维手册更新"
+      - "所有关键指标验证通过"
+      - "系统状态=HEALTHY"
+      - "生成监控报告包含：服务健康度、SLO合规性、性能基线"
     gates:
+      - "健康检查通过（所有关键服务响应正常）"
+      - "SLO指标达标（可用性、延迟、错误率）"
+      - "无critical issues"
       - "关键指标监控就位"
       - "告警通道测试通过"
       - "Runbook包含故障处理流程"
+      - "监控报告完整（健康检查+SLO+性能基线）"
+      - "回滚演练验证通过（可选，生产环境建议）"
     on_pass:
       - "create: .gates/07.ok"
-      - "set: .phase/current=P1"  # 循环回P1开始下一个迭代
+      - "set: .phase/current=DONE"
+      - "notify: 系统已进入生产监控阶段，持续跟踪SLO指标"
     recommended_agents:
       - "sre-engineer"
       - "monitoring-specialist"
@@ -439,6 +374,26 @@ rollback_triggers:
   - "响应时间 > 2x baseline"
   - "CPU使用率 > 90%"
 
+# Validation Performance Tracking
+performance_tracking:
+  enabled: true
+  log_path: .temp/quality_gates/performance.log
+  alert_threshold_ms: 200
+  metrics:
+    - validation_duration
+    - blocking_count
+    - pass_rate
+
+# Reporting Configuration
+reporting:
+  enabled: true
+  output_path: .temp/quality_gates/reports
+  formats:
+    - json
+    - markdown
+  summary_on_failure: true
+  daily_summary: true
+
 # 通知配置
 notifications:
   on_gate_fail:
@@ -452,4 +407,3 @@ notifications:
       path: ".workflow/logs/rollback.log"
     - type: "alert"
       severity: "high"
->>>>>>> Stashed changes
