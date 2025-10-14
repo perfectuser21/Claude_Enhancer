@@ -1,0 +1,265 @@
+# Claude Enhancer Feature Configuration
+# Purpose: Control which advanced features are active/documented
+# Usage: Templates use {{FEATURE_X}} placeholders to conditionally include content
+
+version: "6.2.0"
+last_updated: "2025-10-13"
+
+# Version Management
+versions:
+  current: "6.2.0"
+  next_minor: "6.3.0"
+  next_major: "7.0.0"
+
+# Core Features (Always Active)
+core:
+  8phase_workflow:
+    enabled: true
+    description: "8-Phase workflow system (P0-P7)"
+    mandatory: true
+
+  branch_management:
+    enabled: true
+    description: "Smart branch creation and management (Rule 0)"
+    mandatory: true
+
+  document_governance:
+    enabled: true
+    description: "7-doc whitelist, .temp/ management (Rule 1)"
+    mandatory: true
+
+  agent_strategy:
+    enabled: true
+    description: "4-6-8 agent selection principle"
+    mandatory: true
+
+# Quality Assurance Features
+quality_assurance:
+  bdd_testing:
+    enabled: true
+    status: "production"
+    metrics:
+      scenarios: 65
+      feature_files: 35
+    placeholder: "{{FEATURE_BDD}}"
+    description: "Behavior-Driven Development testing with Cucumber"
+
+  openapi_contracts:
+    enabled: true
+    status: "production"
+    metrics:
+      endpoints: 40
+      schemas: 25
+    placeholder: "{{FEATURE_OPENAPI}}"
+    description: "API contract definition and validation"
+
+  performance_budgets:
+    enabled: true
+    status: "production"
+    metrics:
+      budgets: 30
+      thresholds: 90
+    placeholder: "{{FEATURE_PERF}}"
+    description: "Performance budget tracking and enforcement"
+
+  slo_monitoring:
+    enabled: true
+    status: "production"
+    metrics:
+      slos: 11
+      alerts: 15
+    placeholder: "{{FEATURE_SLO}}"
+    description: "Service Level Objective monitoring"
+
+  security_scanning:
+    enabled: true
+    status: "production"
+    score: "85/100"
+    placeholder: "{{FEATURE_SECURITY}}"
+    description: "Security vulnerability scanning"
+
+# Advanced Features (Conditional)
+advanced:
+  metrics_automation:
+    enabled: true
+    status: "production"
+    placeholder: "{{FEATURE_METRICS}}"
+    description: "Auto-calculated quality metrics"
+    scripts:
+      - "scripts/auto_metrics.py"
+      - "scripts/capability_snapshot.sh"
+
+  multi_terminal:
+    enabled: true
+    status: "production"
+    placeholder: "{{FEATURE_MULTITERMINAL}}"
+    description: "Parallel development across multiple terminals"
+    components:
+      - "01_state_management.sh"
+      - "05_conflict_detection.sh"
+
+  pr_automation:
+    enabled: true
+    status: "production"
+    placeholder: "{{FEATURE_PR}}"
+    description: "Automatic PR creation and management"
+    supports:
+      - "GitHub"
+      - "GitLab"
+
+  canary_deployment:
+    enabled: false
+    status: "planned"
+    target_version: "7.0.0"
+    placeholder: "{{FEATURE_CANARY}}"
+    description: "Progressive canary deployment"
+
+  kubernetes_support:
+    enabled: false
+    status: "planned"
+    target_version: "7.0.0"
+    placeholder: "{{FEATURE_K8S}}"
+    description: "Kubernetes deployment integration"
+
+# Documentation Features
+documentation:
+  architecture_docs:
+    enabled: true
+    status: "production"
+    placeholder: "{{FEATURE_ARCH_DOCS}}"
+    files:
+      - "ARCHITECTURE.md"
+      - "docs/TECHNICAL_DESIGN.md"
+
+  troubleshooting_guide:
+    enabled: true
+    status: "production"
+    lines: 1441
+    placeholder: "{{FEATURE_TROUBLESHOOTING}}"
+    description: "Comprehensive troubleshooting guide"
+
+  security_review:
+    enabled: true
+    status: "production"
+    lines: 762
+    placeholder: "{{FEATURE_SECURITY_REVIEW}}"
+    description: "Complete security audit report"
+
+# Feature Toggles for Templates
+template_placeholders:
+  # Basic placeholders
+  VERSION: "6.2.0"
+  NEXT_VERSION: "6.3.0"
+  LAST_UPDATED: "2025-10-13"
+
+  # Feature sections (include full content if enabled)
+  FEATURE_8PHASE: |
+    Complete 8-phase workflow from discovery to monitoring.
+
+  FEATURE_QUALITY: |
+    4-layer quality assurance with BDD, OpenAPI, Performance, and SLO.
+
+  FEATURE_BDD: |
+    # Only included if quality_assurance.bdd_testing.enabled = true
+    65 BDD scenarios ensuring acceptance criteria are met.
+
+  FEATURE_OPENAPI: |
+    # Only included if quality_assurance.openapi_contracts.enabled = true
+    API-first development with OpenAPI 3.0 specifications.
+
+  FEATURE_PERF: |
+    # Only included if quality_assurance.performance_budgets.enabled = true
+    30 performance budgets tracking speed, memory, and resource usage.
+
+  FEATURE_SLO: |
+    # Only included if quality_assurance.slo_monitoring.enabled = true
+    11 SLO definitions with error budgets and alerting.
+
+  FEATURE_METRICS: |
+    # Only included if advanced.metrics_automation.enabled = true
+    Auto-calculated quality metrics prevent documentation drift.
+
+# Validation Rules
+validation:
+  max_line_count:
+    CLAUDE.md: 300
+    README.md: 600
+    ARCHITECTURE.md: 1000
+
+  required_sections:
+    CLAUDE.md:
+      - "System Identity"
+      - "Rule 0: Branch Management"
+      - "Rule 1: Document Management"
+      - "8-Phase Workflow"
+      - "Quality Assurance Layers"
+      - "Quick Start"
+
+  forbidden_terms:
+    - "enterprise-grade"  # Use "personal tool" or "developer workflow"
+    - "production deployment"  # Use "development workflow"
+    - "team management"  # Individual developer focus
+
+# Sync Rules
+sync:
+  source_of_truth:
+    version: "VERSION file"
+    features: ".templates/FEATURES.yml"
+    template: ".templates/CLAUDE.template.md"
+
+  generated_files:
+    - path: "CLAUDE.md"
+      source: ".templates/CLAUDE.template.md"
+      validation: "validate_against_whitelist"
+
+    - path: "README.md"
+      source: "manual"  # README manually maintained
+      validation: "version_consistency_only"
+
+  auto_sync_trigger:
+    - "on_version_change"
+    - "on_feature_toggle"
+    - "manual: scripts/sync_templates.sh"
+
+# Enforcement
+enforcement:
+  pre_commit:
+    - check: "version_consistency"
+      files: ["VERSION", "CLAUDE.md", "README.md", "package.json"]
+      action: "block_if_mismatch"
+
+    - check: "document_count"
+      location: "/"
+      max_files: 7
+      action: "block_if_exceeded"
+
+    - check: "line_count"
+      files: ["CLAUDE.md", "README.md"]
+      action: "warn_if_exceeded"
+
+  ci_validation:
+    - check: "template_sync"
+      description: "Verify CLAUDE.md matches template + FEATURES.yml"
+      action: "fail_if_drift"
+
+    - check: "feature_documentation"
+      description: "Ensure all enabled features are documented"
+      action: "fail_if_missing"
+
+# Rollout Strategy (for new features)
+rollout:
+  phases:
+    experimental:
+      enabled: false
+      documentation: ".temp/experimental/"
+      visibility: "internal_only"
+
+    beta:
+      enabled: false
+      documentation: "docs/beta/"
+      visibility: "opt_in"
+
+    production:
+      enabled: true
+      documentation: "README.md, CLAUDE.md"
+      visibility: "default"

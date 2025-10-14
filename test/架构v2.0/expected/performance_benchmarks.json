@@ -1,0 +1,68 @@
+{
+  "description": "架构v2.0性能基准",
+  "version": "2.0",
+  "date": "2025-10-14",
+  "benchmarks": {
+    "cold_start": {
+      "target_ms": 200,
+      "acceptable_ms": 300,
+      "description": "首次导入LazyOrchestrator的时间"
+    },
+    "warm_start": {
+      "target_ms": 100,
+      "acceptable_ms": 150,
+      "description": "后续导入LazyOrchestrator的时间"
+    },
+    "feature_loading": {
+      "target_ms": 100,
+      "acceptable_ms": 150,
+      "description": "加载所有enabled features的时间"
+    },
+    "hash_verification": {
+      "target_ms": 50,
+      "acceptable_ms": 100,
+      "description": "SHA256 hash验证时间（单次）"
+    },
+    "precommit_hook": {
+      "target_ms": 3000,
+      "acceptable_ms": 5000,
+      "description": "Pre-commit hook完整执行时间"
+    },
+    "claude_hook": {
+      "target_ms": 100,
+      "acceptable_ms": 200,
+      "description": "Claude PreToolUse hook执行时间"
+    },
+    "commit_full": {
+      "target_ms": 3000,
+      "acceptable_ms": 5000,
+      "description": "完整commit流程时间（包括所有hooks）"
+    },
+    "commit_bulk_10_files": {
+      "target_ms": 5000,
+      "acceptable_ms": 8000,
+      "description": "提交10个文件的时间"
+    },
+    "hooks_overhead": {
+      "target_ms": 1000,
+      "acceptable_ms": 2000,
+      "description": "Hooks相对于无hooks的开销"
+    }
+  },
+  "comparison_with_v1": {
+    "cold_start_improvement_target": "0%",
+    "warm_start_improvement_target": "0%",
+    "note": "v2.0不应该有性能退化"
+  },
+  "test_environment": {
+    "platform": "linux",
+    "python_version": "3.9+",
+    "git_version": "2.x"
+  },
+  "notes": [
+    "target_ms是理想目标",
+    "acceptable_ms是可接受的最大值",
+    "超过acceptable_ms视为测试失败",
+    "性能测试应该运行多次取平均值"
+  ]
+}

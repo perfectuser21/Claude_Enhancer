@@ -1,9 +1,9 @@
-# Claude Enhancer 5.1 - 企业级监控配置
+# Claude Enhancer 6.2 - 专业级监控配置
 # 全面的监控、告警、仪表板配置
 
 monitoring:
-  service_name: "claude-enhancer-5.1"
-  version: "5.1.0"
+  service_name: "claude-enhancer-6.2"
+  version: "6.2.0"
   environment: "production"  # production, staging, development
 
   # =================================

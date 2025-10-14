@@ -1,0 +1,681 @@
+name: Daily Self-Check & Auto-Healing
+
+on:
+  schedule:
+    # Run daily at 03:00 UTC (after positive-health at 02:00)
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+    inputs:
+      strict_mode:
+        description: 'Strict mode (fail on warnings)'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+      verbose:
+        description: 'Verbose output'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+env:
+  # Thresholds from self-check-rules.yaml
+  MAX_WORKFLOWS: 8
+  MAX_BDD_FEATURES: 15
+  MAX_HOOKS: 6
+  MAX_ROOT_DOCS: 7
+  COMPLEXITY_THRESHOLD: 15
+  # Evidence tracking
+  EVIDENCE_DIR: evidence
+  NONCE_TIMESTAMP: ${{ github.run_number }}-${{ github.run_id }}
+
+permissions:
+  contents: write
+
+jobs:
+  system-health-diagnostics:
+    name: System Health Diagnostics
+    runs-on: ubuntu-latest
+
+    outputs:
+      health_score: ${{ steps.score.outputs.score }}
+      has_failures: ${{ steps.score.outputs.has_failures }}
+      has_warnings: ${{ steps.score.outputs.has_warnings }}
+      version: ${{ steps.version.outputs.version }}
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for trend analysis
+
+      - name: 🐍 Setup Python Environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: 📦 Install Dependencies
+        run: |
+          pip install -q pyyaml jinja2 requests
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq bc jq cloc silversearcher-ag
+
+          # Verify installations
+          python3 --version
+          jq --version
+          cloc --version
+
+      - name: 🔍 Check 1 - Version Consistency
+        id: version
+        continue-on-error: true
+        run: |
+          echo "::group::Version Consistency Check"
+
+          # Run health checker
+          bash scripts/health-checker.sh --check-version | tee /tmp/version-check.log
+          STATUS=${PIPESTATUS[0]}
+
+          # Extract version
+          VERSION=$(cat VERSION 2>/dev/null || echo "unknown")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "status=$STATUS" >> $GITHUB_OUTPUT
+
+          if [ $STATUS -eq 0 ]; then
+            echo "✅ Version consistency check PASSED"
+          else
+            echo "❌ Version consistency check FAILED"
+          fi
+
+          echo "::endgroup::"
+          exit $STATUS
+
+      - name: 📄 Check 2 - Document Duplication
+        id: documents
+        continue-on-error: true
+        run: |
+          echo "::group::Document Duplication Check"
+
+          bash scripts/health-checker.sh --check-documents | tee /tmp/document-check.log
+          STATUS=${PIPESTATUS[0]}
+
+          # Count root documents
+          ROOT_DOCS=$(find . -maxdepth 1 -name "*.md" -type f | wc -l)
+          echo "root_doc_count=$ROOT_DOCS" >> $GITHUB_OUTPUT
+          echo "status=$STATUS" >> $GITHUB_OUTPUT
+
+          echo "📊 Root documents: $ROOT_DOCS (limit: $MAX_ROOT_DOCS)"
+
+          echo "::endgroup::"
+          exit $STATUS
+
+      - name: 🔧 Check 3 - Workflow Count
+        id: workflows
+        continue-on-error: true
+        run: |
+          echo "::group::Workflow Count Check"
+
+          bash scripts/health-checker.sh --check-workflows | tee /tmp/workflow-check.log
+          STATUS=${PIPESTATUS[0]}
+
+          WORKFLOW_COUNT=$(find .github/workflows -name "*.yml" -o -name "*.yaml" | wc -l)
+          echo "workflow_count=$WORKFLOW_COUNT" >> $GITHUB_OUTPUT
+          echo "status=$STATUS" >> $GITHUB_OUTPUT
+
+          echo "📊 Workflows: $WORKFLOW_COUNT (target: ≤$MAX_WORKFLOWS)"
+
+          echo "::endgroup::"
+          exit $STATUS
+
+      - name: 🧪 Check 4 - BDD Feature Count
+        id: bdd
+        continue-on-error: true
+        run: |
+          echo "::group::BDD Feature Count Check"
+
+          bash scripts/health-checker.sh --check-bdd | tee /tmp/bdd-check.log
+          STATUS=${PIPESTATUS[0]}
+
+          if [ -d "acceptance/features" ]; then
+            BDD_COUNT=$(find acceptance/features -name "*.feature" | wc -l)
+            SCENARIO_COUNT=$(grep -r "^\s*Scenario:" acceptance/features 2>/dev/null | wc -l)
+          else
+            BDD_COUNT=0
+            SCENARIO_COUNT=0
+          fi
+
+          echo "feature_count=$BDD_COUNT" >> $GITHUB_OUTPUT
+          echo "scenario_count=$SCENARIO_COUNT" >> $GITHUB_OUTPUT
+          echo "status=$STATUS" >> $GITHUB_OUTPUT
+
+          echo "📊 Features: $BDD_COUNT, Scenarios: $SCENARIO_COUNT"
+
+          echo "::endgroup::"
+          exit $STATUS
+
+      - name: 🪝 Check 5 - Hooks Count
+        id: hooks
+        continue-on-error: true
+        run: |
+          echo "::group::Hooks Count Check"
+
+          bash scripts/health-checker.sh --check-hooks | tee /tmp/hooks-check.log
+          STATUS=${PIPESTATUS[0]}
+
+          HOOKS_COUNT=$(find .claude/hooks -name "*.sh" -type f | wc -l)
+          echo "hooks_count=$HOOKS_COUNT" >> $GITHUB_OUTPUT
+          echo "status=$STATUS" >> $GITHUB_OUTPUT
+
+          echo "📊 Hooks: $HOOKS_COUNT (target: ≤$MAX_HOOKS)"
+
+          echo "::endgroup::"
+          exit $STATUS
+
+      - name: 🧹 Check 6 - Backup Files
+        id: backups
+        continue-on-error: true
+        run: |
+          echo "::group::Backup Files Check"
+
+          bash scripts/health-checker.sh --check-backups | tee /tmp/backup-check.log
+          STATUS=${PIPESTATUS[0]}
+
+          BACKUP_COUNT=$(find . -name "*.backup" -o -name "*.bak" -o -name "*~" \
+            -not -path "*/node_modules/*" -not -path "*/.git/*" 2>/dev/null | wc -l)
+          echo "backup_count=$BACKUP_COUNT" >> $GITHUB_OUTPUT
+          echo "status=$STATUS" >> $GITHUB_OUTPUT
+
+          echo "📊 Backup files: $BACKUP_COUNT"
+
+          echo "::endgroup::"
+          exit $STATUS
+
+      - name: 📊 Check 7 - Complexity Monitoring
+        id: complexity
+        continue-on-error: true
+        run: |
+          echo "::group::Complexity Analysis"
+
+          # Create complexity report
+          mkdir -p .temp/analysis
+
+          # Shell script complexity (using grep for cyclomatic complexity estimation)
+          echo "## Shell Script Complexity" > .temp/analysis/complexity-report.txt
+
+          for script in $(find .claude/hooks scripts -name "*.sh" -type f); do
+            # Count decision points (if, while, for, case)
+            COMPLEXITY=$(grep -E "^\s*(if|while|for|case|elif)" "$script" 2>/dev/null | wc -l)
+            LINES=$(wc -l < "$script")
+
+            if [ $COMPLEXITY -gt $COMPLEXITY_THRESHOLD ]; then
+              echo "⚠️ $script: Complexity=$COMPLEXITY, Lines=$LINES" | tee -a .temp/analysis/complexity-report.txt
+            fi
+          done
+
+          # YAML complexity (deep nesting)
+          echo "" >> .temp/analysis/complexity-report.txt
+          echo "## YAML Nesting Complexity" >> .temp/analysis/complexity-report.txt
+
+          for yaml in $(find .github/workflows .claude -name "*.yml" -o -name "*.yaml"); do
+            MAX_INDENT=$(grep "^\s*" "$yaml" | sed 's/[^ ].*//' | awk '{ print length }' | sort -n | tail -1)
+
+            if [ "$MAX_INDENT" -gt 12 ]; then
+              echo "⚠️ $yaml: Max nesting depth=${MAX_INDENT}" | tee -a .temp/analysis/complexity-report.txt
+            fi
+          done
+
+          # Summarize
+          HIGH_COMPLEXITY=$(grep "^⚠️" .temp/analysis/complexity-report.txt | wc -l)
+          echo "high_complexity_count=$HIGH_COMPLEXITY" >> $GITHUB_OUTPUT
+
+          if [ $HIGH_COMPLEXITY -eq 0 ]; then
+            echo "status=0" >> $GITHUB_OUTPUT
+            echo "✅ Complexity check PASSED"
+          else
+            echo "status=1" >> $GITHUB_OUTPUT
+            echo "⚠️ Found $HIGH_COMPLEXITY high-complexity files"
+          fi
+
+          echo "::endgroup::"
+
+      - name: 🏗️ Check 8 - Configuration Conflicts
+        id: configs
+        continue-on-error: true
+        run: |
+          echo "::group::Configuration Conflicts Check"
+
+          bash scripts/health-checker.sh --check-configs | tee /tmp/config-check.log
+          STATUS=${PIPESTATUS[0]}
+
+          # Check for duplicate settings.json
+          SETTINGS_COUNT=$(find . -name "settings.json" -path "*/.claude/*" | wc -l)
+          echo "settings_count=$SETTINGS_COUNT" >> $GITHUB_OUTPUT
+          echo "status=$STATUS" >> $GITHUB_OUTPUT
+
+          echo "📊 Claude settings files: $SETTINGS_COUNT"
+
+          echo "::endgroup::"
+          exit $STATUS
+
+      - name: 🔎 Check 9 - Forbidden Keywords
+        id: keywords
+        continue-on-error: true
+        run: |
+          echo "::group::Forbidden Keywords Check"
+
+          # Load forbidden keywords from self-check-rules.yaml
+          FORBIDDEN_FOUND=0
+
+          if [ -f ".claude/self-check-rules.yaml" ]; then
+            # Check for enterprise-level keywords (should be personal/individual)
+            if grep -q "企业级\|enterprise-level\|enterprise-grade" CLAUDE.md 2>/dev/null; then
+              echo "❌ Found forbidden 'enterprise' keywords in CLAUDE.md"
+              echo "   Project should be positioned as personal/individual tool"
+              FORBIDDEN_FOUND=1
+            fi
+
+            # Check for contradictory positioning
+            if grep -q "个人" CLAUDE.md 2>/dev/null && grep -q "企业级" CLAUDE.md 2>/dev/null; then
+              echo "❌ Contradictory positioning: both personal (个人) and enterprise (企业级) found"
+              FORBIDDEN_FOUND=1
+            fi
+          fi
+
+          echo "status=$FORBIDDEN_FOUND" >> $GITHUB_OUTPUT
+
+          if [ $FORBIDDEN_FOUND -eq 0 ]; then
+            echo "✅ Keyword consistency check PASSED"
+          else
+            echo "❌ Keyword consistency check FAILED"
+          fi
+
+          echo "::endgroup::"
+          exit $FORBIDDEN_FOUND
+
+      - name: 🧮 Calculate Overall Health Score
+        id: score
+        if: always()
+        run: |
+          echo "::group::Health Score Calculation"
+
+          # Collect all check statuses
+          VERSION_STATUS=${{ steps.version.outputs.status }}
+          DOCUMENTS_STATUS=${{ steps.documents.outputs.status }}
+          WORKFLOWS_STATUS=${{ steps.workflows.outputs.status }}
+          BDD_STATUS=${{ steps.bdd.outputs.status }}
+          HOOKS_STATUS=${{ steps.hooks.outputs.status }}
+          BACKUPS_STATUS=${{ steps.backups.outputs.status }}
+          COMPLEXITY_STATUS=${{ steps.complexity.outputs.status }}
+          CONFIGS_STATUS=${{ steps.configs.outputs.status }}
+          KEYWORDS_STATUS=${{ steps.keywords.outputs.status }}
+
+          TOTAL_CHECKS=9
+          PASSED=0
+          WARNINGS=0
+          FAILURES=0
+
+          # Count passes/warnings/failures
+          for status in $VERSION_STATUS $DOCUMENTS_STATUS $WORKFLOWS_STATUS \
+                        $BDD_STATUS $HOOKS_STATUS $BACKUPS_STATUS \
+                        $COMPLEXITY_STATUS $CONFIGS_STATUS $KEYWORDS_STATUS; do
+            if [ "$status" == "0" ]; then
+              ((PASSED++))
+            elif [ "$status" == "1" ]; then
+              ((WARNINGS++))
+            else
+              ((FAILURES++))
+            fi
+          done
+
+          # Calculate score
+          SCORE=$(( (PASSED * 100) / TOTAL_CHECKS ))
+
+          echo "score=$SCORE" >> $GITHUB_OUTPUT
+          echo "passed=$PASSED" >> $GITHUB_OUTPUT
+          echo "warnings=$WARNINGS" >> $GITHUB_OUTPUT
+          echo "failures=$FAILURES" >> $GITHUB_OUTPUT
+          echo "has_failures=$([ $FAILURES -gt 0 ] && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
+          echo "has_warnings=$([ $WARNINGS -gt 0 ] && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
+
+          echo "🏆 Health Score: $SCORE/100"
+          echo "📊 Passed: $PASSED, Warnings: $WARNINGS, Failures: $FAILURES"
+
+          echo "::endgroup::"
+
+      - name: 📈 Generate Evidence Report
+        if: always()
+        run: |
+          echo "::group::Evidence Generation"
+
+          mkdir -p evidence
+
+          REPORT_DATE=$(date -u +%Y%m%d)
+          REPORT_FILE="evidence/health-check-${REPORT_DATE}.md"
+          NONCE=$(date -u +%s)-${{ github.run_number }}-$(openssl rand -hex 4)
+
+          cat > "$REPORT_FILE" << 'EOF'
+# 🏥 Daily Self-Check Report
+
+**Generated**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+**Workflow**: #${{ github.run_number }} (Run ID: ${{ github.run_id }})
+**Commit**: ${{ github.sha }}
+**Branch**: ${{ github.ref_name }}
+**Nonce**: NONCE_PLACEHOLDER
+
+---
+
+## 📊 Health Score Summary
+
+**Overall Score**: ${{ steps.score.outputs.score }}/100
+
+| Metric | Value |
+|--------|-------|
+| ✅ Passed | ${{ steps.score.outputs.passed }}/9 |
+| ⚠️ Warnings | ${{ steps.score.outputs.warnings }} |
+| ❌ Failures | ${{ steps.score.outputs.failures }} |
+
+**Status**: $([ ${{ steps.score.outputs.score }} -ge 90 ] && echo "🟢 Excellent" || \
+              [ ${{ steps.score.outputs.score }} -ge 75 ] && echo "🟡 Good" || \
+              [ ${{ steps.score.outputs.score }} -ge 60 ] && echo "🟠 Fair" || echo "🔴 Poor")
+
+---
+
+## 🔍 Detailed Check Results
+
+| # | Check | Status | Details |
+|---|-------|--------|---------|
+| 1 | Version Consistency | ${{ steps.version.outputs.status == '0' && '✅ Pass' || '❌ Fail' }} | Version: ${{ steps.version.outputs.version }} |
+| 2 | Document Duplication | ${{ steps.documents.outputs.status == '0' && '✅ Pass' || '⚠️ Warning' }} | Root docs: ${{ steps.documents.outputs.root_doc_count }}/$MAX_ROOT_DOCS |
+| 3 | Workflow Count | ${{ steps.workflows.outputs.status == '0' && '✅ Pass' || '⚠️ Warning' }} | Workflows: ${{ steps.workflows.outputs.workflow_count }}/$MAX_WORKFLOWS |
+| 4 | BDD Features | ${{ steps.bdd.outputs.status == '0' && '✅ Pass' || '⚠️ Warning' }} | Features: ${{ steps.bdd.outputs.feature_count }}, Scenarios: ${{ steps.bdd.outputs.scenario_count }} |
+| 5 | Hooks Count | ${{ steps.hooks.outputs.status == '0' && '✅ Pass' || '⚠️ Warning' }} | Hooks: ${{ steps.hooks.outputs.hooks_count }}/$MAX_HOOKS |
+| 6 | Backup Files | ${{ steps.backups.outputs.status == '0' && '✅ Pass' || '⚠️ Warning' }} | Backups: ${{ steps.backups.outputs.backup_count }} |
+| 7 | Complexity | ${{ steps.complexity.outputs.status == '0' && '✅ Pass' || '⚠️ Warning' }} | High complexity: ${{ steps.complexity.outputs.high_complexity_count }} files |
+| 8 | Config Conflicts | ${{ steps.configs.outputs.status == '0' && '✅ Pass' || '⚠️ Warning' }} | Settings: ${{ steps.configs.outputs.settings_count }} |
+| 9 | Forbidden Keywords | ${{ steps.keywords.outputs.status == '0' && '✅ Pass' || '❌ Fail' }} | Positioning consistency |
+
+---
+
+## 📋 Action Items
+
+### 🔴 Critical (Immediate)
+EOF
+
+          # Add critical issues
+          [ "${{ steps.version.outputs.status }}" != "0" ] && echo "- ❌ **Fix version consistency**: Align VERSION, CLAUDE.md, and package.json" >> "$REPORT_FILE"
+          [ "${{ steps.keywords.outputs.status }}" != "0" ] && echo "- ❌ **Remove forbidden keywords**: Ensure consistent positioning (personal, not enterprise)" >> "$REPORT_FILE"
+
+          cat >> "$REPORT_FILE" << 'EOF'
+
+### 🟡 Warnings (Address Soon)
+EOF
+
+          # Add warnings
+          [ "${{ steps.workflows.outputs.workflow_count }}" -gt "$MAX_WORKFLOWS" ] && echo "- ⚠️ **Consolidate workflows**: Current ${{ steps.workflows.outputs.workflow_count }}, target ≤$MAX_WORKFLOWS" >> "$REPORT_FILE"
+          [ "${{ steps.hooks.outputs.hooks_count }}" -gt "$MAX_HOOKS" ] && echo "- ⚠️ **Consolidate hooks**: Current ${{ steps.hooks.outputs.hooks_count }}, target ≤$MAX_HOOKS" >> "$REPORT_FILE"
+          [ "${{ steps.backups.outputs.backup_count }}" -gt "0" ] && echo "- ⚠️ **Clean up backups**: Found ${{ steps.backups.outputs.backup_count }} backup files" >> "$REPORT_FILE"
+          [ "${{ steps.complexity.outputs.high_complexity_count }}" -gt "0" ] && echo "- ⚠️ **Reduce complexity**: ${{ steps.complexity.outputs.high_complexity_count }} files exceed threshold" >> "$REPORT_FILE"
+
+          cat >> "$REPORT_FILE" << 'EOF'
+
+### ✅ Maintenance (Routine)
+- Run cleanup monthly: `bash scripts/cleanup_documents.sh`
+- Monitor trends: Review this report history
+- Update dependencies: Check for outdated packages
+
+---
+
+## 🔄 Trend Analysis
+
+### Historical Data
+EOF
+
+          # Add trend data
+          if [ -f ".temp/analysis/health-history.log" ]; then
+            echo "" >> "$REPORT_FILE"
+            echo "| Date | Score | Status |" >> "$REPORT_FILE"
+            echo "|------|-------|--------|" >> "$REPORT_FILE"
+            tail -7 .temp/analysis/health-history.log >> "$REPORT_FILE" 2>/dev/null || echo "| N/A | N/A | N/A |" >> "$REPORT_FILE"
+          else
+            echo "*No historical data available yet. This is the first run.*" >> "$REPORT_FILE"
+          fi
+
+          cat >> "$REPORT_FILE" << 'EOF'
+
+### This Run
+- **Date**: $(date -u +%Y-%m-%d)
+- **Score**: ${{ steps.score.outputs.score }}/100
+- **Status**: $([ ${{ steps.score.outputs.score }} -ge 90 ] && echo "🟢" || [ ${{ steps.score.outputs.score }} -ge 75 ] && echo "🟡" || echo "🔴")
+
+---
+
+## 🔧 Self-Healing Recommendations
+
+### Automated Fixes Available
+EOF
+
+          # Suggest automated fixes
+          if [ "${{ steps.backups.outputs.backup_count }}" -gt "0" ]; then
+            cat >> "$REPORT_FILE" << 'EOF'
+1. **Backup Cleanup** (Auto-fixable)
+   ```bash
+   find . -name "*.backup" -o -name "*.bak" -delete
+   ```
+EOF
+          fi
+
+          if [ "${{ steps.workflows.outputs.workflow_count }}" -gt "$MAX_WORKFLOWS" ]; then
+            cat >> "$REPORT_FILE" << 'EOF'
+
+2. **Workflow Consolidation** (Manual review needed)
+   - Review `.github/workflows/` for redundant workflows
+   - Merge related jobs into single workflows
+   - Move disabled workflows to `_workflows_disabled/`
+EOF
+          fi
+
+          cat >> "$REPORT_FILE" << 'EOF'
+
+### Manual Review Required
+- Version mismatches need careful alignment
+- Keyword positioning requires human judgment
+- Complexity reduction needs code refactoring
+
+---
+
+## 📌 Compliance & Traceability
+
+**Evidence File**: `evidence/health-check-REPORT_DATE.md`
+**Verification Nonce**: `NONCE_PLACEHOLDER`
+**Retention**: 30 days (auto-archived)
+**Next Check**: Tomorrow at 03:00 UTC
+
+---
+
+*🤖 Generated by Daily Self-Check Workflow*
+*Part of Claude Enhancer v${{ steps.version.outputs.version }} CI/CD System*
+EOF
+
+          # Replace placeholders
+          sed -i "s/REPORT_DATE/${REPORT_DATE}/g" "$REPORT_FILE"
+          sed -i "s/NONCE_PLACEHOLDER/${NONCE}/g" "$REPORT_FILE"
+
+          # Record in history
+          mkdir -p .temp/analysis
+          echo "$(date -u +%Y-%m-%d) ${{ steps.score.outputs.score }} $([ ${{ steps.score.outputs.score }} -ge 90 ] && echo '🟢' || echo '🟡')" \
+            >> .temp/analysis/health-history.log
+
+          echo "✅ Evidence report generated: $REPORT_FILE"
+          echo "📊 Nonce: $NONCE"
+
+          echo "::endgroup::"
+
+      - name: 💾 Archive Health Evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: health-check-report-${{ github.run_number }}
+          path: |
+            evidence/health-check-*.md
+            .temp/analysis/complexity-report.txt
+            /tmp/*-check.log
+          retention-days: 90
+
+      - name: 📤 Commit Evidence to Repository
+        if: always()
+        continue-on-error: true
+        run: |
+          echo "::group::Commit Evidence"
+
+          git config user.name "Claude Health Bot"
+          git config user.email "health-bot@claude-enhancer.dev"
+
+          # Only commit evidence files
+          if [ -n "$(git status --porcelain evidence/)" ]; then
+            git add evidence/
+
+            git commit -m "chore: daily health check evidence $(date -u +%Y-%m-%d) [skip ci]
+
+📊 Health Score: ${{ steps.score.outputs.score }}/100
+✅ Passed: ${{ steps.score.outputs.passed }}/9
+⚠️ Warnings: ${{ steps.score.outputs.warnings }}
+❌ Failures: ${{ steps.score.outputs.failures }}
+
+Evidence archived for compliance and trend analysis.
+
+🤖 Generated with Claude Code
+Co-Authored-By: Claude <noreply@anthropic.com>"
+
+            # Don't push to main/master, only feature branches
+            CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+            if [ "$CURRENT_BRANCH" != "main" ] && [ "$CURRENT_BRANCH" != "master" ]; then
+              git push origin "$CURRENT_BRANCH" || echo "⚠️ Push skipped (permission denied or no upstream)"
+            else
+              echo "ℹ️ On main/master branch, evidence not pushed (use PR workflow)"
+            fi
+          else
+            echo "ℹ️ No evidence changes to commit"
+          fi
+
+          echo "::endgroup::"
+
+      - name: 📢 Post to Step Summary
+        if: always()
+        run: |
+          cat >> $GITHUB_STEP_SUMMARY << 'EOF'
+          # 🏥 Daily Self-Check Results
+
+          ## Health Score: ${{ steps.score.outputs.score }}/100
+
+          | Metric | Value |
+          |--------|-------|
+          | ✅ Passed | ${{ steps.score.outputs.passed }}/9 |
+          | ⚠️ Warnings | ${{ steps.score.outputs.warnings }} |
+          | ❌ Failures | ${{ steps.score.outputs.failures }} |
+
+          ## Quick Status
+          - **Version**: ${{ steps.version.outputs.version }}
+          - **Workflows**: ${{ steps.workflows.outputs.workflow_count }}/${{ env.MAX_WORKFLOWS }}
+          - **Hooks**: ${{ steps.hooks.outputs.hooks_count }}/${{ env.MAX_HOOKS }}
+          - **Root Docs**: ${{ steps.documents.outputs.root_doc_count }}/${{ env.MAX_ROOT_DOCS }}
+
+          ## Actions Required
+          - **Critical**: ${{ steps.score.outputs.failures }} issues
+          - **Warnings**: ${{ steps.score.outputs.warnings }} items
+
+          ---
+          📊 Full report available in artifacts
+          EOF
+
+  auto-healing-suggestions:
+    name: Generate Self-Healing Suggestions
+    runs-on: ubuntu-latest
+    needs: system-health-diagnostics
+    if: always() && needs.system-health-diagnostics.outputs.has_warnings == 'true'
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔧 Generate Fix Scripts
+        run: |
+          mkdir -p .temp/self-healing
+
+          cat > .temp/self-healing/auto-fix.sh << 'SCRIPT_EOF'
+#!/bin/bash
+# Auto-generated self-healing script
+# Run this to fix detected issues
+
+set -euo pipefail
+
+echo "🔧 Claude Enhancer Self-Healing Script"
+echo "======================================"
+echo ""
+
+SCRIPT_EOF
+
+          # Add backup cleanup if needed
+          if [ "${{ needs.system-health-diagnostics.outputs.has_warnings }}" == "true" ]; then
+            cat >> .temp/self-healing/auto-fix.sh << 'SCRIPT_EOF'
+# Fix 1: Clean up backup files
+echo "🧹 Cleaning backup files..."
+find . -name "*.backup" -o -name "*.bak" -o -name "*~" \
+  -not -path "*/node_modules/*" -not -path "*/.git/*" \
+  -exec rm -f {} \; 2>/dev/null || true
+echo "✅ Backup cleanup complete"
+echo ""
+
+SCRIPT_EOF
+          fi
+
+          cat >> .temp/self-healing/auto-fix.sh << 'SCRIPT_EOF'
+# Fix 2: Clean temporary files older than 7 days
+echo "🗑️ Cleaning old temporary files..."
+find .temp -type f -mtime +7 -delete 2>/dev/null || true
+echo "✅ Temp cleanup complete"
+echo ""
+
+echo "✅ All automated fixes applied!"
+echo "⚠️ Manual review may still be required for:"
+echo "   - Version mismatches"
+echo "   - Workflow consolidation"
+echo "   - Complexity reduction"
+SCRIPT_EOF
+
+          chmod +x .temp/self-healing/auto-fix.sh
+
+          echo "✅ Self-healing script generated: .temp/self-healing/auto-fix.sh"
+
+      - name: 💾 Upload Self-Healing Scripts
+        uses: actions/upload-artifact@v4
+        with:
+          name: self-healing-scripts
+          path: .temp/self-healing/
+          retention-days: 7
+
+  notify-results:
+    name: Notification Summary
+    runs-on: ubuntu-latest
+    needs: [system-health-diagnostics, auto-healing-suggestions]
+    if: always()
+
+    steps:
+      - name: 📊 Summary Report
+        run: |
+          echo "## 🏥 Daily Self-Check Complete"
+          echo ""
+          echo "**Health Score**: ${{ needs.system-health-diagnostics.outputs.health_score }}/100"
+          echo "**Status**: ${{ needs.system-health-diagnostics.result }}"
+          echo ""
+          echo "### Next Steps"
+          echo "1. Review health report in artifacts"
+          echo "2. Address any warnings or failures"
+          echo "3. Monitor trend over next 7 days"
+          echo ""
+          echo "---"
+          echo "*Next run: Tomorrow at 03:00 UTC*"

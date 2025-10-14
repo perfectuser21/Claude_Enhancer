@@ -1,0 +1,33 @@
+# Standard Features Configuration
+# ================================
+
+name: "standard"
+version: "2.0.0"
+enabled: true
+priority: 2
+
+description: "Common development tools and helpers"
+
+features:
+  smart_agent_selector:
+    enabled: true
+    description: "Intelligent agent selection (4-6-8 principle)"
+
+  workflow_automation:
+    enabled: true
+    description: "Automated workflow execution and phase management"
+
+  smart_document_loading:
+    enabled: true
+    description: "Intelligent document loading and context management"
+
+  performance_monitoring:
+    enabled: true
+    description: "Performance tracking and optimization"
+
+dependencies: ["basic"]
+
+# Performance targets
+performance:
+  load_time_ms: 50
+  memory_mb: 20

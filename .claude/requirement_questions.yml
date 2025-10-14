@@ -1,0 +1,156 @@
+# 需求澄清提问策略
+# AI通过多轮对话问清楚所有业务决策点
+
+meta:
+  version: "1.0.0"
+  purpose: "指导AI通过多轮对话问清楚所有业务决策点"
+  target_user: "编程小白，不懂技术"
+
+principles:
+  - id: "use_plain_language"
+    rule: "用人话，不用技术术语"
+    examples:
+      bad: "需要OAuth2.0吗？"
+      good: "需要微信登录吗？就是点一个按钮用微信账号登录"
+
+  - id: "give_examples"
+    rule: "给例子和类比"
+    examples:
+      - "像淘宝那样，下次直接进去"
+      - "像银行卡密码，错3次就锁"
+      - "像12306买票那样，需要输验证码"
+
+  - id: "explain_why"
+    rule: "解释为什么要问这个"
+    format: "💡 为什么...？"
+    examples:
+      - "💡 为什么需要验证码？防止机器人疯狂试密码"
+      - "💡 为什么要锁定？防止暴力破解"
+      - "💡 为什么要复杂密码？简单密码容易被猜到"
+
+  - id: "provide_options"
+    rule: "给选项，不要开放式问题"
+    examples:
+      bad: "您想要什么登录方式？"
+      good: "用什么登录？\n   - A. 邮箱（像Gmail那样）\n   - B. 手机号\n   - C. 用户名"
+
+questioning_rounds:
+  round_1:
+    name: "基础功能"
+    questions_count: "3-5个"
+    focus: "核心功能要不要"
+    example_questions:
+      - "用什么登录？（邮箱/手机号/用户名）"
+      - "需要'记住我'功能吗？"
+      - "需要'忘记密码'功能吗？"
+      - "需要第三方登录吗？（微信/QQ/Google）"
+
+  round_2:
+    name: "用户体验"
+    questions_count: "3-5个"
+    focus: "交互流程和提示信息"
+    example_questions:
+      - "密码输错了，提示什么？"
+      - "登录成功后去哪里？"
+      - "已登录状态访问登录页怎么办？"
+      - "需要退出登录按钮吗？"
+
+  round_3:
+    name: "特殊情况"
+    questions_count: "3-5个"
+    focus: "边界情况处理"
+    example_questions:
+      - "如果用户已经登录，再访问登录页面怎么办？"
+      - "允许同时多处登录吗？（同一账号在多个设备）"
+      - "需要登录历史记录吗？（显示上次登录时间、地点）"
+
+  round_4:
+    name: "安全规则"
+    questions_count: "3-5个"
+    focus: "安全策略（必须解释原因）"
+    must_explain: true
+    must_use_analogy: true
+    example_questions:
+      - question: "密码要多复杂？"
+        options:
+          - "A. 随便设（1234也行，但不安全）"
+          - "B. 至少6位"
+          - "C. 至少8位，必须有数字和字母"
+          - "D. 至少8位，必须有大小写字母+数字+符号"
+        explanation: "💡 为什么要复杂？简单密码容易被猜到。像生日、123456这种，几秒就能破解。"
+
+      - question: "登录失败多次要锁定吗？"
+        options:
+          - "要（更安全，但用户可能被锁）"
+          - "不要（方便，但可能被暴力破解）"
+        explanation: "💡 为什么要锁定？防止有人疯狂试密码（比如试10000次）。像银行卡密码，错3次就锁卡。"
+
+      - question: "'记住我'记多久？"
+        options:
+          - "A. 7天"
+          - "B. 30天"
+          - "C. 永久"
+        explanation: "💡 为什么不永久？如果电脑被别人用，别人就能进您的账号。定期要求重新登录更安全。"
+
+  round_5:
+    name: "总结确认"
+    purpose: "用人话总结所有理解，让用户确认"
+    format: |
+      **您要的XX功能**：
+
+      📧 **XX方面**
+      - 具体内容
+
+      ✅ **需要的**
+      - 列表
+
+      🚫 **不需要的**
+      - 列表
+
+      🔒 **规则**
+      - 列表
+
+      🎯 **交互流程**
+      - 步骤
+
+      ════════════════════════════════════════
+
+      这样对吗？
+      如果有不对的地方，请告诉我。
+      如果都对，我就生成验收清单。
+
+question_types:
+  decision_points:
+    description: "用户需要决策的点"
+    should_ask:
+      - "功能要不要？（要/不要）"
+      - "多个方案选哪个？（A/B/C）"
+      - "规则定多严？（宽松/严格）"
+      - "用户看到什么？（提示信息）"
+      - "特殊情况怎么处理？（选项）"
+
+  technical_details:
+    description: "技术实现细节"
+    should_not_ask:
+      - "用JWT还是Session？"
+      - "数据库用MySQL还是MongoDB？"
+      - "前端用React还是Vue？"
+      - "用RESTful还是GraphQL？"
+      - "部署到AWS还是Azure？"
+    reason: "这些是AI的技术决策，用户不需要懂"
+
+termination_conditions:
+  - "用户说：没问题了"
+  - "用户说：对的"
+  - "用户说：确认"
+  - "用户说：可以了"
+  - "AI问完所有决策点"
+  - "用户确认理解正确"
+
+after_clarification:
+  steps:
+    - "创建 .workflow/REQUIREMENTS_CLARIFIED 文件"
+    - "保存对话记录到 .workflow/REQUIREMENTS_DIALOGUE.md"
+    - "生成验收清单 .workflow/CHECKLIST.md"
+    - "设置 AUTO_MODE=true"
+    - "开始P0-P7自动执行"

@@ -1,0 +1,27 @@
+{
+  "_month": "2025-08",
+  "_archived_at": "2025-10-14T07:33:25.062636",
+  "decisions": {
+    "2025-08-29_old_experiment": {
+      "date": "2025-08-30",
+      "decision": "尝试添加性能分析工具",
+      "rationale": "实验性功能，后来发现不需要",
+      "importance": "info",
+      "affected_files": [
+        "scripts/profiler.py (deleted)",
+        "docs/profiling.md (deleted)"
+      ],
+      "status": "reverted"
+    },
+    "2025-08-12_temp_workaround": {
+      "date": "2025-08-13",
+      "decision": "临时修复日志问题",
+      "rationale": "紧急修复，后续已被正式方案替代",
+      "importance": "info",
+      "affected_files": [
+        "scripts/temp_logger.sh"
+      ],
+      "status": "superseded"
+    }
+  }
+}

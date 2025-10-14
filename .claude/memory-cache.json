@@ -1,0 +1,181 @@
+{
+  "_description": "Claude Enhancer Memory Stabilizer - AI decision context cache",
+  "_version": "1.0",
+  "_last_updated": "2025-10-13T20:00:00Z",
+  "_purpose": "Prevent AI from forgetting previous decisions and self-contradicting",
+  "_auto_cleanup": {
+    "enabled": true,
+    "retention_days": 30,
+    "max_size_kb": 5,
+    "archive_path": ".claude/memory-archive/",
+    "compression_rules": {
+      "critical": "永久保留",
+      "warning": "90天后归档",
+      "info": "30天后归档"
+    }
+  },
+  "recent_decisions": {
+    "2025-10-13_quality_gate_simplification": {
+      "date": "2025-10-13",
+      "decision": "简化质量门禁系统",
+      "rationale": "个人项目不需要pylint复杂配置，改用py_compile",
+      "importance": "critical",
+      "affected_files": [
+        ".pylintrc (deleted)",
+        ".github/workflows/quality-gate-enforcer.yml (disabled)",
+        ".github/workflows/ce-unified-gates.yml (simplified)"
+      ],
+      "do_not_revert": true,
+      "do_not_add_back": [
+        "pylint配置",
+        "复杂的eslint规则",
+        "GPG签名验证（个人项目）"
+      ]
+    },
+    "2025-10-13_positioning_clarity": {
+      "date": "2025-10-13",
+      "decision": "明确定位为个人工具，非企业级",
+      "rationale": "用户是编程小白+Max 20X，不是团队/企业",
+      "importance": "critical",
+      "forbidden_terms": [
+        "企业级系统",
+        "团队协作平台",
+        "DevOps平台"
+      ],
+      "recommended_terms": [
+        "个人AI编程助手",
+        "编程小白友好",
+        "质量保障工具"
+      ],
+      "do_not_revert": true
+    },
+    "2025-10-13_document_cleanup": {
+      "date": "2025-10-13",
+      "decision": "删除verification_marker.py和旧workflow文件",
+      "rationale": "验证完成后的临时文件，无需保留",
+      "importance": "info",
+      "deleted_files": [
+        ".pylintrc",
+        "verification_marker.py",
+        ".github/workflows/quality-gate-enforcer.yml.disabled"
+      ],
+      "do_not_recreate": true
+    },
+    "2025-10-13_self_healing_system": {
+      "date": "2025-10-13",
+      "decision": "创建自愈系统防止问题复发",
+      "rationale": "用户要求不是一次性修复，而是永久防止复发",
+      "importance": "critical",
+      "created_files": [
+        ".self-healing.config",
+        ".claude/self-check-rules.yaml",
+        "scripts/health-checker.sh",
+        "scripts/version-manager.py",
+        ".github/workflows/daily-self-check.yml",
+        "docs/self-healing-system.md"
+      ],
+      "do_not_delete": true,
+      "core_principle": "Prevention > Cure"
+    }
+  },
+  "system_constraints": {
+    "version": {
+      "current": "6.1",
+      "source_of_truth": "VERSION file",
+      "sync_required": [
+        "CLAUDE.md",
+        "README.md",
+        "package.json"
+      ],
+      "rule": "所有版本号必须与VERSION文件一致"
+    },
+    "positioning": {
+      "identity": "个人AI编程工作流系统",
+      "target_user": "编程小白 + Claude Max 20X用户",
+      "not_identity": [
+        "企业级系统",
+        "团队工具",
+        "DevOps平台"
+      ],
+      "rule": "所有描述必须符合个人工具定位"
+    },
+    "complexity_limits": {
+      "max_bdd_scenarios": 15,
+      "current_bdd_scenarios": 65,
+      "max_workflows": 8,
+      "current_workflows": 14,
+      "max_claude_hooks": 6,
+      "current_claude_hooks": 10,
+      "max_root_documents": 7,
+      "rule": "超标项目正在简化中，不要继续添加"
+    },
+    "forbidden_additions": {
+      "enterprise_features": [
+        "金丝雀发布",
+        "复杂SLO监控",
+        "团队协作功能",
+        "多租户架构"
+      ],
+      "complex_tools": [
+        "pylint (replaced by py_compile)",
+        "eslint (rely on tests/build)",
+        "复杂的代码覆盖率工具"
+      ],
+      "unnecessary_docs": [
+        "*_REPORT.md in root",
+        "*_ANALYSIS.md in root",
+        "Duplicate CLAUDE.md"
+      ],
+      "rule": "这些功能对编程小白是负担，不要添加"
+    }
+  },
+  "health_check_history": [
+    {
+      "date": "2025-10-13",
+      "score": 75,
+      "critical_issues": 3,
+      "warnings": 6,
+      "summary": "发现9个矛盾点、6个重复配置，创建自愈系统",
+      "actions_taken": [
+        "创建.self-healing.config",
+        "创建health-checker.sh",
+        "创建version-manager.py",
+        "创建daily-self-check workflow"
+      ]
+    }
+  ],
+  "ai_behavior_rules": {
+    "on_session_start": {
+      "action": "Read this memory-cache.json file",
+      "purpose": "Load context of previous decisions",
+      "check": "Verify current state aligns with recent_decisions"
+    },
+    "before_major_changes": {
+      "action": "Check recent_decisions for conflicts",
+      "purpose": "Prevent reverting previous optimizations",
+      "example": "如果要添加pylint，检查2025-10-13决策记录，发现已删除不应添加回来"
+    },
+    "when_user_asks_similar_task": {
+      "action": "Reference health_check_history",
+      "purpose": "Avoid repeating solved problems",
+      "example": "如果用户说'优化质量门禁'，检查历史发现已经做过"
+    }
+  },
+  "semantic_checkpoints": {
+    "last_major_refactor": "2025-10-13",
+    "last_positioning_change": "2025-10-13",
+    "last_complexity_reduction": "2025-10-13",
+    "next_review_date": "2025-11-01"
+  },
+  "_usage_instructions": {
+    "for_ai": "每次会话开始时读取此文件，了解系统当前状态和历史决策",
+    "for_humans": "查看AI的决策历史，理解系统演进逻辑",
+    "update_frequency": "每次重大决策后更新",
+    "retention": "保留最近30天的决策记录"
+  },
+  "_last_compressed": "2025-10-14T07:33:25.063515",
+  "_compression_stats": {
+    "archived": 2,
+    "compressed": 0
+  }
+}
