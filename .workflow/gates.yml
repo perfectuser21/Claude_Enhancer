@@ -312,9 +312,10 @@ phases:
       - "technical-writer"
 
   P7:
-    name: "Monitor - 监控"
-    description: "生产监控、性能追踪、问题响应"
+    name: "Monitor - 验收"
+    description: "验收Checklist、生成报告、等待用户确认merge"
     allow_paths:
+      - ".workflow/**"
       - "observability/**"
       - "docs/MONITORING.md"
       - "docs/RUNBOOK.md"
@@ -324,29 +325,54 @@ phases:
       - ".gates/**"
       - ".phase/**"
     must_produce:
-      - "observability/*_MONITOR_REPORT.md: 包含健康检查、SLO验证、完整性验证"
-      - "监控指标定义（SLI/SLO/SLA）"
-      - "告警规则配置"
-      - "运维手册更新"
-      - "所有关键指标验证通过"
-      - "系统状态=HEALTHY"
-      - "生成监控报告包含：服务健康度、SLO合规性、性能基线"
+      - ".workflow/VERIFICATION_REPORT.md: 验收报告"
+      - ".workflow/verification_details.log: 详细验证日志"
+      - "所有Checklist项验证完成"
+      - "验收报告展示给用户"
+      - "等待用户确认merge"
     gates:
-      - "健康检查通过（所有关键服务响应正常）"
-      - "SLO指标达标（可用性、延迟、错误率）"
-      - "无critical issues"
-      - "关键指标监控就位"
-      - "告警通道测试通过"
-      - "Runbook包含故障处理流程"
-      - "监控报告完整（健康检查+SLO+性能基线）"
-      - "回滚演练验证通过（可选，生产环境建议）"
+      - id: "checklist_exists"
+        name: "验收清单存在"
+        check_command: "test -f .workflow/CHECKLIST.md"
+        pass_condition:
+          type: "exit_code"
+          expected: 0
+        on_fail: "Checklist不存在，请先生成Checklist"
+
+      - id: "verify_all_items"
+        name: "验证所有清单项"
+        check_command: "bash .workflow/lib/verify_checklist.sh"
+        pass_condition:
+          type: "exit_code"
+          expected: 0
+        on_fail: "有验收项未通过，查看 .workflow/VERIFICATION_REPORT.md"
+
+      - id: "report_generated"
+        name: "验收报告已生成"
+        check_command: "test -f .workflow/VERIFICATION_REPORT.md"
+        pass_condition:
+          type: "exit_code"
+          expected: 0
+        on_fail: "验收报告未生成"
+
+      - id: "pass_rate_100"
+        name: "通过率100%"
+        check_command: "grep -oP '通过率.*\\K\\d+' .workflow/VERIFICATION_REPORT.md"
+        pass_condition:
+          type: "number"
+          operator: ">="
+          value: 100
+        on_fail: "通过率未达到100%，需要修复失败项"
+
     on_pass:
       - "create: .gates/07.ok"
+      - "create: .workflow/WAITING_MERGE_CONFIRMATION"
       - "set: .phase/current=DONE"
-      - "notify: 系统已进入生产监控阶段，持续跟踪SLO指标"
+      - "display: .workflow/VERIFICATION_REPORT.md"
+      - "prompt: 请查看验收报告，确认后回复'同意merge'"
     recommended_agents:
-      - "sre-engineer"
-      - "monitoring-specialist"
+      - "qa-specialist"
+      - "test-engineer"
       - "technical-writer"
 
 # 质量门禁配置

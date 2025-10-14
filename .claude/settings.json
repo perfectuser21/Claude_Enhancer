@@ -25,6 +25,7 @@
   "autoConfirm": true,
   "hooks": {
     "UserPromptSubmit": [
+      ".claude/hooks/requirement_clarification.sh",
       ".claude/hooks/workflow_auto_start.sh"
     ],
     "PrePrompt": [
@@ -39,6 +40,7 @@
       ".claude/hooks/concurrent_optimizer.sh"
     ],
     "PostToolUse": [
+      ".claude/hooks/merge_confirmer.sh",
       ".claude/hooks/unified_post_processor.sh",
       ".claude/hooks/agent_error_recovery.sh"
     ]
