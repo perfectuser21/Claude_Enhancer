@@ -1,0 +1,132 @@
+{
+  "version": "2.0.0",
+  "generated_at": "2025-10-14T10:22:24.547845",
+  "locked_files": [
+    {
+      "path": "core/__init__.py",
+      "sha256": "1f9e29d94d1043e4d87dc3a34eab9cf11af0eb6169d09bf2508e25519ad5e2de",
+      "size": 1305,
+      "reason": "Core module: core/__init__.py",
+      "locked_at": "2025-10-14T10:22:24.548282"
+    },
+    {
+      "path": "core/api/agent_api.py",
+      "sha256": "bba109110ff94d84d0bb0f2bfa10d9e01d260a5d68c2da96416fd10181e72fd1",
+      "size": 3516,
+      "reason": "Core module: api/agent_api.py",
+      "locked_at": "2025-10-14T10:22:24.548467"
+    },
+    {
+      "path": "core/api/hook_api.py",
+      "sha256": "f3a9e97aadb1aa1a66e7118b6a3fa0c5d69ab0204fe7cb7dcc560590cd5e6000",
+      "size": 2432,
+      "reason": "Core module: api/hook_api.py",
+      "locked_at": "2025-10-14T10:22:24.548553"
+    },
+    {
+      "path": "core/api/workflow_api.py",
+      "sha256": "7b0b8334ee8a06c1a92b5d99c0eebf28c559c911ac9ed645a8d71280fe0bd72b",
+      "size": 3327,
+      "reason": "Core module: api/workflow_api.py",
+      "locked_at": "2025-10-14T10:22:24.548636"
+    },
+    {
+      "path": "core/api/events.py",
+      "sha256": "f70ea3bd4c0a85938d3a385e9d5bb54b6d8835469f934551e7a5028176dc484e",
+      "size": 3656,
+      "reason": "Core module: api/events.py",
+      "locked_at": "2025-10-14T10:22:24.548737"
+    },
+    {
+      "path": "core/api/config_api.py",
+      "sha256": "a005b8316978217370996bba913650ffe0b49c86222d56a7a00fb6f4d454d61a",
+      "size": 2266,
+      "reason": "Core module: api/config_api.py",
+      "locked_at": "2025-10-14T10:22:24.548825"
+    },
+    {
+      "path": "core/config/loader.py",
+      "sha256": "63c4dfbb418049a6ccb2c456a509081be2192225c0bfb28a69cb72c926e3b30d",
+      "size": 4014,
+      "reason": "Core module: config/loader.py",
+      "locked_at": "2025-10-14T10:22:24.549256"
+    },
+    {
+      "path": "core/config/__init__.py",
+      "sha256": "f5eec683c1b8f1b17512cebd4777ff1ecfa91a06ee6d2667c88eb178b932822a",
+      "size": 195,
+      "reason": "Core module: config/__init__.py",
+      "locked_at": "2025-10-14T10:22:24.549328"
+    },
+    {
+      "path": "core/state/manager.py",
+      "sha256": "aade268933ef491f5faf7a8e8af11c6edef6d9fa3f96de0652ea19273c37095b",
+      "size": 3333,
+      "reason": "Core module: state/manager.py",
+      "locked_at": "2025-10-14T10:22:24.549574"
+    },
+    {
+      "path": "core/state/__init__.py",
+      "sha256": "f7a719197816a69b131c13fc6d832e33b8a566858612489e229fa6b90c2807f8",
+      "size": 220,
+      "reason": "Core module: state/__init__.py",
+      "locked_at": "2025-10-14T10:22:24.549650"
+    },
+    {
+      "path": "core/agents/selector.py",
+      "sha256": "6315626cbcd0974042b32e914c5d1a073f619308c2561be63980d8afcea16dea",
+      "size": 3225,
+      "reason": "Core module: agents/selector.py",
+      "locked_at": "2025-10-14T10:22:24.549883"
+    },
+    {
+      "path": "core/agents/__init__.py",
+      "sha256": "2dff1635bcdaa12327de986eba62fe45e90d6730047a62cc323fc51ee7d09046",
+      "size": 189,
+      "reason": "Core module: agents/__init__.py",
+      "locked_at": "2025-10-14T10:22:24.549953"
+    },
+    {
+      "path": "core/hooks/manager.py",
+      "sha256": "4915315b7968cb5114b16c7b128d1fb7001f9772e83ef8166db07724eb558569",
+      "size": 3153,
+      "reason": "Core module: hooks/manager.py",
+      "locked_at": "2025-10-14T10:22:24.550199"
+    },
+    {
+      "path": "core/hooks/__init__.py",
+      "sha256": "271ce9c517697aad3c1bd67e0b368ef70f67decf72aef61cf9b4679207dfae1d",
+      "size": 177,
+      "reason": "Core module: hooks/__init__.py",
+      "locked_at": "2025-10-14T10:22:24.550251"
+    },
+    {
+      "path": "core/workflow/transitions.py",
+      "sha256": "29daf90d45ec4dc22cfe3feb334d3b75f0cf30976654525d54def0a30506f949",
+      "size": 7063,
+      "reason": "Core module: workflow/transitions.py",
+      "locked_at": "2025-10-14T10:22:24.550426"
+    },
+    {
+      "path": "core/workflow/engine.py",
+      "sha256": "cc9b7d5908879d86a1a8cd77140144fbafdfaeb2cb2518a85bd6a231378930f8",
+      "size": 8937,
+      "reason": "Core module: workflow/engine.py",
+      "locked_at": "2025-10-14T10:22:24.550496"
+    },
+    {
+      "path": "core/workflow/types.py",
+      "sha256": "c4ecc4b1b9efaa84aefcb29e904499fbe920d162befe2162be4b46d05efe535b",
+      "size": 2718,
+      "reason": "Core module: workflow/types.py",
+      "locked_at": "2025-10-14T10:22:24.550545"
+    },
+    {
+      "path": "core/hooks/enforcer_v2.sh",
+      "sha256": "cacdc0f1ea26f7163ae653e059ee796ac342095dc913bf9a22200213ebdc4532",
+      "size": 22635,
+      "reason": "Critical: Enhanced workflow enforcer (fixes '\u7ee7\u7eed' bypass)",
+      "locked_at": "2025-10-14T10:22:24.550740"
+    }
+  ]
+}

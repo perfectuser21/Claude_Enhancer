@@ -1,0 +1,14 @@
+{
+  "YYYY-MM-DD_decision_key": {
+    "date": "YYYY-MM-DD",
+    "decision": "简短描述决策内容",
+    "rationale": "为什么做这个决策",
+    "importance": "critical|warning|info",
+    "affected_files": [
+      "file1.txt",
+      "file2.py"
+    ],
+    "do_not_revert": false,
+    "notes": "可选的额外说明"
+  }
+}

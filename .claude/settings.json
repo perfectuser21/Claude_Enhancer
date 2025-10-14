@@ -1,7 +1,7 @@
 {
   "version": "6.2.0",
   "project": "Claude Enhancer",
-  "description": "完全自动化模式 - Bypass Permissions + 零人工确认 + P0-P7自主执行",
+  "description": "自愈系统 + 工作流强制执行 + Bypass Permissions Mode",
   "permissions": {
     "allow": [
       "Bash(**)",
