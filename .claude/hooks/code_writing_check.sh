@@ -21,37 +21,37 @@ COMPLEX_PATTERNS="stress_test|performance|benchmark|agent_test|optimization|refa
 if echo "$INPUT" | grep -qE "$COMPLEX_PATTERNS"; then
     if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
         echo "╔════════════════════════════════════════╗" >&2
-        echo "║   🚨 Claude Enhancer 工作流违规警告 🚨      ║" >&2
+        echo "║   🛑 Claude Enhancer 强制阻塞           ║" >&2
         echo "╚════════════════════════════════════════╝" >&2
         echo "" >&2
-        echo "❌ 检测到复杂任务，但你在直接写代码！" >&2
+        echo "❌ 直接Write/Edit已阻止 - 复杂任务必须使用多Agent工作流" >&2
         echo "" >&2
         echo "📋 违规内容：" >&2
         echo "   文件: $FILE_PATH" >&2
         echo "   类型: 复杂开发任务" >&2
         echo "" >&2
-        echo "✅ 正确做法：" >&2
-        echo "   1. 使用Task工具调用专业Agent" >&2
-        echo "   2. 至少需要以下Agent并行工作：" >&2
-        echo "      • performance-engineer - 性能分析" >&2
-        echo "      • test-engineer - 测试设计" >&2
-        echo "      • backend-architect - 架构设计" >&2
-        echo "      • monitoring-specialist - 监控方案" >&2
-        echo "      • code-reviewer - 代码审查" >&2
-        echo "      • technical-writer - 文档编写" >&2
+        echo "✅ 正确做法（必须执行）：" >&2
+        echo "   1. 停止直接编码" >&2
+        echo "   2. 使用Task工具调用≥4个专业Agent并行工作" >&2
+        echo "   3. 根据任务复杂度使用4/6/8个Agent" >&2
         echo "" >&2
-        echo "🔄 建议操作：" >&2
-        echo "   停止直接编码，改用Task工具：" >&2
-        echo '   Task(subagent_type="performance-engineer",...)' >&2
+        echo "💡 推荐Agent组合：" >&2
+        echo "   • backend-architect - 架构设计" >&2
+        echo "   • test-engineer - 测试设计" >&2
+        echo "   • code-reviewer - 代码审查" >&2
+        echo "   • technical-writer - 文档编写" >&2
         echo "" >&2
-        echo "⚠️  这不是建议，是Claude Enhancer的强制要求！" >&2
+        echo "🚫 操作已阻塞 - 这是强制要求，不是建议！" >&2
         echo "════════════════════════════════════════" >&2
     elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
-        echo "[CodeCheck] ❌ 违规: 复杂任务需要使用Task工具" >&2
+        echo "[CodeCheck] ❌ 阻止: 复杂任务需要使用Task工具 (≥4 agents)" >&2
     fi
 
     # 记录违规
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] VIOLATION: Direct coding instead of Task usage - $FILE_PATH" >> /tmp/claude-enhancer_violations.log
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] BLOCKED: Direct coding for complex task - $FILE_PATH" >> /tmp/claude-enhancer_violations.log
+
+    # Hard block execution (Changed from warning-only)
+    exit 1
 fi
 
 # 检测是否应该先创建分支

@@ -35,6 +35,8 @@
     ],
     "PreToolUse": [
       ".claude/hooks/branch_helper.sh",
+      ".claude/hooks/code_writing_check.sh",
+      ".claude/hooks/agent_usage_enforcer.sh",
       ".claude/hooks/quality_gate.sh",
       ".claude/hooks/auto_cleanup_check.sh",
       ".claude/hooks/concurrent_optimizer.sh"
