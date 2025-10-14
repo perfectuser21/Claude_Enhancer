@@ -1,0 +1,64 @@
+{
+  "description": "架构v2.0迁移预期结果",
+  "version": "2.0",
+  "date": "2025-10-14",
+  "expected_results": {
+    "core_files": {
+      "count": 4,
+      "files": [
+        ".claude/core/engine.py",
+        ".claude/core/orchestrator.py",
+        ".claude/core/loader.py",
+        ".claude/core/config.yaml"
+      ],
+      "min_lines_py": 50,
+      "syntax_valid": true
+    },
+    "symlinks": {
+      "created": true,
+      "links": [
+        {
+          "link": ".claude/engine.py",
+          "target": "core/engine.py"
+        },
+        {
+          "link": ".claude/orchestrator.py",
+          "target": "core/orchestrator.py"
+        }
+      ]
+    },
+    "feature_structure": {
+      "directories": [
+        ".claude/features/basic",
+        ".claude/features/standard",
+        ".claude/features/advanced"
+      ],
+      "config_file": ".claude/features/config.yaml"
+    },
+    "hooks": {
+      "git_hooks": [
+        ".git/hooks/pre-commit",
+        ".git/hooks/commit-msg",
+        ".git/hooks/pre-push"
+      ],
+      "claude_hooks": [
+        ".claude/hooks/pre_tool_use.sh",
+        ".claude/hooks/workflow_guard.sh",
+        ".claude/hooks/phase_guard.sh",
+        ".claude/hooks/branch_helper.sh",
+        ".claude/hooks/comprehensive_guard.sh"
+      ]
+    },
+    "integrity": {
+      "hash_file": ".claude/core/.integrity.sha256",
+      "algorithm": "SHA256"
+    }
+  },
+  "success_criteria": {
+    "all_core_files_exist": true,
+    "syntax_valid": true,
+    "hooks_installed": true,
+    "symlinks_work": true,
+    "performance_acceptable": true
+  }
+}

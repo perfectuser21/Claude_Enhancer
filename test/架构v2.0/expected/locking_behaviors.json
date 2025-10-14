@@ -1,0 +1,210 @@
+{
+  "description": "架构v2.0锁定机制预期行为",
+  "version": "2.0",
+  "date": "2025-10-14",
+  "locking_behaviors": {
+    "core_file_protection": {
+      "description": "core/目录下的文件被保护",
+      "protected_files": [
+        ".claude/core/engine.py",
+        ".claude/core/orchestrator.py",
+        ".claude/core/loader.py",
+        ".claude/core/config.yaml"
+      ],
+      "behaviors": {
+        "direct_modification": {
+          "action": "修改core/文件",
+          "expected_result": "BLOCKED",
+          "blocker": "pre-commit hook",
+          "error_message_contains": ["BLOCKED", "core/", "protected"]
+        },
+        "batch_modification": {
+          "action": "批量修改多个core/文件",
+          "expected_result": "BLOCKED",
+          "blocker": "pre-commit hook",
+          "error_message_contains": ["BLOCKED", "core/"]
+        },
+        "deletion": {
+          "action": "删除core/文件",
+          "expected_result": "BLOCKED",
+          "blocker": "pre-commit hook",
+          "error_message_contains": ["BLOCKED", "core/", "deletion"]
+        },
+        "renaming": {
+          "action": "重命名core/文件",
+          "expected_result": "BLOCKED",
+          "blocker": "pre-commit hook",
+          "error_message_contains": ["BLOCKED", "core/"]
+        }
+      }
+    },
+    "hash_verification": {
+      "description": "Hash完整性验证",
+      "hash_file": ".claude/core/.integrity.sha256",
+      "algorithm": "SHA256",
+      "behaviors": {
+        "clean_verification": {
+          "action": "验证未修改的文件",
+          "expected_result": "PASS",
+          "exit_code": 0
+        },
+        "tampered_verification": {
+          "action": "验证被篡改的文件",
+          "expected_result": "FAIL",
+          "exit_code": 1,
+          "error_message_contains": ["FAILED", "hash", "mismatch"]
+        }
+      }
+    },
+    "git_hook_triggers": {
+      "description": "Git hook触发机制",
+      "hooks": {
+        "pre-commit": {
+          "trigger": "git commit",
+          "checks": [
+            "core/ file modifications",
+            "hash integrity",
+            "syntax validation"
+          ],
+          "allows_bypass": false,
+          "bypass_detection": [
+            "--no-verify (blocked)",
+            "SKIP=... (blocked)",
+            "chmod -x (detected by CI)"
+          ]
+        },
+        "pre-push": {
+          "trigger": "git push",
+          "checks": [
+            "branch protection (main/master)",
+            "commit message format"
+          ],
+          "allows_bypass": false
+        }
+      }
+    },
+    "claude_hook_triggers": {
+      "description": "Claude PreToolUse hook触发",
+      "hook": ".claude/hooks/pre_tool_use.sh",
+      "triggers": {
+        "write_core_file": {
+          "tool": "Write",
+          "file_pattern": ".claude/core/*",
+          "expected_result": "BLOCKED",
+          "error_message_contains": ["BLOCKED", "core/", "protected"]
+        },
+        "edit_core_file": {
+          "tool": "Edit",
+          "file_pattern": ".claude/core/*",
+          "expected_result": "BLOCKED",
+          "error_message_contains": ["BLOCKED", "core/", "protected"]
+        },
+        "write_other_file": {
+          "tool": "Write",
+          "file_pattern": ".claude/features/*",
+          "expected_result": "ALLOWED",
+          "exit_code": 0
+        }
+      }
+    },
+    "bypass_attempts": {
+      "description": "绕过尝试的检测",
+      "attempts": [
+        {
+          "method": "git commit --no-verify",
+          "expected_result": "Detected and logged (optional CI check)",
+          "detection_layer": "CI workflow"
+        },
+        {
+          "method": "chmod -x .git/hooks/pre-commit",
+          "expected_result": "Detected by CI",
+          "detection_layer": "CI integrity check"
+        },
+        {
+          "method": "Modify .git/hooks/pre-commit",
+          "expected_result": "Detected by CI",
+          "detection_layer": "CI hook integrity check"
+        },
+        {
+          "method": "Tamper core/ then fix hash",
+          "expected_result": "Detected by code review",
+          "detection_layer": "Manual code review"
+        }
+      ]
+    }
+  },
+  "five_layer_detection": {
+    "description": "5层检测机制（针对'继续'绕过）",
+    "layers": {
+      "layer_1": {
+        "name": "关键词检测",
+        "checks": ["继续", "continue", "跳过", "skip", "忽略", "ignore"],
+        "action": "BLOCK if detected in execution mode"
+      },
+      "layer_2": {
+        "name": "上下文分析",
+        "checks": ["execution_mode?", "in_phase?", "task_context?"],
+        "action": "BLOCK if inappropriate context"
+      },
+      "layer_3": {
+        "name": "Phase状态检查",
+        "checks": ["current_phase_complete?", "plan_md_exists?", "markers_present?"],
+        "action": "BLOCK if phase not properly completed"
+      },
+      "layer_4": {
+        "name": "历史记录检查",
+        "checks": ["continue_count", "pattern_detection", "consecutive_usage"],
+        "action": "BLOCK if suspicious pattern (e.g., 3+ consecutive continues)"
+      },
+      "layer_5": {
+        "name": "智能判断",
+        "checks": ["ai_understanding?", "task_clarity?", "branch_appropriate?"],
+        "action": "BLOCK if AI doesn't demonstrate understanding"
+      }
+    },
+    "all_layers_must_pass": true,
+    "performance_target_ms": 50
+  },
+  "test_scenarios": [
+    {
+      "id": "T-LOCK-001",
+      "name": "直接修改core/文件",
+      "steps": [
+        "echo '# test' >> .claude/core/engine.py",
+        "git add .claude/core/engine.py",
+        "git commit -m 'test'"
+      ],
+      "expected_result": "commit blocked by pre-commit hook"
+    },
+    {
+      "id": "T-LOCK-002",
+      "name": "Hash验证失败",
+      "steps": [
+        "echo '# tamper' >> .claude/core/engine.py",
+        "cd .claude/core && sha256sum -c .integrity.sha256"
+      ],
+      "expected_result": "hash verification fails"
+    },
+    {
+      "id": "T-LOCK-003",
+      "name": "Claude Write工具被阻止",
+      "steps": [
+        "TOOL_NAME=Write FILE_PATH=.claude/core/engine.py",
+        ".claude/hooks/pre_tool_use.sh"
+      ],
+      "expected_result": "hook blocks Write operation"
+    },
+    {
+      "id": "T-LOCK-004",
+      "name": "5层检测全触发",
+      "steps": [
+        "USER_INPUT='继续'",
+        "git checkout main",
+        "echo '{\"current_phase\": \"P1\", \"p1_complete\": false, \"continue_count\": 3}' > .workflow/state.json",
+        "rm docs/PLAN.md",
+        ".claude/hooks/comprehensive_guard.sh"
+      ],
+      "expected_result": "all 5 layers trigger and block"
+    }
+  ]
+}
