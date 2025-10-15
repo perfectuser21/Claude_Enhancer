@@ -125,14 +125,110 @@ enforce_workflow() {
             ;;
 
         "P3")
+            # P3 Implementation Phase Validation
             if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
-                echo -e "${GREEN}✅ Phase 3: 可以开始实现${NC}"
-                echo "  - 使用4-6-8 Agent策略"
-                echo "  - 简单任务：4个Agent"
-                echo "  - 标准任务：6个Agent"
-                echo "  - 复杂任务：8个Agent"
-            elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
-                echo "[Workflow] ✅ Phase 3: 可以实现"
+                echo -e "${BLUE}🔍 Validating P3 (Implementation) phase...${NC}"
+            fi
+
+            # Check 1: Agent count (minimum 3 for implementation)
+            AGENT_COUNT=0
+            if [[ -f ".gates/agents_invocation.json" ]]; then
+                AGENT_COUNT=$(jq '.agents | length' .gates/agents_invocation.json 2>/dev/null || echo "0")
+            fi
+
+            if [ "$AGENT_COUNT" -lt 3 ]; then
+                if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+                    echo -e "${RED}❌ P3 requires ≥3 agents for implementation (found: $AGENT_COUNT)${NC}"
+                    echo -e "${YELLOW}💡 Use: backend-architect, test-engineer, devops-engineer${NC}"
+                fi
+                exit 1
+            fi
+
+            # Check 2: Code changes present
+            if ! git diff --cached --name-only | grep -qE '\.(py|sh|js|ts|yml)$'; then
+                if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+                    echo -e "${YELLOW}⚠️ P3 should have code changes${NC}"
+                fi
+            fi
+
+            if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+                echo -e "${GREEN}✅ P3 validation passed${NC}"
+            fi
+            ;;
+
+        "P4")
+            # P4 Testing Phase Validation
+            if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+                echo -e "${BLUE}🧪 Validating P4 (Testing) phase...${NC}"
+            fi
+
+            # Check 1: Test files exist
+            TEST_FILES=$(git diff --cached --name-only | grep -E 'test_|_test\.|\.test\.' | wc -l)
+            if [ "$TEST_FILES" -eq 0 ]; then
+                if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+                    echo -e "${RED}❌ P4 requires test files${NC}"
+                    echo -e "${YELLOW}💡 Add tests in test/ directory${NC}"
+                fi
+                exit 1
+            fi
+
+            if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+                echo -e "${GREEN}✅ P4 validation passed ($TEST_FILES test files)${NC}"
+            fi
+            ;;
+
+        "P5")
+            # P5 Review Phase Validation
+            if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+                echo -e "${BLUE}👀 Validating P5 (Review) phase...${NC}"
+            fi
+
+            # Check 1: REVIEW.md exists
+            if [[ ! -f "docs/REVIEW.md" ]] && ! git diff --cached --name-only | grep -q "docs/REVIEW.md"; then
+                if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+                    echo -e "${RED}❌ P5 requires REVIEW.md${NC}"
+                    echo -e "${YELLOW}💡 Generate code review report: docs/REVIEW.md${NC}"
+                fi
+                exit 1
+            fi
+
+            if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+                echo -e "${GREEN}✅ P5 validation passed${NC}"
+            fi
+            ;;
+
+        "P6")
+            # P6 Release Phase Validation
+            if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+                echo -e "${BLUE}🚀 Validating P6 (Release) phase...${NC}"
+            fi
+
+            # Check 1: CHANGELOG.md updated
+            if ! git diff --cached --name-only | grep -q "CHANGELOG.md"; then
+                if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+                    echo -e "${RED}❌ P6 requires CHANGELOG.md update${NC}"
+                    echo -e "${YELLOW}💡 Add release notes to CHANGELOG.md${NC}"
+                fi
+                exit 1
+            fi
+
+            # Check 2: Documentation updated
+            DOC_FILES=$(git diff --cached --name-only | grep -E '\.md$|docs/' | wc -l)
+            if [ "$DOC_FILES" -eq 0 ]; then
+                if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+                    echo -e "${YELLOW}⚠️ No documentation updates in release${NC}"
+                fi
+            fi
+
+            if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+                echo -e "${GREEN}✅ P6 validation passed${NC}"
+            fi
+            ;;
+
+        "P7")
+            # P7 Monitoring Phase - usually no commit restrictions
+            if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+                echo -e "${GREEN}✅ P7 Monitoring phase - no commit restrictions${NC}"
             fi
             ;;
 
@@ -175,11 +271,9 @@ main() {
         # 检查是否已在正确的Phase
         local current_phase=$(get_current_phase)
 
-        # 如果不在P3或更高Phase，强制执行工作流
-        if [[ "$current_phase" != "P3" && "$current_phase" != "P4" && \
-              "$current_phase" != "P5" && "$current_phase" != "P6" ]]; then
-            enforce_workflow
-        fi
+        # Enforce workflow for all phases (no bypass)
+        # All phases now have proper validation in enforce_workflow()
+        enforce_workflow
     fi
 
     # 如果一切正常，返回成功

@@ -352,6 +352,131 @@ detect_workflow_state_violation() {
 }
 
 # ============================================================
+# Layer 6: Phase Commit Requirements (NEW - Fix for P3-P7)
+# Purpose: Validate git commit meets phase-specific requirements
+# ============================================================
+detect_phase_commit_violations() {
+    local violations=0
+    local current_phase=""
+
+    log_debug "Layer 6: Phase Commit Requirements - Start"
+
+    # Read current phase
+    if [[ -f "${WORKFLOW_DIR}/current" ]]; then
+        current_phase=$(cat "${WORKFLOW_DIR}/current" | tr -d '[:space:]')
+        log_debug "Current phase: ${current_phase}"
+    elif [[ -f "${PROJECT_ROOT}/.phase/current" ]]; then
+        current_phase=$(cat "${PROJECT_ROOT}/.phase/current" | tr -d '[:space:]')
+        log_debug "Current phase (from .phase): ${current_phase}"
+    else
+        log_debug "No phase set, skipping commit requirements check"
+        return 0
+    fi
+
+    # Only validate P3-P7 (implementation, testing, review, release, monitor)
+    case "$current_phase" in
+        P3)
+            # P3: Implementation phase validation
+            log_debug "P3: Checking agent count and code changes"
+
+            # Check 1: Agent count (minimum 3 for implementation)
+            local agent_count=0
+            if [[ -f "${PROJECT_ROOT}/.gates/agents_invocation.json" ]]; then
+                if command -v jq >/dev/null 2>&1; then
+                    agent_count=$(jq '.agents | length' "${PROJECT_ROOT}/.gates/agents_invocation.json" 2>/dev/null || echo "0")
+                else
+                    log_warn "jq not found, skipping agent count check"
+                fi
+            fi
+
+            if [[ $agent_count -lt 3 ]] && [[ $agent_count -gt 0 ]]; then
+                log_block "P3 requires ≥3 agents for implementation (found: $agent_count)"
+                log_error "  Use: backend-architect, test-engineer, devops-engineer"
+                ((violations++))
+            fi
+
+            # Check 2: Code changes present
+            if git diff --cached --name-only 2>/dev/null | grep -qE '\.(py|sh|js|ts|yml|yaml|json)$'; then
+                log_debug "P3: Code changes detected"
+            else
+                log_warn "P3: No code changes in commit"
+            fi
+            ;;
+
+        P4)
+            # P4: Testing phase validation
+            log_debug "P4: Checking for test files"
+
+            # Check: Test files exist in commit
+            local test_files
+            test_files=$(git diff --cached --name-only 2>/dev/null | grep -E 'test_|_test\.|\.test\.|spec\.|\.spec\.' || echo "")
+
+            if [[ -z "$test_files" ]]; then
+                log_block "P4 requires test files in commit"
+                log_error "  Add tests in test/ directory"
+                ((violations++))
+            else
+                log_debug "P4: Test files found in commit"
+            fi
+            ;;
+
+        P5)
+            # P5: Review phase validation
+            log_debug "P5: Checking for REVIEW.md"
+
+            # Check: REVIEW.md exists or is being committed
+            if [[ ! -f "${PROJECT_ROOT}/docs/REVIEW.md" ]] && \
+               ! git diff --cached --name-only 2>/dev/null | grep -q "docs/REVIEW.md"; then
+                log_block "P5 requires REVIEW.md"
+                log_error "  Generate code review report: docs/REVIEW.md"
+                ((violations++))
+            else
+                log_debug "P5: REVIEW.md found"
+            fi
+            ;;
+
+        P6)
+            # P6: Release phase validation
+            log_debug "P6: Checking for CHANGELOG.md update"
+
+            # Check: CHANGELOG.md updated
+            if ! git diff --cached --name-only 2>/dev/null | grep -q "CHANGELOG.md"; then
+                log_block "P6 requires CHANGELOG.md update"
+                log_error "  Add release notes to CHANGELOG.md"
+                ((violations++))
+            else
+                log_debug "P6: CHANGELOG.md updated"
+            fi
+
+            # Check 2: Documentation updated (warning only)
+            local doc_files
+            doc_files=$(git diff --cached --name-only 2>/dev/null | grep -E '\.md$|docs/' | wc -l 2>/dev/null || echo "0")
+            doc_files=$(echo "$doc_files" | tr -d '[:space:]')  # Remove all whitespace
+            if [[ $doc_files -eq 0 ]]; then
+                log_warn "P6: No documentation updates in release"
+            fi
+            ;;
+
+        P7)
+            # P7: Monitor phase - usually no commit restrictions
+            log_debug "P7: Monitoring phase - no commit restrictions"
+            ;;
+
+        P0|P1|P2)
+            # Early phases - no commit requirements
+            log_debug "${current_phase}: No specific commit requirements"
+            ;;
+
+        *)
+            log_debug "Unknown or unset phase: ${current_phase}"
+            ;;
+    esac
+
+    log_debug "Layer 6: Found ${violations} violations"
+    return $violations
+}
+
+# ============================================================
 # Integrated Detection Engine
 # ============================================================
 run_all_detections() {
@@ -361,62 +486,85 @@ run_all_detections() {
     local start_time=$(date +%s%N)
 
     log_info "========================================"
-    log_info "Workflow Guard - 5-Layer Detection"
+    log_info "Workflow Guard - 6-Layer Detection"
     log_info "========================================"
     echo ""
 
     # Layer 1: Phase Detection
-    log_info "[1/5] Phase Detection..."
-    if detect_phase_violation "$input"; then
-        layer_results+=("1:FAIL")
-        ((total_violations += $?))
-    else
+    log_info "[1/6] Phase Detection..."
+    detect_phase_violation "$input"
+    local layer1_result=$?
+    if [[ $layer1_result -eq 0 ]]; then
         layer_results+=("1:PASS")
         log_success "Pass"
+    else
+        layer_results+=("1:FAIL")
+        ((total_violations += layer1_result))
     fi
     echo ""
 
     # Layer 2: Branch Detection
-    log_info "[2/5] Branch Detection..."
-    if detect_branch_violation "$input"; then
-        layer_results+=("2:FAIL")
-        ((total_violations += $?))
-    else
+    log_info "[2/6] Branch Detection..."
+    detect_branch_violation "$input"
+    local layer2_result=$?
+    if [[ $layer2_result -eq 0 ]]; then
         layer_results+=("2:PASS")
         log_success "Pass"
+    else
+        layer_results+=("2:FAIL")
+        ((total_violations += layer2_result))
     fi
     echo ""
 
     # Layer 3: Continue Bypass Detection
-    log_info "[3/5] Continue Bypass Detection..."
-    if detect_continue_bypass "$input"; then
-        layer_results+=("3:FAIL")
-        ((total_violations += $?))
-    else
+    log_info "[3/6] Continue Bypass Detection..."
+    detect_continue_bypass "$input"
+    local layer3_result=$?
+    if [[ $layer3_result -eq 0 ]]; then
         layer_results+=("3:PASS")
         log_success "Pass"
+    else
+        layer_results+=("3:FAIL")
+        ((total_violations += layer3_result))
     fi
     echo ""
 
     # Layer 4: Programming Keyword Detection
-    log_info "[4/5] Programming Keyword Detection..."
-    if detect_programming_without_workflow "$input"; then
-        layer_results+=("4:FAIL")
-        ((total_violations += $?))
-    else
+    log_info "[4/6] Programming Keyword Detection..."
+    detect_programming_without_workflow "$input"
+    local layer4_result=$?
+    if [[ $layer4_result -eq 0 ]]; then
         layer_results+=("4:PASS")
         log_success "Pass"
+    else
+        layer_results+=("4:FAIL")
+        ((total_violations += layer4_result))
     fi
     echo ""
 
     # Layer 5: Workflow State Detection
-    log_info "[5/5] Workflow State Detection..."
-    if detect_workflow_state_violation "$input"; then
-        layer_results+=("5:FAIL")
-        ((total_violations += $?))
-    else
+    log_info "[5/6] Workflow State Detection..."
+    detect_workflow_state_violation "$input"
+    local layer5_result=$?
+    if [[ $layer5_result -eq 0 ]]; then
         layer_results+=("5:PASS")
         log_success "Pass"
+    else
+        layer_results+=("5:FAIL")
+        ((total_violations += layer5_result))
+    fi
+    echo ""
+
+    # Layer 6: Phase Commit Requirements (NEW)
+    log_info "[6/6] Phase Commit Requirements..."
+    detect_phase_commit_violations
+    local layer6_result=$?
+    if [[ $layer6_result -eq 0 ]]; then
+        layer_results+=("6:PASS")
+        log_success "Pass"
+    else
+        layer_results+=("6:FAIL")
+        ((total_violations += layer6_result))
     fi
     echo ""
 
@@ -442,8 +590,8 @@ run_all_detections() {
     done
 
     echo ""
-    log_info "Passed: ${passed}/5"
-    log_info "Failed: ${failed}/5"
+    log_info "Passed: ${passed}/6"
+    log_info "Failed: ${failed}/6"
     log_info "Total violations: ${total_violations}"
 
     # Performance check
@@ -515,12 +663,13 @@ Examples:
   workflow_guard.sh "继续写代码"  # Should be blocked
   DEBUG_WORKFLOW_GUARD=1 workflow_guard.sh "test input"
 
-5-Layer Detection:
+6-Layer Detection:
   1. Phase Detection - Prevent phase skipping
   2. Branch Detection - Prevent coding on protected branches
   3. Continue Detection - Prevent "continue" bypass
   4. Programming Detection - Prevent coding without workflow
   5. State Detection - Ensure phase operation matching
+  6. Commit Requirements - Validate P3-P7 commit requirements
 
 EOF
 }

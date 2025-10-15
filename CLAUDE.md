@@ -501,12 +501,32 @@ scripts/cleanup_documents.sh
 
 ### 完整开发周期
 - **P0 探索（Discovery）**: 技术spike，可行性验证【新增】
+  - **必须产出**: Acceptance Checklist（定义"完成"的标准）
+  - 分析问题 → 创建验收清单 → 定义成功标准
 - **P1 规划（Plan）**: 需求分析，生成PLAN.md
 - **P2 骨架（Skeleton）**: 架构设计，创建目录结构
 - **P3 实现（Implementation）**: 编码开发，包含commit
-- **P4 测试（Testing）**: 单元/集成/性能/BDD测试
-- **P5 审查（Review）**: 代码审查，生成REVIEW.md
+- **P4 测试（Testing）**: 单元/集成/性能/BDD测试 + **静态检查**
+  - **必须执行**: `bash scripts/static_checks.sh`
+  - Shell语法检查（bash -n）
+  - Shellcheck linting
+  - 代码复杂度检查
+  - Hook性能测试（<2秒）
+  - 功能测试执行
+  - **阻止标准**: 任何检查失败都阻止进入P5
+- **P5 审查（Review）**: 代码审查，生成REVIEW.md + **合并前审计**
+  - **必须执行**: `bash scripts/pre_merge_audit.sh`
+  - 配置完整性验证（hooks注册、权限）
+  - 遗留问题扫描（TODO/FIXME）
+  - 垃圾文档检测（根目录≤7个文档）
+  - 版本号一致性检查
+  - 代码模式一致性验证
+  - 文档完整性检查（REVIEW.md）
+  - **人工验证**: 逻辑正确性、代码一致性、P0 checklist对照
+  - **阻止标准**: 任何critical issue都阻止进入P6
 - **P6 发布（Release）**: 文档更新，打tag，健康检查
+  - **必须验证**: 对照P0 checklist逐项验证，全部✅才说"完成"
+  - **P6铁律**: 不应该在这个阶段发现bugs（如发现 → 返回P5）
 - **P7 监控（Monitor）**: 生产监控，SLO跟踪【新增】
 
 ### 智能Agent策略（4-6-8原则）
@@ -514,6 +534,61 @@ scripts/cleanup_documents.sh
 - **简单任务**：4个Agent（修复bug、小改动）
 - **标准任务**：6个Agent（新功能、重构）
 - **复杂任务**：8个Agent（架构设计、大型功能）
+
+### 🎯 质量门禁策略（Quality Gates）
+
+**核心原则：左移测试（Shift Left）**
+- 越早发现问题，修复成本越低
+- P4发现 > P5发现 > P6发现
+
+**三阶段检查体系**：
+
+#### P4阶段：技术质量门禁
+- **自动化检查**（必须100%通过）：
+  - Shell语法验证（`bash -n`）- 防止语法错误
+  - Shellcheck linting - 防止常见bug模式
+  - 代码复杂度 - 防止函数过长（>150行阻止）
+  - Hook性能 - 防止执行过慢（>5秒阻止）
+  - 功能测试 - 防止功能回归
+
+- **产出要求**：
+  - 测试覆盖率报告
+  - 性能benchmark结果
+  - 所有自动化检查通过证明
+
+#### P5阶段：代码质量门禁
+- **自动化检查**（必须100%通过）：
+  - 配置完整性 - 所有hooks正确注册
+  - 文档规范性 - 根目录≤7个核心文档
+  - 版本一致性 - settings.json与CHANGELOG.md匹配
+  - 代码模式一致性 - 相似功能用相同实现
+
+- **人工验证**（必须完成）：
+  - 逻辑正确性（IF判断、return值语义）
+  - 代码一致性（6个Layers统一逻辑）
+  - 文档完整性（REVIEW.md >100行）
+  - P0验收清单对照验证
+
+- **产出要求**：
+  - REVIEW.md（完整审查报告）
+  - 代码一致性验证报告
+  - Pre-merge checklist全部✓
+
+#### P6阶段：最终确认门禁
+- **唯一职责**：确认P0-P5所有工作完成
+- **禁止行为**：在P6发现bugs
+- **处理原则**：发现bugs → 返回P5重新审查
+
+**质量指标追踪**：
+- 短期目标：P6发现bugs的比例<10%
+- 中期目标：90%的bugs在P4-P5被发现
+- 长期目标：P6变成纯确认阶段（0 bugs）
+
+**经验教训**（PR #19案例）：
+- ❌ 语法错误在P6发现 → 应该在P4静态检查发现
+- ❌ Layers 1-5逻辑bug在P6发现 → 应该在P5代码审查发现
+- ✅ Layer 6缺失在P4发现 → 正确的发现时机
+- 📝 改进措施：建立P4/P5自动化检查脚本
 
 ## 🛡️ 四层质量保障体系【升级】
 
@@ -599,7 +674,9 @@ scripts/                       # 工具脚本【新增】
 ├── gap_scan.sh               # 差距扫描
 ├── gen_bdd_from_openapi.mjs # BDD生成器
 ├── run_to_100.sh            # 一键优化
-└── capability_snapshot.sh    # 能力快照
+├── capability_snapshot.sh    # 能力快照
+├── static_checks.sh         # P4静态检查【新增】
+└── pre_merge_audit.sh       # P5合并前审计【新增】
 
 .git/hooks/                   # Git Hooks（强制）
 ├── pre-commit               # 硬拦截检查
@@ -626,6 +703,15 @@ cp -r .claude ./
 
 # 查看保障力评分
 bash test/validate_enhancement.sh
+```
+
+### 3. 使用质量检查工具
+```bash
+# P4阶段：运行静态检查
+bash scripts/static_checks.sh
+
+# P5阶段：运行合并前审计
+bash scripts/pre_merge_audit.sh
 
 # 运行BDD测试
 npm run bdd
