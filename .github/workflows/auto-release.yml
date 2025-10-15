@@ -8,7 +8,7 @@ on:
       - master
 
 permissions:
-  contents: write
+  contents: write  # Minimal required for tag and release creation
 
 jobs:
   auto-release:
@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@8ade7a8fd8887e3077c13433839eef9655c18ab5  # v4.1.0
         with:
           fetch-depth: 0  # 获取完整历史用于版本比较
 
@@ -61,6 +61,16 @@ jobs:
             exit 1
           fi
 
+      - name: Validate PR Number
+        if: steps.version_compare.outputs.version_increased == 'true'
+        run: |
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          if ! [[ "$PR_NUMBER" =~ ^[0-9]+$ ]]; then
+            echo "❌ 错误: 无效的PR编号格式: $PR_NUMBER"
+            exit 1
+          fi
+          echo "✅ PR编号验证通过: $PR_NUMBER"
+
       - name: Generate Release Notes
         id: release_notes
         if: steps.version_compare.outputs.version_increased == 'true'
@@ -96,15 +106,18 @@ jobs:
 
       - name: Create GitHub Release
         if: steps.version_compare.outputs.version_increased == 'true'
-        uses: actions/create-release@v1
+        run: |
+          VERSION="${{ steps.version_check.outputs.new_version }}"
+          TAG_NAME="v${VERSION}"
+
+          # Use gh CLI instead of deprecated actions/create-release
+          gh release create "$TAG_NAME" \
+            --title "Release $TAG_NAME" \
+            --notes-file release_notes.md
+
+          echo "✅ GitHub Release已创建: $TAG_NAME"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v${{ steps.version_check.outputs.new_version }}
-          release_name: Release v${{ steps.version_check.outputs.new_version }}
-          body_path: release_notes.md
-          draft: false
-          prerelease: false
 
       - name: Summary
         if: steps.version_compare.outputs.version_increased == 'true'
