@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@8ade7a8fd8887e3077c13433839eef9655c18ab5  # v4.1.0
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955  # v4
         with:
           fetch-depth: 0  # 获取完整历史用于版本比较
 
