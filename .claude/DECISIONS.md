@@ -264,3 +264,54 @@ max_git_hooks_backups: 2  # 备份文件数量
 **最后更新**: 2025-10-13
 **维护者**: Claude Enhancer AI + 用户协作
 **版本**: 1.0.0
+
+---
+
+## 决策 #6: 工作流优化 (2025-10-15)
+
+### 背景
+经过v6.2的使用，发现8阶段工作流(P0-P7)存在优化空间。
+
+### 决策
+**从 8-phase (P0-P7) 优化到 6-phase (Phase 0-5)**
+
+**合并的阶段**：
+- Phase 1 = P1 (Planning) + P2 (Skeleton)
+  - 理由：规划和骨架自然衔接，无需分开
+- Phase 5 = P6 (Release) + P7 (Monitor)
+  - 理由：发布和监控功能重叠，可以合并
+
+**保持独立的阶段**：
+- Phase 0 (Discovery) - 必须独立，定义验收标准
+- Phase 2 (Implementation) - 核心开发阶段
+- Phase 3 (Testing) - 质量门禁，必须独立
+- Phase 4 (Review) - 质量门禁，必须独立
+
+### 结果
+- ✅ 效率提升：17% (30min → 25min)
+- ✅ 质量保持：零妥协（两个质量门禁保持独立）
+- ✅ 向后兼容：100%（纯术语变化）
+- ✅ Agent优化：复杂任务 40→37 agents
+
+### 证据
+- P0 Acceptance: 18/18 (100%)
+- Phase 3 Testing: 7/7 tests passed
+- Phase 4 Review: APPROVED
+- evidence/20251015_workflow_6.3.0/
+
+### 教训
+**不要再做的事**：
+- ❌ 不要再拆分 Phase 1（规划+骨架已经是最优）
+- ❌ 不要再拆分 Phase 5（发布+监控合并合理）
+- ❌ 绝不合并 Phase 3 和 Phase 4（质量门禁必须独立）
+
+**可以做的事**：
+- ✅ 继续优化Agent并行策略
+- ✅ 继续优化文档清理策略
+- ✅ 持续监控效率提升效果
+
+### 影响
+- 所有文档更新到Phase 0-5术语
+- WORKFLOW.md 重写（2500+行）
+- AGENT_STRATEGY.md 扩展（+140%）
+- 版本：6.2.2 → 6.3.0
