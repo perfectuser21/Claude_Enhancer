@@ -501,12 +501,15 @@ scripts/cleanup_documents.sh
 
 ### 完整开发周期
 - **P0 探索（Discovery）**: 技术spike，可行性验证【新增】
+  - **必须产出**: Acceptance Checklist（定义"完成"的标准）
+  - 分析问题 → 创建验收清单 → 定义成功标准
 - **P1 规划（Plan）**: 需求分析，生成PLAN.md
 - **P2 骨架（Skeleton）**: 架构设计，创建目录结构
 - **P3 实现（Implementation）**: 编码开发，包含commit
 - **P4 测试（Testing）**: 单元/集成/性能/BDD测试
 - **P5 审查（Review）**: 代码审查，生成REVIEW.md
 - **P6 发布（Release）**: 文档更新，打tag，健康检查
+  - **必须验证**: 对照P0 checklist逐项验证，全部✅才说"完成"
 - **P7 监控（Monitor）**: 生产监控，SLO跟踪【新增】
 
 ### 智能Agent策略（4-6-8原则）

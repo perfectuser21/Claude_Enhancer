@@ -14,6 +14,10 @@
 
 - **Added Layer 6 to workflow_guard.sh** for git commit validation
 - **Fixed syntax error in P6 validation** - `wc -l` output含有换行导致比较失败
+
+### 📚 Documentation
+
+- **Updated CLAUDE.md** - 明确P0必须产出Acceptance Checklist，P6必须验证
   - P3: Validates ≥3 agents used in implementation
   - P4: Validates test files present in commit
   - P5: Validates REVIEW.md exists or staged
