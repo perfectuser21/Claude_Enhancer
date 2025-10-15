@@ -25,6 +25,38 @@
   - P6: Validates CHANGELOG.md updated
   - P7: No restrictions (monitoring phase)
 
+### 🎯 Process Improvement: Quality Gates System
+
+**背景**: 本次PR发现bugs的时机延迟（syntax error和Layers 1-5 bug都在P6才发现，应该在P4/P5发现）
+
+**新增**：
+- **`scripts/static_checks.sh`** - P4阶段静态检查工具
+  - Shell语法检查（bash -n）
+  - Shellcheck linting
+  - 代码复杂度检查（>150行阻止）
+  - Hook性能测试（>5秒阻止）
+  - 临时文件清理提醒
+
+- **`scripts/pre_merge_audit.sh`** - P5阶段合并前审计工具
+  - 配置完整性验证（hooks注册、权限）
+  - 遗留问题扫描（TODO/FIXME）
+  - 垃圾文档检测（根目录≤7个）
+  - 版本号一致性检查
+  - 代码模式一致性验证
+  - 文档完整性检查
+  - 人工验证清单（5项）
+
+**更新CLAUDE.md工作流**：
+- P4新增强制要求：必须运行 `bash scripts/static_checks.sh`
+- P5新增强制要求：必须运行 `bash scripts/pre_merge_audit.sh` + 人工验证
+- P6新增铁律：不应该在这个阶段发现bugs（如发现 → 返回P5）
+- 新增质量门禁策略章节：左移测试（Shift Left）原则、三阶段检查体系
+
+**预期效果**：
+- 短期：P4/P5发现所有bugs，P6只做确认
+- 中期：90%的bugs在P4-P5被发现
+- 长期：P6变成纯确认阶段（0 bugs）
+
 ### 🧪 Verified
 
 - ✅ Blocks commits with <3 agents in P3
