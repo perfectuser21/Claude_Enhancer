@@ -492,56 +492,66 @@ run_all_detections() {
 
     # Layer 1: Phase Detection
     log_info "[1/6] Phase Detection..."
-    if detect_phase_violation "$input"; then
-        layer_results+=("1:FAIL")
-        ((total_violations += $?))
-    else
+    detect_phase_violation "$input"
+    local layer1_result=$?
+    if [[ $layer1_result -eq 0 ]]; then
         layer_results+=("1:PASS")
         log_success "Pass"
+    else
+        layer_results+=("1:FAIL")
+        ((total_violations += layer1_result))
     fi
     echo ""
 
     # Layer 2: Branch Detection
     log_info "[2/6] Branch Detection..."
-    if detect_branch_violation "$input"; then
-        layer_results+=("2:FAIL")
-        ((total_violations += $?))
-    else
+    detect_branch_violation "$input"
+    local layer2_result=$?
+    if [[ $layer2_result -eq 0 ]]; then
         layer_results+=("2:PASS")
         log_success "Pass"
+    else
+        layer_results+=("2:FAIL")
+        ((total_violations += layer2_result))
     fi
     echo ""
 
     # Layer 3: Continue Bypass Detection
     log_info "[3/6] Continue Bypass Detection..."
-    if detect_continue_bypass "$input"; then
-        layer_results+=("3:FAIL")
-        ((total_violations += $?))
-    else
+    detect_continue_bypass "$input"
+    local layer3_result=$?
+    if [[ $layer3_result -eq 0 ]]; then
         layer_results+=("3:PASS")
         log_success "Pass"
+    else
+        layer_results+=("3:FAIL")
+        ((total_violations += layer3_result))
     fi
     echo ""
 
     # Layer 4: Programming Keyword Detection
     log_info "[4/6] Programming Keyword Detection..."
-    if detect_programming_without_workflow "$input"; then
-        layer_results+=("4:FAIL")
-        ((total_violations += $?))
-    else
+    detect_programming_without_workflow "$input"
+    local layer4_result=$?
+    if [[ $layer4_result -eq 0 ]]; then
         layer_results+=("4:PASS")
         log_success "Pass"
+    else
+        layer_results+=("4:FAIL")
+        ((total_violations += layer4_result))
     fi
     echo ""
 
     # Layer 5: Workflow State Detection
     log_info "[5/6] Workflow State Detection..."
-    if detect_workflow_state_violation "$input"; then
-        layer_results+=("5:FAIL")
-        ((total_violations += $?))
-    else
+    detect_workflow_state_violation "$input"
+    local layer5_result=$?
+    if [[ $layer5_result -eq 0 ]]; then
         layer_results+=("5:PASS")
         log_success "Pass"
+    else
+        layer_results+=("5:FAIL")
+        ((total_violations += layer5_result))
     fi
     echo ""
 

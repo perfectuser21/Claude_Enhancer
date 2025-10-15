@@ -14,6 +14,7 @@
 
 - **Added Layer 6 to workflow_guard.sh** for git commit validation
 - **Fixed syntax error in P6 validation** - `wc -l` output含有换行导致比较失败
+- **Fixed Layers 1-5 display bug** - IF判断逻辑和return值语义相反，现在所有6个Layers使用统一的正确逻辑
 
 ### 📚 Documentation
 
