@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+## [6.3.1] - 2025-10-15
+
+### Fixed
+- **Hook Terminology**: Updated all hooks to use Phase 0-5 terminology instead of legacy P0-P7
+  - `.claude/hooks/phase_guard.sh`: Updated phase references, removed Phase6/Phase7
+  - `.claude/hooks/requirement_clarification.sh`: Updated to Phase 0-5
+  - `.claude/hooks/workflow_guard.sh`: Adjusted for 6-phase system, corrected coding phases to Phase2/Phase3
+  - `.github/workflows/positive-health.yml`: Accept ≥6 phases for backward compatibility
+  - `.workflow/gates.yml`: Updated P0-P7 labels to Phase0-7 (structure preserved)
+  - Fixes Integration Tests CI failure caused by terminology mismatch
+
 ## [6.3.0] - 2025-10-15
 
 ### 🚀 Major Workflow Optimization

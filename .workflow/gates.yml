@@ -1,6 +1,6 @@
-# Workflow Gates v2 — 完整8阶段自动化 (P0-P7)
+# Workflow Gates v2 — 6阶段工作流自动化 (Phase 0-5)
 # Enhanced with AI Self-Validation System (v6.0)
-# 更新：2025-10-07 - 添加P0探索阶段和P7监控阶段
+# 更新：2025-10-07 - 添加Phase系统优化
 
 meta:
   subagent_invocation: "Only main Claude Code agent may invoke sub-agents. Sub-agents MUST NOT invoke sub-agents."
@@ -22,14 +22,14 @@ quality:
   required_signatures: 8   # Required GPG signatures for protected branches
 
 parallel_limits:
-  P0: 3   # 探索阶段：少量专家快速验证
-  P1: 4   # 规划阶段：分析师+架构师
-  P2: 6   # 骨架阶段：多个模块并行搭建
-  P3: 8   # 实现阶段：最多并行任务
-  P4: 6   # 测试阶段：多类型测试并行
-  P5: 4   # 审查阶段：专注质量审核
-  P6: 2   # 发布阶段：谨慎发布
-  P7: 3   # 监控阶段：观察运行状态
+  Phase0: 3   # 探索阶段：少量专家快速验证
+  Phase1: 4   # 规划阶段：分析师+架构师
+  Phase2: 6   # 骨架阶段：多个模块并行搭建
+  Phase3: 8   # 实现阶段：最多并行任务
+  Phase4: 6   # 测试阶段：多类型测试并行
+  Phase5: 4   # 审查阶段：专注质量审核
+  Phase6: 2   # 发布阶段：谨慎发布
+  Phase7: 3   # 监控阶段：观察运行状态
 
 parallel_autotune:
   success_streak_add: 2    # 连续两次一次过，上限 +2（不超过阶段限额）
@@ -39,7 +39,7 @@ test_depth:
   pre_push: ["unit", "boundary", "smoke"]   # push 前跑的集
   nightly_ci: ["integration", "contract"]   # 夜间 CI 额外跑
 
-phase_order: [P0, P1, P2, P3, P4, P5, P6, P7]
+phase_order: [Phase0, Phase1, Phase2, Phase3, Phase4, Phase5]
 
 # Pre-Tool Quality Gates (AI Self-Validation)
 pre_tool_gates:
@@ -73,7 +73,7 @@ pre_tool_gates:
         blocking: true
 
 phases:
-  P0:
+  Phase0:
     name: "Explore - 技术探索"
     description: "技术可行性验证、风险评估、原型验证"
     allow_paths:
@@ -105,7 +105,7 @@ phases:
       - "architect-consultant"
       - "risk-assessor"
 
-  P1:
+  Phase1:
     name: "Plan - 规划"
     description: "需求分析、任务分解、影响评估"
     allow_paths:
@@ -131,7 +131,7 @@ phases:
       - "technical-writer"
       - "risk-manager"
 
-  P2:
+  Phase2:
     name: "Skeleton - 骨架搭建"
     description: "架构设计、目录结构、接口定义"
     allow_paths:
@@ -172,7 +172,7 @@ phases:
       - "devops-engineer"
       - "technical-writer"
 
-  P3:
+  Phase3:
     name: "Implement - 实现"
     description: "编码开发、功能实现、代码提交"
     allow_paths:
@@ -219,7 +219,7 @@ phases:
       - "performance-optimizer"
       - "technical-writer"
 
-  P4:
+  Phase4:
     name: "Test - 测试"
     description: "单元测试、集成测试、性能测试"
     allow_paths:
@@ -249,7 +249,7 @@ phases:
       - "automation-engineer"
       - "technical-writer"
 
-  P5:
+  Phase5:
     name: "Review - 审查"
     description: "代码审查、质量检查、安全审计"
     allow_paths:
@@ -276,7 +276,7 @@ phases:
       - "performance-analyst"
       - "technical-writer"
 
-  P6:
+  Phase6:
     name: "Release - 发布"
     description: "文档更新、版本发布、部署准备"
     allow_paths:
@@ -311,7 +311,7 @@ phases:
       - "release-manager"
       - "technical-writer"
 
-  P7:
+  Phase7:
     name: "Monitor - 验收"
     description: "验收Checklist、生成报告、等待用户确认merge"
     allow_paths:

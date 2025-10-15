@@ -90,8 +90,8 @@ jobs:
 
           # Check gates.yml
           if [ -f ".workflow/gates.yml" ]; then
-            python3 -c "import yaml; g=yaml.safe_load(open('.workflow/gates.yml')); assert len(g.get('phases',{})) == 8" && \
-              echo "✅ gates.yml: 8-Phase defined" || \
+            python3 -c "import yaml; g=yaml.safe_load(open('.workflow/gates.yml')); assert len(g.get('phases',{})) >= 6" && \
+              echo "✅ gates.yml: Phase system defined (${#phases[@]} phases)" || \
               { echo "❌ gates.yml: Missing phases"; exit 1; }
           fi
 

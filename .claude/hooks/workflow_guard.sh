@@ -78,7 +78,7 @@ detect_phase_violation() {
     fi
 
     # Define phases
-    local phases=("P0" "P1" "P2" "P3" "P4" "P5" "P6" "P7")
+    local phases=("Phase0" "Phase1" "Phase2" "Phase3" "Phase4" "Phase5")
 
     # Skip keywords
     local skip_keywords=(
@@ -273,7 +273,7 @@ detect_programming_without_workflow() {
                 log_error "  Pattern: ${pattern}"
                 log_warn "  Suggestion: Start workflow first"
                 log_warn "    Method 1: Explicitly say 'start workflow'"
-                log_warn "    Method 2: Specify Phase (e.g., 'In P3 phase...')"
+                log_warn "    Method 2: Specify Phase (e.g., 'In Phase3 phase...')"
                 ((violations++))
                 break
             fi
@@ -313,7 +313,7 @@ detect_workflow_state_violation() {
     # Check if coding allowed in current phase
     local allows_coding=0
     case "$current_phase" in
-        P3|P4)
+        Phase2|Phase3)
             allows_coding=1
             log_debug "Current phase allows coding: ${current_phase}"
             ;;
@@ -329,16 +329,16 @@ detect_workflow_state_violation() {
             if echo "$input" | grep -iqE "${keyword}"; then
                 log_block "Current phase ${current_phase} does not allow coding operations"
                 log_error "  Detected keyword: ${keyword}"
-                log_warn "  Suggestion: Coding should be in P3 (Implementation) or P4 (Testing)"
+                log_warn "  Suggestion: Coding should be in Phase2 (Implementation) or Phase3 (Testing)"
 
                 # Phase-specific suggestions
                 case "$current_phase" in
-                    P0) log_warn "  P0: Focus on exploration, feasibility validation, prototyping" ;;
-                    P1) log_warn "  P1: Focus on requirements analysis, planning, generate PLAN.md" ;;
-                    P2) log_warn "  P2: Focus on architecture, directory structure, setup" ;;
-                    P5) log_warn "  P5: Focus on code review, quality check, generate REVIEW.md" ;;
-                    P6) log_warn "  P6: Focus on documentation, release preparation, deployment" ;;
-                    P7) log_warn "  P7: Focus on production monitoring, SLO tracking, performance" ;;
+                    Phase0) log_warn "  Phase0: Focus on exploration, feasibility validation, prototyping" ;;
+                    Phase1) log_warn "  Phase1: Focus on requirements analysis, planning & architecture" ;;
+                    Phase2) log_warn "  Phase2: Focus on implementation, coding" ;;
+                    Phase3) log_warn "  Phase3: Focus on testing, quality validation" ;;
+                    Phase4) log_warn "  Phase4: Focus on code review, quality check, generate REVIEW.md" ;;
+                    Phase5) log_warn "  Phase5: Focus on release preparation, monitoring setup" ;;
                 esac
 
                 ((violations++))
@@ -352,7 +352,7 @@ detect_workflow_state_violation() {
 }
 
 # ============================================================
-# Layer 6: Phase Commit Requirements (NEW - Fix for P3-P7)
+# Layer 6: Phase Commit Requirements (NEW - Fix for Phase3-Phase7)
 # Purpose: Validate git commit meets phase-specific requirements
 # ============================================================
 detect_phase_commit_violations() {
@@ -373,11 +373,11 @@ detect_phase_commit_violations() {
         return 0
     fi
 
-    # Only validate P3-P7 (implementation, testing, review, release, monitor)
+    # Only validate Phase2-Phase5 (implementation, testing, review, release)
     case "$current_phase" in
-        P3)
-            # P3: Implementation phase validation
-            log_debug "P3: Checking agent count and code changes"
+        Phase2)
+            # Phase2: Implementation phase validation
+            log_debug "Phase3: Checking agent count and code changes"
 
             # Check 1: Agent count (minimum 3 for implementation)
             local agent_count=0
@@ -390,62 +390,62 @@ detect_phase_commit_violations() {
             fi
 
             if [[ $agent_count -lt 3 ]] && [[ $agent_count -gt 0 ]]; then
-                log_block "P3 requires ≥3 agents for implementation (found: $agent_count)"
+                log_block "Phase3 requires ≥3 agents for implementation (found: $agent_count)"
                 log_error "  Use: backend-architect, test-engineer, devops-engineer"
                 ((violations++))
             fi
 
             # Check 2: Code changes present
             if git diff --cached --name-only 2>/dev/null | grep -qE '\.(py|sh|js|ts|yml|yaml|json)$'; then
-                log_debug "P3: Code changes detected"
+                log_debug "Phase3: Code changes detected"
             else
-                log_warn "P3: No code changes in commit"
+                log_warn "Phase3: No code changes in commit"
             fi
             ;;
 
-        P4)
-            # P4: Testing phase validation
-            log_debug "P4: Checking for test files"
+        Phase3)
+            # Phase3: Testing phase validation
+            log_debug "Phase3: Checking for test files"
 
             # Check: Test files exist in commit
             local test_files
             test_files=$(git diff --cached --name-only 2>/dev/null | grep -E 'test_|_test\.|\.test\.|spec\.|\.spec\.' || echo "")
 
             if [[ -z "$test_files" ]]; then
-                log_block "P4 requires test files in commit"
+                log_block "Phase3 requires test files in commit"
                 log_error "  Add tests in test/ directory"
                 ((violations++))
             else
-                log_debug "P4: Test files found in commit"
+                log_debug "Phase3: Test files found in commit"
             fi
             ;;
 
-        P5)
-            # P5: Review phase validation
-            log_debug "P5: Checking for REVIEW.md"
+        Phase4)
+            # Phase4: Review phase validation
+            log_debug "Phase4: Checking for REVIEW.md"
 
             # Check: REVIEW.md exists or is being committed
             if [[ ! -f "${PROJECT_ROOT}/docs/REVIEW.md" ]] && \
                ! git diff --cached --name-only 2>/dev/null | grep -q "docs/REVIEW.md"; then
-                log_block "P5 requires REVIEW.md"
+                log_block "Phase4 requires REVIEW.md"
                 log_error "  Generate code review report: docs/REVIEW.md"
                 ((violations++))
             else
-                log_debug "P5: REVIEW.md found"
+                log_debug "Phase4: REVIEW.md found"
             fi
             ;;
 
-        P6)
-            # P6: Release phase validation
-            log_debug "P6: Checking for CHANGELOG.md update"
+        Phase5)
+            # Phase5: Release & Monitor phase validation
+            log_debug "Phase5: Checking for CHANGELOG.md update"
 
             # Check: CHANGELOG.md updated
             if ! git diff --cached --name-only 2>/dev/null | grep -q "CHANGELOG.md"; then
-                log_block "P6 requires CHANGELOG.md update"
+                log_block "Phase5 requires CHANGELOG.md update"
                 log_error "  Add release notes to CHANGELOG.md"
                 ((violations++))
             else
-                log_debug "P6: CHANGELOG.md updated"
+                log_debug "Phase5: CHANGELOG.md updated"
             fi
 
             # Check 2: Documentation updated (warning only)
@@ -453,16 +453,11 @@ detect_phase_commit_violations() {
             doc_files=$(git diff --cached --name-only 2>/dev/null | grep -E '\.md$|docs/' | wc -l 2>/dev/null || echo "0")
             doc_files=$(echo "$doc_files" | tr -d '[:space:]')  # Remove all whitespace
             if [[ $doc_files -eq 0 ]]; then
-                log_warn "P6: No documentation updates in release"
+                log_warn "Phase5: No documentation updates in release"
             fi
             ;;
 
-        P7)
-            # P7: Monitor phase - usually no commit restrictions
-            log_debug "P7: Monitoring phase - no commit restrictions"
-            ;;
-
-        P0|P1|P2)
+        Phase0|Phase1)
             # Early phases - no commit requirements
             log_debug "${current_phase}: No specific commit requirements"
             ;;
@@ -659,7 +654,7 @@ Environment Variables:
   DEBUG_WORKFLOW_GUARD=1    Enable debug output
 
 Examples:
-  workflow_guard.sh "Implement user login in P3"
+  workflow_guard.sh "Implement user login in Phase3"
   workflow_guard.sh "继续写代码"  # Should be blocked
   DEBUG_WORKFLOW_GUARD=1 workflow_guard.sh "test input"
 
@@ -669,7 +664,7 @@ Examples:
   3. Continue Detection - Prevent "continue" bypass
   4. Programming Detection - Prevent coding without workflow
   5. State Detection - Ensure phase operation matching
-  6. Commit Requirements - Validate P3-P7 commit requirements
+  6. Commit Requirements - Validate Phase2-Phase5 commit requirements
 
 EOF
 }

@@ -73,8 +73,8 @@ set_current_phase() {
 # ============================================================
 # Phase Transition Validation
 # ============================================================
-# Valid transitions: P0→P1→P2→P3→P4→P5→P6→P7
-# Also allow: Any→P0 (restart workflow)
+# Valid transitions: Phase0→Phase1→Phase2→Phase3→Phase4→Phase5
+# Also allow: Any→Phase0 (restart workflow)
 is_valid_transition() {
     local from_phase="$1"
     local to_phase="$2"
@@ -83,26 +83,40 @@ is_valid_transition() {
 
     # Empty from_phase means starting workflow
     if [[ -z "$from_phase" ]]; then
-        if [[ "$to_phase" == "P0" ]] || [[ "$to_phase" == "P1" ]]; then
+        if [[ "$to_phase" == "Phase0" ]] || [[ "$to_phase" == "Phase1" ]]; then
             return 0
         else
-            log_error "Workflow must start with P0 or P1"
+            log_error "Workflow must start with Phase0 or Phase1"
             return 1
         fi
     fi
 
-    # Allow restart to P0
-    if [[ "$to_phase" == "P0" ]]; then
-        log_info "Restarting workflow from P0"
+    # Allow restart to Phase0
+    if [[ "$to_phase" == "Phase0" ]]; then
+        log_info "Restarting workflow from Phase0"
         return 0
     fi
 
-    # Extract phase numbers
-    local from_num="${from_phase#P}"
-    local to_num="${to_phase#P}"
+    # Extract phase numbers (support both Phase0-5 and old Phase0-7 format)
+    local from_num=""
+    local to_num=""
+
+    if [[ "$from_phase" =~ ^Phase([0-5])$ ]]; then
+        from_num="${BASH_REMATCH[1]}"
+    elif [[ "$from_phase" =~ ^P([0-7])$ ]]; then
+        # Legacy format compatibility
+        from_num="${BASH_REMATCH[1]}"
+    fi
+
+    if [[ "$to_phase" =~ ^Phase([0-5])$ ]]; then
+        to_num="${BASH_REMATCH[1]}"
+    elif [[ "$to_phase" =~ ^P([0-7])$ ]]; then
+        # Legacy format compatibility
+        to_num="${BASH_REMATCH[1]}"
+    fi
 
     # Validate phase numbers
-    if ! [[ "$from_num" =~ ^[0-7]$ ]] || ! [[ "$to_num" =~ ^[0-7]$ ]]; then
+    if ! [[ "$from_num" =~ ^[0-5]$ ]] || ! [[ "$to_num" =~ ^[0-5]$ ]]; then
         log_error "Invalid phase numbers: ${from_phase} → ${to_phase}"
         return 1
     fi
@@ -146,75 +160,62 @@ check_phase_prerequisites() {
     log_debug "Checking prerequisites for ${phase}"
 
     case "$phase" in
-        P0)
-            # P0: Discovery - No prerequisites
-            log_debug "P0: No prerequisites"
+        Phase0)
+            # Phase0: Discovery - No prerequisites
+            log_debug "Phase0: No prerequisites"
             return 0
             ;;
-        P1)
-            # P1: Planning - Should have discovery results
-            log_debug "P1: Checking for P0 completion markers"
-            # Flexible: Allow P1 without P0
+        Phase1)
+            # Phase1: Planning - Should have discovery results
+            log_debug "Phase1: Checking for Phase0 completion markers"
+            # Flexible: Allow Phase1 without Phase0
             return 0
             ;;
-        P2)
-            # P2: Skeleton - Should have PLAN.md
+        Phase2)
+            # Phase2: Skeleton - Should have PLAN.md
             if [[ ! -f "${PROJECT_ROOT}/docs/PLAN.md" ]] && [[ ! -f "${PROJECT_ROOT}/PLAN.md" ]]; then
-                log_warn "P2: PLAN.md not found"
-                log_warn "  Suggestion: Generate PLAN.md in P1 phase"
+                log_warn "Phase2: PLAN.md not found"
+                log_warn "  Suggestion: Generate PLAN.md in Phase1 phase"
                 # Warning only, not blocking
             fi
             return 0
             ;;
-        P3)
-            # P3: Implementation - Should have architecture
-            log_debug "P3: Checking for architecture artifacts"
+        Phase3)
+            # Phase3: Implementation - Should have architecture
+            log_debug "Phase3: Checking for architecture artifacts"
             # Check for common architecture files
             if [[ ! -f "${PROJECT_ROOT}/docs/ARCHITECTURE.md" ]] && \
                [[ ! -f "${PROJECT_ROOT}/ARCHITECTURE.md" ]] && \
                [[ ! -d "${PROJECT_ROOT}/src" ]] && \
                [[ ! -d "${PROJECT_ROOT}/lib" ]]; then
-                log_warn "P3: No architecture or code structure found"
-                log_warn "  Suggestion: Complete P2 (Skeleton) first"
+                log_warn "Phase3: No architecture or code structure found"
+                log_warn "  Suggestion: Complete Phase2 (Skeleton) first"
             fi
             return 0
             ;;
-        P4)
-            # P4: Testing - Should have implementation
-            log_debug "P4: Checking for implementation artifacts"
+        Phase4)
+            # Phase4: Testing - Should have implementation
+            log_debug "Phase4: Checking for implementation artifacts"
             if [[ ! -d "${PROJECT_ROOT}/src" ]] && \
                [[ ! -d "${PROJECT_ROOT}/lib" ]] && \
                [[ ! -d "${PROJECT_ROOT}/app" ]]; then
-                log_warn "P4: No implementation directory found"
-                log_warn "  Suggestion: Complete P3 (Implementation) first"
+                log_warn "Phase4: No implementation directory found"
+                log_warn "  Suggestion: Complete Phase3 (Implementation) first"
             fi
             return 0
             ;;
-        P5)
-            # P5: Review - Should have tests
-            log_debug "P5: Checking for test artifacts"
+        Phase5)
+            # Phase5: Release & Monitor - Should have review and tests
+            log_debug "Phase5: Checking for Phase4 completion"
+            if [[ ! -f "${PROJECT_ROOT}/docs/REVIEW.md" ]] && [[ ! -f "${PROJECT_ROOT}/REVIEW.md" ]]; then
+                log_warn "Phase5: REVIEW.md not found"
+                log_warn "  Suggestion: Generate REVIEW.md in Phase4 phase"
+            fi
             if [[ ! -d "${PROJECT_ROOT}/test" ]] && \
                [[ ! -d "${PROJECT_ROOT}/tests" ]] && \
                [[ ! -d "${PROJECT_ROOT}/__tests__" ]]; then
-                log_warn "P5: No test directory found"
-                log_warn "  Suggestion: Complete P4 (Testing) first"
-            fi
-            return 0
-            ;;
-        P6)
-            # P6: Release - Should have review
-            if [[ ! -f "${PROJECT_ROOT}/docs/REVIEW.md" ]] && [[ ! -f "${PROJECT_ROOT}/REVIEW.md" ]]; then
-                log_warn "P6: REVIEW.md not found"
-                log_warn "  Suggestion: Generate REVIEW.md in P5 phase"
-            fi
-            return 0
-            ;;
-        P7)
-            # P7: Monitor - Should have release
-            log_debug "P7: Checking for release artifacts"
-            if [[ ! -f "${PROJECT_ROOT}/docs/CHANGELOG.md" ]] && [[ ! -f "${PROJECT_ROOT}/CHANGELOG.md" ]]; then
-                log_warn "P7: CHANGELOG.md not found"
-                log_warn "  Suggestion: Update CHANGELOG.md in P6 phase"
+                log_warn "Phase5: No test directory found"
+                log_warn "  Suggestion: Complete Phase3 (Testing) first"
             fi
             return 0
             ;;
@@ -234,76 +235,66 @@ verify_phase_outputs() {
     log_debug "Verifying outputs for ${phase}"
 
     case "$phase" in
-        P0)
-            # P0: Should have discovery notes or prototype
-            log_debug "P0: Checking for discovery artifacts"
+        Phase0)
+            # Phase0: Should have discovery notes or prototype
+            log_debug "Phase0: Checking for discovery artifacts"
             # Flexible: Not strictly required
             return 0
             ;;
-        P1)
-            # P1: Should have PLAN.md
+        Phase1)
+            # Phase1: Should have PLAN.md
             if [[ ! -f "${PROJECT_ROOT}/docs/PLAN.md" ]] && [[ ! -f "${PROJECT_ROOT}/PLAN.md" ]]; then
-                log_error "P1: PLAN.md not generated"
+                log_error "Phase1: PLAN.md not generated"
                 log_error "  Required output: PLAN.md with requirements and design"
                 return 1
             fi
-            log_success "P1: PLAN.md found"
+            log_success "Phase1: PLAN.md found"
             return 0
             ;;
-        P2)
-            # P2: Should have directory structure
+        Phase2)
+            # Phase2: Should have directory structure
             if [[ ! -d "${PROJECT_ROOT}/src" ]] && \
                [[ ! -d "${PROJECT_ROOT}/lib" ]] && \
                [[ ! -d "${PROJECT_ROOT}/app" ]]; then
-                log_error "P2: No code structure created"
+                log_error "Phase2: No code structure created"
                 log_error "  Required output: Basic directory structure (src/, lib/, or app/)"
                 return 1
             fi
-            log_success "P2: Code structure found"
+            log_success "Phase2: Code structure found"
             return 0
             ;;
-        P3)
-            # P3: Should have committed code
+        Phase3)
+            # Phase3: Should have committed code
             if ! git log --oneline -1 >/dev/null 2>&1; then
-                log_warn "P3: No git commits found"
+                log_warn "Phase3: No git commits found"
                 log_warn "  Suggestion: Commit your implementation"
                 return 0  # Warning only
             fi
-            log_success "P3: Implementation committed"
+            log_success "Phase3: Implementation committed"
             return 0
             ;;
-        P4)
-            # P4: Should have test files
+        Phase4)
+            # Phase4: Should have test files
             local test_files=$(find "${PROJECT_ROOT}" -type f \( -name "*test*" -o -name "*spec*" \) 2>/dev/null | wc -l)
             if [[ $test_files -eq 0 ]]; then
-                log_error "P4: No test files found"
+                log_error "Phase4: No test files found"
                 log_error "  Required output: Test files (*test*, *spec*)"
                 return 1
             fi
-            log_success "P4: ${test_files} test file(s) found"
+            log_success "Phase4: ${test_files} test file(s) found"
             return 0
             ;;
-        P5)
-            # P5: Should have REVIEW.md
+        Phase5)
+            # Phase5: Should have REVIEW.md and release artifacts
             if [[ ! -f "${PROJECT_ROOT}/docs/REVIEW.md" ]] && [[ ! -f "${PROJECT_ROOT}/REVIEW.md" ]]; then
-                log_error "P5: REVIEW.md not generated"
+                log_error "Phase5: REVIEW.md not generated"
                 log_error "  Required output: REVIEW.md with code review findings"
                 return 1
             fi
-            log_success "P5: REVIEW.md found"
-            return 0
-            ;;
-        P6)
-            # P6: Should have release artifacts
+            log_success "Phase5: REVIEW.md found"
             if [[ ! -f "${PROJECT_ROOT}/docs/CHANGELOG.md" ]] && [[ ! -f "${PROJECT_ROOT}/CHANGELOG.md" ]]; then
-                log_warn "P6: CHANGELOG.md not updated"
+                log_warn "Phase5: CHANGELOG.md not updated"
             fi
-            return 0
-            ;;
-        P7)
-            # P7: Should have monitoring setup
-            log_debug "P7: Checking for monitoring configuration"
-            # Flexible: Not strictly enforced
             return 0
             ;;
         *)
@@ -400,25 +391,23 @@ Environment Variables:
   DEBUG_PHASE_GUARD=1    Enable debug output
 
 Examples:
-  phase_guard.sh P1     # Transition to P1
-  phase_guard.sh P3     # Transition to P3
+  phase_guard.sh Phase1     # Transition to Phase1
+  phase_guard.sh Phase3     # Transition to Phase3
   phase_guard.sh --current
 
 Phase Transition Rules:
-  - Sequential: P0→P1→P2→P3→P4→P5→P6→P7
-  - Allow restart: Any→P0
+  - Sequential: Phase0→Phase1→Phase2→Phase3→Phase4→Phase5
+  - Allow restart: Any→Phase0
   - Allow backward: For fixes/refinement
   - Block jumping: Cannot skip phases
 
 Phase Prerequisites:
-  P0: None (Discovery)
-  P1: None (Planning)
-  P2: PLAN.md recommended
-  P3: Architecture/structure from P2
-  P4: Implementation from P3
-  P5: Tests from P4
-  P6: Review from P5
-  P7: Release from P6
+  Phase0: None (Discovery)
+  Phase1: None (Planning & Architecture)
+  Phase2: PLAN.md recommended (Implementation)
+  Phase3: Architecture/structure from Phase1 (Testing)
+  Phase4: Implementation from Phase2 (Review)
+  Phase5: Tests from Phase3, Review from Phase4 (Release & Monitor)
 
 EOF
 }
@@ -449,12 +438,12 @@ main() {
             show_help
             exit 1
             ;;
-        P[0-7])
+        Phase[0-5])
             # Valid phase
             ;;
         *)
             log_error "Error: Invalid phase '${1}'"
-            log_error "  Valid phases: P0, P1, P2, P3, P4, P5, P6, P7"
+            log_error "  Valid phases: Phase0, Phase1, Phase2, Phase3, Phase4, Phase5"
             exit 1
             ;;
     esac
