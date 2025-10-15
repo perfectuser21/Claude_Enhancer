@@ -145,7 +145,11 @@ core_docs=("README.md" "CLAUDE.md" "INSTALLATION.md" "ARCHITECTURE.md" "CONTRIBU
 
 # 检查是否有未授权的文档
 unauthorized_docs=()
-while IFS= read -r -d $'\n' file; do
+# Performance optimized: Use simple for loop instead of find+while read
+for file in "$PROJECT_ROOT"/*.md; do
+    # Skip if glob didn't match any files
+    [[ -f "$file" ]] || continue
+
     basename_file=$(basename "$file")
     is_core=false
     for core in "${core_docs[@]}"; do
@@ -161,7 +165,7 @@ while IFS= read -r -d $'\n' file; do
             unauthorized_docs+=("$basename_file")
         fi
     fi
-done < <(find "$PROJECT_ROOT" -maxdepth 1 -name "*.md" -type f 2>/dev/null)
+done
 
 if [[ ${#unauthorized_docs[@]} -gt 0 ]]; then
     log_fail "Found ${#unauthorized_docs[@]} unauthorized document(s):"
