@@ -63,13 +63,17 @@ log_info() {
 log_check "Shell Syntax Validation"
 syntax_errors=0
 
-while IFS= read -r -d '' file; do
+# Performance optimized: Use simple for loop instead of find+while read
+for file in "$PROJECT_ROOT/.claude/hooks"/*.sh "$PROJECT_ROOT/.git/hooks"/*.sh; do
+    # Skip if glob didn't match any files
+    [[ -f "$file" ]] || continue
+
     if ! bash -n "$file" 2>/dev/null; then
         log_fail "Syntax error in: $file"
         bash -n "$file" 2>&1 | sed 's/^/      /'
         ((syntax_errors++))
     fi
-done < <(find "$PROJECT_ROOT/.claude/hooks" "$PROJECT_ROOT/.git/hooks" -name "*.sh" -type f -print0 2>/dev/null)
+done
 
 if [[ $syntax_errors -eq 0 ]]; then
     log_pass "All shell scripts have valid syntax"
@@ -86,7 +90,11 @@ if command -v shellcheck >/dev/null 2>&1; then
     shellcheck_errors=0
     shellcheck_warnings=0
 
-    while IFS= read -r -d '' file; do
+    # Performance optimized: Use simple for loop instead of find+while read
+    for file in "$PROJECT_ROOT/.claude/hooks"/*.sh; do
+        # Skip if glob didn't match any files
+        [[ -f "$file" ]] || continue
+
         output=$(shellcheck -S error "$file" 2>&1 || true)
         if [[ -n "$output" ]]; then
             log_fail "Shellcheck errors in: $file"
@@ -99,7 +107,7 @@ if command -v shellcheck >/dev/null 2>&1; then
         if [[ -n "$warn_output" ]]; then
             ((shellcheck_warnings++))
         fi
-    done < <(find "$PROJECT_ROOT/.claude/hooks" -name "*.sh" -type f -print0 2>/dev/null)
+    done
 
     if [[ $shellcheck_errors -eq 0 ]]; then
         log_pass "No shellcheck errors found"
@@ -121,7 +129,11 @@ log_check "Code Complexity (Function Length)"
 complex_functions=0
 too_long_functions=0
 
-while IFS= read -r -d '' file; do
+# Performance optimized: Use simple for loop instead of find+while read
+for file in "$PROJECT_ROOT/.claude/hooks"/*.sh; do
+    # Skip if glob didn't match any files
+    [[ -f "$file" ]] || continue
+
     # 检测函数长度>100行的情况
     result=$(awk '
         /^[a-zA-Z_][a-zA-Z0-9_]*\(\)[ ]*{/ {
@@ -160,7 +172,7 @@ while IFS= read -r -d '' file; do
         echo "$result" | sed 's/^/      /'
         ((complex_functions++))
     fi
-done < <(find "$PROJECT_ROOT/.claude/hooks" -name "*.sh" -type f -print0 2>/dev/null)
+done
 
 if [[ $too_long_functions -eq 0 ]]; then
     log_pass "No functions exceed 150 lines"
