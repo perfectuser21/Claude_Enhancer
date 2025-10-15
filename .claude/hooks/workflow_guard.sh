@@ -450,7 +450,8 @@ detect_phase_commit_violations() {
 
             # Check 2: Documentation updated (warning only)
             local doc_files
-            doc_files=$(git diff --cached --name-only 2>/dev/null | grep -E '\.md$|docs/' | wc -l || echo "0")
+            doc_files=$(git diff --cached --name-only 2>/dev/null | grep -E '\.md$|docs/' | wc -l 2>/dev/null || echo "0")
+            doc_files=$(echo "$doc_files" | tr -d '[:space:]')  # Remove all whitespace
             if [[ $doc_files -eq 0 ]]; then
                 log_warn "P6: No documentation updates in release"
             fi
