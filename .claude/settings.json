@@ -29,6 +29,7 @@
       ".claude/hooks/workflow_auto_start.sh"
     ],
     "PrePrompt": [
+      ".claude/hooks/force_branch_check.sh",
       ".claude/hooks/workflow_enforcer.sh",
       ".claude/hooks/smart_agent_selector.sh",
       ".claude/hooks/gap_scan.sh"
