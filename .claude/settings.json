@@ -30,11 +30,13 @@
     ],
     "PrePrompt": [
       ".claude/hooks/force_branch_check.sh",
+      ".claude/hooks/ai_behavior_monitor.sh",
       ".claude/hooks/workflow_enforcer.sh",
       ".claude/hooks/smart_agent_selector.sh",
       ".claude/hooks/gap_scan.sh"
     ],
     "PreToolUse": [
+      ".claude/hooks/task_branch_enforcer.sh",
       ".claude/hooks/branch_helper.sh",
       ".claude/hooks/code_writing_check.sh",
       ".claude/hooks/agent_usage_enforcer.sh",
