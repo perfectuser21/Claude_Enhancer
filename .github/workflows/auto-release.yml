@@ -1,0 +1,134 @@
+name: Auto Release
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+      - master
+
+permissions:
+  contents: write  # Minimal required for tag and release creation
+
+jobs:
+  auto-release:
+    name: Create Release Automatically
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@8ade7a8fd8887e3077c13433839eef9655c18ab5  # v4.1.0
+        with:
+          fetch-depth: 0  # 获取完整历史用于版本比较
+
+      - name: Check VERSION file changes
+        id: version_check
+        run: |
+          # 检查VERSION文件是否被修改
+          if git diff --name-only HEAD~1 HEAD | grep -q '^VERSION$'; then
+            echo "version_changed=true" >> $GITHUB_OUTPUT
+
+            # 获取新旧版本
+            NEW_VERSION=$(cat VERSION)
+            OLD_VERSION=$(git show HEAD~1:VERSION)
+
+            echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+            echo "old_version=$OLD_VERSION" >> $GITHUB_OUTPUT
+
+            echo "✅ VERSION文件已更新: $OLD_VERSION → $NEW_VERSION"
+          else
+            echo "version_changed=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ VERSION文件未更新，跳过release"
+          fi
+
+      - name: Compare versions
+        id: version_compare
+        if: steps.version_check.outputs.version_changed == 'true'
+        run: |
+          # 使用版本比较脚本
+          chmod +x scripts/compare_versions.sh
+
+          NEW="${{ steps.version_check.outputs.new_version }}"
+          OLD="${{ steps.version_check.outputs.old_version }}"
+
+          if ./scripts/compare_versions.sh "$NEW" "$OLD"; then
+            echo "version_increased=true" >> $GITHUB_OUTPUT
+            echo "✅ 版本号递增: $OLD → $NEW"
+          else
+            echo "version_increased=false" >> $GITHUB_OUTPUT
+            echo "❌ 版本号未递增或无效"
+            exit 1
+          fi
+
+      - name: Validate PR Number
+        if: steps.version_compare.outputs.version_increased == 'true'
+        run: |
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          if ! [[ "$PR_NUMBER" =~ ^[0-9]+$ ]]; then
+            echo "❌ 错误: 无效的PR编号格式: $PR_NUMBER"
+            exit 1
+          fi
+          echo "✅ PR编号验证通过: $PR_NUMBER"
+
+      - name: Generate Release Notes
+        id: release_notes
+        if: steps.version_compare.outputs.version_increased == 'true'
+        run: |
+          # 生成Release Notes
+          chmod +x scripts/generate_release_notes.sh
+
+          VERSION="${{ steps.version_check.outputs.new_version }}"
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+
+          ./scripts/generate_release_notes.sh "$VERSION" "$PR_NUMBER" > release_notes.md
+
+          echo "✅ Release Notes已生成"
+          cat release_notes.md
+
+      - name: Create Git Tag
+        if: steps.version_compare.outputs.version_increased == 'true'
+        run: |
+          VERSION="${{ steps.version_check.outputs.new_version }}"
+          TAG_NAME="v${VERSION}"
+
+          # 配置git
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # 创建annotated tag
+          git tag -a "$TAG_NAME" -m "Release $TAG_NAME - Automatically created by GitHub Actions - PR #${{ github.event.pull_request.number }}"
+
+          # 推送tag
+          git push origin "$TAG_NAME"
+
+          echo "✅ Tag已创建并推送: $TAG_NAME"
+
+      - name: Create GitHub Release
+        if: steps.version_compare.outputs.version_increased == 'true'
+        run: |
+          VERSION="${{ steps.version_check.outputs.new_version }}"
+          TAG_NAME="v${VERSION}"
+
+          # Use gh CLI instead of deprecated actions/create-release
+          gh release create "$TAG_NAME" \
+            --title "Release $TAG_NAME" \
+            --notes-file release_notes.md
+
+          echo "✅ GitHub Release已创建: $TAG_NAME"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Summary
+        if: steps.version_compare.outputs.version_increased == 'true'
+        run: |
+          echo "╔═══════════════════════════════════════════════════════════════╗"
+          echo "║                                                               ║"
+          echo "║  🎉 自动Release成功！                                        ║"
+          echo "║                                                               ║"
+          echo "║  版本: v${{ steps.version_check.outputs.new_version }}      ║"
+          echo "║  PR: #${{ github.event.pull_request.number }}                ║"
+          echo "║  Tag: ✅ 已创建                                              ║"
+          echo "║  Release: ✅ 已发布                                          ║"
+          echo "║                                                               ║"
+          echo "╚═══════════════════════════════════════════════════════════════╝"
