@@ -6,6 +6,16 @@
 
 set -euo pipefail
 
+# Auto-mode detection
+if [[ "${CE_AUTO_MODE:-false}" == "true" ]]; then
+    export CE_SILENT_MODE=true
+fi
+
+# Silent mode support
+if [[ "${CE_SILENT_MODE:-false}" == "true" ]]; then
+    exec > /dev/null 2>&1
+fi
+
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 readonly WORKFLOW_DIR="${PROJECT_ROOT}/.workflow"
