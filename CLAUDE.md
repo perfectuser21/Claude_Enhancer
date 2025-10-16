@@ -607,7 +607,7 @@ Step 9: Acceptance Report (验收报告)
 ├─ 活动：逐项对照验收清单，生成验收报告
 └─ 产出：AI说"我已完成所有验收项，请您确认"，等待用户说"没问题"
 
-Step 10: Phase 6 (P9) - Cleanup & Merge (收尾清理)
+Step 10: Cleanup & Merge (收尾清理) - 非Phase，是工作流步骤
 ├─ 目的：清理临时文件，准备合并
 ├─ 活动：清理.temp/、检查文档规范、准备PR
 └─ 产出：干净的分支，等待用户说"merge回主线"

@@ -2,6 +2,27 @@
 
 ## [Unreleased]
 
+### Fixed
+- **Documentation Accuracy** (Critical Issues #1-5) - 2025-10-16
+  - Corrected agent count from 3-4 to 4-6-8 principle (#1)
+  - Updated hook count from 15 to 17 with complete inventory (#2)
+  - Clarified Phase numbering (removed "Phase 6" confusion) (#3)
+  - Marked Butler Mode as v6.6 proposal (added NOT IMPLEMENTED banner) (#4)
+  - Verified missing scripts: static_checks.sh, pre_merge_audit.sh exist (#5)
+- **Root Cause**: Hub-Spoke Update Failure pattern identified and fixed
+- **Impact**: DECISION_TREE.md now 100% consistent with CLAUDE.md and code
+
+### Added
+- Complete 17-hook inventory in DECISION_TREE.md with functional descriptions
+- Terminology clarification: Steps (10) vs Phases (6)
+- Version evolution table (v6.3: 8-Phase → 6-Phase migration)
+- v6.5 vs v6.6 comparison table in Butler Mode proposal
+- Implementation roadmap for Butler Mode (v6.6)
+
+### Changed
+- docs/diagrams/decision_flow.mermaid - Agent selection now shows explicit 4/6/8 branches
+- CLAUDE.md - Step 10 clarified as "non-Phase workflow step"
+
 ## [6.5.0] - 2025-10-15
 
 ### ✨ Added

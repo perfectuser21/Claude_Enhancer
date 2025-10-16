@@ -20,8 +20,13 @@ graph TD
 
     Step3{Step 3: Phase 0<br/>Discovery}
     Step3 --> CreateChecklist[Create P0 Checklist]
-    CreateChecklist --> SelectAgents[Select 4-8 Agents]
-    SelectAgents --> Step4
+    CreateChecklist --> SelectAgents{Agent Selection}
+    SelectAgents -->|Simple: 4| Agents4[4 Agents]
+    SelectAgents -->|Standard: 6| Agents6[6 Agents]
+    SelectAgents -->|Complex: 8| Agents8[8 Agents]
+    Agents4 --> Step4
+    Agents6 --> Step4
+    Agents8 --> Step4
 
     Step4{Step 4: Phase 1<br/>Planning & Architecture}
     Step4 --> GeneratePlan[Generate PLAN.md]

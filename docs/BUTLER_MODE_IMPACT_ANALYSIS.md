@@ -1,9 +1,33 @@
-# Butler Mode Impact Analysis
+---
+⚠️⚠️⚠️ **PROPOSAL DOCUMENT - NOT IMPLEMENTED** ⚠️⚠️⚠️
+
+**Status**: 📋 Proposal for v6.6.0
+**Current Version**: v6.5.0
+**Implementation Status**: ❌ Not Started
+**Purpose**: Impact Analysis & Implementation Planning
+**Created**: 2025-10-16
+**Target Release**: v6.6.0 (Q1 2026)
+
+**Important**:
+- Butler Mode功能**当前不可用**
+- 本文档描述的hooks、脚本、配置均**未实现**
+- 这是一份**设计规划文档**，不是用户指南
+- 请勿尝试使用文中提到的Butler Mode功能
+
+**Related Tracking**:
+- Feature Request: #TBD
+- Implementation Epic: #TBD
+- Design Doc: This document
+
+---
+
+# Butler Mode Impact Analysis (v6.6 提案)
 ## Claude Enhancer v6.5 → v6.6 变更影响评估
 
-**分析日期**: 2025-10-15
+**分析日期**: 2025-10-16
 **分析版本**: v6.5.0 (current) → v6.6.0 (proposed)
 **分析目的**: 评估Butler/Manager模式对现有决策树的影响
+**文档类型**: 📋 **提案文档（未实现）**
 
 ---
 
@@ -28,6 +52,44 @@
 - **兼容性**: ✅ 可向后兼容
 - **实施复杂度**: 🟡 中等
 - **推荐度**: ✅ 推荐实施（但需先完成决策树文档）
+
+### 🔍 v6.5 (Current) vs v6.6 (Proposed) 功能对照
+
+| 功能特性 | v6.5.0 (已实现) | v6.6.0 (提案) | 状态 |
+|---------|----------------|---------------|------|
+| **决策系统** | ||||
+| 基础决策树 | ✅ 21+ decision points | ✅ 保持 + 8个新增 | 已实现 |
+| Butler决策增强 | ❌ 无 | 📋 +8 new decision points | 提案中 |
+| 决策记录 | ❌ 无 | 📋 butler_decision_recorder.sh | 提案中 |
+| **记忆系统** | ||||
+| 静态配置 | ✅ CLAUDE.md | ✅ 保持 | 已实现 |
+| 动态学习 | ❌ 无 | 📋 memory-cache.json | 提案中 |
+| 上下文管理 | ❌ 无 | 📋 context_manager.sh | 提案中 |
+| 记忆召回 | ❌ 无 | 📋 memory_recall.sh | 提案中 |
+| **模式系统** | ||||
+| 讨论模式 | ✅ 已实现 | ✅ 保持 | 已实现 |
+| 执行模式 | ✅ 已实现 | ✅ 增强 | 部分提案 |
+| Butler模式检测 | ❌ 无 | 📋 butler_mode_detector.sh | 提案中 |
+| **Hooks** | ||||
+| 当前Hooks | ✅ 17个hooks | ✅ 保持 | 已实现 |
+| Butler专用Hooks | ❌ 无 | 📋 +4 new hooks | 提案中 |
+| **Scripts** | ||||
+| static_checks.sh | ✅ 已实现（v6.5.1） | ✅ 保持 | 已实现 |
+| pre_merge_audit.sh | ✅ 已实现（v6.5.1） | ✅ 保持 | 已实现 |
+| butler_mode_detector.sh | ❌ 无 | 📋 提案 | 提案中 |
+| butler_decision_recorder.sh | ❌ 无 | 📋 提案 | 提案中 |
+| memory_recall.sh | ❌ 无 | 📋 提案 | 提案中 |
+| context_manager.sh | ❌ 无 | 📋 提案 | 提案中 |
+
+**图例**:
+- ✅ **已实现并可用** - 当前v6.5.0已包含，可立即使用
+- ❌ **不存在/不可用** - v6.5.0中完全没有此功能
+- 📋 **提案中/计划实现** - 计划在v6.6.0中实现，当前不可用
+
+**重要提醒**：
+- 本文档提到的所有"Butler Mode"相关功能均为**v6.6提案**
+- 请勿尝试使用标记为"📋 提案中"的功能
+- v6.5.0只包含标记为"✅ 已实现"的功能
 
 ---
 
@@ -918,6 +980,128 @@ Butler: "好的，使用8个Agent"
 | Part 2.7 (Step 10) | 2.10 Step 10: Cleanup & Merge |
 | Part 3 (Hooks) | Part 3: Hook决策逻辑 |
 | Part 4 (Memory) | (新增系统，无对应章节) |
+
+---
+
+## 📅 Implementation Roadmap (v6.6 实施路线图)
+
+### Phase 1: Foundation (Week 1-2) - 基础设施
+- [ ] 创建memory-cache.json基础结构
+  - 定义JSON schema
+  - 实现基础读写函数
+  - 添加版本控制
+- [ ] 实现context_manager.sh核心逻辑
+  - 上下文提取算法
+  - 相关性评分机制
+  - 清理过期上下文
+- [ ] 添加butler_mode_detector.sh检测机制
+  - 用户意图分析
+  - Butler模式触发条件
+  - 模式切换逻辑
+- [ ] 单元测试覆盖率>80%
+
+**预计时间**: 6-8小时
+**完成标准**: 所有基础脚本可运行，通过单元测试
+
+### Phase 2: Decision Enhancement (Week 3-4) - 决策增强
+- [ ] 实现butler_decision_recorder.sh
+  - 决策记录格式定义
+  - 决策历史存储
+  - 决策回放机制
+- [ ] 集成8个新决策点
+  - Step 1: Butler意图理解
+  - Step 2: 自动分支创建
+  - Step 9: 自动验收判断
+  - 其他5个决策点
+- [ ] 修改12个现有决策点
+  - 添加Butler自动决策分支
+  - 保留用户override通道
+  - 更新决策树文档
+- [ ] BDD场景覆盖所有新决策
+  - 编写acceptance测试
+  - 覆盖边界情况
+  - 压力测试
+
+**预计时间**: 8-10小时
+**完成标准**: 所有决策点测试通过，决策准确率>80%
+
+### Phase 3: Memory System (Week 5-6) - 记忆系统
+- [ ] 实现memory_recall.sh
+  - 记忆搜索算法
+  - 相关性排序
+  - 记忆召回接口
+- [ ] 动态学习算法实现
+  - 用户偏好学习
+  - 决策模式识别
+  - 权重自动调整
+- [ ] 记忆衰减机制
+  - 时间衰减算法
+  - 热度计算
+  - 自动归档
+- [ ] 性能基准测试
+  - 召回速度<100ms
+  - 准确率>85%
+  - 内存占用<50MB
+
+**预计时间**: 6-8小时
+**完成标准**: 记忆系统稳定运行，满足性能指标
+
+### Phase 4: Integration & Testing (Week 7) - 集成测试
+- [ ] 集成测试
+  - 端到端测试场景
+  - 多Agent协作测试
+  - 错误恢复测试
+- [ ] 压力测试（100+ sessions）
+  - 并发性能测试
+  - 长时间运行测试
+  - 内存泄漏检测
+- [ ] 文档完善
+  - 更新DECISION_TREE.md
+  - 更新CLAUDE.md
+  - 创建用户指南
+- [ ] 用户验收测试
+  - Alpha测试
+  - 收集反馈
+  - Bug修复
+
+**预计时间**: 5-6小时
+**完成标准**: 所有测试通过，文档齐全
+
+### Phase 5: Release (Week 8) - 发布
+- [ ] 发布v6.6.0-beta
+  - 创建release分支
+  - 打tag
+  - 生成Release Notes
+- [ ] 收集反馈
+  - 监控使用情况
+  - 收集用户反馈
+  - 分析性能数据
+- [ ] 修复bugs
+  - 优先级排序
+  - 快速修复
+  - 回归测试
+- [ ] 正式发布v6.6.0
+  - 最终测试
+  - 合并到main
+  - 发布公告
+
+**预计时间**: 3-4小时
+**完成标准**: v6.6.0稳定发布，用户反馈良好
+
+### 总体时间估算
+
+| Phase | 预计时间 | 完成标准 |
+|-------|---------|---------|
+| Phase 1: Foundation | 6-8h | 基础脚本可运行 |
+| Phase 2: Decision | 8-10h | 决策测试通过 |
+| Phase 3: Memory | 6-8h | 记忆系统稳定 |
+| Phase 4: Integration | 5-6h | 集成测试通过 |
+| Phase 5: Release | 3-4h | 正式发布 |
+| **总计** | **28-36h** | **生产就绪** |
+
+**Target Release Date**: Q1 2026 (2026年3月)
+**Risk Level**: 🟡 Medium（技术可行，需要时间验证）
+**Rollback Plan**: 保留v6.5.0，可随时回退
 
 ---
 
