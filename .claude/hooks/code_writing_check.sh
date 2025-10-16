@@ -35,7 +35,8 @@ NC='\033[0m'
 # ============================================================================
 
 # Read stdin (PreToolUse hook input)
-INPUT=$(cat)
+# CVE-2025-CE-002 FIX: Limit input to 10MB to prevent DoS attacks
+INPUT=$(head -c 10485760)  # 10MB = 10*1024*1024 bytes
 
 # Extract tool name and parameters
 TOOL_NAME=$(echo "$INPUT" | grep -oP '"tool"\s*:\s*"\K[^"]+' || echo "")
@@ -57,10 +58,16 @@ get_current_phase() {
     fi
 
     # Try multiple phase state file locations
-    if [[ -f "$PROJECT_ROOT/.workflow/current" ]]; then
-        cat "$PROJECT_ROOT/.workflow/current" | tr -d '[:space:]'
-    elif [[ -f "$PROJECT_ROOT/.phase/current" ]]; then
-        cat "$PROJECT_ROOT/.phase/current" | tr -d '[:space:]'
+    # CVE-2025-CE-001 FIX: Reject symlinks to prevent symlink attacks
+    local phase_file=""
+    if [[ -f "$PROJECT_ROOT/.workflow/current" ]] && [[ ! -L "$PROJECT_ROOT/.workflow/current" ]]; then
+        phase_file="$PROJECT_ROOT/.workflow/current"
+    elif [[ -f "$PROJECT_ROOT/.phase/current" ]] && [[ ! -L "$PROJECT_ROOT/.phase/current" ]]; then
+        phase_file="$PROJECT_ROOT/.phase/current"
+    fi
+
+    if [[ -n "$phase_file" ]]; then
+        cat "$phase_file" | tr -d '[:space:]'
     else
         echo ""
     fi
@@ -75,10 +82,27 @@ has_agent_evidence() {
 
     # Evidence 1: Agent invocation JSON file
     if [[ -f "$PROJECT_ROOT/.gates/agents_invocation.json" ]]; then
+        # CVE-2025-CE-004 FIX: Validate file freshness to prevent forgery
+        # Check file modification time (must be recent, within 5 minutes)
+        local file_age_seconds
+        if [[ "$(uname)" == "Darwin" ]]; then
+            # macOS
+            file_age_seconds=$(( $(date +%s) - $(stat -f %m "$PROJECT_ROOT/.gates/agents_invocation.json") ))
+        else
+            # Linux
+            file_age_seconds=$(( $(date +%s) - $(stat -c %Y "$PROJECT_ROOT/.gates/agents_invocation.json") ))
+        fi
+
+        # Reject files older than 5 minutes (300 seconds)
+        if [[ $file_age_seconds -gt 300 ]]; then
+            echo "  Agent evidence too old ($file_age_seconds seconds), rejected" >> "$LOG_FILE"
+            return 1
+        fi
+
         local agent_count
         agent_count=$(jq '.agents | length' "$PROJECT_ROOT/.gates/agents_invocation.json" 2>/dev/null || echo "0")
         if [[ "$agent_count" -gt 0 ]]; then
-            echo "  Evidence: agents_invocation.json ($agent_count agents)" >> "$LOG_FILE"
+            echo "  Evidence: agents_invocation.json ($agent_count agents, ${file_age_seconds}s old)" >> "$LOG_FILE"
             return 0
         fi
     fi
