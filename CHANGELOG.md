@@ -3,6 +3,19 @@
 ## [Unreleased]
 
 ### Fixed
+- **PLAN.md/REVIEW.md Bypass Vulnerability** (CRITICAL) - 2025-10-16
+  - Fixed enforcement bypass in `code_writing_check.sh` v2.0
+  - **Issue**: PLAN.md and REVIEW.md could bypass agent requirements via trivial change detection
+  - **Evidence**: Log showed `PLAN.md → Trivial: Markdown without code blocks → Pass` (WRONG!)
+  - **Impact**: AI could write core workflow documents without using SubAgents
+  - **Solution**: Added explicit check in `is_trivial_change()` function
+  - **New Logic**: PLAN.md and REVIEW.md (in root or docs/) are NEVER trivial
+  - **Test Results**:
+    - ✅ PLAN.md (Phase 1, no agents) → BLOCKED
+    - ✅ docs/REVIEW.md (Phase 4, no agents) → BLOCKED
+    - ✅ README.md (exempt file) → ALLOWED
+  - **Fix Duration**: 15 minutes (10 lines of code)
+  - **Version**: v2.0.1 (critical patch)
 - **Phase Enforcement Regression** (CRITICAL) - 2025-10-16
   - Fixed `code_writing_check.sh` v2.0: Phase-based detection instead of keyword-based
   - **Issue**: Phase 1-5 enforcement was too weak - only triggered on specific keywords
