@@ -1,0 +1,543 @@
+# Claude Enhancer v6.5 Decision Flow Diagrams
+# Complete visual representation of the decision tree
+
+## Main Flow: 10-Step Workflow
+
+```mermaid
+graph TD
+    Start([User Input]) --> Step1{Step 1: Pre-Discussion}
+    Step1 -->|Discussion Mode| Response([AI Response Only])
+    Step1 -->|Execution Mode| Step2
+
+    Step2{Step 2: Phase -1<br/>Branch Check}
+    Step2 -->|main/master| CreateBranch[Create feature branch]
+    Step2 -->|feature/xxx| CheckMatch{Match Task?}
+    CheckMatch -->|Yes ≥0.8| Step3
+    CheckMatch -->|Maybe 0.3-0.8| AskUser[Ask User]
+    CheckMatch -->|No <0.3| CreateBranch
+    AskUser --> Step3
+    CreateBranch --> Step3
+
+    Step3{Step 3: Phase 0<br/>Discovery}
+    Step3 --> CreateChecklist[Create P0 Checklist]
+    CreateChecklist --> SelectAgents[Select 4-8 Agents]
+    SelectAgents --> Step4
+
+    Step4{Step 4: Phase 1<br/>Planning & Architecture}
+    Step4 --> GeneratePlan[Generate PLAN.md]
+    GeneratePlan --> CreateStructure[Create Project Structure]
+    CreateStructure --> Step5
+
+    Step5{Step 5: Phase 2<br/>Implementation}
+    Step5 --> Implement[Write Code]
+    Implement --> Commit[Git Commits]
+    Commit --> Step6
+
+    Step6{Step 6: Phase 3<br/>Testing}
+    Step6 --> StaticChecks[Run static_checks.sh]
+    StaticChecks -->|Pass| FuncTests[Run Function Tests]
+    StaticChecks -->|Fail| BackToStep5[Return to Phase 2]
+    FuncTests -->|Pass| Step7
+    FuncTests -->|Fail| BackToStep5
+    BackToStep5 --> Step5
+
+    Step7{Step 7: Phase 4<br/>Review}
+    Step7 --> PreMergeAudit[Run pre_merge_audit.sh]
+    PreMergeAudit -->|Pass| CodeReview[Code Review]
+    PreMergeAudit -->|Fail| BackToStep5_2[Return to Phase 2]
+    CodeReview -->|Approved| Step8
+    CodeReview -->|Rejected| BackToStep5_2
+    BackToStep5_2 --> Step5
+
+    Step8{Step 8: Phase 5<br/>Release & Monitor}
+    Step8 --> UpdateDocs[Update Documentation]
+    UpdateDocs --> CreateTag[Create Git Tag]
+    CreateTag --> ConfigMonitor[Configure Monitoring]
+    ConfigMonitor --> Step9
+
+    Step9{Step 9: Acceptance Report}
+    Step9 --> CheckP0[Verify P0 Checklist 100%]
+    CheckP0 -->|100% Complete| ShowReport[Show Report to User]
+    CheckP0 -->|Incomplete| BackToPhase2[Return to Phase 2]
+    ShowReport --> UserConfirm{User: No Problem?}
+    UserConfirm -->|Yes| Step10
+    UserConfirm -->|Has Issues| FixIssues[Fix Issues]
+    FixIssues --> Step5
+    BackToPhase2 --> Step5
+
+    Step10{Step 10: Cleanup & Merge}
+    Step10 --> CleanTemp[Clean .temp/]
+    CleanTemp --> CheckDocs[Check Root Docs ≤7]
+    CheckDocs --> CommitCleanup[Commit Cleanup]
+    CommitCleanup --> WaitMerge{Wait User: merge}
+    WaitMerge --> CreatePR[Create Pull Request]
+    CreatePR --> WaitCI{Wait CI Pass}
+    WaitCI -->|Pass| MergePR[Merge PR]
+    WaitCI -->|Fail| FixCI[Fix CI Issues]
+    FixCI --> CreatePR
+    MergePR --> SwitchMain[Switch to main]
+    SwitchMain --> End([Task Complete])
+
+    style Start fill:#e1f5e1
+    style End fill:#e1f5e1
+    style Response fill:#fff3cd
+    style Step3 fill:#cfe2ff
+    style Step6 fill:#f8d7da
+    style Step7 fill:#f8d7da
+    style Step9 fill:#d1ecf1
+```
+
+## Branch Check Decision Tree (Step 2)
+
+```mermaid
+graph TD
+    Start([Write/Edit Operation]) --> GetBranch[Get Current Branch]
+    GetBranch --> CheckType{Branch Type?}
+
+    CheckType -->|main| BlockMain[🔴 BLOCK]
+    BlockMain --> ShowError1[Show: Must create feature branch]
+    ShowError1 --> Suggest1[Suggest: git checkout -b feature/xxx]
+    Suggest1 --> Exit1([EXIT 1])
+
+    CheckType -->|master| BlockMaster[🔴 BLOCK]
+    BlockMaster --> ShowError2[Show: Must create feature branch]
+    ShowError2 --> Suggest2[Suggest: git checkout -b feature/xxx]
+    Suggest2 --> Exit2([EXIT 1])
+
+    CheckType -->|feature/xxx| Analyze[Analyze Task-Branch Match]
+    Analyze --> ExtractKeywords[Extract Keywords from Branch]
+    ExtractKeywords --> ExtractTask[Extract Keywords from Task]
+    ExtractTask --> CalcSimilarity[Calculate Semantic Similarity]
+
+    CalcSimilarity --> ScoreCheck{Match Score?}
+
+    ScoreCheck -->|≥ 0.8| HighMatch[🟢 High Match]
+    HighMatch --> Continue1[Continue Execution]
+    Continue1 --> Success1([EXIT 0])
+
+    ScoreCheck -->|0.3 - 0.8| MediumMatch[🟡 Medium Match]
+    MediumMatch --> AskUser[Ask User Choice]
+    AskUser --> UserDecision{User Choice?}
+    UserDecision -->|Continue| Continue2[Continue Current Branch]
+    UserDecision -->|New Branch| SuggestNew1[Suggest New Branch Name]
+    Continue2 --> Success2([EXIT 0])
+    SuggestNew1 --> WaitCreate1[Wait User Create]
+
+    ScoreCheck -->|< 0.3| LowMatch[🔴 Low Match]
+    LowMatch --> SuggestNew2[Suggest New Branch Name]
+    SuggestNew2 --> RecommendCreate[Recommend: Create New Branch]
+    RecommendCreate --> WaitCreate2[Wait User Create]
+
+    CheckType -->|other| OtherBranch[Unknown Branch]
+    OtherBranch --> Warn[⚠️ Warning]
+    Warn --> Continue3[Allow but Warn]
+    Continue3 --> Success3([EXIT 0])
+
+    style BlockMain fill:#f8d7da
+    style BlockMaster fill:#f8d7da
+    style Exit1 fill:#f8d7da
+    style Exit2 fill:#f8d7da
+    style HighMatch fill:#d1e7dd
+    style MediumMatch fill:#fff3cd
+    style LowMatch fill:#f8d7da
+    style Success1 fill:#d1e7dd
+    style Success2 fill:#d1e7dd
+    style Success3 fill:#d1e7dd
+```
+
+## Agent Selection Decision Tree (Phase 0)
+
+```mermaid
+graph TD
+    Start([Task Description]) --> AnalyzeTask[Analyze Task]
+    AnalyzeTask --> EstFiles[Estimate Affected Files]
+    EstFiles --> EstLOC[Estimate Lines of Code]
+    EstLOC --> CheckArch[Check Architecture Impact]
+    CheckArch --> CountDeps[Count Dependencies]
+    CountDeps --> CheckSecurity[Check Security Sensitivity]
+
+    CheckSecurity --> CalcScore[Calculate Complexity Score]
+    CalcScore --> FileScore[File Count Score: 0-30]
+    FileScore --> LOCScore[LOC Score: 0-30]
+    LOCScore --> ArchScore[Architecture Score: 0-20]
+    ArchScore --> DepScore[Dependency Score: 0-10]
+    DepScore --> SecScore[Security Score: 0-10]
+
+    SecScore --> TotalScore[Total Score: 0-100]
+    TotalScore --> DecideCount{Score Range?}
+
+    DecideCount -->|≤ 30| Simple[Simple Task]
+    Simple --> Use4[Use 4 Agents]
+    Use4 --> SelectType4[Select Agent Type]
+
+    DecideCount -->|31-60| Standard[Standard Task]
+    Standard --> Use6[Use 6 Agents]
+    Use6 --> SelectType6[Select Agent Type]
+
+    DecideCount -->|> 60| Complex[Complex Task]
+    Complex --> Use8[Use 8 Agents]
+    Use8 --> SelectType8[Select Agent Type]
+
+    SelectType4 --> IdentifyTask[Identify Task Category]
+    SelectType6 --> IdentifyTask
+    SelectType8 --> IdentifyTask
+
+    IdentifyTask --> TaskType{Task Type?}
+
+    TaskType -->|Authentication| AuthAgents[backend-architect<br/>security-auditor<br/>database-specialist<br/>api-designer<br/>test-engineer]
+
+    TaskType -->|API Development| APIAgents[api-designer<br/>backend-architect<br/>test-engineer<br/>technical-writer]
+
+    TaskType -->|Database| DBAgents[database-specialist<br/>backend-architect<br/>performance-engineer]
+
+    TaskType -->|Frontend| FrontendAgents[frontend-specialist<br/>ux-designer<br/>test-engineer<br/>accessibility-auditor]
+
+    TaskType -->|Performance| PerfAgents[performance-engineer<br/>backend-architect<br/>database-specialist<br/>test-engineer]
+
+    TaskType -->|Security| SecAgents[security-auditor<br/>backend-architect<br/>test-engineer]
+
+    AuthAgents --> ParallelCheck{Check Dependencies}
+    APIAgents --> ParallelCheck
+    DBAgents --> ParallelCheck
+    FrontendAgents --> ParallelCheck
+    PerfAgents --> ParallelCheck
+    SecAgents --> ParallelCheck
+
+    ParallelCheck -->|No Dependencies| FullParallel[Execute All in Parallel]
+    ParallelCheck -->|Linear Dependencies| Sequential[Execute Sequentially]
+    ParallelCheck -->|Partial Dependencies| BatchedParallel[Execute in Batches]
+
+    FullParallel --> Success1([All Agents Run])
+    Sequential --> Success2([Agents Run in Order])
+    BatchedParallel --> Success3([Agents Run in Batches])
+
+    style Simple fill:#d1e7dd
+    style Standard fill:#cfe2ff
+    style Complex fill:#fff3cd
+    style Use4 fill:#d1e7dd
+    style Use6 fill:#cfe2ff
+    style Use8 fill:#fff3cd
+    style Success1 fill:#d1e7dd
+    style Success2 fill:#d1e7dd
+    style Success3 fill:#d1e7dd
+```
+
+## Quality Gate Decision Tree (Phase 3)
+
+```mermaid
+graph TD
+    Start([Phase 3: Testing]) --> RunScript[Execute: bash scripts/static_checks.sh]
+
+    RunScript --> Check1{Check 1: Shell Syntax}
+    Check1 --> RunBashN[Run: bash -n *.sh]
+    RunBashN -->|All Pass| Check2
+    RunBashN -->|Any Fail| Fail1[❌ SYNTAX ERROR]
+    Fail1 --> Error1[Show Syntax Error Details]
+    Error1 --> Exit1([EXIT 1: Return to Phase 2])
+
+    Check2{Check 2: Shellcheck Linting}
+    Check2 --> RunShellcheck[Run: shellcheck *.sh]
+    RunShellcheck -->|No Errors| Check3
+    RunShellcheck -->|Error Level| Fail2[❌ SHELLCHECK ERROR]
+    RunShellcheck -->|Warning Level| Warn1[⚠️ WARNING]
+    Fail2 --> Error2[Show Linting Issues]
+    Error2 --> Exit2([EXIT 1: Return to Phase 2])
+    Warn1 --> RecordWarn1[Record Warning]
+    RecordWarn1 --> Check3
+
+    Check3{Check 3: Code Complexity}
+    Check3 --> FindLongest[Find Longest Function]
+    FindLongest --> CheckLength{Length > 150 lines?}
+    CheckLength -->|Yes| Fail3[❌ COMPLEXITY TOO HIGH]
+    CheckLength -->|No| Check4
+    Fail3 --> Error3[Show: Function XXX is YYY lines]
+    Error3 --> Suggest3[Suggest: Refactor into smaller functions]
+    Suggest3 --> Exit3([EXIT 1: Refactor Required])
+
+    Check4{Check 4: Hook Performance}
+    Check4 --> TestHooks[Test All Hooks]
+    TestHooks --> CheckTime{Any Hook > 2 seconds?}
+    CheckTime -->|Yes| Fail4[❌ PERFORMANCE ISSUE]
+    CheckTime -->|No| Check5
+    Fail4 --> Error4[Show: Hook XXX took YYY ms]
+    Error4 --> Suggest4[Suggest: Optimize Hook Logic]
+    Suggest4 --> Exit4([EXIT 1: Optimize Required])
+
+    Check5{Check 5: Function Tests}
+    Check5 --> RunTests[Run: npm test / pytest]
+    RunTests -->|100% Pass| Summary
+    RunTests -->|Any Fail| Fail5[❌ TEST FAILURE]
+    Fail5 --> Error5[Show Failed Test Details]
+    Error5 --> Exit5([EXIT 1: Fix Tests])
+
+    Summary[Generate Summary Report]
+    Summary --> ShowPassed[Show: ✅ Checks Passed]
+    ShowPassed --> ShowWarnings{Any Warnings?}
+    ShowWarnings -->|Yes| DisplayWarnings[Display Warning List]
+    ShowWarnings -->|No| Complete
+    DisplayWarnings --> Complete[🎉 Phase 3 PASSED]
+    Complete --> NextPhase([Proceed to Phase 4])
+
+    style Fail1 fill:#f8d7da
+    style Fail2 fill:#f8d7da
+    style Fail3 fill:#f8d7da
+    style Fail4 fill:#f8d7da
+    style Fail5 fill:#f8d7da
+    style Exit1 fill:#f8d7da
+    style Exit2 fill:#f8d7da
+    style Exit3 fill:#f8d7da
+    style Exit4 fill:#f8d7da
+    style Exit5 fill:#f8d7da
+    style Warn1 fill:#fff3cd
+    style Complete fill:#d1e7dd
+    style NextPhase fill:#d1e7dd
+```
+
+## Quality Gate Decision Tree (Phase 4)
+
+```mermaid
+graph TD
+    Start([Phase 4: Review]) --> RunScript[Execute: bash scripts/pre_merge_audit.sh]
+
+    RunScript --> Check1{Check 1: Hook Configuration}
+    Check1 --> VerifySettings[Verify settings.json]
+    VerifySettings --> CheckReg{All Hooks Registered?}
+    CheckReg -->|No| Fail1[🔴 CRITICAL: Hooks Missing]
+    CheckReg -->|Yes| CheckPerms{All Hooks Executable?}
+    CheckPerms -->|No| Fail2[🔴 CRITICAL: Permission Issue]
+    CheckPerms -->|Yes| Check2
+    Fail1 --> Error1[List Missing Hooks]
+    Error1 --> Exit1([EXIT 1: Fix Configuration])
+    Fail2 --> AutoFix1[Auto-fix: chmod +x]
+    AutoFix1 --> Recheck1[Re-check Permissions]
+    Recheck1 --> Check2
+
+    Check2{Check 2: Legacy Issues}
+    Check2 --> ScanCode[Scan for FIXME/TODO/XXX]
+    ScanCode --> FindFIXME{Found FIXME?}
+    FindFIXME -->|Yes| Fail3[🔴 CRITICAL: FIXME Found]
+    FindFIXME -->|No| FindTODO{Found TODO?}
+    Fail3 --> Error2[List All FIXME Locations]
+    Error2 --> Exit2([EXIT 1: Resolve FIXME])
+    FindTODO -->|Yes| Warn1[⚠️ WARNING: TODO Found]
+    FindTODO -->|No| Check3
+    Warn1 --> RecordTODO[Record TODO Count]
+    RecordTODO --> Check3
+
+    Check3{Check 3: Documentation}
+    Check3 --> CountRootDocs[Count Root .md Files]
+    CountRootDocs --> CheckDocCount{Count ≤ 7?}
+    CheckDocCount -->|No| Fail4[🔴 CRITICAL: Too Many Docs]
+    CheckDocCount -->|Yes| CheckCore{All 7 Core Docs Exist?}
+    Fail4 --> Error3[List Non-Core Documents]
+    Error3 --> Suggest1[Suggest: Move to docs/]
+    Suggest1 --> Exit3([EXIT 1: Clean Documents])
+    CheckCore -->|No| Fail5[🔴 CRITICAL: Missing Core Doc]
+    CheckCore -->|Yes| Check4
+    Fail5 --> Error4[List Missing Documents]
+    Error4 --> Exit4([EXIT 1: Add Missing Docs])
+
+    Check4{Check 4: Version Consistency}
+    Check4 --> GetVersions[Get VERSION, settings.json, manifest.yml]
+    GetVersions --> CompareVersions{All Match?}
+    CompareVersions -->|No| Fail6[🔴 CRITICAL: Version Mismatch]
+    CompareVersions -->|Yes| Check5
+    Fail6 --> Error5[Show Version Differences]
+    Error5 --> Suggest2[Suggest: Sync Versions]
+    Suggest2 --> Exit5([EXIT 1: Fix Versions])
+
+    Check5{Check 5: Code Consistency}
+    Check5 --> CheckPatterns[Check Code Patterns]
+    CheckPatterns --> FindInconsist{Found Inconsistency?}
+    FindInconsist -->|Yes| Warn2[⚠️ WARNING: Pattern Inconsistency]
+    FindInconsist -->|No| Check6
+    Warn2 --> RecordInconsist[Record Pattern Issues]
+    RecordInconsist --> Check6
+
+    Check6{Check 6: REVIEW.md}
+    Check6 --> CheckExists{REVIEW.md Exists?}
+    CheckExists -->|No| Fail7[🔴 CRITICAL: REVIEW.md Missing]
+    CheckExists -->|Yes| CheckLength{Length > 100 lines?}
+    Fail7 --> Error6[REVIEW.md must be created]
+    Error6 --> Exit6([EXIT 1: Create REVIEW.md])
+    CheckLength -->|No| Fail8[🔴 CRITICAL: REVIEW.md Too Short]
+    CheckLength -->|Yes| CheckApproved{Contains APPROVED?}
+    Fail8 --> Error7[REVIEW.md must be detailed]
+    Error7 --> Exit7([EXIT 1: Complete Review])
+    CheckApproved -->|No| Fail9[🔴 CRITICAL: Not Approved]
+    CheckApproved -->|Yes| Check7
+    Fail9 --> Error8[REVIEW.md must conclude with APPROVED]
+    Error8 --> Exit8([EXIT 1: Approve or Fix])
+
+    Check7{Check 7: P0 Checklist}
+    Check7 --> VerifyP0[Verify P0_CHECKLIST.md]
+    VerifyP0 --> CheckComplete{100% Complete?}
+    CheckComplete -->|No| Fail10[🔴 CRITICAL: P0 Incomplete]
+    CheckComplete -->|Yes| Summary
+    Fail10 --> Error9[List Incomplete Items]
+    Error9 --> Exit9([EXIT 1: Complete P0])
+
+    Summary[Generate Summary Report]
+    Summary --> CountIssues{Critical Issues > 0?}
+    CountIssues -->|Yes| FinalFail[❌ Pre-Merge Audit FAILED]
+    CountIssues -->|No| CountWarnings{Warnings > 0?}
+    FinalFail --> Exit10([EXIT 1: Fix Critical Issues])
+    CountWarnings -->|Yes| ShowWarnings[Display Warning List]
+    CountWarnings -->|No| Complete
+    ShowWarnings --> Note[Note: Warnings are Non-Blocking]
+    Note --> Complete[🎉 Phase 4 PASSED]
+    Complete --> NextPhase([Proceed to Phase 5])
+
+    style Fail1 fill:#f8d7da
+    style Fail2 fill:#f8d7da
+    style Fail3 fill:#f8d7da
+    style Fail4 fill:#f8d7da
+    style Fail5 fill:#f8d7da
+    style Fail6 fill:#f8d7da
+    style Fail7 fill:#f8d7da
+    style Fail8 fill:#f8d7da
+    style Fail9 fill:#f8d7da
+    style Fail10 fill:#f8d7da
+    style FinalFail fill:#f8d7da
+    style Warn1 fill:#fff3cd
+    style Warn2 fill:#fff3cd
+    style Complete fill:#d1e7dd
+    style NextPhase fill:#d1e7dd
+```
+
+## Hook Execution Sequence
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant UPS as UserPromptSubmit Hooks
+    participant PP as PrePrompt Hooks
+    participant PTU as PreToolUse Hooks
+    participant AI as Claude Code
+    participant Tool as Write/Edit Tool
+    participant POST as PostToolUse Hooks
+
+    User->>UPS: Submit Input
+    activate UPS
+    UPS->>UPS: memory_recall.sh
+    UPS->>UPS: context_manager.sh
+    UPS-->>AI: Inject Context
+    deactivate UPS
+
+    AI->>PP: Receive Full Prompt
+    activate PP
+    PP->>PP: workflow_enforcer.sh
+    PP->>PP: agent_orchestrator.sh
+    PP->>PP: quality_gate_checker.sh
+    PP-->>AI: Inject Workflow Instructions
+    deactivate PP
+
+    AI->>AI: Generate Response
+    AI->>PTU: Call Write/Edit Tool
+    activate PTU
+    PTU->>PTU: version_consistency_checker.sh
+    PTU->>PTU: branch_helper.sh
+    PTU->>PTU: task_branch_enforcer.sh
+    PTU->>PTU: doc_limit_enforcer.sh
+    PTU->>PTU: agent_validator.sh
+    PTU->>PTU: p0_checklist_validator.sh
+
+    alt All Hooks Pass
+        PTU-->>Tool: Allow Execution
+        deactivate PTU
+        activate Tool
+        Tool->>Tool: Execute Write/Edit
+        Tool-->>POST: Tool Completed
+        deactivate Tool
+    else Any Hook Blocks
+        PTU-->>AI: BLOCK (EXIT 1)
+        PTU-->>User: Show Error Message
+        deactivate PTU
+    end
+
+    activate POST
+    POST->>POST: auto_commit.sh
+    POST->>POST: evidence_collector.sh
+    POST->>POST: memory_update.sh
+    POST-->>AI: Post-Processing Complete
+    deactivate POST
+
+    AI-->>User: Show Result
+```
+
+## Task-Branch Binding Flow (v6.5.0)
+
+```mermaid
+graph TD
+    Start([Start New Task]) --> UserDescribe[User Describes Task]
+    UserDescribe --> AIAnalyze[AI Analyzes Task]
+    AIAnalyze --> CheckActive{Active Task Exists?}
+
+    CheckActive -->|Yes| ShowConflict[Show Task-Branch Binding Conflict]
+    ShowConflict --> UserChoice{User Choice?}
+    UserChoice -->|Complete Current| CompleteTask[bash task_lifecycle.sh complete]
+    UserChoice -->|Cancel Current| CancelTask[bash task_lifecycle.sh cancel]
+    CompleteTask --> CheckActive
+    CancelTask --> CheckActive
+
+    CheckActive -->|No| CheckBranch{Current Branch?}
+    CheckBranch -->|main/master| CreateBranch1[Create Feature Branch]
+    CheckBranch -->|feature/xxx| CreateBranch2[Use Current or Create New]
+
+    CreateBranch1 --> StartTask[bash task_lifecycle.sh start]
+    CreateBranch2 --> StartTask
+
+    StartTask --> SaveBinding[Save to task_branch_map.json]
+    SaveBinding --> ShowBinding[Display: Task-Branch Binding Established]
+    ShowBinding --> WorkOnTask[Work on Task]
+
+    WorkOnTask --> WriteCode{AI Calls Write/Edit?}
+    WriteCode -->|Yes| EnforcerCheck[task_branch_enforcer.sh runs]
+    EnforcerCheck --> ValidateBranch{Current Branch == Bound Branch?}
+
+    ValidateBranch -->|Yes| AllowWrite[✅ Allow Write/Edit]
+    ValidateBranch -->|No| BlockWrite[🔴 BLOCK Write/Edit]
+    BlockWrite --> ShowError[Show: Branch Mismatch Error]
+    ShowError --> Suggest{Suggest Solutions}
+    Suggest -->|Option 1| SwitchBranch[git checkout bound-branch]
+    Suggest -->|Option 2| CompleteTask2[Complete Current Task]
+    Suggest -->|Option 3| CancelTask2[Cancel Current Task]
+
+    SwitchBranch --> WriteCode
+    CompleteTask2 --> TaskComplete[Task Marked Complete]
+    CancelTask2 --> TaskCancelled[Task Cancelled]
+
+    AllowWrite --> CodeChanged[Code Modified]
+    CodeChanged --> MoreWork{More Work?}
+    MoreWork -->|Yes| WriteCode
+    MoreWork -->|No| UserComplete[User: Task Done]
+
+    UserComplete --> FinalComplete[bash task_lifecycle.sh complete]
+    FinalComplete --> ClearBinding[Clear task_branch_map.json]
+    ClearBinding --> End([Task Complete])
+
+    TaskComplete --> End
+    TaskCancelled --> End
+
+    style ShowConflict fill:#f8d7da
+    style BlockWrite fill:#f8d7da
+    style ShowError fill:#f8d7da
+    style AllowWrite fill:#d1e7dd
+    style End fill:#d1e7dd
+```
+
+---
+
+## Notes on Mermaid Rendering
+
+These diagrams use Mermaid syntax and can be rendered in:
+1. **GitHub** - Automatically rendered in .md files
+2. **VS Code** - With Mermaid Preview extension
+3. **Mermaid Live Editor** - https://mermaid.live
+4. **Documentation sites** - Most support Mermaid
+
+Color Legend:
+- 🟢 Green (#d1e7dd) = Success/Pass/Approved
+- 🔴 Red (#f8d7da) = Fail/Block/Error
+- 🟡 Yellow (#fff3cd) = Warning/Medium
+- 🔵 Blue (#cfe2ff) = Standard/Normal
