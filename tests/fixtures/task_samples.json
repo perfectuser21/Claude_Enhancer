@@ -1,0 +1,545 @@
+{
+  "test_suite": "Impact Radius Assessor Test Data",
+  "version": "1.0",
+  "total_samples": 30,
+  "categories": {
+    "high_impact": 5,
+    "medium_impact": 5,
+    "low_impact": 5,
+    "boundary": 5,
+    "mixed": 5,
+    "chinese": 5
+  },
+  "samples": [
+    {
+      "task_id": "T001",
+      "category": "high_impact",
+      "description": "Fix CVE-2024-1234 authentication bypass vulnerability",
+      "expected_score_range": [
+        8,
+        10
+      ],
+      "expected_impact": "high",
+      "expected_agents": 6,
+      "keywords_should_detect": [
+        "CVE",
+        "authentication",
+        "vulnerability"
+      ],
+      "reasoning": "Critical security vulnerability"
+    },
+    {
+      "task_id": "T002",
+      "category": "high_impact",
+      "description": "Refactor entire authentication system architecture",
+      "expected_score_range": [
+        8,
+        10
+      ],
+      "expected_impact": "high",
+      "expected_agents": 6,
+      "keywords_should_detect": [
+        "refactor",
+        "authentication",
+        "architecture"
+      ],
+      "reasoning": "System-wide architectural change"
+    },
+    {
+      "task_id": "T003",
+      "category": "high_impact",
+      "description": "Migrate database from MySQL to PostgreSQL",
+      "expected_score_range": [
+        8,
+        10
+      ],
+      "expected_impact": "high",
+      "expected_agents": 6,
+      "keywords_should_detect": [
+        "migrate",
+        "database"
+      ],
+      "reasoning": "Major infrastructure migration"
+    },
+    {
+      "task_id": "T004",
+      "category": "high_impact",
+      "description": "Implement distributed session management system",
+      "expected_score_range": [
+        8,
+        10
+      ],
+      "expected_impact": "high",
+      "expected_agents": 6,
+      "keywords_should_detect": [
+        "distributed",
+        "session",
+        "system"
+      ],
+      "reasoning": "Complex distributed system feature"
+    },
+    {
+      "task_id": "T005",
+      "category": "high_impact",
+      "description": "Fix critical memory leak in production",
+      "expected_score_range": [
+        8,
+        10
+      ],
+      "expected_impact": "high",
+      "expected_agents": 6,
+      "keywords_should_detect": [
+        "critical",
+        "memory",
+        "production"
+      ],
+      "reasoning": "Critical production issue"
+    },
+    {
+      "task_id": "T006",
+      "category": "medium_impact",
+      "description": "Fix bug in login page validation",
+      "expected_score_range": [
+        4,
+        7
+      ],
+      "expected_impact": "medium",
+      "expected_agents": 3,
+      "keywords_should_detect": [
+        "fix",
+        "bug",
+        "login"
+      ],
+      "reasoning": "Functional bug fix"
+    },
+    {
+      "task_id": "T007",
+      "category": "medium_impact",
+      "description": "Optimize API query performance",
+      "expected_score_range": [
+        4,
+        7
+      ],
+      "expected_impact": "medium",
+      "expected_agents": 3,
+      "keywords_should_detect": [
+        "optimize",
+        "API",
+        "performance"
+      ],
+      "reasoning": "Performance improvement"
+    },
+    {
+      "task_id": "T008",
+      "category": "medium_impact",
+      "description": "Refactor user management module",
+      "expected_score_range": [
+        4,
+        7
+      ],
+      "expected_impact": "medium",
+      "expected_agents": 3,
+      "keywords_should_detect": [
+        "refactor",
+        "module"
+      ],
+      "reasoning": "Module-level refactoring"
+    },
+    {
+      "task_id": "T009",
+      "category": "medium_impact",
+      "description": "Add comprehensive logging functionality",
+      "expected_score_range": [
+        4,
+        7
+      ],
+      "expected_impact": "medium",
+      "expected_agents": 3,
+      "keywords_should_detect": [
+        "add",
+        "logging"
+      ],
+      "reasoning": "New feature addition"
+    },
+    {
+      "task_id": "T010",
+      "category": "medium_impact",
+      "description": "Update dependency packages to latest versions",
+      "expected_score_range": [
+        4,
+        7
+      ],
+      "expected_impact": "medium",
+      "expected_agents": 3,
+      "keywords_should_detect": [
+        "update",
+        "dependency"
+      ],
+      "reasoning": "Dependency management"
+    },
+    {
+      "task_id": "T011",
+      "category": "low_impact",
+      "description": "Fix typo in README documentation",
+      "expected_score_range": [
+        0,
+        3
+      ],
+      "expected_impact": "low",
+      "expected_agents": 0,
+      "keywords_should_detect": [
+        "typo",
+        "README",
+        "documentation"
+      ],
+      "reasoning": "Minor documentation fix"
+    },
+    {
+      "task_id": "T012",
+      "category": "low_impact",
+      "description": "Update code comments for clarity",
+      "expected_score_range": [
+        0,
+        3
+      ],
+      "expected_impact": "low",
+      "expected_agents": 0,
+      "keywords_should_detect": [
+        "comments",
+        "documentation"
+      ],
+      "reasoning": "Comment improvement"
+    },
+    {
+      "task_id": "T013",
+      "category": "low_impact",
+      "description": "Format code style according to style guide",
+      "expected_score_range": [
+        0,
+        3
+      ],
+      "expected_impact": "low",
+      "expected_agents": 0,
+      "keywords_should_detect": [
+        "format",
+        "style"
+      ],
+      "reasoning": "Code formatting"
+    },
+    {
+      "task_id": "T014",
+      "category": "low_impact",
+      "description": "Add TODO markers for future improvements",
+      "expected_score_range": [
+        0,
+        3
+      ],
+      "expected_impact": "low",
+      "expected_agents": 0,
+      "keywords_should_detect": [
+        "TODO"
+      ],
+      "reasoning": "Task tracking"
+    },
+    {
+      "task_id": "T015",
+      "category": "low_impact",
+      "description": "Fix spelling errors in variable names",
+      "expected_score_range": [
+        0,
+        3
+      ],
+      "expected_impact": "low",
+      "expected_agents": 0,
+      "keywords_should_detect": [
+        "spelling",
+        "error"
+      ],
+      "reasoning": "Minor code cleanup"
+    },
+    {
+      "task_id": "T016",
+      "category": "boundary",
+      "description": "Performance optimization with architectural adjustments",
+      "expected_score_range": [
+        7,
+        9
+      ],
+      "expected_impact": "high",
+      "expected_agents": 6,
+      "keywords_should_detect": [
+        "performance",
+        "optimization",
+        "architecture"
+      ],
+      "reasoning": "Boundary: performance + architecture suggests high impact"
+    },
+    {
+      "task_id": "T017",
+      "category": "boundary",
+      "description": "Small bug fix in security validation logic",
+      "expected_score_range": [
+        5,
+        7
+      ],
+      "expected_impact": "medium",
+      "expected_agents": 3,
+      "keywords_should_detect": [
+        "bug",
+        "security",
+        "fix"
+      ],
+      "reasoning": "Boundary: small bug but security related"
+    },
+    {
+      "task_id": "T018",
+      "category": "boundary",
+      "description": "Update documentation with example code snippets",
+      "expected_score_range": [
+        3,
+        5
+      ],
+      "expected_impact": "medium",
+      "expected_agents": 3,
+      "keywords_should_detect": [
+        "documentation",
+        "example",
+        "code"
+      ],
+      "reasoning": "Boundary: docs + code could be medium impact"
+    },
+    {
+      "task_id": "T019",
+      "category": "boundary",
+      "description": "Rename variables for better code readability",
+      "expected_score_range": [
+        1,
+        3
+      ],
+      "expected_impact": "low",
+      "expected_agents": 0,
+      "keywords_should_detect": [
+        "rename",
+        "readability"
+      ],
+      "reasoning": "Simple refactoring"
+    },
+    {
+      "task_id": "T020",
+      "category": "boundary",
+      "description": "Add unit tests for core functionality",
+      "expected_score_range": [
+        4,
+        6
+      ],
+      "expected_impact": "medium",
+      "expected_agents": 3,
+      "keywords_should_detect": [
+        "test",
+        "unit test"
+      ],
+      "reasoning": "Testing core functions is medium impact"
+    },
+    {
+      "task_id": "T021",
+      "category": "mixed",
+      "description": "Fix README typo and refactor authentication system",
+      "expected_score_range": [
+        8,
+        10
+      ],
+      "expected_impact": "high",
+      "expected_agents": 6,
+      "keywords_should_detect": [
+        "typo",
+        "refactor",
+        "authentication"
+      ],
+      "reasoning": "Should prioritize highest impact keyword (authentication refactor)"
+    },
+    {
+      "task_id": "T022",
+      "category": "mixed",
+      "description": "Update documentation and fix CVE-2024-5678",
+      "expected_score_range": [
+        8,
+        10
+      ],
+      "expected_impact": "high",
+      "expected_agents": 6,
+      "keywords_should_detect": [
+        "documentation",
+        "CVE",
+        "fix"
+      ],
+      "reasoning": "CVE fix dominates even with docs update"
+    },
+    {
+      "task_id": "T023",
+      "category": "mixed",
+      "description": "Code style cleanup and formatting",
+      "expected_score_range": [
+        1,
+        3
+      ],
+      "expected_impact": "low",
+      "expected_agents": 0,
+      "keywords_should_detect": [
+        "style",
+        "cleanup",
+        "format"
+      ],
+      "reasoning": "Multiple low-impact keywords"
+    },
+    {
+      "task_id": "T024",
+      "category": "mixed",
+      "description": "Pressure testing and performance benchmarking",
+      "expected_score_range": [
+        5,
+        7
+      ],
+      "expected_impact": "medium",
+      "expected_agents": 3,
+      "keywords_should_detect": [
+        "test",
+        "performance",
+        "benchmark"
+      ],
+      "reasoning": "Testing + performance is medium impact"
+    },
+    {
+      "task_id": "T025",
+      "category": "mixed",
+      "description": "Cleanup temporary files and cache",
+      "expected_score_range": [
+        1,
+        3
+      ],
+      "expected_impact": "low",
+      "expected_agents": 0,
+      "keywords_should_detect": [
+        "cleanup",
+        "temporary"
+      ],
+      "reasoning": "Simple cleanup task"
+    },
+    {
+      "task_id": "T026",
+      "category": "chinese",
+      "description": "修复关键的安全漏洞",
+      "expected_score_range": [
+        8,
+        10
+      ],
+      "expected_impact": "high",
+      "expected_agents": 6,
+      "keywords_should_detect": [
+        "关键",
+        "安全",
+        "漏洞"
+      ],
+      "reasoning": "Critical security vulnerability (Chinese)"
+    },
+    {
+      "task_id": "T027",
+      "category": "chinese",
+      "description": "优化数据库查询性能",
+      "expected_score_range": [
+        5,
+        7
+      ],
+      "expected_impact": "medium",
+      "expected_agents": 3,
+      "keywords_should_detect": [
+        "优化",
+        "数据库",
+        "性能"
+      ],
+      "reasoning": "Performance optimization (Chinese)"
+    },
+    {
+      "task_id": "T028",
+      "category": "chinese",
+      "description": "更新开发文档",
+      "expected_score_range": [
+        1,
+        3
+      ],
+      "expected_impact": "low",
+      "expected_agents": 0,
+      "keywords_should_detect": [
+        "更新",
+        "文档"
+      ],
+      "reasoning": "Documentation update (Chinese)"
+    },
+    {
+      "task_id": "T029",
+      "category": "chinese",
+      "description": "重构支付系统架构",
+      "expected_score_range": [
+        8,
+        10
+      ],
+      "expected_impact": "high",
+      "expected_agents": 6,
+      "keywords_should_detect": [
+        "重构",
+        "支付",
+        "架构"
+      ],
+      "reasoning": "Payment system refactor (Chinese)"
+    },
+    {
+      "task_id": "T030",
+      "category": "chinese",
+      "description": "修正代码中的小错误",
+      "expected_score_range": [
+        2,
+        4
+      ],
+      "expected_impact": "low",
+      "expected_agents": 0,
+      "keywords_should_detect": [
+        "修正",
+        "小",
+        "错误"
+      ],
+      "reasoning": "Minor bug fix (Chinese)"
+    }
+  ],
+  "edge_cases": [
+    {
+      "case_id": "E001",
+      "description": "",
+      "expected": "error_empty_input"
+    },
+    {
+      "case_id": "E002",
+      "description": "   ",
+      "expected": "error_whitespace_only"
+    },
+    {
+      "case_id": "E003",
+      "description": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...",
+      "expected": "handles_long_input"
+    },
+    {
+      "case_id": "E004",
+      "description": "Task with unicode 🚀 emojis 测试",
+      "expected": "handles_unicode"
+    },
+    {
+      "case_id": "E005",
+      "description": "'; DROP TABLE tasks; --",
+      "expected": "handles_injection_attempt"
+    }
+  ],
+  "notes": {
+    "scoring_logic": "High impact: 8-10 points, Medium: 4-7 points, Low: 0-3 points",
+    "agent_mapping": "High → 6 agents, Medium → 3 agents, Low → 0 agents (suggestion only)",
+    "accuracy_target": "≥85% (26/30 correct classifications)",
+    "test_methodology": "Each sample tested against impact_radius_assessor.sh, results compared with expected values"
+  }
+}

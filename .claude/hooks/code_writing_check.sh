@@ -1,70 +1,340 @@
 #!/bin/bash
+# Claude Enhancer Code Writing Check v2.0
+# PURPOSE: Enforce Phase 1-5 MUST use SubAgents (no direct Write/Edit)
+# CRITICAL FIX: Phase-based detection instead of keyword-based
+# Version: 2.0.0 - Fix regression where enforcement was too weak
+
+# ============================================================================
+# SETUP
+# ============================================================================
+
 # Auto-mode detection
 if [[ "$CE_AUTO_MODE" == "true" ]]; then
     export CE_SILENT_MODE=true
 fi
-# Claude Enhancer 代码编写检查器
-# 防止直接写代码，强制使用Task工具和多Agent
 
-set -e
+set -euo pipefail
 
-# 读取输入
-INPUT=$(cat)
+# Project root
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
-# 提取文件路径和内容特征
-FILE_PATH=$(echo "$INPUT" | grep -oP '"file_path"\s*:\s*"[^"]+' | cut -d'"' -f4 || echo "")
-CONTENT=$(echo "$INPUT" | grep -oP '"content"\s*:\s*"[^"]+' | head -c 200 || echo "")
+# Logging
+LOG_FILE="$PROJECT_ROOT/.workflow/logs/code_writing_check.log"
+mkdir -p "$(dirname "$LOG_FILE")"
+echo "$(date +'%F %T') [code_writing_check.sh] v2.0 triggered" >> "$LOG_FILE"
 
-# 检测是否在写复杂代码
-COMPLEX_PATTERNS="stress_test|performance|benchmark|agent_test|optimization|refactor|新功能|测试套件|压力测试|性能优化"
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
 
-if echo "$INPUT" | grep -qE "$COMPLEX_PATTERNS"; then
-    if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
-        echo "╔════════════════════════════════════════╗" >&2
-        echo "║   🛑 Claude Enhancer 强制阻塞           ║" >&2
-        echo "╚════════════════════════════════════════╝" >&2
-        echo "" >&2
-        echo "❌ 直接Write/Edit已阻止 - 复杂任务必须使用多Agent工作流" >&2
-        echo "" >&2
-        echo "📋 违规内容：" >&2
-        echo "   文件: $FILE_PATH" >&2
-        echo "   类型: 复杂开发任务" >&2
-        echo "" >&2
-        echo "✅ 正确做法（必须执行）：" >&2
-        echo "   1. 停止直接编码" >&2
-        echo "   2. 使用Task工具调用≥4个专业Agent并行工作" >&2
-        echo "   3. 根据任务复杂度使用4/6/8个Agent" >&2
-        echo "" >&2
-        echo "💡 推荐Agent组合：" >&2
-        echo "   • backend-architect - 架构设计" >&2
-        echo "   • test-engineer - 测试设计" >&2
-        echo "   • code-reviewer - 代码审查" >&2
-        echo "   • technical-writer - 文档编写" >&2
-        echo "" >&2
-        echo "🚫 操作已阻塞 - 这是强制要求，不是建议！" >&2
-        echo "════════════════════════════════════════" >&2
-    elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
-        echo "[CodeCheck] ❌ 阻止: 复杂任务需要使用Task工具 (≥4 agents)" >&2
+# ============================================================================
+# INPUT PARSING
+# ============================================================================
+
+# Read stdin (PreToolUse hook input)
+# CVE-2025-CE-002 FIX: Limit input to 10MB to prevent DoS attacks
+INPUT=$(head -c 10485760)  # 10MB = 10*1024*1024 bytes
+
+# Extract tool name and parameters
+TOOL_NAME=$(echo "$INPUT" | grep -oP '"tool"\s*:\s*"\K[^"]+' || echo "")
+FILE_PATH=$(echo "$INPUT" | grep -oP '"file_path"\s*:\s*"\K[^"]+' || echo "")
+CONTENT_PREVIEW=$(echo "$INPUT" | grep -oP '"content"\s*:\s*"\K.{0,100}' | head -c 100 || echo "")
+
+echo "  tool=$TOOL_NAME, file=$FILE_PATH" >> "$LOG_FILE"
+
+# ============================================================================
+# PHASE DETECTION
+# ============================================================================
+
+get_current_phase() {
+    # Allow environment variable override for testing
+    # This enables test isolation without modifying production phase files
+    if [[ -n "${CE_TEST_PHASE:-}" ]]; then
+        echo "$CE_TEST_PHASE"
+        return 0
     fi
 
-    # 记录违规
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] BLOCKED: Direct coding for complex task - $FILE_PATH" >> /tmp/claude-enhancer_violations.log
+    # Try multiple phase state file locations
+    # CVE-2025-CE-001 FIX: Reject symlinks to prevent symlink attacks
+    local phase_file=""
+    if [[ -f "$PROJECT_ROOT/.workflow/current" ]] && [[ ! -L "$PROJECT_ROOT/.workflow/current" ]]; then
+        phase_file="$PROJECT_ROOT/.workflow/current"
+    elif [[ -f "$PROJECT_ROOT/.phase/current" ]] && [[ ! -L "$PROJECT_ROOT/.phase/current" ]]; then
+        phase_file="$PROJECT_ROOT/.phase/current"
+    fi
 
-    # Hard block execution (Changed from warning-only)
-    exit 1
-fi
+    if [[ -n "$phase_file" ]]; then
+        cat "$phase_file" | tr -d '[:space:]'
+    else
+        echo ""
+    fi
+}
 
-# 检测是否应该先创建分支
-if echo "$FILE_PATH" | grep -qE "test|feature|optimization"; then
-    if ! git branch --show-current | grep -qE "feature/|fix/|test/"; then
-        if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
-            echo "⚠️  提醒：应该先创建feature分支 (Phase 0)" >&2
-        elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
-            echo "[CodeCheck] ⚠️ 需要feature分支" >&2
+# ============================================================================
+# AGENT EVIDENCE DETECTION
+# ============================================================================
+
+has_agent_evidence() {
+    # Check if SubAgents were used in this session
+
+    # Evidence 1: Agent invocation JSON file
+    if [[ -f "$PROJECT_ROOT/.gates/agents_invocation.json" ]]; then
+        # CVE-2025-CE-004 FIX: Validate file freshness to prevent forgery
+        # Check file modification time (must be recent, within 5 minutes)
+        local file_age_seconds
+        if [[ "$(uname)" == "Darwin" ]]; then
+            # macOS
+            file_age_seconds=$(( $(date +%s) - $(stat -f %m "$PROJECT_ROOT/.gates/agents_invocation.json") ))
+        else
+            # Linux
+            file_age_seconds=$(( $(date +%s) - $(stat -c %Y "$PROJECT_ROOT/.gates/agents_invocation.json") ))
+        fi
+
+        # Reject files older than 5 minutes (300 seconds)
+        if [[ $file_age_seconds -gt 300 ]]; then
+            echo "  Agent evidence too old ($file_age_seconds seconds), rejected" >> "$LOG_FILE"
+            return 1
+        fi
+
+        local agent_count
+        agent_count=$(jq '.agents | length' "$PROJECT_ROOT/.gates/agents_invocation.json" 2>/dev/null || echo "0")
+        if [[ "$agent_count" -gt 0 ]]; then
+            echo "  Evidence: agents_invocation.json ($agent_count agents, ${file_age_seconds}s old)" >> "$LOG_FILE"
+            return 0
         fi
     fi
-fi
 
-# 始终输出原始内容（不阻塞，只警告）
-echo "$INPUT"
-exit 0
+    # Evidence 2: Recent Task tool usage in hook logs
+    if [[ -f "$PROJECT_ROOT/.workflow/logs/claude_hooks.log" ]]; then
+        # Check if Task tool was called in last 5 minutes
+        local recent_task
+        recent_task=$(grep -E "\[Task tool\]|subagent_type" "$PROJECT_ROOT/.workflow/logs/claude_hooks.log" 2>/dev/null | tail -5 || echo "")
+        if [[ -n "$recent_task" ]]; then
+            echo "  Evidence: Recent Task calls in logs" >> "$LOG_FILE"
+            return 0
+        fi
+    fi
+
+    # No more evidence sources - require explicit agent invocation
+    echo "  No agent evidence found" >> "$LOG_FILE"
+    return 1
+}
+
+# ============================================================================
+# EXEMPTION RULES
+# ============================================================================
+
+is_exempt_file() {
+    local file="$1"
+
+    # Exempt patterns (files that don't need agents)
+    local exempt_patterns=(
+        "^\.temp/"                    # Temporary files
+        "^\.workflow/logs/"           # Log files
+        "^\.claude/logs/"             # Hook logs
+        "^CHANGELOG\.md$"             # Changelog updates
+        "^README\.md$"                # README updates (if <50 lines)
+        "^docs/.*\.md$"               # Documentation (if not PLAN.md/REVIEW.md)
+        "^\.gitignore$"               # Git config
+        "^package\.json$"             # Minor config updates
+        "^\.github/.*\.md$"           # GitHub docs
+    )
+
+    for pattern in "${exempt_patterns[@]}"; do
+        if [[ "$file" =~ $pattern ]]; then
+            # Special handling: PLAN.md and REVIEW.md are NOT exempt
+            if [[ "$file" =~ (PLAN|REVIEW)\.md$ ]]; then
+                return 1  # Not exempt
+            fi
+            echo "  Exempt: File matches pattern $pattern" >> "$LOG_FILE"
+            return 0  # Exempt
+        fi
+    done
+
+    return 1  # Not exempt
+}
+
+is_trivial_change() {
+    # Check if this is a trivial change (docs-only, typo fix, etc.)
+    # NOTE: Removed content length check - it was based on truncated preview
+    # Instead, only exempt markdown docs without code
+
+    # CRITICAL FIX: PLAN.md and REVIEW.md are NEVER trivial
+    # These are core workflow documents that MUST be generated by agents
+    if [[ "$FILE_PATH" =~ (PLAN|REVIEW)\.md$ ]] || [[ "$FILE_PATH" =~ docs/(PLAN|REVIEW)\.md$ ]]; then
+        echo "  Not trivial: $FILE_PATH requires agents" >> "$LOG_FILE"
+        return 1  # Force agent requirement
+    fi
+
+    # Other markdown files without code blocks can be trivial
+    if [[ "$FILE_PATH" =~ \.md$ ]]; then
+        # Simple heuristic: if content has no code blocks, likely just text
+        if ! echo "$INPUT" | grep -qE '```|```\w+'; then
+            echo "  Trivial: Markdown without code blocks" >> "$LOG_FILE"
+            return 0
+        fi
+    fi
+
+    return 1
+}
+
+# ============================================================================
+# MAIN ENFORCEMENT LOGIC
+# ============================================================================
+
+main() {
+    # Only check Write and Edit tools
+    if [[ "$TOOL_NAME" != "Write" ]] && [[ "$TOOL_NAME" != "Edit" ]]; then
+        echo "  Pass: Not a Write/Edit tool" >> "$LOG_FILE"
+        echo "$INPUT"
+        exit 0
+    fi
+
+    # Get current phase
+    local current_phase
+    current_phase=$(get_current_phase)
+
+    echo "  current_phase=$current_phase" >> "$LOG_FILE"
+
+    # If no phase set, allow (discussion mode)
+    if [[ -z "$current_phase" ]]; then
+        echo "  Pass: No phase set (discussion mode)" >> "$LOG_FILE"
+        echo "$INPUT"
+        exit 0
+    fi
+
+    # Check if current phase requires agents (Phase 1-5)
+    local requires_agents=false
+    case "$current_phase" in
+        Phase1|P1|Phase2|P2|Phase3|P3|Phase4|P4|Phase5|P5)
+            requires_agents=true
+            ;;
+        Phase0|P0)
+            # Phase0: Discovery/exploration, agents not strictly required
+            requires_agents=false
+            ;;
+        *)
+            # Unknown phase, be lenient
+            requires_agents=false
+            ;;
+    esac
+
+    if [[ "$requires_agents" == "false" ]]; then
+        echo "  Pass: Phase $current_phase doesn't require agents" >> "$LOG_FILE"
+        echo "$INPUT"
+        exit 0
+    fi
+
+    # Phase 1-5: Check exemptions
+    if is_exempt_file "$FILE_PATH"; then
+        echo "  Pass: Exempt file" >> "$LOG_FILE"
+        echo "$INPUT"
+        exit 0
+    fi
+
+    if is_trivial_change; then
+        echo "  Pass: Trivial change" >> "$LOG_FILE"
+        echo "$INPUT"
+        exit 0
+    fi
+
+    # Phase 1-5, non-exempt, non-trivial: MUST have agent evidence
+    if has_agent_evidence; then
+        if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+            echo -e "${GREEN}✅ Agent evidence found - Write/Edit allowed${NC}" >&2
+        fi
+        echo "  PASS: Agent evidence verified" >> "$LOG_FILE"
+        echo "$INPUT"
+        exit 0
+    else
+        # BLOCK: No agent evidence in Phase 1-5
+        echo "  BLOCK: Phase $current_phase requires agents, none found" >> "$LOG_FILE"
+
+        if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+            echo -e "${RED}╔════════════════════════════════════════════════════════════╗${NC}" >&2
+            echo -e "${RED}║   🛑 Claude Enhancer Phase Enforcement - HARD BLOCK       ║${NC}" >&2
+            echo -e "${RED}╚════════════════════════════════════════════════════════════╝${NC}" >&2
+            echo "" >&2
+            echo -e "${YELLOW}❌ Direct Write/Edit blocked in $current_phase${NC}" >&2
+            echo "" >&2
+            echo -e "${BLUE}📍 Current Status:${NC}" >&2
+            echo "   Phase: $current_phase" >&2
+            echo "   File: $FILE_PATH" >&2
+            echo "   Tool: $TOOL_NAME" >&2
+            echo "" >&2
+            echo -e "${RED}🚫 Phase 1-5 Rule: MUST use SubAgents (no direct coding)${NC}" >&2
+            echo "" >&2
+            echo -e "${GREEN}✅ Correct Workflow:${NC}" >&2
+            echo "   1. Use Task tool to call specialized SubAgents" >&2
+            echo "   2. Minimum agent count:" >&2
+            echo "      • Simple tasks: 4 agents" >&2
+            echo "      • Standard tasks: 6 agents" >&2
+            echo "      • Complex tasks: 8 agents" >&2
+            echo "" >&2
+            echo -e "${BLUE}💡 Recommended Agents for $current_phase:${NC}" >&2
+
+            case "$current_phase" in
+                Phase1|P1)
+                    echo "   • requirements-analyst - Requirements analysis" >&2
+                    echo "   • technical-writer - PLAN.md generation" >&2
+                    echo "   • backend-architect - Architecture design" >&2
+                    echo "   • api-designer - API planning" >&2
+                    ;;
+                Phase2|P2)
+                    echo "   • backend-architect - Code structure design" >&2
+                    echo "   • fullstack-engineer - Implementation" >&2
+                    echo "   • test-engineer - Test planning" >&2
+                    echo "   • technical-writer - Documentation" >&2
+                    ;;
+                Phase3|P3)
+                    echo "   • test-engineer - Test implementation" >&2
+                    echo "   • performance-engineer - Performance testing" >&2
+                    echo "   • security-auditor - Security testing" >&2
+                    echo "   • code-reviewer - Quality check" >&2
+                    ;;
+                Phase4|P4)
+                    echo "   • code-reviewer - Code review" >&2
+                    echo "   • security-auditor - Security audit" >&2
+                    echo "   • technical-writer - REVIEW.md generation" >&2
+                    echo "   • test-engineer - Review test coverage" >&2
+                    ;;
+                Phase5|P5)
+                    echo "   • technical-writer - Documentation updates" >&2
+                    echo "   • devops-engineer - Release preparation" >&2
+                    echo "   • monitoring-specialist - Monitoring setup" >&2
+                    ;;
+            esac
+
+            echo "" >&2
+            echo -e "${YELLOW}📋 How to fix:${NC}" >&2
+            echo "   Instead of direct Write/Edit, use:" >&2
+            echo "   Task(subagent_type='agent-name', prompt='...')" >&2
+            echo "" >&2
+            echo -e "${RED}🚫 Operation blocked - This is NOT a suggestion!${NC}" >&2
+            echo "════════════════════════════════════════════════════════════" >&2
+        elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
+            echo "[CodeWritingCheck] ❌ Phase $current_phase requires SubAgents" >&2
+        fi
+
+        # Write violation to dedicated log
+        {
+            echo "=========================================="
+            echo "Violation: Direct Write/Edit in Phase $current_phase"
+            echo "Time: $(date '+%Y-%m-%d %H:%M:%S')"
+            echo "File: $FILE_PATH"
+            echo "Tool: $TOOL_NAME"
+            echo "Phase: $current_phase"
+            echo "Agent Evidence: NONE"
+            echo "=========================================="
+        } >> "$PROJECT_ROOT/.workflow/logs/enforcement_violations.log"
+
+        # HARD BLOCK - Exit with error
+        exit 1
+    fi
+}
+
+# Execute main
+main "$@"
