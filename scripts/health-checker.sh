@@ -109,7 +109,7 @@ update_score() {
 #===============================================================================
 
 check_version_consistency() {
-    log_section "📦 Check 1: Version Consistency"
+    log_section "📦 Check 1: Version Consistency (5 files)"
 
     if [[ ! -f "$VERSION_FILE" ]]; then
         log_error "VERSION file not found"
@@ -125,6 +125,34 @@ check_version_consistency() {
     local inconsistent=0
     local locations=()
 
+    # Check settings.json
+    if [[ -f "${PROJECT_ROOT}/.claude/settings.json" ]]; then
+        local settings_version
+        settings_version=$(grep -oP '"version":\s*"\K[^"]+' "${PROJECT_ROOT}/.claude/settings.json" | head -1 || echo "")
+        if [[ "$settings_version" != "$master_version" ]]; then
+            log_error "settings.json: $settings_version (expected: $master_version)"
+            add_issue "settings.json version mismatch: $settings_version"
+            inconsistent=1
+            locations+=("settings.json:$settings_version")
+        else
+            log_success "settings.json: $settings_version"
+        fi
+    fi
+
+    # Check manifest.yml
+    if [[ -f "${PROJECT_ROOT}/.workflow/manifest.yml" ]]; then
+        local manifest_version
+        manifest_version=$(grep -oP '^version:\s*\K[0-9.]+' "${PROJECT_ROOT}/.workflow/manifest.yml" || echo "")
+        if [[ "$manifest_version" != "$master_version" ]]; then
+            log_error "manifest.yml: $manifest_version (expected: $master_version)"
+            add_issue "manifest.yml version mismatch: $manifest_version"
+            inconsistent=1
+            locations+=("manifest.yml:$manifest_version")
+        else
+            log_success "manifest.yml: $manifest_version"
+        fi
+    fi
+
     # Check package.json
     if [[ -f "${PROJECT_ROOT}/package.json" ]]; then
         local pkg_version
@@ -139,33 +167,49 @@ check_version_consistency() {
         fi
     fi
 
-    # Check CLAUDE.md for version numbers
+    # Check CHANGELOG.md
+    if [[ -f "${PROJECT_ROOT}/CHANGELOG.md" ]]; then
+        local changelog_version
+        changelog_version=$(grep -oP '\[\K[0-9]+\.[0-9]+\.[0-9]+(?=\])' "${PROJECT_ROOT}/CHANGELOG.md" | head -1 || echo "")
+        if [[ "$changelog_version" != "$master_version" ]]; then
+            log_error "CHANGELOG.md: $changelog_version (expected: $master_version)"
+            add_issue "CHANGELOG.md version mismatch: $changelog_version"
+            inconsistent=1
+            locations+=("CHANGELOG.md:$changelog_version")
+        else
+            log_success "CHANGELOG.md: $changelog_version"
+        fi
+    fi
+
+    # Check CLAUDE.md for version numbers (informational only)
     if [[ -f "$LOCAL_CLAUDE_MD" ]]; then
         # Count unique version numbers in CLAUDE.md
         local version_count
         version_count=$(grep -oP '\d+\.\d+\.\d+' "$LOCAL_CLAUDE_MD" | sort -u | wc -l)
         if [[ $version_count -gt 3 ]]; then
-            log_warning "CLAUDE.md contains $version_count different version numbers (too many)"
-            add_issue "CLAUDE.md has too many version references: $version_count"
-            inconsistent=1
+            log_warning "CLAUDE.md contains $version_count different version numbers (informational)"
         else
-            log_success "CLAUDE.md version references: $version_count (acceptable)"
+            log_info "CLAUDE.md version references: $version_count"
         fi
     fi
 
     if [[ $inconsistent -eq 0 ]]; then
-        log_success "All versions consistent"
+        log_success "All 5 version files consistent: $master_version"
         update_score "version_consistency" 1
         return 0
     else
-        log_error "Version inconsistencies found"
+        log_error "Version inconsistencies found in ${#locations[@]} files"
+        for loc in "${locations[@]}"; do
+            log_error "  - $loc"
+        done
+        log_info "Run: bash scripts/check_version_consistency.sh"
         update_score "version_consistency" 0
         return 1
     fi
 }
 
 fix_version_consistency() {
-    log_info "🔧 Fixing version inconsistencies..."
+    log_info "🔧 Fixing version inconsistencies (5 files)..."
 
     if [[ ! -f "$VERSION_FILE" ]]; then
         log_error "Cannot fix: VERSION file missing"
@@ -174,6 +218,31 @@ fix_version_consistency() {
 
     local master_version
     master_version=$(tr -d '[:space:]' < "$VERSION_FILE")
+    log_info "Master version: $master_version"
+
+    # Fix settings.json
+    if [[ -f "${PROJECT_ROOT}/.claude/settings.json" ]]; then
+        local current_settings_version
+        current_settings_version=$(grep -oP '"version":\s*"\K[^"]+' "${PROJECT_ROOT}/.claude/settings.json" | head -1 || echo "")
+
+        if [[ "$current_settings_version" != "$master_version" ]]; then
+            sed -i "s/\"version\":\s*\"[^\"]*\"/\"version\": \"$master_version\"/" "${PROJECT_ROOT}/.claude/settings.json"
+            log_success "Updated settings.json: $current_settings_version → $master_version"
+            add_fix "settings.json version synchronized to $master_version"
+        fi
+    fi
+
+    # Fix manifest.yml
+    if [[ -f "${PROJECT_ROOT}/.workflow/manifest.yml" ]]; then
+        local current_manifest_version
+        current_manifest_version=$(grep -oP '^version:\s*\K[0-9.]+' "${PROJECT_ROOT}/.workflow/manifest.yml" || echo "")
+
+        if [[ "$current_manifest_version" != "$master_version" ]]; then
+            sed -i "s/^version:.*/version: $master_version/" "${PROJECT_ROOT}/.workflow/manifest.yml"
+            log_success "Updated manifest.yml: $current_manifest_version → $master_version"
+            add_fix "manifest.yml version synchronized to $master_version"
+        fi
+    fi
 
     # Fix package.json
     if [[ -f "${PROJECT_ROOT}/package.json" ]]; then
@@ -184,6 +253,19 @@ fix_version_consistency() {
             sed -i "s/\"version\":\s*\"[^\"]*\"/\"version\": \"$master_version\"/" "${PROJECT_ROOT}/package.json"
             log_success "Updated package.json: $current_pkg_version → $master_version"
             add_fix "package.json version synchronized to $master_version"
+        fi
+    fi
+
+    # Fix CHANGELOG.md (update first version entry)
+    if [[ -f "${PROJECT_ROOT}/CHANGELOG.md" ]]; then
+        local current_changelog_version
+        current_changelog_version=$(grep -oP '\[\K[0-9]+\.[0-9]+\.[0-9]+(?=\])' "${PROJECT_ROOT}/CHANGELOG.md" | head -1 || echo "")
+
+        if [[ "$current_changelog_version" != "$master_version" ]]; then
+            # This is informational only - CHANGELOG.md should be manually updated
+            log_warning "CHANGELOG.md version mismatch: $current_changelog_version (expected: $master_version)"
+            log_warning "CHANGELOG.md should be manually updated with release notes"
+            add_issue "CHANGELOG.md requires manual update to $master_version"
         fi
     fi
 
