@@ -59,28 +59,59 @@ get_manifest_version() {
     fi
 }
 
+get_package_version() {
+    local package="$PROJECT_ROOT/package.json"
+    if [[ ! -f "$package" ]]; then
+        echo "ERROR: package.json not found" >&2
+        return 1
+    fi
+
+    if command -v jq >/dev/null 2>&1; then
+        jq -r '.version' "$package" 2>/dev/null || echo "ERROR"
+    else
+        python3 -c "import json; print(json.load(open('$package'))['version'])" 2>/dev/null || echo "ERROR"
+    fi
+}
+
+get_changelog_version() {
+    local changelog="$PROJECT_ROOT/CHANGELOG.md"
+    if [[ ! -f "$changelog" ]]; then
+        echo "ERROR: CHANGELOG.md not found" >&2
+        return 1
+    fi
+
+    # Extract first version number in brackets [X.Y.Z]
+    grep -oP '\[\K[0-9]+\.[0-9]+\.[0-9]+(?=\])' "$changelog" 2>/dev/null | head -1 || echo "ERROR"
+}
+
 # ═══════════════════════════════════════════════════════════════
 # 版本一致性检查
 # ═══════════════════════════════════════════════════════════════
 
 check_version_consistency() {
     echo -e "${CYAN}═══════════════════════════════════════════════════════${NC}"
-    echo -e "${CYAN}🔢 版本一致性检查${NC}"
+    echo -e "${CYAN}🔢 版本一致性检查 (5个文件)${NC}"
     echo -e "${CYAN}═══════════════════════════════════════════════════════${NC}"
     echo ""
 
-    # 提取所有版本
+    # 提取所有5个版本
     local version_file=$(get_version_file)
     local version_settings=$(get_settings_version)
     local version_manifest=$(get_manifest_version)
+    local version_package=$(get_package_version)
+    local version_changelog=$(get_changelog_version)
 
     # 检查提取是否成功
-    if [[ "$version_file" == "ERROR"* ]] || [[ "$version_settings" == "ERROR"* ]] || [[ "$version_manifest" == "ERROR"* ]]; then
+    if [[ "$version_file" == "ERROR"* ]] || [[ "$version_settings" == "ERROR"* ]] || \
+       [[ "$version_manifest" == "ERROR"* ]] || [[ "$version_package" == "ERROR"* ]] || \
+       [[ "$version_changelog" == "ERROR"* ]]; then
         echo -e "${RED}❌ 版本提取失败${NC}"
         echo ""
         [[ "$version_file" == "ERROR"* ]] && echo -e "  ${RED}✗${NC} VERSION文件: $version_file"
         [[ "$version_settings" == "ERROR"* ]] && echo -e "  ${RED}✗${NC} settings.json: $version_settings"
         [[ "$version_manifest" == "ERROR"* ]] && echo -e "  ${RED}✗${NC} manifest.yml: $version_manifest"
+        [[ "$version_package" == "ERROR"* ]] && echo -e "  ${RED}✗${NC} package.json: $version_package"
+        [[ "$version_changelog" == "ERROR"* ]] && echo -e "  ${RED}✗${NC} CHANGELOG.md: $version_changelog"
         return 1
     fi
 
@@ -89,12 +120,17 @@ check_version_consistency() {
     echo -e "  ${CYAN}VERSION文件:${NC}      $version_file"
     echo -e "  ${CYAN}settings.json:${NC}    $version_settings"
     echo -e "  ${CYAN}manifest.yml:${NC}     $version_manifest"
+    echo -e "  ${CYAN}package.json:${NC}     $version_package"
+    echo -e "  ${CYAN}CHANGELOG.md:${NC}     $version_changelog"
     echo ""
 
-    # 版本一致性检查
-    if [[ "$version_file" == "$version_settings" ]] && [[ "$version_file" == "$version_manifest" ]]; then
+    # 版本一致性检查 - 所有5个必须完全相同
+    if [[ "$version_file" == "$version_settings" ]] && \
+       [[ "$version_file" == "$version_manifest" ]] && \
+       [[ "$version_file" == "$version_package" ]] && \
+       [[ "$version_file" == "$version_changelog" ]]; then
         echo -e "${GREEN}✅ 版本一致性检查通过${NC}"
-        echo -e "   所有文件版本统一为: ${BOLD}$version_file${NC}"
+        echo -e "   所有5个文件版本统一为: ${BOLD}$version_file${NC}"
         echo ""
         return 0
     else
@@ -110,8 +146,12 @@ check_version_consistency() {
             echo -e "  ${RED}✗${NC} VERSION ($version_file) ≠ manifest.yml ($version_manifest)"
         fi
 
-        if [[ "$version_settings" != "$version_manifest" ]]; then
-            echo -e "  ${RED}✗${NC} settings.json ($version_settings) ≠ manifest.yml ($version_manifest)"
+        if [[ "$version_file" != "$version_package" ]]; then
+            echo -e "  ${RED}✗${NC} VERSION ($version_file) ≠ package.json ($version_package)"
+        fi
+
+        if [[ "$version_file" != "$version_changelog" ]]; then
+            echo -e "  ${RED}✗${NC} VERSION ($version_file) ≠ CHANGELOG.md ($version_changelog)"
         fi
 
         echo ""
@@ -119,7 +159,7 @@ check_version_consistency() {
         echo ""
         echo -e "  ${YELLOW}1. 确定正确的版本号（通常是最新的）${NC}"
         echo ""
-        echo -e "  ${YELLOW}2. 同步更新所有文件：${NC}"
+        echo -e "  ${YELLOW}2. 同步更新所有5个文件：${NC}"
         echo -e "     ${GREEN}# 更新VERSION文件${NC}"
         echo -e "     echo '${BOLD}X.Y.Z${NC}' > VERSION"
         echo ""
@@ -129,8 +169,14 @@ check_version_consistency() {
         echo -e "     ${GREEN}# 更新manifest.yml${NC}"
         echo -e "     sed -i 's/^version:.*/version: ${BOLD}X.Y.Z${NC}/' .workflow/manifest.yml"
         echo ""
+        echo -e "     ${GREEN}# 更新package.json${NC}"
+        echo -e "     jq '.version = \"${BOLD}X.Y.Z${NC}\"' package.json > .tmp && mv .tmp package.json"
+        echo ""
+        echo -e "     ${GREEN}# 更新CHANGELOG.md (手动编辑第一个版本号)${NC}"
+        echo -e "     # 确保第一个 [X.Y.Z] 格式的版本号匹配"
+        echo ""
         echo -e "  ${YELLOW}3. 重新提交${NC}"
-        echo -e "     git add VERSION .claude/settings.json .workflow/manifest.yml"
+        echo -e "     git add VERSION .claude/settings.json .workflow/manifest.yml package.json CHANGELOG.md"
         echo -e "     git commit --amend --no-edit"
         echo ""
         echo -e "${RED}${BOLD}⚠️  提交已被阻止 - 请修复版本不一致后重试${NC}"

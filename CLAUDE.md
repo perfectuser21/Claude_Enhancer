@@ -627,7 +627,8 @@ Step 10: Acceptance Report (验收报告)
 
 Step 11: Cleanup & Merge (收尾清理) - 非Phase，是工作流步骤
 ├─ 目的：清理临时文件，准备合并
-├─ 活动：清理.temp/、检查文档规范、准备PR
+├─ 活动：清理.temp/、检查文档规范、**最终版本一致性验证**、准备PR
+├─ 关键检查：运行check_version_consistency.sh确保VERSION/settings/manifest/package/CHANGELOG全部一致
 └─ 产出：干净的分支，等待用户说"merge回主线"
 ```
 
@@ -679,7 +680,7 @@ Step 11: Cleanup & Merge (收尾清理) - 非Phase，是工作流步骤
 - **自动化检查**（必须100%通过）：
   - 配置完整性 - 所有hooks正确注册
   - 文档规范性 - 根目录≤7个核心文档
-  - 版本一致性 - settings.json与CHANGELOG.md匹配
+  - **版本完全一致性 - VERSION + settings.json + manifest.yml + package.json + CHANGELOG.md 必须完全相同**
   - 代码模式一致性 - 相似功能用相同实现
 
 - **人工验证**（必须完成）：
