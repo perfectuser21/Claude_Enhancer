@@ -3,6 +3,19 @@
 ## [Unreleased]
 
 ### Fixed
+- **Phase Enforcement Regression** (CRITICAL) - 2025-10-16
+  - Fixed `code_writing_check.sh` v2.0: Phase-based detection instead of keyword-based
+  - **Issue**: Phase 1-5 enforcement was too weak - only triggered on specific keywords
+  - **Root Cause**: Keyword pattern list (`COMPLEX_PATTERNS`) was too narrow
+  - **Impact**: AI could bypass enforcement by avoiding trigger keywords (e.g., "fix docs")
+  - **Solution**: Changed from keyword detection to Phase state detection
+  - **New Logic**:
+    - Check current Phase from `.workflow/current` or `.phase/current`
+    - If Phase 1-5 → Require agent evidence (`.gates/agents_invocation.json`)
+    - No agent evidence → **HARD BLOCK** Write/Edit tools
+  - **Exemptions**: README.md, docs/*.md (non-code), .temp/, logs/
+  - **Result**: 100% enforcement in Phase 1-5, no keyword bypass possible
+  - **Tests**: 4 scenarios validated (with agents, exempt files, Phase0, Phase2 blocking)
 - **Documentation Accuracy** (Critical Issues #1-5) - 2025-10-16
   - Corrected agent count from 3-4 to 4-6-8 principle (#1)
   - Updated hook count from 15 to 17 with complete inventory (#2)
