@@ -49,6 +49,13 @@ echo "  tool=$TOOL_NAME, file=$FILE_PATH" >> "$LOG_FILE"
 # ============================================================================
 
 get_current_phase() {
+    # Allow environment variable override for testing
+    # This enables test isolation without modifying production phase files
+    if [[ -n "${CE_TEST_PHASE:-}" ]]; then
+        echo "$CE_TEST_PHASE"
+        return 0
+    fi
+
     # Try multiple phase state file locations
     if [[ -f "$PROJECT_ROOT/.workflow/current" ]]; then
         cat "$PROJECT_ROOT/.workflow/current" | tr -d '[:space:]'
