@@ -6,7 +6,7 @@
 # 1. 配置完整性（hooks注册、权限）
 # 2. 遗留问题扫描（TODO/FIXME）
 # 3. 垃圾文档检测（根目录文档数量）
-# 4. 版本号一致性（settings.json vs CHANGELOG.md）
+# 4. 版本号完全一致性（VERSION + settings.json + manifest.yml + package.json + CHANGELOG.md）
 # 5. 代码一致性（相似代码模式）
 # 6. 文档完整性（REVIEW.md存在且完整）
 
@@ -183,34 +183,59 @@ else
 fi
 
 # ============================================
-# 检查4：版本号一致性
+# 检查4：版本号完全一致性（5个文件）
 # ============================================
-log_check "Version Number Consistency"
+log_check "Version Number Consistency (5 files)"
 
-# 提取settings.json版本号
+# 提取所有5个文件的版本号
+version_file=$(cat "$PROJECT_ROOT/VERSION" 2>/dev/null | tr -d '\n\r' | xargs || echo "unknown")
 settings_version=$(grep '"version"' "$PROJECT_ROOT/.claude/settings.json" 2>/dev/null | grep -oP '\d+\.\d+\.\d+' | head -1 || echo "unknown")
-
-# 提取CHANGELOG.md最新版本号
+manifest_version=$(grep '^version:' "$PROJECT_ROOT/.workflow/manifest.yml" 2>/dev/null | grep -oP '\d+\.\d+\.\d+' || echo "unknown")
+package_version=$(grep '"version"' "$PROJECT_ROOT/package.json" 2>/dev/null | grep -oP '\d+\.\d+\.\d+' | head -1 || echo "unknown")
 changelog_version=$(grep -oP '\[\K[0-9]+\.[0-9]+\.[0-9]+(?=\])' "$PROJECT_ROOT/CHANGELOG.md" 2>/dev/null | head -1 || echo "unknown")
 
-log_info "settings.json version: $settings_version"
-log_info "CHANGELOG.md version:  $changelog_version"
+log_info "VERSION file:      $version_file"
+log_info "settings.json:     $settings_version"
+log_info "manifest.yml:      $manifest_version"
+log_info "package.json:      $package_version"
+log_info "CHANGELOG.md:      $changelog_version"
 
-# 版本号比较（允许CHANGELOG版本更新，因为bug fix会+0.0.1）
-if [[ "$settings_version" != "unknown" ]] && [[ "$changelog_version" != "unknown" ]]; then
-    major_settings=$(echo "$settings_version" | cut -d. -f1)
-    minor_settings=$(echo "$settings_version" | cut -d. -f2)
-    major_changelog=$(echo "$changelog_version" | cut -d. -f1)
-    minor_changelog=$(echo "$changelog_version" | cut -d. -f2)
+# 版本号必须完全一致（硬性要求）
+version_inconsistency=0
 
-    if [[ "$major_settings" == "$major_changelog" ]] && [[ "$minor_settings" == "$minor_changelog" ]]; then
-        log_pass "Version numbers are consistent (same major.minor)"
-    else
-        log_warn "Version mismatch - manual verification needed"
-        log_manual "Verify version strategy is correct"
-    fi
+if [[ "$version_file" == "unknown" ]] || [[ "$settings_version" == "unknown" ]] || \
+   [[ "$manifest_version" == "unknown" ]] || [[ "$package_version" == "unknown" ]] || \
+   [[ "$changelog_version" == "unknown" ]]; then
+    log_fail "Could not extract all version numbers"
+    ((version_inconsistency++))
+fi
+
+# 检查所有版本是否完全相同
+if [[ "$version_file" != "$settings_version" ]]; then
+    log_fail "VERSION ($version_file) ≠ settings.json ($settings_version)"
+    ((version_inconsistency++))
+fi
+
+if [[ "$version_file" != "$manifest_version" ]]; then
+    log_fail "VERSION ($version_file) ≠ manifest.yml ($manifest_version)"
+    ((version_inconsistency++))
+fi
+
+if [[ "$version_file" != "$package_version" ]]; then
+    log_fail "VERSION ($version_file) ≠ package.json ($package_version)"
+    ((version_inconsistency++))
+fi
+
+if [[ "$version_file" != "$changelog_version" ]]; then
+    log_fail "VERSION ($version_file) ≠ CHANGELOG.md ($changelog_version)"
+    ((version_inconsistency++))
+fi
+
+if [[ $version_inconsistency -eq 0 ]] && [[ "$version_file" != "unknown" ]]; then
+    log_pass "All 5 version files are consistent: $version_file"
 else
-    log_fail "Could not extract version numbers"
+    log_fail "Version inconsistency detected - THIS IS A HARD BLOCK"
+    echo -e "${RED}      Action required: Run 'bash scripts/check_version_consistency.sh' for fix instructions${NC}"
 fi
 
 # ============================================
