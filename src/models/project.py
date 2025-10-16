@@ -5,20 +5,21 @@
 
 from datetime import datetime
 from typing import List, Optional
-from sqlalchemy import String, Text, Boolean, DateTime, ForeignKey, Table
+from sqlalchemy import String, Text, Boolean, DateTime, ForeignKey, Table, Column
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import BaseModel
 
 
 # 项目成员关联表（多对多关系）
+# 注意：Table()定义中必须使用Column()，不能使用mapped_column()
 project_members = Table(
     "project_members",
     BaseModel.metadata,
-    mapped_column("project_id", String(36), ForeignKey("project.id"), primary_key=True),
-    mapped_column("user_id", String(36), ForeignKey("user.id"), primary_key=True),
-    mapped_column("role", String(20), default="member", comment="成员角色"),
-    mapped_column(
+    Column("project_id", String(36), ForeignKey("project.id"), primary_key=True),
+    Column("user_id", String(36), ForeignKey("user.id"), primary_key=True),
+    Column("role", String(20), default="member", comment="成员角色"),
+    Column(
         "joined_at", DateTime(timezone=True), server_default="NOW()", comment="加入时间"
     ),
 )

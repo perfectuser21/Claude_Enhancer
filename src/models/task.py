@@ -5,18 +5,19 @@
 
 from datetime import datetime
 from typing import List, Optional
-from sqlalchemy import String, Text, Boolean, DateTime, ForeignKey, Integer, Table
+from sqlalchemy import String, Text, Boolean, DateTime, ForeignKey, Integer, Table, Column
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import BaseModel
 
 
 # 任务标签关联表（多对多关系）
+# 注意：Table()定义中必须使用Column()，不能使用mapped_column()
 task_labels = Table(
     "task_labels",
     BaseModel.metadata,
-    mapped_column("task_id", String(36), ForeignKey("task.id"), primary_key=True),
-    mapped_column("label_id", String(36), ForeignKey("label.id"), primary_key=True),
+    Column("task_id", String(36), ForeignKey("task.id"), primary_key=True),
+    Column("label_id", String(36), ForeignKey("label.id"), primary_key=True),
 )
 
 
@@ -39,7 +40,7 @@ class Task(BaseModel):
     - due_date: 截止日期
     - completed_at: 完成时间
     - is_archived: 是否归档
-    - metadata: 额外元数据（JSON格式）
+    - extra_metadata: 额外元数据（JSON格式）
     """
 
     # 基本信息
@@ -107,7 +108,7 @@ class Task(BaseModel):
     )
 
     # 额外数据
-    metadata: Mapped[Optional[str]] = mapped_column(
+    extra_metadata: Mapped[Optional[str]] = mapped_column(
         Text, nullable=True, comment="额外元数据（JSON格式）"
     )
 
