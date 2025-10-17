@@ -29,7 +29,7 @@ import {
   LayoutGrid,
   List,
   Calendar,
-  Timeline,
+  Activity,
   Plus,
   Settings,
   Filter,
@@ -91,7 +91,7 @@ export const DashboardPage: React.FC = () => {
     kanban: LayoutGrid,
     list: List,
     calendar: Calendar,
-    timeline: Timeline,
+    timeline: Activity,
   };
 
   const viewLabels = {
@@ -296,7 +296,7 @@ export const DashboardPage: React.FC = () => {
             {currentView === 'timeline' && (
               <Card bg={cardBg}>
                 <CardBody textAlign="center" py={12}>
-                  <Timeline size={48} color="gray" style={{ margin: '0 auto 16px' }} />
+                  <Activity size={48} color="gray" style={{ margin: '0 auto 16px' }} />
                   <Text fontSize="lg" fontWeight="600" color="gray.600">
                     Timeline View
                   </Text>
