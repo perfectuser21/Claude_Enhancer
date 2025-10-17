@@ -6,6 +6,7 @@ import { useAuthStore } from './store';
 import { AuthPage } from './pages/auth/AuthPage';
 import { DashboardPage } from './pages/dashboard/DashboardPage';
 import { LoadingSpinner } from './components/atoms';
+import SystemLifeDashboard from './pages/workflow/SystemLifeDashboard';
 import WorkflowDashboardPage from './pages/workflow/WorkflowDashboardPage';
 import PhaseDetailPage from './pages/workflow/PhaseDetailPage';
 import LogViewerPage from './pages/workflow/LogViewerPage';
@@ -74,7 +75,8 @@ function App() {
           />
 
           {/* Workflow Dashboard Routes - 暂时移除认证保护以便预览 */}
-          <Route path="/workflow" element={<WorkflowDashboardPage />} />
+          <Route path="/workflow" element={<SystemLifeDashboard />} />
+          <Route path="/workflow/classic" element={<WorkflowDashboardPage />} />
           <Route path="/workflow/phases/:phaseId" element={<PhaseDetailPage />} />
           <Route path="/workflow/agents/:executionId" element={<AgentWorkflowPage />} />
           <Route path="/workflow/logs" element={<LogViewerPage />} />
