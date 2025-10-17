@@ -80,7 +80,7 @@ jobs:
 
       - name: Version Consistency
         run: |
-          echo "🔢 Checking version consistency..."
+          echo "🔢 Checking version consistency (5 files)..."
           version=$(cat VERSION)
           echo "VERSION file: $version"
 
@@ -92,11 +92,39 @@ jobs:
           manifest_ver=$(python3 -c "import yaml; print(yaml.safe_load(open('.workflow/manifest.yml'))['version'])")
           echo "manifest.yml: $manifest_ver"
 
-          if [ "$version" != "$settings_ver" ] || [ "$version" != "$manifest_ver" ]; then
+          # Check package.json
+          package_ver=$(python3 -c "import json; print(json.load(open('package.json'))['version'])")
+          echo "package.json: $package_ver"
+
+          # Check CHANGELOG.md
+          changelog_ver=$(grep -oP '\[\K[0-9]+\.[0-9]+\.[0-9]+(?=\])' CHANGELOG.md | head -1)
+          echo "CHANGELOG.md: $changelog_ver"
+
+          # All 5 files must match exactly
+          mismatch=0
+          if [ "$version" != "$settings_ver" ]; then
+            echo "❌ VERSION ($version) ≠ settings.json ($settings_ver)"
+            mismatch=1
+          fi
+          if [ "$version" != "$manifest_ver" ]; then
+            echo "❌ VERSION ($version) ≠ manifest.yml ($manifest_ver)"
+            mismatch=1
+          fi
+          if [ "$version" != "$package_ver" ]; then
+            echo "❌ VERSION ($version) ≠ package.json ($package_ver)"
+            mismatch=1
+          fi
+          if [ "$version" != "$changelog_ver" ]; then
+            echo "❌ VERSION ($version) ≠ CHANGELOG.md ($changelog_ver)"
+            mismatch=1
+          fi
+
+          if [ $mismatch -eq 1 ]; then
             echo "❌ Version mismatch detected!"
+            echo "   Run: bash scripts/check_version_consistency.sh"
             exit 1
           fi
-          echo "✅ Version consistency verified"
+          echo "✅ All 5 version files are consistent: $version"
 
       - name: Quality Enforcement Integration
         run: |

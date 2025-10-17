@@ -55,21 +55,33 @@ jobs:
       - name: 🔍 Version Consistency Check
         id: version_check
         run: |
-          echo "🔢 Checking version consistency..."
+          echo "🔢 Checking version consistency (5 files)..."
           VERSION=$(cat VERSION 2>/dev/null || echo "")
           SETTINGS_VER=$(python3 -c "import json; print(json.load(open('.claude/settings.json'))['version'])" 2>/dev/null || echo "")
           MANIFEST_VER=$(python3 -c "import yaml; print(yaml.safe_load(open('.workflow/manifest.yml'))['version'])" 2>/dev/null || echo "")
+          PACKAGE_VER=$(python3 -c "import json; print(json.load(open('package.json'))['version'])" 2>/dev/null || echo "")
+          CHANGELOG_VER=$(grep -oP '\[\K[0-9]+\.[0-9]+\.[0-9]+(?=\])' CHANGELOG.md 2>/dev/null | head -1 || echo "")
 
           echo "VERSION file: $VERSION"
           echo "settings.json: $SETTINGS_VER"
           echo "manifest.yml: $MANIFEST_VER"
+          echo "package.json: $PACKAGE_VER"
+          echo "CHANGELOG.md: $CHANGELOG_VER"
 
-          if [ "$VERSION" == "$SETTINGS_VER" ] && [ "$VERSION" == "$MANIFEST_VER" ]; then
-            echo "✅ Version consistency: PASSED"
+          # All 5 files must match
+          if [ "$VERSION" == "$SETTINGS_VER" ] && \
+             [ "$VERSION" == "$MANIFEST_VER" ] && \
+             [ "$VERSION" == "$PACKAGE_VER" ] && \
+             [ "$VERSION" == "$CHANGELOG_VER" ]; then
+            echo "✅ Version consistency: PASSED (all 5 files: $VERSION)"
             echo "version=$VERSION" >> $GITHUB_OUTPUT
             echo "VERSION_CONSISTENT=true" >> $GITHUB_ENV
           else
             echo "❌ Version mismatch detected!"
+            [ "$VERSION" != "$SETTINGS_VER" ] && echo "  VERSION ($VERSION) ≠ settings.json ($SETTINGS_VER)"
+            [ "$VERSION" != "$MANIFEST_VER" ] && echo "  VERSION ($VERSION) ≠ manifest.yml ($MANIFEST_VER)"
+            [ "$VERSION" != "$PACKAGE_VER" ] && echo "  VERSION ($VERSION) ≠ package.json ($PACKAGE_VER)"
+            [ "$VERSION" != "$CHANGELOG_VER" ] && echo "  VERSION ($VERSION) ≠ CHANGELOG.md ($CHANGELOG_VER)"
             echo "VERSION_CONSISTENT=false" >> $GITHUB_ENV
             exit 1
           fi
