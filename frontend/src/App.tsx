@@ -6,6 +6,12 @@ import { useAuthStore } from './store';
 import { AuthPage } from './pages/auth/AuthPage';
 import { DashboardPage } from './pages/dashboard/DashboardPage';
 import { LoadingSpinner } from './components/atoms';
+import WorkflowDashboardPage from './pages/workflow/WorkflowDashboardPage';
+import PhaseDetailPage from './pages/workflow/PhaseDetailPage';
+import LogViewerPage from './pages/workflow/LogViewerPage';
+import AgentWorkflowPage from './pages/workflow/AgentWorkflowPage';
+import QualityGatesPage from './pages/workflow/QualityGatesPage';
+import PerformanceBudgetPage from './pages/workflow/PerformanceBudgetPage';
 
 // Protected Route Component
 interface ProtectedRouteProps {
@@ -67,33 +73,13 @@ function App() {
             }
           />
 
-          {/* Additional Protected Routes */}
-          <Route
-            path="/tasks"
-            element={
-              <ProtectedRoute>
-                <DashboardPage />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/projects"
-            element={
-              <ProtectedRoute>
-                <DashboardPage />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/settings"
-            element={
-              <ProtectedRoute>
-                <DashboardPage />
-              </ProtectedRoute>
-            }
-          />
+          {/* Workflow Dashboard Routes - 暂时移除认证保护以便预览 */}
+          <Route path="/workflow" element={<WorkflowDashboardPage />} />
+          <Route path="/workflow/phases/:phaseId" element={<PhaseDetailPage />} />
+          <Route path="/workflow/agents/:executionId" element={<AgentWorkflowPage />} />
+          <Route path="/workflow/logs" element={<LogViewerPage />} />
+          <Route path="/workflow/quality-gates" element={<QualityGatesPage />} />
+          <Route path="/workflow/performance" element={<PerformanceBudgetPage />} />
 
           {/* Root redirect */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
