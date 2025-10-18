@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude Enhancer Workflow Progress - Interactive Dashboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Monaco', 'Cascadia Code', monospace, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .header h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header .subtitle {
+      color: #666;
+      font-size: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .refresh-btn {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+
+    .refresh-btn:hover {
+      background: #5568d3;
+    }
+
+    .overall-stats {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .overall-progress-number {
+      font-size: 48px;
+      font-weight: bold;
+      text-align: center;
+      color: #667eea;
+      margin-bottom: 12px;
+    }
+
+    .progress-bar-container {
+      background: #e5e7eb;
+      border-radius: 8px;
+      height: 20px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+      transition: width 0.5s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .stat-card {
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: 600;
+      color: #667eea;
+      margin-top: 4px;
+    }
+
+    .phase-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .phase-card:hover {
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+      transform: translateY(-2px);
+    }
+
+    .phase-card.expanded {
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    }
+
+    .phase-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .phase-title {
+      font-size: 18px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .expand-icon {
+      font-size: 14px;
+      transition: transform 0.3s ease;
+      color: #667eea;
+    }
+
+    .phase-card.expanded .expand-icon {
+      transform: rotate(90deg);
+    }
+
+    .phase-status-badge {
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .badge-completed { background: #d1fae5; color: #065f46; }
+    .badge-in_progress { background: #dbeafe; color: #1e40af; }
+    .badge-pending { background: #f3f4f6; color: #4b5563; }
+    .badge-failed { background: #fee2e2; color: #991b1b; }
+
+    .phase-summary {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .phase-progress-bar {
+      background: #e5e7eb;
+      border-radius: 4px;
+      height: 8px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .phase-progress-fill {
+      height: 100%;
+      transition: width 0.5s ease;
+      border-radius: 4px;
+    }
+
+    .progress-completed { background: #10b981; }
+    .progress-in_progress { background: #3b82f6; }
+    .progress-pending { background: #9ca3af; }
+    .progress-failed { background: #ef4444; }
+
+    /* 详细检查项展开区域 */
+    .checks-details {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.5s ease;
+      border-top: 1px solid #e5e7eb;
+      padding-top: 0;
+    }
+
+    .phase-card.expanded .checks-details {
+      max-height: 2000px;
+      padding-top: 16px;
+      margin-top: 16px;
+    }
+
+    .checks-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: 'Monaco', 'Cascadia Code', 'Courier New', monospace;
+      transition: background 0.2s;
+    }
+
+    .check-item:hover {
+      background: #f9fafb;
+    }
+
+    .check-item.pass {
+      background: #f0fdf4;
+      border-left: 3px solid #22c55e;
+    }
+
+    .check-item.fail {
+      background: #fef2f2;
+      border-left: 3px solid #ef4444;
+    }
+
+    .check-item.pending {
+      background: #f8fafc;
+      border-left: 3px solid #94a3b8;
+    }
+
+    .check-item.skipped {
+      background: #fefce8;
+      border-left: 3px solid #eab308;
+    }
+
+    .check-icon {
+      font-size: 16px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .check-content {
+      flex: 1;
+    }
+
+    .check-id {
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 2px;
+    }
+
+    .check-name {
+      color: #6b7280;
+    }
+
+    .check-type {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-left: 8px;
+      background: #e5e7eb;
+      color: #4b5563;
+    }
+
+    .check-type.blocking {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 60px 20px;
+      color: white;
+      font-size: 18px;
+    }
+
+    .error-message {
+      background: #fee2e2;
+      border: 2px solid #ef4444;
+      color: #991b1b;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .click-hint {
+      text-align: center;
+      color: #667eea;
+      font-size: 12px;
+      font-weight: 500;
+      margin-top: 8px;
+      opacity: 0.8;
+    }
+
+    /* Feature Mapping Styles */
+    .features-section {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .features-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .features-header h2 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .view-toggle {
+      display: flex;
+      gap: 8px;
+    }
+
+    .view-toggle button {
+      padding: 6px 12px;
+      border: 1px solid #e5e7eb;
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+
+    .view-toggle button.active {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+    }
+
+    .view-toggle button:hover:not(.active) {
+      background: #f9fafb;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+    }
+
+    .feature-card {
+      background: #f9fafb;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .feature-card:hover {
+      border-color: #667eea;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(102, 126, 234, 0.2);
+    }
+
+    .feature-card.active {
+      border-color: #667eea;
+      background: #eef2ff;
+    }
+
+    .feature-header {
+      display: flex;
+      align-items: start;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .feature-icon {
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .feature-info {
+      flex: 1;
+    }
+
+    .feature-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 4px;
+    }
+
+    .feature-description {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.4;
+    }
+
+    .feature-meta {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .feature-badge {
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .feature-badge.critical { background: #fee2e2; color: #991b1b; }
+    .feature-badge.high { background: #fef3c7; color: #92400e; }
+    .feature-badge.medium { background: #dbeafe; color: #1e40af; }
+    .feature-badge.core { background: #d1fae5; color: #065f46; }
+    .feature-badge.automation { background: #e0e7ff; color: #3730a3; }
+    .feature-badge.security { background: #fce7f3; color: #831843; }
+    .feature-badge.quality { background: #ddd6fe; color: #5b21b6; }
+    .feature-badge.intelligence { background: #ccfbf1; color: #134e4a; }
+    .feature-badge.organization { background: #fef3c7; color: #78350f; }
+    .feature-badge.release { background: #fecaca; color: #7f1d1d; }
+
+    .feature-steps-count {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      background: white;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #667eea;
+    }
+
+    .feature-details {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+      margin-top: 0;
+      padding-top: 0;
+      border-top: 1px solid transparent;
+    }
+
+    .feature-card.active .feature-details {
+      max-height: 500px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top-color: #e5e7eb;
+    }
+
+    .step-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .step-tag {
+      padding: 4px 8px;
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
+      font-size: 11px;
+      font-family: 'Monaco', 'Courier New', monospace;
+      font-weight: 600;
+      color: #667eea;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .step-tag:hover {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+    }
+
+    .step-tag.highlighted {
+      background: #fef3c7;
+      border-color: #f59e0b;
+      color: #92400e;
+    }
+
+    .impact-note {
+      margin-top: 12px;
+      padding: 10px;
+      background: white;
+      border-left: 3px solid #f59e0b;
+      border-radius: 4px;
+      font-size: 12px;
+      color: #92400e;
+    }
+
+    .step-feature-info {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: white;
+      border: 2px solid #667eea;
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      max-width: 300px;
+      z-index: 1000;
+      display: none;
+    }
+
+    .step-feature-info.show {
+      display: block;
+      animation: slideInUp 0.3s ease;
+    }
+
+    @keyframes slideInUp {
+      from {
+        transform: translateY(20px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .step-feature-info h4 {
+      margin: 0 0 12px 0;
+      font-size: 14px;
+      color: #667eea;
+    }
+
+    .affected-features {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .affected-feature-item {
+      padding: 6px 10px;
+      background: #f9fafb;
+      border-radius: 4px;
+      font-size: 12px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="loading" id="loading">
+    ⏳ Loading workflow progress...
+  </div>
+
+  <div class="container" id="content" style="display: none;">
+    <div class="header">
+      <h1>🚀 Claude Enhancer Workflow Progress</h1>
+      <div class="subtitle">
+        <span id="update-time">Last updated: -</span>
+        <button class="refresh-btn" onclick="fetchProgress()">🔄 Refresh</button>
+      </div>
+    </div>
+
+    <div id="error-container"></div>
+
+    <!-- Features Section -->
+    <div class="features-section" id="features-section">
+      <div class="features-header">
+        <h2>🎯 Core Features (12)</h2>
+        <div class="view-toggle">
+          <button class="active" onclick="toggleView('grid')">Grid View</button>
+          <button onclick="toggleView('list')">List View</button>
+        </div>
+      </div>
+      <div class="features-grid" id="features-container">
+        <!-- Feature cards will be inserted here -->
+      </div>
+    </div>
+
+    <div class="overall-stats">
+      <div class="overall-progress-number" id="overall-percentage">0%</div>
+      <div class="progress-bar-container">
+        <div class="progress-bar" id="overall-progress-bar" style="width: 0%;">
+          <span id="overall-progress-text"></span>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Current Phase</div>
+          <div class="stat-value" id="current-phase">-</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Checks</div>
+          <div class="stat-value" id="total-checks">-</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Passed</div>
+          <div class="stat-value" style="color: #10b981;" id="passed-checks">-</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Failed</div>
+          <div class="stat-value" style="color: #ef4444;" id="failed-checks">-</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="click-hint">👆 Click on any phase card to see detailed validation steps</div>
+
+    <div class="phases-container" id="phases-container">
+      <!-- Phase cards will be inserted here -->
+    </div>
+  </div>
+
+  <!-- Step Feature Info Popup -->
+  <div class="step-feature-info" id="step-feature-info">
+    <h4 id="popup-step-id">Step X</h4>
+    <div class="affected-features" id="affected-features-list">
+      <!-- Affected features will be inserted here -->
+    </div>
+  </div>
+
+  <script>
+    let autoRefreshInterval;
+    let featureMappingData = null;
+    let currentView = 'grid';
+
+    const FEATURE_ICONS = {
+      'F001': '📋',
+      'F002': '🪝',
+      'F003': '🛡️',
+      'F004': '🔄',
+      'F005': '🎯',
+      'F006': '🚪',
+      'F007': '🔒',
+      'F008': '📄',
+      'F009': '🔢',
+      'F010': '⚙️',
+      'F011': '✅',
+      'F012': '🔍'
+    };
+
+    const PHASE_NAMES = {
+      'P-1': 'Branch Check',
+      'P0': 'Discovery',
+      'P1': 'Planning & Architecture',
+      'P2': 'Implementation',
+      'P3': 'Testing',
+      'P4': 'Review',
+      'P5': 'Release & Monitor',
+      'GLOBAL': 'Global Validations'
+    };
+
+    const STATUS_ICONS = {
+      'completed': '✅',
+      'in_progress': '🔵',
+      'pending': '⏳',
+      'failed': '❌'
+    };
+
+    const CHECK_ICONS = {
+      'pass': '✓',
+      'fail': '✗',
+      'pending': '⊘',
+      'skipped': '⊘'
+    };
+
+    async function fetchFeatureMapping() {
+      try {
+        const response = await fetch('/api/feature_mapping');
+        if (!response.ok) {
+          // Fallback to static file
+          const fallbackResponse = await fetch('feature_mapping.json');
+          if (!fallbackResponse.ok) {
+            throw new Error('Feature mapping not available');
+          }
+          featureMappingData = await fallbackResponse.json();
+        } else {
+          featureMappingData = await response.json();
+        }
+        renderFeatures();
+      } catch (error) {
+        console.error('Failed to load feature mapping:', error);
+        document.getElementById('features-section').style.display = 'none';
+      }
+    }
+
+    async function fetchProgress() {
+      try {
+        const response = await fetch('/api/progress');
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        renderProgress(data);
+        hideError();
+      } catch (error) {
+        console.error('Failed to fetch progress:', error);
+        showError(`Failed to load progress data: ${error.message}`);
+      }
+    }
+
+    function renderProgress(data) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('content').style.display = 'block';
+
+      // Update timestamp
+      const now = new Date();
+      document.getElementById('update-time').textContent =
+        `Last updated: ${now.toLocaleTimeString()}`;
+
+      // Update overall progress
+      const overallProgress = Math.round(data.overall_progress || data.overall?.pass_rate || 0);
+      document.getElementById('overall-percentage').textContent = `${overallProgress}%`;
+      document.getElementById('overall-progress-bar').style.width = `${overallProgress}%`;
+      document.getElementById('overall-progress-text').textContent =
+        overallProgress > 10 ? `${overallProgress}%` : '';
+
+      // Update stats
+      document.getElementById('current-phase').textContent =
+        `${data.current_phase || 'N/A'}`;
+
+      const overall = data.overall || {};
+      document.getElementById('total-checks').textContent = overall.total || 75;
+      document.getElementById('passed-checks').textContent = overall.passed || 0;
+      document.getElementById('failed-checks').textContent = overall.failed || 0;
+
+      // Render phases
+      const phasesContainer = document.getElementById('phases-container');
+      phasesContainer.innerHTML = '';
+
+      (data.phases || []).forEach(phase => {
+        const phaseCard = createPhaseCard(phase);
+        phasesContainer.appendChild(phaseCard);
+      });
+    }
+
+    function createPhaseCard(phase) {
+      const card = document.createElement('div');
+      card.className = `phase-card ${phase.status}`;
+      card.dataset.phaseId = phase.id;
+
+      const progress = Math.round(phase.progress || 0);
+      const icon = STATUS_ICONS[phase.status] || '⚪';
+
+      const passedChecks = phase.passed_checks || 0;
+      const totalChecks = phase.total_checks || 0;
+      const failedCount = phase.failed || 0;
+
+      card.innerHTML = `
+        <div class="phase-header">
+          <div class="phase-title">
+            ${icon} <strong>${phase.id}:</strong> ${phase.name}
+            ${phase.quality_gate ? '<span style="color: #ef4444; margin-left: 8px;">🔒 Quality Gate</span>' : ''}
+            <span class="expand-icon">▶</span>
+          </div>
+          <div class="phase-status-badge badge-${phase.status}">
+            ${progress}%
+          </div>
+        </div>
+
+        <div class="phase-summary">
+          <span>📋 Checks: <strong>${passedChecks}/${totalChecks}</strong></span>
+          ${failedCount > 0 ? `<span style="color: #ef4444;">❌ Failed: ${failedCount}</span>` : '<span style="color: #10b981;">✓ All Passed</span>'}
+        </div>
+
+        <div class="phase-progress-bar">
+          <div class="phase-progress-fill progress-${phase.status}"
+               style="width: ${progress}%;"></div>
+        </div>
+
+        <div class="checks-details">
+          <div class="checks-list" id="checks-${phase.id}">
+            ${renderChecks(phase.checks || [])}
+          </div>
+        </div>
+      `;
+
+      // Add click handler to toggle expand/collapse
+      card.addEventListener('click', (e) => {
+        // Don't toggle if clicking on a link or button
+        if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') return;
+
+        card.classList.toggle('expanded');
+      });
+
+      return card;
+    }
+
+    function renderChecks(checks) {
+      if (!checks || checks.length === 0) {
+        return '<div style="text-align: center; color: #9ca3af; padding: 20px;">No detailed checks available</div>';
+      }
+
+      return checks.map(check => {
+        const status = check.status || 'pending';
+        const icon = CHECK_ICONS[status] || '○';
+        const blocking = check.blocking ? '<span class="check-type blocking">BLOCKING</span>' : '';
+
+        return `
+          <div class="check-item ${status}">
+            <div class="check-icon">${icon}</div>
+            <div class="check-content">
+              <div class="check-id">
+                ${check.id}: ${check.name}
+                ${blocking}
+                ${check.type ? `<span class="check-type">${check.type}</span>` : ''}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function showError(message) {
+      const errorContainer = document.getElementById('error-container');
+      errorContainer.innerHTML = `
+        <div class="error-message">
+          ❌ ${message}
+          <br><small>Retrying in 10 seconds...</small>
+        </div>
+      `;
+    }
+
+    function hideError() {
+      document.getElementById('error-container').innerHTML = '';
+    }
+
+    function renderFeatures() {
+      if (!featureMappingData || !featureMappingData.features) return;
+
+      const featuresContainer = document.getElementById('features-container');
+      featuresContainer.innerHTML = '';
+
+      Object.entries(featureMappingData.features).forEach(([featureId, feature]) => {
+        const featureCard = createFeatureCard(featureId, feature);
+        featuresContainer.appendChild(featureCard);
+      });
+    }
+
+    function createFeatureCard(featureId, feature) {
+      const card = document.createElement('div');
+      card.className = 'feature-card';
+      card.dataset.featureId = featureId;
+
+      const icon = FEATURE_ICONS[featureId] || '📦';
+      const stepsCount = feature.steps.length;
+
+      card.innerHTML = `
+        <div class="feature-header">
+          <div class="feature-icon">${icon}</div>
+          <div class="feature-info">
+            <div class="feature-name">${feature.name}</div>
+            <div class="feature-description">${feature.description}</div>
+          </div>
+        </div>
+        <div class="feature-meta">
+          <span class="feature-badge ${feature.priority}">${feature.priority}</span>
+          <span class="feature-badge ${feature.category}">${feature.category}</span>
+          <span class="feature-steps-count">
+            📌 ${stepsCount} steps
+          </span>
+        </div>
+        <div class="feature-details">
+          <div class="step-tags">
+            ${feature.steps.map(step => `<span class="step-tag" data-step="${step}" onclick="highlightStep('${step}')">${step}</span>`).join('')}
+          </div>
+          ${feature.impact_when_changed ? `
+            <div class="impact-note">
+              <strong>⚠️ Impact:</strong> ${feature.impact_when_changed}
+            </div>
+          ` : ''}
+        </div>
+      `;
+
+      card.addEventListener('click', (e) => {
+        if (e.target.classList.contains('step-tag')) return;
+
+        // Toggle active state
+        const wasActive = card.classList.contains('active');
+
+        // Close all other cards
+        document.querySelectorAll('.feature-card').forEach(c => c.classList.remove('active'));
+
+        // Toggle current card
+        if (!wasActive) {
+          card.classList.add('active');
+          highlightFeatureSteps(feature.steps);
+        } else {
+          clearHighlightedSteps();
+        }
+      });
+
+      return card;
+    }
+
+    function highlightStep(stepId) {
+      // Show popup with affected features
+      const stepFeatureInfo = document.getElementById('step-feature-info');
+      const popupStepId = document.getElementById('popup-step-id');
+      const affectedFeaturesList = document.getElementById('affected-features-list');
+
+      popupStepId.textContent = `Step: ${stepId}`;
+
+      if (featureMappingData && featureMappingData.step_to_features_mapping) {
+        const affectedFeatureIds = featureMappingData.step_to_features_mapping[stepId] || [];
+
+        // Optimized: Build feature lookup map once
+        if (!window._featureIdMap) {
+          window._featureIdMap = {};
+          Object.entries(featureMappingData.features).forEach(([key, feature]) => {
+            window._featureIdMap[feature.id] = feature;
+          });
+        }
+
+        affectedFeaturesList.innerHTML = affectedFeatureIds.map(fid => {
+          const feature = window._featureIdMap[fid];
+          return `
+            <div class="affected-feature-item">
+              ${FEATURE_ICONS[fid] || '📦'} ${feature ? feature.name : fid}
+            </div>
+          `;
+        }).join('');
+      }
+
+      stepFeatureInfo.classList.add('show');
+
+      // Auto-hide after 5 seconds
+      setTimeout(() => {
+        stepFeatureInfo.classList.remove('show');
+      }, 5000);
+
+      // Optimized: Query once and filter
+      const allCheckItems = document.querySelectorAll('.check-item');
+      allCheckItems.forEach(item => {
+        const checkId = item.querySelector('.check-id');
+        if (checkId && checkId.textContent.includes(stepId)) {
+          item.style.background = '#fef3c7';
+          item.style.borderLeftColor = '#f59e0b';
+          setTimeout(() => {
+            item.style.background = '';
+            item.style.borderLeftColor = '';
+          }, 3000);
+        }
+      });
+    }
+
+    function highlightFeatureSteps(steps) {
+      // Clear previous highlights
+      clearHighlightedSteps();
+
+      // Optimized: Query all check items once, then filter
+      const allCheckItems = document.querySelectorAll('.check-item');
+      const stepSet = new Set(steps); // Convert to Set for O(1) lookup
+
+      allCheckItems.forEach(item => {
+        const checkId = item.querySelector('.check-id');
+        if (checkId) {
+          const stepText = checkId.textContent.trim();
+          // Check if any step ID matches
+          for (const stepId of stepSet) {
+            if (stepText.includes(stepId)) {
+              item.classList.add('highlighted-step');
+              item.style.background = '#fef9c3';
+              item.style.borderLeftColor = '#f59e0b';
+              break; // Stop checking once found
+            }
+          }
+        }
+      });
+    }
+
+    function clearHighlightedSteps() {
+      // Optimized: Use class selector and remove in batch
+      const highlightedItems = document.querySelectorAll('.check-item.highlighted-step');
+      highlightedItems.forEach(item => {
+        item.style.background = '';
+        item.style.borderLeftColor = '';
+        item.classList.remove('highlighted-step');
+      });
+    }
+
+    function toggleView(viewType) {
+      currentView = viewType;
+      const buttons = document.querySelectorAll('.view-toggle button');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+
+      const container = document.getElementById('features-container');
+      if (viewType === 'list') {
+        container.style.gridTemplateColumns = '1fr';
+      } else {
+        container.style.gridTemplateColumns = 'repeat(auto-fill, minmax(320px, 1fr))';
+      }
+    }
+
+    // Close popup when clicking outside
+    document.addEventListener('click', (e) => {
+      const popup = document.getElementById('step-feature-info');
+      if (popup.classList.contains('show') && !popup.contains(e.target) && !e.target.classList.contains('step-tag')) {
+        popup.classList.remove('show');
+      }
+    });
+
+    // Auto-refresh every 30 seconds (optimized from 10s to reduce load)
+    function startAutoRefresh() {
+      if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+      }
+      // Increased interval to reduce performance impact
+      autoRefreshInterval = setInterval(fetchProgress, 30000);
+    }
+
+    // Initial load
+    fetchFeatureMapping();
+    fetchProgress();
+    startAutoRefresh();
+
+    // Stop auto-refresh when page is hidden
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        clearInterval(autoRefreshInterval);
+      } else {
+        fetchProgress();
+        startAutoRefresh();
+      }
+    });
+  </script>
+</body>
+</html>

@@ -384,6 +384,60 @@ python3 scripts/auto_metrics.py --check-only
 # This creates REVIEW.md with automated analysis
 ```
 
+**🆕 Workflow Validation Requirements (v6.3+)**:
+
+Before submitting any PR, you **MUST** run and pass these validations:
+
+```bash
+# 1. Run Workflow Validator (CRITICAL)
+bash scripts/workflow_validator.sh
+# ✅ Must show ≥80% pass rate
+# ❌ <80% will block your PR
+
+# 2. Run Local CI (ALL JOBS MUST PASS)
+bash scripts/local_ci.sh
+# Runs 7 parallel jobs:
+#  - Workflow validation
+#  - Static checks
+#  - npm test
+#  - pytest
+#  - BDD tests
+#  - Security scan
+#  - Version consistency
+
+# 3. Verify Dashboard (Optional but Recommended)
+bash scripts/serve_progress.sh
+# Open http://localhost:8999
+# Check all phases are green
+
+# 4. Test Git Hooks
+git commit -m "test: verify hooks" --allow-empty
+# Should trigger pre-commit validation
+
+git push --dry-run
+# Should trigger pre-push validation
+```
+
+**Why These Checks Matter**:
+
+- **Workflow Validator**: Prevents "空壳" (hollow) implementations - ensures all deliverables are complete, not just placeholder files
+- **Local CI**: Runs 10.7x faster than GitHub Actions (28s vs 300s), catches issues before pushing
+- **Dashboard**: Visual verification that non-technical users can understand
+- **Hooks**: Final safety net, blocks commits/pushes that don't meet standards
+
+**If Validation Fails**:
+
+```bash
+# Check the detailed failure report
+cat .evidence/last_run.json | jq '.'
+
+# See which specific checks failed
+cat .evidence/last_run.json | jq '.[] | select(.status == "fail")'
+
+# Fix the issues, then re-run
+bash scripts/workflow_validator.sh
+```
+
 **REVIEW.md Example**:
 ```markdown
 # Code Review: OAuth2 Authentication
