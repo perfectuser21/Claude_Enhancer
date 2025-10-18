@@ -1,0 +1,16 @@
+{
+  "timestamp": "2025-10-18T10:46:43Z",
+  "duration_seconds": 10,
+  "jobs": {
+    "total": 14,
+    "passed": 6,
+    "failed": 1,
+    "skipped": 0
+  },
+  "result": "FAIL",
+  "failed_jobs": [
+    "Python Tests"
+  ],
+  "git_branch": "feat/workflow-visibility",
+  "git_commit": "3506b655"
+}

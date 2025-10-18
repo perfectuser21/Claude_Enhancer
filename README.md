@@ -363,6 +363,117 @@ Every `git commit` triggers:
 - ✅ Security scan (secrets, vulnerabilities)
 - ✅ Commit message format (conventional commits)
 
+## ✅ Completion Standards ("Done" Definition)
+
+### The "Done" Rule: Evidence Over Claims
+
+> **Core Principle**: Any claim of "completion" must be backed by verifiable evidence with ≥80% validation score.
+
+Think of it like a home inspection report:
+- ❌ **Without evidence**: "Trust me, the house is perfect" (empty claim)
+- ✅ **With evidence**: "Here's the 50-page inspection report showing 95% pass rate" (verifiable proof)
+
+### What is Evidence?
+
+Evidence is stored in `.evidence/` directory and contains:
+
+```json
+{
+  "timestamp": "2025-10-17T10:30:00Z",
+  "overall_completion": 85,
+  "phases": {
+    "phase0": { "completion": 100, "status": "complete" },
+    "phase1": { "completion": 100, "status": "complete" },
+    "phase2": { "completion": 85, "status": "mostly_complete" },
+    ...
+  },
+  "merge_ready": true,
+  "merge_readiness_score": 85
+}
+```
+
+### Completion Thresholds
+
+| Completion % | Meaning | Can Merge? | Example |
+|-------------|---------|------------|---------|
+| **100%** | Perfect | ✅ Yes | All required + optional items done |
+| **80-99%** | Excellent | ✅ Yes | All required items done, some optional missing |
+| **60-79%** | Acceptable | ⚠️ Caution | Most required items done, review needed |
+| **<60%** | Incomplete | ❌ No | Too many required items missing |
+
+### How to Validate Completion
+
+**Quick check (5 seconds)**:
+```bash
+# Run workflow validator
+bash scripts/workflow_validator.sh
+
+# Check overall completion
+jq -r '.overall_completion' .evidence/last_run.json
+# Output: 85 (means 85% complete)
+
+# Check if merge-ready
+jq -r '.merge_ready' .evidence/last_run.json
+# Output: true or false
+```
+
+**Visual Dashboard (if Node.js installed)**:
+```bash
+npm run dashboard
+# Opens http://localhost:3000 with visual completion status
+```
+
+### Example: Claiming "Phase 2 Complete"
+
+**❌ Wrong way** (no evidence):
+```
+You: "I finished Phase 2!"
+Reviewer: "How can I verify?"
+You: "Just trust me..."
+Reviewer: 🤔 (skeptical)
+```
+
+**✅ Right way** (with evidence):
+```bash
+# After completing Phase 2, run validator
+bash scripts/workflow_validator.sh
+
+# Share evidence file
+cp .evidence/last_run.json ./evidence_phase2_$(date +%Y%m%d).json
+
+# In PR description:
+"Phase 2 completed with 92% validation score.
+Evidence: see .evidence/last_run.json
+- ✅ Code committed
+- ✅ Unit tests: 87% coverage
+- ✅ Integration tests passed
+- ⚠️ API docs partially complete (optional)
+
+Overall: 92/100 - Ready for Phase 3"
+```
+
+### Integration with Pull Requests
+
+Every PR should include:
+
+```markdown
+## Completion Validation
+
+bash scripts/workflow_validator.sh
+
+**Results**:
+- Phase 0-3: ✅ 100%
+- Phase 4: ✅ 95%
+- Phase 5: ✅ 100%
+- **Overall: 98%** ✅
+
+**Evidence**: Attached .evidence/last_run.json
+
+**Merge Ready**: ✅ Yes (score ≥ 80%)
+```
+
+See [Workflow Validation Guide](docs/WORKFLOW_VALIDATION.md) for complete documentation.
+
 ## 📚 Documentation
 
 ### Core Documentation
@@ -382,6 +493,7 @@ Every `git commit` triggers:
 - **[Agent Strategy](.claude/AGENT_STRATEGY.md)** - Agent selection principles
 - **[Git Workflow](docs/GIT_AUTOMATION_GUIDE.md)** - Git integration details
 - **[Troubleshooting](docs/TROUBLESHOOTING_GUIDE.md)** - Common issues (1,441 lines)
+- **[Workflow Validation](docs/WORKFLOW_VALIDATION.md)** - Completion validation guide 🆕
 
 ### Quality & Security
 
@@ -442,7 +554,7 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for:
 - Development setup
 - Coding standards (shellcheck, eslint)
 - Testing requirements (80%+ coverage)
-- Pull request process
+- Pull request process with validation evidence requirements
 - Commit message format (conventional commits)
 
 ### Quick Contribution
@@ -461,9 +573,13 @@ echo "P1" > .phase/current  # Start planning
 # 4. Make changes with tests
 npm test  # Ensure all tests pass
 
-# 5. Submit PR
+# 5. Validate completion before PR
+bash scripts/workflow_validator.sh
+# Ensure ≥80% completion score
+
+# 6. Submit PR with evidence
 git push origin feature/my-contribution
-# Create PR on GitHub
+# Create PR on GitHub (include validation evidence)
 ```
 
 ## 📜 License

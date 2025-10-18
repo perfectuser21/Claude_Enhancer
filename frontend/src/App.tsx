@@ -6,6 +6,7 @@ import { useAuthStore } from './store';
 import { AuthPage } from './pages/auth/AuthPage';
 import { DashboardPage } from './pages/dashboard/DashboardPage';
 import { LoadingSpinner } from './components/atoms';
+import RealSystemDashboard from './pages/workflow/RealSystemDashboard';
 import SystemLifeDashboard from './pages/workflow/SystemLifeDashboard';
 import WorkflowDashboardPage from './pages/workflow/WorkflowDashboardPage';
 import PhaseDetailPage from './pages/workflow/PhaseDetailPage';
@@ -54,28 +55,15 @@ function App() {
       <ColorModeScript initialColorMode={theme.config.initialColorMode} />
       <Router>
         <Routes>
-          {/* Public Routes */}
-          <Route
-            path="/auth"
-            element={
-              <PublicRoute>
-                <AuthPage />
-              </PublicRoute>
-            }
-          />
+          {/* Auth Route - 可选功能，个人工具通常不需要 */}
+          <Route path="/auth" element={<AuthPage />} />
 
-          {/* Protected Routes */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <DashboardPage />
-              </ProtectedRoute>
-            }
-          />
+          {/* Dashboard - 个人工具，无需登录 */}
+          <Route path="/dashboard" element={<DashboardPage />} />
 
-          {/* Workflow Dashboard Routes - 暂时移除认证保护以便预览 */}
-          <Route path="/workflow" element={<SystemLifeDashboard />} />
+          {/* Workflow Dashboard Routes - 个人工具，无需登录 */}
+          <Route path="/workflow" element={<RealSystemDashboard />} />
+          <Route path="/workflow/life" element={<SystemLifeDashboard />} />
           <Route path="/workflow/classic" element={<WorkflowDashboardPage />} />
           <Route path="/workflow/phases/:phaseId" element={<PhaseDetailPage />} />
           <Route path="/workflow/agents/:executionId" element={<AgentWorkflowPage />} />
@@ -83,11 +71,11 @@ function App() {
           <Route path="/workflow/quality-gates" element={<QualityGatesPage />} />
           <Route path="/workflow/performance" element={<PerformanceBudgetPage />} />
 
-          {/* Root redirect */}
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          {/* Root redirect - 直接进入Workflow系统监控 */}
+          <Route path="/" element={<Navigate to="/workflow" replace />} />
 
-          {/* Catch all - redirect to dashboard */}
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          {/* Catch all - redirect to workflow */}
+          <Route path="*" element={<Navigate to="/workflow" replace />} />
         </Routes>
       </Router>
     </ChakraProvider>
