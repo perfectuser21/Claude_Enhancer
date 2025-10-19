@@ -1,7 +1,7 @@
 {
-  "version": "6.5.1",
+  "version": "6.6.0",
   "project": "Claude Enhancer",
-  "description": "自愈系统 + 工作流强制执行 + Bypass Permissions Mode",
+  "description": "四层架构分层系统 + 自愈系统 + 工作流强制执行 + Bypass Permissions Mode",
   "permissions": {
     "allow": [
       "Bash(**)",
@@ -33,7 +33,8 @@
       ".claude/hooks/ai_behavior_monitor.sh",
       ".claude/hooks/workflow_enforcer.sh",
       ".claude/hooks/smart_agent_selector.sh",
-      ".claude/hooks/gap_scan.sh"
+      ".claude/hooks/gap_scan.sh",
+      ".claude/hooks/impact_assessment_enforcer.sh"
     ],
     "PreToolUse": [
       ".claude/hooks/task_branch_enforcer.sh",
@@ -47,7 +48,8 @@
     "PostToolUse": [
       ".claude/hooks/merge_confirmer.sh",
       ".claude/hooks/unified_post_processor.sh",
-      ".claude/hooks/agent_error_recovery.sh"
+      ".claude/hooks/agent_error_recovery.sh",
+      ".claude/hooks/phase_completion_validator.sh"
     ]
   }
 }

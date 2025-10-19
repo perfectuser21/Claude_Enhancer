@@ -95,13 +95,22 @@ enforce_workflow() {
             ;;
 
         "P2")
-            if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
-                echo -e "${YELLOW}🔍 Phase 2: 请完成探索发现${NC}"
-                echo "  - 技术spike和可行性验证"
-                echo "  - 创建Acceptance Checklist"
-                echo "  - 定义完成标准"
-            elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
-                echo "[Workflow] 🔍 Phase 2: 探索发现"
+            # P2 Discovery Phase - Check if Acceptance Checklist exists
+            if [[ ! -f "$PROJECT_ROOT/.workflow/ACCEPTANCE_CHECKLIST.md" ]] && [[ ! -f "$PROJECT_ROOT/docs/ACCEPTANCE_CHECKLIST.md" ]]; then
+                if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+                    echo -e "${RED}❌ 错误：Phase 2需要创建验收清单${NC}"
+                    echo -e "${GREEN}✅ 请先创建：.workflow/ACCEPTANCE_CHECKLIST.md${NC}"
+                    echo
+                    echo "验收清单必须包含："
+                    echo "  - 技术spike和可行性验证结果"
+                    echo "  - 明确的完成标准（Definition of Done）"
+                    echo "  - 可验证的验收项"
+                    echo
+                    echo -e "${RED}🚫 操作已阻塞！${NC}"
+                elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
+                    echo "[Workflow] ❌ 需要验收清单"
+                fi
+                exit 1
             fi
             ;;
 
