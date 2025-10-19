@@ -58,9 +58,17 @@ class TestCodeQualityChecker:
 
     def test_check_file_unsupported_type(self):
         """Test error handling for unsupported file type."""
-        result = self.checker.check_file('test.txt')
+        # Create a temporary .txt file
+        test_file = '/tmp/test_unsupported.txt'
+        with open(test_file, 'w') as f:
+            f.write('test content')
+
+        result = self.checker.check_file(test_file)
         assert 'error' in result
         assert 'unsupported' in result['error'].lower()
+
+        # Cleanup
+        os.remove(test_file)
 
     def test_check_python_file(self):
         """Test checking a Python file."""
