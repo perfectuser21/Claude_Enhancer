@@ -1,6 +1,6 @@
 {
   "name": "claude-enhancer",
-  "version": "6.6.0",
+  "version": "6.5.1",
   "description": "Claude Enhancer 6.6.0 - 专业级个人AI编程工作流系统 (四层架构分层系统)",
   "main": "index.js",
   "scripts": {
