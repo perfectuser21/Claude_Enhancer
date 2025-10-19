@@ -1,0 +1,12 @@
+step: 9
+name: "Phase 5 - Release & Monitor"
+status: "pending"
+description: "Documentation + tagging + monitoring setup"
+validation:
+  - "CHANGELOG.md updated"
+  - "README.md complete"
+  - "Git tag created (semver)"
+  - "Release notes in CHANGELOG"
+  - "Root docs ≤7 files"
+p0_checklist_verification: true
+iron_rule: "No bugs should be found in Phase 5 (return to Phase 4 if found)"

@@ -1,11 +1,11 @@
 {
-  "timestamp": "2025-10-18T15:47:47Z",
-  "total": 77,
-  "passed": 77,
-  "failed": 0,
-  "pass_rate": 100,
-  "version": "77-step complete (75 phase + 2 global)",
-  "phases_covered": "P0-P5",
+  "timestamp": "2025-10-19T10:08:12Z",
+  "total": 97,
+  "passed": 84,
+  "failed": 13,
+  "pass_rate": 86,
+  "version": "95-step complete v2.0 (Phase 1-7 renaming)",
+  "phases_covered": "Pre-Discussion, Phase 1-7, Acceptance, Cleanup",
   "global_validations": ["G002", "G003"],
-  "quality_gates": ["P3", "P4"]
+  "quality_gates": ["Phase 5", "Phase 6"]
 }

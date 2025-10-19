@@ -1,0 +1,12 @@
+step: 1
+name: "Pre-Discussion"
+status: "pending"
+description: "Requirements clarification through multi-round dialogue"
+marker_file: ".workflow/REQUIREMENTS_CLARIFIED"
+responsible_hook: "requirement_clarification.sh"
+outputs:
+  - ".workflow/REQUIREMENTS_DIALOGUE.md"
+  - ".workflow/CHECKLIST.md"
+validation:
+  - "User confirmed understanding"
+  - "All decision points clarified"

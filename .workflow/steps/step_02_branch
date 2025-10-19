@@ -1,0 +1,12 @@
+step: 2
+name: "Branch Check (Phase -1)"
+status: "pending"
+description: "Ensure correct working branch before coding"
+responsible_hook: "branch_helper.sh"
+validation:
+  - "Not on main/master branch"
+  - "Branch name matches task type"
+  - "Branch is clean and up-to-date"
+artifacts:
+  current_branch: ""
+  branch_type: ""

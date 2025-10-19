@@ -1,0 +1,629 @@
+# Claude Enhancer 11-Step Workflow Rules
+# Layer: Core
+# Version: 1.0.0
+# Last Updated: 2025-10-19
+#
+# 此文件定义了从讨论到合并的完整11步工作流规则
+# 修改此文件需要Major版本升级（如v6→v7）
+#
+# 依赖规则: 只能被Main层和Feature层引用，不能依赖Feature层
+
+metadata:
+  system_version: "6.6.0"
+  workflow_version: "1.0.0"
+  total_steps: 11
+  description: "Complete workflow from discussion to merge"
+
+# ═══════════════════════════════════════════════════════════════
+# 完整11步工作流
+# ═══════════════════════════════════════════════════════════════
+
+# ───────────────────────────────────────────────────────────────
+# Step 1: Pre-Discussion（需求讨论阶段）
+# ───────────────────────────────────────────────────────────────
+step_1:
+  name: "Pre-Discussion"
+  full_name: "需求讨论阶段"
+  order: 1
+  phase: "pre_workflow"
+  mode: "discussion"
+
+  description: |
+    理解用户需求，明确任务边界的阶段。
+    这是执行模式前的准备阶段。
+
+  objectives:
+    - "理解用户的真实需求"
+    - "澄清模糊的描述"
+    - "评估技术可行性"
+    - "确认任务边界"
+
+  ai_behavior:
+    - "主动提问澄清需求"
+    - "识别隐含的需求"
+    - "评估任务复杂度"
+    - "判断是否需要切换到执行模式"
+
+  outputs:
+    - "明确的任务描述"
+    - "初步的可行性评估"
+
+  triggers_next_step:
+    condition: "需求明确且用户准备开始实施"
+    signals:
+      - "用户说'开始实现'"
+      - "用户说'启动工作流'"
+      - "用户说'let's implement'"
+      - "需求已经非常清晰，无需进一步讨论"
+
+  estimated_duration: "5-15分钟"
+
+# ───────────────────────────────────────────────────────────────
+# Step 2: Phase -1 - Branch Check（分支前置检查）
+# ───────────────────────────────────────────────────────────────
+step_2:
+  name: "Phase -1 - Branch Check"
+  full_name: "分支前置检查"
+  order: 2
+  phase: "pre_phase_0"
+  mode: "execution"
+  priority: "HIGHEST"
+
+  description: |
+    进入执行模式后的第一步：确保在正确的分支上工作。
+    这是强制性的安全检查，防止在main/master上直接修改。
+
+  objectives:
+    - "检查当前git分支"
+    - "判断分支是否适合当前任务"
+    - "必要时创建新分支"
+
+  mandatory_checks:
+    - name: "Current Branch Detection"
+      command: "git rev-parse --abbrev-ref HEAD"
+      description: "获取当前分支名"
+
+    - name: "Main Branch Protection"
+      rule: "如果在main/master分支，必须创建新分支"
+      blocker: true
+
+    - name: "Branch Relevance"
+      rule: "检查当前feature分支是否与任务相关"
+      blocker: false
+
+  decision_logic:
+    on_main_branch:
+      action: "创建新分支"
+      command: "git checkout -b feature/任务描述"
+      blocker: true
+
+    on_feature_branch:
+      analysis_factors:
+        - "分支名与任务的相关性"
+        - "分支的当前状态（开发中/已完成）"
+        - "任务类型（延续/修复/新功能）"
+      decisions:
+        - condition: "明显匹配（延续/修复当前功能）"
+          action: "直接继续，不啰嗦"
+        - condition: "不确定（边界不清）"
+          action: "简短询问，给选项"
+        - condition: "明显不匹配（新功能/跨领域）"
+          action: "建议新分支，说理由"
+
+  branch_naming_conventions:
+    feature: "feature/功能描述"
+    bugfix: "bugfix/问题描述"
+    perf: "perf/优化内容"
+    docs: "docs/文档主题"
+    experiment: "experiment/实验内容"
+
+  ai_instructions: |
+    - 这是执行模式的第一道防线
+    - 在main/master上绝不允许直接修改
+    - 智能判断是否需要新分支，不机械地每次都问
+    - 明显情况直接执行，不啰嗦
+    - 不确定时简洁询问，给清晰选项
+
+  protection_mechanism:
+    hook: ".claude/hooks/force_branch_check.sh"
+    enforcement: "PrePrompt hook自动检查"
+    bypass: "不允许bypass，这是硬性规则"
+
+  estimated_duration: "1-3分钟"
+
+  transition_to_next:
+    condition: "在正确的分支上"
+    signals:
+      - "当前在feature分支且与任务相关"
+      - "刚创建了新的feature分支"
+
+# ───────────────────────────────────────────────────────────────
+# Step 3: Phase 0 - Discovery（探索与验收定义）
+# ───────────────────────────────────────────────────────────────
+step_3:
+  name: "Phase 0 - Discovery"
+  full_name: "探索与验收定义"
+  order: 3
+  phase: "phase_0"
+  mode: "execution"
+
+  description: |
+    技术探索阶段，定义"完成"的标准。
+    详细定义见phase_definitions.yml中的phase_0。
+
+  reference: "phase_definitions.yml::phase_0"
+
+  key_outputs:
+    - "Acceptance Checklist（验收清单）"
+    - "Technical Spike Report（可选）"
+
+  transition_to_next:
+    condition: "Acceptance Checklist已创建"
+    automatic: true
+
+  estimated_duration: "15-30分钟"
+
+# ───────────────────────────────────────────────────────────────
+# Step 4: Impact Radius Assessment（影响半径自动评估）
+# ───────────────────────────────────────────────────────────────
+step_4:
+  name: "Impact Radius Assessment"
+  full_name: "影响半径自动评估"
+  order: 4
+  phase: "pre_phase_1"
+  mode: "execution"
+  version_added: "6.5.1"
+
+  description: |
+    自动评估任务的风险、复杂度和影响范围。
+    基于评估结果推荐最优Agent数量。
+
+  trigger:
+    when: "Phase 0完成后"
+    mechanism: "PrePrompt hook自动触发"
+    hook: ".claude/hooks/smart_agent_selector.sh"
+
+  assessment_process:
+    1_analyze_task:
+      description: "分析任务描述"
+      factors:
+        risk:
+          weight: 5
+          scale: "0-10"
+          examples:
+            - "CVE修复 → 9-10"
+            - "架构变更 → 7-9"
+            - "Bug修复 → 4-6"
+            - "文档更新 → 1-3"
+
+        complexity:
+          weight: 3
+          scale: "0-10"
+          examples:
+            - "数据库迁移 → 8-10"
+            - "模块重构 → 6-8"
+            - "功能增强 → 4-6"
+            - "代码格式化 → 1-3"
+
+        scope:
+          weight: 2
+          scale: "0-10"
+          examples:
+            - "跨模块影响 → 8-10"
+            - "单模块多文件 → 5-7"
+            - "单文件修改 → 2-4"
+            - "配置变更 → 1-2"
+
+    2_calculate_radius:
+      formula: "Radius = (Risk × 5) + (Complexity × 3) + (Scope × 2)"
+      range: "0-100"
+
+    3_determine_strategy:
+      thresholds:
+        high_risk:
+          radius: "≥50"
+          min_agents: 6
+          examples:
+            - "CVE修复"
+            - "架构变更"
+            - "数据库迁移"
+
+        medium_risk:
+          radius: "30-49"
+          min_agents: 3
+          examples:
+            - "Bug修复"
+            - "性能优化"
+            - "模块重构"
+
+        low_risk:
+          radius: "0-29"
+          min_agents: 0
+          examples:
+            - "文档更新"
+            - "代码格式化"
+            - "注释修改"
+
+  outputs:
+    primary:
+      name: "Impact Assessment Result"
+      location: ".workflow/impact_assessments/current.json"
+      format: "JSON"
+      fields:
+        - "impact_radius_score (0-100)"
+        - "agent_strategy (high/medium/low-risk)"
+        - "min_agents (0/3/6)"
+        - "reasoning (评估理由)"
+        - "risk_factors (风险因素列表)"
+
+  quality_metrics:
+    accuracy: "86% (26/30 validated samples)"
+    performance: "<50ms average execution time"
+
+  ai_instructions: |
+    - Phase 0完成后自动触发
+    - 分析任务的风险、复杂度、影响范围
+    - 计算影响半径分数
+    - 存储评估结果到.workflow/impact_assessments/current.json
+    - 结果将在Phase 1中用于选择Agent数量
+
+  transition_to_next:
+    condition: "评估结果已存储"
+    automatic: true
+
+  estimated_duration: "<1分钟（自动化）"
+
+# ───────────────────────────────────────────────────────────────
+# Step 5: Phase 1 - Planning & Architecture（规划与架构）
+# ───────────────────────────────────────────────────────────────
+step_5:
+  name: "Phase 1 - Planning & Architecture"
+  full_name: "规划与架构"
+  order: 5
+  phase: "phase_1"
+  mode: "execution"
+
+  description: |
+    需求分析和架构设计阶段。
+    详细定义见phase_definitions.yml中的phase_1。
+
+  reference: "phase_definitions.yml::phase_1"
+
+  special_instructions:
+    - "读取Step 4的评估结果"
+    - "根据min_agents选择Agent数量"
+    - "如果high-risk（6 agents），必须并行调用6+agents"
+
+  key_outputs:
+    - "PLAN.md"
+    - "Directory Structure"
+
+  transition_to_next:
+    condition: "PLAN.md已创建且架构设计完成"
+    automatic: true
+
+  estimated_duration: "20-40分钟"
+
+# ───────────────────────────────────────────────────────────────
+# Step 6-9: Phase 2-5（实现、测试、审查、发布）
+# ───────────────────────────────────────────────────────────────
+step_6:
+  name: "Phase 2 - Implementation"
+  reference: "phase_definitions.yml::phase_2"
+  order: 6
+  phase: "phase_2"
+
+step_7:
+  name: "Phase 3 - Testing"
+  reference: "phase_definitions.yml::phase_3"
+  order: 7
+  phase: "phase_3"
+
+step_8:
+  name: "Phase 4 - Review"
+  reference: "phase_definitions.yml::phase_4"
+  order: 8
+  phase: "phase_4"
+
+step_9:
+  name: "Phase 5 - Release & Monitor"
+  reference: "phase_definitions.yml::phase_5"
+  order: 9
+  phase: "phase_5"
+
+# ───────────────────────────────────────────────────────────────
+# Step 10: Acceptance Report（验收报告）
+# ───────────────────────────────────────────────────────────────
+step_10:
+  name: "Acceptance Report"
+  full_name: "验收报告"
+  order: 10
+  phase: "post_phase_5"
+  mode: "execution"
+
+  description: |
+    AI报告Phase 0 checklist验证结果，等待用户确认。
+    这是质量流程的最终验证。
+
+  objectives:
+    - "对照Phase 0验收清单逐项验证"
+    - "生成验收报告"
+    - "等待用户确认'没问题'"
+
+  process:
+    step_1:
+      action: "读取Phase 0创建的Acceptance Checklist"
+      source: "PLAN.md或对话记录"
+
+    step_2:
+      action: "逐项验证"
+      method: "检查每个验收项是否完成"
+
+    step_3:
+      action: "生成验收报告"
+      format: |
+        ## Acceptance Report
+
+        基于Phase 0定义的验收清单，验证结果如下：
+
+        ### 验收清单对照
+
+        - [✅/❌] 验收项1: 描述
+          - 验证结果: ...
+        - [✅/❌] 验收项2: 描述
+          - 验证结果: ...
+
+        ### 总体评估
+
+        - 总项数: X
+        - 完成项: Y
+        - 未完成项: Z
+
+        ### AI确认
+
+        我已完成所有验收项，请您确认是否"没问题"。
+
+    step_4:
+      action: "等待用户回复"
+      expected: "用户说'没问题'或'有问题'"
+
+  outputs:
+    - name: "Acceptance Report"
+      location: "对话中或.temp/"
+      format: "markdown"
+
+  transition_to_next:
+    condition: "用户确认'没问题'"
+    manual: true
+    blocking: "必须等待用户确认"
+
+  failure_handling:
+    if_user_says_problem:
+      action: "返回对应的Phase修复"
+      then: "重新执行后续Phase"
+
+  ai_instructions: |
+    - 必须对照Phase 0 checklist逐项验证
+    - 不能省略验收报告
+    - 明确等待用户确认
+    - 说"我已完成所有验收项，请您确认"
+    - 用户说"没问题"才能进入Step 11
+
+  estimated_duration: "5-10分钟"
+
+# ───────────────────────────────────────────────────────────────
+# Step 11: Cleanup & Merge（收尾清理）
+# ───────────────────────────────────────────────────────────────
+step_11:
+  name: "Cleanup & Merge"
+  full_name: "收尾清理"
+  order: 11
+  phase: "post_workflow"
+  mode: "execution"
+
+  description: |
+    清理临时文件，准备合并到主线。
+    这不是Phase，而是工作流的收尾步骤。
+
+  objectives:
+    - "清理临时文件（.temp/）"
+    - "检查文档规范"
+    - "最终版本一致性验证"
+    - "准备PR"
+
+  mandatory_tasks:
+    - name: "Clean Temp Files"
+      description: "删除.temp/目录中的临时文件"
+      command: "rm -rf .temp/*"
+
+    - name: "Document Check"
+      description: "确保根目录文档≤7个"
+      blocker: true
+
+    - name: "Final Version Check"
+      description: "最终验证5个文件版本一致"
+      script: "bash scripts/check_version_consistency.sh"
+      blocker: true
+
+    - name: "Prepare PR"
+      description: "准备Pull Request"
+      checklist:
+        - "分支名清晰"
+        - "commit message规范"
+        - "所有CI检查通过"
+
+  outputs:
+    - "干净的分支"
+    - "准备好的PR"
+
+  transition_to_merge:
+    condition: "用户明确说'merge回主线'或'merge'"
+    manual: true
+    blocking: "必须等待用户明确指令"
+
+  ai_instructions: |
+    - 清理所有.temp/文件
+    - 运行最终版本一致性检查
+    - 说"分支已准备好，等待您说'merge'"
+    - 不主动merge，等用户明确指令
+
+  estimated_duration: "5-10分钟"
+
+# ═══════════════════════════════════════════════════════════════
+# 工作流转折点（Critical Transition Points）
+# ═══════════════════════════════════════════════════════════════
+critical_transitions:
+  step_1_to_2:
+    trigger: "用户说开始实施"
+    significance: "从讨论模式切换到执行模式"
+    mode_change: "discussion → execution"
+    irreversible: false
+
+  step_2_to_3:
+    trigger: "分支检查通过"
+    significance: "进入实际开发Phase"
+    blocker: true
+    irreversible: false
+
+  step_3_to_4:
+    trigger: "Phase 0完成"
+    significance: "触发自动化评估"
+    automatic: true
+
+  step_4_to_5:
+    trigger: "评估完成"
+    significance: "开始规划，Agent数量已确定"
+    automatic: true
+
+  step_7_to_8:
+    trigger: "所有自动化测试通过"
+    significance: "进入人工审查阶段"
+    blocker: true
+    quality_gate: "第一道质量门禁"
+
+  step_8_to_9:
+    trigger: "人工审查通过"
+    significance: "进入发布准备"
+    blocker: true
+    quality_gate: "第二道质量门禁"
+
+  step_10_to_11:
+    trigger: "用户确认'没问题'"
+    significance: "进入收尾清理"
+    manual: true
+    blocker: true
+
+  step_11_to_merge:
+    trigger: "用户说'merge'"
+    significance: "合并到主线"
+    manual: true
+    blocker: true
+    final_step: true
+
+# ═══════════════════════════════════════════════════════════════
+# 模式切换规则
+# ═══════════════════════════════════════════════════════════════
+mode_switching:
+  discussion_mode:
+    default: true
+    characteristics:
+      - "自由探索和分析问题"
+      - "Hook仅提供建议，不强制执行"
+      - "可以读取文件，分析代码"
+      - "禁止修改文件（保持只读）"
+    suitable_for:
+      - "需求澄清"
+      - "方案设计"
+      - "技术咨询"
+
+  execution_mode:
+    trigger_keywords:
+      - "启动工作流"
+      - "开始执行"
+      - "let's implement"
+      - "开始实现"
+    characteristics:
+      - "激活完整11步工作流"
+      - "Hook严格执行验证"
+      - "必须多Agent并行（基于评估结果）"
+      - "可以修改文件、创建代码"
+    suitable_for:
+      - "实际开发"
+      - "编码任务"
+      - "系统修改"
+
+  mode_persistence:
+    rule: "模式在会话中保持，直到显式切换"
+    reset: "每个新会话默认为讨论模式"
+
+# ═══════════════════════════════════════════════════════════════
+# 质量保障理念
+# ═══════════════════════════════════════════════════════════════
+quality_assurance:
+  left_shift:
+    principle: "越早发现问题，修复成本越低"
+    implementation:
+      - "Step 2: 分支检查（防止在main上修改）"
+      - "Step 7: 技术质量门禁（自动化检查）"
+      - "Step 8: 代码质量门禁（人工审查）"
+      - "Step 10: 最终验收门禁（用户确认）"
+
+  zero_compromise:
+    principle: "质量不能妥协"
+    rules:
+      - "blocker检查失败必须修复"
+      - "不允许跳过质量门禁"
+      - "发现问题必须返回修复"
+
+  continuous_verification:
+    checkpoints:
+      - "Step 2: 分支正确性"
+      - "Step 3: 验收清单完整性"
+      - "Step 7: 自动化测试通过"
+      - "Step 8: 代码审查通过"
+      - "Step 10: 用户验收通过"
+      - "Step 11: 版本一致性"
+
+# ═══════════════════════════════════════════════════════════════
+# AI执行指南
+# ═══════════════════════════════════════════════════════════════
+ai_execution_guide:
+  step_by_step:
+    principle: "严格按照11步顺序执行，不跳步"
+
+  blocking_vs_automatic:
+    automatic_transitions:
+      - "Step 3 → Step 4（Phase 0完成自动评估）"
+      - "Step 4 → Step 5（评估完成自动进入规划）"
+      - "Step 5 → Step 6（PLAN完成自动进入实现）"
+
+    blocking_transitions:
+      - "Step 1 → Step 2（等待用户说'开始实施'）"
+      - "Step 7 → Step 8（必须测试通过）"
+      - "Step 8 → Step 9（必须审查通过）"
+      - "Step 10 → Step 11（等待用户说'没问题'）"
+      - "Step 11 → Merge（等待用户说'merge'）"
+
+  error_recovery:
+    on_test_failure:
+      action: "返回Step 6（Phase 2）修复代码"
+      then: "重新执行Step 7-11"
+
+    on_review_failure:
+      action: "返回Step 6（Phase 2）重写代码"
+      then: "重新执行Step 7-11"
+
+    on_user_rejection:
+      action: "根据用户反馈返回对应Step"
+      then: "重新执行后续Steps"
+
+  communication:
+    progress_updates:
+      - "明确告知当前在哪个Step"
+      - "说明每个Step的目的"
+      - "汇报关键转折点"
+
+    waiting_for_user:
+      - "明确说明在等待用户输入"
+      - "告诉用户需要什么回复"
+      - "例: '请您确认是否没问题'"

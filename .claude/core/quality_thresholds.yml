@@ -1,0 +1,472 @@
+# Claude Enhancer Quality Thresholds
+# Layer: Core
+# Version: 1.0.0
+# Last Updated: 2025-10-19
+#
+# 此文件定义了质量门禁的所有阈值和标准
+# 修改此文件需要Major版本升级（如v6→v7）
+#
+# 依赖规则: 只能被Main层和Feature层引用，不能依赖Feature层
+
+metadata:
+  system_version: "6.6.0"
+  thresholds_version: "1.0.0"
+  description: "Quality gates and thresholds for all phases"
+
+# ═══════════════════════════════════════════════════════════════
+# Phase 3质量阈值（技术质量门禁）
+# ═══════════════════════════════════════════════════════════════
+phase_3_thresholds:
+  static_checks:
+    shell_syntax:
+      blocker: true
+      check: "bash -n"
+      threshold: "0 errors"
+      description: "Shell脚本语法检查，不允许语法错误"
+
+    shellcheck:
+      blocker: true
+      tool: "shellcheck"
+      severity: "error"
+      threshold: "0 errors"
+      warnings_allowed: true
+      description: "Shell脚本静态分析，严重错误必须修复"
+
+    code_complexity:
+      blocker: true
+      metric: "function_length"
+      threshold: 150
+      unit: "lines"
+      description: "函数长度不超过150行"
+
+    hook_performance:
+      blocker: true
+      metric: "execution_time"
+      threshold: 2
+      unit: "seconds"
+      description: "Git hooks执行时间不超过2秒"
+      critical_threshold: 5
+      critical_action: "hard_block"
+
+  testing:
+    unit_tests:
+      blocker: true
+      required: true
+      coverage_threshold: 80
+      unit: "percent"
+      description: "单元测试覆盖率≥80%"
+
+    integration_tests:
+      blocker: false
+      required: false
+      description: "集成测试（可选）"
+
+    bdd_tests:
+      blocker: false
+      required: "conditional"
+      condition: "如果有acceptance/features/*.feature文件"
+      command: "npm run bdd"
+      description: "BDD测试必须通过"
+
+  performance:
+    benchmark:
+      blocker: false
+      required: false
+      description: "性能基准测试（可选）"
+
+    regression:
+      blocker: true
+      threshold: 10
+      unit: "percent"
+      description: "性能退化不超过10%"
+
+  security:
+    sensitive_data:
+      blocker: true
+      check: "grep -r 'password\\|secret\\|key'"
+      threshold: "0 matches"
+      description: "不允许硬编码敏感信息"
+
+    security_scan:
+      blocker: false
+      tools: ["bandit", "safety"]
+      description: "安全漏洞扫描（可选）"
+
+# ═══════════════════════════════════════════════════════════════
+# Phase 4质量阈值（代码质量门禁）
+# ═══════════════════════════════════════════════════════════════
+phase_4_thresholds:
+  pre_merge_audit:
+    config_integrity:
+      blocker: true
+      checks:
+        - "hooks正确注册"
+        - "权限设置正确"
+        - "配置文件语法正确"
+      description: "配置完整性验证"
+
+    version_consistency:
+      blocker: true
+      files_to_check:
+        - "VERSION"
+        - ".claude/settings.json"
+        - ".claude/manifest.yml"
+        - "package.json"
+        - "CHANGELOG.md"
+      rule: "所有版本号必须完全一致"
+      script: "bash scripts/check_version_consistency.sh"
+      description: "版本号一致性检查"
+
+    document_compliance:
+      blocker: true
+      rule: "根目录文档数量≤7"
+      allowed_documents:
+        - "README.md"
+        - "CLAUDE.md"
+        - "INSTALLATION.md"
+        - "ARCHITECTURE.md"
+        - "CONTRIBUTING.md"
+        - "CHANGELOG.md"
+        - "LICENSE.md"
+      description: "文档规范性检查"
+
+    legacy_issues:
+      blocker: false
+      patterns: ["TODO", "FIXME", "XXX", "HACK"]
+      severity: "warning"
+      description: "遗留问题扫描"
+
+    code_pattern_consistency:
+      blocker: true
+      rule: "相似功能必须使用统一实现"
+      description: "代码模式一致性验证"
+
+  human_code_review:
+    logic_correctness:
+      blocker: true
+      aspects:
+        - "IF判断逻辑正确"
+        - "return值语义正确"
+        - "循环条件正确"
+        - "边界情况处理"
+      description: "逻辑正确性审查"
+
+    code_consistency:
+      blocker: true
+      rule: "Layers 1-6逻辑统一"
+      description: "代码一致性审查"
+
+    error_handling:
+      blocker: true
+      requirements:
+        - "异常捕获完整"
+        - "错误信息清晰"
+        - "回滚机制完善"
+      description: "错误处理审查"
+
+    performance_review:
+      blocker: false
+      checks:
+        - "无不合理的循环"
+        - "无重复计算"
+        - "数据结构使用合理"
+      description: "性能考虑审查"
+
+  acceptance_verification:
+    blocker: true
+    process: "对照Phase 0验收清单逐项验证"
+    rule: "所有验收项必须✅"
+    description: "验收清单对照验证"
+
+  review_document:
+    blocker: true
+    name: "REVIEW.md"
+    min_length: 100
+    unit: "lines"
+    required_sections:
+      - "审查概述"
+      - "代码质量评估"
+      - "发现的问题和修复"
+      - "Phase 0验收清单对照"
+      - "审查结论"
+    description: "完整的审查报告"
+
+# ═══════════════════════════════════════════════════════════════
+# Phase 5质量阈值（最终确认门禁）
+# ═══════════════════════════════════════════════════════════════
+phase_5_thresholds:
+  documentation:
+    changelog:
+      blocker: true
+      rule: "CHANGELOG.md必须包含新版本记录"
+      format: |
+        ## [X.Y.Z] - YYYY-MM-DD
+        ### Added/Changed/Fixed
+        - 变更描述
+      description: "CHANGELOG更新检查"
+
+    readme:
+      blocker: false
+      rule: "如有新功能，更新README.md"
+      description: "README更新（可选）"
+
+  version_management:
+    version_consistency:
+      blocker: true
+      rule: "5个文件版本号完全一致"
+      script: "bash scripts/check_version_consistency.sh"
+      description: "最终版本一致性验证"
+
+    version_format:
+      blocker: true
+      pattern: "^\\d+\\.\\d+\\.\\d+$"
+      example: "6.6.0"
+      description: "语义化版本格式验证"
+
+    git_tag:
+      blocker: false
+      format: "vX.Y.Z"
+      command: "git tag -a vX.Y.Z -m 'Release X.Y.Z'"
+      description: "Git tag创建"
+
+  final_acceptance:
+    blocker: true
+    process: "对照Phase 0 checklist最终验收"
+    rule: "所有验收项都✅"
+    user_confirmation: "必须等待用户说'没问题'"
+    description: "最终验收确认"
+
+  iron_rule:
+    rule: "Phase 5不应该发现bugs"
+    action_on_bug: "返回Phase 4重新审查"
+    principle: "Phase 5是确认阶段，不是发现问题阶段"
+
+# ═══════════════════════════════════════════════════════════════
+# Step 11质量阈值（收尾清理）
+# ═══════════════════════════════════════════════════════════════
+step_11_thresholds:
+  cleanup:
+    temp_files:
+      blocker: false
+      action: "清理.temp/目录"
+      command: "rm -rf .temp/*"
+      description: "临时文件清理"
+
+    document_count:
+      blocker: true
+      rule: "根目录文档数量≤7"
+      description: "文档数量检查"
+
+    version_final_check:
+      blocker: true
+      script: "bash scripts/check_version_consistency.sh"
+      description: "最终版本一致性检查"
+
+  merge_readiness:
+    branch_clean:
+      blocker: true
+      checks:
+        - "无未提交的修改"
+        - "分支名清晰"
+        - "commit message规范"
+      description: "分支清洁度检查"
+
+    ci_status:
+      blocker: true
+      rule: "所有CI检查必须通过"
+      description: "CI状态检查"
+
+    user_confirmation:
+      blocker: true
+      required: "用户明确说'merge回主线'或'merge'"
+      description: "用户merge确认"
+
+# ═══════════════════════════════════════════════════════════════
+# 通用质量标准
+# ═══════════════════════════════════════════════════════════════
+general_standards:
+  code_quality:
+    readability:
+      principle: "代码必须清晰易读"
+      rules:
+        - "变量命名有意义"
+        - "函数职责单一"
+        - "注释充分但不冗余"
+
+    maintainability:
+      principle: "代码必须易于维护"
+      rules:
+        - "低耦合高内聚"
+        - "遵循DRY原则"
+        - "避免过度抽象"
+
+    testability:
+      principle: "代码必须可测试"
+      rules:
+        - "函数可独立测试"
+        - "依赖可模拟"
+        - "边界清晰"
+
+  documentation_quality:
+    completeness:
+      rule: "文档必须完整"
+      checks:
+        - "API文档完整"
+        - "使用示例清晰"
+        - "FAQ覆盖常见问题"
+
+    accuracy:
+      rule: "文档必须准确"
+      checks:
+        - "与代码实现一致"
+        - "版本信息正确"
+        - "链接有效"
+
+    clarity:
+      rule: "文档必须清晰"
+      checks:
+        - "结构层次分明"
+        - "语言简洁明了"
+        - "格式规范统一"
+
+  git_standards:
+    commit_message:
+      format: "type(scope): description"
+      types: ["feat", "fix", "docs", "style", "refactor", "perf", "test", "chore"]
+      max_length: 72
+      description: "提交信息规范"
+
+    branch_naming:
+      patterns:
+        - "feature/*"
+        - "bugfix/*"
+        - "perf/*"
+        - "docs/*"
+        - "experiment/*"
+      description: "分支命名规范"
+
+    commit_frequency:
+      rule: "提交粒度适中"
+      guidance:
+        - "每个commit有明确意义"
+        - "不要过度碎片化"
+        - "不要巨型commit"
+
+# ═══════════════════════════════════════════════════════════════
+# 阈值调整规则
+# ═══════════════════════════════════════════════════════════════
+threshold_adjustment:
+  when_to_adjust:
+    - "Major版本升级时可以调整Core阈值"
+    - "Minor版本可以添加Feature阈值"
+    - "Patch版本不应该调整阈值"
+
+  how_to_adjust:
+    process:
+      - "创建feature分支"
+      - "修改quality_thresholds.yml"
+      - "更新Major版本号"
+      - "完整回归测试"
+      - "架构评审"
+      - "文档更新"
+
+  principles:
+    - "提高阈值需要充分理由"
+    - "降低阈值需要风险评估"
+    - "新增阈值需要验证可行性"
+    - "移除阈值需要架构决策"
+
+# ═══════════════════════════════════════════════════════════════
+# 质量指标追踪
+# ═══════════════════════════════════════════════════════════════
+quality_metrics:
+  bug_discovery_phase:
+    target:
+      phase_3: "50%"
+      phase_4: "40%"
+      phase_5: "<10%"
+    current:
+      phase_3: "TBD"
+      phase_4: "TBD"
+      phase_5: "TBD"
+    goal: "90%的bugs在Phase 3-4被发现"
+
+  test_coverage:
+    target: "≥80%"
+    current: "85%"
+    trend: "stable"
+
+  performance_regression:
+    target: "<10%"
+    current: "0%"
+    trend: "improving"
+
+  code_review_efficiency:
+    target: "<40分钟"
+    current: "~30分钟"
+    trend: "stable"
+
+  version_consistency_compliance:
+    target: "100%"
+    current: "100%"
+    trend: "stable"
+
+# ═══════════════════════════════════════════════════════════════
+# 质量理念总结
+# ═══════════════════════════════════════════════════════════════
+quality_philosophy:
+  shift_left:
+    principle: "越早发现问题，修复成本越低"
+    implementation:
+      - "Phase 3: 自动化技术检查"
+      - "Phase 4: 人工代码审查"
+      - "Phase 5: 最终确认"
+
+  zero_compromise:
+    principle: "质量不能妥协"
+    rules:
+      - "blocker检查失败必须修复"
+      - "不允许带问题发布"
+      - "不允许跳过质量门禁"
+
+  continuous_improvement:
+    principle: "持续改进质量流程"
+    methods:
+      - "追踪质量指标"
+      - "分析问题根因"
+      - "优化检查流程"
+      - "更新阈值标准"
+
+  automation_first:
+    principle: "能自动化的不手动"
+    benefits:
+      - "减少人为错误"
+      - "提高检查效率"
+      - "确保一致性"
+      - "释放人力做更高价值的事"
+
+# ═══════════════════════════════════════════════════════════════
+# AI执行指南
+# ═══════════════════════════════════════════════════════════════
+ai_execution_guide:
+  understanding_thresholds:
+    - "blocker: true的检查失败必须修复"
+    - "blocker: false的检查失败是警告"
+    - "阈值是硬性规定，不能妥协"
+
+  handling_failures:
+    on_blocker_failure:
+      action: "停止流程，返回修复"
+      communication: "明确告诉用户哪个检查失败，为什么失败"
+      next_step: "修复后重新执行检查"
+
+    on_warning:
+      action: "记录警告，继续流程"
+      communication: "告知用户有警告，但不阻塞"
+      logging: "记录到.workflow/logs/"
+
+  quality_mindset:
+    - "质量第一，速度第二"
+    - "自动化检查是朋友，不是敌人"
+    - "发现问题是好事，越早越好"
+    - "不要试图绕过质量门禁"

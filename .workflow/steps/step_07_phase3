@@ -1,0 +1,14 @@
+step: 7
+name: "Phase 3 - Testing"
+status: "pending"
+description: "Unit/integration/performance/BDD tests + static checks"
+required_script: "scripts/static_checks.sh"
+validation:
+  - "static_checks.sh executed and passed"
+  - "Shell syntax valid (bash -n)"
+  - "Shellcheck linting passed"
+  - "Code complexity acceptable"
+  - "Hook performance <2s"
+  - "Test files exist"
+blocking: true
+quality_gate: 1

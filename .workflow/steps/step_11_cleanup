@@ -1,0 +1,12 @@
+step: 11
+name: "Cleanup & Merge"
+status: "pending"
+description: "Clean temporary files, prepare for merge"
+validation:
+  - ".temp/ cleaned"
+  - "Documents comply with rules"
+  - "Version consistency final check"
+  - "PR prepared"
+scripts:
+  - "scripts/check_version_consistency.sh"
+awaiting: "User says 'merge to main'"

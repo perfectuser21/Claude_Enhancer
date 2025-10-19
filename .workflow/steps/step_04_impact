@@ -1,0 +1,16 @@
+step: 4
+name: "Impact Radius Assessment"
+status: "pending"
+description: "Automatic risk/complexity/scope assessment for agent strategy"
+responsible_hook: "smart_agent_selector.sh"
+outputs:
+  - ".workflow/impact_assessments/current.json"
+validation:
+  - "Impact radius score calculated"
+  - "Agent strategy recommended"
+  - "Risk factors identified"
+formula: "Radius = (Risk × 5) + (Complexity × 3) + (Scope × 2)"
+thresholds:
+  high_risk: 50
+  medium_risk: 30
+  low_risk: 0

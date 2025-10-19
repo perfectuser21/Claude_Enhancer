@@ -1,0 +1,350 @@
+# Claude Enhancer Feature Registry
+# Layer: Feature
+# Version: 1.0.0
+# Last Updated: 2025-10-19
+#
+# 此文件是Feature层的注册中心，记录所有可插拔功能模块
+# 修改此文件会触发Minor版本升级（如v6.5→v6.6）
+#
+# 依赖规则: Feature可以依赖Core和Module，但不能互相依赖
+
+metadata:
+  registry_version: "1.0.0"
+  system_version: "6.6.0"
+  total_features: 3
+  description: "Central registry for all pluggable features"
+
+# ═══════════════════════════════════════════════════════════════
+# Feature分类
+# ═══════════════════════════════════════════════════════════════
+feature_categories:
+  basic:
+    description: "基础功能，系统运行必需"
+    tier: 1
+    can_disable: false
+
+  standard:
+    description: "标准功能，推荐启用"
+    tier: 2
+    can_disable: true
+
+  advanced:
+    description: "高级功能，可选启用"
+    tier: 3
+    can_disable: true
+
+# ═══════════════════════════════════════════════════════════════
+# 已注册Features
+# ═══════════════════════════════════════════════════════════════
+
+# ───────────────────────────────────────────────────────────────
+# Standard Features
+# ───────────────────────────────────────────────────────────────
+features:
+  smart_document_loading:
+    name: "Smart Document Loading"
+    full_name: "智能文档加载"
+    version: "1.0.0"
+    layer: "feature"
+    category: "standard"
+    status: "enabled"
+    added_in: "6.5.0"
+
+    description: |
+      智能文档加载策略，根据上下文自动选择需要加载的文档。
+      避免每次都加载所有文档，节省token。
+
+    location: ".claude/features/standard/smart_document_loading/"
+
+    dependencies:
+      core:
+        - "loader.py"
+      modules: []
+      features: []
+
+    files:
+      - "config.yaml"
+      - "loader.sh"
+      - "strategy.md"
+      - "README.md"
+
+    bdd_scenarios:
+      location: "acceptance/features/smart_document_loading.feature"
+      scenarios: 5
+
+    configuration:
+      configurable: true
+      config_file: ".claude/features/standard/smart_document_loading/config.yaml"
+      defaults:
+        strategy: "context_aware"
+        max_documents: 3
+
+    metrics:
+      token_savings: "~40%"
+      load_time_reduction: "~60%"
+
+  impact_radius_assessment:
+    name: "Impact Radius Assessment"
+    full_name: "影响半径自动评估"
+    version: "1.0.0"
+    layer: "feature"
+    category: "standard"
+    status: "enabled"
+    added_in: "6.5.1"
+
+    description: |
+      自动评估任务的风险、复杂度和影响范围。
+      基于评估结果智能推荐Agent数量（0/3/6）。
+
+    location: ".claude/hooks/smart_agent_selector.sh"
+
+    dependencies:
+      core:
+        - "workflow_rules.yml::step_4"
+      modules:
+        - "static_checks"
+      features: []
+
+    trigger:
+      when: "Phase 0完成后"
+      mechanism: "PrePrompt hook"
+
+    algorithm:
+      formula: "Radius = (Risk × 5) + (Complexity × 3) + (Scope × 2)"
+      thresholds:
+        high_risk: "≥50 → 6 agents"
+        medium_risk: "30-49 → 3 agents"
+        low_risk: "0-29 → 0 agents"
+
+    outputs:
+      file: ".workflow/impact_assessments/current.json"
+      fields:
+        - "impact_radius_score"
+        - "agent_strategy"
+        - "min_agents"
+        - "reasoning"
+
+    bdd_scenarios:
+      location: "acceptance/features/impact_assessment.feature"
+      scenarios: 8
+
+    metrics:
+      accuracy: "86% (26/30 samples)"
+      performance: "<50ms"
+
+  workflow_enforcer:
+    name: "Workflow Enforcer"
+    full_name: "工作流强制执行器"
+    version: "1.0.0"
+    layer: "feature"
+    category: "basic"
+    status: "enabled"
+    added_in: "6.0.0"
+
+    description: |
+      强制执行6-Phase工作流和11步流程。
+      确保AI严格遵循工作流规则。
+
+    location: ".claude/hooks/workflow_enforcer.sh"
+
+    dependencies:
+      core:
+        - "phase_definitions.yml"
+        - "workflow_rules.yml"
+      modules:
+        - "static_checks"
+        - "pre_merge_audit"
+      features: []
+
+    trigger:
+      when: "PrePrompt阶段"
+      mechanism: "每次AI响应前检查"
+
+    enforcement_rules:
+      - "Phase必须按顺序执行"
+      - "blocker检查失败阻止进入下一Phase"
+      - "质量门禁不能跳过"
+
+    bdd_scenarios:
+      location: "acceptance/features/workflow.feature"
+      scenarios: 12
+
+# ───────────────────────────────────────────────────────────────
+# Advanced Features（未来扩展）
+# ───────────────────────────────────────────────────────────────
+  # 预留位置，未来可添加：
+  # - ai_code_review（AI代码审查）
+  # - auto_documentation（自动文档生成）
+  # - performance_profiling（性能分析）
+  # - security_hardening（安全加固）
+
+# ═══════════════════════════════════════════════════════════════
+# Feature生命周期管理
+# ═══════════════════════════════════════════════════════════════
+lifecycle:
+  adding_feature:
+    steps:
+      1: "创建Feature目录和文件"
+      2: "在registry.yml中注册（本文件）"
+      3: "添加BDD测试场景"
+      4: "编写Feature文档"
+      5: "通过Phase 3-4验证"
+      6: "更新Minor版本号（v6.5→v6.6）"
+
+    template:
+      name: "feature_name"
+      full_name: "功能全名"
+      version: "1.0.0"
+      layer: "feature"
+      category: "standard/advanced"
+      status: "enabled/disabled"
+      added_in: "6.x.0"
+      description: "功能描述"
+      location: ".claude/features/xxx/"
+      dependencies:
+        core: []
+        modules: []
+        features: []
+      bdd_scenarios:
+        location: "acceptance/features/xxx.feature"
+        scenarios: 0
+
+  disabling_feature:
+    method: "修改status为'disabled'"
+    effect: "Feature不会被加载，但代码保留"
+    use_case: "临时禁用某个功能"
+
+  removing_feature:
+    method: "从registry.yml删除，删除代码"
+    version_impact: "Minor版本升级"
+    warning: "确保没有其他Feature依赖"
+
+  updating_feature:
+    version_rule: "Feature内部版本独立管理"
+    system_version: "更新Feature触发系统Minor升级"
+
+# ═══════════════════════════════════════════════════════════════
+# Feature依赖图
+# ═══════════════════════════════════════════════════════════════
+dependency_graph:
+  visualization: |
+    Core Layer (不能依赖Feature)
+      ├── phase_definitions.yml
+      ├── workflow_rules.yml
+      └── quality_thresholds.yml
+              ↑
+              │ 被依赖
+              │
+    Feature Layer
+      ├── workflow_enforcer (依赖Core)
+      ├── impact_radius_assessment (依赖Core + Module)
+      └── smart_document_loading (依赖Core)
+              ↑
+              │ 调用
+              │
+    Module Layer (完全独立)
+      ├── static_checks
+      ├── pre_merge_audit
+      └── check_version_consistency
+
+  validation_rules:
+    - "Core不能出现在Feature的dependencies.features中"
+    - "Feature A不能出现在Feature B的dependencies.features中"
+    - "循环依赖检测"
+
+# ═══════════════════════════════════════════════════════════════
+# Feature规范
+# ═══════════════════════════════════════════════════════════════
+feature_standards:
+  required_files:
+    - "README.md（Feature说明）"
+    - "config.yaml（配置文件，如果可配置）"
+
+  optional_files:
+    - "strategy.md（设计文档）"
+    - "examples/（示例代码）"
+
+  documentation:
+    must_include:
+      - "功能描述"
+      - "使用方法"
+      - "配置选项"
+      - "依赖关系"
+      - "BDD场景说明"
+
+  testing:
+    required:
+      - "至少3个BDD场景"
+      - "覆盖核心功能路径"
+      - "包含错误处理场景"
+
+  versioning:
+    format: "X.Y.Z"
+    rules:
+      - "X: 破坏性变更"
+      - "Y: 新增功能"
+      - "Z: Bug修复"
+
+# ═══════════════════════════════════════════════════════════════
+# Feature统计
+# ═══════════════════════════════════════════════════════════════
+statistics:
+  total_features: 3
+  by_category:
+    basic: 1
+    standard: 2
+    advanced: 0
+
+  by_status:
+    enabled: 3
+    disabled: 0
+
+  total_bdd_scenarios: 25
+
+  average_feature_size:
+    files: 4
+    lines_of_code: "~500"
+
+# ═══════════════════════════════════════════════════════════════
+# 未来路线图
+# ═══════════════════════════════════════════════════════════════
+roadmap:
+  v6_7:
+    planned_features:
+      - name: "ai_code_review"
+        description: "AI自动代码审查"
+        priority: "medium"
+
+      - name: "auto_documentation"
+        description: "自动生成API文档"
+        priority: "low"
+
+  v6_8:
+    planned_features:
+      - name: "performance_profiling"
+        description: "性能分析和优化建议"
+        priority: "medium"
+
+      - name: "security_hardening"
+        description: "安全加固检查"
+        priority: "high"
+
+# ═══════════════════════════════════════════════════════════════
+# 维护指南
+# ═══════════════════════════════════════════════════════════════
+maintenance:
+  regular_tasks:
+    - "每季度审查Feature启用状态"
+    - "每半年评估Feature性能指标"
+    - "每年评估Feature是否应该移除"
+
+  health_checks:
+    - "所有enabled的Feature必须有BDD场景"
+    - "所有Feature必须有文档"
+    - "依赖关系不能有循环"
+    - "没有孤立的Feature（被依赖但disabled）"
+
+  quality_metrics:
+    - "BDD场景通过率：100%"
+    - "Feature文档完整性：100%"
+    - "依赖关系合规性：100%"
