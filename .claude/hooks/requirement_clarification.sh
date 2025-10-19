@@ -14,9 +14,21 @@ if [[ -f "$WORKFLOW_DIR/REQUIREMENTS_CLARIFIED" ]]; then
     exit 0
 fi
 
-# 检查是否在讨论模式（不是执行模式）
+# CRITICAL FIX: Check if trying to code without clarification
+# If in execution mode WITHOUT clarification = HARD BLOCK
+if [[ -f "$WORKFLOW_DIR/ACTIVE" ]] && [[ ! -f "$WORKFLOW_DIR/REQUIREMENTS_CLARIFIED" ]]; then
+    # Coding without clarification - HARD BLOCK
+    LOG_FILE="$WORKFLOW_DIR/logs/enforcement_violations.log"
+    mkdir -p "$(dirname "$LOG_FILE")"
+    echo "[$(date +'%F %T')] [requirement_clarification.sh] [BLOCK] Requirements not clarified before coding task" >> "$LOG_FILE"
+
+    echo "🚨 Requirements not clarified before coding!" >&2
+    echo "   Please complete requirement discussion first" >&2
+    exit 1
+fi
+
+# If in execution mode WITH clarification, allow
 if [[ -f "$WORKFLOW_DIR/ACTIVE" ]]; then
-    # 已经在执行模式，不需要澄清
     exit 0
 fi
 
@@ -187,4 +199,10 @@ cat <<'EOF'
 
 EOF
 
+# If in auto mode, skip prompting (requirements already clarified)
+if [[ "${CE_AUTO_MODE:-false}" == "true" ]]; then
+    exit 0
+fi
+
+# In manual mode, show the guidance above and allow discussion
 exit 0

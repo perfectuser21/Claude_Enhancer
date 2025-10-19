@@ -61,9 +61,22 @@ check_quality() {
         return 0
     else
         if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
-            echo "⚠️ 质量评分较低，建议优化" >&2
+            echo "❌ 质量评分过低 ($score/100)，阻止执行" >&2
+            echo "💡 请优化后重试" >&2
         fi
-        return 0  # 不阻止执行，只给建议
+
+        # CRITICAL FIX: Exit 1 for Phase 5/6 quality gate failures
+        # Check if in critical phase (Phase 5 = Testing, Phase 6 = Review)
+        if [[ -f "$PROJECT_ROOT/.workflow/current" ]]; then
+            local current_phase
+            current_phase=$(cat "$PROJECT_ROOT/.workflow/current" | tr -d '[:space:]' || echo "")
+            if [[ "$current_phase" =~ ^(Phase5|P5|Phase6|P6)$ ]]; then
+                echo "🚫 Quality gate failed in $current_phase - BLOCKING" >&2
+                exit 1  # Hard block in critical phases
+            fi
+        fi
+
+        return 0  # Soft warning in other phases
     fi
 }
 

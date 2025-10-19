@@ -258,8 +258,13 @@ enforce_workflow() {
         echo "[Workflow] 使用 ./.workflow/executor.sh 管理流程"
     fi
 
-    # 返回阻塞信号
-    return 1
+    # 记录enforcement日志
+    LOG_FILE="$PROJECT_ROOT/.workflow/logs/enforcement_violations.log"
+    mkdir -p "$(dirname "$LOG_FILE")"
+    echo "[$(date +'%F %T')] [workflow_enforcer.sh] [BLOCK] Programming task detected but workflow not followed (Phase: $current_phase)" >> "$LOG_FILE"
+
+    # 硬阻止：返回exit 1而不是return 1
+    exit 1
 }
 
 # 主函数
