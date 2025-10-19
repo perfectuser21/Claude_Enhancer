@@ -1,6 +1,6 @@
 # Architecture Guide - Claude Enhancer 6.2.0
 
-Technical architecture and design of the 8-Phase AI programming workflow system.
+Technical architecture and design of the 7-Phase AI programming workflow system.
 
 ## System Overview
 

@@ -82,7 +82,7 @@ Claude Enhancer v6.5是一个**AI驱动的软件开发工作流系统**，核心
 **决策层级**：
 ```
 Level 1: 用户意图理解（讨论模式 vs 执行模式）
-Level 2: 分支策略（Phase -1强制检查）
+Level 2: 分支策略（Phase 1强制检查）
 Level 3: 任务复杂度评估（4/6/8 Agent选择）
 Level 4: 工作流阶段控制（Phase 1-7顺序执行）
 Level 5: 质量门禁判断（Phase 3/4的PASS/FAIL）
@@ -124,7 +124,7 @@ Step 10: Cleanup & Merge        → 【不是Phase】收尾清理
 |------------|------------|
 | "Phase 6存在吗？" | 不存在，最高Phase是Phase 5 |
 | "为什么有10步但只有7个Phase？" | Steps包含非Phase步骤（准备、确认、清理） |
-| "Phase -1算不算7-Phase之一？" | 不算，它是前置检查，独立于7-Phase系统 |
+| "Phase 1算不算7-Phase之一？" | 不算，它是前置检查，独立于7-Phase系统 |
 | "7-Phase系统 = Phase 1到Phase 6" | **错误！** 7-Phase系统 = Phase 1到Phase 7 |
 | "P6是什么？" | v6.3之前是发布阶段，v6.3+已合并到Phase 5 |
 
@@ -308,12 +308,12 @@ Step 10: Cleanup & Merge        → 【不是Phase】收尾清理
 **决策类型分布**：
 - **模式判断** (1个): 讨论模式 vs 执行模式
 - **分支判断** (3个): 分支状态、匹配度、绑定验证
-- **Agent选择** (3个): Phase 0/1/2的Agent数量
+- **Agent选择** (3个): Phase 2/1/2的Agent数量
 - **质量门禁** (11个): Phase 3的5个 + Phase 4的6个
 - **用户确认** (3个): 开始实现、验收确认、merge确认
 
 **强制执行点**：
-- **Phase -1**: 100%强制（Hook exit 1阻止）
+- **Phase 1**: 100%强制（Hook exit 1阻止）
 - **Phase 3**: 100%强制（脚本失败则阻止）
 - **Phase 4**: 100%强制（critical issue阻止）
 - **其他**: 建议性（可人工绕过）
@@ -374,7 +374,7 @@ Step 1 开始
 │
 └─ [下一步]
    ├─ 如果mode == "discussion" → 继续Step 1（循环澄清）
-   └─ 如果mode == "execution" → 进入Step 2（Phase -1）
+   └─ 如果mode == "execution" → 进入Step 2（Phase 1）
 ```
 
 **关键判断逻辑**:
@@ -457,7 +457,7 @@ Step 1决策:
 └─ 输出:
    AI: "需求明确。进入执行模式。"
 
-   进入Step 2（Phase -1）
+   进入Step 2（Phase 1）
 ```
 
 **错误处理**:
@@ -545,7 +545,7 @@ Step 2 开始 (Phase 1)
 │  │     ├─ [子判断2.2.5] 根据匹配度决策
 │  │     │  ├─ match_score ≥ 0.8 → [明显匹配]
 │  │     │  │  ├─ 输出: "当前分支匹配，继续在此开发"
-│  │     │  │  └─ 继续Phase 0（不询问用户）
+│  │     │  │  └─ 继续Phase 2（不询问用户）
 │  │     │  │
 │  │     │  ├─ 0.3 ≤ match_score < 0.8 → [不确定]
 │  │     │  │  ├─ 输出简短询问:
@@ -742,7 +742,7 @@ def calculate_semantic_match(branch_keywords, task_keywords, has_continue):
 当前分支: main
 用户输入: "实现用户登录功能"
 
-Phase -1决策:
+Phase 1决策:
 ├─ 判断2.2: 检测到main分支 → [分支A]
 ├─ 子判断2.2.1: 提取"实现"+"登录" → feature/
 ├─ 生成建议: "feature/user-login"
@@ -763,7 +763,7 @@ Phase -1决策:
 当前分支: feature/user-authentication
 用户输入: "继续实现登录功能，添加密码验证"
 
-Phase -1决策:
+Phase 1决策:
 ├─ 判断2.2: 检测到feature/分支 → [分支B]
 ├─ 子判断2.2.2: 分支关键词 = ["user", "authentication"]
 ├─ 子判断2.2.3: 任务关键词 = ["login", "password"], has_continue = true
@@ -784,7 +784,7 @@ Phase -1决策:
 当前分支: feature/user-authentication
 用户输入: "添加邮件验证功能"
 
-Phase -1决策:
+Phase 1决策:
 ├─ 判断2.2: 检测到feature/分支 → [分支B]
 ├─ 子判断2.2.2: 分支关键词 = ["user", "authentication"]
 ├─ 子判断2.2.3: 任务关键词 = ["email", "verification"], has_continue = false
@@ -822,7 +822,7 @@ Phase -1决策:
 ├─ 捕获异常: JSON ParseError
 ├─ 降级策略: 允许操作（不阻止）
 ├─ 警告日志: "task_branch_map.json corrupted, degrading gracefully"
-└─ 继续Phase 0（不验证绑定）
+└─ 继续Phase 2（不验证绑定）
 
 [错误C] Hook脚本不存在
 ├─ 检测: [! -x "$HOOK_PATH"]
@@ -883,7 +883,7 @@ Step 3 开始 (Phase 2)
 │
 ├─ [判断3.4] P0_CHECKLIST.md 是否创建？
 │  ├─ 否 → ❌ 阻止继续（必须产出）
-│  │  └─ 错误: "Phase 0必须产出验收清单"
+│  │  └─ 错误: "Phase 2必须产出验收清单"
 │  └─ 是 → 继续验证
 │
 ├─ [判断3.5] 验收清单是否完整？
@@ -985,8 +985,8 @@ Step 3 开始 (Phase 2)
 
 ```
 Step 4 开始 (Phase 1)
-├─ [判断4.1] 任务复杂度评估（继承Phase 0结果）
-│  └─ 根据Phase 0推荐的复杂度:
+├─ [判断4.1] 任务复杂度评估（继承Phase 2结果）
+│  └─ 根据Phase 2推荐的复杂度:
 │     ├─ 简单 → agent_count = 4
 │     ├─ 标准 → agent_count = 5
 │     └─ 复杂 → agent_count = 6
@@ -2402,7 +2402,7 @@ Step 8 开始 (Phase 5)
     │      └─ 告警配置（observability/alerts/）
     └─ 否 → 继续
            ↓
-[判断8.5] Phase 0验收清单是否100%完成？
+[判断8.5] Phase 2验收清单是否100%完成？
     ├─ ❌ 否 → 🔴 CRITICAL ERROR
     │      ├─ 列出未完成项
     │      ├─ 返回Phase 2补充功能
@@ -2600,10 +2600,10 @@ if monitoring_config['probes']:
     setup_health_probes()
 ```
 
-**[判断8.5] Phase 0验收清单100%完成？**
+**[判断8.5] Phase 2验收清单100%完成？**
 ```python
 def verify_p0_checklist_completion():
-    """验证Phase 0验收清单是否100%完成"""
+    """验证Phase 2验收清单是否100%完成"""
 
     # 1. 读取P0_CHECKLIST.md
     if not os.path.exists("docs/P0_CHECKLIST.md"):
@@ -3530,9 +3530,9 @@ Claude Enhancer v6.5有**17个active hooks**，分布在4个触发点。以下�
    - 决策点：判断是否包含执行触发词
 
 #### PrePrompt Hook (5个)
-3. **force_branch_check.sh** - 强制分支检查（Phase -1）
+3. **force_branch_check.sh** - 强制分支检查（Phase 1）
    - 触发时机：AI准备生成响应之前
-   - 功能：强制执行Phase -1分支检查
+   - 功能：强制执行Phase 1分支检查
    - 决策点：如果任务是编码任务 → 必须检查分支
 
 4. **ai_behavior_monitor.sh** - AI行为监控（防止违反规则）
@@ -3546,11 +3546,11 @@ Claude Enhancer v6.5有**17个active hooks**，分布在4个触发点。以下�
    - 决策点：判断是否跳过了某个Phase
 
 6. **smart_agent_selector.sh** - 智能Agent选择（4-6-8原则）
-   - 触发时机：Phase 0/1/2阶段
+   - 触发时机：Phase 2/1/2阶段
    - 功能：根据任务复杂度推荐Agent数量
    - 决策点：简单4 / 标准6 / 复杂8
 
-7. **gap_scan.sh** - 差距扫描（Phase 0支持）
+7. **gap_scan.sh** - 差距扫描（Phase 2支持）
    - 触发时机：Phase 2 Discovery阶段
    - 功能：扫描系统当前能力与目标的差距
    - 决策点：分析缺失功能和需要改进的部分
@@ -3904,7 +3904,7 @@ Claude Enhancer有**7个PreToolUse hooks**，按执行顺序：
 
 **决策逻辑**:
 ```bash
-# 最高优先级：Phase -1分支检查
+# 最高优先级：Phase 1分支检查
 [判断] 当前在哪个分支？
     ├─ main/master → BLOCK + 提示创建feature分支
     ├─ feature/xxx → 警告（建议检查分支匹配）
@@ -3977,7 +3977,7 @@ Claude Enhancer有**7个PreToolUse hooks**，按执行顺序：
 
 **决策逻辑**:
 ```bash
-# Phase 0验收清单验证
+# Phase 2验收清单验证
 [判断] 是否在Phase 5？
     ├─ 否 → 跳过
     └─ 是 → 验证P0_CHECKLIST.md
@@ -4688,7 +4688,7 @@ Git操作失败
 
 ## Step 6: 实施计划
 
-### 阶段1: 准备（Phase 0）
+### 阶段1: 准备（Phase 2）
 - [ ] 完成完整决策树文档
 - [ ] 完成影响分析报告
 - [ ] 用户审核并批准

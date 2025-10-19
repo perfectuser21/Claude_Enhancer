@@ -131,7 +131,7 @@ Claude Enhancer 6.3将原P2-P7的8阶段系统优化为Phase 1-7的7阶段系统
             【用户确认OK】
                    ↓
 ┌────────────────────────────────────────────────────────────┐
-│  Step 10: Phase 6 (P9) Cleanup & Merge（收尾与合并）        │
+│  Step 10: Cleanup & Merge（收尾与合并）【非Phase】         │
 │  - 清理临时文件（.temp/下的临时分析）                        │
 │  - 格式化最终代码                                            │
 │  - 等待CI通过（GitHub Actions）                             │
@@ -151,7 +151,7 @@ Claude Enhancer 6.3将原P2-P7的8阶段系统优化为Phase 1-7的7阶段系统
 **核心原则**: `新任务 = 新分支（No Exceptions）`
 
 #### 🎯 执行时机
-在进入执行模式（Phase 2-5）之前，**强制执行**
+在进入执行模式（Phase 2-7）之前，**强制执行**
 
 #### 📋 检查清单
 1. **分析当前分支**
@@ -291,7 +291,7 @@ AI响应: "🔍 分支策略判断
 
 ---
 
-### Phase 1: Planning & Architecture (规划+骨架)
+### Phase 3: Planning & Architecture (规划+骨架)
 
 **合并原P1（规划）+ P2（骨架），提升效率**
 
@@ -405,7 +405,7 @@ Phase 1: 规划+架构 → PLAN.md + 骨架（3-4分钟）
 
 ---
 
-### Phase 2: Implementation (核心实现)
+### Phase 4: Implementation (核心实现)
 
 **原P3保持不变，强调并行开发**
 
@@ -526,7 +526,7 @@ type:
 
 ---
 
-### Phase 3: Testing (质量验证)【质量门禁1】
+### Phase 5: Testing (质量验证)【质量门禁1】
 
 **原P4保持不变，强化自动化检查**
 
@@ -692,7 +692,7 @@ Phase 3检查失败
 
 ---
 
-### Phase 4: Review (代码审查)【质量门禁2】
+### Phase 6: Review (代码审查)【质量门禁2】
 
 **原P5保持不变，强化人工验证**
 
@@ -923,7 +923,7 @@ Phase 4发现问题
 
 ---
 
-### Phase 5: Release & Monitor (发布+监控)
+### Phase 7: Release & Monitor (发布+监控)
 
 **合并原P6（发布）+ P7（监控），统一发布管理**
 
@@ -1185,7 +1185,8 @@ Phase 5: 发布+监控（统一管理）
 
 ---
 
-### Phase 6 (P9): Cleanup & Merge (收尾与合并)
+### Step 10: Cleanup & Merge (收尾与合并)
+**注：非Phase，是工作流收尾步骤**
 
 **新增阶段，专门处理最终清理和合并**
 

@@ -1,4 +1,4 @@
-# Phase 0: Discovery - 工作流验证与可视化系统
+# Phase 2: Discovery - 工作流验证与可视化系统
 
 **日期**: 2025-10-17
 **任务**: 实现可验证的工作流完成度系统（Spec + Validator + Dashboard + 本地CI）
@@ -51,7 +51,7 @@ v6.2 → v6.3: 工作流统一（6个Phase最终版）
 
 ### 真实案例
 ```
-场景1：AI说"Phase 0完成了"
+场景1：AI说"Phase 2完成了"
 - 实际：docs/P0_DISCOVERY.md存在
 - 问题：文件只有标题，内容为空
 - 结果：3个月后发现验收清单从未创建
@@ -121,7 +121,7 @@ Git Hooks:
 ### 必须交付的成果
 
 #### 1. Spec定义（spec/workflow.spec.yaml）
-- [x] 定义Phase 0-5的完整步骤（75步）
+- [x] 定义Phase 2-5的完整步骤（75步）
 - [x] 每步都有可执行验证命令
 - [x] 包含6层防空壳检查：
   - [x] 结构强校验（标题、表格、列表数量）
@@ -141,7 +141,7 @@ Git Hooks:
 
 #### 3. 可视化Dashboard
 - [x] tools/web/dashboard.html（静态页面）
-- [x] 显示Phase 0-5进度条
+- [x] 显示Phase 2-5进度条
 - [x] 红色标记失败项
 - [x] 绿色标记通过项
 - [x] 整体进度百分比
@@ -208,7 +208,7 @@ Git Hooks:
 #### 场景1：空壳检测
 ```bash
 # 创建空文件
-echo "# Phase 0 Discovery" > docs/P0_DISCOVERY.md
+echo "# Phase 2 Discovery" > docs/P0_DISCOVERY.md
 
 # 运行验证
 bash scripts/workflow_validator.sh
@@ -216,7 +216,7 @@ bash scripts/workflow_validator.sh
 # 期望输出：
 # ❌ S002: 问题陈述定义（缺少"## Problem"）
 # ❌ S003: 可行性分析（缺少"## Feasibility"）
-# Phase 0进度: 1/10 (10%)
+# Phase 2进度: 1/10 (10%)
 # ❌ 不合格！通过率<80%
 ```
 
@@ -379,6 +379,6 @@ Radius = (Risk × 5) + (Complexity × 3) + (Scope × 2)
 
 ---
 
-**Phase 0完成标记**: 待验证
+**Phase 2完成标记**: 待验证
 **创建时间**: 2025-10-17
 **下一阶段**: Phase 1 - Planning & Architecture
