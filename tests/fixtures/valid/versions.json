@@ -1,0 +1,101 @@
+{
+  "schema_version": "1.0",
+  "last_updated": "2025-10-19T12:00:00Z",
+  "description": "Module version tracking for Claude Enhancer",
+
+  "modules": {
+    "static_checks": {
+      "version": "1.2.0",
+      "path": "scripts/static_checks.sh",
+      "type": "shell",
+      "dependencies": [],
+      "last_modified": "2025-10-15T10:30:00Z",
+      "maintainer": "devops-engineer",
+      "description": "Shell syntax and quality checks",
+      "changelog": [
+        {
+          "version": "1.2.0",
+          "date": "2025-10-15",
+          "changes": "Added complexity checks"
+        },
+        {
+          "version": "1.1.0",
+          "date": "2025-10-10",
+          "changes": "Added shellcheck integration"
+        },
+        {
+          "version": "1.0.0",
+          "date": "2025-10-01",
+          "changes": "Initial version"
+        }
+      ]
+    },
+
+    "pre_merge_audit": {
+      "version": "1.1.0",
+      "path": "scripts/pre_merge_audit.sh",
+      "type": "shell",
+      "dependencies": ["static_checks"],
+      "last_modified": "2025-10-12T14:20:00Z",
+      "maintainer": "code-reviewer",
+      "description": "Pre-merge quality audit",
+      "changelog": [
+        {
+          "version": "1.1.0",
+          "date": "2025-10-12",
+          "changes": "Added version consistency checks"
+        },
+        {
+          "version": "1.0.0",
+          "date": "2025-10-05",
+          "changes": "Initial audit script"
+        }
+      ]
+    },
+
+    "check_version_consistency": {
+      "version": "1.0.0",
+      "path": "scripts/check_version_consistency.sh",
+      "type": "shell",
+      "dependencies": [],
+      "last_modified": "2025-10-10T09:15:00Z",
+      "maintainer": "devops-engineer",
+      "description": "Verify version consistency across files",
+      "changelog": [
+        {
+          "version": "1.0.0",
+          "date": "2025-10-10",
+          "changes": "Initial version checker"
+        }
+      ]
+    },
+
+    "lazy_orchestrator": {
+      "version": "2.0.0",
+      "path": ".claude/core/lazy_orchestrator.py",
+      "type": "python",
+      "dependencies": [],
+      "last_modified": "2025-09-28T16:45:00Z",
+      "maintainer": "performance-engineer",
+      "description": "Lazy loading optimization system",
+      "changelog": [
+        {
+          "version": "2.0.0",
+          "date": "2025-09-28",
+          "changes": "Performance optimization - 68.75% improvement"
+        },
+        {
+          "version": "1.0.0",
+          "date": "2025-09-20",
+          "changes": "Initial lazy loading implementation"
+        }
+      ]
+    }
+  },
+
+  "validation_rules": {
+    "version_format": "^\\d+\\.\\d+\\.\\d+$",
+    "required_fields": ["version", "path", "type", "maintainer", "description"],
+    "allowed_types": ["shell", "python", "javascript", "config"]
+  }
+}

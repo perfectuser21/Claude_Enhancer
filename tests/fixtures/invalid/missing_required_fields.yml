@@ -1,0 +1,17 @@
+# tests/fixtures/invalid/missing_required_fields.yml
+# Invalid: Missing required fields
+
+version: "6.6.0"
+
+phases:
+  phase0:
+    name: "Discovery"
+    # MISSING: description
+    # MISSING: required_output
+    # MISSING: quality_gates
+
+  phase1:
+    # MISSING: name
+    description: "Planning phase"
+    required_output: []
+    # MISSING: quality_gates

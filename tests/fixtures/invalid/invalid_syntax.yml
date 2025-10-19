@@ -1,0 +1,8 @@
+# tests/fixtures/invalid/invalid_syntax.yml
+# Invalid: YAML syntax errors
+
+phases:
+  - this is not: [valid yaml
+    syntax error here
+    unclosed: [bracket
+  another_error: {unclosed: dict
