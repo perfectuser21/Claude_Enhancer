@@ -4,7 +4,7 @@ if [[ "$CE_AUTO_MODE" == "true" ]]; then
     export CE_SILENT_MODE=true
 fi
 # Claude Enhancer 工作流自动启动器
-# 真正的Phase 0：自动分支创建和工作流启动
+# Phase 1 (Branch Check): 自动分支创建和工作流启动
 
 # 统一日志记录（激活追踪）
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -148,32 +148,32 @@ detect_task_phase() {
     local description="$1"
     local normalized="${description,,}"
 
-    # 规划类任务 → P1
-    if [[ "$normalized" =~ (规划|计划|分析|设计文档|需求) ]]; then
-        echo "P1"
-        return
-    fi
-
-    # 骨架类任务 → P2
-    if [[ "$normalized" =~ (架构|骨架|结构|框架设计) ]]; then
+    # 探索类任务 → P2
+    if [[ "$normalized" =~ (探索|发现|调研|可行性) ]]; then
         echo "P2"
         return
     fi
 
-    # 实现类任务 → P3（默认）
-    if [[ "$normalized" =~ (实现|开发|编写|创建|修复|优化|重构) ]]; then
+    # 规划+架构类任务 → P3
+    if [[ "$normalized" =~ (规划|计划|分析|设计文档|需求|架构|骨架|结构|框架设计) ]]; then
         echo "P3"
         return
     fi
 
-    # 测试类任务 → P4
-    if [[ "$normalized" =~ (测试|验证|检查) ]]; then
+    # 实现类任务 → P4（默认）
+    if [[ "$normalized" =~ (实现|开发|编写|创建|修复|优化|重构) ]]; then
         echo "P4"
         return
     fi
 
-    # 默认P3
-    echo "P3"
+    # 测试类任务 → P5
+    if [[ "$normalized" =~ (测试|验证|检查) ]]; then
+        echo "P5"
+        return
+    fi
+
+    # 默认P4
+    echo "P4"
 }
 
 # 自动创建分支
@@ -198,7 +198,7 @@ auto_create_branch() {
     local branch_name="${phase}/${date_str}-${slug}"
 
     echo -e "${CYAN}╔═══════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${CYAN}║          🚀 Phase 0: 自动创建工作分支                    ║${NC}"
+    echo -e "${CYAN}║          🚀 Phase 1: 自动创建工作分支                    ║${NC}"
     echo -e "${CYAN}╚═══════════════════════════════════════════════════════════╝${NC}"
     echo
     echo -e "${BLUE}📍 任务描述：${NC}${description:0:60}..."
@@ -232,7 +232,7 @@ get_current_phase() {
     if [[ -f "$PHASE_DIR/current" ]]; then
         cat "$PHASE_DIR/current"
     else
-        echo "P0"
+        echo "P1"
     fi
 }
 
@@ -268,22 +268,21 @@ main() {
             echo "[Workflow] Execution mode triggered" >&2
         fi
 
-        # Phase 0: 自动创建分支
+        # Phase 1: 自动创建分支
         if auto_create_branch "$prompt"; then
             local phase
             phase=$(get_current_phase)
 
             # 显示工作流概览
-            echo -e "${BLUE}📋 8-Phase工作流：${NC}"
+            echo -e "${BLUE}📋 7-Phase工作流：${NC}"
             echo "┌─────────────────────────────────────────────────────┐"
-            echo "│ ✅ P0: 分支创建 - 已完成                            │"
-            echo "│ P1: 规划 - 需求分析，生成PLAN.md                   │"
-            echo "│ P2: 骨架 - 架构设计，创建目录结构                  │"
-            echo "│ P3: 实现 - 编码开发（多Agent并行）                 │"
-            echo "│ P4: 测试 - 单元/集成/性能/BDD测试                  │"
-            echo "│ P5: 审查 - 代码审查，生成REVIEW.md                 │"
-            echo "│ P6: 发布 - 文档更新，打tag，健康检查               │"
-            echo "│ P7: 监控 - 生产监控，SLO跟踪                       │"
+            echo "│ ✅ P1: 分支创建 - 已完成                            │"
+            echo "│ P2: 探索 - 技术spike，可行性验证                   │"
+            echo "│ P3: 规划+架构 - 需求分析+架构设计                  │"
+            echo "│ P4: 实现 - 编码开发（多Agent并行）                 │"
+            echo "│ P5: 测试 - 单元/集成/性能/BDD测试（质量门禁1）     │"
+            echo "│ P6: 审查 - 代码审查，生成REVIEW.md（质量门禁2）    │"
+            echo "│ P7: 发布+监控 - 文档更新，打tag，生产监控          │"
             echo "└─────────────────────────────────────────────────────┘"
             echo
 
@@ -320,8 +319,11 @@ main() {
 
             # 下一步提示
             echo -e "${GREEN}📝 下一步：${NC}"
-            if [[ "$phase" == "P1" ]]; then
-                echo "1. 创建 docs/PLAN.md（需求分析）"
+            if [[ "$phase" == "P2" ]]; then
+                echo "1. 进行技术探索和可行性验证"
+                echo "2. 使用推荐的Agent组合并行执行"
+            elif [[ "$phase" == "P3" ]]; then
+                echo "1. 创建 docs/PLAN.md（需求分析+架构设计）"
                 echo "2. 使用推荐的Agent组合并行执行"
             else
                 echo "1. 当前Phase: $phase"

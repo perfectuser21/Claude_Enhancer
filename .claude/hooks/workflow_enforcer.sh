@@ -4,7 +4,7 @@ if [[ "$CE_AUTO_MODE" == "true" ]]; then
     export CE_SILENT_MODE=true
 fi
 # Claude Enhancer 工作流强制执行器
-# 确保所有编程任务按照8-Phase工作流执行
+# 确保所有编程任务按照7-Phase工作流执行（Phase 1-7）
 
 # 统一日志记录（激活追踪）
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -27,7 +27,7 @@ get_current_phase() {
     if [[ -f "$PROJECT_ROOT/.phase/current" ]]; then
         cat "$PROJECT_ROOT/.phase/current"
     else
-        echo "P0"
+        echo "P1"
     fi
 }
 
@@ -73,36 +73,48 @@ enforce_workflow() {
     fi
 
     case "$current_phase" in
-        "P0"|"")
+        "P1"|"")
             if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
-                echo -e "${RED}❌ 错误：必须先创建分支（Phase 0）${NC}"
+                echo -e "${RED}❌ 错误：必须先创建分支（Phase 1）${NC}"
                 echo -e "${GREEN}✅ 请执行：git checkout -b feature/your-feature${NC}"
                 echo
                 echo -e "${YELLOW}工作流要求：${NC}"
-                echo "  1. Phase 0: 创建feature分支"
-                echo "  2. Phase 1: 创建计划文档 (docs/PLAN.md)"
-                echo "  3. Phase 2: 设计架构骨架"
-                echo "  4. Phase 3: 实现功能（4-6-8 Agent策略）"
-                echo "  5. Phase 4: 本地测试"
-                echo "  6. Phase 5: 代码提交"
-                echo "  7. Phase 6: 代码审查"
+                echo "  1. Phase 1: 创建feature分支"
+                echo "  2. Phase 2: 探索发现（技术spike）"
+                echo "  3. Phase 3: 规划+架构（需求分析+架构设计）"
+                echo "  4. Phase 4: 实现功能（4-6-8 Agent策略）"
+                echo "  5. Phase 5: 测试验证（质量门禁1）"
+                echo "  6. Phase 6: 代码审查（质量门禁2）"
+                echo "  7. Phase 7: 发布+监控"
                 echo
                 echo -e "${RED}🚫 操作已阻塞！请按工作流执行。${NC}"
             elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
-                echo "[Workflow] ❌ 需要创建分支 (Phase 0)"
+                echo "[Workflow] ❌ 需要创建分支 (Phase 1)"
             fi
             exit 1
             ;;
 
-        "P1")
+        "P2")
+            if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
+                echo -e "${YELLOW}🔍 Phase 2: 请完成探索发现${NC}"
+                echo "  - 技术spike和可行性验证"
+                echo "  - 创建Acceptance Checklist"
+                echo "  - 定义完成标准"
+            elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
+                echo "[Workflow] 🔍 Phase 2: 探索发现"
+            fi
+            ;;
+
+        "P3")
             if [[ ! -f "$PROJECT_ROOT/docs/PLAN.md" ]]; then
                 if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
-                    echo -e "${RED}❌ 错误：Phase 1需要创建计划文档${NC}"
+                    echo -e "${RED}❌ 错误：Phase 3需要创建计划文档${NC}"
                     echo -e "${GREEN}✅ 请先创建：docs/PLAN.md${NC}"
                     echo
                     echo "计划文档必须包含："
                     echo "  - ## 任务清单（至少5项）"
                     echo "  - ## 受影响文件清单"
+                    echo "  - ## 架构设计"
                     echo "  - ## 回滚方案"
                     echo
                     echo -e "${RED}🚫 操作已阻塞！${NC}"
@@ -113,21 +125,10 @@ enforce_workflow() {
             fi
             ;;
 
-        "P2")
+        "P4")
+            # P4 Implementation Phase Validation
             if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
-                echo -e "${YELLOW}📐 Phase 2: 请先完成架构设计${NC}"
-                echo "  - 创建必要的目录结构"
-                echo "  - 定义接口和数据结构"
-                echo "  - 记录设计决策"
-            elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
-                echo "[Workflow] 📐 Phase 2: 架构设计"
-            fi
-            ;;
-
-        "P3")
-            # P3 Implementation Phase Validation
-            if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
-                echo -e "${BLUE}🔍 Validating P3 (Implementation) phase...${NC}"
+                echo -e "${BLUE}🔍 Validating P4 (Implementation) phase...${NC}"
             fi
 
             # Check 1: Agent count (minimum 3 for implementation)
@@ -138,7 +139,7 @@ enforce_workflow() {
 
             if [ "$AGENT_COUNT" -lt 3 ]; then
                 if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
-                    echo -e "${RED}❌ P3 requires ≥3 agents for implementation (found: $AGENT_COUNT)${NC}"
+                    echo -e "${RED}❌ P4 requires ≥3 agents for implementation (found: $AGENT_COUNT)${NC}"
                     echo -e "${YELLOW}💡 Use: backend-architect, test-engineer, devops-engineer${NC}"
                 fi
                 exit 1
@@ -147,66 +148,66 @@ enforce_workflow() {
             # Check 2: Code changes present
             if ! git diff --cached --name-only | grep -qE '\.(py|sh|js|ts|yml)$'; then
                 if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
-                    echo -e "${YELLOW}⚠️ P3 should have code changes${NC}"
+                    echo -e "${YELLOW}⚠️ P4 should have code changes${NC}"
                 fi
             fi
 
             if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
-                echo -e "${GREEN}✅ P3 validation passed${NC}"
+                echo -e "${GREEN}✅ P4 validation passed${NC}"
             fi
             ;;
 
-        "P4")
-            # P4 Testing Phase Validation
+        "P5")
+            # P5 Testing Phase Validation (Quality Gate 1)
             if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
-                echo -e "${BLUE}🧪 Validating P4 (Testing) phase...${NC}"
+                echo -e "${BLUE}🧪 Validating P5 (Testing) phase...${NC}"
             fi
 
             # Check 1: Test files exist
             TEST_FILES=$(git diff --cached --name-only | grep -E 'test_|_test\.|\.test\.' | wc -l)
             if [ "$TEST_FILES" -eq 0 ]; then
                 if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
-                    echo -e "${RED}❌ P4 requires test files${NC}"
+                    echo -e "${RED}❌ P5 requires test files${NC}"
                     echo -e "${YELLOW}💡 Add tests in test/ directory${NC}"
                 fi
                 exit 1
             fi
 
             if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
-                echo -e "${GREEN}✅ P4 validation passed ($TEST_FILES test files)${NC}"
+                echo -e "${GREEN}✅ P5 validation passed ($TEST_FILES test files)${NC}"
             fi
             ;;
 
-        "P5")
-            # P5 Review Phase Validation
+        "P6")
+            # P6 Review Phase Validation (Quality Gate 2)
             if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
-                echo -e "${BLUE}👀 Validating P5 (Review) phase...${NC}"
+                echo -e "${BLUE}👀 Validating P6 (Review) phase...${NC}"
             fi
 
             # Check 1: REVIEW.md exists
             if [[ ! -f "docs/REVIEW.md" ]] && ! git diff --cached --name-only | grep -q "docs/REVIEW.md"; then
                 if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
-                    echo -e "${RED}❌ P5 requires REVIEW.md${NC}"
+                    echo -e "${RED}❌ P6 requires REVIEW.md${NC}"
                     echo -e "${YELLOW}💡 Generate code review report: docs/REVIEW.md${NC}"
                 fi
                 exit 1
             fi
 
             if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
-                echo -e "${GREEN}✅ P5 validation passed${NC}"
+                echo -e "${GREEN}✅ P6 validation passed${NC}"
             fi
             ;;
 
-        "P6")
-            # P6 Release Phase Validation
+        "P7")
+            # P7 Release+Monitor Phase Validation
             if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
-                echo -e "${BLUE}🚀 Validating P6 (Release) phase...${NC}"
+                echo -e "${BLUE}🚀 Validating P7 (Release+Monitor) phase...${NC}"
             fi
 
             # Check 1: CHANGELOG.md updated
             if ! git diff --cached --name-only | grep -q "CHANGELOG.md"; then
                 if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
-                    echo -e "${RED}❌ P6 requires CHANGELOG.md update${NC}"
+                    echo -e "${RED}❌ P7 requires CHANGELOG.md update${NC}"
                     echo -e "${YELLOW}💡 Add release notes to CHANGELOG.md${NC}"
                 fi
                 exit 1
@@ -221,14 +222,7 @@ enforce_workflow() {
             fi
 
             if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
-                echo -e "${GREEN}✅ P6 validation passed${NC}"
-            fi
-            ;;
-
-        "P7")
-            # P7 Monitoring Phase - usually no commit restrictions
-            if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
-                echo -e "${GREEN}✅ P7 Monitoring phase - no commit restrictions${NC}"
+                echo -e "${GREEN}✅ P7 validation passed${NC}"
             fi
             ;;
 

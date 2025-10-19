@@ -66,12 +66,12 @@ check_quality() {
         fi
 
         # CRITICAL FIX: Exit 1 for Phase 5/6 quality gate failures
-        # Check if in critical phase (Phase 5 = Testing, Phase 6 = Review)
+        # Check if in critical phase (Phase 5 = Testing/QG1, Phase 6 = Review/QG2)
         if [[ -f "$PROJECT_ROOT/.workflow/current" ]]; then
             local current_phase
             current_phase=$(cat "$PROJECT_ROOT/.workflow/current" | tr -d '[:space:]' || echo "")
             if [[ "$current_phase" =~ ^(Phase5|P5|Phase6|P6)$ ]]; then
-                echo "🚫 Quality gate failed in $current_phase - BLOCKING" >&2
+                echo "🚫 Quality gate failed in $current_phase (Quality Gate ${current_phase:5:1}) - BLOCKING" >&2
                 exit 1  # Hard block in critical phases
             fi
         fi

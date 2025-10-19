@@ -1,6 +1,6 @@
 #!/bin/bash
 # Claude Hook: Impact Assessment强制执行器
-# 触发时机：PrePrompt（Phase 0完成后，Phase 1开始前）
+# 触发时机：PrePrompt（Phase 2完成后，Phase 3开始前）
 # 目的：强制执行Impact Radius评估
 
 set -euo pipefail
@@ -14,13 +14,13 @@ mkdir -p "$(dirname "$LOG_FILE")"
 # 检查当前Phase
 get_current_phase() {
     if [[ -f "$WORKFLOW_DIR/current" ]]; then
-        grep "^phase:" "$WORKFLOW_DIR/current" | awk '{print $2}' || echo "P0"
+        grep "^phase:" "$WORKFLOW_DIR/current" | awk '{print $2}' || echo "P1"
     else
-        echo "P0"
+        echo "P1"
     fi
 }
 
-# 检查Phase 2 (Discovery)是否完成（新6-Phase系统中Phase 0改名为Phase 2）
+# 检查Phase 2 (Discovery)是否完成
 is_phase2_completed() {
     [[ -f "$PROJECT_ROOT/docs/P2_DISCOVERY.md" ]] && \
     grep -q "## Acceptance Checklist" "$PROJECT_ROOT/docs/P2_DISCOVERY.md" 2>/dev/null
@@ -36,7 +36,7 @@ is_impact_assessed() {
 main() {
     local current_phase=$(get_current_phase)
 
-    # 只在P2 (Discovery)完成后、P3开始前触发
+    # 只在P2 (Discovery)完成后、P3 (Planning+Architecture)开始前触发
     if [[ "$current_phase" == "P2" ]] && is_phase2_completed; then
         # 检查是否已评估
         if ! is_impact_assessed; then
