@@ -8,9 +8,9 @@ Claude Enhancer is a **workflow framework** that transforms AI-assisted developm
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    8-Phase Workflow (P0-P7)                  │
-│  Discovery → Plan → Skeleton → Implement → Test             │
-│  → Review → Release → Monitor                                │
+│                    7-Phase Workflow (P1-P7)                  │
+│  Branch Check → Discovery → Plan+Arch → Implement → Test    │
+│  → Review → Release+Monitor                                  │
 └─────────────────────────┬───────────────────────────────────┘
                           │
           ┌───────────────┴───────────────┐
@@ -29,45 +29,38 @@ Claude Enhancer is a **workflow framework** that transforms AI-assisted developm
 
 ## Core Concepts
 
-### 1. 8-Phase Workflow System
+### 1. 7-Phase Workflow System
 
-Each development task follows a structured 8-phase lifecycle:
+Each development task follows a structured 7-phase lifecycle:
 
-#### **Phase -1: Branch Check (Pre-Phase)**
+#### **Phase 1: Branch Check**
 - **Purpose**: Ensure correct branch before any work
 - **Rule**: New task = New branch (No exceptions)
 - **Enforcement**: Git hooks + Claude hooks
 
-#### **Phase 0: Discovery (P0)**
+#### **Phase 2: Discovery**
 - **Purpose**: Technical spike and feasibility validation
 - **Activities**:
   - Research technical approaches
   - Validate assumptions
   - Identify risks and dependencies
-- **Output**: Spike report, feasibility assessment
+- **Output**: Spike report, feasibility assessment, Acceptance Checklist
 - **Duration**: 1-2 hours for small features, days for major features
 
-#### **Phase 1: Planning (P1)**
-- **Purpose**: Requirements analysis and detailed planning
+#### **Phase 3: Planning & Architecture**
+- **Purpose**: Requirements analysis, detailed planning, and architecture design
 - **Activities**:
   - Break down requirements
   - Define acceptance criteria
   - Select agents (4-8 based on complexity)
   - Generate PLAN.md
-- **Output**: PLAN.md with complete task breakdown
-- **Agents**: product-manager, architect, qa-specialist
-
-#### **Phase 2: Skeleton (P2)**
-- **Purpose**: Architecture design and project structure
-- **Activities**:
   - Design system architecture
   - Create directory structure
   - Define interfaces and contracts
-  - Set up scaffolding
-- **Output**: Complete project skeleton with placeholders
-- **Agents**: architect, backend-specialist, frontend-specialist
+- **Output**: PLAN.md + complete project skeleton
+- **Agents**: product-manager, architect, backend-specialist, frontend-specialist
 
-#### **Phase 3: Implementation (P3)**
+#### **Phase 4: Implementation**
 - **Purpose**: Actual code development
 - **Activities**:
   - Write production code
@@ -77,7 +70,7 @@ Each development task follows a structured 8-phase lifecycle:
 - **Output**: Working code with commit history
 - **Agents**: backend-engineer, frontend-engineer, database-specialist
 
-#### **Phase 4: Testing (P4)**
+#### **Phase 5: Testing**
 - **Purpose**: Comprehensive test coverage
 - **Activities**:
   - Unit tests
@@ -88,7 +81,7 @@ Each development task follows a structured 8-phase lifecycle:
 - **Output**: Full test suite with 80%+ coverage
 - **Agents**: test-engineer, qa-specialist, performance-engineer
 
-#### **Phase 5: Review (P5)**
+#### **Phase 6: Review**
 - **Purpose**: Code review and quality assurance
 - **Activities**:
   - Code review
@@ -98,25 +91,19 @@ Each development task follows a structured 8-phase lifecycle:
 - **Output**: REVIEW.md with findings and improvements
 - **Agents**: code-reviewer, security-auditor, performance-analyst
 
-#### **Phase 6: Release (P6)**
-- **Purpose**: Prepare for production deployment
+#### **Phase 7: Release & Monitor**
+- **Purpose**: Prepare for production deployment and set up monitoring
 - **Activities**:
   - Update documentation
   - Create release notes
   - Tag version
   - Health checks
-- **Output**: Release artifacts and documentation
-- **Agents**: technical-writer, devops-engineer
-
-#### **Phase 7: Monitor (P7)**
-- **Purpose**: Production monitoring and SLO tracking
-- **Activities**:
   - Set up monitoring
   - Define SLOs
   - Configure alerts
   - Track metrics
-- **Output**: Monitoring dashboard and SLO definitions
-- **Agents**: sre-specialist, monitoring-engineer
+- **Output**: Release artifacts, documentation, and monitoring dashboards
+- **Agents**: technical-writer, devops-engineer, sre-specialist, monitoring-engineer
 
 ### 2. Multi-Agent Parallel Execution
 
@@ -145,7 +132,7 @@ Complex            8+ agents      Architecture change, system
 - SLO definitions (11 SLOs)
 
 #### **Layer 2: Workflow Framework**
-- 8-Phase enforcement
+- 7-Phase enforcement (Phase 1-7)
 - Phase transition rules
 - Quality checkpoints
 - Progress tracking
@@ -306,27 +293,23 @@ claude-enhancer/
 ```
 User Request
     ↓
-[Branch Check] ← Phase -1
+[Phase 1: Branch Check]
     ↓
 Is correct branch?
     ├─ No → Create new branch
     └─ Yes → Continue
            ↓
-[Phase 0: Discovery]
+[Phase 2: Discovery]
     ↓
-[Phase 1: Planning]
+[Phase 3: Planning & Architecture]
     ↓
-[Phase 2: Skeleton]
+[Phase 4: Implementation]
     ↓
-[Phase 3: Implementation]
+[Phase 5: Testing]
     ↓
-[Phase 4: Testing]
+[Phase 6: Review]
     ↓
-[Phase 5: Review]
-    ↓
-[Phase 6: Release]
-    ↓
-[Phase 7: Monitor]
+[Phase 7: Release & Monitor]
     ↓
 Production
 ```
@@ -544,12 +527,13 @@ run_custom_quality_check() {
 
 ## Design Decisions
 
-### Why 8 Phases?
+### Why 7 Phases?
 
-- **P0 (Discovery)**: Added to prevent "code first, think later"
-- **P7 (Monitor)**: Added for production observability
-- **P1-P6**: Core development lifecycle
-- **Phase -1**: Added for branch hygiene
+- **P1 (Branch Check)**: Added for branch hygiene (automated)
+- **P2 (Discovery)**: Prevents "code first, think later"
+- **P3 (Plan & Architecture)**: Merged planning and skeleton for efficiency
+- **P4-P6**: Core development lifecycle (Implementation, Testing, Review)
+- **P7 (Release & Monitor)**: Merged release and monitoring for completeness
 
 ### Why 4 Quality Layers?
 

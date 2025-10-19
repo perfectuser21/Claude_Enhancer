@@ -105,7 +105,20 @@ function determineAgentCount(taskDescription) {
 
 ## 🎭 各阶段Agent分配策略
 
-### Phase 0 (Discovery 探索): 3-4 Agents
+### Phase 1 (Branch Check 分支检查): 0 Agents
+**目标**：确保在正确的分支上工作
+
+**自动化检查**（由hooks执行）：
+- Git hooks自动检测当前分支
+- 如在main/master则阻止并提示创建新分支
+- 自动判断分支与任务的相关性
+
+**产出物**：
+- 正确的工作分支
+
+---
+
+### Phase 2 (Discovery 探索): 3-4 Agents
 **目标**：技术探索、可行性验证、验收标准定义
 
 **推荐组合**：
@@ -122,7 +135,7 @@ function determineAgentCount(taskDescription) {
 
 ---
 
-### Phase 1 (Planning & Architecture 规划与架构): 4-5 Agents
+### Phase 3 (Planning & Architecture 规划与架构): 4-5 Agents
 **目标**：生成PLAN.md、架构设计、目录结构创建
 
 **推荐组合**：
@@ -140,7 +153,7 @@ function determineAgentCount(taskDescription) {
 
 ---
 
-### Phase 2 (Implementation 实现): 5-6 Agents
+### Phase 4 (Implementation 实现): 5-6 Agents
 **目标**：编码开发、功能实现、单元测试
 
 **推荐组合**：
@@ -159,7 +172,7 @@ function determineAgentCount(taskDescription) {
 
 ---
 
-### Phase 3 (Testing 测试): 4-5 Agents
+### Phase 5 (Testing 测试): 4-5 Agents
 **目标**：全面测试、性能验证、CI集成
 
 **推荐组合**：
@@ -177,14 +190,14 @@ function determineAgentCount(taskDescription) {
 
 ---
 
-### Phase 4 (Review 审查): 3-4 Agents
+### Phase 6 (Review 审查): 3-4 Agents
 **目标**：代码审查、安全审计、质量验证
 
 **推荐组合**：
 1. **code-reviewer** (必须) - 代码质量审查、最佳实践验证
 2. **security-auditor** (必须) - 安全漏洞扫描、威胁分析
 3. **technical-writer** (必须) - REVIEW.md编写、文档完整性检查
-4. **requirements-analyst** (可选) - Phase 0验收清单对照验证
+4. **requirements-analyst** (可选) - Phase 2验收清单对照验证
 
 **产出物**：
 - REVIEW.md (完整审查报告 >100行)
@@ -194,7 +207,7 @@ function determineAgentCount(taskDescription) {
 
 ---
 
-### Phase 5 (Release & Monitor 发布与监控): 3-4 Agents
+### Phase 7 (Release & Monitor 发布与监控): 3-4 Agents
 **目标**：文档更新、部署配置、监控设置
 
 **推荐组合**：
@@ -215,15 +228,16 @@ function determineAgentCount(taskDescription) {
 
 | Phase | 简单任务 | 标准任务 | 复杂任务 | 关键Agent |
 |-------|---------|---------|---------|-----------|
-| Phase 0 探索 | 3 | 3-4 | 4 | requirements-analyst, technical-writer |
-| Phase 1 规划 | 3 | 4 | 5 | backend-architect, technical-writer |
-| Phase 2 实现 | 4 | 5 | 6 | fullstack-engineer, test-engineer |
-| Phase 3 测试 | 3 | 4 | 5 | test-engineer, performance-engineer |
-| Phase 4 审查 | 3 | 3 | 4 | code-reviewer, security-auditor |
-| Phase 5 发布 | 2 | 3 | 4 | documentation-writer, devops-engineer |
+| Phase 1 分支 | 0 | 0 | 0 | (自动化hooks) |
+| Phase 2 探索 | 3 | 3-4 | 4 | requirements-analyst, technical-writer |
+| Phase 3 规划 | 3 | 4 | 5 | backend-architect, technical-writer |
+| Phase 4 实现 | 4 | 5 | 6 | fullstack-engineer, test-engineer |
+| Phase 5 测试 | 3 | 4 | 5 | test-engineer, performance-engineer |
+| Phase 6 审查 | 3 | 3 | 4 | code-reviewer, security-auditor |
+| Phase 7 发布 | 2 | 3 | 4 | documentation-writer, devops-engineer |
 | **总计** | **18** | **22-23** | **28** | - |
 
-**平均每阶段Agent数**：
+**平均每阶段Agent数**（排除Phase 1自动化）：
 - 简单任务：3 agents/phase
 - 标准任务：3.7 agents/phase
 - 复杂任务：4.7 agents/phase
@@ -236,15 +250,15 @@ function determineAgentCount(taskDescription) {
 收到任务 → 判定复杂度
     ├─ 简单 (fix/update/minor)
     │   └─ 4 Agents基础组合
-    │       └─ Phase 0-5: 平均3个/阶段
+    │       └─ Phase 2-7: 平均3个/阶段
     │
     ├─ 标准 (new feature/implement)
     │   └─ 6 Agents标准组合
-    │       └─ Phase 0-5: 平均4个/阶段
+    │       └─ Phase 2-7: 平均4个/阶段
     │
     └─ 复杂 (design/architect/system)
         └─ 8 Agents完整组合
-            └─ Phase 0-5: 平均5个/阶段
+            └─ Phase 2-7: 平均5个/阶段
 
 特殊判定：
 ├─ 有前端需求 → +frontend-specialist
@@ -268,17 +282,18 @@ Claude会根据任务描述自动选择4、6或8个Agent
 - "这很复杂，需要8个agent"
 
 ### 阶段性调整
-- Phase 0: 重分析轻实现 (3-4 agents)
-- Phase 1-2: 高峰期 (4-6 agents)
-- Phase 3-4: 验证期 (3-5 agents)
-- Phase 5: 收尾期 (2-4 agents)
+- Phase 1: 自动化 (0 agents)
+- Phase 2: 重分析轻实现 (3-4 agents)
+- Phase 3-4: 高峰期 (4-6 agents)
+- Phase 5-6: 验证期 (3-5 agents)
+- Phase 7: 收尾期 (2-4 agents)
 
 ### 质量优先原则
 - 不确定时，宁可多不可少
 - 关键系统始终用8个
 - 紧急修复可以用4个
-- Phase 0必须定义验收标准（不可跳过）
-- Phase 4必须对照Phase 0验收清单
+- Phase 2必须定义验收标准（不可跳过）
+- Phase 6必须对照Phase 2验收清单
 
 ---
 
@@ -314,41 +329,42 @@ Claude会根据任务描述自动选择4、6或8个Agent
 - 默认使用6个Agent（平衡点）
 - 复杂任务自动升级到8个
 - 永远不低于4个（质量底线）
-- Phase 0-5全覆盖（不跳阶段）
+- Phase 1-7全覆盖（不跳阶段）
 
 ---
 
-## 🔄 从P0-P7迁移说明
+## 🔄 Phase命名系统说明
 
-如果你习惯了旧的P0-P7术语：
+**当前Phase 1-7系统**：
 
-**阶段对应关系**：
-- Phase 0 = 原P0 (Discovery探索)
-- **Phase 1 = 原P1+P2合并** (Planning规划 + Skeleton骨架)
-- Phase 2 = 原P3 (Implementation实现)
-- Phase 3 = 原P4 (Testing测试)
-- Phase 4 = 原P5 (Review审查)
-- **Phase 5 = 原P6+P7合并** (Release发布 + Monitor监控)
+**阶段定义**：
+- **Phase 1** = Branch Check (分支检查，自动化)
+- **Phase 2** = Discovery (探索 + 验收清单)
+- **Phase 3** = Planning & Architecture (规划 + 架构，合并原P1+P2)
+- **Phase 4** = Implementation (实现)
+- **Phase 5** = Testing (测试)
+- **Phase 6** = Review (审查)
+- **Phase 7** = Release & Monitor (发布 + 监控，合并原P6+P7)
 
-**变化内容**：
-- ✅ 8个阶段简化为6个阶段
-- ✅ 减少阶段切换开销（原来7次 → 现在5次）
-- ✅ PLAN.md和目录结构创建合并到Phase 1
-- ✅ 发布和监控配置合并到Phase 5
+**系统优化**：
+- ✅ 7个阶段覆盖完整生命周期
+- ✅ Phase 1自动化（0 agents需求）
+- ✅ Phase 3合并规划和架构（减少切换开销）
+- ✅ Phase 7合并发布和监控（流程连贯）
 - ✅ **Agent选择策略完全一致**（4-6-8原则不变）
 - ✅ 质量门禁标准不变
 - ✅ Git Hooks验证不变
 
-**为什么合并**：
-1. P1和P2常常顺序执行，合并减少等待
-2. P6和P7都是发布相关，合并更连贯
-3. 保持核心工作流逻辑不变
-4. 提升执行效率（减少30%阶段切换）
+**效率提升**：
+1. Phase 1自动化减少人工介入
+2. Phase 3合并减少规划与架构之间的等待
+3. Phase 7合并保证发布和监控一气呵成
+4. 保持核心工作流逻辑不变
 
-**Agent数量对比**：
-- 旧版P0-P7: 平均4个agents/阶段 × 8阶段 = 32个agent调用
-- 新版Phase 0-5: 平均4个agents/阶段 × 6阶段 = 24个agent调用
-- 节省：25%的agent调用次数
+**Agent数量**：
+- Phase 1: 0 agents (自动化hooks)
+- Phase 2-7: 平均3.7 agents/phase (标准任务)
+- 总计：约22个agent调用（标准任务完整周期）
 
 ---
 

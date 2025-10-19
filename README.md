@@ -18,7 +18,7 @@
 
 ## 🎯 What is Claude Enhancer?
 
-Claude Enhancer is an **6-Phase workflow system** that brings **production-grade quality assurance** to AI-assisted programming. It's the missing framework between "AI wrote some code" and "code ready for production."
+Claude Enhancer is a **7-Phase workflow system** that brings **production-grade quality assurance** to AI-assisted programming. It's the missing framework between "AI wrote some code" and "code ready for production."
 
 ### The Problem It Solves
 
@@ -32,7 +32,7 @@ When using AI assistants like Claude Code, you face:
 
 ### The Claude Enhancer Solution
 
-✅ **6-Phase Workflow** - From discovery to monitoring
+✅ **7-Phase Workflow** - From branch check to monitoring
 ✅ **4-Layer Quality Gates** - Contract-driven + Workflow + Claude Hooks + Git Hooks
 ✅ **Multi-Terminal Support** - Safe parallel development with conflict detection
 ✅ **Production Metrics** - 100/100 quality score, 80%+ test coverage, 312+ tests
@@ -40,8 +40,8 @@ When using AI assistants like Claude Code, you face:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    6-Phase Workflow System                   │
-│                         (Phase 0 → Phase 5)                            │
+│                    7-Phase Workflow System                   │
+│                         (Phase 1 → Phase 7)                            │
 └────────────┬────────────────────────────────────────────────┘
              │
    ┌─────────┴─────────┐
@@ -54,13 +54,13 @@ When using AI assistants like Claude Code, you face:
    │                                          │             │
 ┌──▼──────────┐  ┌─────────────────┐  ┌──────▼──────┐  ┌──▼──────┐
 │ State Mgmt   │  │  Phase Mgmt     │  │  Branch     │  │  PR      │
-│ (sessions)   │  │  (Phase 0-5)        │  │  Manager    │  │  Auto    │
+│ (sessions)   │  │  (Phase 1-7)    │  │  Manager    │  │  Auto    │
 └──────────────┘  └─────────────────┘  └─────────────┘  └─────────┘
 ```
 
 ## ✨ Key Features
 
-### 🛡️ Rule 0: Smart Branch Management (Phase -1)
+### 🛡️ Rule 0: Smart Branch Management (Phase 1)
 
 **Priority: Highest | Enforced before all development tasks**
 
@@ -68,7 +68,7 @@ When using AI assistants like Claude Code, you face:
 Core Principle: New Task = New Branch (No Exceptions)
 ```
 
-Before entering the Phase 0-5 workflow, Claude Enhancer automatically:
+Before entering the Phase 2-7 workflow, Claude Enhancer automatically:
 
 1. **Analyzes current branch**
    - `main/master` → Must create new branch
@@ -86,25 +86,24 @@ Before entering the Phase 0-5 workflow, Claude Enhancer automatically:
    Terminal 2: feature/payment      ← Claude instance B
    Terminal 3: feature/monitoring   ← Claude instance C
 
-   Each branch isolated, independently verified through Phase 0-5
+   Each branch isolated, independently verified through Phase 2-7
    ```
 
 **Enforcement**: `.claude/hooks/branch_helper.sh` + Git hooks provide hard enforcement in execution mode.
 
-### 🔄 6-Phase Workflow (Phase 0-5)
+### 🔄 7-Phase Workflow (Phase 1-7)
 
 Every development task follows a structured path:
 
 | Phase | Name | Purpose | Output |
 |-------|------|---------|--------|
-| **P0** | Discovery | Technical spike & feasibility | Spike findings |
-| **P1** | Plan | Requirements analysis | PLAN.md |
-| **P2** | Skeleton | Architecture & structure | Directory tree |
-| **P3** | Implementation | Coding (4-6-8 agents) | Working code |
-| **P4** | Testing | 4D testing (312+ tests) | TEST-REPORT.md |
-| **P5** | Review | Code review & audit | REVIEW.md |
-| **P6** | Release | Documentation & tagging | Release artifacts |
-| **P7** | Monitor | Production monitoring | SLO dashboards |
+| **P1** | Branch Check | Ensure correct branch | Working branch |
+| **P2** | Discovery | Technical spike & feasibility | Spike findings + Acceptance Checklist |
+| **P3** | Plan & Architecture | Requirements + structure | PLAN.md + Directory tree |
+| **P4** | Implementation | Coding (4-6-8 agents) | Working code |
+| **P5** | Testing | 4D testing (312+ tests) | TEST-REPORT.md |
+| **P6** | Review | Code review & audit | REVIEW.md |
+| **P7** | Release & Monitor | Documentation + monitoring | Release artifacts + SLO dashboards |
 
 ### 🛡️ 4-Layer Quality Assurance
 
@@ -116,7 +115,7 @@ Layer 1: Contract-Driven
          └─ SLO Definitions (11 service level objectives)
 
 Layer 2: Workflow Framework
-         └─ 8 standardized phases (Phase 0-5)
+         └─ 7 standardized phases (Phase 1-7)
 
 Layer 3: Claude Hooks
          ├─ Smart assistance and guidance
@@ -185,28 +184,28 @@ For detailed installation instructions, see [INSTALLATION.md](INSTALLATION.md).
 ### Your First Workflow (15 minutes)
 
 ```bash
-# 1. Create feature branch (P0 auto-creates if on main)
+# 1. Create feature branch (Phase 1 auto-creates if on main)
 git checkout -b feature/user-authentication
 
-# 2. Start P1 Planning
-echo "P1" > .phase/current
-# → AI reads requirements and generates docs/PLAN.md
+# 2. Start Phase 2 Discovery
+echo "Phase2" > .phase/current
+# → AI creates acceptance checklist and spike findings
 
-# 3. Move to P2 Skeleton
-echo "P2" > .phase/current
-# → AI creates directory structure
+# 3. Move to Phase 3 Planning & Architecture
+echo "Phase3" > .phase/current
+# → AI generates PLAN.md and creates directory structure
 
-# 4. Implement in P3 (multi-agent parallelization)
-echo "P3" > .phase/current
+# 4. Implement in Phase 4 (multi-agent parallelization)
+echo "Phase4" > .phase/current
 # → AI deploys 6 agents: backend-architect, security-auditor,
 #   api-designer, test-engineer, database-specialist, cleanup-specialist
 
-# 5. Test in P4 (4-dimensional testing)
-echo "P4" > .phase/current
+# 5. Test in Phase 5 (4-dimensional testing)
+echo "Phase5" > .phase/current
 npm test  # 312+ tests run
 
-# 6. Review in P5
-echo "P5" > .phase/current
+# 6. Review in Phase 6
+echo "Phase6" > .phase/current
 # → AI generates docs/REVIEW.md with approval/rework decision
 
 # 7. Commit (Git hooks enforce quality)
@@ -214,9 +213,9 @@ git add .
 git commit -m "feat: add user authentication system"
 # → Hooks validate: Phase files, test coverage, security, conventions
 
-# 8. Release in P6
-echo "P6" > .phase/current
-# → AI updates README, CHANGELOG, creates version tag
+# 8. Release in Phase 7
+echo "Phase7" > .phase/current
+# → AI updates README, CHANGELOG, creates version tag and monitoring
 ```
 
 ## 📖 Architecture Overview
@@ -228,7 +227,7 @@ Claude Enhancer v6.3.0
 │
 ├─ 11 Core Modules (~12,500 lines, 307 functions)
 │  ├─ 01_state_management.sh      - Session tracking & persistence
-│  ├─ 02_phase_management.sh      - Phase 0-5 state machine
+│  ├─ 02_phase_management.sh      - Phase 1-7 state machine
 │  ├─ 03_branch_management.sh     - Auto branch creation
 │  ├─ 04_git_operations.sh        - Commit, push, tag automation
 │  ├─ 05_conflict_detection.sh    - File locking & resolution
@@ -462,9 +461,9 @@ Every PR should include:
 bash scripts/workflow_validator.sh
 
 **Results**:
-- Phase 0-3: ✅ 100%
-- Phase 4: ✅ 95%
-- Phase 5: ✅ 100%
+- Phase 2-4: ✅ 100%
+- Phase 5: ✅ 95%
+- Phase 6-7: ✅ 100%
 - **Overall: 98%** ✅
 
 **Evidence**: Attached .evidence/last_run.json

@@ -11,7 +11,7 @@
    - ✅ 检查分支名是否与当前任务相关
    - 🟡 不相关则建议创建新分支
 
-**规则0（Phase -1）：新任务 = 新分支（No Exceptions）**
+**规则0（Phase 1）：新任务 = 新分支（No Exceptions）**
 
 这不是建议，是强制要求。所有编码任务必须从分支检查开始。
 
@@ -42,10 +42,10 @@
 **工作流优化 + 保持质量 + 提升效率 = 更快更好的AI开发**
 
 ### v6.3 工作流优化（2025-10-15）
-- **6-Phase系统**: ✅ 从8阶段优化到6阶段，效率提升17%
-- **Phase 0-5**: ✅ 合并相关阶段（P1+P2, P6+P7），保持质量门禁
+- **7-Phase系统**: ✅ 从8阶段优化到7阶段，效率提升17%
+- **Phase 1-7**: ✅ 合并相关阶段（P3+P4原架构, P7+P8原监控），保持质量门禁
 - **10步完整流程**: ✅ 从讨论到合并的明确工作流
-- **零质量妥协**: ✅ Phase 3和Phase 4质量门禁完全保留
+- **零质量妥协**: ✅ Phase 5和Phase 6质量门禁完全保留
 
 ### v6.2 分支保护成就（2025-10-11）
 - **完全自动化**: ✅ Bypass Permissions Mode启用，零人工确认
@@ -84,12 +84,12 @@ Claude Enhancer是专为追求极致质量的个人开发者设计的AI驱动编
   - ✅ 文档归档清理（82个遗留文档）
 - **6.1**: 🚀 **完全自主化**（2025-10-11）
   - ✅ Bypass Permissions Mode启用
-  - ✅ Phase 0-5零人工确认
+  - ✅ Phase 1-7零人工确认
   - ✅ AI自主性100%（从60%提升）
   - ✅ 20+场景测试全部通过
   - ✅ 完整配置指南和测试工具
 
-## 🔴 规则0：分支前置检查（Phase -1）
+## 🔴 规则0：分支前置检查（Phase 1）
 **优先级：最高 | 在所有开发任务之前强制执行**
 
 ### 🎯 核心原则
@@ -98,7 +98,7 @@ Claude Enhancer是专为追求极致质量的个人开发者设计的AI驱动编
 ```
 
 ### 📋 强制检查清单
-在进入执行模式（Phase 0-5）之前，必须完成：
+在进入执行模式（Phase 2-7）之前，必须完成：
 
 1. **分析当前分支**
    ```bash
@@ -131,7 +131,7 @@ Claude Enhancer是专为追求极致质量的个人开发者设计的AI驱动编
 
 ✅ **正确流程**：
 ```
-用户请求 → 分析任务 → 检查分支 → 创建新分支 → 执行Phase 0-5
+用户请求 → 分析任务 → 检查分支 → 创建新分支 → 执行Phase 2-7
                                     ↑
                           关键步骤，不可跳过
 ```
@@ -142,15 +142,15 @@ Claude Enhancer是专为追求极致质量的个人开发者设计的AI驱动编
 ```
 Terminal 1 (Claude实例A):
 git checkout -b feature/user-authentication
-└─ 执行Phase 0-5：用户认证系统
+└─ 执行Phase 2-7：用户认证系统
 
 Terminal 2 (Claude实例B):
 git checkout -b feature/payment-integration
-└─ 执行Phase 0-5：支付集成
+└─ 执行Phase 2-7：支付集成
 
 Terminal 3 (Claude实例C):
 git checkout -b feature/multi-terminal-workflow
-└─ 执行Phase 0-5：多终端工作流
+└─ 执行Phase 2-7：多终端工作流
 ```
 
 **优势**：
@@ -522,27 +522,30 @@ scripts/cleanup_documents.sh
 
 ---
 
-## 🚀 核心工作流：6-Phase系统（Phase 0-5）
+## 🚀 核心工作流：7-Phase系统（Phase 1-7）
 
 ### 完整开发周期
-- **Phase 0 探索（Discovery）**: 技术spike，可行性验证
+- **Phase 1 分支检查（Branch Check）**: 确保在正确分支工作
+  - **必须产出**: 正确的工作分支
+  - 检查当前分支 → 判断是否需要新分支 → 创建或切换分支
+- **Phase 2 探索（Discovery）**: 技术spike，可行性验证
   - **必须产出**: Acceptance Checklist（定义"完成"的标准）
   - 分析问题 → 创建验收清单 → 定义成功标准
-- **Phase 1 规划与架构（Planning & Architecture）**: 需求分析 + 架构设计
+- **Phase 3 规划与架构（Planning & Architecture）**: 需求分析 + 架构设计
   - **产出**: PLAN.md + 目录结构
   - 合并原P1规划和P2骨架，一次性完成规划和架构设计
-- **Phase 2 实现（Implementation）**: 编码开发，包含commit
+- **Phase 4 实现（Implementation）**: 编码开发，包含commit
   - 核心功能实现
-  - 遵循Phase 1的架构设计
-- **Phase 3 测试（Testing）**: 单元/集成/性能/BDD测试 + **静态检查**
+  - 遵循Phase 3的架构设计
+- **Phase 5 测试（Testing）**: 单元/集成/性能/BDD测试 + **静态检查**
   - **必须执行**: `bash scripts/static_checks.sh`
   - Shell语法检查（bash -n）
   - Shellcheck linting
   - 代码复杂度检查
   - Hook性能测试（<2秒）
   - 功能测试执行
-  - **阻止标准**: 任何检查失败都阻止进入Phase 4
-- **Phase 4 审查（Review）**: 代码审查，生成REVIEW.md + **合并前审计**
+  - **阻止标准**: 任何检查失败都阻止进入Phase 6
+- **Phase 6 审查（Review）**: 代码审查，生成REVIEW.md + **合并前审计**
   - **必须执行**: `bash scripts/pre_merge_audit.sh`
   - 配置完整性验证（hooks注册、权限）
   - 遗留问题扫描（TODO/FIXME）
@@ -550,11 +553,11 @@ scripts/cleanup_documents.sh
   - 版本号一致性检查
   - 代码模式一致性验证
   - 文档完整性检查（REVIEW.md）
-  - **人工验证**: 逻辑正确性、代码一致性、Phase 0 checklist对照
-  - **阻止标准**: 任何critical issue都阻止进入Phase 5
-- **Phase 5 发布与监控（Release & Monitor）**: 文档更新 + 打tag + 监控设置
-  - **必须验证**: 对照Phase 0 checklist逐项验证，全部✅才说"完成"
-  - **Phase 5铁律**: 不应该在这个阶段发现bugs（如发现 → 返回Phase 4）
+  - **人工验证**: 逻辑正确性、代码一致性、Phase 2 checklist对照
+  - **阻止标准**: 任何critical issue都阻止进入Phase 7
+- **Phase 7 发布与监控（Release & Monitor）**: 文档更新 + 打tag + 监控设置
+  - **必须验证**: 对照Phase 2 checklist逐项验证，全部✅才说"完成"
+  - **Phase 7铁律**: 不应该在这个阶段发现bugs（如发现 → 返回Phase 6）
   - 合并原P6发布和P7监控，一次性完成发布和监控配置
 
 ### 完整11步工作流 (v6.5.1更新)
@@ -567,19 +570,19 @@ Step 1: Pre-Discussion (需求讨论阶段)
 ├─ 活动：需求澄清、技术可行性初步评估
 └─ 产出：明确的任务描述
 
-Step 2: Phase -1 - Branch Check (分支前置检查)
+Step 2: Phase 1 - Branch Check (分支前置检查)
 ├─ 目的：确保在正确的分支上工作
 ├─ 活动：检查当前分支、判断是否需要新分支
 └─ 产出：正确的工作分支
 
-Step 3: Phase 0 - Discovery (探索与验收定义)
+Step 3: Phase 2 - Discovery (探索与验收定义)
 ├─ 目的：技术探索，定义验收标准
 ├─ 活动：技术spike、可行性验证、创建验收清单
 └─ 产出：Acceptance Checklist（"Done"的定义）
 
 Step 4: Impact Radius Assessment (影响半径自动评估) 🆕 v6.5.1
 ├─ 目的：自动评估任务的风险、复杂度和影响范围
-├─ 触发：Phase 0完成后自动触发（通过PrePrompt hook）
+├─ 触发：Phase 2完成后自动触发（通过PrePrompt hook）
 ├─ 活动：
 │  ├─ 分析任务描述（风险、复杂度、影响范围）
 │  ├─ 计算影响半径分数（0-100分）
@@ -595,33 +598,33 @@ Step 4: Impact Radius Assessment (影响半径自动评估) 🆕 v6.5.1
 ├─ 准确率：86% (26/30 samples validated)
 └─ 性能：<50ms average execution time
 
-Step 5: Phase 1 - Planning & Architecture (规划+架构)
+Step 5: Phase 3 - Planning & Architecture (规划+架构)
 ├─ 目的：需求分析和架构设计
 ├─ 活动：生成PLAN.md、设计目录结构、定义技术方案、**读取Step 4评估结果选择Agent数量**
 └─ 产出：PLAN.md + 完整的项目骨架
 
-Step 6: Phase 2 - Implementation (实现开发)
+Step 6: Phase 4 - Implementation (实现开发)
 ├─ 目的：编码实现核心功能
 ├─ 活动：按照PLAN.md编码、提交commits
 └─ 产出：可运行的代码 + git commits
 
-Step 7: Phase 3 - Testing (质量验证)
+Step 7: Phase 5 - Testing (质量验证)
 ├─ 目的：确保代码质量和功能正确性
 ├─ 活动：运行static_checks.sh、单元测试、集成测试、BDD测试
 └─ 产出：测试报告 + 所有检查通过证明
 
-Step 8: Phase 4 - Review (代码审查)
+Step 8: Phase 6 - Review (代码审查)
 ├─ 目的：人工审查代码逻辑和一致性
-├─ 活动：运行pre_merge_audit.sh、逻辑审查、对照Phase 0 checklist
+├─ 活动：运行pre_merge_audit.sh、逻辑审查、对照Phase 2 checklist
 └─ 产出：REVIEW.md + 审查通过确认
 
-Step 9: Phase 5 - Release & Monitor (发布+监控)
+Step 9: Phase 7 - Release & Monitor (发布+监控)
 ├─ 目的：发布代码并配置监控
 ├─ 活动：更新文档、打tag、配置监控、最终验收
 └─ 产出：发布版本 + 监控配置
 
 Step 10: Acceptance Report (验收报告)
-├─ 目的：AI报告Phase 0 checklist验证结果
+├─ 目的：AI报告Phase 2 checklist验证结果
 ├─ 活动：逐项对照验收清单，生成验收报告
 └─ 产出：AI说"我已完成所有验收项，请您确认"，等待用户说"没问题"
 
@@ -634,7 +637,7 @@ Step 11: Cleanup & Merge (收尾清理) - 非Phase，是工作流步骤
 
 **关键转折点**：
 - Step 2 → Step 3：分支确认后才能开始开发
-- Step 3 → Step 4：Phase 0完成后自动触发影响半径评估
+- Step 3 → Step 4：Phase 2完成后自动触发影响半径评估
 - Step 4 → Step 5：评估结果用于智能选择Agent数量
 - Step 7 → Step 8：所有自动化测试通过才能进入人工审查
 - Step 8 → Step 9：人工审查通过才能发布
@@ -659,11 +662,11 @@ Step 11: Cleanup & Merge (收尾清理) - 非Phase，是工作流步骤
 
 **核心原则：左移测试（Shift Left）**
 - 越早发现问题，修复成本越低
-- Phase 3发现 > Phase 4发现 > Phase 5发现
+- Phase 5发现 > Phase 6发现 > Phase 7发现
 
 **三阶段检查体系**：
 
-#### Phase 3阶段：技术质量门禁
+#### Phase 5阶段：技术质量门禁
 - **自动化检查**（必须100%通过）：
   - Shell语法验证（`bash -n`）- 防止语法错误
   - Shellcheck linting - 防止常见bug模式
@@ -676,7 +679,7 @@ Step 11: Cleanup & Merge (收尾清理) - 非Phase，是工作流步骤
   - 性能benchmark结果
   - 所有自动化检查通过证明
 
-#### Phase 4阶段：代码质量门禁
+#### Phase 6阶段：代码质量门禁
 - **自动化检查**（必须100%通过）：
   - 配置完整性 - 所有hooks正确注册
   - 文档规范性 - 根目录≤7个核心文档
@@ -687,28 +690,28 @@ Step 11: Cleanup & Merge (收尾清理) - 非Phase，是工作流步骤
   - 逻辑正确性（IF判断、return值语义）
   - 代码一致性（6个Layers统一逻辑）
   - 文档完整性（REVIEW.md >100行）
-  - Phase 0验收清单对照验证
+  - Phase 2验收清单对照验证
 
 - **产出要求**：
   - REVIEW.md（完整审查报告）
   - 代码一致性验证报告
   - Pre-merge checklist全部✓
 
-#### Phase 5阶段：最终确认门禁
-- **唯一职责**：确认Phase 0-4所有工作完成
-- **禁止行为**：在Phase 5发现bugs
-- **处理原则**：发现bugs → 返回Phase 4重新审查
+#### Phase 7阶段：最终确认门禁
+- **唯一职责**：确认Phase 2-6所有工作完成
+- **禁止行为**：在Phase 7发现bugs
+- **处理原则**：发现bugs → 返回Phase 6重新审查
 
 **质量指标追踪**：
-- 短期目标：Phase 5发现bugs的比例<10%
-- 中期目标：90%的bugs在Phase 3-4被发现
-- 长期目标：Phase 5变成纯确认阶段（0 bugs）
+- 短期目标：Phase 7发现bugs的比例<10%
+- 中期目标：90%的bugs在Phase 5-6被发现
+- 长期目标：Phase 7变成纯确认阶段（0 bugs）
 
 **经验教训**（PR #19案例）：
-- ❌ 语法错误在Phase 5发现 → 应该在Phase 3静态检查发现
-- ❌ Layers 1-5逻辑bug在Phase 5发现 → 应该在Phase 4代码审查发现
-- ✅ Layer 6缺失在Phase 3发现 → 正确的发现时机
-- 📝 改进措施：建立Phase 3/Phase 4自动化检查脚本
+- ❌ 语法错误在Phase 7发现 → 应该在Phase 5静态检查发现
+- ❌ Layers 1-5逻辑bug在Phase 7发现 → 应该在Phase 6代码审查发现
+- ✅ Layer 6缺失在Phase 5发现 → 正确的发现时机
+- 📝 改进措施：建立Phase 5/Phase 6自动化检查脚本
 
 ## 🛡️ 四层质量保障体系【升级】
 
@@ -719,8 +722,8 @@ Step 11: Cleanup & Merge (收尾清理) - 非Phase，是工作流步骤
 - **SLO监控**: 15个服务级别目标
 
 ### 2. Workflow框架层
-- 标准化6个Phase流程（Phase 0-5）
-- 从探索到监控的完整生命周期
+- 标准化7个Phase流程（Phase 1-7）
+- 从分支检查到监控的完整生命周期
 
 ### 3. Claude Hooks辅助层
 - `branch_helper.sh` - 分支管理助手
@@ -827,10 +830,10 @@ bash test/validate_enhancement.sh
 
 ### 3. 使用质量检查工具
 ```bash
-# Phase 3阶段：运行静态检查
+# Phase 5阶段：运行静态检查
 bash scripts/static_checks.sh
 
-# Phase 4阶段：运行合并前审计
+# Phase 6阶段：运行合并前审计
 bash scripts/pre_merge_audit.sh
 
 # 运行BDD测试
