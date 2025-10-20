@@ -147,7 +147,7 @@ TOTAL=$((TOTAL+1))
 
 # P1_S005: Branch created within last 7 days (fresh work)
 if git rev-parse --verify HEAD >/dev/null 2>&1; then
-  branch_age_days=$(( ($(date +%s) - $(git log -1 --format=%ct $(git merge-base HEAD $(get_main_branch) 2>/dev/null || echo HEAD) 2>/dev/null || echo $(date +%s))) / 86400 ))
+  branch_age_days=$(( ($(date +%s) - $(git log -1 --format=%ct "$(git merge-base HEAD "$(get_main_branch)" 2>/dev/null || echo HEAD)" 2>/dev/null || echo "$(date +%s)")) / 86400 ))
   if [ "$branch_age_days" -le 7 ]; then
     echo "  ✓ P1_S005: Branch age OK ($branch_age_days days)"
     PASSED=$((PASSED+1))
@@ -717,13 +717,13 @@ TOTAL=$((TOTAL+1))
 
 # P5_S004: Shell语法检查通过
 SHELL_ERRORS=0
-for file in $(find scripts -name "*.sh" -type f 2>/dev/null); do
+while IFS= read -r file; do
   if [ -f "$file" ]; then
     if ! bash -n "$file" 2>/dev/null; then
       SHELL_ERRORS=$((SHELL_ERRORS + 1))
     fi
   fi
-done
+done < <(find scripts -name "*.sh" -type f 2>/dev/null)
 if [ $SHELL_ERRORS -eq 0 ]; then
   echo "  ✓ P5_S004: All shell scripts have valid syntax"
   PASSED=$((PASSED+1))
@@ -878,14 +878,14 @@ TOTAL=$((TOTAL+1))
 
 # P5_S014: 代码复杂度检查
 COMPLEX_FILES=0
-for file in $(find scripts -maxdepth 2 -name "*.sh" -type f 2>/dev/null); do
+while IFS= read -r file; do
   if [ -f "$file" ]; then
     LINES=$(wc -l < "$file")
     if [ "$LINES" -gt 150 ]; then
       COMPLEX_FILES=$((COMPLEX_FILES + 1))
     fi
   fi
-done
+done < <(find scripts -maxdepth 2 -name "*.sh" -type f 2>/dev/null)
 if [ $COMPLEX_FILES -eq 0 ]; then
   echo "  ✓ P5_S014: No overly large scripts (all <150 lines)"
   PASSED=$((PASSED+1))
