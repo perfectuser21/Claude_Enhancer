@@ -1,0 +1,490 @@
+# Claude Enhancer 6-Phase System Definitions
+# Layer: Core
+# Version: 1.0.0
+# Last Updated: 2025-10-19
+#
+# 此文件定义了Claude Enhancer的核心6-Phase工作流系统
+# 修改此文件需要Major版本升级（如v6→v7）
+#
+# 依赖规则: 只能被Main层和Feature层引用，不能依赖Feature层
+
+metadata:
+  system_version: "6.6.0"
+  phase_system_version: "1.0.0"
+  total_phases: 6
+  description: "Claude Enhancer 6-Phase Workflow System"
+
+# ═══════════════════════════════════════════════════════════════
+# Phase 0: Discovery（探索与验收定义）
+# ═══════════════════════════════════════════════════════════════
+phase_0:
+  name: "Discovery"
+  full_name: "探索与验收定义"
+  order: 0
+  type: "planning"
+
+  description: |
+    技术探索阶段，验证可行性并定义验收标准。
+    这是整个工作流的基础，明确"什么是完成"。
+
+  objectives:
+    - "理解任务需求和技术约束"
+    - "进行技术可行性验证（spike）"
+    - "创建详细的验收清单（Acceptance Checklist）"
+    - "识别潜在风险和依赖"
+
+  mandatory_outputs:
+    - name: "Acceptance Checklist"
+      format: "markdown"
+      location: "PLAN.md或对话中"
+      description: "定义'完成'的标准，包含所有验收项"
+      example: |
+        ### Acceptance Checklist
+        - [ ] 功能A实现并通过测试
+        - [ ] 文档B编写完成
+        - [ ] 性能指标达到X标准
+
+  optional_outputs:
+    - name: "Technical Spike Report"
+      description: "技术探索结果，记录在.temp/或对话中"
+    - name: "Risk Assessment"
+      description: "风险评估和缓解措施"
+
+  quality_gates:
+    - name: "Checklist完整性"
+      check: "验收清单是否覆盖所有需求"
+      blocker: true
+    - name: "可验证性"
+      check: "每个验收项是否可以客观验证"
+      blocker: true
+
+  estimated_duration: "15-30分钟"
+
+  ai_instructions: |
+    - 主动创建验收清单，不要等用户要求
+    - 验收项必须具体、可测量、可验证
+    - 识别隐藏需求和边界情况
+    - 定义清晰的"完成"标准
+
+# ═══════════════════════════════════════════════════════════════
+# Phase 1: Planning & Architecture（规划与架构）
+# ═══════════════════════════════════════════════════════════════
+phase_1:
+  name: "Planning & Architecture"
+  full_name: "规划与架构"
+  order: 1
+  type: "planning"
+
+  description: |
+    需求分析和架构设计阶段。
+    合并原P1规划和P2骨架，一次性完成规划和架构设计。
+
+  objectives:
+    - "分析详细需求并生成PLAN.md"
+    - "设计系统架构和目录结构"
+    - "定义技术方案和实施路径"
+    - "分解任务并估算工作量"
+
+  mandatory_outputs:
+    - name: "PLAN.md"
+      format: "markdown"
+      location: "项目根目录"
+      description: "完整的实施计划，包含架构设计"
+      sections:
+        - "项目概述"
+        - "架构设计"
+        - "实施计划"
+        - "风险与缓解"
+        - "Agent分工"
+    - name: "Directory Structure"
+      description: "完整的目录结构设计"
+      location: "PLAN.md中或实际创建"
+
+  optional_outputs:
+    - name: "Architecture Diagrams"
+      description: "架构图（ASCII art或mermaid）"
+    - name: "API Specifications"
+      description: "API设计文档（如适用）"
+
+  quality_gates:
+    - name: "PLAN.md完整性"
+      check: "PLAN.md是否包含所有必需章节"
+      blocker: true
+    - name: "架构合理性"
+      check: "架构设计是否符合四层架构规则"
+      blocker: true
+    - name: "任务分解"
+      check: "任务是否分解为可执行的小步骤"
+      blocker: false
+
+  estimated_duration: "20-40分钟"
+
+  ai_instructions: |
+    - PLAN.md必须详细且可执行
+    - 架构设计要符合ARCHITECTURE_LAYERS.md定义
+    - 考虑依赖关系和实施顺序
+    - 明确Agent分工和并行策略
+
+# ═══════════════════════════════════════════════════════════════
+# Phase 2: Implementation（实现开发）
+# ═══════════════════════════════════════════════════════════════
+phase_2:
+  name: "Implementation"
+  full_name: "实现开发"
+  order: 2
+  type: "development"
+
+  description: |
+    编码实现阶段，按照PLAN.md执行开发任务。
+    包含代码编写、配置创建、脚本开发等。
+
+  objectives:
+    - "按照PLAN.md实现核心功能"
+    - "遵循Phase 1的架构设计"
+    - "编写清晰的代码和注释"
+    - "提交规范的git commits"
+
+  mandatory_outputs:
+    - name: "Source Code"
+      description: "实现的代码文件"
+      quality_requirements:
+        - "遵循项目编码规范"
+        - "包含必要的注释"
+        - "函数长度<150行"
+    - name: "Git Commits"
+      description: "规范的提交记录"
+      format: "type(scope): description"
+      example: "feat(core): Add phase_definitions.yml"
+
+  optional_outputs:
+    - name: "Configuration Files"
+      description: "配置文件（YAML/JSON等）"
+    - name: "Scripts"
+      description: "辅助脚本或工具"
+
+  quality_gates:
+    - name: "代码规范"
+      check: "代码是否符合项目规范"
+      blocker: false
+    - name: "提交规范"
+      check: "commit message是否符合规范"
+      blocker: true
+    - name: "文件位置"
+      check: "文件是否放在正确的层级"
+      blocker: true
+
+  estimated_duration: "40-90分钟"
+
+  ai_instructions: |
+    - 严格按照PLAN.md执行，不偏离设计
+    - 代码要可读、可维护
+    - 提交粒度适中，每个commit有明确意义
+    - 遇到问题及时调整PLAN.md
+
+# ═══════════════════════════════════════════════════════════════
+# Phase 3: Testing（质量验证）
+# ═══════════════════════════════════════════════════════════════
+phase_3:
+  name: "Testing"
+  full_name: "质量验证"
+  order: 3
+  type: "quality_assurance"
+
+  description: |
+    技术质量门禁阶段。
+    运行所有自动化检查，确保代码质量和功能正确性。
+
+  objectives:
+    - "执行静态代码检查"
+    - "运行单元测试和集成测试"
+    - "验证BDD场景（如适用）"
+    - "检查性能指标"
+
+  mandatory_checks:
+    - name: "Static Checks"
+      script: "bash scripts/static_checks.sh"
+      description: "Shell语法、Shellcheck、复杂度检查"
+      blocker: true
+      expected_output: "所有检查通过"
+
+    - name: "Unit Tests"
+      script: "pytest tests/ 或 npm test"
+      description: "单元测试"
+      blocker: true
+      coverage_threshold: 80
+
+    - name: "BDD Tests"
+      script: "npm run bdd"
+      description: "行为驱动测试"
+      blocker: false
+      condition: "如果有acceptance/features/*.feature文件"
+
+  optional_checks:
+    - name: "Performance Tests"
+      description: "性能基准测试"
+    - name: "Security Scan"
+      description: "安全漏洞扫描"
+
+  quality_gates:
+    - name: "所有强制检查通过"
+      check: "blocker: true的检查必须全部通过"
+      blocker: true
+    - name: "测试覆盖率"
+      check: "代码覆盖率≥80%"
+      blocker: false
+
+  estimated_duration: "15-30分钟"
+
+  failure_handling: |
+    如果Phase 3检查失败：
+    1. 记录失败的检查项
+    2. 返回Phase 2修复问题
+    3. 重新运行Phase 3直到通过
+    4. 绝不跳过失败的检查
+
+  ai_instructions: |
+    - 必须执行bash scripts/static_checks.sh
+    - 所有blocker检查失败必须修复
+    - 记录测试结果到.workflow/logs/
+    - Phase 3是第一道质量防线
+
+# ═══════════════════════════════════════════════════════════════
+# Phase 4: Review（代码审查）
+# ═══════════════════════════════════════════════════════════════
+phase_4:
+  name: "Review"
+  full_name: "代码审查"
+  order: 4
+  type: "quality_assurance"
+
+  description: |
+    代码质量门禁阶段。
+    人工审查代码逻辑，运行合并前审计，对照Phase 0验收清单。
+
+  objectives:
+    - "运行合并前审计脚本"
+    - "人工审查代码逻辑正确性"
+    - "验证代码一致性"
+    - "对照Phase 0 checklist验证"
+    - "生成REVIEW.md"
+
+  mandatory_checks:
+    - name: "Pre-merge Audit"
+      script: "bash scripts/pre_merge_audit.sh"
+      description: "配置完整性、版本一致性、文档规范"
+      blocker: true
+      checks:
+        - "配置完整性验证（hooks注册、权限）"
+        - "遗留问题扫描（TODO/FIXME）"
+        - "垃圾文档检测（根目录≤7个文档）"
+        - "版本号一致性检查（5个文件必须一致）"
+        - "代码模式一致性验证"
+
+    - name: "Human Code Review"
+      description: "AI自我审查代码逻辑"
+      blocker: true
+      review_aspects:
+        - "逻辑正确性（IF判断、return值语义）"
+        - "代码一致性（相似功能统一实现）"
+        - "错误处理（边界情况、异常捕获）"
+        - "性能考虑（不合理的循环、重复计算）"
+
+    - name: "Acceptance Verification"
+      description: "对照Phase 0验收清单逐项验证"
+      blocker: true
+      process: "AI逐项检查Phase 0 checklist，确保全部✅"
+
+  mandatory_outputs:
+    - name: "REVIEW.md"
+      format: "markdown"
+      location: "项目根目录"
+      min_length: 100
+      description: "完整的代码审查报告"
+      sections:
+        - "审查概述"
+        - "代码质量评估"
+        - "发现的问题和修复"
+        - "Phase 0验收清单对照"
+        - "审查结论"
+
+  quality_gates:
+    - name: "Pre-merge audit通过"
+      check: "pre_merge_audit.sh返回0"
+      blocker: true
+    - name: "REVIEW.md完整"
+      check: "REVIEW.md长度≥100行且包含所有章节"
+      blocker: true
+    - name: "无critical issue"
+      check: "没有未解决的严重问题"
+      blocker: true
+
+  estimated_duration: "20-40分钟"
+
+  failure_handling: |
+    如果Phase 4审查失败：
+    1. 记录所有发现的问题
+    2. 返回Phase 2修复代码
+    3. 重新执行Phase 3-4
+    4. 确保所有问题都已解决
+
+  ai_instructions: |
+    - 必须执行bash scripts/pre_merge_audit.sh
+    - REVIEW.md必须详细且有实质内容
+    - 对照Phase 0 checklist逐项验证
+    - 发现问题必须修复，不能妥协质量
+    - Phase 4是第二道质量防线
+
+# ═══════════════════════════════════════════════════════════════
+# Phase 5: Release & Monitor（发布与监控）
+# ═══════════════════════════════════════════════════════════════
+phase_5:
+  name: "Release & Monitor"
+  full_name: "发布与监控"
+  order: 5
+  type: "deployment"
+
+  description: |
+    发布和监控配置阶段。
+    更新文档、打tag、配置监控、最终验收。
+    合并原P6发布和P7监控。
+
+  objectives:
+    - "更新项目文档"
+    - "更新版本号和CHANGELOG"
+    - "创建git tag"
+    - "配置监控和告警"
+    - "最终验收确认"
+
+  mandatory_tasks:
+    - name: "Update Documentation"
+      description: "更新README.md、CHANGELOG.md等"
+      files_to_update:
+        - "CHANGELOG.md（追加新版本记录）"
+        - "README.md（如有新功能）"
+        - "VERSION"
+        - ".claude/settings.json"
+
+    - name: "Version Consistency"
+      description: "确保5个文件版本号一致"
+      files_to_check:
+        - "VERSION"
+        - ".claude/settings.json"
+        - ".claude/manifest.yml"
+        - "package.json"
+        - "CHANGELOG.md"
+      script: "bash scripts/check_version_consistency.sh"
+
+    - name: "Create Git Tag"
+      description: "创建版本tag"
+      command: "git tag -a vX.Y.Z -m 'Release X.Y.Z'"
+
+    - name: "Final Acceptance"
+      description: "对照Phase 0 checklist最终验收"
+      process: |
+        1. 逐项对照Phase 0验收清单
+        2. 确保每项都✅
+        3. 生成验收报告
+        4. 等待用户确认"没问题"
+
+  quality_gates:
+    - name: "版本一致性"
+      check: "5个文件版本号完全一致"
+      blocker: true
+    - name: "CHANGELOG更新"
+      check: "CHANGELOG.md包含新版本记录"
+      blocker: true
+    - name: "Phase 0验收通过"
+      check: "所有验收项都✅"
+      blocker: true
+
+  estimated_duration: "10-20分钟"
+
+  iron_rule: |
+    Phase 5铁律：不应该在这个阶段发现bugs
+
+    - 如果发现bugs → 返回Phase 4重新审查
+    - Phase 5只做确认和发布，不做修复
+    - 这是质量流程的验证，不是发现问题的阶段
+
+  ai_instructions: |
+    - 对照Phase 0 checklist逐项验证
+    - 生成验收报告给用户确认
+    - 等待用户说"没问题"才继续
+    - 如果发现bugs，返回Phase 4
+    - Phase 5应该是无惊喜的确认阶段
+
+# ═══════════════════════════════════════════════════════════════
+# Phase流转规则
+# ═══════════════════════════════════════════════════════════════
+phase_transitions:
+  normal_flow:
+    - from: "phase_0"
+      to: "phase_1"
+      condition: "Acceptance Checklist已创建"
+
+    - from: "phase_1"
+      to: "phase_2"
+      condition: "PLAN.md已创建且架构设计完成"
+
+    - from: "phase_2"
+      to: "phase_3"
+      condition: "代码实现完成且已提交"
+
+    - from: "phase_3"
+      to: "phase_4"
+      condition: "所有自动化测试通过"
+
+    - from: "phase_4"
+      to: "phase_5"
+      condition: "代码审查通过且REVIEW.md已生成"
+
+    - from: "phase_5"
+      to: "completed"
+      condition: "用户确认'没问题'"
+
+  rollback_flow:
+    - from: "phase_3"
+      to: "phase_2"
+      reason: "测试失败，需要修复代码"
+
+    - from: "phase_4"
+      to: "phase_2"
+      reason: "审查发现问题，需要重写代码"
+
+    - from: "phase_5"
+      to: "phase_4"
+      reason: "发现bugs，需要重新审查"
+
+  skip_rules:
+    - phase: "phase_3"
+      can_skip: false
+      reason: "质量门禁必须执行"
+
+    - phase: "phase_4"
+      can_skip: false
+      reason: "代码审查必须执行"
+
+    - phase: "phase_5"
+      can_skip: false
+      reason: "最终验收必须执行"
+
+# ═══════════════════════════════════════════════════════════════
+# 质量理念
+# ═══════════════════════════════════════════════════════════════
+quality_philosophy:
+  shift_left: |
+    越早发现问题，修复成本越低
+    - Phase 3发现 > Phase 4发现 > Phase 5发现
+    - Phase 5不应该发现bugs
+
+  three_gates: |
+    三阶段检查体系
+    - Phase 3: 技术质量门禁（自动化检查）
+    - Phase 4: 代码质量门禁（人工审查+审计）
+    - Phase 5: 最终确认门禁（验收+发布）
+
+  zero_compromise: |
+    零妥协原则
+    - blocker检查失败必须修复
+    - 不允许带问题发布
+    - 质量不能妥协

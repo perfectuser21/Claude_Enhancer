@@ -3,7 +3,7 @@
 if [[ "$CE_AUTO_MODE" == "true" ]]; then
     export CE_SILENT_MODE=true
 fi
-# Claude Enhancer - Branch强制检查（规则0：Phase -1）
+# Claude Enhancer - Branch强制检查（规则0：Phase 1 - Branch Check）
 # 版本：3.0 - 100%强制执行模式（无条件硬阻止）
 # 修复日期：2025-10-15
 # 修复原因：之前的EXECUTION_MODE检测不可靠，导致50%违规率
@@ -61,16 +61,14 @@ show_branch_guidance() {
     echo "  • docs/xxx - 文档更新" >&2
     echo "  • experiment/xxx - 实验性改动" >&2
     echo "" >&2
-    echo "🚀 Claude Enhancer工作流（Phase -1 → P7）：" >&2
-    echo "  Phase -1: 分支准备 ← 你在这里" >&2
-    echo "  Phase  0: 探索发现" >&2
-    echo "  Phase  1: 需求规划" >&2
-    echo "  Phase  2: 架构设计" >&2
-    echo "  Phase  3: 编码实现" >&2
-    echo "  Phase  4: 测试验证" >&2
-    echo "  Phase  5: 代码审查" >&2
-    echo "  Phase  6: 发布部署" >&2
-    echo "  Phase  7: 监控运维" >&2
+    echo "🚀 Claude Enhancer工作流（Phase 1 → P7）：" >&2
+    echo "  Phase  1: 分支准备 ← 你在这里" >&2
+    echo "  Phase  2: 探索发现" >&2
+    echo "  Phase  3: 需求规划+架构设计" >&2
+    echo "  Phase  4: 编码实现" >&2
+    echo "  Phase  5: 测试验证（质量门禁1）" >&2
+    echo "  Phase  6: 代码审查（质量门禁2）" >&2
+    echo "  Phase  7: 发布部署+监控运维" >&2
     echo "" >&2
 }
 
@@ -102,7 +100,7 @@ if [[ "$current_branch" == "main" ]] || [[ "$current_branch" == "master" ]]; the
         if git checkout -b "$new_branch" 2>/dev/null; then
             if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
                 echo "✅ 成功创建并切换到: $new_branch" >&2
-                echo "✅ 现在可以安全开始Phase 0-5工作流" >&2
+                echo "✅ 现在可以安全开始Phase 2-7工作流" >&2
                 echo "" >&2
             fi
             echo "$(date +'%F %T') [branch_helper.sh v3.0] AUTO-CREATED: $new_branch from $current_branch" >> "$LOG_FILE"

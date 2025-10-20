@@ -1,0 +1,12 @@
+# Code Quality Checker - Default Rules
+version: "1.0"
+complexity:
+  max_function_lines: 50
+  warn_function_lines: 30
+  max_nesting_depth: 3
+  warn_nesting_depth: 2
+naming:
+  python:
+    function: snake_case
+  shell:
+    function: snake_case

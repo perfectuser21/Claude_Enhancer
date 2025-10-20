@@ -1,0 +1,366 @@
+{
+  "metadata": {
+    "file_version": "1.0.0",
+    "system_version": "6.6.0",
+    "last_updated": "2025-10-19",
+    "description": "Module版本追踪系统",
+    "total_modules": 5
+  },
+
+  "modules": {
+    "static_checks": {
+      "version": "2.1.0",
+      "location": "scripts/static_checks.sh",
+      "layer": "module",
+      "last_updated": "2025-10-15",
+      "changes": "Added Core protection check",
+      "dependencies": [],
+      "used_by": [
+        "phase_3",
+        "workflow_enforcer"
+      ],
+      "description": "Shell语法检查、Shellcheck、复杂度检查、Hook性能测试",
+      "changelog": {
+        "2.1.0": {
+          "date": "2025-10-15",
+          "type": "feature",
+          "changes": [
+            "添加Core文件保护检查",
+            "增强Hook性能测试"
+          ]
+        },
+        "2.0.0": {
+          "date": "2025-10-10",
+          "type": "major",
+          "changes": [
+            "重构为独立Module",
+            "统一错误处理"
+          ]
+        }
+      }
+    },
+
+    "pre_merge_audit": {
+      "version": "1.5.0",
+      "location": "scripts/pre_merge_audit.sh",
+      "layer": "module",
+      "last_updated": "2025-10-13",
+      "changes": "Enhanced version consistency validation",
+      "dependencies": [
+        "check_version_consistency"
+      ],
+      "used_by": [
+        "phase_4"
+      ],
+      "description": "合并前审计：配置完整性、遗留问题扫描、文档规范、版本一致性",
+      "changelog": {
+        "1.5.0": {
+          "date": "2025-10-13",
+          "type": "feature",
+          "changes": [
+            "增强版本一致性验证",
+            "添加代码模式一致性检查"
+          ]
+        },
+        "1.4.0": {
+          "date": "2025-10-11",
+          "type": "feature",
+          "changes": [
+            "添加文档规范检查",
+            "垃圾文档检测"
+          ]
+        }
+      }
+    },
+
+    "check_version_consistency": {
+      "version": "1.3.0",
+      "location": "scripts/check_version_consistency.sh",
+      "layer": "module",
+      "last_updated": "2025-10-13",
+      "changes": "Support 5-file consistency check (VERSION + settings + manifest + package + CHANGELOG)",
+      "dependencies": [],
+      "used_by": [
+        "phase_4",
+        "phase_5",
+        "pre_merge_audit",
+        "pre-commit hook"
+      ],
+      "description": "验证5个文件版本号一致性：VERSION, settings.json, manifest.yml, package.json, CHANGELOG.md",
+      "changelog": {
+        "1.3.0": {
+          "date": "2025-10-13",
+          "type": "feature",
+          "changes": [
+            "支持5个文件一致性检查",
+            "添加CHANGELOG.md验证"
+          ]
+        },
+        "1.2.0": {
+          "date": "2025-10-10",
+          "type": "feature",
+          "changes": [
+            "添加manifest.yml支持",
+            "优化错误信息"
+          ]
+        },
+        "1.1.0": {
+          "date": "2025-10-08",
+          "type": "feature",
+          "changes": [
+            "添加package.json支持"
+          ]
+        }
+      }
+    },
+
+    "gap_scan": {
+      "version": "1.0.0",
+      "location": "scripts/gap_scan.sh",
+      "layer": "module",
+      "last_updated": "2025-10-05",
+      "changes": "Initial release",
+      "dependencies": [],
+      "used_by": [
+        "gap_scan hook"
+      ],
+      "description": "差距扫描工具，检测系统实现与声称的差距",
+      "changelog": {
+        "1.0.0": {
+          "date": "2025-10-05",
+          "type": "initial",
+          "changes": [
+            "初始版本发布",
+            "支持BDD场景扫描",
+            "支持性能指标检查"
+          ]
+        }
+      }
+    },
+
+    "capability_snapshot": {
+      "version": "1.0.0",
+      "location": "scripts/capability_snapshot.sh",
+      "layer": "module",
+      "last_updated": "2025-10-05",
+      "changes": "Initial release",
+      "dependencies": [],
+      "used_by": [
+        "manual execution"
+      ],
+      "description": "能力快照工具，生成系统当前能力状态报告",
+      "changelog": {
+        "1.0.0": {
+          "date": "2025-10-05",
+          "type": "initial",
+          "changes": [
+            "初始版本发布",
+            "生成保障力评分",
+            "统计BDD场景数量"
+          ]
+        }
+      }
+    }
+  },
+
+  "module_lifecycle": {
+    "adding_module": {
+      "steps": [
+        "创建Module文件（scripts/或.claude/modules/）",
+        "在versions.json中注册（本文件）",
+        "编写Module文档（至少README）",
+        "添加单元测试（如果是复杂Module）",
+        "更新Patch版本号（v6.5.1→v6.5.2）"
+      ],
+      "template": {
+        "module_name": {
+          "version": "1.0.0",
+          "location": "scripts/module_name.sh",
+          "layer": "module",
+          "last_updated": "YYYY-MM-DD",
+          "changes": "Initial release",
+          "dependencies": [],
+          "used_by": [],
+          "description": "Module描述",
+          "changelog": {
+            "1.0.0": {
+              "date": "YYYY-MM-DD",
+              "type": "initial",
+              "changes": ["初始版本"]
+            }
+          }
+        }
+      }
+    },
+
+    "updating_module": {
+      "version_rules": {
+        "major": "破坏性变更（如API签名改变）",
+        "minor": "新增功能（向后兼容）",
+        "patch": "Bug修复"
+      },
+      "process": [
+        "修改Module文件",
+        "更新version字段",
+        "更新last_updated",
+        "更新changes字段",
+        "在changelog中添加条目",
+        "更新系统Patch版本（v6.5.1→v6.5.2）"
+      ]
+    },
+
+    "deprecating_module": {
+      "method": "添加deprecated字段",
+      "example": {
+        "old_module": {
+          "version": "2.0.0",
+          "deprecated": true,
+          "deprecated_since": "6.5.0",
+          "replacement": "new_module",
+          "removal_planned": "7.0.0"
+        }
+      }
+    },
+
+    "removing_module": {
+      "conditions": [
+        "已被标记为deprecated至少一个Major版本",
+        "没有其他Module或Feature依赖",
+        "用户已收到充分通知"
+      ],
+      "process": [
+        "从versions.json删除条目",
+        "删除Module文件",
+        "更新Major版本号（v6→v7）",
+        "在CHANGELOG中说明"
+      ]
+    }
+  },
+
+  "module_standards": {
+    "required_characteristics": {
+      "independence": "完全独立，不依赖任何层",
+      "reusability": "可被多个层调用",
+      "single_responsibility": "职责单一，功能明确",
+      "no_business_logic": "只提供工具功能，无业务逻辑"
+    },
+
+    "coding_standards": {
+      "shell_scripts": {
+        "shebang": "#!/bin/bash",
+        "strict_mode": "set -euo pipefail",
+        "error_handling": "完善的错误处理和日志",
+        "performance": "执行时间<5秒（通常<1秒）",
+        "portability": "在bash 4.0+上运行"
+      },
+      "python_scripts": {
+        "version": "Python 3.8+",
+        "style": "PEP 8",
+        "dependencies": "最小化外部依赖"
+      }
+    },
+
+    "documentation": {
+      "inline_comments": "关键逻辑必须有注释",
+      "function_docstrings": "每个函数必须有说明",
+      "usage_examples": "README中提供使用示例",
+      "changelog": "versions.json中维护完整变更历史"
+    },
+
+    "testing": {
+      "unit_tests": "推荐（复杂Module必须）",
+      "integration_tests": "可选",
+      "performance_tests": "如果性能敏感则必须"
+    }
+  },
+
+  "dependency_management": {
+    "rules": {
+      "no_circular": "不允许循环依赖",
+      "minimal": "最小化依赖数量",
+      "explicit": "dependencies字段必须明确列出"
+    },
+
+    "validation": {
+      "script": "scripts/validate_module_deps.sh",
+      "checks": [
+        "检测循环依赖",
+        "验证依赖的Module是否存在",
+        "检查依赖关系是否合理"
+      ]
+    }
+  },
+
+  "usage_tracking": {
+    "purpose": "追踪Module被哪些组件使用",
+    "benefits": [
+      "评估Module重要性",
+      "识别孤立的Module",
+      "安全移除未使用的Module"
+    ],
+    "used_by_sources": [
+      "Phase定义（phase_definitions.yml）",
+      "Feature（registry.yml）",
+      "其他Module（versions.json）",
+      "Git Hooks（.git/hooks/*）"
+    ]
+  },
+
+  "quality_metrics": {
+    "total_modules": 5,
+    "average_age": "~2 weeks",
+    "update_frequency": "1-2 updates/week",
+    "deprecation_rate": "0%",
+    "test_coverage": {
+      "static_checks": "100%",
+      "pre_merge_audit": "95%",
+      "check_version_consistency": "100%",
+      "gap_scan": "90%",
+      "capability_snapshot": "85%"
+    }
+  },
+
+  "future_modules": {
+    "planned": [
+      {
+        "name": "performance_profiler",
+        "description": "性能分析工具",
+        "priority": "medium",
+        "target_version": "6.7.0"
+      },
+      {
+        "name": "security_scanner",
+        "description": "安全漏洞扫描",
+        "priority": "high",
+        "target_version": "6.7.0"
+      },
+      {
+        "name": "doc_generator",
+        "description": "自动文档生成",
+        "priority": "low",
+        "target_version": "6.8.0"
+      }
+    ]
+  },
+
+  "maintenance": {
+    "regular_tasks": [
+      "每月审查Module使用情况",
+      "每季度评估是否需要新Module",
+      "每半年清理未使用的Module"
+    ],
+
+    "health_checks": [
+      "所有Module必须有版本号",
+      "changelog必须完整",
+      "dependencies必须准确",
+      "used_by必须更新"
+    ],
+
+    "quality_gates": [
+      "新Module必须通过static_checks",
+      "Module更新必须有changelog条目",
+      "移除Module必须检查依赖"
+    ]
+  }
+}

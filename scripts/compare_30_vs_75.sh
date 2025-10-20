@@ -82,8 +82,8 @@ echo ""
 cat <<EOF
 📊 Enhanced Coverage:
 
-Phase 0 (Discovery):
-  • 30-step: Basic P0_DISCOVERY.md existence
+Phase 2 (Discovery - was Phase 0):
+  • 30-step: Basic P2_DISCOVERY.md existence
   • 75-step: + Content validation (>300 lines)
              + Problem Statement completeness
              + Background section validation
@@ -91,7 +91,7 @@ Phase 0 (Discovery):
              + Impact Radius assessment
              + Anti-hollow placeholder detection
 
-Phase 1 (Planning):
+Phase 3 (Planning & Architecture - was Phase 1):
   • 30-step: PLAN.md existence, basic structure
   • 75-step: + Executive Summary validation
              + System Architecture verification
@@ -100,7 +100,7 @@ Phase 1 (Planning):
              + Technology stack documentation
              + Risk identification checks
 
-Phase 2 (Implementation):
+Phase 4 (Implementation - was Phase 2):
   • 30-step: File existence checks
   • 75-step: + Git commit validation
              + Shell script syntax checking
@@ -109,7 +109,7 @@ Phase 2 (Implementation):
              + Comment ratio validation
              + README/CONTRIBUTING updates
 
-🔒 Phase 3 (Testing) - Quality Gate 1:
+🔒 Phase 5 (Testing / QG1 - was Phase 3):
   • 30-step: Not present
   • 75-step: ✓ Static checks execution (blocking)
              ✓ Shell syntax validation
@@ -123,17 +123,17 @@ Phase 2 (Implementation):
              ✓ Code complexity checks
              ✓ Evidence recording
 
-🔒 Phase 4 (Review) - Quality Gate 2:
+🔒 Phase 6 (Review / QG2 - was Phase 4):
   • 30-step: Not present
   • 75-step: ✓ Pre-merge audit execution (blocking)
              ✓ REVIEW.md completeness (>3KB)
              ✓ Review content validation
              ✓ Review findings documentation
              ✓ Version consistency check (blocking)
-             ✓ P0 checklist verification
+             ✓ P2 checklist verification (was P0)
              ✓ Evidence recording
 
-📦 Phase 5 (Release & Monitor):
+📦 Phase 7 (Release & Monitor - was Phase 5):
   • 30-step: Not present
   • 75-step: ✓ CHANGELOG.md updates
              ✓ README.md final checks
@@ -148,14 +148,14 @@ Phase 2 (Implementation):
              ✓ API documentation
              ✓ Security audit verification
              ✓ Root directory cleanup (≤7 docs)
-             ✓ P0 checklist final confirmation
+             ✓ P2 checklist final confirmation (was P0)
              ✓ Evidence recording
 
 🎯 Key Improvements:
 
 1. Quality Gates (2 blocking checkpoints):
-   - Phase 3: Technical quality (static checks, tests)
-   - Phase 4: Code quality (audit, version consistency)
+   - Phase 5: Technical quality (static checks, tests)
+   - Phase 6: Code quality (audit, version consistency)
 
 2. Anti-Hollow Checks (6 layers):
    - Structure validation
@@ -172,12 +172,12 @@ Phase 2 (Implementation):
    - All must pass to proceed
 
 4. Comprehensive Coverage:
-   - 30-step: P0-P2 only (35 checks)
-   - 75-step: P0-P5 complete (75 checks)
+   - 30-step: P2-P4 only (35 checks - old P0-P2)
+   - 75-step: P2-P7 complete (75 checks - old P0-P5)
    - Coverage increase: 114% more checks
 
 5. Evidence Generation:
-   - All phases (P0-P5) generate timestamped evidence
+   - All phases (P2-P7) generate timestamped evidence
    - SHA256 hashes for document integrity
    - Complete audit trail
 

@@ -1,0 +1,19 @@
+step: 8
+name: "Phase 4 - Review"
+status: "pending"
+description: "Code review + pre-merge audit"
+required_script: "scripts/pre_merge_audit.sh"
+outputs:
+  - "docs/REVIEW.md"
+validation:
+  - "pre_merge_audit.sh executed and passed"
+  - "REVIEW.md >3KB"
+  - "Configuration integrity verified"
+  - "Version consistency checked"
+  - "P0 checklist cross-referenced"
+blocking: true
+quality_gate: 2
+manual_verification:
+  - "Logic correctness"
+  - "Code consistency"
+  - "Phase 0 checklist alignment"

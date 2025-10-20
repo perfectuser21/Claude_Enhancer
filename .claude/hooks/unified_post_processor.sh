@@ -30,7 +30,7 @@ analyze_execution_result() {
     case "$tool_name" in
         "Task")
             status="agent_coordination"
-            phase_progress="P3_implementation_active"
+            phase_progress="P4_implementation_active"
             if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
                 echo "🤖 Agent并行执行完成" >&2
             elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
@@ -39,7 +39,7 @@ analyze_execution_result() {
             ;;
         "Write"|"Edit"|"MultiEdit")
             status="code_generation"
-            phase_progress="P3_implementation_progress"
+            phase_progress="P4_implementation_progress"
             local files_modified=$(git diff --name-only 2>/dev/null | wc -l)
             if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
                 echo "📝 代码修改: ${files_modified} 个文件" >&2
@@ -50,7 +50,7 @@ analyze_execution_result() {
         "Bash")
             if echo "$success_pattern" | grep -q "git.*commit"; then
                 status="commit_completed"
-                phase_progress="P5_commit_done"
+                phase_progress="P6_commit_done"
                 if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
                     echo "📝 代码提交完成" >&2
                 elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
@@ -58,7 +58,7 @@ analyze_execution_result() {
                 fi
             elif echo "$success_pattern" | grep -q "test\|pytest\|jest"; then
                 status="testing_completed"
-                phase_progress="P4_testing_done"
+                phase_progress="P5_testing_done"
                 if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
                     echo "🧪 测试执行完成" >&2
                 elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
@@ -66,7 +66,7 @@ analyze_execution_result() {
                 fi
             elif echo "$success_pattern" | grep -q "git.*push"; then
                 status="push_completed"
-                phase_progress="P6_review_ready"
+                phase_progress="P7_review_ready"
                 if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
                     echo "🚀 代码推送完成" >&2
                 elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
@@ -83,7 +83,7 @@ analyze_execution_result() {
             ;;
         "Read"|"Grep"|"Glob")
             status="analysis_completed"
-            phase_progress="P1_analysis_progress"
+            phase_progress="P2_analysis_progress"
             if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
                 echo "🔍 分析完成" >&2
             elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then
@@ -103,47 +103,49 @@ analyze_execution_result() {
 
 # Smart progress tracking
 update_workflow_progress() {
-    local current_phase="P1_analysis"  # Default
+    local current_phase="P2_discovery"  # Default
 
     # Detect current phase from recent activity
     if [[ -f "$PROGRESS_FILE" ]]; then
         local recent_activity=$(tail -5 "$PROGRESS_FILE" 2>/dev/null | cut -d',' -f2)
 
         # Determine phase from recent patterns
-        if echo "$recent_activity" | grep -q "P5_commit_done"; then
+        if echo "$recent_activity" | grep -q "P6_commit_done"; then
+            current_phase="P7_release"
+        elif echo "$recent_activity" | grep -q "P5_testing"; then
             current_phase="P6_review"
-        elif echo "$recent_activity" | grep -q "P4_testing"; then
-            current_phase="P5_commit"
-        elif echo "$recent_activity" | grep -q "P3_implementation"; then
-            current_phase="P4_testing"
-        elif echo "$recent_activity" | grep -q "P1_analysis"; then
-            current_phase="P2_design"
+        elif echo "$recent_activity" | grep -q "P4_implementation"; then
+            current_phase="P5_testing"
+        elif echo "$recent_activity" | grep -q "P3_planning"; then
+            current_phase="P4_implementation"
+        elif echo "$recent_activity" | grep -q "P2_analysis"; then
+            current_phase="P3_planning"
         fi
     fi
 
     # Provide phase-specific guidance
     if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
         case "$current_phase" in
-            "P1_analysis")
-                echo "📊 Phase 1: 需求分析中..." >&2
+            "P2_discovery")
+                echo "🔍 Phase 2: 探索发现中..." >&2
                 ;;
-            "P2_design")
-                echo "🎨 Phase 2: 设计规划阶段" >&2
+            "P3_planning")
+                echo "🎨 Phase 3: 规划+架构阶段" >&2
                 ;;
-            "P3_implementation")
-                echo "⚙️ Phase 3: 实现开发中..." >&2
+            "P4_implementation")
+                echo "⚙️ Phase 4: 实现开发中..." >&2
                 ;;
-            "P4_testing")
-                echo "🧪 Phase 4: 测试验证阶段" >&2
+            "P5_testing")
+                echo "🧪 Phase 5: 测试验证阶段（质量门禁1）" >&2
                 echo "💡 建议: 运行 npm test 或 pytest" >&2
                 ;;
-            "P5_commit")
-                echo "📝 Phase 5: 准备提交代码" >&2
-                echo "💡 建议: 检查 git status" >&2
-                ;;
             "P6_review")
-                echo "👀 Phase 6: 代码审查阶段" >&2
+                echo "👀 Phase 6: 代码审查阶段（质量门禁2）" >&2
                 echo "💡 建议: 创建 Pull Request" >&2
+                ;;
+            "P7_release")
+                echo "🚀 Phase 7: 发布+监控阶段" >&2
+                echo "💡 建议: 更新文档并部署" >&2
                 ;;
         esac
     elif [[ "${CE_COMPACT_OUTPUT:-false}" == "true" ]]; then

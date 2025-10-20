@@ -1,0 +1,5 @@
+current_step: 0
+step_name: "Initialization"
+status: "active"
+started_at: "2025-10-19T00:00:00Z"
+description: "System initialization, awaiting first task"

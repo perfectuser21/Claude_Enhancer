@@ -42,6 +42,13 @@ FAST_LANE_PATTERNS=(
 # ============================================================================
 
 is_fast_lane() {
+    # CRITICAL FIX: Check if in execution mode first
+    # If in execution mode (.workflow/ACTIVE exists), NOT fast lane - need agents
+    if [[ -f "$PROJECT_ROOT/.workflow/ACTIVE" ]]; then
+        echo "  In execution mode - agent enforcement active" >> "$LOG_FILE"
+        return 1  # NOT fast lane - require agents
+    fi
+
     # Check if changes are trivial (docs-only, <10 lines)
     local changed_files
     changed_files=$(git diff --cached --name-only 2>/dev/null || echo "")

@@ -1,0 +1,110 @@
+# tests/fixtures/valid/phase_definitions.yml
+# Valid Phase Definitions for Testing
+
+version: "6.6.0"
+schema_version: "1.0"
+description: "6-Phase workflow system for Claude Enhancer"
+
+phases:
+  phase0:
+    name: "Discovery"
+    description: "Technical exploration and acceptance criteria definition"
+    required_output:
+      - "acceptance_checklist"
+      - "technical_spike_results"
+      - "feasibility_assessment"
+    quality_gates:
+      - "checklist_completeness"
+      - "spike_validation"
+      - "risk_assessment"
+    duration_estimate: "30min"
+    prerequisites: []
+
+  phase1:
+    name: "Planning & Architecture"
+    description: "Requirements analysis and architecture design"
+    required_output:
+      - "PLAN.md"
+      - "directory_structure"
+      - "architecture_diagram"
+      - "agent_assignments"
+    quality_gates:
+      - "plan_completeness"
+      - "architecture_review"
+      - "dependency_analysis"
+    duration_estimate: "40min"
+    prerequisites:
+      - "phase0"
+
+  phase2:
+    name: "Implementation"
+    description: "Coding development with commits"
+    required_output:
+      - "working_code"
+      - "git_commits"
+      - "unit_tests"
+    quality_gates:
+      - "code_compilation"
+      - "basic_functionality"
+      - "commit_messages_valid"
+    duration_estimate: "60min"
+    prerequisites:
+      - "phase1"
+
+  phase3:
+    name: "Testing"
+    description: "Unit/integration/performance/BDD tests + static checks"
+    required_output:
+      - "test_results"
+      - "coverage_report"
+      - "static_check_results"
+      - "performance_benchmarks"
+    quality_gates:
+      - "all_tests_passing"
+      - "coverage_threshold_met"
+      - "static_checks_passed"
+      - "no_critical_bugs"
+    duration_estimate: "20min"
+    prerequisites:
+      - "phase2"
+
+  phase4:
+    name: "Review"
+    description: "Code review and pre-merge audit"
+    required_output:
+      - "REVIEW.md"
+      - "audit_results"
+      - "code_quality_report"
+    quality_gates:
+      - "review_completed"
+      - "no_critical_issues"
+      - "version_consistency"
+      - "documentation_complete"
+    duration_estimate: "25min"
+    prerequisites:
+      - "phase3"
+
+  phase5:
+    name: "Release & Monitor"
+    description: "Documentation update, tag creation, and monitoring setup"
+    required_output:
+      - "release_tag"
+      - "updated_changelog"
+      - "monitoring_config"
+      - "deployment_docs"
+    quality_gates:
+      - "tag_created"
+      - "changelog_updated"
+      - "monitoring_active"
+      - "phase0_checklist_validated"
+    duration_estimate: "10min"
+    prerequisites:
+      - "phase4"
+
+metadata:
+  created: "2025-10-19"
+  author: "api-designer"
+  version_history:
+    - version: "1.0"
+      date: "2025-10-19"
+      changes: "Initial phase definitions for 6-Phase system"

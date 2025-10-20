@@ -206,14 +206,18 @@ main() {
         exit 0
     fi
 
-    # Check if current phase requires agents (Phase 1-5)
+    # Check if current phase requires agents (Phase 2-6)
     local requires_agents=false
     case "$current_phase" in
-        Phase1|P1|Phase2|P2|Phase3|P3|Phase4|P4|Phase5|P5)
+        Phase2|P2|Phase3|P3|Phase4|P4|Phase5|P5|Phase6|P6)
             requires_agents=true
             ;;
-        Phase0|P0)
-            # Phase0: Discovery/exploration, agents not strictly required
+        Phase1|P1)
+            # Phase1: Branch Check, agents not strictly required
+            requires_agents=false
+            ;;
+        Phase7|P7)
+            # Phase7: Release+Monitor, agents not strictly required
             requires_agents=false
             ;;
         *)
@@ -228,7 +232,7 @@ main() {
         exit 0
     fi
 
-    # Phase 1-5: Check exemptions
+    # Phase 2-6: Check exemptions
     if is_exempt_file "$FILE_PATH"; then
         echo "  Pass: Exempt file" >> "$LOG_FILE"
         echo "$INPUT"
@@ -241,7 +245,7 @@ main() {
         exit 0
     fi
 
-    # Phase 1-5, non-exempt, non-trivial: MUST have agent evidence
+    # Phase 2-6, non-exempt, non-trivial: MUST have agent evidence
     if has_agent_evidence; then
         if [[ "${CE_SILENT_MODE:-false}" != "true" ]]; then
             echo -e "${GREEN}✅ Agent evidence found - Write/Edit allowed${NC}" >&2
@@ -265,7 +269,7 @@ main() {
             echo "   File: $FILE_PATH" >&2
             echo "   Tool: $TOOL_NAME" >&2
             echo "" >&2
-            echo -e "${RED}🚫 Phase 1-5 Rule: MUST use SubAgents (no direct coding)${NC}" >&2
+            echo -e "${RED}🚫 Phase 2-6 Rule: MUST use SubAgents (no direct coding)${NC}" >&2
             echo "" >&2
             echo -e "${GREEN}✅ Correct Workflow:${NC}" >&2
             echo "   1. Use Task tool to call specialized SubAgents" >&2
@@ -277,34 +281,34 @@ main() {
             echo -e "${BLUE}💡 Recommended Agents for $current_phase:${NC}" >&2
 
             case "$current_phase" in
-                Phase1|P1)
+                Phase2|P2)
+                    echo "   • requirements-analyst - Technical spike" >&2
+                    echo "   • backend-architect - Feasibility analysis" >&2
+                    echo "   • technical-writer - Acceptance checklist" >&2
+                    ;;
+                Phase3|P3)
                     echo "   • requirements-analyst - Requirements analysis" >&2
                     echo "   • technical-writer - PLAN.md generation" >&2
                     echo "   • backend-architect - Architecture design" >&2
                     echo "   • api-designer - API planning" >&2
                     ;;
-                Phase2|P2)
+                Phase4|P4)
                     echo "   • backend-architect - Code structure design" >&2
                     echo "   • fullstack-engineer - Implementation" >&2
                     echo "   • test-engineer - Test planning" >&2
                     echo "   • technical-writer - Documentation" >&2
                     ;;
-                Phase3|P3)
+                Phase5|P5)
                     echo "   • test-engineer - Test implementation" >&2
                     echo "   • performance-engineer - Performance testing" >&2
                     echo "   • security-auditor - Security testing" >&2
                     echo "   • code-reviewer - Quality check" >&2
                     ;;
-                Phase4|P4)
+                Phase6|P6)
                     echo "   • code-reviewer - Code review" >&2
                     echo "   • security-auditor - Security audit" >&2
                     echo "   • technical-writer - REVIEW.md generation" >&2
                     echo "   • test-engineer - Review test coverage" >&2
-                    ;;
-                Phase5|P5)
-                    echo "   • technical-writer - Documentation updates" >&2
-                    echo "   • devops-engineer - Release preparation" >&2
-                    echo "   • monitoring-specialist - Monitoring setup" >&2
                     ;;
             esac
 

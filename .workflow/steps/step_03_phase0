@@ -1,0 +1,14 @@
+step: 3
+name: "Phase 0 - Discovery"
+status: "pending"
+description: "Technical spike, feasibility validation, acceptance checklist"
+outputs:
+  - "docs/P0_DISCOVERY.md"
+  - ".workflow/impact_assessments/current.json"
+validation:
+  - "P0_DISCOVERY.md >300 lines"
+  - "Problem Statement complete"
+  - "Acceptance Checklist defined"
+  - "Impact Radius assessed"
+checklist_items_total: 0
+checklist_items_completed: 0
