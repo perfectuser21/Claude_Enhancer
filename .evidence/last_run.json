@@ -1,9 +1,9 @@
 {
-  "timestamp": "2025-10-19T10:08:12Z",
+  "timestamp": "2025-10-19T11:53:52Z",
   "total": 97,
-  "passed": 84,
-  "failed": 13,
-  "pass_rate": 86,
+  "passed": 94,
+  "failed": 3,
+  "pass_rate": 96,
   "version": "95-step complete v2.0 (Phase 1-7 renaming)",
   "phases_covered": "Pre-Discussion, Phase 1-7, Acceptance, Cleanup",
   "global_validations": ["G002", "G003"],
