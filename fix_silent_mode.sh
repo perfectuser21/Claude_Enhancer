@@ -46,7 +46,8 @@ for hook_file in $HOOKS_DIR/*.sh; do
         # 读取文件并处理
         while IFS= read -r line; do
             # 如果是主要输出部分且还未添加条件
-            if [[ "$line" =~ ^[[:space:]]*echo.*"═".*>&2 ]] && [[ "$added_condition" == false ]]; then
+            # 修复regex：转义特殊字符 > 和 &
+            if [[ "$line" =~ ^[[:space:]]*echo.*"═".* ]] && [[ "$line" =~ ">&2" ]] && [[ "$added_condition" == false ]]; then
                 # 在这个echo前添加条件判断
                 cat >> "$temp_file.new" << 'EOF'
     # 根据静默模式决定是否输出

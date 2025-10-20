@@ -38,22 +38,22 @@ echo ""
 # 辅助函数
 log_check() {
     echo -e "${BLUE}[CHECK]${NC} $1"
-    ((total_checks++))
+    ((total_checks++)) || true
 }
 
 log_pass() {
     echo -e "${GREEN}  ✅ PASS${NC} $1"
-    ((passed_checks++))
+    ((passed_checks++)) || true
 }
 
 log_fail() {
     echo -e "${RED}  ❌ FAIL${NC} $1"
-    ((failed_checks++))
+    ((failed_checks++)) || true
 }
 
 log_warn() {
     echo -e "${YELLOW}  ⚠️  WARN${NC} $1"
-    ((warnings++))
+    ((warnings++)) || true
 }
 
 log_info() {
@@ -62,7 +62,7 @@ log_info() {
 
 log_manual() {
     echo -e "${YELLOW}  👤 MANUAL${NC} $1"
-    ((manual_review_needed++))
+    ((manual_review_needed++)) || true
 }
 
 # ============================================
@@ -74,23 +74,23 @@ config_issues=0
 # 检查hooks注册
 if ! grep -q "code_writing_check.sh" "$PROJECT_ROOT/.claude/settings.json" 2>/dev/null; then
     log_fail "code_writing_check.sh not registered in settings.json"
-    ((config_issues++))
+    ((config_issues++)) || true
 fi
 
 if ! grep -q "agent_usage_enforcer.sh" "$PROJECT_ROOT/.claude/settings.json" 2>/dev/null; then
     log_fail "agent_usage_enforcer.sh not registered in settings.json"
-    ((config_issues++))
+    ((config_issues++)) || true
 fi
 
 # 检查git hooks安装
 if [[ ! -x "$PROJECT_ROOT/.git/hooks/pre-commit" ]]; then
     log_fail "pre-commit hook not installed or not executable"
-    ((config_issues++))
+    ((config_issues++)) || true
 fi
 
 if [[ ! -x "$PROJECT_ROOT/.git/hooks/pre-push" ]]; then
     log_fail "pre-push hook not installed or not executable"
-    ((config_issues++))
+    ((config_issues++)) || true
 fi
 
 # 检查bypassPermissionsMode
@@ -112,12 +112,14 @@ fi
 log_check "Legacy Issues Scan (TODO/FIXME)"
 
 # 扫描active代码中的TODO/FIXME（排除archive）
-todo_files=$(grep -r "TODO\|FIXME" \
+todo_count=$(grep -r "TODO\|FIXME" \
     --include="*.sh" \
     --exclude-dir="archive" \
     --exclude-dir="test" \
     --exclude-dir=".temp" \
     "$PROJECT_ROOT/.claude/hooks" 2>/dev/null | wc -l || echo "0")
+todo_files=${todo_count:-0}
+todo_files=$(echo "$todo_files" | tr -d ' \n')
 
 if [[ $todo_files -eq 0 ]]; then
     log_pass "No TODO/FIXME found in active code"
@@ -207,28 +209,28 @@ if [[ "$version_file" == "unknown" ]] || [[ "$settings_version" == "unknown" ]] 
    [[ "$manifest_version" == "unknown" ]] || [[ "$package_version" == "unknown" ]] || \
    [[ "$changelog_version" == "unknown" ]]; then
     log_fail "Could not extract all version numbers"
-    ((version_inconsistency++))
+    ((version_inconsistency++)) || true
 fi
 
 # 检查所有版本是否完全相同
 if [[ "$version_file" != "$settings_version" ]]; then
     log_fail "VERSION ($version_file) ≠ settings.json ($settings_version)"
-    ((version_inconsistency++))
+    ((version_inconsistency++)) || true
 fi
 
 if [[ "$version_file" != "$manifest_version" ]]; then
     log_fail "VERSION ($version_file) ≠ manifest.yml ($manifest_version)"
-    ((version_inconsistency++))
+    ((version_inconsistency++)) || true
 fi
 
 if [[ "$version_file" != "$package_version" ]]; then
     log_fail "VERSION ($version_file) ≠ package.json ($package_version)"
-    ((version_inconsistency++))
+    ((version_inconsistency++)) || true
 fi
 
 if [[ "$version_file" != "$changelog_version" ]]; then
     log_fail "VERSION ($version_file) ≠ CHANGELOG.md ($changelog_version)"
-    ((version_inconsistency++))
+    ((version_inconsistency++)) || true
 fi
 
 if [[ $version_inconsistency -eq 0 ]] && [[ "$version_file" != "unknown" ]]; then
@@ -263,7 +265,7 @@ if [[ -f "$PROJECT_ROOT/.claude/hooks/workflow_guard.sh" ]]; then
             elif echo "$layer_section" | grep -q "if detect_.*; then"; then
                 # 错误模式（旧的IF直接调用）
                 log_warn "Layer $layer uses old pattern (should store exit code first)"
-                ((inconsistent_patterns++))
+                ((inconsistent_patterns++)) || true
             fi
         fi
     done
@@ -300,8 +302,13 @@ else
 fi
 
 # 检查git staged changes是否有文档更新
-changed_code_files=$(git diff --cached --name-only 2>/dev/null | grep -E '\.(sh|py|js|ts)$' | wc -l || echo "0")
-changed_doc_files=$(git diff --cached --name-only 2>/dev/null | grep -E '\.(md)$|^docs/' | wc -l || echo "0")
+changed_code_count=$(git diff --cached --name-only 2>/dev/null | grep -E '\.(sh|py|js|ts)$' | wc -l || echo "0")
+changed_code_files=${changed_code_count:-0}
+changed_code_files=$(echo "$changed_code_files" | tr -d ' \n')
+
+changed_doc_count=$(git diff --cached --name-only 2>/dev/null | grep -E '\.(md)$|^docs/' | wc -l || echo "0")
+changed_doc_files=${changed_doc_count:-0}
+changed_doc_files=$(echo "$changed_doc_files" | tr -d ' \n')
 
 if [[ $changed_code_files -gt 0 ]]; then
     log_info "Found $changed_code_files code file(s) changed"

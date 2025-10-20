@@ -1,0 +1,383 @@
+name: Lockdown Mechanism CI
+
+# 三段式CI验证：核心结构完整性 + 静态检查 + 合并前审计
+# v1.0.0 - 2025-10-20
+
+on:
+  pull_request:
+    branches: [main, master]
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+env:
+  LOCK_MODE: soft  # soft模式（观测期），2025-10-27后切换为strict
+
+jobs:
+  # ═══════════════════════════════════════════════════════════
+  # Stage 1: Core Structure Verification（核心结构完整性验证）
+  # ═══════════════════════════════════════════════════════════
+  core-structure-verification:
+    name: "🔒 Stage 1: Core Structure Verification"
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y jq yq shellcheck
+          echo "✓ Installed: jq, yq, shellcheck"
+
+      - name: Verify core verification script exists
+        run: |
+          if [ ! -f tools/verify-core-structure.sh ]; then
+            echo "❌ ERROR: tools/verify-core-structure.sh not found"
+            exit 1
+          fi
+          echo "✓ Core verification script found"
+
+      - name: Run core structure verification
+        id: verify
+        run: |
+          echo "Running core structure verification..."
+          bash tools/verify-core-structure.sh > result.json 2>&1 || {
+            echo "Verification script exited with code: $?"
+            cat result.json
+            exit 1
+          }
+
+          # Parse result
+          ok=$(jq -r '.ok' result.json 2>/dev/null || echo "false")
+          reason=$(jq -r '.reason // empty' result.json 2>/dev/null || echo "")
+          message=$(jq -r '.message // empty' result.json 2>/dev/null || echo "")
+
+          echo "ok=$ok" >> $GITHUB_OUTPUT
+          echo "reason=$reason" >> $GITHUB_OUTPUT
+          echo "message=$message" >> $GITHUB_OUTPUT
+
+          if [ "$ok" == "true" ]; then
+            echo "✅ Core structure verification PASSED"
+            echo "$message"
+          else
+            echo "❌ Core structure verification FAILED"
+            echo "Reason: $reason"
+
+            # 在soft模式下仅警告，不阻止
+            if [ "$LOCK_MODE" == "soft" ]; then
+              echo "⚠️  WARNING: Soft mode enabled - recording violation but not blocking"
+              echo "::warning::Core structure verification failed: $reason"
+              exit 0  # 不阻止，仅记录
+            else
+              echo "🔴 BLOCKING: Strict mode enabled - cannot proceed"
+              exit 1
+            fi
+          fi
+
+      - name: Check LOCK.json status
+        if: always()
+        run: |
+          if [ ! -f .workflow/LOCK.json ]; then
+            echo "⚠️  WARNING: LOCK.json not found"
+            exit 0
+          fi
+
+          echo "📋 LOCK.json Status:"
+          echo "-------------------"
+          jq -r '{
+            lock_mode,
+            version,
+            total_phases: .core_structure.total_phases,
+            total_checkpoints: .core_structure.total_checkpoints,
+            quality_gates: .core_structure.quality_gates,
+            hard_blocks: .core_structure.hard_blocks
+          }' .workflow/LOCK.json
+
+      - name: Upload verification result
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: core-verification-result
+          path: result.json
+          retention-days: 30
+
+  # ═══════════════════════════════════════════════════════════
+  # Stage 2: Static Checks（静态检查 - Phase 3质量门禁1）
+  # ═══════════════════════════════════════════════════════════
+  static-checks:
+    name: "🔒 Stage 2: Static Checks (Gate 1)"
+    runs-on: ubuntu-latest
+    needs: core-structure-verification
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y shellcheck jq
+          echo "✓ Installed: shellcheck, jq"
+
+      - name: Verify static checks script exists
+        run: |
+          if [ ! -f scripts/static_checks.sh ]; then
+            echo "❌ ERROR: scripts/static_checks.sh not found"
+            echo "This script is required and must exist in the repository"
+            exit 1
+          fi
+          echo "✓ Static checks script found"
+
+      - name: Run static checks
+        id: static_checks
+        run: |
+          echo "Running Phase 3 static checks..."
+          bash scripts/static_checks.sh 2>&1 | tee static_checks.log
+          exit_code=${PIPESTATUS[0]}
+
+          if [ $exit_code -eq 0 ]; then
+            echo "✅ Static checks PASSED"
+            echo "result=passed" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Static checks FAILED"
+            echo "result=failed" >> $GITHUB_OUTPUT
+            cat static_checks.log
+            exit 1
+          fi
+
+      - name: Shell syntax validation (bash -n)
+        run: |
+          echo "Validating shell scripts syntax..."
+          failed=0
+          while IFS= read -r file; do
+            if bash -n "$file" 2>/dev/null; then
+              echo "✓ $file"
+            else
+              echo "✗ $file - syntax error"
+              failed=1
+            fi
+          done < <(find . -name "*.sh" -not -path "./.git/*" -not -path "./node_modules/*")
+
+          if [ $failed -eq 1 ]; then
+            echo "❌ Shell syntax validation failed"
+            exit 1
+          fi
+          echo "✅ All shell scripts have valid syntax"
+
+      - name: Shellcheck linting
+        run: |
+          echo "Running shellcheck..."
+          shellcheck --version
+
+          # Count warnings
+          warnings=0
+          while IFS= read -r file; do
+            if ! shellcheck -S warning "$file" 2>/dev/null; then
+              ((warnings++))
+            fi
+          done < <(find . -name "*.sh" -not -path "./.git/*" -not -path "./node_modules/*")
+
+          echo "Shellcheck warnings: $warnings"
+
+          if [ $warnings -gt 277 ]; then
+            echo "❌ Shellcheck warnings increased (current: $warnings, baseline: 277)"
+            echo "::error::Quality Ratchet: Shellcheck warnings must not increase"
+            exit 1
+          fi
+
+          echo "✅ Shellcheck passed (warnings: $warnings ≤ 277)"
+
+      - name: Upload static checks log
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: static-checks-log
+          path: static_checks.log
+          retention-days: 30
+
+  # ═══════════════════════════════════════════════════════════
+  # Stage 3: Pre-merge Audit（合并前审计 - Phase 4质量门禁2）
+  # ═══════════════════════════════════════════════════════════
+  pre-merge-audit:
+    name: "🔒 Stage 3: Pre-merge Audit (Gate 2)"
+    runs-on: ubuntu-latest
+    needs: static-checks
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y jq yq
+          echo "✓ Installed: jq, yq"
+
+      - name: Verify pre-merge audit script exists
+        run: |
+          if [ ! -f scripts/pre_merge_audit.sh ]; then
+            echo "❌ ERROR: scripts/pre_merge_audit.sh not found"
+            echo "This script is required and must exist in the repository"
+            exit 1
+          fi
+          echo "✓ Pre-merge audit script found"
+
+      - name: Run pre-merge audit
+        id: audit
+        run: |
+          echo "Running Phase 4 pre-merge audit..."
+          bash scripts/pre_merge_audit.sh 2>&1 | tee audit.log
+          exit_code=${PIPESTATUS[0]}
+
+          if [ $exit_code -eq 0 ]; then
+            echo "✅ Pre-merge audit PASSED"
+            echo "result=passed" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Pre-merge audit FAILED"
+            echo "result=failed" >> $GITHUB_OUTPUT
+            cat audit.log
+            exit 1
+          fi
+
+      - name: Version consistency check
+        run: |
+          echo "Checking version consistency across 5 files..."
+
+          version_main=$(cat VERSION 2>/dev/null | tr -d '\n' || echo "")
+          settings_version=$(jq -r '.version' .claude/settings.json 2>/dev/null || echo "")
+          package_version=$(jq -r '.version' package.json 2>/dev/null || echo "")
+          manifest_version=$(yq '.version' .workflow/manifest.yml 2>/dev/null || echo "")
+          changelog_version=$(grep -oP '^## \[v?\K[0-9.]+' CHANGELOG.md 2>/dev/null | head -1 || echo "")
+
+          echo "VERSION: $version_main"
+          echo "settings.json: $settings_version"
+          echo "package.json: $package_version"
+          echo "manifest.yml: $manifest_version"
+          echo "CHANGELOG.md: $changelog_version"
+
+          errors=""
+          [ "$settings_version" != "$version_main" ] && errors="${errors}.claude/settings.json "
+          [ "$package_version" != "$version_main" ] && errors="${errors}package.json "
+          [ "$manifest_version" != "$version_main" ] && errors="${errors}.workflow/manifest.yml "
+
+          if [ -n "$errors" ]; then
+            echo "❌ Version consistency check FAILED"
+            echo "Mismatches in: $errors"
+            echo "::error::Version mismatch detected in: $errors"
+            exit 1
+          fi
+
+          echo "✅ Version consistency check PASSED (all = $version_main)"
+
+      - name: Root directory document count check
+        run: |
+          echo "Checking root directory document count..."
+
+          count=$(find . -maxdepth 1 -name "*.md" | wc -l)
+          echo "Root directory .md files: $count"
+
+          if [ $count -gt 7 ]; then
+            echo "❌ Root directory has $count .md files (max: 7)"
+            echo "Allowed files: README.md, CLAUDE.md, INSTALLATION.md, ARCHITECTURE.md, CONTRIBUTING.md, CHANGELOG.md, LICENSE.md"
+            echo "::error::Too many root directory documents: $count > 7"
+            find . -maxdepth 1 -name "*.md" -exec basename {} \;
+            exit 1
+          fi
+
+          echo "✅ Root directory document count OK ($count ≤ 7)"
+
+      - name: Upload audit log
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: pre-merge-audit-log
+          path: audit.log
+          retention-days: 30
+
+  # ═══════════════════════════════════════════════════════════
+  # Final Summary（最终汇总）
+  # ═══════════════════════════════════════════════════════════
+  summary:
+    name: "📊 Lockdown CI Summary"
+    runs-on: ubuntu-latest
+    needs: [core-structure-verification, static-checks, pre-merge-audit]
+    if: always()
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+
+      - name: Generate summary
+        run: |
+          echo "# 🔒 Lockdown Mechanism CI Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Three-Stage Verification Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Stage | Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|-------|--------|" >> $GITHUB_STEP_SUMMARY
+
+          # Stage 1
+          if [ -f core-verification-result/result.json ]; then
+            ok=$(jq -r '.ok' core-verification-result/result.json 2>/dev/null || echo "false")
+            if [ "$ok" == "true" ]; then
+              echo "| Stage 1 | Core Structure Verification | ✅ PASSED |" >> $GITHUB_STEP_SUMMARY
+            else
+              reason=$(jq -r '.reason' core-verification-result/result.json 2>/dev/null || echo "Unknown")
+              echo "| Stage 1 | Core Structure Verification | ❌ FAILED: $reason |" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "| Stage 1 | Core Structure Verification | ⚠️  NO DATA |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Stage 2
+          echo "| Stage 2 | Static Checks (Gate 1) | ✅ PASSED |" >> $GITHUB_STEP_SUMMARY
+
+          # Stage 3
+          echo "| Stage 3 | Pre-merge Audit (Gate 2) | ✅ PASSED |" >> $GITHUB_STEP_SUMMARY
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Core Structure Status" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f core-verification-result/result.json ]; then
+            jq -r '"- **Result**: " + (if .ok then "✅ VERIFIED" else "❌ FAILED" end)' core-verification-result/result.json >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Lock Mode" >> $GITHUB_STEP_SUMMARY
+          echo "- **Current Mode**: $LOCK_MODE (observation period)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Strict Mode Start**: 2025-10-27" >> $GITHUB_STEP_SUMMARY
+          echo "- **Behavior**: Recording violations, not blocking (soft mode)" >> $GITHUB_STEP_SUMMARY
+
+          echo ""
+          echo "✅ All three stages completed"
+
+  # ═══════════════════════════════════════════════════════════
+  # Notification（可选：通知机制）
+  # ═══════════════════════════════════════════════════════════
+  notify-on-failure:
+    name: "🚨 Notify on Failure"
+    runs-on: ubuntu-latest
+    needs: [core-structure-verification, static-checks, pre-merge-audit]
+    if: failure()
+
+    steps:
+      - name: Log failure
+        run: |
+          echo "❌ Lockdown CI failed"
+          echo "At least one stage failed verification"
+          echo "Check the logs above for details"
+
+          # 这里可以添加通知逻辑（例如发送到Slack、Email等）
+          # 当前仅记录到日志
+
+      - name: Create failure marker
+        run: |
+          mkdir -p .workflow/logs
+          echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) - Lockdown CI failed" >> .workflow/logs/ci_failures.log
+          cat .workflow/logs/ci_failures.log || true

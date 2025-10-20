@@ -1,0 +1,263 @@
+# Claude Enhancer 核心规格说明书（SPEC）
+# 版本: v6.6.0
+# 用途: 定义"核心不变层" - AI修改这些内容需要在CHANGELOG明确说明理由
+# 更新日期: 2025-10-20
+
+# ═══════════════════════════════════════════════════════════
+# 第1层：核心不变层（修改需要理由）
+# ═══════════════════════════════════════════════════════════
+
+metadata:
+  name: "Claude Enhancer"
+  version: "6.6.0"
+  type: "single_workflow"  # 单一工作流系统（非多工作流平台）
+  purpose: "专业级个人AI编程工作流系统"
+  target_user: "个人开发者（单用户）"
+
+# 工作流结构（7 Phases统一系统）
+workflow_structure:
+  total_phases: 7  # ⛔ 不可改：必须7个Phase
+  phase_names:     # ⛔ 不可改：Phase名称
+    - "Phase 1: Discovery & Planning"
+    - "Phase 2: Implementation"
+    - "Phase 3: Testing"
+    - "Phase 4: Review"
+    - "Phase 5: Release"
+    - "Phase 6: Acceptance"
+    - "Phase 7: Closure"
+
+  # Phase细分（Phase 1包含5个子阶段）
+  phase1_substages:  # ⚠️ 可新增，但不可删除现有
+    - "1.1 Branch Check"
+    - "1.2 Requirements Discussion"
+    - "1.3 Technical Discovery"
+    - "1.4 Impact Assessment"
+    - "1.5 Architecture Planning"
+
+# 检查点系统
+checkpoints:
+  total_count: 97  # ⛔ 只能增加，不能减少
+  distribution:    # ⛔ 不可减少任何Phase的检查点数
+    phase1: 33
+    phase2: 15
+    phase3: 15
+    phase4: 10
+    phase5: 15
+    phase6: 5
+    phase7: 4
+
+  # 检查点编号规则
+  naming_convention:  # ⛔ 不可改
+    pattern: "P{phase}_{stage}_S{number}"
+    examples:
+      - "PD_S001"   # Pre-Discussion (Phase 1.2)
+      - "P1_S001"   # Phase 1 Branch Check (Phase 1.1)
+      - "P2_S001"   # Phase 2 Discovery (Phase 1.3)
+      - "P5_S001"   # Phase 5 Testing (Phase 3)
+
+# 质量门禁系统
+quality_gates:
+  total_gates: 2  # ⛔ 不可改：必须2个门禁
+
+  gate1:
+    phase: "Phase 3"
+    name: "Testing - 技术质量门禁"
+    type: "automatic"  # 100%自动化
+    blocking: true     # 失败必须阻止
+    checks:
+      - "Shell语法验证（bash -n）"
+      - "Shellcheck linting"
+      - "代码复杂度检查"
+      - "Hook性能测试"
+      - "单元测试 + 集成测试"
+      - "BDD场景测试"
+      - "测试覆盖率"
+      - "敏感信息检测"
+
+  gate2:
+    phase: "Phase 4"
+    name: "Review - 代码质量门禁"
+    type: "automatic_and_manual"  # 自动化 + 人工
+    blocking: true
+    checks:
+      - "配置完整性"
+      - "遗留问题扫描（TODO/FIXME）"
+      - "垃圾文档检测"
+      - "版本完全一致性（5文件）"
+      - "代码模式一致性"
+      - "文档完整性"
+      - "人工审查签字"
+
+# 硬性阻止条件（Hard Blocks）
+hard_blocks:
+  total_count: 8  # ⛔ 不可减少
+  conditions:
+    - phase: "Phase 1"
+      condition: "未创建feature分支"
+      rule: "规则0：新任务必须新分支"
+
+    - phase: "Phase 3"
+      condition: "Shell语法错误"
+      rule: "bash -n检查失败"
+
+    - phase: "Phase 3"
+      condition: "Shellcheck警告"
+      rule: "存在严重代码问题"
+
+    - phase: "Phase 4"
+      condition: "存在critical issue"
+      rule: "代码审查发现严重问题"
+
+    - phase: "Phase 4"
+      condition: "版本不一致"
+      rule: "5个文件版本号不匹配"
+
+    - phase: "Phase 5"
+      condition: "根目录文档>7个"
+      rule: "违反文档管理规则"
+
+    - phase: "Phase 5"
+      condition: "Phase 1 checklist <90%"
+      rule: "验收标准未达成"
+
+    - phase: "Phase 6"
+      condition: "用户未确认"
+      rule: "等待用户说'没问题'"
+
+# 核心产出文件（每个Phase的关键交付物）
+core_deliverables:  # ⛔ 不可删除现有产出
+  phase1:
+    - "P2_DISCOVERY.md (≥300行)"  # ⚠️ 应为P1_DISCOVERY.md（待修复）
+    - "Acceptance Checklist"
+    - "PLAN.md (≥1000行)"
+    - "项目骨架"
+    - "Agent策略"
+
+  phase2:
+    - "可运行的代码"
+    - "workflow_validator.sh (97步验证)"
+    - "工具和脚本"
+    - "Git commits"
+
+  phase3:
+    - "测试报告"
+    - "覆盖率报告"
+    - "性能benchmark"
+
+  phase4:
+    - "REVIEW.md (≥3KB)"
+    - "Audit报告"
+
+  phase5:
+    - "Release notes"
+    - "Git tag"
+    - "监控配置"
+
+  phase6:
+    - "Acceptance Report"
+    - "用户确认标记"
+
+  phase7:
+    - "干净的分支"
+    - "merge-ready状态"
+
+# 版本一致性系统
+version_consistency:  # ⛔ 绝对不可改：必须5文件完全一致
+  required_files:
+    - "VERSION"
+    - ".claude/settings.json"
+    - "package.json"
+    - ".workflow/manifest.yml"
+    - "CHANGELOG.md"
+  rule: "字面一致（literal match）"
+  enforcement: "Phase 4 和 Phase 7 硬性阻止"
+
+# 文档治理规则
+document_governance:  # ⛔ 不可改
+  root_directory_max_files: 7
+  whitelist:  # 核心7文档白名单
+    - "README.md"
+    - "CLAUDE.md"
+    - "INSTALLATION.md"
+    - "ARCHITECTURE.md"
+    - "CONTRIBUTING.md"
+    - "CHANGELOG.md"
+    - "LICENSE.md"
+  other_docs_location: "docs/"
+  temp_files_location: ".temp/"
+  temp_files_ttl: "7 days"
+
+# Agent策略（Impact Assessment）
+agent_strategy:  # ⚠️ 公式权重可调，但必须有基准数据支撑
+  formula: "Radius = (Risk × 5) + (Complexity × 3) + (Scope × 2)"
+  thresholds:
+    high_risk: "≥ 50 points → 6 agents"
+    medium_risk: "30-49 points → 3 agents"
+    low_risk: "0-29 points → 0 agents"
+  performance_target:
+    execution_time: "< 50ms"
+    accuracy: "≥ 86%"
+  benchmark_location: "benchmarks/impact_assessment/"
+
+# ═══════════════════════════════════════════════════════════
+# AI修改规则（防止无限改动）
+# ═══════════════════════════════════════════════════════════
+
+modification_rules:
+  core_structure:  # 第1层：核心不变层
+    can_modify: false
+    exceptions:
+      - reason: "发现严重设计缺陷"
+        requirement: "必须在CHANGELOG写明：缺陷描述 + 影响评估 + 用户确认"
+      - reason: "新增Phase或检查点"
+        requirement: "只能增加不能减少 + CHANGELOG说明"
+
+  thresholds:  # 第2层：阈值可调层
+    can_modify: true
+    requirements:
+      - "必须有基准数据支撑（benchmarks/目录）"
+      - "必须在gates.yml更新"
+      - "必须在CHANGELOG说明调整理由"
+
+  implementation:  # 第3层：实现可改层
+    can_modify: true
+    requirements:
+      - "通过97个检查点验证"
+      - "不违反core_structure规则"
+
+# ═══════════════════════════════════════════════════════════
+# 验证脚本
+# ═══════════════════════════════════════════════════════════
+
+verification:
+  core_structure_script: "tools/verify-core-structure.sh"
+  frequency: "每次PR + 每日健康检查"
+  enforcement: "CI必须通过"
+
+# ═══════════════════════════════════════════════════════════
+# 变更日志要求
+# ═══════════════════════════════════════════════════════════
+
+changelog_requirements:
+  when_to_update:
+    - "修改core_structure任何内容"
+    - "调整gates.yml阈值"
+    - "新增/删除检查点"
+    - "修改Phase名称或顺序"
+
+  required_fields:
+    - "变更原因（Why）"
+    - "影响范围（Impact）"
+    - "验证方法（Verification）"
+    - "风险评估（Risk）"
+
+# ═══════════════════════════════════════════════════════════
+# 元数据
+# ═══════════════════════════════════════════════════════════
+
+meta:
+  created_at: "2025-10-20"
+  created_by: "Claude Code"
+  purpose: "防止AI无限改动，同时允许发现问题并改进"
+  update_policy: "本文件的修改必须通过PR并在CHANGELOG说明"
+  authority: "本文件定义'什么是核心不变的'，与.workflow/gates.yml（定义阈值）配合使用"

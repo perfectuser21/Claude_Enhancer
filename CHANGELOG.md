@@ -1,6 +1,124 @@
 # Changelog
 
-## [Unreleased]
+## [6.6.0] - 2025-10-20
+
+### 🔒 Lockdown Mechanism - Core Structure Protection
+
+**目的**: 防止AI无限改动核心结构（7 Phases/97检查点/2门禁/8硬性阻止），同时允许有证据的改进。
+
+#### 核心组件（12个）
+
+**Layer 1: Core Immutable（核心不可变层）**
+- `.workflow/SPEC.yaml` - 核心结构定义（7 Phases, 97 checkpoints, 2 gates, 8 hard blocks）
+- `.workflow/LOCK.json` - 文件指纹锁定（SHA256）
+- `docs/CHECKS_INDEX.json` - 检查点索引（单一事实来源）
+
+**Layer 2: Adjustable Thresholds（可调阈值层）**
+- `.workflow/gates.yml` - 升级到7 Phases系统 + 锁定机制集成
+  - 新增 `core_verification` 配置
+  - 新增 `fail_mode: soft`（观测期7天）
+  - 新增 `coverage_tolerance: 0.005`（±0.5%容差）
+  - 完整的gate1和gate2定义
+
+**Layer 3: Implementation Layer（实现层）**
+- `tools/verify-core-structure.sh` - 核心结构完整性验证脚本（<50ms）
+- `tools/update-lock.sh` - LOCK.json唯一更新入口
+- `scripts/workflow_validator_v97.sh` - 重命名（修复命名不一致）
+
+**Documentation（文档）**
+- `docs/CHECKS_MAPPING.md` - 97个检查点完整映射表（人类可读）
+- `.github/PULL_REQUEST_TEMPLATE.md` - 证据化PR模板（7 Phases + 核心验证）
+
+**Automation（自动化）**
+- `.github/workflows/lockdown-ci.yml` - 三段式CI验证
+  - Stage 1: Core Structure Verification
+  - Stage 2: Static Checks (Gate 1)
+  - Stage 3: Pre-merge Audit (Gate 2)
+
+**Baseline Data（基准数据）**
+- `benchmarks/impact_assessment/baseline_v1.0.json` - Impact Assessment基准（86.67%准确率）
+- `benchmarks/README.md` - 基准数据使用指南
+
+#### 技术亮点
+
+**自动化验证**:
+- 核心结构完整性自动检查（<50ms）
+- SHA256指纹自动验证
+- 7层验证机制（from SPEC.yaml to LOCK.json）
+
+**软启动策略**:
+- Soft模式观测期：2025-10-20至2025-10-27（7天）
+- Soft模式行为：记录违规但不阻止，收集数据微调阈值
+- Strict模式启动：2025-10-27自动切换到严格模式
+
+**3层权限系统**:
+- Layer 1（核心）：不可修改，需CHANGELOG + Impact Assessment + 用户确认
+- Layer 2（阈值）：可调整，需baseline数据 + gates.yml更新 + CHANGELOG
+- Layer 3（实现）：自由修改，需通过97个检查点
+
+**证据化改进**:
+- 所有阈值调整必须提供baseline数据支持
+- Impact Assessment准确率追踪（当前86.67%）
+- Quality Ratchet机制（只能改善，不能退化）
+
+#### 验证指标
+
+- **核心结构**: 7 Phases ✅ | 97 Checkpoints ✅ | 2 Gates ✅ | 8 Hard Blocks ✅
+- **文件指纹**: 7个关键文件SHA256锁定
+- **CI集成**: 3段式验证（核心→静态→审计）
+- **性能**: verify-core-structure.sh <50ms ✅
+- **准确率**: Impact Assessment 86.67% ✅
+
+#### 影响评估
+
+- **Impact Radius**: 78分（very-high-risk）
+- **推荐Agents**: 8个（backend-architect, security-auditor, devops-engineer, test-engineer, code-reviewer, technical-writer, workflow-optimizer, database-specialist）
+- **风险等级**: HIGH（涉及核心工作流机制）
+- **复杂度**: HIGH（12个组件协调）
+- **影响范围**: MODERATE（模块特定，有完整回滚方案）
+
+#### 回滚方案
+
+**Scenario 1**: LOCK.json验证误报（紧急回滚）
+```bash
+# 1. 回滚到soft模式
+yq -i '.meta.core_verification.fail_mode = "soft"' .workflow/gates.yml
+
+# 2. 禁用CI验证
+git revert <commit-hash>
+
+# 3. 时间窗口：5分钟内完成
+```
+
+**Scenario 2**: 阈值配置不当（数据回滚）
+```bash
+# 1. 恢复上一个baseline
+git checkout HEAD~1 benchmarks/impact_assessment/baseline_v1.0.json
+
+# 2. 更新gates.yml阈值
+# 3. 重新生成LOCK.json
+bash tools/update-lock.sh
+
+# 4. 时间窗口：15分钟
+```
+
+**Scenario 3**: 完全禁用锁定机制（战略回滚）
+```bash
+# 1. 禁用verify-core-structure.sh检查
+yq -i '.meta.core_verification.enabled = false' .workflow/gates.yml
+
+# 2. 移除CI集成
+# 3. 保留SPEC.yaml等文档（作为参考）
+
+# 4. 时间窗口：30分钟
+```
+
+#### 相关Issue
+
+Implements: Lockdown Mechanism to prevent infinite AI modifications
+Related: #ChatGPT-Review (8补强点完整实施)
+
+---
 
 ## [v6.6.0] - 2025-10-20
 
