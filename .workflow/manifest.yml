@@ -1,12 +1,12 @@
 # Claude Enhancer Workflow Manifest
 # Version: 1.0.0
-# Purpose: 定义8-Phase执行顺序、并行策略和默认配置
-# Created: 2025-10-09 (CE-ISSUE-001 修复)
+# Purpose: 定义7 Phases执行顺序、并行策略和默认配置
+# Updated: 2025-10-20 (7 Phases统一升级)
 
-version: 6.5.1
+version: 6.6.0
 project: "Claude Enhancer"
 
-# 8-Phase工作流定义（P0-P7）
+# 7 Phases工作流定义（Phase 1-7）
 phases:
   - id: P0
     name: Discovery

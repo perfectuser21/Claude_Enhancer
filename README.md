@@ -95,15 +95,17 @@ Before entering the Phase 2-7 workflow, Claude Enhancer automatically:
 
 Every development task follows a structured path:
 
-| Phase | Name | Purpose | Output |
-|-------|------|---------|--------|
-| **P1** | Branch Check | Ensure correct branch | Working branch |
-| **P2** | Discovery | Technical spike & feasibility | Spike findings + Acceptance Checklist |
-| **P3** | Plan & Architecture | Requirements + structure | PLAN.md + Directory tree |
-| **P4** | Implementation | Coding (4-6-8 agents) | Working code |
-| **P5** | Testing | 4D testing (312+ tests) | TEST-REPORT.md |
-| **P6** | Review | Code review & audit | REVIEW.md |
-| **P7** | Release & Monitor | Documentation + monitoring | Release artifacts + SLO dashboards |
+| Phase | Name | Purpose | Output | Checks |
+|-------|------|---------|--------|--------|
+| **Phase 1** | Discovery & Planning | Branch check + Discovery + Impact + Planning | P2_DISCOVERY.md + PLAN.md + Acceptance Checklist | 33 |
+| **Phase 2** | Implementation | Coding (0/3/6 agents based on impact) | Working code + Git commits | 15 |
+| **Phase 3** | Testing 🔒 | Static checks + Unit/Integration/BDD tests | Test reports + Coverage | 15 |
+| **Phase 4** | Review 🔒 | Code review + Pre-merge audit | REVIEW.md + Audit report | 10 |
+| **Phase 5** | Release | Documentation + Tag + Monitoring | Release notes + Git tag | 15 |
+| **Phase 6** | Acceptance | AI verification + User confirmation | Acceptance report | 5 |
+| **Phase 7** | Closure | Cleanup + Final checks | Merge-ready branch | 4 |
+
+**Total: 97 automated checkpoints, 2 quality gates, 8 hard blocks**
 
 ### 🛡️ 4-Layer Quality Assurance
 
@@ -184,38 +186,41 @@ For detailed installation instructions, see [INSTALLATION.md](INSTALLATION.md).
 ### Your First Workflow (15 minutes)
 
 ```bash
-# 1. Create feature branch (Phase 1 auto-creates if on main)
-git checkout -b feature/user-authentication
+# Phase 1: Discovery & Planning
+# AI automatically:
+#   1.1 Checks branch (creates feature/user-authentication if on main)
+#   1.2 Gathers requirements
+#   1.3 Creates P2_DISCOVERY.md + Acceptance Checklist
+#   1.4 Runs impact assessment (<50ms) → recommends 6 agents (high-risk auth)
+#   1.5 Generates PLAN.md + directory structure
 
-# 2. Start Phase 2 Discovery
-echo "Phase2" > .phase/current
-# → AI creates acceptance checklist and spike findings
+# Phase 2: Implementation
+# AI deploys 6 agents in parallel:
+#   backend-architect, security-auditor, api-designer,
+#   test-engineer, database-specialist, technical-writer
 
-# 3. Move to Phase 3 Planning & Architecture
-echo "Phase3" > .phase/current
-# → AI generates PLAN.md and creates directory structure
+# Phase 3: Testing 🔒 Quality Gate 1
+bash scripts/static_checks.sh
+npm test  # All tests must pass
 
-# 4. Implement in Phase 4 (multi-agent parallelization)
-echo "Phase4" > .phase/current
-# → AI deploys 6 agents: backend-architect, security-auditor,
-#   api-designer, test-engineer, database-specialist, cleanup-specialist
+# Phase 4: Review 🔒 Quality Gate 2
+bash scripts/pre_merge_audit.sh
+# AI generates REVIEW.md with findings
 
-# 5. Test in Phase 5 (4-dimensional testing)
-echo "Phase5" > .phase/current
-npm test  # 312+ tests run
+# Phase 5: Release
+# AI updates README, CHANGELOG, creates git tag v1.0.0
 
-# 6. Review in Phase 6
-echo "Phase6" > .phase/current
-# → AI generates docs/REVIEW.md with approval/rework decision
+# Phase 6: Acceptance
+# AI: "All acceptance items completed, please confirm"
+# You: "Looks good"
 
-# 7. Commit (Git hooks enforce quality)
+# Phase 7: Closure
+# AI cleans .temp/, verifies version consistency, prepares PR
 git add .
-git commit -m "feat: add user authentication system"
-# → Hooks validate: Phase files, test coverage, security, conventions
+git commit -m "feat: add user authentication system
 
-# 8. Release in Phase 7
-echo "Phase7" > .phase/current
-# → AI updates README, CHANGELOG, creates version tag and monitoring
+🤖 Generated with Claude Code
+Co-Authored-By: Claude <noreply@anthropic.com>"
 ```
 
 ## 📖 Architecture Overview
