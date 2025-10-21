@@ -17,28 +17,64 @@ if ! command -v jq >/dev/null 2>&1; then
   exit 1
 fi
 
-# Check if there are any session files
-if ! ls "${S}"/*.json >/dev/null 2>&1; then
-  echo "No session files found in ${S}" >&2
+# Atomic write using mktemp + mv (concurrent safety)
+TMP="$(mktemp)"
+trap 'rm -f "$TMP"' EXIT
+
+# Collect session files (tolerate empty set)
+mapfile -t FILES < <(find "${S}" -maxdepth 1 -type f -name '*.json' -print 2>/dev/null || true)
+
+# Handle empty data case
+if (( ${#FILES[@]} == 0 )); then
+  # Write empty structure with metadata
+  jq -n --arg ts "$(date -u +%FT%TZ)" '{
+    meta: {
+      version: "1.0",
+      schema: "by_type_phase",
+      last_updated: $ts,
+      sample_count: 0
+    },
+    data: []
+  }' > "${TMP}"
+  mv "${TMP}" "${M}/by_type_phase.json"
+  echo "learn: no sessions found, empty metrics written -> ${M}/by_type_phase.json"
   exit 0
 fi
 
-jq -s '
-  # group sessions by project_type + phase
-  group_by(.project_type + ":" + (.phase|tostring))[]
-  | {
-      project_type: (.[0].project_type),
-      phase: (.[0].phase),
-      sample_count: length,
-      avg_duration_seconds: ( [.[].duration_seconds] | add / length ),
-      success_rate: ( [.[].success] | map( if . then 1 else 0 end ) | add / length ),
-      common_errors: (
-        [ .[].errors[]? ]
-        | group_by(.)
-        | map({error:.[0], count:length})
-        | sort_by(-.count) | .[:10]
-      )
-    }
-' "${S}"/*.json > "${M}/by_type_phase.json"
+# Process sessions and add metadata
+{
+  echo '{'
+  echo '  "meta": {'
+  echo '    "version": "1.0",'
+  echo '    "schema": "by_type_phase",'
+  echo "    \"last_updated\": \"$(date -u +%FT%TZ)\","
+  echo "    \"sample_count\": ${#FILES[@]}"
+  echo '  },'
+  echo '  "data":'
 
-echo "learn: metrics updated -> ${M}/by_type_phase.json"
+  jq -s '
+    # group sessions by project_type + phase
+    [ group_by(.project_type + ":" + (.phase|tostring))[]
+      | {
+          project_type: (.[0].project_type),
+          phase: (.[0].phase),
+          sample_count: length,
+          avg_duration_seconds: ( [.[].duration_seconds] | add / length ),
+          success_rate: ( [.[].success] | map( if . then 1 else 0 end ) | add / length ),
+          common_errors: (
+            [ .[].errors[]? ]
+            | group_by(.)
+            | map({error:.[0], count:length})
+            | sort_by(-.count) | .[:10]
+          )
+        }
+    ]
+  ' "${FILES[@]}"
+
+  echo '}'
+} > "${TMP}"
+
+# Atomic move to final location
+mv "${TMP}" "${M}/by_type_phase.json"
+
+echo "learn: metrics updated -> ${M}/by_type_phase.json (${#FILES[@]} sessions)"

@@ -25,13 +25,37 @@ KROOT="${ENGINE_ROOT}/.claude/knowledge"
 SESS_DIR="${KROOT}/sessions"
 mkdir -p "${SESS_DIR}"
 
+# Input validation: convert to JSON array if needed
+# Accepts: valid JSON array, space-separated string, or empty
+to_json_array() {
+  local raw="$1"
+  # Empty case
+  [[ -z "${raw}" ]] && { echo "[]"; return; }
+
+  # Check if already valid JSON
+  if echo "$raw" | jq -e . >/dev/null 2>&1; then
+    echo "$raw"
+    return
+  fi
+
+  # Convert space-separated to JSON array ["a","b","c"]
+  echo "$raw" | awk '{
+    printf "["
+    for(i=1; i<=NF; i++) {
+      if(i>1) printf ","
+      printf "\"%s\"", $i
+    }
+    printf "]"
+  }'
+}
+
 # Collect basics
 TS="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 SID="$(date -u +"%Y%m%d_%H%M%S")_${PROJECT}"
 DUR="${DURATION_SECONDS:-0}" # 可由调用方预先导出
-AGENTS="${AGENTS_USED:-[]}"  # 传入形如 '["a","b"]' 的 JSON 字符串
-ERRORS="${ERRORS_JSON:-[]}"
-WARNINGS="${WARNINGS_JSON:-[]}"
+AGENTS="$(to_json_array "${AGENTS_USED:-}")"  # 传入形如 '["a","b"]' 的 JSON 字符串或空格分隔
+ERRORS="$(to_json_array "${ERRORS_JSON:-}")"
+WARNINGS="$(to_json_array "${WARNINGS_JSON:-}")"
 Q="${QUALITY:-null}"
 
 # Compose JSON with jq (required)
