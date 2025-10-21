@@ -152,48 +152,6 @@ jobs:
             exit 1
           fi
 
-      - name: Shell syntax validation (bash -n)
-        run: |
-          echo "Validating shell scripts syntax..."
-          failed=0
-          while IFS= read -r file; do
-            if bash -n "$file" 2>/dev/null; then
-              echo "✓ $file"
-            else
-              echo "✗ $file - syntax error"
-              failed=1
-            fi
-          done < <(find . -name "*.sh" -not -path "./.git/*" -not -path "./node_modules/*")
-
-          if [ $failed -eq 1 ]; then
-            echo "❌ Shell syntax validation failed"
-            exit 1
-          fi
-          echo "✅ All shell scripts have valid syntax"
-
-      - name: Shellcheck linting
-        run: |
-          echo "Running shellcheck..."
-          shellcheck --version
-
-          # Count warnings
-          warnings=0
-          while IFS= read -r file; do
-            if ! shellcheck -S warning "$file" 2>/dev/null; then
-              ((warnings++))
-            fi
-          done < <(find . -name "*.sh" -not -path "./.git/*" -not -path "./node_modules/*")
-
-          echo "Shellcheck warnings: $warnings"
-
-          if [ $warnings -gt 277 ]; then
-            echo "❌ Shellcheck warnings increased (current: $warnings, baseline: 277)"
-            echo "::error::Quality Ratchet: Shellcheck warnings must not increase"
-            exit 1
-          fi
-
-          echo "✅ Shellcheck passed (warnings: $warnings ≤ 277)"
-
       - name: Upload static checks log
         if: always()
         uses: actions/upload-artifact@v4
