@@ -59,7 +59,8 @@ validate_bash_tool() {
 
     case "$phase" in
         "P0")
-            if [[ "$command" =~ ^git\ ]] || [[ "$command" =~ checkout|branch|status ]]; then
+            # Fix regex: remove backslash before space
+            if [[ "$command" =~ ^git ]] || [[ "$command" =~ checkout|branch|status ]]; then
                 return 0
             else
                 echo "P0 only allows git commands, got: $command"
@@ -75,7 +76,8 @@ validate_bash_tool() {
             return 1
             ;;
         "P4")
-            if [[ "$command" =~ test|npm\ test|pytest|jest|mocha ]]; then
+            # P4 (Implementation) only allows test commands
+            if [[ "$command" =~ ^(test|pytest|jest|mocha)$ ]] || [[ "$command" == "npm test" ]]; then
                 return 0
             else
                 echo "P4 only allows test commands, got: $command"
@@ -83,7 +85,8 @@ validate_bash_tool() {
             fi
             ;;
         "P5"|"P6")
-            if [[ "$command" =~ ^git\ ]] || [[ "$command" =~ commit|push|merge|pr\ create ]]; then
+            # P5/P6 (Review/Release) only allow git commands
+            if [[ "$command" =~ ^git ]] || [[ "$command" =~ ^(commit|push|merge)$ ]] || [[ "$command" == "pr create" ]]; then
                 return 0
             else
                 echo "P5/P6 only allow git commands, got: $command"

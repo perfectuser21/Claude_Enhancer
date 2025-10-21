@@ -428,7 +428,7 @@ post_test_cleanup() {
 # 主函数
 main() {
     echo "🚀 Claude Enhancer 5.0 - 启动端到端测试套件"
-    echo "=".repeat(80)
+    printf '=%.0s' {1..80}; echo
     
     local overall_result=0
     
@@ -483,7 +483,8 @@ main() {
     post_test_cleanup $overall_result
     
     # 最终报告
-    echo "\n" + "=".repeat(80)
+    echo ""
+    printf '=%.0s' {1..80}; echo
     if [[ $overall_result -eq 0 ]]; then
         log_success "🎉 所有测试通过！Claude Enhancer 5.0工作流验证成功"
     else

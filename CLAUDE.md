@@ -522,151 +522,363 @@ scripts/cleanup_documents.sh
 
 ---
 
-## 🚀 核心工作流：7-Phase系统（Phase 1-7）
+## 🔒 规则2：核心结构锁定机制（Lockdown Mechanism）
+**优先级：最高 | 防止AI无限改动工作流核心结构**
 
-### 完整开发周期
-- **Phase 1 分支检查（Branch Check）**: 确保在正确分支工作
-  - **必须产出**: 正确的工作分支
-  - 检查当前分支 → 判断是否需要新分支 → 创建或切换分支
-- **Phase 2 探索（Discovery）**: 技术spike，可行性验证
-  - **必须产出**: Acceptance Checklist（定义"完成"的标准）
-  - 分析问题 → 创建验收清单 → 定义成功标准
-- **Phase 3 规划与架构（Planning & Architecture）**: 需求分析 + 架构设计
-  - **产出**: PLAN.md + 目录结构
-  - 合并原P1规划和P2骨架，一次性完成规划和架构设计
-- **Phase 4 实现（Implementation）**: 编码开发，包含commit
-  - 核心功能实现
-  - 遵循Phase 3的架构设计
-- **Phase 5 测试（Testing）**: 单元/集成/性能/BDD测试 + **静态检查**
-  - **必须执行**: `bash scripts/static_checks.sh`
-  - Shell语法检查（bash -n）
-  - Shellcheck linting
-  - 代码复杂度检查
-  - Hook性能测试（<2秒）
-  - 功能测试执行
-  - **阻止标准**: 任何检查失败都阻止进入Phase 6
-- **Phase 6 审查（Review）**: 代码审查，生成REVIEW.md + **合并前审计**
-  - **必须执行**: `bash scripts/pre_merge_audit.sh`
-  - 配置完整性验证（hooks注册、权限）
-  - 遗留问题扫描（TODO/FIXME）
-  - 垃圾文档检测（根目录≤7个文档）
-  - 版本号一致性检查
-  - 代码模式一致性验证
-  - 文档完整性检查（REVIEW.md）
-  - **人工验证**: 逻辑正确性、代码一致性、Phase 2 checklist对照
-  - **阻止标准**: 任何critical issue都阻止进入Phase 7
-- **Phase 7 发布与监控（Release & Monitor）**: 文档更新 + 打tag + 监控设置
-  - **必须验证**: 对照Phase 2 checklist逐项验证，全部✅才说"完成"
-  - **Phase 7铁律**: 不应该在这个阶段发现bugs（如发现 → 返回Phase 6）
-  - 合并原P6发布和P7监控，一次性完成发布和监控配置
-
-### 完整11步工作流 (v6.5.1更新)
-
-**从讨论到合并的完整流程**（新增Step 4: Impact Radius Assessment）：
-
+### 🎯 核心原则
 ```
-Step 1: Pre-Discussion (需求讨论阶段)
-├─ 目的：理解用户需求，明确任务边界
-├─ 活动：需求澄清、技术可行性初步评估
-└─ 产出：明确的任务描述
-
-Step 2: Phase 1 - Branch Check (分支前置检查)
-├─ 目的：确保在正确的分支上工作
-├─ 活动：检查当前分支、判断是否需要新分支
-└─ 产出：正确的工作分支
-
-Step 3: Phase 2 - Discovery (探索与验收定义)
-├─ 目的：技术探索，定义验收标准
-├─ 活动：技术spike、可行性验证、创建验收清单
-└─ 产出：Acceptance Checklist（"Done"的定义）
-
-Step 4: Impact Radius Assessment (影响半径自动评估) 🆕 v6.5.1
-├─ 目的：自动评估任务的风险、复杂度和影响范围
-├─ 触发：Phase 2完成后自动触发（通过PrePrompt hook）
-├─ 活动：
-│  ├─ 分析任务描述（风险、复杂度、影响范围）
-│  ├─ 计算影响半径分数（0-100分）
-│  ├─ 推荐最优Agent数量（0/3/6 agents）
-│  └─ 存储评估结果到 .workflow/impact_assessments/current.json
-├─ 产出：
-│  ├─ Impact Radius Score (影响半径分数)
-│  ├─ Agent Strategy (推荐策略：high-risk/medium-risk/low-risk)
-│  ├─ Min Agents (最少Agent数量：0/3/6)
-│  └─ Reasoning (评估理由和风险因素)
-├─ 公式：Radius = (Risk × 5) + (Complexity × 3) + (Scope × 2)
-├─ 阈值：≥50分→6 agents, 30-49分→3 agents, 0-29分→0 agents
-├─ 准确率：86% (26/30 samples validated)
-└─ 性能：<50ms average execution time
-
-Step 5: Phase 3 - Planning & Architecture (规划+架构)
-├─ 目的：需求分析和架构设计
-├─ 活动：生成PLAN.md、设计目录结构、定义技术方案、**读取Step 4评估结果选择Agent数量**
-└─ 产出：PLAN.md + 完整的项目骨架
-
-Step 6: Phase 4 - Implementation (实现开发)
-├─ 目的：编码实现核心功能
-├─ 活动：按照PLAN.md编码、提交commits
-└─ 产出：可运行的代码 + git commits
-
-Step 7: Phase 5 - Testing (质量验证)
-├─ 目的：确保代码质量和功能正确性
-├─ 活动：运行static_checks.sh、单元测试、集成测试、BDD测试
-└─ 产出：测试报告 + 所有检查通过证明
-
-Step 8: Phase 6 - Review (代码审查)
-├─ 目的：人工审查代码逻辑和一致性
-├─ 活动：运行pre_merge_audit.sh、逻辑审查、对照Phase 2 checklist
-└─ 产出：REVIEW.md + 审查通过确认
-
-Step 9: Phase 7 - Release & Monitor (发布+监控)
-├─ 目的：发布代码并配置监控
-├─ 活动：更新文档、打tag、配置监控、最终验收
-└─ 产出：发布版本 + 监控配置
-
-Step 10: Acceptance Report (验收报告)
-├─ 目的：AI报告Phase 2 checklist验证结果
-├─ 活动：逐项对照验收清单，生成验收报告
-└─ 产出：AI说"我已完成所有验收项，请您确认"，等待用户说"没问题"
-
-Step 11: Cleanup & Merge (收尾清理) - 非Phase，是工作流步骤
-├─ 目的：清理临时文件，准备合并
-├─ 活动：清理.temp/、检查文档规范、**最终版本一致性验证**、准备PR
-├─ 关键检查：运行check_version_consistency.sh确保VERSION/settings/manifest/package/CHANGELOG全部一致
-└─ 产出：干净的分支，等待用户说"merge回主线"
+7 Phases / 97 Checkpoints / 2 Quality Gates / 8 Hard Blocks = 不可减少
 ```
 
-**关键转折点**：
-- Step 2 → Step 3：分支确认后才能开始开发
-- Step 3 → Step 4：Phase 2完成后自动触发影响半径评估
-- Step 4 → Step 5：评估结果用于智能选择Agent数量
-- Step 7 → Step 8：所有自动化测试通过才能进入人工审查
-- Step 8 → Step 9：人工审查通过才能发布
-- Step 10 → Step 11：用户确认"没问题"后才能清理
-- Step 11：用户明确说"merge"后才能合并到主线
+### 📋 什么是锁定机制
 
-### 智能Agent策略 (v6.5.1自动化升级)
+**问题背景**：
+AI在迭代过程中可能：
+- ❌ 减少检查点数量（97→85）
+- ❌ 降低质量阈值（70%→60%）
+- ❌ 简化Phase结构（7→5）
+- ❌ 移除质量门禁
 
-**自动评估系统** (Impact Radius Assessment):
-- Step 4自动触发，分析任务描述
-- 评估公式：`Radius = (Risk × 5) + (Complexity × 3) + (Scope × 2)`
-- 智能推荐：0/3/6 agents based on impact radius
+**解决方案**：三层锁定架构（v6.6.0实施）
+
+#### Layer 1: Core Immutable（核心不可变）
+**SHA256指纹保护**，修改需用户批准：
+- `.workflow/SPEC.yaml` - 核心结构定义（7/97/2/8）
+- `.workflow/LOCK.json` - 7个关键文件指纹
+- `docs/CHECKS_INDEX.json` - 97个检查点索引
+- `tools/verify-core-structure.sh` - 完整性验证脚本
+
+#### Layer 2: Adjustable Thresholds（可调阈值）
+需要baseline数据支持：
+- `.workflow/gates.yml` - 质量阈值配置
+- 可以调整阈值，但必须有evidence（基准测试数据）
+- 容差机制：±0.5% tolerance for rounding
+
+#### Layer 3: Implementation Layer（实现层）
+可自由优化：
+- `scripts/workflow_validator_v97.sh` - 验证脚本
+- `scripts/pre_merge_audit.sh` - 审计脚本
+- `scripts/static_checks.sh` - 静态检查脚本
+- 只要通过97个检查点，实现可随意改进
+
+### ⚡ 验证机制
+
+**本地验证**：
+```bash
+# 验证核心结构完整性
+bash tools/verify-core-structure.sh
+# 输出: {"ok":true,"message":"Core structure verification passed"}
+```
+
+**CI三段式验证**：
+1. **Stage 1**: Core Structure Verification（核心完整性）
+2. **Stage 2**: Static Checks - Quality Gate 1（静态检查）
+3. **Stage 3**: Pre-merge Audit - Quality Gate 2（合并前审计）
+
+### 🛡️ 观测期（Soft Mode）
+
+**当前状态** (2025-10-20 to 2025-10-27):
+- `fail_mode: soft` - 失败时记录但不阻止
+- 收集7天数据验证机制准确性
+- 零误报后切换到 `strict` 模式
+
+### 🔧 更新LOCK.json
+
+当修改Layer 2或Layer 3时：
+```bash
+# 更新文件指纹
+bash tools/update-lock.sh
+
+# 重新验证
+bash tools/verify-core-structure.sh
+```
+
+### ⚠️ AI修改规则
+
+**允许的修改**：
+- ✅ 增加检查点（97→105）
+- ✅ 提高质量阈值（70%→80%，需baseline）
+- ✅ 优化脚本性能（只要通过验证）
+- ✅ 改进错误提示
+
+**禁止的修改**：
+- ❌ 减少检查点数量
+- ❌ 降低质量阈值（除非有充分证据）
+- ❌ 移除质量门禁
+- ❌ 修改Phase数量（7 Phases是固定的）
+
+### 📊 核心指标
+
+**当前锁定状态** (v6.6.0):
+- Total Phases: 7 (locked)
+- Total Checkpoints: ≥97 (可增长，不可减少)
+- Quality Gates: 2 (locked)
+- Hard Blocks: 8 (locked)
+- Lock Mode: soft (观测期)
+
+---
+
+## 🚀 核心工作流：7-Phase系统（v6.6统一版）
+
+### 完整7 Phases开发周期
+
+**从需求到合并的完整旅程**（97个自动化检查点，零质量损失）
+
+```
+╔═══════════════════════════════════════════════════════════╗
+║  Phase 1: Discovery & Planning（探索与规划）- 33检查点   ║
+╚═══════════════════════════════════════════════════════════╝
+
+【阶段目标】：理解问题 + 制定计划 + 确定验收标准
+
+【包含内容】：
+  1.1 Branch Check（分支前置检查）⛔ 强制
+      - 检查当前分支 → 判断是否需要新分支 → 创建工作分支
+      - 检查点：5个（PD_S001-S005）
+
+  1.2 Requirements Discussion（需求讨论）
+      - 需求澄清、技术可行性初步评估
+      - 检查点：5个（P1_S001-S005）
+
+  1.3 Technical Discovery（技术探索）✅ 核心
+      - 技术spike、可行性验证、问题分析
+      - 产出：P2_DISCOVERY.md + Acceptance Checklist
+      - 检查点：8个（P2_S001-S008）
+
+  1.4 Impact Assessment（影响评估）⚙️ 自动化
+      - 自动计算影响半径分数（0-100分）
+      - 智能推荐Agent数量（0/3/6 agents）
+      - 公式：Radius = (Risk × 5) + (Complexity × 3) + (Scope × 2)
+      - 性能：<50ms，准确率86%
+      - 检查点：3个（IA_S001-S003）
+
+  1.5 Architecture Planning（架构规划）✅ 核心
+      - 系统架构设计、技术栈选择、风险识别
+      - 应用Impact Assessment结果选择Agent策略
+      - 产出：PLAN.md + 项目目录结构
+      - 检查点：12个（P3_S001-S012）
+
+【核心产出】：
+  ✅ P2_DISCOVERY.md（>300行）
+  ✅ Acceptance Checklist（定义"完成"的标准）
+  ✅ PLAN.md（>1000行）
+  ✅ 完整的项目骨架
+  ✅ Agent策略（基于影响评估）
+
+【质量保障】：无TODO占位符（防空壳检查）
+
+---
+
+╔═══════════════════════════════════════════════════════════╗
+║  Phase 2: Implementation（实现开发）- 15检查点            ║
+╚═══════════════════════════════════════════════════════════╝
+
+【阶段目标】：编码实现核心功能
+
+【核心活动】：
+  - 按照PLAN.md实现功能
+  - 创建验证脚本和工具
+  - 配置Git Hooks
+  - 提交规范的commits
+
+【核心产出】：
+  ✅ 可运行的代码
+  ✅ workflow_validator.sh（>50步验证）
+  ✅ 工具和脚本（local_ci.sh, serve_progress.sh等）
+  ✅ Git commits（规范格式）
+
+【检查点】：15个（P4_S001-S015）
+
+---
+
+╔═══════════════════════════════════════════════════════════╗
+║  Phase 3: Testing（质量验证）- 15检查点 🔒 质量门禁1      ║
+╚═══════════════════════════════════════════════════════════╝
+
+【阶段目标】：确保代码质量和功能正确性
+
+【必须执行】：`bash scripts/static_checks.sh`
+
+【核心检查】：
+  ✅ Shell语法验证（bash -n）
+  ✅ Shellcheck linting
+  ✅ 代码复杂度检查（<150行/函数）
+  ✅ Hook性能测试（<2秒）
+  ✅ 单元测试 + 集成测试
+  ✅ BDD场景测试
+  ✅ 测试覆盖率（≥70%）
+  ✅ 敏感信息检测
+
+【核心产出】：
+  ✅ 测试报告
+  ✅ 覆盖率报告
+  ✅ 性能benchmark
+
+【阻止标准】：⛔ 任何检查失败都阻止进入Phase 4
+
+【检查点】：15个（P5_S001-S015）
+
+---
+
+╔═══════════════════════════════════════════════════════════╗
+║  Phase 4: Review（代码审查）- 10检查点 🔒 质量门禁2       ║
+╚═══════════════════════════════════════════════════════════╝
+
+【阶段目标】：人工审查 + 合并前审计
+
+【必须执行】：`bash scripts/pre_merge_audit.sh`
+
+【自动化检查】：
+  ✅ 配置完整性（hooks注册、权限）
+  ✅ 遗留问题扫描（TODO/FIXME）
+  ✅ 垃圾文档检测（根目录≤7个）
+  ✅ 版本完全一致性（5文件匹配）⛔
+  ✅ 代码模式一致性
+  ✅ 文档完整性（REVIEW.md >3KB）
+
+【人工验证】：
+  👤 逻辑正确性（IF判断、return语义）
+  👤 代码一致性（统一实现模式）
+  👤 Phase 1 checklist对照验证
+
+【核心产出】：
+  ✅ REVIEW.md（完整审查报告）
+  ✅ Audit报告
+
+【阻止标准】：⛔ critical issue都阻止进入Phase 5
+
+【检查点】：10个（P6_S001-S010）
+
+---
+
+╔═══════════════════════════════════════════════════════════╗
+║  Phase 5: Release（发布监控）- 15检查点                   ║
+╚═══════════════════════════════════════════════════════════╝
+
+【阶段目标】：发布代码 + 配置监控
+
+【核心活动】：
+  ✅ 更新CHANGELOG.md
+  ✅ 更新README.md
+  ✅ 创建Git Tag（semver格式）
+  ✅ 配置健康检查
+  ✅ 配置SLO监控
+  ✅ 更新部署文档
+
+【核心产出】：
+  ✅ Release notes
+  ✅ Git tag
+  ✅ 监控配置
+
+【质量要求】：
+  - 根目录文档≤7个 ⛔
+  - Phase 1 checklist ≥90%完成
+
+【检查点】：15个（P7_S001-S015）
+
+【铁律】：不应该在此阶段发现bugs（发现→返回Phase 4）
+
+---
+
+╔═══════════════════════════════════════════════════════════╗
+║  Phase 6: Acceptance（验收确认）- 5检查点                 ║
+╚═══════════════════════════════════════════════════════════╝
+
+【阶段目标】：AI生成验收报告 + 用户确认
+
+【核心活动】：
+  - AI对照Phase 1 Acceptance Checklist逐项验证
+  - 生成验收报告
+  - AI说："我已完成所有验收项，请您确认"
+  - 等待用户说："没问题"
+
+【核心产出】：
+  ✅ Acceptance Report
+  ✅ 用户确认标记
+
+【阻止标准】：⛔ 存在critical问题无法验收
+
+【检查点】：5个（AC_S001-S005）
+
+---
+
+╔═══════════════════════════════════════════════════════════╗
+║  Phase 7: Closure（收尾合并）- 4检查点                    ║
+╚═══════════════════════════════════════════════════════════╝
+
+【阶段目标】：清理临时文件 + 准备合并
+
+【核心活动】：
+  🧹 清理.temp/目录（<10MB）
+  🔍 最终版本一致性验证 ⛔
+  📝 检查文档规范
+  🚀 准备PR
+
+【必须执行】：`bash scripts/check_version_consistency.sh`
+
+【核心产出】：
+  ✅ 干净的分支
+  ✅ merge-ready状态
+
+【检查点】：4个（CL_S001-S002 + G002-G003）
+
+【等待用户】：用户明确说"merge"后才能合并到主线
+```
+
+---
+
+### 📊 7 Phases统计总览
+
+| Phase | 名称 | 检查点 | 质量门禁 | 硬性阻止 |
+|-------|------|--------|---------|---------|
+| Phase 1 | Discovery & Planning | 33 | - | 1个 |
+| Phase 2 | Implementation | 15 | - | - |
+| Phase 3 | Testing | 15 | 🔒 Gate 1 | 2个 |
+| Phase 4 | Review | 10 | 🔒 Gate 2 | 2个 |
+| Phase 5 | Release | 15 | - | 2个 |
+| Phase 6 | Acceptance | 5 | - | 1个 |
+| Phase 7 | Closure | 4 | - | - |
+| **总计** | **7 Phases** | **97个** | **2个** | **8个** |
+
+---
+
+### 🎯 关键转折点
+
+```
+Phase 1 → Phase 2: Acceptance Checklist定义完成 ✅
+Phase 2 → Phase 3: 核心功能实现完成 ✅
+Phase 3 → Phase 4: 所有自动化测试通过 ⛔ 门禁1
+Phase 4 → Phase 5: 代码审查通过 + 无critical issue ⛔ 门禁2
+Phase 5 → Phase 6: Phase 1 checklist ≥90%完成 ✅
+Phase 6 → Phase 7: 用户确认"没问题" ✅
+Phase 7 → Merge: 用户明确说"merge" ✅
+```
+
+---
+
+### 🤖 智能Agent策略（自动化）
+
+**Impact Assessment自动触发**（Phase 1.4）：
+- 分析任务描述（风险+复杂度+影响范围）
+- 计算影响半径：`Radius = (Risk × 5) + (Complexity × 3) + (Scope × 2)`
+- 智能推荐Agent数量
 
 **Agent数量映射**：
 - **高风险任务** (Radius ≥50): **6 agents** - CVE修复、架构变更、数据库迁移
 - **中风险任务** (Radius 30-49): **3 agents** - Bug修复、性能优化、模块重构
 - **低风险任务** (Radius 0-29): **0 agents** - 文档更新、代码格式化、注释修改
 
-**准确率**: 86% (26/30 validated samples) ✅
+**性能指标**: <50ms执行时间，86%准确率（26/30样本验证）✅
 
 ### 🎯 质量门禁策略（Quality Gates）
 
 **核心原则：左移测试（Shift Left）**
 - 越早发现问题，修复成本越低
-- Phase 5发现 > Phase 6发现 > Phase 7发现
+- Phase 3发现 > Phase 4发现 > Phase 5发现
 
 **三阶段检查体系**：
 
-#### Phase 5阶段：技术质量门禁
+#### Phase 3阶段：技术质量门禁 🔒 Gate 1
 - **自动化检查**（必须100%通过）：
   - Shell语法验证（`bash -n`）- 防止语法错误
   - Shellcheck linting - 防止常见bug模式
@@ -679,7 +891,7 @@ Step 11: Cleanup & Merge (收尾清理) - 非Phase，是工作流步骤
   - 性能benchmark结果
   - 所有自动化检查通过证明
 
-#### Phase 6阶段：代码质量门禁
+#### Phase 4阶段：代码质量门禁 🔒 Gate 2
 - **自动化检查**（必须100%通过）：
   - 配置完整性 - 所有hooks正确注册
   - 文档规范性 - 根目录≤7个核心文档
@@ -690,28 +902,28 @@ Step 11: Cleanup & Merge (收尾清理) - 非Phase，是工作流步骤
   - 逻辑正确性（IF判断、return值语义）
   - 代码一致性（6个Layers统一逻辑）
   - 文档完整性（REVIEW.md >100行）
-  - Phase 2验收清单对照验证
+  - Phase 1 checklist对照验证
 
 - **产出要求**：
   - REVIEW.md（完整审查报告）
   - 代码一致性验证报告
   - Pre-merge checklist全部✓
 
-#### Phase 7阶段：最终确认门禁
-- **唯一职责**：确认Phase 2-6所有工作完成
-- **禁止行为**：在Phase 7发现bugs
-- **处理原则**：发现bugs → 返回Phase 6重新审查
+#### Phase 5阶段：最终发布门禁
+- **唯一职责**：确认Phase 1-4所有工作完成 + 发布配置
+- **禁止行为**：在Phase 5发现bugs
+- **处理原则**：发现bugs → 返回Phase 4重新审查
 
 **质量指标追踪**：
-- 短期目标：Phase 7发现bugs的比例<10%
-- 中期目标：90%的bugs在Phase 5-6被发现
-- 长期目标：Phase 7变成纯确认阶段（0 bugs）
+- 短期目标：Phase 5发现bugs的比例<10%
+- 中期目标：90%的bugs在Phase 3-4被发现
+- 长期目标：Phase 5变成纯确认阶段（0 bugs）
 
 **经验教训**（PR #19案例）：
-- ❌ 语法错误在Phase 7发现 → 应该在Phase 5静态检查发现
-- ❌ Layers 1-5逻辑bug在Phase 7发现 → 应该在Phase 6代码审查发现
-- ✅ Layer 6缺失在Phase 5发现 → 正确的发现时机
-- 📝 改进措施：建立Phase 5/Phase 6自动化检查脚本
+- ❌ 语法错误在Phase 5发现 → 应该在Phase 3静态检查发现
+- ❌ Layers 1-5逻辑bug在Phase 5发现 → 应该在Phase 4代码审查发现
+- ✅ Layer 6缺失在Phase 3发现 → 正确的发现时机
+- 📝 改进措施：建立Phase 3/Phase 4自动化检查脚本
 
 ## 🛡️ 四层质量保障体系【升级】
 
@@ -830,10 +1042,10 @@ bash test/validate_enhancement.sh
 
 ### 3. 使用质量检查工具
 ```bash
-# Phase 5阶段：运行静态检查
+# Phase 3阶段：运行静态检查
 bash scripts/static_checks.sh
 
-# Phase 6阶段：运行合并前审计
+# Phase 4阶段：运行合并前审计
 bash scripts/pre_merge_audit.sh
 
 # 运行BDD测试

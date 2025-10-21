@@ -1,6 +1,6 @@
-# Workflow Gates v2 — 6阶段工作流自动化 (Phase 0-5)
-# Enhanced with AI Self-Validation System (v6.0)
-# 更新：2025-10-07 - 添加Phase系统优化
+# Workflow Gates v3 — 7 Phases Unified System
+# Lockdown Mechanism Integration (v6.6)
+# 更新：2025-10-20 - 7 Phases系统 + 锁定机制集成
 
 meta:
   subagent_invocation: "Only main Claude Code agent may invoke sub-agents. Sub-agents MUST NOT invoke sub-agents."
@@ -8,7 +8,16 @@ meta:
   post_merge_healthcheck: true          # 合并后冒烟检查
   auto_rollback_on_health_fail: true    # 健康检查失败立即回滚上一 tag
 
-  # AI Self-Validation Settings (NEW)
+  # Lockdown Mechanism Integration (NEW)
+  core_verification:
+    enabled: true
+    hook: tools/verify-core-structure.sh
+    blocking: true
+    fail_mode: "soft"                   # 观测期7天，soft模式（记录但不阻止）
+    strict_mode_start: "2025-10-27"     # 7天后自动切换到strict模式
+    performance_budget_ms: 50
+
+  # AI Self-Validation Settings
   pre_write_validation:
     enabled: true
     hook: .claude/hooks/quality/pre_write_validation.sh
@@ -17,19 +26,20 @@ meta:
 
 # Quality Gate Thresholds (for hardened CI)
 quality:
-  quality_min: 85          # Minimum quality score
-  coverage_min: 0          # Minimum coverage (0 = disabled temporarily)
-  required_signatures: 8   # Required GPG signatures for protected branches
+  quality_min: 85                       # Minimum quality score
+  coverage_min: 0                       # Minimum coverage (0 = disabled temporarily)
+  coverage_tolerance: 0.005             # ±0.5% tolerance for rounding errors
+  required_signatures: 8                # Required GPG signatures for protected branches
 
+# Parallel Limits - 7 Phases System
 parallel_limits:
-  Phase0: 3   # 探索阶段：少量专家快速验证
-  Phase1: 4   # 规划阶段：分析师+架构师
-  Phase2: 6   # 骨架阶段：多个模块并行搭建
-  Phase3: 8   # 实现阶段：最多并行任务
-  Phase4: 6   # 测试阶段：多类型测试并行
-  Phase5: 4   # 审查阶段：专注质量审核
-  Phase6: 2   # 发布阶段：谨慎发布
-  Phase7: 3   # 监控阶段：观察运行状态
+  Phase1: 4   # Discovery & Planning: 分析师+架构师+探索专家
+  Phase2: 6   # Implementation: 多个模块并行实现
+  Phase3: 8   # Testing: 最多并行测试任务
+  Phase4: 6   # Review: 多维度审查
+  Phase5: 4   # Release: 谨慎发布
+  Phase6: 2   # Acceptance: 专注验收
+  Phase7: 3   # Closure: 清理和归档
 
 parallel_autotune:
   success_streak_add: 2    # 连续两次一次过，上限 +2（不超过阶段限额）
@@ -39,7 +49,7 @@ test_depth:
   pre_push: ["unit", "boundary", "smoke"]   # push 前跑的集
   nightly_ci: ["integration", "contract"]   # 夜间 CI 额外跑
 
-phase_order: [Phase0, Phase1, Phase2, Phase3, Phase4, Phase5]
+phase_order: [Phase1, Phase2, Phase3, Phase4, Phase5, Phase6, Phase7]
 
 # Pre-Tool Quality Gates (AI Self-Validation)
 pre_tool_gates:
@@ -53,6 +63,11 @@ pre_tool_gates:
       - name: security_scan
         description: "Scan for hardcoded secrets and vulnerabilities"
         blocking: true
+      - name: core_structure_check
+        description: "Verify core structure not tampered (7 Phases/97 checkpoints)"
+        hook: tools/verify-core-structure.sh
+        blocking: true  # Will be soft for 7 days
+        timeout_ms: 50
       - name: test_existence
         description: "Verify test files exist for source files"
         blocking: false  # Warning only
@@ -71,126 +86,96 @@ pre_tool_gates:
         timeout_ms: 100
       - name: security_scan
         blocking: true
+      - name: core_structure_check
+        hook: tools/verify-core-structure.sh
+        blocking: true
+        timeout_ms: 50
 
 phases:
-  Phase0:
-    name: "Explore - 技术探索"
-    description: "技术可行性验证、风险评估、原型验证"
+  # ═══════════════════════════════════════════════════════════
+  # Phase 1: Discovery & Planning（探索与规划）- 33检查点
+  # ═══════════════════════════════════════════════════════════
+  Phase1:
+    name: "Discovery & Planning - 探索与规划"
+    description: "理解问题 + 技术探索 + 影响评估 + 架构规划"
+    checkpoint_count: 33
+    sub_phases:
+      - "1.1 Branch Check (5检查点)"
+      - "1.2 Requirements Discussion (5检查点)"
+      - "1.3 Technical Discovery (8检查点)"
+      - "1.4 Impact Assessment (3检查点)"
+      - "1.5 Architecture Planning (12检查点)"
+
     allow_paths:
-      - "docs/SPIKE.md"
-      - "docs/FEASIBILITY.md"
-      - "docs/P0_*.md"
-      - "docs/*_DISCOVERY.md"
-      - "docs/spike/**"
-      - "experiments/**"
-      - ".exploration/**"
+      - "docs/P2_DISCOVERY.md"
+      - "docs/ACCEPTANCE_CHECKLIST.md"
+      - "docs/PLAN.md"
+      - "docs/**"
+      - ".workflow/impact_assessments/**"
       - ".gates/**"
       - ".phase/**"
+      - "experiments/**"
+
     must_produce:
-      - "docs/P0_*_DISCOVERY.md 或 docs/SPIKE.md: 包含可行性分析、技术spike、风险评估"
-      - "可行性结论明确（GO/NO-GO/NEEDS-DECISION）"
-      - "技术spike至少验证2个关键技术点"
-      - "风险评估包含：技术风险、业务风险、时间风险"
+      - "docs/P2_DISCOVERY.md (>300行): 可行性分析、技术spike、风险评估"
+      - "docs/ACCEPTANCE_CHECKLIST.md: 定义'完成'的标准"
+      - "docs/PLAN.md (>1000行): 任务分解、架构设计、回滚方案"
+      - ".workflow/impact_assessments/current.json: Impact Assessment结果"
+      - "完整的项目骨架规划"
+
     gates:
-      - "必须存在P0发现文档"
-      - "必须包含可行性结论（GO/NO-GO/NEEDS-DECISION）"
+      - "P2_DISCOVERY.md包含可行性结论（GO/NO-GO/NEEDS-DECISION）"
       - "技术spike验证点 >= 2"
       - "风险评估完整（技术/业务/时间三个维度）"
-      - "如果结论为NO-GO，需提供替代方案或终止理由"
+      - "ACCEPTANCE_CHECKLIST.md存在且包含验收标准"
+      - "PLAN.md三级标题齐全：任务清单/受影响文件/回滚方案"
+      - "任务清单 >= 5条"
+      - "Impact Assessment完成（影响半径分数计算）"
+      - "无TODO占位符（防空壳检查）"
+
     on_pass:
-      - "create: .gates/00.ok"
-      - "set: .phase/current=P1"
+      - "create: .gates/01.ok"
+      - "set: .phase/current=Phase2"
+
     recommended_agents:
       - "research-specialist"
       - "architect-consultant"
       - "risk-assessor"
-
-  Phase1:
-    name: "Plan - 规划"
-    description: "需求分析、任务分解、影响评估"
-    allow_paths:
-      - "docs/PLAN.md"
-      - "docs/**"
-      - ".gates/**"
-      - ".phase/**"
-    must_produce:
-      - "docs/PLAN.md: 包含三级标题：## 任务清单, ## 受影响文件清单, ## 回滚方案"
-      - "任务清单≥5条（每条以动词开头，包含具体文件/模块名）"
-      - "受影响文件清单为具体路径（如 src/auth/login.ts）"
-    gates:
-      - "必须存在 docs/PLAN.md"
-      - "必须匹配三个标题"
-      - "任务清单计数 >= 5"
-      - "受影响清单为路径格式"
-    on_pass:
-      - "create: .gates/01.ok"
-      - "set: .phase/current=P2"
-    recommended_agents:
       - "product-analyst"
       - "system-architect"
       - "technical-writer"
-      - "risk-manager"
 
+  # ═══════════════════════════════════════════════════════════
+  # Phase 2: Implementation（实现开发）- 15检查点
+  # ═══════════════════════════════════════════════════════════
   Phase2:
-    name: "Skeleton - 骨架搭建"
-    description: "架构设计、目录结构、接口定义"
-    allow_paths:
-      - "src/**"
-      - "docs/SKELETON-NOTES.md"
-      - "docs/ARCHITECTURE.md"
-      - ".claude/**"
-      - ".workflow/**"
-      - ".github/workflows/**"
-      - ".gates/**"
-      - ".phase/**"
-      - "scripts/**"
-      - "test/**"
-      - "tests/**"
-      - "CLAUDE.md"
-      - "VERSION"
-      - "CHANGELOG.md"
-      - "docs/**"
-    must_produce:
-      - "根据 PLAN.md 新建目录/接口骨架；不得新增计划外目录"
-      - "必要说明写入 docs/SKELETON-NOTES.md"
-      - "关键接口和数据结构定义"
-      - "工作流基础设施（.claude/hooks, .workflow/, .github/workflows/等）属于项目骨架"
-      - "项目规范文件（CLAUDE.md）定义项目骨架的开发规范"
-    gates:
-      - "src/ 新增目录均在 PLAN 受影响清单内"
-      - "接口文件存在且命名遵循项目规范"
-      - "工作流文件修改需在SKELETON-NOTES.md中说明"
-      - "架构文档更新"
-    on_pass:
-      - "create: .gates/02.ok"
-      - "set: .phase/current=P3"
-    recommended_agents:
-      - "backend-architect"
-      - "frontend-architect"
-      - "database-designer"
-      - "api-designer"
-      - "devops-engineer"
-      - "technical-writer"
+    name: "Implementation - 实现开发"
+    description: "编码实现、工具创建、Git配置"
+    checkpoint_count: 15
 
-  Phase3:
-    name: "Implement - 实现"
-    description: "编码开发、功能实现、代码提交"
     allow_paths:
       - "src/**"
       - "lib/**"
       - "utils/**"
       - ".claude/hooks/**"
       - "scripts/**"
+      - "tools/**"
+      - ".workflow/**"
+      - ".github/workflows/**"
+      - "CLAUDE.md"
+      - "VERSION"
+      - "CHANGELOG.md"
+      - "docs/**"
       - ".gates/**"
       - ".phase/**"
-      - "docs/CHANGELOG.md"
-      - "CHANGELOG.md"
+
     must_produce:
-      - "实现功能代码，可构建"
-      - "CHANGELOG.md 的 Unreleased 段新增本次条目（简述范围/影响）"
-      - "每个 ticket 生成一段 '变更点清单'（可写在 commit message 中）"
-      - "工作流hooks实现（.claude/hooks/）属于核心功能实现"
-    # Enhanced gates with AI self-validation
+      - "可运行的代码实现"
+      - "验证脚本（workflow_validator_v97.sh等）"
+      - "工具脚本（local_ci.sh, verify-core-structure.sh等）"
+      - "Git hooks配置"
+      - "规范的Git commits"
+
     quality_gates:
       - name: pre_write_validation
         description: "AI validates code before writing"
@@ -201,46 +186,91 @@ phases:
           - security_scan
           - test_existence
           - code_quality
+
+      - name: core_structure_preservation
+        description: "Verify core structure not degraded"
+        hook: tools/verify-core-structure.sh
+        blocking: true
+        checks:
+          - spec_fingerprint
+          - checkpoint_count
+          - quality_gates_count
+          - hard_blocks_count
+
     gates:
       - "构建/编译通过"
-      - "CHANGELOG Unreleased 段存在新增条目"
+      - "CHANGELOG.md更新"
       - "不得改动非白名单目录"
       - "所有pre-write验证通过"
+      - "核心结构完整性验证通过（7 Phases/97检查点保持）"
+
     on_pass:
-      - "create: .gates/03.ok"
-      - "set: .phase/current=P4"
+      - "create: .gates/02.ok"
+      - "set: .phase/current=Phase3"
+
     recommended_agents:
       - "full-stack-developer"
-      - "backend-developer"
-      - "frontend-developer"
+      - "backend-architect"
+      - "devops-engineer"
       - "database-specialist"
       - "security-engineer"
       - "code-reviewer"
-      - "performance-optimizer"
       - "technical-writer"
 
-  Phase4:
-    name: "Test - 测试"
-    description: "单元测试、集成测试、性能测试"
+  # ═══════════════════════════════════════════════════════════
+  # Phase 3: Testing（质量验证）- 15检查点 🔒 质量门禁1
+  # ═══════════════════════════════════════════════════════════
+  Phase3:
+    name: "Testing - 质量验证"
+    description: "单元测试、集成测试、性能测试、BDD验收"
+    checkpoint_count: 15
+    quality_gate: 1  # 🔒 第一道质量门禁
+
     allow_paths:
       - "tests/**"
       - "test/**"
+      - "acceptance/**"
       - "docs/TEST-REPORT.md"
       - "docs/COVERAGE-REPORT.md"
       - ".gates/**"
       - ".phase/**"
+
     must_produce:
       - "新增/改动测试 >= 2 条，且至少 1 条为边界/负例"
       - "docs/TEST-REPORT.md 列出覆盖的模块/函数与结果"
-      - "测试覆盖率报告"
+      - "测试覆盖率报告（≥70%）"
+      - "性能benchmark结果"
+
+    mandatory_checks:
+      - name: static_checks
+        description: "运行 scripts/static_checks.sh"
+        command: "bash scripts/static_checks.sh"
+        blocking: true
+        checks:
+          - "Shell语法验证（bash -n）"
+          - "Shellcheck linting"
+          - "代码复杂度检查（<150行/函数）"
+          - "Hook性能测试（<2秒）"
+
     gates:
       - "pre-push: unit+boundary+smoke 必须绿"
+      - "测试覆盖率 >= 70%（容差±0.5%）"
       - "报告存在并含覆盖点清单"
       - "关键路径测试覆盖"
-      - "测试文件也通过pre-write验证"
+      - "静态检查100%通过（bash -n + shellcheck）"
+      - "代码复杂度合规（函数<150行）"
+      - "Hook性能合规（<2秒执行）"
+      - "无敏感信息泄露"
+
     on_pass:
-      - "create: .gates/04.ok"
-      - "set: .phase/current=P5"
+      - "create: .gates/03.ok"
+      - "create: .gates/gate1.passed"
+      - "set: .phase/current=Phase4"
+
+    on_fail:
+      - "block: Phase4"
+      - "message: 质量门禁1失败，必须修复所有测试问题后才能继续"
+
     recommended_agents:
       - "test-engineer"
       - "qa-specialist"
@@ -249,42 +279,87 @@ phases:
       - "automation-engineer"
       - "technical-writer"
 
-  Phase5:
-    name: "Review - 审查"
-    description: "代码审查、质量检查、安全审计"
+  # ═══════════════════════════════════════════════════════════
+  # Phase 4: Review（代码审查）- 10检查点 🔒 质量门禁2
+  # ═══════════════════════════════════════════════════════════
+  Phase4:
+    name: "Review - 代码审查"
+    description: "人工审查、合并前审计、完整性验证"
+    checkpoint_count: 10
+    quality_gate: 2  # 🔒 第二道质量门禁
+
     allow_paths:
       - "src/**"
       - "docs/REVIEW.md"
       - "docs/SECURITY-AUDIT.md"
       - ".gates/**"
       - ".phase/**"
+
     must_produce:
-      - "docs/REVIEW.md 三段：风格一致性/风险清单/回滚可行性；最后一行写 'APPROVE' 或 'REWORK: …'"
+      - "docs/REVIEW.md (>100行): 风格一致性/风险清单/回滚可行性"
+      - "结论：APPROVE 或 REWORK: 原因"
       - "安全审计结果"
       - "性能分析报告"
+
+    mandatory_checks:
+      - name: pre_merge_audit
+        description: "运行 scripts/pre_merge_audit.sh"
+        command: "bash scripts/pre_merge_audit.sh"
+        blocking: true
+        checks:
+          - "配置完整性（hooks注册、权限）"
+          - "遗留问题扫描（TODO/FIXME）"
+          - "垃圾文档检测（根目录≤7个）"
+          - "版本完全一致性（5文件匹配）"
+          - "代码模式一致性"
+          - "文档完整性（REVIEW.md >3KB）"
+
+      - name: manual_verification
+        description: "人工验证项"
+        blocking: true
+        checks:
+          - "逻辑正确性（IF判断、return语义）"
+          - "代码一致性（统一实现模式）"
+          - "Phase 1 checklist对照验证"
+
     gates:
-      - "三段齐全"
+      - "三段齐全（风格/风险/回滚）"
       - "存在明确结论（APPROVE/REWORK）"
       - "无Critical安全问题"
+      - "无Critical质量问题"
+      - "版本完全一致性验证通过"
+      - "根目录文档≤7个"
+      - "Phase 1 Acceptance Checklist ≥90%完成"
+      - "核心结构完整性验证通过"
+
     on_pass:
       - "when: APPROVE"
-      - "create: .gates/05.ok"
-      - "set: .phase/current=P6"
+      - "create: .gates/04.ok"
+      - "create: .gates/gate2.passed"
+      - "set: .phase/current=Phase5"
+
+    on_fail:
+      - "when: REWORK"
+      - "block: Phase5"
+      - "message: 质量门禁2失败，必须修复所有问题后才能发布"
+
     recommended_agents:
       - "code-reviewer"
       - "security-auditor"
       - "performance-analyst"
       - "technical-writer"
 
-  Phase6:
-    name: "Release - 发布"
-    description: "文档更新、版本发布、部署准备"
+  # ═══════════════════════════════════════════════════════════
+  # Phase 5: Release（发布监控）- 15检查点
+  # ═══════════════════════════════════════════════════════════
+  Phase5:
+    name: "Release - 发布监控"
+    description: "文档更新、版本发布、部署配置"
+    checkpoint_count: 15
+
     allow_paths:
       - "README.md"
-      - "docs/README.md"
       - "CHANGELOG.md"
-      - "docs/CHANGELOG.md"
-      - "docs/RELEASE-NOTES.md"
       - "VERSION"
       - "docs/**"
       - ".tags/**"
@@ -292,48 +367,58 @@ phases:
       - ".gates/**"
       - ".phase/**"
       - "package.json"
-      - "version.txt"
+      - ".claude/settings.json"
+      - ".workflow/manifest.yml"
+
     must_produce:
-      - "README.md 或 docs/README.md 必含：安装、使用、注意事项 三段"
+      - "README.md 必含：安装、使用、注意事项 三段"
       - "CHANGELOG.md 版本号递增并写影响面"
       - "发布 tag 与 Release Notes"
-      - "docs/PR-*.md 包含完整的PR描述（可选）"
       - "部署文档更新"
+
     gates:
       - "README 三段齐"
       - "CHANGELOG 版本号+影响面齐"
+      - "版本一致性（5文件完全匹配）"
+      - "根目录文档≤7个（规则1强制）"
+      - "Phase 1 Acceptance Checklist ≥90%完成"
       - "打 tag 成功"
       - "post-merge healthcheck 通过（否则自动回滚上一 tag）"
+
     on_pass:
-      - "create: .gates/06.ok"
-      - "set: .phase/current=P7"
+      - "create: .gates/05.ok"
+      - "set: .phase/current=Phase6"
+
     recommended_agents:
       - "release-manager"
       - "technical-writer"
+      - "devops-engineer"
 
-  Phase7:
-    name: "Monitor - 验收"
-    description: "验收Checklist、生成报告、等待用户确认merge"
+  # ═══════════════════════════════════════════════════════════
+  # Phase 6: Acceptance（验收确认）- 5检查点
+  # ═══════════════════════════════════════════════════════════
+  Phase6:
+    name: "Acceptance - 验收确认"
+    description: "AI生成验收报告 + 用户确认"
+    checkpoint_count: 5
+
     allow_paths:
       - ".workflow/**"
-      - "observability/**"
-      - "docs/MONITORING.md"
-      - "docs/RUNBOOK.md"
       - "docs/**"
-      - ".monitoring/**"
-      - "dashboards/**"
       - ".gates/**"
       - ".phase/**"
+
     must_produce:
       - ".workflow/VERIFICATION_REPORT.md: 验收报告"
       - ".workflow/verification_details.log: 详细验证日志"
       - "所有Checklist项验证完成"
       - "验收报告展示给用户"
       - "等待用户确认merge"
+
     gates:
       - id: "checklist_exists"
         name: "验收清单存在"
-        check_command: "test -f .workflow/CHECKLIST.md"
+        check_command: "test -f docs/ACCEPTANCE_CHECKLIST.md"
         pass_condition:
           type: "exit_code"
           expected: 0
@@ -341,11 +426,11 @@ phases:
 
       - id: "verify_all_items"
         name: "验证所有清单项"
-        check_command: "bash .workflow/lib/verify_checklist.sh"
+        description: "AI对照Phase 1 Acceptance Checklist逐项验证"
         pass_condition:
-          type: "exit_code"
-          expected: 0
-        on_fail: "有验收项未通过，查看 .workflow/VERIFICATION_REPORT.md"
+          type: "manual"
+          required: true
+        on_fail: "有验收项未通过"
 
       - id: "report_generated"
         name: "验收报告已生成"
@@ -357,26 +442,109 @@ phases:
 
       - id: "pass_rate_100"
         name: "通过率100%"
-        check_command: "grep -oP '通过率.*\\K\\d+' .workflow/VERIFICATION_REPORT.md"
+        description: "所有验收项必须通过，存在critical问题无法验收"
         pass_condition:
-          type: "number"
-          operator: ">="
-          value: 100
+          type: "manual"
+          required: true
         on_fail: "通过率未达到100%，需要修复失败项"
 
+      - id: "user_confirmation"
+        name: "用户确认"
+        description: "AI说'我已完成所有验收项，请您确认'，等待用户说'没问题'"
+        pass_condition:
+          type: "manual"
+          required: true
+        on_fail: "等待用户确认"
+
     on_pass:
-      - "create: .gates/07.ok"
+      - "create: .gates/06.ok"
       - "create: .workflow/WAITING_MERGE_CONFIRMATION"
-      - "set: .phase/current=DONE"
+      - "set: .phase/current=Phase7"
       - "display: .workflow/VERIFICATION_REPORT.md"
-      - "prompt: 请查看验收报告，确认后回复'同意merge'"
+      - "prompt: 请查看验收报告，确认后回复'没问题'"
+
     recommended_agents:
       - "qa-specialist"
       - "test-engineer"
       - "technical-writer"
 
-# 质量门禁配置
+  # ═══════════════════════════════════════════════════════════
+  # Phase 7: Closure（收尾合并）- 4检查点
+  # ═══════════════════════════════════════════════════════════
+  Phase7:
+    name: "Closure - 收尾合并"
+    description: "清理临时文件 + 最终验证 + 准备合并"
+    checkpoint_count: 4
+
+    allow_paths:
+      - ".temp/**"
+      - ".workflow/**"
+      - "docs/**"
+      - ".gates/**"
+      - ".phase/**"
+
+    must_produce:
+      - "干净的.temp/目录（<10MB）"
+      - "最终版本一致性验证通过"
+      - "文档规范验证通过"
+      - "merge-ready状态"
+
+    mandatory_checks:
+      - name: version_consistency_final
+        description: "最终版本一致性验证"
+        command: "bash scripts/check_version_consistency.sh"
+        blocking: true
+
+    gates:
+      - ".temp/ 大小 < 10MB"
+      - "版本完全一致性（5文件）"
+      - "根目录文档≤7个"
+      - "核心结构完整性验证通过"
+      - "等待用户说'merge'才能合并"
+
+    on_pass:
+      - "create: .gates/07.ok"
+      - "set: .phase/current=READY_TO_MERGE"
+      - "prompt: 所有检查通过，等待您确认'merge'后合并到main"
+
+    recommended_agents:
+      - "qa-specialist"
+      - "technical-writer"
+
+# ═══════════════════════════════════════════════════════════
+# Quality Gates Summary (新增完整定义)
+# ═══════════════════════════════════════════════════════════
 quality_gates:
+  total_gates: 2
+
+  gate1:
+    phase: "Phase 3"
+    name: "技术质量门禁"
+    description: "自动化测试和静态检查，确保代码质量"
+    mandatory_checks:
+      - "bash scripts/static_checks.sh"
+    blocking_conditions:
+      - "任何语法错误"
+      - "shellcheck警告"
+      - "函数复杂度超标（>150行）"
+      - "hook性能超标（>2秒）"
+      - "测试覆盖率<70%"
+    enforcement: "hard"  # 硬阻止，任何失败都阻止进入Phase 4
+
+  gate2:
+    phase: "Phase 4"
+    name: "代码质量门禁"
+    description: "人工审查和自动化审计，确保发布质量"
+    mandatory_checks:
+      - "bash scripts/pre_merge_audit.sh"
+    blocking_conditions:
+      - "存在critical安全问题"
+      - "存在critical质量问题"
+      - "版本不一致"
+      - "根目录文档>7个"
+      - "Phase 1 checklist完成度<90%"
+    enforcement: "hard"  # 硬阻止，任何失败都阻止进入Phase 5
+
   code_standards:
     - "所有函数必须有注释"
     - "关键逻辑必须有单元测试"
@@ -393,12 +561,26 @@ quality_gates:
     - "数据库查询 < 100ms (P95)"
     - "页面加载 < 3s"
 
+# ═══════════════════════════════════════════════════════════
+# Hard Blocks Summary (硬性阻止条件统计)
+# ═══════════════════════════════════════════════════════════
+hard_blocks:
+  total_count: 8
+
+  by_phase:
+    Phase1: 1  # 分支检查失败
+    Phase3: 2  # 语法错误 + shellcheck失败
+    Phase4: 2  # critical问题 + 版本不一致
+    Phase5: 2  # 文档规范 + checklist未完成
+    Phase6: 1  # 用户未确认
+
 # 自动回滚配置
 rollback_triggers:
   - "健康检查失败"
   - "错误率 > 5%"
   - "响应时间 > 2x baseline"
   - "CPU使用率 > 90%"
+  - "核心结构完整性验证失败"
 
 # Validation Performance Tracking
 performance_tracking:
@@ -409,6 +591,7 @@ performance_tracking:
     - validation_duration
     - blocking_count
     - pass_rate
+    - core_verification_time
 
 # Reporting Configuration
 reporting:
@@ -433,3 +616,8 @@ notifications:
       path: ".workflow/logs/rollback.log"
     - type: "alert"
       severity: "high"
+  on_core_structure_change:
+    - type: "log"
+      path: ".workflow/logs/core_structure_changes.log"
+    - type: "alert"
+      severity: "critical"

@@ -1,9 +1,9 @@
 #!/bin/bash
 # ═══════════════════════════════════════════════════════════
-# Workflow Validator - 95-Step Professional Edition v2.0
-# 专业级95步详细验证系统（Phase 1-7新版工作流）
+# Workflow Validator - 97-Step Professional Edition v3.0
+# 专业级97步详细验证系统（7 Phases统一工作流）
 # For Max 20X Users - Zero Compromise Quality
-# Version: 2.0.0 (Phase renaming: Phase 1-7 system)
+# Version: 3.0.0 (7 Phases统一: Discovery & Planning → Closure)
 # ═══════════════════════════════════════════════════════════
 set -euo pipefail
 
@@ -29,17 +29,18 @@ get_main_branch() {
 }
 
 echo "═══════════════════════════════════════════════════════"
-echo "  Workflow Validator - 95 Steps Professional Edition v2.0"
+echo "  Workflow Validator - 97 Steps Professional Edition v3.0"
 echo "  质量等级: 专业级 (Max 20X)"
-echo "  完整版: Pre-Discussion + Phase 1-7 + Acceptance + Cleanup"
-echo "  版本: 2.0.0 (Phase 1-7 renaming)"
+echo "  完整版: Phase 1 (Discovery & Planning) → Phase 7 (Closure)"
+echo "  版本: 3.0.0 (7 Phases统一系统)"
 echo "═══════════════════════════════════════════════════════"
 echo ""
 
 # ═══════════════════════════════════════════════════════════
-# Pre-Discussion: Requirements Clarification - 5 Steps
+# Phase 1.2: Requirements Discussion - 5 Steps
+# Part of Phase 1: Discovery & Planning (33 steps total)
 # ═══════════════════════════════════════════════════════════
-echo "Pre-Discussion: Requirements Clarification (5 steps)"
+echo "Phase 1.2: Requirements Discussion (5 steps)"
 
 # PD_S001: User request captured
 if [ -f ".workflow/user_request.md" ]; then
@@ -97,10 +98,11 @@ fi
 TOTAL=$((TOTAL+1))
 
 # ═══════════════════════════════════════════════════════════
-# Phase 1: Branch Check (was Phase -1) - 5 Steps
+# Phase 1.1: Branch Check - 5 Steps
+# Part of Phase 1: Discovery & Planning (33 steps total)
 # ═══════════════════════════════════════════════════════════
 echo ""
-echo "Phase 1: Branch Check (5 steps)"
+echo "Phase 1.1: Branch Check (5 steps)"
 
 # P1_S001: Current branch detected
 current_branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")
@@ -162,10 +164,11 @@ fi
 TOTAL=$((TOTAL+1))
 
 # ═══════════════════════════════════════════════════════════
-# Phase 2: Discovery (was Phase 0) - 8 Steps
+# Phase 1.3: Technical Discovery - 8 Steps
+# Part of Phase 1: Discovery & Planning (33 steps total)
 # ═══════════════════════════════════════════════════════════
 echo ""
-echo "Phase 2: Discovery (8 steps)"
+echo "Phase 1.3: Technical Discovery (8 steps)"
 
 # 性能优化：缓存P2文档内容（避免重复读取）
 P2_CONTENT=""
@@ -270,10 +273,11 @@ fi
 TOTAL=$((TOTAL+1))
 
 # ═══════════════════════════════════════════════════════════
-# Impact Assessment (Step 4 in 11-step workflow) - 3 Steps
+# Phase 1.4: Impact Assessment - 3 Steps
+# Part of Phase 1: Discovery & Planning (33 steps total)
 # ═══════════════════════════════════════════════════════════
 echo ""
-echo "Impact Assessment (3 steps)"
+echo "Phase 1.4: Impact Assessment (3 steps)"
 
 # IA_S001: Impact assessment file exists
 if [ -f ".workflow/impact_assessments/current.json" ]; then
@@ -320,10 +324,11 @@ fi
 TOTAL=$((TOTAL+1))
 
 # ═══════════════════════════════════════════════════════════
-# Phase 3: Planning & Architecture (was Phase 1) - 12 Steps
+# Phase 1.5: Architecture Planning - 12 Steps
+# Part of Phase 1: Discovery & Planning (33 steps total)
 # ═══════════════════════════════════════════════════════════
 echo ""
-echo "Phase 3: Planning & Architecture (12 steps)"
+echo "Phase 1.5: Architecture Planning (12 steps)"
 
 # 性能优化：缓存P3文档内容
 P3_CONTENT=""
@@ -480,10 +485,10 @@ fi
 TOTAL=$((TOTAL+1))
 
 # ═══════════════════════════════════════════════════════════
-# Phase 4: Implementation (was Phase 2) - 15 Steps
+# Phase 2: Implementation - 15 Steps
 # ═══════════════════════════════════════════════════════════
 echo ""
-echo "Phase 4: Implementation (15 steps)"
+echo "Phase 2: Implementation (15 steps)"
 
 # P4_S001: spec/workflow.spec.yaml存在
 if [ -f "spec/workflow.spec.yaml" ]; then
@@ -671,10 +676,10 @@ fi
 TOTAL=$((TOTAL+1))
 
 # ═══════════════════════════════════════════════════════════
-# Phase 5: Testing (质量验证, was Phase 3) - 15 Steps【质量门禁1】
+# Phase 3: Testing - 15 Steps 🔒 Quality Gate 1
 # ═══════════════════════════════════════════════════════════
 echo ""
-echo "Phase 5: Testing (15 steps) 🔒 Quality Gate 1"
+echo "Phase 3: Testing (15 steps) 🔒 Quality Gate 1"
 
 # P5_S001: 静态检查脚本存在
 if [ -f "scripts/static_checks.sh" ]; then
@@ -908,10 +913,10 @@ PASSED=$((PASSED+1))
 TOTAL=$((TOTAL+1))
 
 # ═══════════════════════════════════════════════════════════
-# Phase 6: Review (代码审查, was Phase 4) - 10 Steps【质量门禁2】
+# Phase 4: Review - 10 Steps 🔒 Quality Gate 2
 # ═══════════════════════════════════════════════════════════
 echo ""
-echo "Phase 6: Review (10 steps) 🔒 Quality Gate 2"
+echo "Phase 4: Review (10 steps) 🔒 Quality Gate 2"
 
 # P6_S001: 合并前审计脚本存在
 if [ -f "scripts/pre_merge_audit.sh" ]; then
@@ -1062,10 +1067,10 @@ PASSED=$((PASSED+1))
 TOTAL=$((TOTAL+1))
 
 # ═══════════════════════════════════════════════════════════
-# Phase 7: Release & Monitor (发布+监控, was Phase 5) - 15 Steps
+# Phase 5: Release - 15 Steps
 # ═══════════════════════════════════════════════════════════
 echo ""
-echo "Phase 7: Release & Monitor (15 steps)"
+echo "Phase 5: Release (15 steps)"
 
 # P7_S001: CHANGELOG.md更新
 if [ -f "CHANGELOG.md" ]; then
@@ -1289,10 +1294,10 @@ PASSED=$((PASSED+1))
 TOTAL=$((TOTAL+1))
 
 # ═══════════════════════════════════════════════════════════
-# Acceptance Report (Step 10 in 11-step workflow) - 5 Steps
+# Phase 6: Acceptance - 5 Steps
 # ═══════════════════════════════════════════════════════════
 echo ""
-echo "Acceptance Report (5 steps)"
+echo "Phase 6: Acceptance (5 steps)"
 
 # AC_S001: Phase 2 checklist items all marked [x]
 if [ -f "docs/P2_DISCOVERY.md" ]; then
@@ -1360,10 +1365,10 @@ fi
 TOTAL=$((TOTAL+1))
 
 # ═══════════════════════════════════════════════════════════
-# Cleanup (Step 11 in 11-step workflow) - 2 Steps
+# Phase 7: Closure - 4 Steps (2 Cleanup + 2 Global)
 # ═══════════════════════════════════════════════════════════
 echo ""
-echo "Cleanup (2 steps)"
+echo "Phase 7: Closure (4 steps)"
 
 # CL_S001: .temp/ directory cleaned (<10MB)
 if [ -d ".temp" ]; then
@@ -1397,11 +1402,7 @@ else
 fi
 TOTAL=$((TOTAL+1))
 
-# ═══════════════════════════════════════════════════════════
-# Global Validations (G002-G003)
-# ═══════════════════════════════════════════════════════════
-echo ""
-echo "Global Validations (2 steps)"
+# (G002-G003 merged into Phase 7 above)
 
 # G002: 临时文件检查
 if [ -d ".temp" ]; then
@@ -1439,17 +1440,20 @@ fi
 TOTAL=$((TOTAL+1))
 
 # ═══════════════════════════════════════════════════════════
-# Final Summary (All phases: 97 steps total)
+# Final Summary (7 Phases: 97 steps total)
 # ═══════════════════════════════════════════════════════════
 PASS_RATE=$((PASSED * 100 / TOTAL))
 
 echo ""
 echo "═══════════════════════════════════════════════════════"
-echo "  Final Summary (95 steps total)"
-echo "  Pre-Discussion (5) + Phase 1 (5) + Phase 2 (8) +"
-echo "  Impact (3) + Phase 3 (12) + Phase 4 (15) +"
-echo "  Phase 5 (15) + Phase 6 (10) + Phase 7 (15) +"
-echo "  Acceptance (5) + Cleanup (2) + Global (2)"
+echo "  Final Summary - 7 Phases完整验证"
+echo "  Phase 1: Discovery & Planning (33 steps)"
+echo "  Phase 2: Implementation (15 steps)"
+echo "  Phase 3: Testing 🔒 Gate 1 (15 steps)"
+echo "  Phase 4: Review 🔒 Gate 2 (10 steps)"
+echo "  Phase 5: Release (15 steps)"
+echo "  Phase 6: Acceptance (5 steps)"
+echo "  Phase 7: Closure (4 steps)"
 echo "═══════════════════════════════════════════════════════"
 echo "Total:      $TOTAL"
 echo "Passed:     $PASSED"
@@ -1464,10 +1468,10 @@ cat > "$EVIDENCE_DIR/last_run.json" <<EOF
   "passed": $PASSED,
   "failed": $FAILED,
   "pass_rate": $PASS_RATE,
-  "version": "95-step complete v2.0 (Phase 1-7 renaming)",
-  "phases_covered": "Pre-Discussion, Phase 1-7, Acceptance, Cleanup",
-  "global_validations": ["G002", "G003"],
-  "quality_gates": ["Phase 5", "Phase 6"]
+  "version": "97-step complete v3.0 (7 Phases统一)",
+  "phases": "Phase 1-7 (Discovery & Planning → Closure)",
+  "quality_gates": ["Phase 3 (Testing)", "Phase 4 (Review)"],
+  "unified_workflow": true
 }
 EOF
 
@@ -1479,8 +1483,8 @@ fi
 if [ $PASS_RATE -ge 80 ]; then
   echo ""
   echo "✅ VALIDATION PASSED ($PASS_RATE%)"
-  echo "   95-Step Professional Edition v2.0 - Complete"
-  echo "   Phase 1-7 workflow validated"
+  echo "   97-Step Professional Edition v3.0 - Complete"
+  echo "   7 Phases统一工作流验证通过"
   exit 0
 else
   echo ""

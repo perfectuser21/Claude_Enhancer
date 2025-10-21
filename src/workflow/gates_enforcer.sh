@@ -396,3 +396,5 @@ ${error_details}
 
 ---
 *此报告由 Claude Enhancer 5.0 Gates Enforcer 自动生成*
+EOF
+}
