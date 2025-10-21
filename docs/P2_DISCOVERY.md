@@ -1,565 +1,373 @@
-# Phase 2 Discovery - Code Quality Checker CLI Tool
+# Phase 1 Discovery: Post-Review Improvements for v7.0 Milestone 2
 
-> Project: Code Quality Checker CLI Tool
-> Created: 2025-10-19
-> Phase: Phase 2 - Discovery
-> Status: Completed
+**Date**: 2025-10-21
+**Phase**: Phase 1 - Discovery & Planning
+**Task**: 实施Alex (ChatGPT)审查报告中的改进建议
+**Target Version**: v7.0.1
+**Impact**: Medium-High (Learning System Core增强)
 
 ---
 
-## Problem Statement
+## 📋 Executive Summary
 
-### Current Challenge
+v7.0.0已发布，包含Milestone 2核心功能（Learning System - 跨项目知识积累）。用户将完整实现报告（1165行）分享给Alex (ChatGPT)进行外部审查。Alex提出了6个改进建议，经分析决定立即实施其中4个Critical/High优先级改进，并在v7.0.1中发布。
 
-**核心问题**：Claude Enhancer项目需要一个轻量级的代码质量检查工具，用于快速发现Python和Shell脚本中的常见质量问题，但现有的工具（如pylint、shellcheck）过于复杂或缺乏统一接口。
+**核心问题**：v7.0.0虽然功能完整，但在鲁棒性、并发安全性、数据验证和可追溯性方面存在改进空间。
 
-**具体痛点**：
-1. **工具分散**：Python用pylint，Shell用shellcheck，缺乏统一工具
-2. **配置复杂**：现有工具配置繁琐，不适合快速检查
-3. **报告格式不一**：难以集成到CI/CD pipeline
-4. **学习曲线陡峭**：团队成员需要学习多个工具
+---
 
-### Impact Analysis
+## 🎯 Background
+
+### 1. v7.0.0 Milestone 2实现
+
+**已实现功能**：
+- 6个核心工具（post_phase.sh, learn.sh, query-knowledge.sh, doctor.sh, fix-links.sh, init-project.sh）
+- 知识库结构（sessions/, patterns/, metrics/, improvements/）
+- 自动数据收集（每Phase执行后触发）
+- 指标聚合（sessions → metrics）
+- 健康检查（doctor.sh）
+
+**发布时间**：2025-10-21 早期（v7.0.0 tag已创建）
+
+### 2. 外部审查请求
+
+用户将`.temp/v7.0-milestone2/COMPLETE_REPORT_FOR_CHATGPT.md`（1165行完整报告）分享给Alex (ChatGPT)，请求全面审查。
+
+**审查范围**：
+- 架构设计合理性
+- 代码质量
+- 鲁棒性和错误处理
+- 性能考虑
+- 可维护性
+
+### 3. Alex的审查结果
+
+**总体评价**：Excellent (97/100)
+
+**6个改进建议**：
+
+#### Critical Priority (2个)
+
+**1. learn.sh鲁棒性增强** 🔴 CRITICAL
+- **问题**：缺少空数据处理
+- **场景**：首次运行或删除所有sessions后，find返回空，导致jq报错
+- **影响**：用户体验差，系统看起来"坏了"
+- **建议**：添加空数据兜底、并发安全、Meta字段
+
+**2. post_phase.sh输入验证** 🔴 CRITICAL
+- **问题**：环境变量可能是字符串或JSON，缺少验证
+- **影响**：生成的session.json可能格式错误
+- **建议**：添加to_json_array()函数，兼容多种输入格式
+
+#### High Priority (2个)
+
+**3. doctor.sh自愈增强** 🟡 HIGH
+- **问题**：只检测问题，不自动修复
+- **建议**：升级到自愈模式（auto-repair）
+
+**4. Metrics元信息** 🟡 HIGH
+- **问题**：metrics输出缺少meta字段
+- **影响**：无法追溯数据来源、时间、样本量
+- **建议**：所有metrics包含{version, schema, last_updated, sample_count}
+
+#### Medium Priority (2个)
+
+**5. 并发场景测试** 🟢 MEDIUM
+- **决定**：v7.0.1不实施，未来版本考虑
+
+**6. 迭代节奏建议** 🟢 MEDIUM
+- **决定**：流程性建议，不涉及代码改动
+
+---
+
+## 🔍 Problem Statement
+
+### 问题1: learn.sh空数据崩溃（Critical）
+
+**复现步骤**：
+```bash
+# 场景1：首次运行（无sessions/目录）
+bash tools/learn.sh
+# 预期：生成空metrics结构
+# 实际：find报错 → jq报错 → 用户困惑
+
+# 场景2：清空所有sessions
+rm .claude/knowledge/sessions/*.json
+bash tools/learn.sh
+# 预期：生成空metrics结构
+# 实际：jq报错"parse error: Invalid numeric literal"
+```
+
+**根本原因**：
+```bash
+# learn.sh line 25
+mapfile -t FILES < <(find "${S}" -maxdepth 1 -type f -name '*.json' -print)
+
+# 当没有文件时，FILES=() 空数组
+# line 55: jq -s ... "${FILES[@]}"
+# jq接收空输入 → 错误
+```
 
 **影响范围**：
-- 开发者体验：需要手动运行多个工具
-- CI/CD流程：缺乏统一的质量检查入口
-- 代码质量：难以持续监控和改进
+- 用户体验：⭐⭐⭐⭐⭐ 严重（看起来系统坏了）
+- 数据完整性：⭐⭐⭐ 中等（不会丢失数据，但无法生成metrics）
+- 可靠性：⭐⭐⭐⭐ 高（基本功能不可用）
 
-**用户需求**：
-- 简单：单一命令即可检查多种文件
-- 快速：检查时间<1秒（小文件）
-- 清晰：易读的报告格式
-- 可配置：支持自定义规则
+### 问题2: post_phase.sh输入格式歧义（Critical）
 
-### Success Criteria
+**根本原因**：环境变量格式不确定，可能是：
+- 空格分隔字符串：`"backend-architect test-engineer"`
+- JSON字符串：`'["backend-architect","test-engineer"]'`
+- 空值：`""`
 
-**项目成功的定义**：
-1. 工具能够检查Python和Shell文件
-2. 检测至少3种质量问题（复杂度、命名、嵌套）
-3. 生成JSON和Markdown两种格式报告
-4. 单文件检查时间<1秒
-5. 有完整的测试覆盖（>80%）
+**影响**：生成的session.json格式错误，影响下游learn.sh聚合。
 
----
+### 问题3: doctor.sh缺少自愈（High）
 
-## Background
+**当前行为**：只报告问题，不修复
+**改进目标**：自动创建缺失文件和目录
 
-### Technical Context
+### 问题4: Metrics缺少元信息（High）
 
-**当前技术栈**：
-- Python 3.8+ (主要开发语言)
-- Bash (脚本和hooks)
-- Git (版本控制)
-- pytest (测试框架)
-
-**现有工具分析**：
-
-| 工具 | 优点 | 缺点 | 适用性 |
-|------|------|------|--------|
-| pylint | 功能强大 | 配置复杂、慢 | ⚠️ 过重 |
-| shellcheck | Shell专业 | 只支持Shell | ⚠️ 单一 |
-| flake8 | 轻量 | 只检查风格 | ⚠️ 不够 |
-| 自研工具 | 定制化 | 需要开发 | ✅ 推荐 |
-
-**选择自研的理由**：
-1. **轻量级**：只检查核心质量问题，避免过度复杂
-2. **统一接口**：一个工具处理Python和Shell
-3. **灵活配置**：简单的YAML配置文件
-4. **快速执行**：纯Python实现，无重依赖
-
-### User Stories
-
-**故事1：开发者快速检查**
-```
-作为一个开发者
-我想要在提交代码前快速检查质量
-以便避免提交低质量代码
-
-验收标准：
-- 运行单个命令即可检查
-- 检查时间<5秒
-- 清晰显示问题位置
-```
-
-**故事2：CI/CD集成**
-```
-作为一个DevOps工程师
-我想要在CI pipeline中自动检查代码质量
-以便阻止低质量代码合并
-
-验收标准：
-- 支持JSON输出（机器可读）
-- 错误时返回exit code 1
-- 可配置检查规则
-```
-
-**故事3：团队统一标准**
-```
-作为一个技术负责人
-我想要团队使用统一的代码质量标准
-以便保持代码一致性
-
-验收标准：
-- 支持配置文件定义规则
-- 规则可版本控制
-- 团队成员使用相同配置
-```
-
-### Existing Solutions Analysis
-
-**方案A：使用现有工具组合**
-- 优点：无需开发，立即可用
-- 缺点：配置复杂，工具分散
-- 评估：❌ 不推荐（不满足"简单"需求）
-
-**方案B：自研轻量工具**
-- 优点：完全定制，满足需求
-- 缺点：需要开发和维护
-- 评估：✅ 推荐（符合项目目标）
-
-**方案C：集成第三方库**
-- 优点：复用现有能力
-- 缺点：引入依赖，增加复杂度
-- 评估：⚠️ 备选（取决于依赖大小）
-
-### Technology Stack Decision
-
-**选定技术栈**：
-- **语言**：Python 3.8+ (项目主语言)
-- **解析**：正则表达式 + 基础AST (Python标准库)
-- **配置**：PyYAML (轻量级)
-- **测试**：pytest (已有基础设施)
-- **报告**：JSON + Markdown (双格式)
-
-**不使用的技术**：
-- ❌ 完整AST分析（过于复杂）
-- ❌ 第三方lint库（增加依赖）
-- ❌ Web界面（超出需求）
+**当前输出**：只有数据数组，无meta信息
+**改进目标**：添加version, schema, last_updated, sample_count
 
 ---
 
-## Feasibility
+## 💡 Proposed Solution
 
-### Technical Feasibility
+### Solution 1: learn.sh鲁棒性增强
 
-**可行性评估**：✅ 高度可行
+```bash
+# 1. 添加空数据处理
+mapfile -t FILES < <(find "${S}" -maxdepth 1 -type f -name '*.json' -print 2>/dev/null || true)
 
-**关键技术点验证**：
+if (( ${#FILES[@]} == 0 )); then
+  jq -n --arg ts "$(date -u +%FT%TZ)" '{
+    meta: {version:"1.0", schema:"by_type_phase", last_updated:$ts, sample_count:0},
+    data:[]
+  }' > "${TMP}"
+  mv "${TMP}" "${M}/by_type_phase.json"
+  exit 0
+fi
 
-1. **Python代码解析** ✅
-   - 正则表达式可识别函数定义：`r'^\s*def\s+(\w+)\s*\('`
-   - 标准库`ast`模块可辅助（如需深度分析）
-   - 验证：已在示例中成功解析
+# 2. 并发安全（mktemp + mv原子写入）
+TMP="$(mktemp)"
+trap 'rm -f "$TMP"' EXIT
 
-2. **Shell脚本解析** ✅
-   - 正则表达式识别函数：`r'^\s*(\w+)\s*\(\)\s*{'`
-   - 基础文本处理即可满足需求
-   - 验证：可行且简单
+# 3. 添加Meta字段 + 修复JSON array
+{
+  echo '{'
+  echo '  "meta": {...},'
+  echo '  "data":'
+  jq -s '[ group_by(...) | {...} ]' "${FILES[@]}"  # 添加[]包装
+  echo '}'
+} > "${TMP}"
 
-3. **复杂度计算** ✅
-   - 行数统计：简单计数
-   - 嵌套深度：追踪缩进或大括号
-   - 验证：算法简单可靠
+mv "${TMP}" "${M}/by_type_phase.json"
+```
 
-4. **命名规范检查** ✅
-   - snake_case: `r'^[a-z_][a-z0-9_]*$'`
-   - PascalCase: `r'^[A-Z][a-zA-Z0-9]*$'`
-   - 验证：正则表达式足够
+**关键修复**：data字段必须是JSON数组，不是对象列表。
 
-**风险评估**：
+### Solution 2: post_phase.sh输入验证
 
-| 风险 | 级别 | 缓解措施 |
-|------|------|---------|
-| 解析准确性 | 中 | 使用成熟的正则模式 + 测试验证 |
-| 性能问题 | 低 | 纯文本处理，性能天然好 |
-| 维护成本 | 中 | 保持简单，避免过度设计 |
-| 误报问题 | 中 | 提供配置选项，允许禁用规则 |
+```bash
+to_json_array() {
+  local raw="$1"
+  [[ -z "${raw}" ]] && { echo "[]"; return; }
+  
+  # 已经是有效JSON？直接返回
+  if echo "$raw" | jq -e . >/dev/null 2>&1; then
+    echo "$raw"; return
+  fi
+  
+  # 空格分隔 → JSON数组
+  echo "$raw" | awk '{
+    printf "["
+    for(i=1; i<=NF; i++) {
+      if(i>1) printf ","
+      printf "\"%s\"", $i
+    }
+    printf "]"
+  }'
+}
 
-### Time & Resource Feasibility
+# 应用
+AGENTS="$(to_json_array "${AGENTS_USED:-}")"
+ERRORS="$(to_json_array "${ERRORS_JSON:-}")"
+WARNINGS="$(to_json_array "${WARNINGS_JSON:-}")"
+```
 
-**预估工作量**：
-- Phase 3 (Planning): 2-3小时
-- Phase 4 (Implementation): 3-4小时
-- Phase 5 (Testing): 1-2小时
-- Phase 6 (Review): 1小时
-- **总计**: 7-10小时
+### Solution 3: doctor.sh自愈增强
 
-**实际耗时**：~2小时（压力测试快速执行）
+```bash
+# 自动创建缺失文件
+if [[ ! -f "${CONF}" ]]; then
+  echo '{\"api\":\"7.0\",\"min_project\":\"7.0\"}' > "${CONF}"
+  ((FIXED++))
+fi
 
-**资源需求**：
-- ✅ 无额外依赖（仅PyYAML）
-- ✅ 无特殊环境要求
-- ✅ 无团队协作需求（单人可完成）
+# 智能退出码
+if (( ERRORS > 0 )); then exit 1
+elif (( FIXED > 0 )); then exit 0
+else exit 0
+fi
+```
 
-### Business Feasibility
+### Solution 4: Meta字段系统化
 
-**投资回报分析**：
-
-**投入**：
-- 开发时间：7-10小时
-- 维护成本：低（简单工具）
-
-**回报**：
-- 统一代码质量检查入口
-- 减少手动检查时间（每次节省5-10分钟）
-- 提升代码质量（减少bug）
-- 可复用到其他项目
-
-**结论**：✅ 高ROI，值得投入
-
----
-
-## Acceptance Checklist
-
-### Core Functionality (6 criteria)
-
-**1. Code Complexity Detection**
-- [ ] Read and parse Python files (.py)
-- [ ] Read and parse Shell scripts (.sh)
-- [ ] Detect function line count (threshold: >50 error)
-- [ ] Detect nesting depth (threshold: >3 error)
-- [ ] Correctly identify function boundaries
-- [ ] Report line numbers for issues
-
-**2. Naming Convention Checks**
-- [ ] Check Python naming (snake_case for functions)
-- [ ] Check Shell naming (snake_case for functions)
-- [ ] Detect violations and report locations
-- [ ] Provide suggestions for corrections
-
-**3. Report Generation**
-- [ ] Generate JSON format report (structured)
-- [ ] Generate Markdown format report (readable)
-- [ ] Support both formats simultaneously
-- [ ] Include summary statistics (errors, warnings)
-
-**4. Configuration Support**
-- [ ] Read rules.yml configuration file
-- [ ] Configurable complexity thresholds
-- [ ] Configurable naming rules
-- [ ] Provide default configuration
-
-**5. Testing & Quality**
-- [ ] Unit test coverage ≥80%
-- [ ] All tests passing
-- [ ] Example file with intentional issues
-- [ ] Integration test for end-to-end workflow
-
-**6. Documentation & Usability**
-- [ ] README.md with usage instructions
-- [ ] Examples directory with samples
-- [ ] CLI help (--help) working
-- [ ] Version display (--version) working
-
-### Performance Criteria (3 criteria)
-
-- [ ] Single file check < 1 second (file < 1000 lines)
-- [ ] Batch check reasonable (10 files < 5 seconds)
-- [ ] Memory usage < 100MB
-
-### Technical Implementation (4 criteria)
-
-- [ ] Pass static checks (syntax validation)
-- [ ] No syntax errors
-- [ ] Clear variable naming
-- [ ] Modular code structure
-
-**Total**: 13 categories, 52 specific criteria
-
----
-
-## Impact Radius Assessment
-
-### Automatic Assessment Result
-
-**Executed**: Step 4 - Impact Radius Assessment
-**Tool**: `.claude/scripts/impact_radius_assessor.sh`
-**Date**: 2025-10-19
-
-**Assessment Output**:
+所有metrics输出包含：
 ```json
 {
-  "impact_radius": 24,
-  "scores": {
-    "risk_score": 2,
-    "complexity_score": 4,
-    "impact_score": 1
+  "meta": {
+    "version": "1.0",
+    "schema": "by_type_phase",
+    "last_updated": "2025-10-21T10:06:39Z",
+    "sample_count": 2
   },
-  "agent_strategy": {
-    "strategy": "low-risk",
-    "min_agents": 0
-  }
+  "data": [...]
 }
 ```
 
-**AI Override Decision**:
-- **Assessor Result**: 24 points (low-risk, 0 agents)
-- **AI Re-evaluation**: 48 points (medium-risk, 3 agents)
-- **Reason**: Assessor误判为"cosmetic changes"，实际需要架构设计、测试策略、文档规划
-- **Final Decision**: Use 3 agents (backend-architect, test-engineer, technical-writer)
+---
 
-### Detailed Risk Analysis
+## 🎯 Acceptance Criteria
 
-**Risk Assessment (2/10 → 4/10 adjusted)**:
-- File I/O operations (risk of errors)
-- Regular expression parsing (risk of edge cases)
-- Configuration file handling (YAML parsing)
-- Error handling complexity
+### AC1: learn.sh鲁棒性（Critical）
+- [ ] AC1.1: 0个session时生成空结构（不报错）
+- [ ] AC1.2: 100个session时性能<5秒
+- [ ] AC1.3: 并发调用10次数据完整性100%
+- [ ] AC1.4: 输出包含完整meta字段
+- [ ] AC1.5: data字段是JSON数组（不是对象列表）
 
-**Complexity Assessment (4/10 → 6/10 adjusted)**:
-- Code parsing logic (moderate complexity)
-- Complexity calculation algorithms
-- Multi-format report generation
-- Configuration management
+### AC2: post_phase.sh输入验证（Critical）
+- [ ] AC2.1: 空值转换为`[]`
+- [ ] AC2.2: 空格分隔字符串转换为JSON数组
+- [ ] AC2.3: JSON字符串直接使用
+- [ ] AC2.4: 向后兼容（现有调用不受影响）
 
-**Scope Assessment (1/10 → 5/10 adjusted)**:
-- Multiple source files (main.py, config, tests, examples)
-- Two programming languages to support (Python, Shell)
-- Two report formats (JSON, Markdown)
-- Complete testing suite
+### AC3: doctor.sh自愈（High）
+- [ ] AC3.1: 缺失engine_api.json时自动创建
+- [ ] AC3.2: 缺失目录时自动创建
+- [ ] AC3.3: 缺失schema.json时自动创建
+- [ ] AC3.4: 智能退出码
 
-**Final Impact Radius**: 48/100
-**Recommended Strategy**: 3 agents in parallel
-**Execution Plan**: Single function_calls block with 3 invokes
+### AC4: Meta字段（High）
+- [ ] AC4.1: by_type_phase.json包含meta
+- [ ] AC4.2: meta.last_updated是ISO 8601格式
+- [ ] AC4.3: meta.sample_count匹配实际session数
+
+### AC5: 代码质量
+- [ ] AC5.1: 通过shellcheck
+- [ ] AC5.2: 通过bash -n验证
+- [ ] AC5.3: 函数复杂度<150行
+- [ ] AC5.4: 向后兼容
+
+### AC6: 文档和测试
+- [ ] AC6.1: 更新CHANGELOG.md（v7.0.1条目）
+- [ ] AC6.2: 创建功能测试脚本
+- [ ] AC6.3: 通过Phase 3静态检查
+- [ ] AC6.4: 通过Phase 4 pre-merge audit
 
 ---
 
-## Architectural Decisions
+## 📊 Impact Assessment
 
-### Architecture Style
+### Radius Score Calculation
+```
+Radius = (Risk × 5) + (Complexity × 5) + (Scope × 2)
 
-**Selected**: Monolithic single-file architecture (main.py)
+Risk = 6/10 (中高风险 - 修改核心Learning System)
+Complexity = 5/10 (中等 - 4个文件，~150行代码)
+Scope = 7/10 (较广 - 影响3个核心工具)
 
-**Reasoning**:
-- Simple tool, doesn't warrant complex modular structure
-- Easy to understand and maintain
-- Fast to develop and test
-- Can refactor later if needed
+Radius = (6 × 5) + (5 × 3) + (7 × 2) = 59
+```
 
-**Alternative Considered**:
-- Multi-module architecture (parsers/, checkers/, reporters/)
-- Verdict: Over-engineering for v1.0, defer to v2.0
+### Agent Recommendation
+```
+Radius = 59 (High-Risk)
+Recommended Agents: 6 agents
 
-### Key Design Patterns
+1. backend-architect - 架构设计和改进
+2. test-engineer - 测试设计和验证
+3. security-auditor - 并发安全审查
+4. code-reviewer - 代码质量审查
+5. technical-writer - 文档更新
+6. performance-engineer - 性能验证
+```
 
-**Pattern 1: Template Method** (in planning)
-- Base parser/checker/reporter classes
-- Concrete implementations for Python/Shell
-- Status: Planned but simplified in v1.0
+### Risk Analysis
 
-**Pattern 2: Strategy** (implicit)
-- Different parsing strategies for Python vs Shell
-- Different report generation strategies
-- Status: Implemented as conditional logic
+**高风险点**：
+1. ⚠️ learn.sh输出格式变化（meta字段 + data数组）
+   - 缓解：向后兼容，旧版query-knowledge.sh仍可用
 
-**Pattern 3: Configuration-Driven**
-- All rules defined in config
-- Easy to customize without code changes
-- Status: Implemented via default_config()
+2. ⚠️ post_phase.sh输入验证可能误判
+   - 缓解：to_json_array()先检测JSON有效性
 
----
+3. ⚠️ doctor.sh自动修复可能覆盖用户配置
+   - 缓解：只在文件不存在时创建
 
-## Constraints & Assumptions
-
-### Constraints
-
-**Technical Constraints**:
-1. Python 3.8+ required (project standard)
-2. Must be lightweight (<100KB source code)
-3. No heavy dependencies (only PyYAML)
-4. Must run in <1 second for small files
-
-**Business Constraints**:
-1. Single developer (no team collaboration)
-2. Time-boxed to ~10 hours max
-3. Must fit within Claude Enhancer architecture
-4. Must not conflict with existing tools
-
-### Assumptions
-
-**User Assumptions**:
-1. Users have Python 3.8+ installed
-2. Users understand basic code quality concepts
-3. Users can read Markdown and JSON
-4. Users have basic command-line skills
-
-**Environment Assumptions**:
-1. Running on Linux/macOS (Bash available)
-2. Git repository context (for CI integration)
-3. UTF-8 text encoding
-4. Sufficient disk space (<10MB)
-
-**Scope Assumptions**:
-1. Only Python and Shell files (not Java, C++, etc.)
-2. Basic complexity metrics (not full cyclomatic complexity)
-3. Common naming conventions (not all edge cases)
-4. English-only output (no i18n for v1.0)
+**回滚计划**：
+```bash
+git revert HEAD~1  # 回退到v7.0.0
+git tag -d v7.0.1
+gh release delete v7.0.1
+```
 
 ---
 
-## Dependencies
+## 🚀 Implementation Plan
 
-### External Dependencies
+### Phase 2: Implementation（1小时）
+1. 修改`tools/learn.sh`（+40行）
+2. 修改`.claude/hooks/post_phase.sh`（+15行）
+3. 修改`tools/doctor.sh`（+74行）
+4. 添加meta字段到所有metrics
 
-**Required**:
-- Python 3.8+ (runtime)
-- PyYAML (configuration parsing)
+### Phase 3: Testing（1小时）
+1. 创建功能测试脚本
+2. 运行`scripts/static_checks.sh`
+3. 空数据测试
+4. 并发安全测试
+5. 输入验证测试
 
-**Optional**:
-- pytest (for running tests)
-- Git (for version control)
+### Phase 4: Review（30分钟）
+1. 运行`scripts/pre_merge_audit.sh`
+2. 创建REVIEW.md
+3. 代码一致性检查
 
-**Not Required**:
-- No web frameworks
-- No database
-- No external APIs
-- No GUI libraries
+### Phase 5: Release（30分钟）
+1. 更新CHANGELOG.md
+2. 更新所有版本文件到v7.0.1
+3. 创建release notes
 
-### Internal Dependencies
+### Phase 6-7: Acceptance & Closure（15分钟）
+1. 对照Acceptance Checklist验证
+2. 清理临时文件
+3. 创建PR并合并
+4. 发布v7.0.1
 
-**Claude Enhancer Components**:
-- Testing infrastructure (pytest setup)
-- Git hooks (for future integration)
-- CI/CD workflows (for automation)
-- Documentation standards (README template)
-
----
-
-## Risk Mitigation Plan
-
-### Risk 1: Parsing Accuracy
-
-**Risk**: Regular expressions may fail on edge cases
-
-**Mitigation**:
-- Start with simple, well-tested regex patterns
-- Add comprehensive test cases
-- Document known limitations
-- Provide configuration to disable problematic rules
-
-### Risk 2: Performance Issues
-
-**Risk**: Large files may take too long to process
-
-**Mitigation**:
-- Use efficient string operations
-- Avoid redundant file reads
-- Implement early termination for massive files
-- Add performance tests to catch regressions
-
-### Risk 3: Maintenance Burden
-
-**Risk**: Tool may become complex and hard to maintain
-
-**Mitigation**:
-- Keep implementation simple (single file for v1.0)
-- Write clear documentation
-- Comprehensive test coverage
-- Avoid premature optimization
-
-### Risk 4: False Positives
-
-**Risk**: Tool may report issues that aren't real problems
-
-**Mitigation**:
-- Provide configuration to adjust thresholds
-- Allow disabling specific rules
-- Clear documentation on what each rule checks
-- Example files showing intentional violations
+**总预计时间**：3小时15分钟
 
 ---
 
-## Success Metrics
+## ✅ Decision Summary
 
-### Quantitative Metrics
+**采纳的改进** (4个):
+1. ✅ learn.sh鲁棒性增强（Critical）
+2. ✅ post_phase.sh输入验证（Critical）
+3. ✅ doctor.sh自愈增强（High）
+4. ✅ Metrics元信息（High）
 
-**Development Metrics**:
-- [ ] Implementation time ≤10 hours
-- [ ] Test coverage ≥80%
-- [ ] Documentation coverage 100% (all features documented)
+**延迟到未来版本** (2个):
+5. 🔄 并发场景测试（Medium）- v7.1.0考虑
+6. 🔄 迭代节奏建议（Medium）- 长期规划
 
-**Performance Metrics**:
-- [ ] Single file check <1 second (files <1000 lines)
-- [ ] Source code size <100KB
-- [ ] Zero runtime dependencies (except PyYAML)
-
-**Quality Metrics**:
-- [ ] All 52 acceptance criteria met
-- [ ] All unit tests passing (target: 10+ tests)
-- [ ] Zero critical bugs in review
-
-### Qualitative Metrics
-
-**Usability**:
-- [ ] Tool can be run without reading documentation
-- [ ] Error messages are clear and actionable
-- [ ] Reports are easy to understand
-
-**Maintainability**:
-- [ ] Code is self-documenting (clear variable names)
-- [ ] Functions are small and focused (<50 lines)
-- [ ] Easy to add new rules or checks
+**理由**：优先修复Critical和High优先级问题，快速发布v7.0.1为用户提供更稳定的Learning System。
 
 ---
 
-## Phase 2 Deliverables
-
-### Produced Documents
-
-1. **This Document**: P2_DISCOVERY.md (420+ lines)
-2. **Acceptance Checklist**: .workflow/ACCEPTANCE_CHECKLIST.md (143 lines)
-3. **Impact Assessment**: .workflow/impact_assessments/current.json
-
-### Key Decisions
-
-1. ✅ **Technology**: Python-only implementation (no AST, only regex)
-2. ✅ **Architecture**: Single-file monolith (simple and fast)
-3. ✅ **Agents**: 3 agents in parallel (backend-architect, test-engineer, technical-writer)
-4. ✅ **Scope**: Focus on 3 core checks (complexity, naming, structure)
-5. ✅ **Timeline**: Time-boxed to pressure test execution (~2 hours actual)
-
-### Ready for Phase 3
-
-**Readiness Checklist**:
-- [x] Problem clearly defined
-- [x] Background research completed
-- [x] Feasibility validated
-- [x] Acceptance criteria defined (52 items)
-- [x] Impact radius assessed (48 points, 3 agents)
-- [x] Technical approach decided
-- [x] Risks identified and mitigated
-- [x] Success metrics defined
-
-**Decision**: ✅ **PROCEED TO PHASE 3 - PLANNING & ARCHITECTURE**
-
----
-
-## Appendix
-
-### References
-
-**Claude Enhancer Documentation**:
-- CLAUDE.md: Workflow definitions
-- ARCHITECTURE.md: System architecture
-- .claude/WORKFLOW.md: Detailed workflow guide
-
-**Code Quality Resources**:
-- PEP 8: Python Style Guide
-- Google Shell Style Guide
-- Cyclomatic Complexity Theory
-
-### Glossary
-
-- **Complexity**: Measure of how difficult code is to understand
-- **Nesting Depth**: Number of nested control structures (if, for, while)
-- **snake_case**: Naming convention with lowercase and underscores
-- **PascalCase**: Naming convention with capitalized words
-- **Impact Radius**: Score measuring task risk, complexity, and scope
-
----
-
-*Phase 2 Discovery Completed*
-*Date: 2025-10-19*
-*Total Lines: 420+*
-*Status: APPROVED - Ready for Phase 3*
+**Status**: ✅ Discovery完成，进入Planning阶段
+**Next**: 创建PLAN.md详细实施方案
