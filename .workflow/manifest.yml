@@ -3,83 +3,77 @@
 # Purpose: 定义7 Phases执行顺序、并行策略和默认配置
 # Updated: 2025-10-20 (7 Phases统一升级)
 
-version: 6.6.0
+version: 7.0.0
 project: "Claude Enhancer"
 
-# 7 Phases工作流定义（Phase 1-7）
+# 7 Phases工作流定义（Phase 1-7，与SPEC.yaml对齐）
 phases:
-  - id: P0
-    name: Discovery
-    description: "技术探索与可行性验证"
+  - id: Phase1
+    name: Discovery & Planning
+    description: "探索与规划：需求分析、技术发现、影响评估、架构设计"
     parallel: false
     depends_on: []
-    timeout: 1800  # 30min
+    timeout: 4500  # 75min (30min Discovery + 45min Planning)
     allow_failure: false
     retry: 0
+    substages: ["Branch Check", "Requirements Discussion", "Technical Discovery", "Impact Assessment", "Architecture Planning"]
 
-  - id: P1
-    name: Planning
-    description: "需求分析与详细规划"
-    parallel: false
-    depends_on: [P0]
-    timeout: 2700  # 45min
-    allow_failure: false
-    retry: 0
-
-  - id: P2
-    name: Skeleton
-    description: "架构设计与骨架创建"
-    parallel: false
-    depends_on: [P1]
-    timeout: 1800  # 30min
-    allow_failure: false
-    retry: 0
-
-  - id: P3
+  - id: Phase2
     name: Implementation
     description: "功能实现与代码开发"
     parallel: true  # 可启用并行组
-    depends_on: [P2]
+    depends_on: [Phase1]
     timeout: 7200  # 2h
     allow_failure: false
     retry: 1
     max_parallel_agents: 8
 
-  - id: P4
+  - id: Phase3
     name: Testing
-    description: "测试验证与质量保证"
+    description: "测试验证与质量保证（Quality Gate 1）"
     parallel: true  # 可并行运行不同测试类型
-    depends_on: [P3]
+    depends_on: [Phase2]
     timeout: 3600  # 1h
     allow_failure: false
     retry: 2  # 测试允许重试
     max_parallel_agents: 6
+    quality_gate: true
 
-  - id: P5
+  - id: Phase4
     name: Review
-    description: "代码审查与质量评审"
+    description: "代码审查与质量评审（Quality Gate 2）"
     parallel: false
-    depends_on: [P4]
+    depends_on: [Phase3]
     timeout: 2700  # 45min
     allow_failure: false
     retry: 0
+    quality_gate: true
 
-  - id: P6
+  - id: Phase5
     name: Release
     description: "文档更新与版本发布"
     parallel: false
-    depends_on: [P5]
+    depends_on: [Phase4]
     timeout: 1800  # 30min
     allow_failure: false
     retry: 0
 
-  - id: P7
-    name: Monitor
-    description: "健康监控与SLO验证"
+  - id: Phase6
+    name: Acceptance
+    description: "用户验收与确认"
     parallel: false
-    depends_on: [P6]
+    depends_on: [Phase5]
     timeout: 900  # 15min
-    allow_failure: true  # 监控失败不阻断
+    allow_failure: false
+    retry: 0
+
+  - id: Phase7
+    name: Closure
+    description: "清理临时文件与合并准备"
+    parallel: false
+    depends_on: [Phase6]
+    timeout: 900  # 15min
+    allow_failure: false
     retry: 0
 
 # 默认配置

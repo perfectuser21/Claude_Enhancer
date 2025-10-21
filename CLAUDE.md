@@ -810,14 +810,43 @@ bash tools/verify-core-structure.sh
 
 【核心活动】：
   🧹 清理.temp/目录（<10MB）
-  🔍 最终版本一致性验证 ⛔
+  🔍 最终版本一致性验证 ⛔（6个文件）
+  🔄 Phase系统一致性验证
   📝 检查文档规范
   🚀 准备PR
 
-【必须执行】：`bash scripts/check_version_consistency.sh`
+【必须执行的验证】：
+  1. `bash scripts/check_version_consistency.sh` - 验证6个文件版本统一
+  2. `bash tools/verify-phase-consistency.sh` - 验证Phase系统一致性
+
+【完整Cleanup Checklist】：
+  版本文件（6个必须一致）：
+  - [ ] VERSION
+  - [ ] .claude/settings.json
+  - [ ] .workflow/manifest.yml
+  - [ ] package.json
+  - [ ] CHANGELOG.md
+  - [ ] .workflow/SPEC.yaml ← 新增检查
+
+  Phase系统（必须统一为7 Phases）：
+  - [ ] SPEC.yaml: total_phases = 7
+  - [ ] manifest.yml: phases数组长度 = 7
+  - [ ] manifest.yml: Phase ID格式 = Phase1-Phase7
+  - [ ] CLAUDE.md: 描述为7-Phase系统
+
+  临时文件清理：
+  - [ ] .temp/目录大小 <10MB
+  - [ ] 测试session数据已删除
+  - [ ] 临时分析报告已归档/删除
+
+  核心结构验证：
+  - [ ] `bash tools/verify-core-structure.sh` 通过
+  - [ ] LOCK.json已更新（如有必要）
 
 【核心产出】：
   ✅ 干净的分支
+  ✅ 版本完全一致（6/6文件）
+  ✅ Phase系统统一（7 Phases）
   ✅ merge-ready状态
 
 【检查点】：4个（CL_S001-S002 + G002-G003）
