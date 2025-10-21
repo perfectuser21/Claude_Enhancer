@@ -30,8 +30,10 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y jq yq shellcheck
-          echo "✓ Installed: jq, yq, shellcheck"
+          sudo apt-get install -y jq shellcheck
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+          echo "✓ Installed: jq, yq (mikefarah), shellcheck"
 
       - name: Verify core verification script exists
         run: |
@@ -216,8 +218,10 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y jq yq
-          echo "✓ Installed: jq, yq"
+          sudo apt-get install -y jq
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+          echo "✓ Installed: jq, yq (mikefarah)"
 
       - name: Verify pre-merge audit script exists
         run: |
