@@ -118,10 +118,7 @@ fi
 # 验证Phase 1-7的检查点分布
 phase_distribution=$(jq -r '.by_phase | {P1,P2,P3,P4,P5,P6,P7} | to_entries[] | "\(.key)=\(.value)"' "$CHECKS" 2>/dev/null || echo "")
 
-expected_distribution="P1=33 P2=15 P3=15 P4=10 P5=15 P6=5 P7=4"
-actual_distribution=$(echo "$phase_distribution" | tr '\n' ' ' | sed 's/ $//')
-
-# 简化验证：只检查总数
+# 验证总数：只检查总数是否≥97
 phase_sum=$(echo "$phase_distribution" | awk -F'=' '{sum+=$2} END {print sum}')
 
 if [ "$phase_sum" -lt 97 ]; then
@@ -149,13 +146,7 @@ fi
 # ═══════════════════════════════════════════════════════════
 # 8. 版本一致性验证（5文件）
 # ═══════════════════════════════════════════════════════════
-version_files=(
-    "VERSION"
-    ".claude/settings.json"
-    "package.json"
-    ".workflow/manifest.yml"
-    "CHANGELOG.md"
-)
+# 验证VERSION, settings.json, package.json, manifest.yml, CHANGELOG.md
 
 # 提取VERSION文件的版本号
 version_main=$(cat VERSION 2>/dev/null | tr -d '\n' || echo "")
