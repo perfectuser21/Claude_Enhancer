@@ -1,6 +1,6 @@
 {
   "spec_sha256": "124e4c21c52472a5cb047fcee1913aa72c3664c56c37868e36740ab466a6f3c6",
-  "generated_at": "2025-10-21T02:49:08Z",
+  "generated_at": "2025-10-21T03:20:16Z",
   "generated_by": "tools/update-lock.sh",
   "core_structure": {
     "total_phases": 7,
@@ -14,7 +14,7 @@
     "docs/CHECKS_INDEX.json": "d51457ac7decd9988255f76390c9ace6389e91c5cdc27e4fa132f890bb38a0a9",
     "scripts/workflow_validator_v97.sh": "69b0165cb6b79108c28deac3c6b313e87852aafe35dde45b7c76a6340ad1735d",
     "scripts/pre_merge_audit.sh": "9e835bd0dc231aa981c58e4c32f832b0474ef331437b49e2ad76c1efcdbbd90f",
-    "scripts/static_checks.sh": "5bf886288ed9b1c273234537595ad46e73a776706f1b682dec13c0897ddf1a1f",
+    "scripts/static_checks.sh": "ca5ee6e29adbab260ca69e8b5e5d9556de939a83fbc3ad3c84cf82fd73d1302b",
     "tools/verify-core-structure.sh": "5f62ed04abf5115f6ccdebec6726be8bb709f89d23ed974a25e316f9c6874726"
   },
   "version": "6.6.0",
