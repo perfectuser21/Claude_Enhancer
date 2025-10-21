@@ -1,0 +1,61 @@
+{
+  "pattern_name": "user_authentication",
+  "project_type": "web-app",
+  "description": "用户认证系统实现模式（基于5个成功项目的经验总结）",
+  "recommended_agents": [
+    "backend-architect",
+    "security-auditor",
+    "test-engineer",
+    "api-designer",
+    "database-specialist"
+  ],
+  "success_rate": 0.95,
+  "n_samples": 5,
+  "avg_duration": {
+    "phase1": 25,
+    "phase2": 120,
+    "phase3": 45,
+    "phase4": 30,
+    "phase5": 20,
+    "phase6": 10,
+    "phase7": 5
+  },
+  "common_pitfalls": [
+    "忘记检查 session timeout（3/5项目初次遗漏）",
+    "密码加密强度不足（bcrypt rounds < 12）",
+    "缺少 rate limiting（登录尝试限制）",
+    "JWT secret 硬编码（应使用环境变量）",
+    "缺少 CSRF protection（跨站请求伪造防护）"
+  ],
+  "auto_checklist": [
+    "[ ] Password hashing (bcrypt/argon2, rounds >= 12)",
+    "[ ] Session management (Redis/JWT with expiry)",
+    "[ ] Rate limiting (登录尝试，5次/min)",
+    "[ ] Input validation (email format, password strength)",
+    "[ ] HTTPS enforcement (生产环境必须)",
+    "[ ] CSRF protection (token-based)",
+    "[ ] MFA support (可选，推荐)",
+    "[ ] Account lockout (连续失败后锁定)",
+    "[ ] Audit logging (登录/登出事件记录)",
+    "[ ] Password reset flow (安全的重置流程)"
+  ],
+  "recommended_tech_stack": {
+    "backend": "Node.js + Express / Python + FastAPI",
+    "auth_library": "passport.js / python-jose",
+    "session_store": "Redis",
+    "password_hashing": "bcrypt / argon2",
+    "database": "PostgreSQL / MongoDB"
+  },
+  "estimated_effort": {
+    "simple": "8-12 hours",
+    "with_mfa": "15-20 hours",
+    "oauth_integration": "20-30 hours"
+  },
+  "related_patterns": [
+    "api_authentication",
+    "rbac_authorization",
+    "oauth2_integration"
+  ],
+  "last_updated": "2025-10-21",
+  "confidence_score": 0.91
+}

@@ -1,0 +1,14 @@
+{
+  "session_id": "20251021_143022",
+  "project": "todo-app",
+  "project_type": "web-app",
+  "phase": 3,
+  "duration_seconds": 1847,
+  "agents_used": ["frontend-specialist", "test-engineer"],
+  "errors": [],
+  "warnings": ["shellcheck: SC2086"],
+  "success": true,
+  "timestamp": "2025-10-21T14:30:22Z",
+  "files_changed": 12,
+  "quality_score": 95
+}

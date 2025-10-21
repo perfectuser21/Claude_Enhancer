@@ -1,0 +1,188 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Claude Enhancer 7.0 Knowledge Base Schema",
+  "description": "Data format for learning system (Milestone 2-3)",
+  "version": "7.0.0",
+
+  "definitions": {
+    "session": {
+      "type": "object",
+      "description": "Single Phase execution record",
+      "required": ["session_id", "project", "project_type", "phase", "duration_seconds", "agents_used", "errors", "success", "timestamp"],
+      "properties": {
+        "session_id": {
+          "type": "string",
+          "pattern": "^[0-9]{8}_[0-9]{6}$",
+          "description": "Unique session identifier (YYYYMMDD_HHMMSS)",
+          "example": "20251021_143022"
+        },
+        "project": {
+          "type": "string",
+          "description": "Project name (basename)",
+          "example": "todo-app"
+        },
+        "project_path": {
+          "type": "string",
+          "description": "Absolute path to project (optional, privacy-sensitive)"
+        },
+        "project_type": {
+          "type": "string",
+          "enum": ["web-app", "cli-tool", "library", "api-service", "mobile-app", "data-pipeline", "other"],
+          "description": "Project archetype"
+        },
+        "phase": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 7,
+          "description": "Phase number (1-7)"
+        },
+        "duration_seconds": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total execution time in seconds"
+        },
+        "agents_used": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "List of agent IDs used in this Phase",
+          "example": ["frontend-specialist", "test-engineer", "backend-architect"]
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "message": {"type": "string"},
+              "code": {"type": "string"},
+              "severity": {"enum": ["low", "medium", "high", "critical"]}
+            }
+          },
+          "description": "Errors encountered during execution"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Non-fatal warnings",
+          "example": ["shellcheck: SC2086", "unused import in src/utils.js"]
+        },
+        "success": {
+          "type": "boolean",
+          "description": "Phase completed successfully"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp",
+          "example": "2025-10-21T14:30:22Z"
+        },
+        "files_changed": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of files modified in this Phase (optional)"
+        },
+        "quality_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Automated quality score (0-100, optional)"
+        }
+      }
+    },
+
+    "metrics": {
+      "type": "object",
+      "description": "Aggregated performance metrics",
+      "properties": {
+        "project_type": {
+          "type": "string",
+          "description": "Project type this metric applies to"
+        },
+        "phases": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "avg_duration_seconds": {"type": "number"},
+              "median_duration_seconds": {"type": "number"},
+              "success_rate": {"type": "number", "minimum": 0, "maximum": 1},
+              "sample_count": {"type": "integer"}
+            }
+          },
+          "description": "Phase-level statistics (keyed by phase number)"
+        },
+        "common_errors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "error": {"type": "string"},
+              "count": {"type": "integer"},
+              "last_seen": {"type": "string", "format": "date-time"}
+            }
+          },
+          "description": "Top frequent errors"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+
+    "pattern": {
+      "type": "object",
+      "description": "Success pattern for a specific project type",
+      "properties": {
+        "pattern_name": {
+          "type": "string",
+          "description": "Pattern identifier",
+          "example": "user_authentication"
+        },
+        "project_type": {
+          "type": "string",
+          "description": "Applicable project type"
+        },
+        "recommended_agents": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Optimal agent combination based on historical data"
+        },
+        "success_rate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Success rate when using this pattern (0-1)"
+        },
+        "avg_duration": {
+          "type": "object",
+          "additionalProperties": {"type": "integer"},
+          "description": "Average duration per phase (in minutes)",
+          "example": {"phase1": 25, "phase2": 120, "phase3": 45}
+        },
+        "common_pitfalls": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Common mistakes to avoid",
+          "example": ["忘记检查 session timeout", "密码加密强度不足"]
+        },
+        "auto_checklist": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Auto-generated checklist items"
+        },
+        "sample_count": {
+          "type": "integer",
+          "description": "Number of successful projects used to create this pattern"
+        }
+      }
+    }
+  },
+
+  "notes": [
+    "Session data: append-only, one file per session (sessions/YYYYMMDD_HHMMSS.json)",
+    "Metrics: aggregated weekly, one file per project_type (metrics/{type}_duration.json)",
+    "Patterns: manually curated initially, auto-generated in Milestone 3",
+    "Privacy: project_path is optional; can be anonymized or omitted",
+    "Retention: sessions older than 6 months move to archive/"
+  ]
+}
