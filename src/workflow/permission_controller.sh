@@ -478,7 +478,7 @@ validate_bash_command() {
     case "$phase" in
         "P0")
             # Only git operations allowed in P0
-            if [[ "$command" =~ ^git\ ]] || [[ "$command" =~ checkout|branch|status ]]; then
+            if [[ "$command" =~ ^git ]] || [[ "$command" =~ checkout|branch|status ]]; then
                 return 0
             else
                 log "DEBUG" "Non-git command '$command' not allowed in P0"
@@ -501,7 +501,7 @@ validate_bash_command() {
             ;;
         "P5"|"P6")
             # Only git operations in commit and review phases
-            if [[ "$command" =~ ^git\ ]] || [[ "$command" =~ commit|push|merge|pr\ create ]]; then
+            if [[ "$command" =~ ^git ]] || [[ "$command" =~ commit|push|merge ]] || [[ "$command" == "pr create" ]]; then
                 return 0
             else
                 log "DEBUG" "Non-git command '$command' not allowed in phase '$phase'"
