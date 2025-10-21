@@ -101,7 +101,7 @@ jobs:
 
       - name: Upload verification result
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: core-verification-result
           path: result.json
@@ -196,7 +196,7 @@ jobs:
 
       - name: Upload static checks log
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: static-checks-log
           path: static_checks.log
@@ -298,7 +298,7 @@ jobs:
 
       - name: Upload audit log
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pre-merge-audit-log
           path: audit.log
@@ -315,7 +315,7 @@ jobs:
 
     steps:
       - name: Download all artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
 
       - name: Generate summary
         run: |
