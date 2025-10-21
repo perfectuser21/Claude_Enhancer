@@ -82,15 +82,23 @@ if ! grep -q "agent_usage_enforcer.sh" "$PROJECT_ROOT/.claude/settings.json" 2>/
     ((config_issues++)) || true
 fi
 
-# 检查git hooks安装
+# 检查git hooks安装（CI环境除外）
 if [[ ! -x "$PROJECT_ROOT/.git/hooks/pre-commit" ]]; then
-    log_fail "pre-commit hook not installed or not executable"
-    ((config_issues++)) || true
+    if [ "${CI:-false}" = "true" ]; then
+        log_warn "pre-commit hook not installed (OK in CI environment)"
+    else
+        log_fail "pre-commit hook not installed or not executable"
+        ((config_issues++)) || true
+    fi
 fi
 
 if [[ ! -x "$PROJECT_ROOT/.git/hooks/pre-push" ]]; then
-    log_fail "pre-push hook not installed or not executable"
-    ((config_issues++)) || true
+    if [ "${CI:-false}" = "true" ]; then
+        log_warn "pre-push hook not installed (OK in CI environment)"
+    else
+        log_fail "pre-push hook not installed or not executable"
+        ((config_issues++)) || true
+    fi
 fi
 
 # 检查bypassPermissionsMode

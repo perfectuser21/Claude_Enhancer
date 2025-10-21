@@ -1,6 +1,6 @@
 {
   "spec_sha256": "124e4c21c52472a5cb047fcee1913aa72c3664c56c37868e36740ab466a6f3c6",
-  "generated_at": "2025-10-21T04:08:35Z",
+  "generated_at": "2025-10-21T04:55:59Z",
   "generated_by": "tools/update-lock.sh",
   "core_structure": {
     "total_phases": 7,
@@ -13,7 +13,7 @@
     ".workflow/gates.yml": "61a24afd4050fc7ca2f76ab97ac0e2ad064d1ff08d8dea2c701855c23a48e738",
     "docs/CHECKS_INDEX.json": "d51457ac7decd9988255f76390c9ace6389e91c5cdc27e4fa132f890bb38a0a9",
     "scripts/workflow_validator_v97.sh": "69b0165cb6b79108c28deac3c6b313e87852aafe35dde45b7c76a6340ad1735d",
-    "scripts/pre_merge_audit.sh": "9e835bd0dc231aa981c58e4c32f832b0474ef331437b49e2ad76c1efcdbbd90f",
+    "scripts/pre_merge_audit.sh": "0831d4adf2cfb97bb420a8f98ae817c9737c8664bc380484da92ea8f3b2373e9",
     "scripts/static_checks.sh": "0f8602aa8050b4a87e648608f4ed357c5a53f7d784f1f0cc559fdf42cc2a8714",
     "tools/verify-core-structure.sh": "5f62ed04abf5115f6ccdebec6726be8bb709f89d23ed974a25e316f9c6874726"
   },
