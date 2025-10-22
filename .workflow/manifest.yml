@@ -1,22 +1,22 @@
 # Claude Enhancer Workflow Manifest
 # Version: 1.0.0
 # Purpose: 定义7 Phases执行顺序、并行策略和默认配置
-# Updated: 2025-10-20 (7 Phases统一升级)
+# Updated: 2025-10-22 (v7.1.0 - Dual-Language Checklist System)
 
-version: 7.0.1  # Post-Review Improvements (4 Alex recommendations)
+version: 7.1.0  # Dual-Language Checklist System Integration
 project: "Claude Enhancer"
 
 # 7 Phases工作流定义（Phase 1-7，与SPEC.yaml对齐）
 phases:
   - id: Phase1
     name: Discovery & Planning
-    description: "探索与规划：需求分析、技术发现、影响评估、架构设计"
+    description: "探索与规划：需求分析、技术发现（含双语Checklist生成）、影响评估、架构设计"
     parallel: false
     depends_on: []
     timeout: 4500  # 75min (30min Discovery + 45min Planning)
     allow_failure: false
     retry: 0
-    substages: ["Branch Check", "Requirements Discussion", "Technical Discovery", "Impact Assessment", "Architecture Planning"]
+    substages: ["Branch Check", "Requirements Discussion", "Technical Discovery", "Dual-Language Checklist Generation", "Impact Assessment", "Architecture Planning"]
 
   - id: Phase2
     name: Implementation
@@ -41,7 +41,7 @@ phases:
 
   - id: Phase4
     name: Review
-    description: "代码审查与质量评审（Quality Gate 2）"
+    description: "代码审查与质量评审（Quality Gate 2） + Checklist验证"
     parallel: false
     depends_on: [Phase3]
     timeout: 2700  # 45min
@@ -60,7 +60,7 @@ phases:
 
   - id: Phase6
     name: Acceptance
-    description: "用户验收与确认"
+    description: "用户验收与确认（含双语验收报告生成）"
     parallel: false
     depends_on: [Phase5]
     timeout: 900  # 15min
@@ -112,6 +112,38 @@ gates:
   strict_mode: true  # 严格模式：必须通过gate才能进入下一phase
   auto_sign: false  # 不自动签署，需显式调用sign_gate.sh
 
+# Checklist System Configuration (NEW in v7.1.0)
+checklist:
+  enabled: true
+  user_version: ".workflow/ACCEPTANCE_CHECKLIST.md"
+  technical_version: ".workflow/TECHNICAL_CHECKLIST.md"
+  traceability: ".workflow/TRACEABILITY.yml"
+  auto_generate: true
+  validate_on_phase2: true
+  report_on_phase6: true
+  forbidden_terms:
+    - API
+    - JWT
+    - BCrypt
+    - Redis
+    - OAuth
+    - JSON
+    - YAML
+    - HTTP
+    - SQL
+    - NoSQL
+    - Token
+    - Hash
+    - Encrypt
+    - Decrypt
+    - Cookie
+    - Session
+    - Database
+    - Table
+    - Index
+    - Query
+    - Schema
+
 # 日志配置
 logging:
   enabled: true
@@ -134,6 +166,9 @@ notifications:
 metadata:
   created_at: "2025-10-09"
   created_by: "Claude Code"
-  purpose: "修复CE-ISSUE-001: 缺少manifest定义"
+  purpose: "7 Phases统一工作流 + Dual-Language Checklist System"
   version_control: "git"
   license: "MIT"
+  updated_at: "2025-10-22"
+  updated_by: "Agent 6 (workflow-optimizer)"
+  update_reason: "Integration of dual-language checklist system"

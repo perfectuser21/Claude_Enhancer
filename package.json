@@ -1,7 +1,7 @@
 {
   "name": "claude-enhancer",
-  "version": "7.0.1",
-  "description": "Claude Enhancer 7.0.1 - 专业级个人AI编程工作流系统 (7 Phases + Learning System + Post-Review Improvements)",
+  "version": "7.1.0",
+  "description": "Claude Enhancer 7.1.0 - 专业级个人AI编程工作流系统 (7 Phases + Learning System + Dual-Language Checklist)",
   "main": "index.js",
   "scripts": {
     "test": "jest",
@@ -25,7 +25,12 @@
     "build": "tsc",
     "prepare": "husky install",
     "precommit": "npm run lint && npm run test",
-    "prepush": "npm run coverage:verify"
+    "prepush": "npm run coverage:verify",
+    "checklist": "bash .claude/hooks/checklist_generator.sh .workflow/user_request.md",
+    "checklist:validate": "bash .claude/hooks/validate_checklist_mapping.sh",
+    "checklist:report": "bash .claude/hooks/acceptance_report_generator.sh",
+    "checklist:clean": "rm -f .workflow/ACCEPTANCE_CHECKLIST.md .workflow/TECHNICAL_CHECKLIST.md .workflow/TRACEABILITY.yml .workflow/ACCEPTANCE_REPORT.md",
+    "checklist:test": "npm run checklist:clean && npm run checklist && npm run checklist:validate && npm run checklist:report"
   },
   "keywords": [
     "claude",
@@ -35,7 +40,9 @@
     "assistant",
     "workflow",
     "bdd",
-    "slo"
+    "slo",
+    "checklist",
+    "dual-language"
   ],
   "author": "Claude Enhancer Team",
   "license": "MIT",

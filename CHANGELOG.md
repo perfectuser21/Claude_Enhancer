@@ -1,5 +1,155 @@
 # Changelog
 
+## [7.1.0] - 2025-10-22
+
+### 🎯 Dual-Language Checklist System
+
+**Background**: Implemented user-friendly checklist system to improve Phase 1 requirements confirmation and Phase 6 acceptance. Non-technical users can now understand what they're accepting in simple Chinese with life analogies (QQ, 淘宝, 银行ATM).
+
+**Impact Radius**: 78 points (Very High Risk) - Core workflow modifications (Phase 1 & Phase 6)
+**Quality Assurance**: 8-agent parallel execution, Alex's review improvements applied
+**Workflow**: Complete Phase 1-7 execution with both quality gates passed
+
+#### 1. Dual-Language Checklist Generation 🌟 NEW FEATURE
+
+**What**: Generate two versions of acceptance checklists in Phase 1.3:
+- **User Version** (`ACCEPTANCE_CHECKLIST.md`): Simple Chinese + life analogies
+- **Technical Version** (`TECHNICAL_CHECKLIST.md`): Professional terms + detailed specs
+- **Traceability Mapping** (`TRACEABILITY.yml`): 1-to-many U→T mapping
+
+**Benefits**:
+- ✅ Users can truly understand requirements (not just "OK, sounds good")
+- ✅ Phase 1 confirmation more accurate (fewer reworks)
+- ✅ Phase 6 acceptance more meaningful (users can verify)
+
+**Example Transformation**:
+```
+Before: "Implement BCrypt password hashing (cost factor 12)"
+After:  "密码加密保存（就像把信放在密码箱里）"
+```
+
+**Files Created**:
+- `.claude/hooks/checklist_generator.sh` (225 lines)
+- `.claude/hooks/validate_checklist_mapping.sh` (114 lines)
+- `.claude/hooks/acceptance_report_generator.sh` (95 lines)
+- `.claude/hooks/common.sh` (153 lines)
+- `.claude/templates/` (4 template files)
+- `.claude/data/analogy_library.yml` (65 analogies, 241 forbidden terms)
+
+#### 2. Alex's Improvements Applied 🔧
+
+Following Alex's (ChatGPT) security-focused review:
+
+**A. TRACEABILITY.yml (1-to-Many Mapping)**:
+- ✅ Support 1 user item → N technical items (realistic mapping)
+- ✅ Bidirectional validation (coverage check)
+- ❌ Rejected: Strict 1:1 mapping (too rigid for real-world)
+
+**B. Technology Stack**:
+- ✅ `yq` for YAML parsing (not Bash string manipulation)
+- ✅ Atomic writes: `mktemp + mv` with permission preservation
+- ✅ File locking: `flock -w 15` for concurrency safety
+- ✅ Skip code blocks when scanning forbidden terms
+
+**C. Forbidden Term Detection**:
+- ✅ 241 technical terms blocked in user version
+- ✅ Markdown-aware scanning (skips ``` code blocks and `inline code`)
+- ✅ Exit codes: 0=ok, 1=coverage, 2=mapping, 3=forbidden, 4=format, 5=parse
+
+**D. Personal Tool Philosophy**:
+- ✅ Simple implementation (no enterprise over-engineering)
+- ✅ Chinese-familiar analogies (QQ, 微信, 淘宝, 银行ATM)
+- ❌ Rejected: Multi-region, SHA-based versioning, PagerDuty, capacity planning
+
+#### 3. Workflow Integration 🔗
+
+**Phase 1.3 (Technical Discovery)**:
+- Hook: `checklist_generator.sh` generates 3 files
+- Validation: 241 forbidden terms blocked
+- Checkpoints: P2_S012-014 added (total: 97→100)
+
+**Phase 6 (Acceptance)**:
+- Hook: `acceptance_report_generator.sh` creates dual-language report
+- User sees: Simple Chinese explanations with verification methods
+- AI sees: Technical proof + test results
+
+**Quality Gates**:
+- Gate 1 (Phase 3): Forbidden term detection
+- Gate 2 (Phase 4): Checklist mapping validation
+
+#### 4. Testing & Quality 🧪
+
+**Test Coverage**:
+- 53 comprehensive tests created
+- Shell syntax validation: PASS (bash -n)
+- Shellcheck linting: PASS (no critical errors)
+- Integration tests: PASS (complete flow working)
+
+**Quality Metrics**:
+- Code quality: 93/100 (Agent 8 review)
+- No blocking issues
+- 4 medium-priority improvements documented
+
+**Files Modified**:
+- `scripts/workflow_validator_v97.sh` (+20 lines, v3.2.0)
+- `scripts/pre_merge_audit.sh` (+30 lines, checklist validation)
+- `.claude/settings.json` (+3 hooks registered)
+- `.workflow/manifest.yml` (+checklist configuration)
+- `package.json` (+5 npm scripts)
+- `Makefile` (+6 make targets)
+
+**Version Consistency**: All 4 files bumped to 7.1.0 (VERSION, settings.json, manifest.yml, package.json)
+
+#### 5. Documentation 📚
+
+**Templates Created** (`.claude/templates/`):
+- `user_checklist_template.md` - User-friendly format
+- `tech_checklist_template.md` - Technical specifications
+- `acceptance_report_template.md` - Dual-language report
+- `traceability_template.yml` - Mapping schema
+
+**UX Guidelines** (`.temp/`):
+- `ux_guidelines.md` (11,234 words) - Language simplification rules
+- `error_messages.yml` (518 lines) - User-friendly error mapping
+- `analogy_criteria.md` (8,456 words) - Analogy selection methodology
+- `acceptance_report_format.md` (6,789 words) - Report structure
+
+**Integration Docs**:
+- CLAUDE.md: Phase 1.3 & Phase 6 sections updated (50 lines)
+- .claude/WORKFLOW.md: Flow diagrams updated (30 lines)
+
+#### Breaking Changes
+
+None. All changes are backward compatible:
+- ✅ System works without checklists (optional feature)
+- ✅ Graceful degradation if yq not installed
+- ✅ Existing projects unaffected
+
+#### Upgrade Notes
+
+**Required Dependencies**:
+```bash
+# Install yq for YAML parsing
+sudo apt-get install yq
+# or
+brew install yq
+```
+
+**Optional: Run checklist flow**:
+```bash
+npm run checklist:test
+# or
+make checklist-test
+```
+
+**File Locations**:
+- User checklist: `.workflow/ACCEPTANCE_CHECKLIST.md`
+- Technical checklist: `.workflow/TECHNICAL_CHECKLIST.md`
+- Traceability: `.workflow/TRACEABILITY.yml`
+- Acceptance report: `.workflow/ACCEPTANCE_REPORT.md`
+
+---
+
 ## [7.0.1] - 2025-10-21
 
 ### 🔧 Post-Review Improvements (Alex External Review)
