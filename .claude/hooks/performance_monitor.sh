@@ -53,7 +53,7 @@ fi
 # 记录到性能日志（静默进行）
 PERF_LOG=".claude/logs/performance.log"
 if [ -n "$TOOL_NAME" ]; then
-    mkdir -p $(dirname "$PERF_LOG") 2>/dev/null || true
+    mkdir -p "$(dirname "$PERF_LOG")" 2>/dev/null || true
     {
         flock -x 200
         echo "$(date '+%Y-%m-%d %H:%M:%S') | $TOOL_NAME | ${EXEC_TIME}ms" >> "$PERF_LOG"

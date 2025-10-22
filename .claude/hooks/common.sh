@@ -65,10 +65,12 @@ get_analogy() {
 
         for ((i=0; i<count; i++)); do
             local pattern analogy
+            # shellcheck disable=SC1087
             pattern=$(yq eval ".categories.$category[$i].pattern" "$lib" 2>/dev/null)
 
             # Test if feature matches this pattern
             if echo "$feature" | grep -qiE "$pattern"; then
+                # shellcheck disable=SC1087
                 analogy=$(yq eval ".categories.$category[$i].analogy" "$lib" 2>/dev/null)
                 echo "$analogy"
                 return
@@ -100,10 +102,12 @@ get_why() {
 
         for ((i=0; i<count; i++)); do
             local pattern why
+            # shellcheck disable=SC1087
             pattern=$(yq eval ".categories.$category[$i].pattern" "$lib" 2>/dev/null)
 
             # Test if feature matches this pattern
             if echo "$feature" | grep -qiE "$pattern"; then
+                # shellcheck disable=SC1087
                 why=$(yq eval ".categories.$category[$i].why" "$lib" 2>/dev/null)
                 echo "$why"
                 return
