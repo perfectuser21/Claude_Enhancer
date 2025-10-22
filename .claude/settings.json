@@ -3,13 +3,14 @@
   "project": "Claude Enhancer",
   "description": "四层架构分层系统 + 自愈系统 + 工作流强制执行 + Dual-Language Checklist System",
   "permissions": {
+    "defaultMode": "bypassPermissions",
     "allow": [
-      "Bash(**)",
-      "Read(**)",
-      "Write(**)",
-      "Edit(**)",
-      "Glob(**)",
-      "Grep(**)",
+      "Bash",
+      "Read",
+      "Write",
+      "Edit",
+      "Glob",
+      "Grep",
       "Task",
       "TodoWrite",
       "WebSearch",
@@ -18,11 +19,8 @@
       "KillShell",
       "BashOutput",
       "SlashCommand"
-    ],
-    "bypassPermissionsMode": true,
-    "defaultMode": "auto"
+    ]
   },
-  "autoConfirm": true,
   "hooks": {
     "UserPromptSubmit": [
       ".claude/hooks/requirement_clarification.sh",
