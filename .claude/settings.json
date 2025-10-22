@@ -1,7 +1,7 @@
 {
-  "version": "7.1.0",
+  "version": "7.1.1",
   "project": "Claude Enhancer",
-  "description": "四层架构分层系统 + 自愈系统 + 工作流强制执行 + Dual-Language Checklist System",
+  "description": "四层架构分层系统 + 自愈系统 + 工作流强制执行 + Dual-Language Checklist System + Workflow Interference Fix",
   "permissions": {
     "defaultMode": "bypassPermissions",
     "allow": [

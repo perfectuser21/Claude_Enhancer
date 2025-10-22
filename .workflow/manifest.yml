@@ -1,9 +1,9 @@
 # Claude Enhancer Workflow Manifest
 # Version: 1.0.0
 # Purpose: 定义7 Phases执行顺序、并行策略和默认配置
-# Updated: 2025-10-22 (v7.1.0 - Dual-Language Checklist System)
+# Updated: 2025-10-22 (v7.1.1 - Workflow Interference Fix)
 
-version: 7.1.0  # Dual-Language Checklist System Integration
+version: 7.1.1  # Workflow Interference Fix + Dual-Language Checklist System
 project: "Claude Enhancer"
 
 # 7 Phases工作流定义（Phase 1-7，与SPEC.yaml对齐）
