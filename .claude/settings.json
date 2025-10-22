@@ -18,7 +18,9 @@
       "NotebookEdit",
       "KillShell",
       "BashOutput",
-      "SlashCommand"
+      "SlashCommand",
+      "AskUserQuestion",
+      "Skill"
     ]
   },
   "hooks": {
