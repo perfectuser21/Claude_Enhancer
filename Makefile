@@ -248,3 +248,56 @@ quickstart: env-check dev health ## Quick start development environment
 # All-in-one production deployment
 prod-deploy: env-check prod-build deploy health monitor ## Complete production deployment
 	@echo "$(GREEN)Production deployment completed!$(RESET)"
+# =============================================================================
+# Dual-Language Checklist System (v7.1.0)
+# =============================================================================
+
+.PHONY: checklist checklist-validate checklist-report checklist-clean checklist-test checklist-help
+
+checklist-help: ## Show checklist system help
+	@echo "$(BLUE)Claude Enhancer 7.1.0 - Dual-Language Checklist System$(RESET)"
+	@echo ""
+	@echo "$(YELLOW)Available checklist commands:$(RESET)"
+	@echo "  $(GREEN)checklist$(RESET)          - Generate dual-language checklists from user_request.md"
+	@echo "  $(GREEN)checklist-validate$(RESET) - Validate checklist mapping consistency"
+	@echo "  $(GREEN)checklist-report$(RESET)   - Generate acceptance report"
+	@echo "  $(GREEN)checklist-clean$(RESET)    - Remove all generated checklist files"
+	@echo "  $(GREEN)checklist-test$(RESET)     - Test complete checklist flow"
+	@echo ""
+	@echo "Example workflow:"
+	@echo "  1. make checklist          # Generate checklists"
+	@echo "  2. make checklist-validate # Validate mappings"
+	@echo "  3. make checklist-report   # Generate acceptance report"
+	@echo "  4. make checklist-clean    # Clean up (when done)"
+
+checklist: ## Generate dual-language checklists from user_request.md
+	@echo "$(BLUE)Generating dual-language checklists...$(RESET)"
+	@bash .claude/hooks/checklist_generator.sh .workflow/user_request.md
+	@echo "$(GREEN)✓ Checklists generated successfully$(RESET)"
+
+checklist-validate: ## Validate checklist mapping
+	@echo "$(BLUE)Validating checklist system...$(RESET)"
+	@bash .claude/hooks/validate_checklist_mapping.sh
+	@echo "$(GREEN)✓ Validation complete$(RESET)"
+
+checklist-report: ## Generate acceptance report
+	@echo "$(BLUE)Generating acceptance report...$(RESET)"
+	@bash .claude/hooks/acceptance_report_generator.sh
+	@echo "$(GREEN)✓ Acceptance report generated$(RESET)"
+
+checklist-clean: ## Clean generated checklists
+	@echo "$(YELLOW)Cleaning generated checklists...$(RESET)"
+	@rm -f .workflow/ACCEPTANCE_CHECKLIST.md
+	@rm -f .workflow/TECHNICAL_CHECKLIST.md
+	@rm -f .workflow/TRACEABILITY.yml
+	@rm -f .workflow/ACCEPTANCE_REPORT.md
+	@echo "$(GREEN)✓ Checklists cleaned$(RESET)"
+
+checklist-test: checklist-clean checklist checklist-validate checklist-report ## Test complete checklist flow
+	@echo ""
+	@echo "$(BLUE)═══════════════════════════════════════════════════════$(RESET)"
+	@echo "$(GREEN)✓ Complete checklist flow tested successfully$(RESET)"
+	@echo "$(BLUE)═══════════════════════════════════════════════════════$(RESET)"
+	@echo ""
+	@echo "Generated files:"
+	@ls -lh .workflow/ACCEPTANCE_CHECKLIST.md .workflow/TECHNICAL_CHECKLIST.md .workflow/TRACEABILITY.yml .workflow/ACCEPTANCE_REPORT.md 2>/dev/null || echo "  (some files may not exist)"

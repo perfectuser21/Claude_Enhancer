@@ -1,0 +1,33 @@
+version: "1.0"
+project:
+  name: "双语Checklist系统测试"
+  created: "2025-10-22"
+
+links:
+  - u: U-001
+    t: [T-001]
+    description: "用户友好的验收清单（简单语言）"
+  - u: U-002
+    t: [T-002]
+    description: "技术版验收清单（专业术语）"
+  - u: U-003
+    t: [T-003]
+    description: "追踪映射关系（TRACEABILITY.yml）"
+  - u: U-004
+    t: [T-004]
+    description: "Phase 6验收报告生成"
+  - u: U-005
+    t: [T-005]
+    description: "Phase 1生成双语Checklist"
+  - u: U-006
+    t: [T-006]
+    description: "Phase 6生成验收报告"
+  - u: U-007
+    t: [T-007]
+    description: "自动映射用户项到技术项"
+  - u: U-008
+    t: [T-008]
+    description: "禁用术语检查"
+  - u: U-009
+    t: [T-009]
+    description: "生活场景类比匹配"

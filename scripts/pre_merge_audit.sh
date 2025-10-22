@@ -420,3 +420,32 @@ else
     echo ""
     exit 0
 fi
+
+# ═══════════════════════════════════════════════════════════
+# Checklist Consistency Check
+# ═══════════════════════════════════════════════════════════
+echo ""
+echo "📋 Checklist Consistency Check"
+
+if [ -f ".workflow/ACCEPTANCE_CHECKLIST.md" ] && [ -f ".workflow/TECHNICAL_CHECKLIST.md" ]; then
+  # Run validator
+  if bash .claude/hooks/validate_checklist_mapping.sh 2>/dev/null; then
+    echo "  ✓ Checklist mapping consistent"
+  else
+    echo "  ✗ Checklist mapping has issues"
+    CRITICAL_ISSUES=$((CRITICAL_ISSUES+1))
+  fi
+  
+  # Check user version has no forbidden terms
+  forbidden_count=$(grep -ciE "\b(API|JWT|BCrypt|Redis|OAuth|JSON|YAML|HTTP|SQL|NoSQL|Token|Hash|Encrypt|Decrypt|Cookie|Session|Database|Table|Index|Query|Schema)\b" \
+    .workflow/ACCEPTANCE_CHECKLIST.md 2>/dev/null || echo 0)
+  
+  if [ "$forbidden_count" -gt 0 ]; then
+    echo "  ✗ User checklist contains $forbidden_count forbidden terms"
+    CRITICAL_ISSUES=$((CRITICAL_ISSUES+1))
+  else
+    echo "  ✓ User checklist language appropriate"
+  fi
+else
+  echo "  ⊘ No checklists found (may not be applicable)"
+fi

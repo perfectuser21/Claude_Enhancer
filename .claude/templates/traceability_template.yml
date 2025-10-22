@@ -1,0 +1,245 @@
+# Traceability Mapping: User Requirements to Technical Implementation
+# Version: 7.1.0
+# Purpose: 1-to-many mapping between user-facing features and technical implementation items
+
+# Schema Version
+schema_version: "1.0"
+
+# Project Information
+project:
+  name: "{{PROJECT_NAME}}"
+  version: "{{VERSION}}"
+  created: "{{DATE}}"
+  last_updated: "{{LAST_UPDATE_DATE}}"
+
+# Mapping Configuration
+mapping:
+  # Each user requirement can map to multiple technical items
+  # Format: user_id → [tech_ids]
+  # Example: U-001 (user login) → [T-001 (auth API), T-002 (password hash), T-SEC-001 (security)]
+
+  links:
+    # ═══════════════════════════════════════════════════════════
+    # Example 1: User Authentication Feature
+    # ═══════════════════════════════════════════════════════════
+    - user_id: "U-001"
+      user_description: "用户可以通过邮箱和密码登录系统"
+      user_analogy: "就像QQ登录一样，输入账号密码就能进入"
+      tech_ids:
+        - "T-001"  # POST /api/auth/login endpoint implementation
+        - "T-002"  # Password hashing with BCrypt
+        - "T-SEC-001"  # Authentication security standards
+        - "T-TEST-001"  # Login flow unit tests
+      mapping_rationale: |
+        User wants simple login experience.
+        Technical implementation requires:
+        - API endpoint for login requests
+        - Secure password storage/verification
+        - Security standards compliance
+        - Comprehensive testing
+      completion_dependencies:
+        - "All tech_ids must be completed for U-001 to be considered done"
+      verification_path: |
+        User verification: Try login with email/password → Success
+        Tech verification: All T-001, T-002, T-SEC-001, T-TEST-001 passed
+
+    # ═══════════════════════════════════════════════════════════
+    # Example 2: Password Reset Feature
+    # ═══════════════════════════════════════════════════════════
+    - user_id: "U-002"
+      user_description: "用户忘记密码时可以通过邮箱重置"
+      user_analogy: "就像银行卡密码忘了，通过手机验证码重置"
+      tech_ids:
+        - "T-003"  # POST /api/auth/forgot-password endpoint
+        - "T-004"  # Email service integration
+        - "T-005"  # Reset token generation and validation
+        - "T-SEC-002"  # Token expiration and security
+      mapping_rationale: |
+        User needs password recovery mechanism.
+        Technical implementation requires:
+        - Password reset request endpoint
+        - Email delivery system
+        - Secure token management
+        - Time-limited token validation
+      completion_dependencies:
+        - "T-003, T-004 must be completed before T-005"
+        - "T-SEC-002 must validate T-005 implementation"
+      verification_path: |
+        User verification: Request reset → Receive email → Reset password → Login
+        Tech verification: All T-003, T-004, T-005, T-SEC-002 passed
+
+    # ═══════════════════════════════════════════════════════════
+    # Example 3: Session Management
+    # ═══════════════════════════════════════════════════════════
+    - user_id: "U-003"
+      user_description: "登录后24小时内不需要重新登录"
+      user_analogy: "就像商场会员卡，一天内随便进出不需要重新办卡"
+      tech_ids:
+        - "T-006"  # JWT token generation
+        - "T-007"  # Token refresh mechanism
+        - "T-SEC-003"  # Session security and timeout
+        - "T-PERF-001"  # Token verification performance
+      mapping_rationale: |
+        User expects persistent session for convenience.
+        Technical implementation requires:
+        - Token-based authentication
+        - Automatic token refresh
+        - Security with appropriate timeout
+        - Fast token validation
+      completion_dependencies:
+        - "T-006 is prerequisite for T-007"
+        - "T-SEC-003 validates both T-006 and T-007"
+      verification_path: |
+        User verification: Login → Use for 24h → No re-login required
+        Tech verification: Token lifecycle tests, performance benchmarks
+
+    # ═══════════════════════════════════════════════════════════
+    # Template for Adding New Mappings
+    # ═══════════════════════════════════════════════════════════
+    # - user_id: "U-XXX"
+    #   user_description: "用户功能描述（用简单的话说）"
+    #   user_analogy: "就像...（生活中的例子）"
+    #   tech_ids:
+    #     - "T-XXX"  # Technical implementation item 1
+    #     - "T-XXX"  # Technical implementation item 2
+    #     - "T-SEC-XXX"  # Related security requirement
+    #     - "T-TEST-XXX"  # Related testing requirement
+    #   mapping_rationale: |
+    #     Why these technical items are needed for this user feature.
+    #     Explain the relationship between user need and technical solution.
+    #   completion_dependencies:
+    #     - "Describe any ordering or dependency constraints"
+    #   verification_path: |
+    #     User verification: Step-by-step user action
+    #     Tech verification: Technical tests to run
+
+# ═══════════════════════════════════════════════════════════
+# Reverse Lookup: Technical Items to User Features
+# ═══════════════════════════════════════════════════════════
+# This section is auto-generated for quick lookup
+# "Which user features are affected if I change T-XXX?"
+
+reverse_mapping:
+  - tech_id: "T-001"
+    affects_user_ids: ["U-001"]
+    impact_description: "Changes to login API affect user login experience"
+
+  - tech_id: "T-002"
+    affects_user_ids: ["U-001"]
+    impact_description: "Changes to password hashing affect login security"
+
+  - tech_id: "T-003"
+    affects_user_ids: ["U-002"]
+    impact_description: "Changes to password reset API affect recovery flow"
+
+  - tech_id: "T-004"
+    affects_user_ids: ["U-002"]
+    impact_description: "Changes to email service affect password reset notifications"
+
+  - tech_id: "T-005"
+    affects_user_ids: ["U-002"]
+    impact_description: "Changes to token management affect reset security"
+
+  - tech_id: "T-006"
+    affects_user_ids: ["U-003"]
+    impact_description: "Changes to JWT generation affect session persistence"
+
+  - tech_id: "T-007"
+    affects_user_ids: ["U-003"]
+    impact_description: "Changes to token refresh affect seamless UX"
+
+  - tech_id: "T-SEC-001"
+    affects_user_ids: ["U-001"]
+    impact_description: "Security changes affect login safety"
+
+  - tech_id: "T-SEC-002"
+    affects_user_ids: ["U-002"]
+    impact_description: "Security changes affect password reset safety"
+
+  - tech_id: "T-SEC-003"
+    affects_user_ids: ["U-003"]
+    impact_description: "Security changes affect session timeout behavior"
+
+# ═══════════════════════════════════════════════════════════
+# Statistics and Metrics
+# ═══════════════════════════════════════════════════════════
+statistics:
+  total_user_items: 3
+  total_tech_items: 10
+  total_mappings: 3
+  average_tech_items_per_user_feature: 3.33
+  orphaned_user_items: []  # User items with no tech mapping
+  orphaned_tech_items: []  # Tech items not mapped to any user feature
+
+# ═══════════════════════════════════════════════════════════
+# Validation Rules
+# ═══════════════════════════════════════════════════════════
+validation:
+  rules:
+    - "Every user_id must have at least 1 tech_id"
+    - "Every tech_id should map to at least 1 user_id (unless it's infrastructure)"
+    - "User IDs format: U-001, U-002, etc."
+    - "Tech IDs format: T-001, T-SEC-001, T-TEST-001, T-PERF-001, etc."
+    - "All referenced IDs must exist in respective checklists"
+
+  validation_script: ".claude/hooks/validate_checklist_mapping.sh"
+
+  auto_validation_on:
+    - "Pre-commit hook"
+    - "Phase 6 acceptance generation"
+
+# ═══════════════════════════════════════════════════════════
+# Usage Guide
+# ═══════════════════════════════════════════════════════════
+usage:
+  for_ai:
+    - "Use this file to understand user-to-tech mapping during Phase 1"
+    - "Auto-generate acceptance report in Phase 6 using this mapping"
+    - "Validate completion: all tech_ids for a user_id must be done"
+
+  for_scripts:
+    - "checklist_generator.sh reads this to create linked checklists"
+    - "acceptance_report_generator.sh uses this for traceability section"
+    - "validate_checklist_mapping.sh ensures integrity"
+
+  for_developers:
+    - "Understand impact: if you change T-XXX, check reverse_mapping"
+    - "Trace requirements: from user feature to implementation"
+    - "Verify completeness: ensure no orphaned items"
+
+# ═══════════════════════════════════════════════════════════
+# Maintenance
+# ═══════════════════════════════════════════════════════════
+maintenance:
+  update_when:
+    - "New user feature added (add to ACCEPTANCE_CHECKLIST.md + here)"
+    - "New technical item added (add to TECHNICAL_CHECKLIST.md + here)"
+    - "Scope change (update tech_ids for existing user_id)"
+
+  auto_generation:
+    enabled: true
+    script: ".claude/hooks/generate_traceability.sh"
+    triggers:
+      - "When ACCEPTANCE_CHECKLIST.md changes"
+      - "When TECHNICAL_CHECKLIST.md changes"
+
+  validation_frequency: "On every commit (pre-commit hook)"
+
+# ═══════════════════════════════════════════════════════════
+# Notes
+# ═══════════════════════════════════════════════════════════
+notes: |
+  This file is the single source of truth for user-to-tech mapping.
+
+  Key principles:
+  1. One user feature (U-XXX) can map to many tech items (T-XXX)
+  2. One tech item can support multiple user features (see reverse_mapping)
+  3. Always keep user_description simple and user_analogy relatable
+  4. Tech IDs should reference specific, testable implementations
+  5. Update both forward and reverse mappings when adding new items
+
+  File location: .workflow/TRACEABILITY.yml
+  Related files:
+  - .workflow/ACCEPTANCE_CHECKLIST.md (user version)
+  - .workflow/TECHNICAL_CHECKLIST.md (tech version)
+  - .temp/acceptance_report.md (generated in Phase 6)

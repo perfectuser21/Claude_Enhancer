@@ -1,0 +1,27 @@
+{
+  "meta": {
+    "version": "1.0",
+    "schema": "by_type_phase",
+    "last_updated": "2025-10-21T10:53:15Z",
+    "sample_count": 2
+  },
+  "data":
+[
+  {
+    "project_type": "cli-tool",
+    "phase": 2,
+    "sample_count": 1,
+    "avg_duration_seconds": 450,
+    "success_rate": 1,
+    "common_errors": []
+  },
+  {
+    "project_type": "web-app",
+    "phase": 3,
+    "sample_count": 1,
+    "avg_duration_seconds": 1847,
+    "success_rate": 1,
+    "common_errors": []
+  }
+]
+}

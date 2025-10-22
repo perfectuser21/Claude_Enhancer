@@ -1,7 +1,7 @@
 {
-  "version": "7.0.1",
+  "version": "7.1.0",
   "project": "Claude Enhancer",
-  "description": "四层架构分层系统 + 自愈系统 + 工作流强制执行 + Bypass Permissions Mode",
+  "description": "四层架构分层系统 + 自愈系统 + 工作流强制执行 + Dual-Language Checklist System",
   "permissions": {
     "allow": [
       "Bash(**)",
@@ -46,6 +46,27 @@
       ".claude/hooks/concurrent_optimizer.sh"
     ],
     "PostToolUse": [
+      {
+        "name": "checklist_generator",
+        "path": ".claude/hooks/checklist_generator.sh",
+        "trigger": "phase1.3_complete",
+        "description": "Generate dual-language checklists after Phase 1.3",
+        "optional": true
+      },
+      {
+        "name": "validate_checklist_mapping",
+        "path": ".claude/hooks/validate_checklist_mapping.sh",
+        "trigger": "pre_phase2",
+        "description": "Validate checklist mapping before Phase 2",
+        "optional": false
+      },
+      {
+        "name": "acceptance_report_generator",
+        "path": ".claude/hooks/acceptance_report_generator.sh",
+        "trigger": "phase6_start",
+        "description": "Generate acceptance report in Phase 6",
+        "optional": true
+      },
       ".claude/hooks/merge_confirmer.sh",
       ".claude/hooks/unified_post_processor.sh",
       ".claude/hooks/agent_error_recovery.sh",
