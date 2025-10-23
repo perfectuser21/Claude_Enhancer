@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="5">
+    <title>CE Comprehensive Dashboard v2</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .version {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .main-sections {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .section {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 25px;
+            border: 2px solid #e5e7eb;
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            color: #667eea;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .subsection {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .subsection:last-child {
+            margin-bottom: 0;
+        }
+
+        .subsection-title {
+            font-size: 1.3em;
+            color: #444;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .stat {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 12px;
+        }
+
+        .feature-item {
+            background: #f0f4ff;
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 3px solid #667eea;
+            font-size: 0.95em;
+        }
+
+        .feature-id {
+            font-weight: bold;
+            color: #667eea;
+            margin-right: 8px;
+        }
+
+        .feature-priority-p0 {
+            border-left-color: #dc2626;
+        }
+
+        .feature-priority-p1 {
+            border-left-color: #f59e0b;
+        }
+
+        .feature-priority-p2 {
+            border-left-color: #10b981;
+        }
+
+        .decision-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .decision-item {
+            background: #fff;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            border-left: 3px solid #667eea;
+        }
+
+        .decision-critical {
+            border-left-color: #dc2626;
+        }
+
+        .decision-warning {
+            border-left-color: #f59e0b;
+        }
+
+        .decision-info {
+            border-left-color: #3b82f6;
+        }
+
+        .decision-date {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .decision-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .project-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 2px solid #e5e7eb;
+        }
+
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .project-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .project-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-idle {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-completed {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e5e7eb;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9em;
+            transition: width 0.3s ease;
+        }
+
+        .project-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            font-size: 0.9em;
+        }
+
+        .meta-item {
+            background: #f9fafb;
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        .meta-label {
+            color: #666;
+            font-size: 0.85em;
+        }
+
+        .meta-value {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .no-data {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+            font-style: italic;
+        }
+
+        .loading {
+            text-align: center;
+            color: #667eea;
+            padding: 20px;
+            font-size: 1.1em;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e5e7eb;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 1200px) {
+            .main-sections {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .section-title {
+                font-size: 1.5em;
+            }
+
+            .stat-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .feature-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 CE Comprehensive Dashboard v2</h1>
+            <div class="version">Claude Enhancer 7.2.0 | Auto-refresh every 5 seconds</div>
+        </header>
+
+        <div class="main-sections">
+            <!-- Section 1: CE Capabilities -->
+            <div class="section">
+                <h2 class="section-title">📊 CE Capabilities Showcase</h2>
+
+                <!-- Core Stats -->
+                <div class="subsection">
+                    <h3 class="subsection-title">🎯 Core System Stats</h3>
+                    <div class="stat-grid">
+                        <div class="stat">
+                            <div class="stat-value" id="total-phases">-</div>
+                            <div class="stat-label">Phases</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value" id="total-checkpoints">-</div>
+                            <div class="stat-label">Checkpoints</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value" id="quality-gates">-</div>
+                            <div class="stat-label">Quality Gates</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value" id="hard-blocks">-</div>
+                            <div class="stat-label">Hard Blocks</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Features (F001-F012) -->
+                <div class="subsection">
+                    <h3 class="subsection-title">🎨 Features (F001-F012)</h3>
+                    <div class="feature-list" id="feature-list">
+                        <div class="loading">Loading features...</div>
+                    </div>
+                </div>
+
+                <!-- Learning System -->
+                <div class="subsection">
+                    <h3 class="subsection-title">🧠 Learning System</h3>
+                    <div class="stat-grid">
+                        <div class="stat">
+                            <div class="stat-value" id="total-decisions">-</div>
+                            <div class="stat-label">Total Decisions</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value" id="cache-size">-</div>
+                            <div class="stat-label">Memory Cache</div>
+                        </div>
+                    </div>
+                    <div class="decision-list" id="decision-list">
+                        <div class="loading">Loading decisions...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Project Monitoring -->
+            <div class="section">
+                <h2 class="section-title">📡 Multi-Project Monitoring</h2>
+
+                <div class="subsection">
+                    <h3 class="subsection-title">🔥 Active Projects</h3>
+                    <div id="project-list">
+                        <div class="loading">Loading projects...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            Claude Enhancer v7.2.0 | Professional AI Programming Workflow System<br>
+            Last updated: <span id="last-update">-</span>
+        </footer>
+    </div>
+
+    <script>
+        // API base URL
+        const API_BASE = '';
+
+        // Update timestamp
+        function updateTimestamp() {
+            document.getElementById('last-update').textContent = new Date().toLocaleString('zh-CN');
+        }
+
+        // Load CE Capabilities
+        async function loadCapabilities() {
+            try {
+                const response = await fetch(`${API_BASE}/api/capabilities`);
+                const data = await response.json();
+
+                // Update core stats
+                document.getElementById('total-phases').textContent = data.core_stats.total_phases || '-';
+                document.getElementById('total-checkpoints').textContent = data.core_stats.total_checkpoints || '-';
+                document.getElementById('quality-gates').textContent = data.core_stats.quality_gates || '-';
+                document.getElementById('hard-blocks').textContent = data.core_stats.hard_blocks || '-';
+
+                // Update features
+                const featureList = document.getElementById('feature-list');
+                if (data.features && data.features.length > 0) {
+                    featureList.innerHTML = data.features.map(f => `
+                        <div class="feature-item feature-priority-${f.priority.toLowerCase()}">
+                            <span class="feature-id">${f.id}</span>
+                            <span>${f.name}</span>
+                        </div>
+                    `).join('');
+                } else {
+                    featureList.innerHTML = '<div class="no-data">No features found</div>';
+                }
+            } catch (error) {
+                console.error('Error loading capabilities:', error);
+                document.getElementById('feature-list').innerHTML = `<div class="no-data">Error: ${error.message}</div>`;
+            }
+        }
+
+        // Load Learning System
+        async function loadLearning() {
+            try {
+                const response = await fetch(`${API_BASE}/api/learning`);
+                const data = await response.json();
+
+                // Update stats
+                document.getElementById('total-decisions').textContent = data.statistics.total_decisions || '0';
+                const cacheSize = data.statistics.memory_cache_size;
+                document.getElementById('cache-size').textContent = cacheSize > 1024
+                    ? `${(cacheSize / 1024).toFixed(1)}KB`
+                    : `${cacheSize}B`;
+
+                // Update decisions
+                const decisionList = document.getElementById('decision-list');
+                if (data.decisions && data.decisions.length > 0) {
+                    decisionList.innerHTML = data.decisions.map(d => `
+                        <div class="decision-item decision-${d.importance}">
+                            <div class="decision-date">${d.date}</div>
+                            <div class="decision-title">${d.title}</div>
+                            <div>${d.decision.substring(0, 100)}${d.decision.length > 100 ? '...' : ''}</div>
+                        </div>
+                    `).join('');
+                } else {
+                    decisionList.innerHTML = '<div class="no-data">No recent decisions</div>';
+                }
+            } catch (error) {
+                console.error('Error loading learning:', error);
+                document.getElementById('decision-list').innerHTML = `<div class="no-data">Error: ${error.message}</div>`;
+            }
+        }
+
+        // Load Projects
+        async function loadProjects() {
+            try {
+                const response = await fetch(`${API_BASE}/api/projects`);
+                const data = await response.json();
+
+                const projectList = document.getElementById('project-list');
+                if (data.projects && data.projects.length > 0) {
+                    projectList.innerHTML = data.projects.map(p => `
+                        <div class="project-card">
+                            <div class="project-header">
+                                <div class="project-name">${p.name}</div>
+                                <div class="project-status status-${p.status}">${p.status.toUpperCase()}</div>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${p.progress_percentage}%">
+                                    ${p.progress_percentage}%
+                                </div>
+                            </div>
+                            <div class="project-meta">
+                                <div class="meta-item">
+                                    <div class="meta-label">Branch</div>
+                                    <div class="meta-value">${p.branch}</div>
+                                </div>
+                                <div class="meta-item">
+                                    <div class="meta-label">Current Phase</div>
+                                    <div class="meta-value">${p.current_phase || '-'}</div>
+                                </div>
+                                <div class="meta-item">
+                                    <div class="meta-label">Duration</div>
+                                    <div class="meta-value">${p.duration_formatted || '-'}</div>
+                                </div>
+                                <div class="meta-item">
+                                    <div class="meta-label">Events</div>
+                                    <div class="meta-value">${p.total_events || 0}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    projectList.innerHTML = '<div class="no-data">No active projects</div>';
+                }
+            } catch (error) {
+                console.error('Error loading projects:', error);
+                document.getElementById('project-list').innerHTML = `<div class="no-data">Error: ${error.message}</div>`;
+            }
+        }
+
+        // Load all data
+        async function loadAll() {
+            updateTimestamp();
+            await Promise.all([
+                loadCapabilities(),
+                loadLearning(),
+                loadProjects()
+            ]);
+        }
+
+        // Initial load
+        loadAll();
+
+        // Auto-refresh every 5 seconds (backup to meta refresh)
+        setInterval(loadAll, 5000);
+    </script>
+</body>
+</html>
