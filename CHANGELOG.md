@@ -1,5 +1,82 @@
 # Changelog
 
+## [7.1.2] - 2025-10-22
+
+### ✨ Added: CE Dashboard + Telemetry System
+
+**Feature**: Real-time web dashboard for monitoring Claude Enhancer workflow progress (Phase 1-7).
+
+**Components Added**:
+- ✅ **Telemetry Hook**: `.claude/hooks/telemetry_logger.sh` - Logs workflow events to JSONL
+- ✅ **Dashboard Backend**: `tools/dashboard.py` - Python http.server on port 8080
+- ✅ **Event Storage**: `.temp/ce_events.jsonl` - JSONL format with 10MB auto-rotation
+- ✅ **User Guide**: `docs/DASHBOARD_GUIDE.md` - Complete usage documentation
+
+**User Benefits**:
+- **Real-time Progress**: Monitor current Phase (1-7) and progress percentage in browser
+- **Multi-Terminal Workflow**: Run CE workflow in Terminal 1, view dashboard in Terminal 2
+- **Auto-Refresh**: Dashboard updates every 5 seconds automatically (no manual refresh)
+- **Remote Access**: SSH tunnel support for monitoring remote CE instances
+- **Zero Dependencies**: Standard library only (Python 3.x, no pip install required)
+
+**Technical Details**:
+- **Branch**: `feature/ce-dashboard-telemetry`
+- **Impact Radius**: 42 (Medium Risk) - 3 new files, 6 modified files
+- **Event Types**: task_start, task_end, phase_start, phase_end, error
+- **Phase Progress Mapping**: Phase1=14%, Phase2=29%, Phase3=43%, Phase4=57%, Phase5=71%, Phase6=86%, Phase7=100%
+- **Performance Targets**: <100ms telemetry overhead, <1s dashboard load, <50MB memory
+- **Security**: Localhost-only, no authentication (trusted environment), no sensitive data in events
+
+**Files Created**:
+- `.claude/hooks/telemetry_logger.sh` (195 lines) - Telemetry event logging hook
+- `tools/dashboard.py` (660 lines) - Dashboard HTTP server with embedded HTML/CSS
+- `docs/DASHBOARD_GUIDE.md` (580 lines) - User guide with troubleshooting
+- `PLAN.md` (1650+ lines) - Complete implementation plan
+- `ACCEPTANCE_CHECKLIST.md` - 22 acceptance criteria + 7 BDD scenarios
+- `TECHNICAL_CHECKLIST.md` - Implementation checklist for Phase 1-7
+
+**Files Modified**:
+- `.claude/settings.json` - Added telemetry_logger.sh to PostToolUse hooks
+- `VERSION` → 7.1.2
+- `.workflow/manifest.yml` → 7.1.2
+- `.workflow/SPEC.yaml` → 7.1.2
+- `package.json` → 7.1.2
+- `CHANGELOG.md` (this file)
+
+**Usage**:
+```bash
+# Terminal 1: Run CE workflow
+cd /home/xx/dev/Claude\ Enhancer
+# Work on tasks...
+
+# Terminal 2: Start dashboard
+python3 tools/dashboard.py
+
+# Browser: Open http://localhost:8080
+```
+
+**API Endpoints**:
+- `GET /` - HTML dashboard with auto-refresh
+- `GET /api/progress` - Current task progress JSON
+- `GET /api/events` - Recent events JSON
+- `GET /api/stats` - Statistics JSON
+- `GET /api/health` - Health check JSON
+
+**Architecture Decision**:
+- ✅ Python http.server (NOT FastAPI - simpler, zero dependencies)
+- ✅ JSONL file storage (NOT PostgreSQL - lightweight, no DB setup)
+- ✅ Meta refresh (NOT WebSocket - simpler, no real-time complexity)
+- ✅ Single project MVP (multi-project architecture ready for v7.2.0)
+
+**Quality Gates**: Phase 3 (Testing) - Pending | Phase 4 (Review) - Pending
+
+**Related**:
+- User Request: "帮我看下能不能做个简单的web页面，让我能随时看到进度（实时能最好）"
+- Design Philosophy: Simple, lightweight, zero external dependencies
+- Future Enhancement: v7.2.0 will add multi-project support via `.claude/telemetry_config.json`
+
+---
+
 ## [7.1.1] - 2025-10-22
 
 ### 🐛 Fixed: Workflow Interference from Global Config
