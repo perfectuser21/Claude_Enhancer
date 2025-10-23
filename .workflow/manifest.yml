@@ -3,9 +3,8 @@
 # Purpose: 定义7 Phases执行顺序、并行策略和默认配置
 # Updated: 2025-10-22 (v7.1.1 - Workflow Interference Fix)
 
-version: 7.1.1  # Workflow Interference Fix + Dual-Language Checklist System
+version: 7.2.0 # CE Dashboard + Telemetry System
 project: "Claude Enhancer"
-
 # 7 Phases工作流定义（Phase 1-7，与SPEC.yaml对齐）
 phases:
   - id: Phase1
@@ -13,105 +12,93 @@ phases:
     description: "探索与规划：需求分析、技术发现（含双语Checklist生成）、影响评估、架构设计"
     parallel: false
     depends_on: []
-    timeout: 4500  # 75min (30min Discovery + 45min Planning)
+    timeout: 4500 # 75min (30min Discovery + 45min Planning)
     allow_failure: false
     retry: 0
     substages: ["Branch Check", "Requirements Discussion", "Technical Discovery", "Dual-Language Checklist Generation", "Impact Assessment", "Architecture Planning"]
-
   - id: Phase2
     name: Implementation
     description: "功能实现与代码开发"
-    parallel: true  # 可启用并行组
+    parallel: true # 可启用并行组
     depends_on: [Phase1]
-    timeout: 7200  # 2h
+    timeout: 7200 # 2h
     allow_failure: false
     retry: 1
     max_parallel_agents: 8
-
   - id: Phase3
     name: Testing
     description: "测试验证与质量保证（Quality Gate 1）"
-    parallel: true  # 可并行运行不同测试类型
+    parallel: true # 可并行运行不同测试类型
     depends_on: [Phase2]
-    timeout: 3600  # 1h
+    timeout: 3600 # 1h
     allow_failure: false
-    retry: 2  # 测试允许重试
+    retry: 2 # 测试允许重试
     max_parallel_agents: 6
     quality_gate: true
-
   - id: Phase4
     name: Review
     description: "代码审查与质量评审（Quality Gate 2） + Checklist验证"
     parallel: false
     depends_on: [Phase3]
-    timeout: 2700  # 45min
+    timeout: 2700 # 45min
     allow_failure: false
     retry: 0
     quality_gate: true
-
   - id: Phase5
     name: Release
     description: "文档更新与版本发布"
     parallel: false
     depends_on: [Phase4]
-    timeout: 1800  # 30min
+    timeout: 1800 # 30min
     allow_failure: false
     retry: 0
-
   - id: Phase6
     name: Acceptance
     description: "用户验收与确认（含双语验收报告生成）"
     parallel: false
     depends_on: [Phase5]
-    timeout: 900  # 15min
+    timeout: 900 # 15min
     allow_failure: false
     retry: 0
-
   - id: Phase7
     name: Closure
     description: "清理临时文件与合并准备"
     parallel: false
     depends_on: [Phase6]
-    timeout: 900  # 15min
+    timeout: 900 # 15min
     allow_failure: false
     retry: 0
-
 # 默认配置
 defaults:
-  timeout: 3600  # 默认1小时超时
+  timeout: 3600 # 默认1小时超时
   allow_failure: false
   retry: 0
   max_parallel_agents: 4
   shell: "/bin/bash"
   set_flags: "set -euo pipefail"
-
 # 执行策略
 execution:
-  strategy: "sequential"  # 默认串行，除非phase.parallel=true
-  fail_fast: true  # 快速失败
+  strategy: "sequential" # 默认串行，除非phase.parallel=true
+  fail_fast: true # 快速失败
   continue_on_error: false
-  dry_run_available: true  # 支持--dry-run模式
-
+  dry_run_available: true # 支持--dry-run模式
 # 并行配置（引用STAGES.yml获取详细并行组）
 parallelism:
   enabled: true
   config_file: ".workflow/STAGES.yml"
   conflict_detection: true
   downgrade_on_conflict: true
-
 # 状态管理
 state:
   current_file: ".phase/current"
   active_file: ".workflow/ACTIVE"
-  sync_check: true  # 启用状态同步检查
-  expiry_hours: 24  # ACTIVE文件24小时过期
-
+  sync_check: true # 启用状态同步检查
+  expiry_hours: 24 # ACTIVE文件24小时过期
 # Gates集成
 gates:
   config_file: ".workflow/gates.yml"
-  strict_mode: true  # 严格模式：必须通过gate才能进入下一phase
-  auto_sign: false  # 不自动签署，需显式调用sign_gate.sh
-
+  strict_mode: true # 严格模式：必须通过gate才能进入下一phase
+  auto_sign: false # 不自动签署，需显式调用sign_gate.sh
 # Checklist System Configuration (NEW in v7.1.0)
 checklist:
   enabled: true
@@ -143,7 +130,6 @@ checklist:
     - Index
     - Query
     - Schema
-
 # 日志配置
 logging:
   enabled: true
@@ -154,14 +140,12 @@ logging:
     max_size_mb: 10
     max_files: 5
   format: "[{timestamp}] [{level}] [{phase}] {message}"
-
 # 通知配置
 notifications:
-  enabled: false  # 默认关闭
+  enabled: false # 默认关闭
   on_phase_complete: false
   on_gate_fail: false
   on_workflow_complete: false
-
 # 元数据
 metadata:
   created_at: "2025-10-09"

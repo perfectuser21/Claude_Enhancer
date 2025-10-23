@@ -1,7 +1,7 @@
 # Claude Enhancer 核心规格说明书（SPEC）
-# 版本: v7.1.1
+# 版本: v7.2.0
 # 用途: 定义"核心不变层" - AI修改这些内容需要在CHANGELOG明确说明理由
-# 更新日期: 2025-10-22
+# 更新日期: 2025-10-23
 
 # ═══════════════════════════════════════════════════════════
 # 第1层：核心不变层（修改需要理由）
@@ -9,7 +9,7 @@
 
 metadata:
   name: "Claude Enhancer"
-  version: "7.1.1"
+  version: "7.2.0"
   type: "single_workflow"  # 单一工作流系统（非多工作流平台）
   purpose: "专业级个人AI编程工作流系统"
   target_user: "个人开发者（单用户）"
@@ -233,6 +233,28 @@ verification:
   core_structure_script: "tools/verify-core-structure.sh"
   frequency: "每次PR + 每日健康检查"
   enforcement: "CI必须通过"
+
+  # Lock模式配置（v7.2.0新增）
+  lock_mode: "soft"  # soft | strict
+
+  # 模式说明：
+  # - soft（推荐）：AI修改core结构时，CI警告但不阻止，需要用户手动确认
+  #   适用于：长期项目，允许经过思考的改进
+  #
+  # - strict（严格）：AI修改core结构时，CI直接失败，必须手动运行update-lock.sh
+  #   适用于：需要绝对稳定性的场景
+
+  soft_mode_behavior:
+    - "检测到core结构变化 → CI警告（exit 0）"
+    - "显示差异 → 提示用户review"
+    - "用户批准 → 运行 bash tools/update-lock.sh"
+    - "用户拒绝 → git revert修改"
+
+  strict_mode_behavior:
+    - "检测到core结构变化 → CI失败（exit 1）"
+    - "阻止PR merge"
+    - "必须手动运行 bash tools/update-lock.sh"
+    - "重新push触发CI"
 
 # ═══════════════════════════════════════════════════════════
 # 变更日志要求

@@ -1,5 +1,5 @@
 {
-  "version": "7.1.1",
+  "version": "7.2.0",
   "project": "Claude Enhancer",
   "description": "四层架构分层系统 + 自愈系统 + 工作流强制执行 + Dual-Language Checklist System + Workflow Interference Fix",
   "permissions": {
@@ -68,7 +68,8 @@
       ".claude/hooks/merge_confirmer.sh",
       ".claude/hooks/unified_post_processor.sh",
       ".claude/hooks/agent_error_recovery.sh",
-      ".claude/hooks/phase_completion_validator.sh"
+      ".claude/hooks/phase_completion_validator.sh",
+      ".claude/hooks/telemetry_logger.sh"
     ]
   }
 }

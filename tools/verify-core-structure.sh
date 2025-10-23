@@ -42,9 +42,25 @@ sha() {
     $SHA_CMD "$1" | awk '{print $1}'
 }
 
+# fail() - 根据lock_mode决定是否阻止
 fail() {
-    echo "{\"ok\":false,\"reason\":\"$1\"}"
-    exit 1
+    local reason="$1"
+
+    # 读取lock_mode（从SPEC.yaml，而非LOCK.json）
+    local lock_mode="strict"  # 默认strict
+    if [ -f ".workflow/SPEC.yaml" ]; then
+        lock_mode=$(yq '.verification.lock_mode' .workflow/SPEC.yaml 2>/dev/null || echo "strict")
+    fi
+
+    if [ "$lock_mode" = "soft" ]; then
+        # Soft模式：警告但不阻止
+        echo "{\"ok\":false,\"mode\":\"soft\",\"warning\":\"$reason\",\"message\":\"⚠️  Core structure changed. Please review and run: bash tools/update-lock.sh\"}"
+        exit 0
+    else
+        # Strict模式：阻止
+        echo "{\"ok\":false,\"mode\":\"strict\",\"reason\":\"$reason\",\"message\":\"❌ Core structure verification failed. Run: bash tools/update-lock.sh\"}"
+        exit 1
+    fi
 }
 
 pass() {
