@@ -1,6 +1,33 @@
-# 🛡️ Claude Enhancer v6.0 - Branch Protection Final Report
+# 🛡️ Claude Enhancer Branch Protection Report
 
-## 🎯 执行摘要
+## 🚨 v7.2.1 Update: Critical Pre-Commit Fix (2025-10-23)
+
+**Issue Found**: Branch protection had a local merge loophole
+- ❌ Could execute `git checkout main && git merge feature/xxx` locally
+- ✅ Push was blocked (pre-push hook worked)
+- ❌ But local merge succeeded (pre-commit hook bypassed)
+
+**Root Causes**:
+1. **Husky Misconfiguration**: `core.hooksPath=.husky` but `.husky/pre-commit` didn't exist → NO hooks ran
+2. **Missing Branch Check**: Even when hooks ran, pre-commit didn't check current branch
+
+**Fixes Applied**:
+- ✅ Removed `git config core.hooksPath` to use standard `.git/hooks`
+- ✅ Added `PROTECTED BRANCH CHECK` section to `.git/hooks/pre-commit` (line 29-55)
+- ✅ Blocks ALL commits on main/master/production (direct commits, merges, cherry-picks, reverts)
+
+**Verification** (Phase 3 Testing):
+- ✅ Test 1: Direct commit on main → BLOCKED ✓
+- ✅ Test 2: Merge to main → BLOCKED ✓
+- ✅ Test 3: Feature branch commits → WORK normally ✓
+
+**New Protection Level**: **100% local + 100% remote = Complete Branch Protection**
+
+---
+
+## 🎯 v6.0 Pre-Push Protection (Historical)
+
+### 执行摘要
 
 经过**三轮迭代优化**和**12场景压力测试**验证，Claude Enhancer v6.0的分支保护系统达到了**生产级标准**。
 

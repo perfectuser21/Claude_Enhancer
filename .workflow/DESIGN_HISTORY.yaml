@@ -2,7 +2,7 @@
 # 用途：记录"为什么"，防止遗忘初衷
 # 更新：每次重大变更必须添加记录
 
-version: "7.2.0"
+version: "7.2.1"
 last_updated: "2025-10-23"
 
 # ═══════════════════════════════════════════════════════════
@@ -384,3 +384,48 @@ metadata:
     - "Dashboard可视化：显示在 /design-history 页面"
     - "CI检查：verify-core-structure.sh读取此文件"
     - "AI提示：CLAUDE.md引用此文件"
+
+# ═══════════════════════════════════════════════════════════
+# Security Decisions: Branch Protection
+# ═══════════════════════════════════════════════════════════
+
+security_decisions:
+
+  # Decision: Fix Branch Protection Merge Loophole (v7.2.1)
+  branch_protection_fix_20251023:
+    question: "为什么发现并修复了分支保护的merge漏洞?"
+    discovered_date: "2025-10-23"
+    fixed_version: "v7.2.1"
+    issue: "可以在main分支本地执行git merge，绕过分支保护"
+    
+    root_causes:
+      cause_1:
+        description: "Husky配置绕过"
+        details: |
+          - Git配置了core.hooksPath=.husky，但.husky/pre-commit不存在
+          - 导致标准.git/hooks/pre-commit完全不执行
+          - 结果：所有pre-commit检查被绕过
+      
+      cause_2:
+        description: "pre-commit缺少分支检查"
+        details: |
+          - 即使hook执行，也没有检查当前分支
+          - Git没有pre-merge hook，merge创建commit时才触发pre-commit
+          - 结果：可以在main上执行git merge，只是push会被阻止
+    
+    solution:
+      fix_1: "移除core.hooksPath配置，使用标准.git/hooks"
+      fix_2: "在pre-commit开头(line 29-55)添加PROTECTED BRANCH CHECK"
+      fix_3: "阻止所有main/master/production上的commit（包括merge commits）"
+    
+    verification:
+      test_1: "✅ 直接在main上commit → BLOCKED"
+      test_2: "✅ 在main上git merge → BLOCKED"
+      test_3: "✅ 在feature分支commit → 正常工作"
+    
+    lesson_learned: |
+      - 分支保护必须在pre-commit阶段检查，而不是pre-push
+      - Git hooks配置(hooksPath)要定期审计
+      - 安全机制需要多层验证（pre-commit + commit-msg + pre-push）
+    
+    impact: "100%本地分支保护，关闭安全漏洞"

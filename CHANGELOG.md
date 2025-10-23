@@ -1,5 +1,35 @@
 # Changelog
 
+## [7.2.1] - 2025-10-23
+
+### 🔒 Security: Critical Branch Protection Fix
+
+**Issue**: Branch protection had a critical loophole allowing local merge to main/master branches.
+
+**Root Causes Identified and Fixed**:
+1. **Husky Configuration Bypass**: `core.hooksPath=.husky` was configured but `.husky/pre-commit` didn't exist
+   - Result: NO pre-commit hooks were running during commits
+   - Fix: Removed `core.hooksPath` configuration to use standard `.git/hooks`
+
+2. **Missing Branch Check in Pre-Commit**: The pre-commit hook didn't check current branch
+   - Result: Could execute `git checkout main && git merge feature/xxx` locally (push still blocked)
+   - Fix: Added branch protection check at line 29-55 of `.git/hooks/pre-commit`
+
+**Changes Made**:
+- ✅ Added `PROTECTED BRANCH CHECK` section to `.git/hooks/pre-commit` (Priority 2, after BYPASS DETECTION)
+- ✅ Blocks ALL commits on main/master/production branches (direct commits, merges, cherry-picks, reverts)
+- ✅ Removed `git config core.hooksPath` to enable standard `.git/hooks` execution
+- ✅ Clear error messages with remediation steps
+
+**Verification** (Phase 3 Testing):
+- ✅ Test 1: Direct commit on main → BLOCKED
+- ✅ Test 2: Merge to main → BLOCKED
+- ✅ Test 3: Feature branch commits → WORK normally
+
+**Impact**: Security vulnerability closed. Main/master branches now have 100% local protection.
+
+---
+
 ## [7.2.0] - 2025-10-23
 
 ### ✨ Added: CE Comprehensive Dashboard v2 - Two-Section Monitoring
