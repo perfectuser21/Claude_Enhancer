@@ -852,6 +852,224 @@ bash tools/verify-core-structure.sh
 【检查点】：4个（CL_S001-S002 + G002-G003）
 
 【等待用户】：用户明确说"merge"后才能合并到主线
+
+---
+
+### ⚠️ Phase 7 正确工作流（Critical）
+
+**基于PR #40经验教训和ChatGPT审核反馈**
+
+#### ❌ 错误做法（绝对禁止）
+
+```bash
+# ❌ 错误1：在feature分支直接merge到main
+git checkout main
+git merge feature/xxx
+git push origin main  # 会被hook阻止
+
+# ❌ 错误2：创建PR后立即merge，不等CI
+gh pr create --title "feat: xxx"
+gh pr merge --squash  # ❌ CI还没跑完就merge了
+
+# ❌ 错误3：从feature分支创建tag
+git checkout feature/dashboard-v2
+git tag v7.2.0
+git push origin v7.2.0  # ❌ Tag应该从main创建
+```
+
+**为什么错误**：
+- 错误1：绕过了GitHub的Required Status Checks
+- 错误2：CI没跑完就merge，检查失败也会合并进去
+- 错误3：Tag应该标记main分支的稳定版本，不是feature分支
+
+---
+
+#### ✅ 正确做法（Phase 7标准流程）
+
+**Step 1: 推送feature分支**
+```bash
+# 确保在feature分支
+git checkout feature/xxx
+
+# 推送到远程
+git push -u origin feature/xxx
+```
+
+**Step 2: 创建Pull Request**
+```bash
+# 创建PR（不要立即merge）
+gh pr create \
+  --title "feat: 功能描述" \
+  --body "$(cat <<'EOF'
+## Summary
+- 实现了xxx功能
+- 修复了xxx问题
+
+## Test Plan
+- [ ] 单元测试通过
+- [ ] 集成测试通过
+- [ ] 静态检查通过
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+EOF
+)"
+```
+
+**Step 3: 等待CI完成（Critical）**
+```bash
+# 监控CI状态（必须等待）
+gh pr checks --watch
+
+# 输出示例：
+# ✓ CE Unified Gates        pass  2m 30s
+# ✓ Quality Gate           pass  45s
+# ✓ Test Suite             pass  1m 15s
+# ✓ Security Scan          pass  30s
+# ✓ Syntax Validation      pass  20s
+# ✓ Performance Check      pass  15s
+```
+
+**Step 4: CI通过后才能merge**
+```bash
+# 方式A: 自动合并（推荐）
+gh pr merge --auto --squash
+
+# 方式B: 手动确认merge
+# 1. 检查所有checks都是绿色✓
+# 2. 确认PR已up-to-date
+# 3. 执行merge
+gh pr merge --squash
+```
+
+**Step 5: Merge后由GitHub Actions自动创建tag**
+```yaml
+# .github/workflows/release.yml会自动执行：
+# 1. 检测到main有新commit
+# 2. 读取VERSION文件
+# 3. 创建对应tag（例如v7.2.0）
+# 4. 推送到GitHub
+```
+
+---
+
+#### 🔒 强制保障机制
+
+**三层防护确保正确流程**：
+
+1. **Local Git Hooks**: 阻止直接push到main
+   ```bash
+   # .git/hooks/pre-push会阻止：
+   git push origin main  # ❌ BLOCKED
+   ```
+
+2. **GitHub Branch Protection**: 要求CI通过
+   ```yaml
+   required_status_checks:
+     strict: true
+     checks: ["CE Unified Gates"]
+   ```
+
+3. **Repository Rulesets**: 保护tag创建
+   ```json
+   {
+     "target": "tag",
+     "conditions": {"ref_name": {"include": ["refs/tags/v*"]}},
+     "rules": [{"type": "creation"}, {"type": "required_signatures"}]
+   }
+   ```
+
+---
+
+#### 📋 Phase 7 完整Checklist
+
+**在说"merge"之前必须确认**：
+
+- [ ] ✅ 代码已推送到feature分支
+- [ ] ✅ PR已创建（包含完整描述）
+- [ ] ✅ CI全部通过（`gh pr checks`显示全绿✓）
+- [ ] ✅ PR已up-to-date with main
+- [ ] ✅ 没有merge conflicts
+- [ ] ✅ 版本号已更新（VERSION等6个文件一致）
+- [ ] ✅ CHANGELOG.md已更新
+- [ ] ✅ .temp/目录已清理
+- [ ] ❌ 没有在feature分支创建tag
+
+**确认后执行**：
+```bash
+gh pr merge --auto --squash
+```
+
+**Merge完成后**：
+- ✅ GitHub Actions自动创建tag
+- ✅ Tag自动推送到GitHub
+- ✅ Release notes自动生成
+- ✅ feature分支可以删除
+
+---
+
+#### 🎯 关键原则
+
+1. **Never bypass CI**: 永远等待CI完成再merge
+2. **Tags from main only**: Tag只从main分支创建，由GitHub Actions自动完成
+3. **PR is mandatory**: 即使是自己的项目，也必须走PR流程
+4. **Auto-merge preferred**: 使用`--auto`让GitHub在条件满足时自动merge
+
+---
+
+#### 📊 时间线示例（正确流程）
+
+```
+T+0:00  → git push origin feature/xxx
+T+0:10  → gh pr create
+T+0:11  → CI开始运行（CE Unified Gates触发）
+T+0:15  → Quality Gate ✓
+T+0:30  → Test Suite ✓
+T+0:45  → Security Scan ✓
+T+1:00  → Syntax Validation ✓
+T+1:10  → Performance Check ✓
+T+1:15  → CE Unified Gates ✓ (汇总通过)
+T+1:20  → gh pr merge --auto --squash (自动merge)
+T+1:25  → GitHub Actions检测到main新commit
+T+1:30  → 自动创建tag v7.2.0
+T+1:35  → Tag推送完成 ✅
+```
+
+**关键点**：从PR创建到merge完成，等待了1分钟让CI运行完成。
+
+---
+
+#### 🚨 如果CI失败怎么办
+
+```bash
+# 查看失败原因
+gh pr checks
+
+# 输出示例：
+# ✗ Syntax Validation      fail  45s
+# ✓ Quality Gate          pass  30s
+# ...
+
+# 查看详细日志
+gh pr checks --web  # 在浏览器打开
+
+# 修复问题后重新推送
+git add .
+git commit -m "fix: 修复CI问题"
+git push
+
+# CI会自动重新运行
+gh pr checks --watch
+```
+
+**不要**：
+- ❌ 不要用`--admin`或`--force`强制merge
+- ❌ 不要修改branch protection绕过检查
+- ❌ 不要在local merge然后force push
+
+**应该**：
+- ✅ 修复问题让CI通过
+- ✅ 如果是CI误报，修复CI配置
+- ✅ 保持质量门禁的完整性
 ```
 
 ---
