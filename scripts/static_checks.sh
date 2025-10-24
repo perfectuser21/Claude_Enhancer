@@ -1,6 +1,11 @@
 #!/bin/bash
 # Phase 3 - Static Checks (Quality Gate 1)
 # Comprehensive automated quality validation
+#
+# Usage:
+#   bash scripts/static_checks.sh           # Full check (default)
+#   bash scripts/static_checks.sh --incremental   # Incremental check (fast)
+#   STATIC_CHECK_MODE=incremental bash scripts/static_checks.sh  # Via env var
 set -euo pipefail
 
 # Colors for output
@@ -9,6 +14,40 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
+
+# ============================================
+# 检测增量模式
+# ============================================
+INCREMENTAL_MODE=false
+
+# 方式1: 命令行参数
+if [[ "${1:-}" == "--incremental" ]]; then
+    INCREMENTAL_MODE=true
+fi
+
+# 方式2: 环境变量
+if [[ "${STATIC_CHECK_MODE:-}" == "incremental" ]]; then
+    INCREMENTAL_MODE=true
+fi
+
+# 方式3: CI环境自动启用增量模式（如果不是main分支）
+if [[ "${CI:-false}" == "true" ]]; then
+    CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")
+    if [[ "$CURRENT_BRANCH" != "main" && "$CURRENT_BRANCH" != "master" ]]; then
+        INCREMENTAL_MODE=true
+        echo -e "${BLUE}ℹ️  CI环境检测到feature分支，自动启用增量模式${NC}"
+    fi
+fi
+
+# 如果启用增量模式,委托给incremental脚本
+if [[ "$INCREMENTAL_MODE" == "true" ]]; then
+    echo -e "${BLUE}🚀 使用增量检查模式（快速）${NC}"
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    exec bash "$SCRIPT_DIR/static_checks_incremental.sh"
+fi
+
+echo -e "${BLUE}🔍 使用全量检查模式（完整）${NC}"
+echo ""
 
 # Counters
 TOTAL_CHECKS=0
