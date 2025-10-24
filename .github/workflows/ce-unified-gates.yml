@@ -207,11 +207,11 @@ jobs:
           echo ""
 
           fail=0
+          needs_json='${{ toJSON(needs) }}'
 
           # 检查所有依赖job的结果
           for job in quality-gate test-suite security-scan syntax-validation performance-check; do
-            result="${{ toJSON(needs) }}"
-            job_result=$(echo "$result" | jq -r ".[\"$job\"].result")
+            job_result=$(echo "$needs_json" | jq -r ".[\"$job\"].result")
 
             echo "  $job: $job_result"
 
