@@ -68,10 +68,10 @@ else
     fail "cache.py missing"
 fi
 
-if [[ -f "tools/dashboard_v2_minimal.py" ]]; then
-    pass "dashboard_v2_minimal.py exists"
+if [[ -f "tools/dashboard.py" ]]; then
+    pass "dashboard.py exists"
 else
-    fail "dashboard_v2_minimal.py missing"
+    fail "dashboard.py missing"
 fi
 
 if [[ -f "tools/dashboard_v2.html" ]]; then
@@ -106,10 +106,10 @@ else
     fail "cache.py syntax error"
 fi
 
-if python3 -m py_compile tools/dashboard_v2_minimal.py 2>/dev/null; then
-    pass "dashboard_v2_minimal.py syntax valid"
+if python3 -m py_compile tools/dashboard.py 2>/dev/null; then
+    pass "dashboard.py syntax valid"
 else
-    fail "dashboard_v2_minimal.py syntax error"
+    fail "dashboard.py syntax error"
 fi
 
 echo ""
@@ -150,11 +150,11 @@ echo "[4] Dashboard Server Tests"
 echo "----------------------------------------"
 
 # Kill any existing dashboard
-pkill -f dashboard_v2_minimal.py || true
+pkill -f dashboard.py || true
 sleep 1
 
-# Start dashboard in background
-python3 tools/dashboard_v2_minimal.py > /tmp/dashboard_test.log 2>&1 &
+# Start dashboard in background (port 7777 - default)
+python3 tools/dashboard.py > .temp/dashboard_test.log 2>&1 &
 DASH_PID=$!
 info "Started dashboard with PID: $DASH_PID"
 
@@ -166,7 +166,7 @@ if ps -p $DASH_PID > /dev/null 2>&1; then
     pass "Dashboard process running"
 else
     fail "Dashboard process failed to start"
-    cat /tmp/dashboard_test.log
+    cat .temp/dashboard_test.log
 fi
 
 echo ""
@@ -178,12 +178,12 @@ echo "[5] API Endpoint Tests"
 echo "----------------------------------------"
 
 # Test /api/health
-HTTP_CODE=$(curl -s -o /tmp/health.json -w "%{http_code}" http://localhost:8888/api/health)
+HTTP_CODE=$(curl -s -o .temp/health.json -w "%{http_code}" http://localhost:7777/api/health)
 if [[ "$HTTP_CODE" == "200" ]]; then
     pass "/api/health returns 200"
 
     # Verify JSON structure
-    if python3 -c "import json; d=json.load(open('/tmp/health.json')); assert d['status']=='healthy'; assert 'version' in d" 2>/dev/null; then
+    if python3 -c "import json; d=json.load(open('.temp/health.json')); assert d['status']=='healthy'; assert 'version' in d" 2>/dev/null; then
         pass "/api/health JSON valid"
     else
         fail "/api/health JSON invalid"
@@ -193,15 +193,15 @@ else
 fi
 
 # Test /api/capabilities
-HTTP_CODE=$(curl -s -o /tmp/capabilities.json -w "%{http_code}" http://localhost:8888/api/capabilities)
+HTTP_CODE=$(curl -s -o .temp/capabilities.json -w "%{http_code}" http://localhost:7777/api/capabilities)
 if [[ "$HTTP_CODE" == "200" ]]; then
     pass "/api/capabilities returns 200"
 
     # Verify structure
-    if python3 -c "import json; d=json.load(open('/tmp/capabilities.json')); assert 'core_stats' in d; assert 'features' in d" 2>/dev/null; then
+    if python3 -c "import json; d=json.load(open('.temp/capabilities.json')); assert 'core_stats' in d; assert 'features' in d" 2>/dev/null; then
         pass "/api/capabilities JSON valid"
 
-        FEATURE_COUNT=$(python3 -c "import json; print(len(json.load(open('/tmp/capabilities.json'))['features']))")
+        FEATURE_COUNT=$(python3 -c "import json; print(len(json.load(open('.temp/capabilities.json'))['features']))")
         info "Features found: $FEATURE_COUNT"
     else
         fail "/api/capabilities JSON invalid"
@@ -211,11 +211,11 @@ else
 fi
 
 # Test /api/learning
-HTTP_CODE=$(curl -s -o /tmp/learning.json -w "%{http_code}" http://localhost:8888/api/learning)
+HTTP_CODE=$(curl -s -o .temp/learning.json -w "%{http_code}" http://localhost:7777/api/learning)
 if [[ "$HTTP_CODE" == "200" ]]; then
     pass "/api/learning returns 200"
 
-    if python3 -c "import json; d=json.load(open('/tmp/learning.json')); assert 'decisions' in d; assert 'statistics' in d" 2>/dev/null; then
+    if python3 -c "import json; d=json.load(open('.temp/learning.json')); assert 'decisions' in d; assert 'statistics' in d" 2>/dev/null; then
         pass "/api/learning JSON valid"
     else
         fail "/api/learning JSON invalid"
@@ -225,14 +225,14 @@ else
 fi
 
 # Test /api/projects
-HTTP_CODE=$(curl -s -o /tmp/projects.json -w "%{http_code}" http://localhost:8888/api/projects)
+HTTP_CODE=$(curl -s -o .temp/projects.json -w "%{http_code}" http://localhost:7777/api/projects)
 if [[ "$HTTP_CODE" == "200" ]]; then
     pass "/api/projects returns 200"
 
-    if python3 -c "import json; d=json.load(open('/tmp/projects.json')); assert 'projects' in d; assert 'summary' in d" 2>/dev/null; then
+    if python3 -c "import json; d=json.load(open('.temp/projects.json')); assert 'projects' in d; assert 'summary' in d" 2>/dev/null; then
         pass "/api/projects JSON valid"
 
-        PROJECT_COUNT=$(python3 -c "import json; print(len(json.load(open('/tmp/projects.json'))['projects']))")
+        PROJECT_COUNT=$(python3 -c "import json; print(len(json.load(open('.temp/projects.json'))['projects']))")
         info "Projects found: $PROJECT_COUNT"
     else
         fail "/api/projects JSON invalid"
@@ -242,11 +242,11 @@ else
 fi
 
 # Test / (HTML dashboard)
-HTTP_CODE=$(curl -s -o /tmp/dashboard.html -w "%{http_code}" http://localhost:8888/)
+HTTP_CODE=$(curl -s -o .temp/dashboard.html -w "%{http_code}" http://localhost:7777/)
 if [[ "$HTTP_CODE" == "200" ]]; then
     pass "/ returns 200"
 
-    HTML_SIZE=$(wc -c < /tmp/dashboard.html)
+    HTML_SIZE=$(wc -c < .temp/dashboard.html)
     if [[ $HTML_SIZE -gt 10000 ]]; then
         pass "HTML size > 10KB ($HTML_SIZE bytes)"
     else
@@ -254,19 +254,19 @@ if [[ "$HTTP_CODE" == "200" ]]; then
     fi
 
     # Check for critical content
-    if grep -q "CE Comprehensive Dashboard v2" /tmp/dashboard.html; then
+    if grep -q "CE Comprehensive Dashboard v2" .temp/dashboard.html; then
         pass "HTML contains title"
     else
         fail "HTML missing title"
     fi
 
-    if grep -q "CE Capabilities" /tmp/dashboard.html; then
+    if grep -q "CE Capabilities" .temp/dashboard.html; then
         pass "HTML contains CE Capabilities section"
     else
         fail "HTML missing CE Capabilities section"
     fi
 
-    if grep -q "Multi-Project Monitoring" /tmp/dashboard.html; then
+    if grep -q "Multi-Project Monitoring" .temp/dashboard.html; then
         pass "HTML contains Project Monitoring section"
     else
         fail "HTML missing Project Monitoring section"
@@ -285,14 +285,14 @@ echo "----------------------------------------"
 
 # First request (cold cache)
 START=$(date +%s%N)
-curl -s http://localhost:8888/api/capabilities > /dev/null
+curl -s http://localhost:7777/api/capabilities > /dev/null
 END=$(date +%s%N)
 COLD_TIME=$(( (END - START) / 1000000 ))
 info "Cold cache: ${COLD_TIME}ms"
 
 # Second request (warm cache)
 START=$(date +%s%N)
-curl -s http://localhost:8888/api/capabilities > /dev/null
+curl -s http://localhost:7777/api/capabilities > /dev/null
 END=$(date +%s%N)
 WARM_TIME=$(( (END - START) / 1000000 ))
 info "Warm cache: ${WARM_TIME}ms"
@@ -354,7 +354,7 @@ echo ""
 echo "[8] Core Stats Validation"
 echo "----------------------------------------"
 
-CORE_STATS=$(curl -s http://localhost:8888/api/capabilities | python3 -c "import sys, json; d=json.load(sys.stdin); print(f\"{d['core_stats']['total_phases']}:{d['core_stats']['total_checkpoints']}:{d['core_stats']['quality_gates']}:{d['core_stats']['hard_blocks']}\")")
+CORE_STATS=$(curl -s http://localhost:7777/api/capabilities | python3 -c "import sys, json; d=json.load(sys.stdin); print(f\"{d['core_stats']['total_phases']}:{d['core_stats']['total_checkpoints']}:{d['core_stats']['quality_gates']}:{d['core_stats']['hard_blocks']}\")")
 
 IFS=':' read -r PHASES CHECKPOINTS GATES BLOCKS <<< "$CORE_STATS"
 
