@@ -36,8 +36,9 @@ class CapabilityParser:
     """
 
     # Pre-compiled regex patterns for performance
+    # Match: ### C0: 强制新分支
     CAPABILITY_PATTERN = re.compile(
-        r'##\s+Capability\s+(C\d+):\s+(.+?)(?=##\s+Capability\s+C\d+:|$)',
+        r'###\s+(C\d+):\s+(.+?)\n(.+?)(?=###\s+C\d+:|###\s+\d{4}-\d{2}-\d{2}:|$)',
         re.DOTALL
     )
     FIELD_PATTERNS = {
@@ -116,30 +117,58 @@ class CapabilityParser:
 
         for match in matches:
             cap_id = match.group(1)  # e.g., "C0"
-            cap_content = match.group(2)
+            name = match.group(2).strip()  # e.g., "强制新分支"
+            cap_content = match.group(3)  # Content block
 
-            # Extract first line as name (before first newline)
-            name_match = re.match(r'^(.+?)(?:\n|$)', cap_content)
-            name = name_match.group(1).strip() if name_match else f"Capability {cap_id}"
+            # Extract description (after **能力描述**: or **Description**:)
+            desc_match = re.search(
+                r'\*\*能力描述\*\*:\s*(.+?)(?=\n\||$)',
+                cap_content,
+                re.DOTALL
+            )
+            description = desc_match.group(1).strip() if desc_match else ""
 
-            # Extract fields
+            # Extract fields from table if exists
             cap_type = self._extract_field(cap_content, 'type', 'unknown')
-            protection_level = int(self._extract_field(cap_content, 'protection_level', '3'))
+            protection_level_str = self._extract_field(cap_content, 'protection_level', '3')
+            # Try to extract from name patterns (基础防护=5, 流程控制=4, etc.)
+            if '强制' in name or '防护' in name:
+                protection_level = 5
+            elif '流程' in name or '顺序' in name:
+                protection_level = 4
+            elif '质量' in name or '检查' in name:
+                protection_level = 3
+            else:
+                try:
+                    protection_level = int(protection_level_str)
+                except:
+                    protection_level = 3
+
             status = self._extract_field(cap_content, 'status', 'active')
-            description = self._extract_field(cap_content, 'description', '')
-            verification = self._extract_field(cap_content, 'verification', '')
 
-            # Extract failure symptoms (bullet list)
-            failure_symptoms = self._extract_bullet_list(
+            # Extract verification logic from table
+            verification_match = re.search(
+                r'\|\s*\*\*验证逻辑\*\*\s*\|\s*(.+?)\s*\|',
                 cap_content,
-                r'\*\*Failure Symptoms\*\*:(.+?)(?=\*\*|$)'
+                re.DOTALL
             )
+            verification = verification_match.group(1).strip() if verification_match else ""
 
-            # Extract remediation actions
-            remediation_actions = self._extract_bullet_list(
+            # Extract failure patterns
+            failure_match = re.search(
+                r'\|\s*\*\*失败表现\*\*\s*\|\s*(.+?)\s*\|',
                 cap_content,
-                r'\*\*Remediation\*\*:(.+?)(?=\*\*|$)'
+                re.DOTALL
             )
+            failure_symptoms = [failure_match.group(1).strip()] if failure_match else []
+
+            # Extract fix actions
+            fix_match = re.search(
+                r'\|\s*\*\*修复动作\*\*\s*\|\s*(.+?)\s*\|',
+                cap_content,
+                re.DOTALL
+            )
+            remediation_actions = [fix_match.group(1).strip()] if fix_match else []
 
             capability = Capability(
                 id=cap_id,
@@ -147,8 +176,8 @@ class CapabilityParser:
                 type=cap_type,
                 protection_level=protection_level,
                 status=status,
-                description=description.strip(),
-                verification_logic=verification.strip(),
+                description=description,
+                verification_logic=verification,
                 failure_symptoms=failure_symptoms,
                 remediation_actions=remediation_actions
             )
@@ -200,7 +229,7 @@ class LearningSystemParser:
 
     def __init__(self, base_path: Path):
         self.base_path = Path(base_path)
-        self.decisions_file = self.base_path / "DECISIONS.md"
+        self.decisions_file = self.base_path / ".claude" / "DECISIONS.md"
         self.memory_cache_file = self.base_path / ".claude" / "memory-cache.json"
         self.decision_index_file = self.base_path / ".claude" / "decision-index.json"
 
@@ -236,14 +265,56 @@ class LearningSystemParser:
             title = match.group(2).strip()
             body = match.group(3)
 
-            # Extract fields from body
-            decision_match = re.search(r'\*\*Decision\*\*:\s*(.+?)(?=\*\*|$)', body, re.DOTALL | re.IGNORECASE)
-            reason_match = re.search(r'\*\*Reason\*\*:\s*(.+?)(?=\*\*|$)', body, re.DOTALL | re.IGNORECASE)
+            # Extract fields from body (支持中英文)
+            decision_match = re.search(
+                r'\*\*(决策|Decision)\*\*:\s*(.+?)(?=\*\*|$)',
+                body,
+                re.DOTALL | re.IGNORECASE
+            )
+            reason_match = re.search(
+                r'\*\*(原因|Reason)\*\*:\s*(.+?)(?=\*\*|$)',
+                body,
+                re.DOTALL | re.IGNORECASE
+            )
             importance_match = re.search(r'\*\*Importance\*\*:\s*(\w+)', body, re.IGNORECASE)
 
-            decision_text = decision_match.group(1).strip() if decision_match else ""
-            reason_text = reason_match.group(1).strip() if reason_match else ""
+            decision_text = decision_match.group(2).strip() if decision_match else ""
+            reason_text = reason_match.group(2).strip() if reason_match else ""
+
+            # Clean up bullet points from reason
+            reason_text = re.sub(r'\n[-*]\s+', '\n', reason_text).strip()
+
             importance_str = importance_match.group(1).lower() if importance_match else "info"
+
+            # Extract forbidden actions (禁止操作)
+            forbidden_match = re.search(
+                r'\*\*(禁止操作|Forbidden)\*\*[：:]\s*\n((?:[-*]\s*❌.+?\n?)+)',
+                body,
+                re.DOTALL
+            )
+            forbidden_actions = []
+            if forbidden_match:
+                forbidden_text = forbidden_match.group(2)
+                forbidden_actions = re.findall(r'[-*]\s*❌\s*(.+?)(?=\n|$)', forbidden_text)
+
+            # Extract allowed actions (允许操作)
+            allowed_match = re.search(
+                r'\*\*(允许操作|Allowed)\*\*[：:]\s*\n((?:[-*]\s*✅.+?\n?)+)',
+                body,
+                re.DOTALL
+            )
+            allowed_actions = []
+            if allowed_match:
+                allowed_text = allowed_match.group(2)
+                allowed_actions = re.findall(r'[-*]\s*✅\s*(.+?)(?=\n|$)', allowed_text)
+
+            # Extract affected scope (影响范围)
+            scope_match = re.search(
+                r'\*\*(影响范围|Affected|相关文件)\*\*[：:]\s*(.+?)(?=\n###|\n\n|$)',
+                body,
+                re.DOTALL
+            )
+            affected_scope = scope_match.group(2).strip() if scope_match else ""
 
             # Map importance string to enum
             importance_map = {
@@ -253,21 +324,16 @@ class LearningSystemParser:
             }
             importance = importance_map.get(importance_str, ImportanceLevel.INFO)
 
-            # Extract forbidden/allowed actions
-            forbidden = self._extract_bullet_list(body, r'\*\*Forbidden(?:\s+Operations|\s+Actions)?\*\*:(.+?)(?=\*\*|$)')
-            allowed = self._extract_bullet_list(body, r'\*\*Allowed(?:\s+Operations|\s+Actions)?\*\*:(.+?)(?=\*\*|$)')
-            affected = self._extract_bullet_list(body, r'\*\*Affected Files\*\*:(.+?)(?=\*\*|$)')
-
             decision = Decision(
                 date=date,
                 title=title,
                 decision=decision_text,
                 reason=reason_text,
                 importance=importance,
-                do_not_revert=('do not revert' in body.lower()),
-                forbidden_actions=forbidden,
-                allowed_actions=allowed,
-                affected_files=affected
+                do_not_revert=('do not revert' in body.lower() or 'revert' in title.lower()),
+                forbidden_actions=forbidden_actions,
+                allowed_actions=allowed_actions,
+                impact=affected_scope
             )
 
             decisions.append(decision)

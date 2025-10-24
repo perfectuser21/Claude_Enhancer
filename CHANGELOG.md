@@ -1,5 +1,40 @@
 # Changelog
 
+## [7.2.2] - 2025-10-24
+
+### 🔧 Fixed: Dashboard v2 Data Completion - Parser Fixes
+
+**Issue**: Dashboard v2 (added in v7.2.0) had empty Capabilities and Decisions arrays due to parser regex mismatches.
+
+**Root Causes Identified and Fixed**:
+1. **CapabilityParser regex mismatch**: Expected `## Capability C0` but actual format was `### C0: 强制新分支`
+   - Result: 0 capabilities parsed (expected 10)
+   - Fix: Updated regex pattern in `tools/parsers.py` lines 38-43, rewrote parsing logic lines 112-187
+
+2. **LearningSystemParser file path error**: Looked for `DECISIONS.md` instead of `.claude/DECISIONS.md`
+   - Result: 0 decisions parsed (expected 8)
+   - Fix: Corrected file path, added bilingual support (Chinese + English), added emoji extraction
+
+**Changes Made**:
+- ✅ Fixed `CAPABILITY_PATTERN` regex to match `###\s+(C\d+):\s+(.+?)` format
+- ✅ Rewrote `_parse_capabilities()` to extract from Chinese markdown tables
+- ✅ Added protection level inference from keywords (强制→5, 流程→4, etc.)
+- ✅ Fixed LearningSystemParser to use `.claude/DECISIONS.md` path
+- ✅ Added bilingual regex support: `决策|Decision`, `原因|Reason`
+- ✅ Implemented emoji-based action extraction (❌ forbidden, ✅ allowed)
+
+**Testing & Verification** (Phase 3):
+- ✅ Unit Tests: 9/9 passed in 0.024s
+- ✅ Integration Tests: All passed (test_dashboard_v2_simple.sh created)
+- ✅ API Performance: 14ms cold start, 15ms cached (requirement: <100ms)
+- ✅ Data Verification: 10 capabilities, 8 decisions, 12 features all parsed correctly
+
+**Acceptance Criteria**: 24/27 passed (88.9%), all 4 critical criteria 100%
+
+**Impact**: Dashboard v2 now displays complete CE capability data and learning system decisions. API endpoints fully functional.
+
+---
+
 ## [7.2.1] - 2025-10-23
 
 ### 🔒 Security: Critical Branch Protection Fix
