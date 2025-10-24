@@ -137,6 +137,7 @@ else
     # Run shellcheck on all shell scripts
     if [ -n "$SHELL_SCRIPTS" ]; then
         # Count total warnings (excluding info messages)
+        # shellcheck disable=SC2086
         SHELLCHECK_OUTPUT=$(shellcheck -f gcc $SHELL_SCRIPTS 2>/dev/null || true)
         SHELLCHECK_WARNINGS=$(echo "$SHELLCHECK_OUTPUT" | grep -c "warning:" || true)
 

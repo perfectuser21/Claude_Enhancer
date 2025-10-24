@@ -38,10 +38,12 @@ echo ""
 review_code_quality() {
     local output_file="$TEMP_DIR/code_quality_review.md"
 
-    echo "## 代码质量审查 (Code Quality Review)" > "$output_file"
-    echo "" >> "$output_file"
-    echo "**开始时间**: $(date)" >> "$output_file"
-    echo "" >> "$output_file"
+    {
+        echo "## 代码质量审查 (Code Quality Review)"
+        echo ""
+        echo "**开始时间**: $(date)"
+        echo ""
+    } > "$output_file"
 
     # 检查shell脚本质量
     echo "### Shell Scripts Quality" >> "$output_file"
@@ -59,25 +61,29 @@ review_code_quality() {
     fi
 
     # 检查复杂度
-    echo "" >> "$output_file"
-    echo "### Code Complexity" >> "$output_file"
-    local complex_functions=0
+    {
+        echo ""
+        echo "### Code Complexity"
+    } >> "$output_file"
 
     while IFS= read -r file; do
         if [ -f "$file" ]; then
             # 检查函数长度（>150行的函数）
-            local long_functions=$(grep -n "^[a-zA-Z_][a-zA-Z0-9_]*\s*()" "$file" 2>/dev/null | wc -l)
+            local long_functions
+            long_functions=$(grep -c "^[a-zA-Z_][a-zA-Z0-9_]*\s*()" "$file" 2>/dev/null || echo "0")
             if [ "$long_functions" -gt 0 ]; then
                 echo "- $file: 检查函数数量: $long_functions" >> "$output_file"
             fi
         fi
     done < <(find "$PROJECT_ROOT" -name "*.sh" -not -path "*/node_modules/*")
 
-    echo "" >> "$output_file"
-    echo "**完成时间**: $(date)" >> "$output_file"
-    echo "**质量问题数**: $shell_issues" >> "$output_file"
+    {
+        echo ""
+        echo "**完成时间**: $(date)"
+        echo "**质量问题数**: $shell_issues"
+    } >> "$output_file"
 
-    return $shell_issues
+    return "$shell_issues"
 }
 
 # ============================================
@@ -86,10 +92,12 @@ review_code_quality() {
 review_security() {
     local output_file="$TEMP_DIR/security_review.md"
 
-    echo "## 安全审查 (Security Review)" > "$output_file"
-    echo "" >> "$output_file"
-    echo "**开始时间**: $(date)" >> "$output_file"
-    echo "" >> "$output_file"
+    {
+        echo "## 安全审查 (Security Review)"
+        echo ""
+        echo "**开始时间**: $(date)"
+        echo ""
+    } > "$output_file"
 
     local security_issues=0
 
@@ -126,15 +134,17 @@ review_security() {
         ((security_issues++))
     fi
 
-    if [ $security_issues -eq 0 ]; then
+    if [ "$security_issues" -eq 0 ]; then
         echo "✅ No unsafe patterns detected" >> "$output_file"
     fi
 
-    echo "" >> "$output_file"
-    echo "**完成时间**: $(date)" >> "$output_file"
-    echo "**安全问题数**: $security_issues" >> "$output_file"
+    {
+        echo ""
+        echo "**完成时间**: $(date)"
+        echo "**安全问题数**: $security_issues"
+    } >> "$output_file"
 
-    return $security_issues
+    return "$security_issues"
 }
 
 # ============================================
@@ -143,10 +153,12 @@ review_security() {
 review_performance() {
     local output_file="$TEMP_DIR/performance_review.md"
 
-    echo "## 性能审查 (Performance Review)" > "$output_file"
-    echo "" >> "$output_file"
-    echo "**开始时间**: $(date)" >> "$output_file"
-    echo "" >> "$output_file"
+    {
+        echo "## 性能审查 (Performance Review)"
+        echo ""
+        echo "**开始时间**: $(date)"
+        echo ""
+    } > "$output_file"
 
     local perf_issues=0
 
@@ -155,18 +167,20 @@ review_performance() {
 
     if [ -x "$PROJECT_ROOT/.git/hooks/pre-commit" ]; then
         echo "测试pre-commit hook性能..." >> "$output_file"
-        local start_time=$(date +%s%3N)
+        local start_time
+        start_time=$(date +%s%3N)
 
         # 模拟运行pre-commit（dry-run）
         # 实际实现中会运行hook
         sleep 0.5  # 模拟执行时间
 
-        local end_time=$(date +%s%3N)
+        local end_time
+        end_time=$(date +%s%3N)
         local duration=$((end_time - start_time))
 
         echo "- Pre-commit执行时间: ${duration}ms" >> "$output_file"
 
-        if [ $duration -gt 2000 ]; then
+        if [ "$duration" -gt 2000 ]; then
             echo "❌ Pre-commit hook超过2秒阈值" >> "$output_file"
             ((perf_issues++))
         else
@@ -178,7 +192,8 @@ review_performance() {
 
     # 检查大文件
     echo "### Large Files Check" >> "$output_file"
-    local large_files=$(find "$PROJECT_ROOT" -type f -size +1M -not -path "*/node_modules/*" -not -path "*/.git/*" 2>/dev/null | wc -l)
+    local large_files
+    large_files=$(find "$PROJECT_ROOT" -type f -size +1M -not -path "*/node_modules/*" -not -path "*/.git/*" 2>/dev/null | wc -l)
 
     if [ "$large_files" -gt 0 ]; then
         echo "⚠️  发现 $large_files 个大文件 (>1MB)" >> "$output_file"
@@ -187,11 +202,13 @@ review_performance() {
         echo "✅ 没有大文件" >> "$output_file"
     fi
 
-    echo "" >> "$output_file"
-    echo "**完成时间**: $(date)" >> "$output_file"
-    echo "**性能问题数**: $perf_issues" >> "$output_file"
+    {
+        echo ""
+        echo "**完成时间**: $(date)"
+        echo "**性能问题数**: $perf_issues"
+    } >> "$output_file"
 
-    return $perf_issues
+    return "$perf_issues"
 }
 
 # ============================================
@@ -200,10 +217,12 @@ review_performance() {
 review_documentation() {
     local output_file="$TEMP_DIR/documentation_review.md"
 
-    echo "## 文档审查 (Documentation Review)" > "$output_file"
-    echo "" >> "$output_file"
-    echo "**开始时间**: $(date)" >> "$output_file"
-    echo "" >> "$output_file"
+    {
+        echo "## 文档审查 (Documentation Review)"
+        echo ""
+        echo "**开始时间**: $(date)"
+        echo ""
+    } > "$output_file"
 
     local doc_issues=0
 
@@ -212,7 +231,8 @@ review_documentation() {
 
     # 检查REVIEW.md
     if [ -f "$PROJECT_ROOT/.temp/REVIEW.md" ] || [ -f "$PROJECT_ROOT/REVIEW.md" ]; then
-        local review_size=$(wc -c < "$PROJECT_ROOT/.temp/REVIEW.md" 2>/dev/null || wc -c < "$PROJECT_ROOT/REVIEW.md" 2>/dev/null || echo "0")
+        local review_size
+        review_size=$(wc -c < "$PROJECT_ROOT/.temp/REVIEW.md" 2>/dev/null || wc -c < "$PROJECT_ROOT/REVIEW.md" 2>/dev/null || echo "0")
 
         if [ "$review_size" -gt 3000 ]; then
             echo "✅ REVIEW.md exists and is substantial (${review_size} bytes)" >> "$output_file"
@@ -229,7 +249,8 @@ review_documentation() {
 
     # 检查根目录文档数量
     echo "### Root Directory Documents" >> "$output_file"
-    local root_docs=$(find "$PROJECT_ROOT" -maxdepth 1 -name "*.md" | wc -l)
+    local root_docs
+    root_docs=$(find "$PROJECT_ROOT" -maxdepth 1 -name "*.md" | wc -l)
     echo "- Root directory markdown files: $root_docs" >> "$output_file"
 
     if [ "$root_docs" -gt 7 ]; then
@@ -239,11 +260,13 @@ review_documentation() {
         echo "✅ Root documents within limit" >> "$output_file"
     fi
 
-    echo "" >> "$output_file"
-    echo "**完成时间**: $(date)" >> "$output_file"
-    echo "**文档问题数**: $doc_issues" >> "$output_file"
+    {
+        echo ""
+        echo "**完成时间**: $(date)"
+        echo "**文档问题数**: $doc_issues"
+    } >> "$output_file"
 
-    return $doc_issues
+    return "$doc_issues"
 }
 
 # ============================================
