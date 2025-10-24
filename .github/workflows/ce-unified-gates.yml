@@ -62,10 +62,15 @@ jobs:
           fi
 
       - name: Run Unit Tests
+        shell: bash
         run: |
           if [ -f test/test_dashboard_v2_parsers.py ]; then
-            # Run tests - capture output and check if all tests passed
+            # Run tests - capture output even if pytest returns non-zero
+            set +e
             output=$(python3 -m pytest test/test_dashboard_v2_parsers.py -v 2>&1)
+            exit_code=$?
+            set -e
+
             echo "$output"
 
             # Check if all tests passed (regardless of teardown errors)
