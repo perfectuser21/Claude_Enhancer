@@ -72,7 +72,8 @@ main() {
             fi
             ;;
         next|n)
-            local current_phase=$(get_current_phase)
+            local current_phase
+            current_phase=$(get_current_phase)
             local phase_num="${current_phase#Phase}"
             local next_num=$((phase_num + 1))
             if [[ $next_num -le 7 ]]; then
