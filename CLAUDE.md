@@ -1183,29 +1183,35 @@ Phase 7 → Merge: 用户明确说"merge" ✅
 - ✅ Layer 6缺失在Phase 3发现 → 正确的发现时机
 - 📝 改进措施：建立Phase 3/Phase 4自动化检查脚本
 
-## 🛡️ 四层质量保障体系【升级】
+## 🛡️ 五层质量保障体系【v7.4增强】
 
-### 1. 契约驱动层【新增】
+### 1. 质量守护层【新增 2025-10-25】
+- **Script Size Guardian**: 强制脚本≤300行，防止大文件产生
+- **Version Cleaner**: 自动清理旧版本，防止版本累积
+- **Quality Guardian**: 主动预防质量问题，而非事后修复
+- **Performance Monitor**: 实时性能监控，建立基线对比
+
+### 2. 契约驱动层
 - **OpenAPI规范**: 完整的API契约定义
 - **BDD场景**: 65个可执行的验收标准
 - **性能预算**: 90个性能指标阈值
 - **SLO监控**: 15个服务级别目标
 
-### 2. Workflow框架层
+### 3. Workflow框架层
 - 标准化7个Phase流程（Phase 1-7）
 - 从分支检查到监控的完整生命周期
 
-### 3. Claude Hooks辅助层
+### 4. Claude Hooks辅助层
 - `branch_helper.sh` - 分支管理助手
 - `smart_agent_selector.sh` - 智能Agent选择
 - `quality_gate.sh` - 质量门禁检查
-- `gap_scan.sh` - 差距分析【新增】
+- `gap_scan.sh` - 差距分析
 
-### 4. Git Hooks强制层
-- `pre-commit` - 硬拦截（set -euo pipefail）
+### 5. Git Hooks强制层
+- `pre-commit` - 硬拦截 + 质量守护检查
 - `commit-msg` - 提交信息规范
 - `pre-push` - 推送前验证
-- 包含BDD/OpenAPI/性能/SLO检查
+- 包含脚本大小限制、版本控制检查
 
 ## 🎨 专业级质量保障
 
