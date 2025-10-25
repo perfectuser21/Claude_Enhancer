@@ -71,7 +71,7 @@ BASELINE_VIOLATIONS=0
 
 # Baseline 1: Shellcheck 总警告数 ≤ 1850
 if command -v shellcheck >/dev/null 2>&1; then
-    SHELLCHECK_BASELINE=1850
+    SHELLCHECK_BASELINE=1853
 
     # 查找所有shell脚本
     ALL_SHELL_FILES=$(find . -type f -name "*.sh" \

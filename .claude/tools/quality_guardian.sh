@@ -8,7 +8,9 @@ set -euo pipefail
 
 # Configuration
 readonly PROJECT_ROOT="${PROJECT_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
-readonly QUALITY_REPORT="${PROJECT_ROOT}/.temp/quality_guardian_report.md"
+readonly TEMP_DIR="${PROJECT_ROOT}/.temp"
+mkdir -p "$TEMP_DIR"
+readonly QUALITY_REPORT="${TEMP_DIR}/quality_guardian_report.md"
 
 # 质量规则定义
 readonly MAX_SCRIPT_LINES=300
@@ -109,7 +111,7 @@ suggest_shellcheck_fixes() {
     local warnings
     warnings=$(shellcheck --severity=warning "${PROJECT_ROOT}"/**/*.sh 2>&1 | grep "^In" | wc -l || echo 0)
 
-    if [[ $warnings -gt 50 ]]; then
+    if [[ "$warnings" -gt 50 ]]; then
         echo "⚠️  发现 ${warnings} 个shellcheck警告"
         echo "   最常见的问题："
         shellcheck "${PROJECT_ROOT}"/**/*.sh 2>&1 | \
