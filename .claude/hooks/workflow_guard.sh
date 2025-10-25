@@ -87,8 +87,8 @@ detect_phase_violation() {
         return 0  # Skip check in discussion mode
     fi
 
-    # Define phases
-    local phases=("Phase0" "Phase1" "Phase2" "Phase3" "Phase4" "Phase5")
+    # Define phases (7-Phase system: Phase1-Phase7)
+    local phases=("Phase1" "Phase2" "Phase3" "Phase4" "Phase5" "Phase6" "Phase7")
 
     # Skip keywords
     local skip_keywords=(
@@ -106,13 +106,19 @@ detect_phase_violation() {
 
     # Check for direct jumps to future phases
     if [[ -n "$current_phase" ]]; then
-        local current_phase_num="${current_phase#P}"
+        local current_phase_num="${current_phase#Phase}"
+        # Skip if not a valid phase number
+        [[ "$current_phase_num" =~ ^[0-9]+$ ]] || return $violations
+
         for phase in "${phases[@]}"; do
-            local phase_num="${phase#P}"
+            local phase_num="${phase#Phase}"
+            # Skip if not a valid phase number
+            [[ "$phase_num" =~ ^[0-9]+$ ]] || continue
+
             if [[ $phase_num -gt $((current_phase_num + 1)) ]]; then
                 if echo "$input" | grep -iqE "直接.*${phase}|directly.*${phase}"; then
                     log_block "Detected phase jump: ${current_phase} → ${phase}"
-                    log_error "  Skipping: P$((current_phase_num + 1)) to P$((phase_num - 1))"
+                    log_error "  Skipping: Phase$((current_phase_num + 1)) to Phase$((phase_num - 1))"
                     ((violations++))
                 fi
             fi
@@ -341,14 +347,15 @@ detect_workflow_state_violation() {
                 log_error "  Detected keyword: ${keyword}"
                 log_warn "  Suggestion: Coding should be in Phase2 (Implementation) or Phase3 (Testing)"
 
-                # Phase-specific suggestions
+                # Phase-specific suggestions (7-Phase system)
                 case "$current_phase" in
-                    Phase0) log_warn "  Phase0: Focus on exploration, feasibility validation, prototyping" ;;
-                    Phase1) log_warn "  Phase1: Focus on requirements analysis, planning & architecture" ;;
-                    Phase2) log_warn "  Phase2: Focus on implementation, coding" ;;
-                    Phase3) log_warn "  Phase3: Focus on testing, quality validation" ;;
-                    Phase4) log_warn "  Phase4: Focus on code review, quality check, generate REVIEW.md" ;;
-                    Phase5) log_warn "  Phase5: Focus on release preparation, monitoring setup" ;;
+                    Phase1) log_warn "  Phase1: Focus on Discovery & Planning (exploration, requirements, architecture)" ;;
+                    Phase2) log_warn "  Phase2: Focus on Implementation (coding, development)" ;;
+                    Phase3) log_warn "  Phase3: Focus on Testing (quality validation, QG1)" ;;
+                    Phase4) log_warn "  Phase4: Focus on Review (code review, QG2)" ;;
+                    Phase5) log_warn "  Phase5: Focus on Release (documentation, version tagging)" ;;
+                    Phase6) log_warn "  Phase6: Focus on Acceptance (user confirmation)" ;;
+                    Phase7) log_warn "  Phase7: Focus on Closure (cleanup, merge preparation)" ;;
                 esac
 
                 ((violations++))
@@ -467,8 +474,8 @@ detect_phase_commit_violations() {
             fi
             ;;
 
-        Phase0|Phase1)
-            # Early phases - no commit requirements
+        Phase1)
+            # Early phase - no commit requirements
             log_debug "${current_phase}: No specific commit requirements"
             ;;
 
