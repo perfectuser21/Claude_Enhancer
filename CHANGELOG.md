@@ -176,7 +176,7 @@
 - ✅ Test 2: Merge to main → BLOCKED
 - ✅ Test 3: Feature branch commits → WORK normally
 
-**Impact**: Security vulnerability closed. Main/master branches now have 100% local protection.
+**Impact**: Security vulnerability closed. Main/master branches now have comprehensive protection (local hooks + GitHub Branch Protection for `--no-verify` defense).
 
 ---
 
