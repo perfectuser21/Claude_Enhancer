@@ -190,10 +190,10 @@ main() {
     local total_issues=0
 
     # 运行所有检查
-    check_script_sizes || ((total_issues+=$?))
-    check_version_accumulation || ((total_issues+=$?))
+    check_script_sizes || total_issues=$((total_issues + $?))
+    check_version_accumulation || total_issues=$((total_issues + $?))
     check_hook_proliferation
-    check_code_duplication || ((total_issues+=$?))
+    check_code_duplication || total_issues=$((total_issues + $?))
     suggest_shellcheck_fixes
     suggest_claude_skills
 

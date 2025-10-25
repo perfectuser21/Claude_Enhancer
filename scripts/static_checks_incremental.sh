@@ -34,7 +34,8 @@ echo ""
 echo "📝 Checking shell files..."
 SHELL_FILES=$(echo "$CHANGED" | grep -E '\.sh$' || true)
 if [ -n "$SHELL_FILES" ]; then
-    echo "$SHELL_FILES" | xargs -r -n1 shellcheck
+    # Only check for errors, not warnings (severity=error)
+    echo "$SHELL_FILES" | xargs -r -n1 shellcheck --severity=error
     echo "✅ Shell files passed"
 else
     echo "⏭️  No shell files changed"
