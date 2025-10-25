@@ -5,6 +5,7 @@ on:
     branches: ['**']
   push:
     branches: [main, master, production]
+  merge_group:
   workflow_dispatch:
 
 env:

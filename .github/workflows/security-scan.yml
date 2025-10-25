@@ -4,6 +4,7 @@ on:
     types: [opened, synchronize, reopened]
   push:
     branches: [main]
+  merge_group:
   schedule:
     - cron: '0 0 * * 1'  # Weekly on Monday
   workflow_dispatch:
