@@ -80,8 +80,9 @@ get_changelog_version() {
         return 1
     fi
 
-    # Extract first version number in brackets [X.Y.Z]
-    grep -oP '\[\K[0-9]+\.[0-9]+\.[0-9]+(?=\])' "$changelog" 2>/dev/null | head -1 || echo "ERROR"
+    # Extract first RELEASED version number in brackets [X.Y.Z] (skip [Unreleased])
+    # Only match lines starting with ## [digit.digit.digit]
+    grep -oP '^## \[\K[0-9]+\.[0-9]+\.[0-9]+(?=\])' "$changelog" 2>/dev/null | head -1 || echo "ERROR"
 }
 
 get_spec_version() {
@@ -91,11 +92,13 @@ get_spec_version() {
         return 1
     fi
 
-    # Extract version from metadata.version field
+    # Extract version - try .version first (top level), fallback to .metadata.version
     if command -v python3 >/dev/null 2>&1; then
-        python3 -c "import yaml; print(yaml.safe_load(open('$spec'))['metadata']['version'])" 2>/dev/null || echo "ERROR"
+        python3 -c "import yaml; data = yaml.safe_load(open('$spec')); print(data.get('version') or data.get('metadata', {}).get('version', 'ERROR'))" 2>/dev/null || echo "ERROR"
     else
-        grep -A 5 "^metadata:" "$spec" | grep "version:" | awk '{print $2}' | tr -d '"' || echo "ERROR"
+        # Fallback: try top-level version first, then metadata.version
+        grep "^version:" "$spec" | head -1 | awk '{print $2}' | tr -d '"' || \
+        grep -A 5 "^metadata:" "$spec" | grep "version:" | head -1 | awk '{print $2}' | tr -d '"' || echo "ERROR"
     fi
 }
 

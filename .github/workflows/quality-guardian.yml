@@ -1,0 +1,80 @@
+name: Quality Guardian
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master ]
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  quality-check:
+    name: Quality Guardian Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run Quality Guardian
+        run: |
+          chmod +x .claude/tools/quality_guardian.sh
+          bash .claude/tools/quality_guardian.sh
+
+      - name: Check for oversized scripts
+        run: |
+          echo "Checking for scripts > 300 lines..."
+          oversized=$(find . -name "*.sh" -type f -exec wc -l {} \; | awk '$1 > 300 {print}' | wc -l)
+          if [ "$oversized" -gt "0" ]; then
+            echo "⚠️ Found $oversized oversized scripts"
+            find . -name "*.sh" -type f -exec wc -l {} \; | awk '$1 > 300 {print}' | head -10
+          else
+            echo "✅ No oversized scripts found"
+          fi
+
+      - name: Check for version accumulation
+        run: |
+          echo "Checking for version files..."
+          versions=$(find . -name "*_v[0-9]*" -o -name "*_backup*" -o -name "*_original*" | wc -l)
+          if [ "$versions" -gt "10" ]; then
+            echo "⚠️ Found $versions version files (threshold: 10)"
+            echo "Run: bash .claude/tools/version_cleaner.sh clean"
+          else
+            echo "✅ Version files under control: $versions"
+          fi
+
+      - name: Upload quality report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-report
+          path: .temp/quality_guardian_report.md
+
+  auto-cleanup:
+    name: Auto Version Cleanup
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run version cleaner
+        run: |
+          chmod +x .claude/tools/version_cleaner.sh
+          bash .claude/tools/version_cleaner.sh clean false
+
+      - name: Commit cleanup if needed
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git config user.name "GitHub Actions"
+            git config user.email "actions@github.com"
+            git add .
+            git commit -m "chore: auto-cleanup old versions [skip ci]"
+            git push
+          fi

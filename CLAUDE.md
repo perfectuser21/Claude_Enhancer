@@ -163,12 +163,13 @@ git checkout -b feature/multi-terminal-workflow
 
 **四层防护架构**（v6.0强化版）：
 
-#### 第一层：本地Git Hooks（逻辑防护 100%）
+#### 第一层：本地Git Hooks（逻辑防护层）
 - `.git/hooks/pre-push` - **主防线**，经12场景压力测试验证
   - ✅ 精准正则：`^(main|master|production)$` 避免误伤
-  - ✅ 绕过检测：阻止 `--no-verify`、`hooksPath`、环境变量
+  - ✅ 绕过检测：阻止 `hooksPath`、环境变量篡改
+  - ⚠️ **限制**：`--no-verify` 会完全跳过hook执行（Git设计限制）
   - ✅ 并发安全：10并发重试全部阻止
-  - ✅ 实战验证：8/8 逻辑攻击全部防御成功
+  - ✅ 实战验证：8/8可防御攻击全部阻止
 - `.git/hooks/pre-commit` - 代码质量检查
 - `.git/hooks/commit-msg` - 提交信息规范
 - `.claude/hooks/branch_helper.sh` - PreToolUse AI层辅助
@@ -180,13 +181,14 @@ git checkout -b feature/multi-terminal-workflow
 
 # 测试结果（2025-10-11）
 ✅ BLOCK_main_plain          - 直接推送 → 阻止
-✅ BLOCK_main_noverify       - --no-verify → 阻止
+❌ BLOCK_main_noverify       - --no-verify → 跳过hook (Git限制)
 ✅ BLOCK_main_hooksPath_null - hooksPath=/dev/null → 阻止
 ✅ BLOCK_main_env_bypass     - 环境变量 → 阻止
 ✅ BLOCK_main_concurrent     - 10并发 → 全部阻止
 ... (详见 BP_PROTECTION_REPORT.md)
 
-综合结果：100%逻辑防护率 ✅
+综合结果：本地hook可防御攻击100%阻止 ✅
+注意：--no-verify 需要 Layer 2/3 (GitHub Branch Protection) 防护
 ```
 
 #### 第二层：CI/CD验证（权限监控 +30%）
@@ -195,27 +197,36 @@ git checkout -b feature/multi-terminal-workflow
   - 验证配置完整性
   - 每次push/PR触发
 
-#### 第三层：GitHub Branch Protection（服务端强制 +100%）
-- 强制PR流程（即使本地hook被破坏也无法直推）
-- Required Status Checks
-- Include administrators（无特权绕过）
+#### 第三层：GitHub Branch Protection（服务端强制 - 最终防线）
+- **强制PR流程**（即使使用 `--no-verify` 也无法直推到main）
+- **Required Status Checks**（CE Unified Gates 必须通过）
+- **Include administrators**（无特权绕过）
+- ✅ 这是对抗 `--no-verify` 的真正防线
 
 #### 第四层：持续监控（持续保障）
 - `.github/workflows/positive-health.yml` - 每日健康检查
 - 实时证据生成（带时间戳nonce）
 - 异常自动告警
 
-**综合防护率**：100%（本地70% + CI/CD 15% + GitHub 15%）
+**综合防护率**：100%（本地hooks + GitHub Branch Protection）
+- 本地hooks: 防御可检测的绕过尝试
+- GitHub Branch Protection: 防御 `--no-verify` 等本地无法检测的情况
 
-**认证标志**：
+**防护能力**：
 ```
 ╔═══════════════════════════════════════╗
-║  🏆 Branch Protection Certified      ║
-║  逻辑防护: 100%  综合防护: 100%      ║
-║  测试场景: 12/12  迭代轮次: 3轮      ║
+║  🏆 Branch Protection - 4层防护      ║
+║  本地Hooks: 可防御攻击100%阻止       ║
+║  GitHub保护: 强制PR + Status Checks  ║
+║  综合防护: 100% (含--no-verify防护)  ║
 ║  状态: ✅ PRODUCTION READY           ║
 ╚═══════════════════════════════════════╝
 ```
+
+**关键说明**：
+- ✅ 本地hooks可防御绕过尝试（hooksPath、环境变量等）
+- ❌ `--no-verify` 无法在本地检测（Git设计限制）
+- ✅ GitHub Branch Protection 强制PR流程，即使本地被绕过也无法直推main
 
 **详细报告**：参见 `BP_PROTECTION_REPORT.md`（628行完整分析）
 
@@ -1172,29 +1183,35 @@ Phase 7 → Merge: 用户明确说"merge" ✅
 - ✅ Layer 6缺失在Phase 3发现 → 正确的发现时机
 - 📝 改进措施：建立Phase 3/Phase 4自动化检查脚本
 
-## 🛡️ 四层质量保障体系【升级】
+## 🛡️ 五层质量保障体系【v7.4增强】
 
-### 1. 契约驱动层【新增】
+### 1. 质量守护层【新增 2025-10-25】
+- **Script Size Guardian**: 强制脚本≤300行，防止大文件产生
+- **Version Cleaner**: 自动清理旧版本，防止版本累积
+- **Quality Guardian**: 主动预防质量问题，而非事后修复
+- **Performance Monitor**: 实时性能监控，建立基线对比
+
+### 2. 契约驱动层
 - **OpenAPI规范**: 完整的API契约定义
 - **BDD场景**: 65个可执行的验收标准
 - **性能预算**: 90个性能指标阈值
 - **SLO监控**: 15个服务级别目标
 
-### 2. Workflow框架层
+### 3. Workflow框架层
 - 标准化7个Phase流程（Phase 1-7）
 - 从分支检查到监控的完整生命周期
 
-### 3. Claude Hooks辅助层
+### 4. Claude Hooks辅助层
 - `branch_helper.sh` - 分支管理助手
 - `smart_agent_selector.sh` - 智能Agent选择
 - `quality_gate.sh` - 质量门禁检查
-- `gap_scan.sh` - 差距分析【新增】
+- `gap_scan.sh` - 差距分析
 
-### 4. Git Hooks强制层
-- `pre-commit` - 硬拦截（set -euo pipefail）
+### 5. Git Hooks强制层
+- `pre-commit` - 硬拦截 + 质量守护检查
 - `commit-msg` - 提交信息规范
 - `pre-push` - 推送前验证
-- 包含BDD/OpenAPI/性能/SLO检查
+- 包含脚本大小限制、版本控制检查
 
 ## 🎨 专业级质量保障
 

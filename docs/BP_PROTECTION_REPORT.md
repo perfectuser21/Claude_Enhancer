@@ -32,9 +32,11 @@
 经过**三轮迭代优化**和**12场景压力测试**验证，Claude Enhancer v6.0的分支保护系统达到了**生产级标准**。
 
 **核心成就**：
-- ✅ **逻辑层防护率：70%** - 所有可通过逻辑防护的场景全覆盖
+- ✅ **本地Hook防护**：可检测的绕过尝试100%阻止（hooksPath、环境变量等）
+- ⚠️ **Git设计限制**：`--no-verify` 和 `chmod -x` 无法在hook层检测
 - ✅ **综合防护率：100%** - 配合GitHub Branch Protection达到完美防护
-- ✅ **零逻辑漏洞** - 所有绕过尝试在逻辑层被识别和阻止
+  - 本地hooks防护：可检测攻击全覆盖
+  - GitHub保护：防御 `--no-verify` 等本地无法检测的情况
 
 ---
 
@@ -54,7 +56,7 @@
 |---|---------|---------|------|---------|------|
 | 1 | ALLOW_feature_normal | 正常推送feature分支 | ✅ 允许 | ✅ 允许 | 基准对照 |
 | 2 | BLOCK_main_plain | 直接push到main | ❌ 阻止 | ✅ 阻止 | 逻辑防护 |
-| 3 | BLOCK_main_noverify | 使用--no-verify | ❌ 阻止 | ✅ 阻止 | 逻辑防护 |
+| 3 | BLOCK_main_noverify | 使用--no-verify | ❌ 阻止 | ⚠️ Hook跳过 | GitHub防护 |
 | 4 | BLOCK_main_nonexec_hook | chmod -x移除权限 | ❌ 阻止 | ⚠️ 物理限制 | Git设计 |
 | 5 | BLOCK_main_hooksPath_null | hooksPath=/dev/null | ❌ 阻止 | ✅ 阻止 | 逻辑防护 |
 | 6 | BLOCK_main_hooksPath_dummy | hooksPath指向空脚本 | ❌ 阻止 | ✅ 阻止 | 逻辑防护 |
@@ -325,15 +327,24 @@ git push origin main
 # 推送被拒绝
 ```
 
-### 场景3：尝试用--no-verify绕过（❌ 被阻止）
+### 场景3：尝试用--no-verify绕过（⚠️ Hook无法检测，由GitHub保护）
 ```bash
 git push --no-verify origin main
 
-# 输出：
-# ❌ 检测到尝试禁用hooks！推送被拒绝。
-#
-# 推送被拒绝
+# 本地输出：
+# 推送成功（本地hook被跳过）
+
+# GitHub远程输出：
+# remote: error: GH006: Protected branch update failed
+# remote: error: Required status check "CE Unified Gates" is expected
+# To https://github.com/user/repo.git
+#  ! [remote rejected] main -> main (protected branch hook declined)
 ```
+
+**说明**：
+- ❌ 本地hook **无法检测** `--no-verify`（这是Git的设计限制）
+- ✅ GitHub Branch Protection 在服务端阻止（强制PR流程）
+- ✅ 即使本地绕过，也无法直接push到main
 
 ### 场景4：尝试修改hooksPath绕过（❌ 被阻止）
 ```bash
