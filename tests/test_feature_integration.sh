@@ -4,11 +4,16 @@
 
 set -euo pipefail
 
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
-readonly REGISTRY_CLI="${PROJECT_ROOT}/scripts/feature_registry_cli.sh"
-readonly VALIDATOR="${PROJECT_ROOT}/scripts/feature_integration_validator.sh"
-readonly INTEGRATION="${PROJECT_ROOT}/scripts/feature_phase_integration.sh"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly SCRIPT_DIR
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+readonly PROJECT_ROOT
+REGISTRY_CLI="${PROJECT_ROOT}/scripts/feature_registry_cli.sh"
+readonly REGISTRY_CLI
+VALIDATOR="${PROJECT_ROOT}/scripts/feature_integration_validator.sh"
+readonly VALIDATOR
+INTEGRATION="${PROJECT_ROOT}/scripts/feature_phase_integration.sh"
+readonly INTEGRATION
 
 # Test results
 TESTS_RUN=0
@@ -16,10 +21,14 @@ TESTS_PASSED=0
 TESTS_FAILED=0
 
 # Colors
-readonly GREEN='\033[0;32m'
-readonly RED='\033[0;31m'
-readonly YELLOW='\033[1;33m'
-readonly NC='\033[0m'
+GREEN='\033[0;32m'
+readonly GREEN
+RED='\033[0;31m'
+readonly RED
+YELLOW='\033[1;33m'
+readonly YELLOW
+NC='\033[0m'
+readonly NC
 
 # ============= Test Utilities =============
 
@@ -98,7 +107,8 @@ test_registry_cli_help() {
 test_registry_cli_status() {
     test_start "Registry CLI status command"
 
-    local output=$($REGISTRY_CLI status 2>&1)
+    local output
+    output=$($REGISTRY_CLI status 2>&1)
 
     if echo "$output" | grep -q "Feature Integration System Status"; then
         test_pass "Status command shows system status"
@@ -111,7 +121,8 @@ test_registry_cli_status() {
 test_registry_cli_list() {
     test_start "Registry CLI list features"
 
-    local output=$($REGISTRY_CLI list 2>&1)
+    local output
+    output=$($REGISTRY_CLI list 2>&1)
 
     if echo "$output" | grep -q "cache_manager"; then
         test_pass "List shows registered features"
@@ -214,7 +225,8 @@ test_get_features_for_phase() {
     # Source the integration script
     source "$INTEGRATION"
 
-    local features=$(get_features_for_phase "4" "replace_review")
+    local features
+    features=$(get_features_for_phase "4" "replace_review")
 
     if echo "$features" | grep -q "parallel_review"; then
         test_pass "Found parallel_review for Phase 4"
@@ -227,7 +239,8 @@ test_get_features_for_phase() {
 test_feature_count() {
     test_start "Feature count verification"
 
-    local count=$($REGISTRY_CLI list 2>/dev/null | grep -c "^[a-z_]" || echo 0)
+    local count
+    count=$($REGISTRY_CLI list 2>/dev/null | grep -c "^[a-z_]" || echo 0)
 
     if [[ "$count" -ge 3 ]]; then
         test_pass "At least 3 features registered"
@@ -269,7 +282,8 @@ run_all_tests() {
     echo -e "  Passed: ${GREEN}$TESTS_PASSED${NC}"
     echo -e "  Failed: ${RED}$TESTS_FAILED${NC}"
 
-    local pass_rate=$((TESTS_PASSED * 100 / TESTS_RUN))
+    local pass_rate
+    pass_rate=$((TESTS_PASSED * 100 / TESTS_RUN))
     echo "  Pass rate: ${pass_rate}%"
     echo ""
 
