@@ -4,9 +4,12 @@
 
 set -euo pipefail
 
-readonly PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-readonly REGISTRY="${PROJECT_ROOT}/.claude/FEATURE_REGISTRY.yaml"
-readonly INTEGRATION_LOG="${PROJECT_ROOT}/.temp/feature_integration.log"
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+readonly PROJECT_ROOT
+REGISTRY="${PROJECT_ROOT}/.claude/FEATURE_REGISTRY.yaml"
+readonly REGISTRY
+INTEGRATION_LOG="${PROJECT_ROOT}/.temp/feature_integration.log"
+readonly INTEGRATION_LOG
 
 # 创建日志目录
 mkdir -p "$(dirname "$INTEGRATION_LOG")"

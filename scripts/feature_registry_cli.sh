@@ -4,18 +4,28 @@
 
 set -euo pipefail
 
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
-readonly REGISTRY="${PROJECT_ROOT}/.claude/FEATURE_REGISTRY.yaml"
-readonly TEMPLATE="${PROJECT_ROOT}/.claude/FEATURE_INTEGRATION_TEMPLATE.md"
-readonly VERSION="1.0.0"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly SCRIPT_DIR
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+readonly PROJECT_ROOT
+REGISTRY="${PROJECT_ROOT}/.claude/FEATURE_REGISTRY.yaml"
+readonly REGISTRY
+TEMPLATE="${PROJECT_ROOT}/.claude/FEATURE_INTEGRATION_TEMPLATE.md"
+readonly TEMPLATE
+VERSION="1.0.0"
+readonly VERSION
 
 # 颜色定义
-readonly GREEN='\033[0;32m'
-readonly RED='\033[0;31m'
-readonly YELLOW='\033[1;33m'
-readonly BLUE='\033[0;34m'
-readonly NC='\033[0m' # No Color
+GREEN='\033[0;32m'
+readonly GREEN
+RED='\033[0;31m'
+readonly RED
+YELLOW='\033[1;33m'
+readonly YELLOW
+BLUE='\033[0;34m'
+readonly BLUE
+NC='\033[0m' # No Color
+readonly NC
 
 # ============= 辅助函数 =============
 

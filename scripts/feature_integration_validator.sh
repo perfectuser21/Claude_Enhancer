@@ -4,15 +4,22 @@
 
 set -euo pipefail
 
-readonly PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-readonly REGISTRY="${PROJECT_ROOT}/.claude/FEATURE_REGISTRY.yaml"
-readonly TEMP_DIR="${PROJECT_ROOT}/.temp/feature_validation"
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+readonly PROJECT_ROOT
+REGISTRY="${PROJECT_ROOT}/.claude/FEATURE_REGISTRY.yaml"
+readonly REGISTRY
+TEMP_DIR="${PROJECT_ROOT}/.temp/feature_validation"
+readonly TEMP_DIR
 
 # 颜色定义
-readonly GREEN='\033[0;32m'
-readonly RED='\033[0;31m'
-readonly YELLOW='\033[1;33m'
-readonly NC='\033[0m'
+GREEN='\033[0;32m'
+readonly GREEN
+RED='\033[0;31m'
+readonly RED
+YELLOW='\033[1;33m'
+readonly YELLOW
+NC='\033[0m'
+readonly NC
 
 # 创建临时目录
 mkdir -p "$TEMP_DIR"
