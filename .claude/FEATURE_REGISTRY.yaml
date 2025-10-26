@@ -1,0 +1,74 @@
+# Feature Registry - 新功能注册表
+# 每个新功能必须在这里注册才能被系统识别
+
+version: 1.0.0
+features:
+  cache_manager:
+    name: "智能缓存系统"
+    type: "performance"
+    location: ".claude/tools/cache_manager.sh"
+    phase_integration:
+      - phase: "all"
+        hook_point: "pre_execution"
+    dependencies: []
+    test_suite: "tests/test_cache.sh"
+    performance_baseline:
+      latency: "<50ms"
+      hit_rate: ">30%"
+    status: "active"
+    added_date: "2025-10-25"
+
+  quality_guardian:
+    name: "质量守护系统"
+    type: "quality"
+    location: ".claude/tools/quality_guardian.sh"
+    phase_integration:
+      - phase: "3"
+        hook_point: "post_test"
+      - phase: "4"
+        hook_point: "pre_review"
+    dependencies: ["version_cleaner"]
+    test_suite: "tests/test_quality.sh"
+    ci_integration:
+      workflow: "quality-guardian.yml"
+      schedule: "0 2 * * *"
+    status: "active"
+    added_date: "2025-10-25"
+
+  parallel_review:
+    name: "并行审查系统"
+    type: "performance"
+    location: "scripts/parallel_review.sh"
+    phase_integration:
+      - phase: "4"
+        hook_point: "replace_review"
+    dependencies: []
+    test_suite: "tests/test_parallel.sh"
+    performance_baseline:
+      time_reduction: ">80%"
+    status: "active"
+    added_date: "2025-10-25"
+
+# 功能类型定义
+feature_types:
+  - core        # 核心功能（不可删除）
+  - performance # 性能优化
+  - quality     # 质量保障
+  - security    # 安全增强
+  - monitoring  # 监控告警
+  - utility     # 辅助工具
+
+# 集成点定义
+integration_points:
+  pre_execution:   # 执行前钩子
+  post_execution:  # 执行后钩子
+  replace_default: # 替换默认实现
+  parallel:        # 并行执行
+  conditional:     # 条件执行
+
+# 验证规则
+validation_rules:
+  - 每个功能必须有test_suite
+  - performance类型必须有baseline
+  - 依赖必须先于功能加载
+  - Phase集成点必须存在
