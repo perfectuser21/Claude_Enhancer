@@ -202,6 +202,7 @@ test_phase_integration_functions() {
     test_start "Phase integration functions are available"
 
     # Source the integration script
+    # shellcheck source=/dev/null
     source "$INTEGRATION"
 
     # Check if functions are defined
@@ -223,6 +224,7 @@ test_get_features_for_phase() {
     test_start "Get features for specific phase"
 
     # Source the integration script
+    # shellcheck source=/dev/null
     source "$INTEGRATION"
 
     local features

@@ -145,7 +145,8 @@ EOF
 
 # 列出所有功能
 list_features() {
-    local json_output="${1:-false}"
+    # json_output参数预留给未来JSON输出功能
+    # local json_output="${1:-false}"
 
     if [[ ! -f "$REGISTRY" ]]; then
         log_error "Registry not found. Run 'init' first."
