@@ -69,8 +69,10 @@ check_feature_content() {
     local location="$2"
 
     echo -n "  检查功能实质内容... "
-    local lines=$(wc -l < "${PROJECT_ROOT}/${location}" 2>/dev/null || echo 0)
-    local functions=$(grep -c "^[a-zA-Z_][a-zA-Z0-9_]*\s*()" "${PROJECT_ROOT}/${location}" 2>/dev/null || echo 0)
+    local lines
+    lines=$(wc -l < "${PROJECT_ROOT}/${location}" 2>/dev/null || echo 0)
+    local functions
+    functions=$(grep -c "^[a-zA-Z_][a-zA-Z0-9_]*\s*()" "${PROJECT_ROOT}/${location}" 2>/dev/null || echo 0)
 
     if [[ $lines -gt 50 ]] && [[ $functions -gt 0 ]]; then
         echo -e "${GREEN}✓ ${lines}行, ${functions}个函数${NC}"

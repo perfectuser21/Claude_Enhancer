@@ -156,7 +156,8 @@ list_features() {
     echo ""
 
     # 提取功能列表（简化的YAML解析）
-    local features=$(grep "^  [a-z_]*:" "$REGISTRY" 2>/dev/null | sed 's/://g' | tr -d ' ')
+    local features
+    features=$(grep "^  [a-z_]*:" "$REGISTRY" 2>/dev/null | sed 's/://g' | tr -d ' ')
 
     if [[ -z "$features" ]]; then
         log_warn "No features registered"
@@ -169,9 +170,12 @@ list_features() {
 
     for feature in $features; do
         # 提取功能信息
-        local type=$(grep -A5 "^  ${feature}:" "$REGISTRY" | grep "type:" | head -1 | cut -d'"' -f2)
-        local status=$(grep -A10 "^  ${feature}:" "$REGISTRY" | grep "status:" | head -1 | cut -d'"' -f2)
-        local location=$(grep -A5 "^  ${feature}:" "$REGISTRY" | grep "location:" | head -1 | cut -d'"' -f2)
+        local type
+        type=$(grep -A5 "^  ${feature}:" "$REGISTRY" | grep "type:" | head -1 | cut -d'"' -f2)
+        local status
+        status=$(grep -A10 "^  ${feature}:" "$REGISTRY" | grep "status:" | head -1 | cut -d'"' -f2)
+        local location
+        location=$(grep -A5 "^  ${feature}:" "$REGISTRY" | grep "location:" | head -1 | cut -d'"' -f2)
 
         # 状态颜色
         local status_color="$NC"
@@ -224,7 +228,8 @@ validate_feature() {
         log_warn "Validator not found, running basic checks..."
 
         # 基础验证
-        local location=$(grep -A5 "^  ${name}:" "$REGISTRY" | grep "location:" | head -1 | cut -d'"' -f2)
+        local location
+        location=$(grep -A5 "^  ${name}:" "$REGISTRY" | grep "location:" | head -1 | cut -d'"' -f2)
 
         echo -n "  File exists: "
         if [[ -f "${PROJECT_ROOT}/${location}" ]]; then
@@ -286,9 +291,12 @@ show_status() {
 
     # 统计信息
     if [[ -f "$REGISTRY" ]]; then
-        local total=$(grep -c "^  [a-z_]*:" "$REGISTRY" 2>/dev/null || echo 0)
-        local active=$(grep -c 'status: "active"' "$REGISTRY" 2>/dev/null || echo 0)
-        local disabled=$(grep -c 'status: "disabled"' "$REGISTRY" 2>/dev/null || echo 0)
+        local total
+        total=$(grep -c "^  [a-z_]*:" "$REGISTRY" 2>/dev/null || echo 0)
+        local active
+        active=$(grep -c 'status: "active"' "$REGISTRY" 2>/dev/null || echo 0)
+        local disabled
+        disabled=$(grep -c 'status: "disabled"' "$REGISTRY" 2>/dev/null || echo 0)
 
         echo "Registry Statistics:"
         echo "  Total features: $total"
@@ -299,7 +307,8 @@ show_status() {
         # 功能类型分布
         echo "Feature Types:"
         for type in core performance quality security monitoring utility; do
-            local count=$(grep -c "type: \"$type\"" "$REGISTRY" 2>/dev/null || echo 0)
+            local count
+            count=$(grep -c "type: \"$type\"" "$REGISTRY" 2>/dev/null || echo 0)
             [[ $count -gt 0 ]] && echo "  $type: $count"
         done
     else
@@ -323,10 +332,12 @@ cleanup_features() {
     log_info "Scanning for invalid features..."
 
     local invalid_count=0
-    local features=$(grep "^  [a-z_]*:" "$REGISTRY" 2>/dev/null | sed 's/://g' | tr -d ' ')
+    local features
+    features=$(grep "^  [a-z_]*:" "$REGISTRY" 2>/dev/null | sed 's/://g' | tr -d ' ')
 
     for feature in $features; do
-        local location=$(grep -A5 "^  ${feature}:" "$REGISTRY" | grep "location:" | head -1 | cut -d'"' -f2)
+        local location
+        location=$(grep -A5 "^  ${feature}:" "$REGISTRY" | grep "location:" | head -1 | cut -d'"' -f2)
 
         if [[ ! -f "${PROJECT_ROOT}/${location}" ]]; then
             log_warn "Invalid feature: $feature (file not found: $location)"
@@ -365,8 +376,10 @@ migrate_features() {
         for file in $PROJECT_ROOT/$pattern; do
             [[ ! -f "$file" ]] && continue
 
-            local basename=$(basename "$file" .sh)
-            local relpath=$(realpath --relative-to="$PROJECT_ROOT" "$file")
+            local basename
+            basename=$(basename "$file" .sh)
+            local relpath
+            relpath=$(realpath --relative-to="$PROJECT_ROOT" "$file")
 
             # 跳过已注册的
             if grep -q "^  ${basename}:" "$REGISTRY" 2>/dev/null; then
@@ -406,13 +419,15 @@ test_feature() {
     log_info "Testing feature: $name"
 
     # 获取测试套件路径
-    local test_suite=$(grep -A10 "^  ${name}:" "$REGISTRY" | grep "test_suite:" | head -1 | cut -d'"' -f2)
+    local test_suite
+    test_suite=$(grep -A10 "^  ${name}:" "$REGISTRY" | grep "test_suite:" | head -1 | cut -d'"' -f2)
 
     if [[ -z "$test_suite" ]] || [[ ! -f "${PROJECT_ROOT}/${test_suite}" ]]; then
         log_warn "No test suite found, running basic smoke test..."
 
         # 基础烟雾测试
-        local location=$(grep -A5 "^  ${name}:" "$REGISTRY" | grep "location:" | head -1 | cut -d'"' -f2)
+        local location
+        location=$(grep -A5 "^  ${name}:" "$REGISTRY" | grep "location:" | head -1 | cut -d'"' -f2)
 
         if bash "${PROJECT_ROOT}/${location}" --help >/dev/null 2>&1; then
             log_success "Basic smoke test passed"

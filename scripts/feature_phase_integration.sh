@@ -26,15 +26,18 @@ get_features_for_phase() {
     fi
 
     # 获取所有活跃功能
-    local features=$(grep "^  [a-z_]*:" "$REGISTRY" | sed 's/://g' | tr -d ' ')
+    local features
+    features=$(grep "^  [a-z_]*:" "$REGISTRY" | sed 's/://g' | tr -d ' ')
 
     for feature in $features; do
         # 检查状态是否为active
-        local status=$(grep -A20 "^  ${feature}:" "$REGISTRY" | grep "status:" | head -1 | cut -d'"' -f2)
+        local status
+        status=$(grep -A20 "^  ${feature}:" "$REGISTRY" | grep "status:" | head -1 | cut -d'"' -f2)
         [[ "$status" != "active" ]] && continue
 
         # 检查是否配置了该Phase的集成
-        local feature_block=$(sed -n "/^  ${feature}:/,/^  [a-z_]*:/p" "$REGISTRY")
+        local feature_block
+        feature_block=$(sed -n "/^  ${feature}:/,/^  [a-z_]*:/p" "$REGISTRY")
 
         # 检查是否有匹配的phase和hook_point
         if echo "$feature_block" | grep -q "phase: \"$phase\"" || \
@@ -56,7 +59,8 @@ execute_feature() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] Executing $feature for Phase $phase at $hook_point" >> "$INTEGRATION_LOG"
 
     # 获取功能位置
-    local location=$(grep -A5 "^  ${feature}:" "$REGISTRY" | grep "location:" | head -1 | cut -d'"' -f2)
+    local location
+    location=$(grep -A5 "^  ${feature}:" "$REGISTRY" | grep "location:" | head -1 | cut -d'"' -f2)
 
     if [[ ! -f "${PROJECT_ROOT}/${location}" ]]; then
         echo "[ERROR] Feature file not found: $location" >> "$INTEGRATION_LOG"
@@ -84,7 +88,8 @@ phase1_integration() {
 
     echo "🔧 Phase 1 Integration: $hook_point"
 
-    local features=$(get_features_for_phase "1" "$hook_point")
+    local features
+    features=$(get_features_for_phase "1" "$hook_point")
     for feature in $features; do
         echo "  → Executing: $feature"
         execute_feature "$feature" "1" "$hook_point"
@@ -97,7 +102,8 @@ phase2_integration() {
 
     echo "🔧 Phase 2 Integration: $hook_point"
 
-    local features=$(get_features_for_phase "2" "$hook_point")
+    local features
+    features=$(get_features_for_phase "2" "$hook_point")
     for feature in $features; do
         echo "  → Executing: $feature"
         execute_feature "$feature" "2" "$hook_point"
@@ -110,7 +116,8 @@ phase3_integration() {
 
     echo "🔧 Phase 3 Integration: $hook_point"
 
-    local features=$(get_features_for_phase "3" "$hook_point")
+    local features
+    features=$(get_features_for_phase "3" "$hook_point")
 
     # 特殊处理：replace_test类型
     if [[ "$hook_point" == "replace_test" ]] && [[ -n "$features" ]]; then
@@ -134,7 +141,8 @@ phase4_integration() {
 
     echo "🔧 Phase 4 Integration: $hook_point"
 
-    local features=$(get_features_for_phase "4" "$hook_point")
+    local features
+    features=$(get_features_for_phase "4" "$hook_point")
 
     # 特殊处理：replace_review类型（如parallel_review）
     if [[ "$hook_point" == "replace_review" ]] && [[ -n "$features" ]]; then
@@ -157,7 +165,8 @@ phase5_integration() {
 
     echo "🔧 Phase 5 Integration: $hook_point"
 
-    local features=$(get_features_for_phase "5" "$hook_point")
+    local features
+    features=$(get_features_for_phase "5" "$hook_point")
     for feature in $features; do
         echo "  → Executing: $feature"
         execute_feature "$feature" "5" "$hook_point"
@@ -170,7 +179,8 @@ phase6_integration() {
 
     echo "🔧 Phase 6 Integration: $hook_point"
 
-    local features=$(get_features_for_phase "6" "$hook_point")
+    local features
+    features=$(get_features_for_phase "6" "$hook_point")
     for feature in $features; do
         echo "  → Executing: $feature"
         execute_feature "$feature" "6" "$hook_point"
@@ -183,7 +193,8 @@ phase7_integration() {
 
     echo "🔧 Phase 7 Integration: $hook_point"
 
-    local features=$(get_features_for_phase "7" "$hook_point")
+    local features
+    features=$(get_features_for_phase "7" "$hook_point")
     for feature in $features; do
         echo "  → Executing: $feature"
         execute_feature "$feature" "7" "$hook_point"
@@ -196,7 +207,8 @@ all_phases_integration() {
 
     echo "🔧 All Phases Integration: $hook_point"
 
-    local features=$(get_features_for_phase "all" "$hook_point")
+    local features
+    features=$(get_features_for_phase "all" "$hook_point")
     for feature in $features; do
         echo "  → Executing: $feature"
         execute_feature "$feature" "all" "$hook_point"
