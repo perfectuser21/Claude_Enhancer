@@ -59,7 +59,9 @@ has_code_changes() {
   if [[ -n "$code_files" ]]; then
     echo "true"
     echo "  代码文件改动:" >&2
-    echo "$code_files" | sed 's/^/    - /' >&2
+    while IFS= read -r file; do
+      echo "    - $file" >&2
+    done <<< "$code_files"
     return 0
   fi
 
@@ -71,15 +73,14 @@ has_code_changes() {
 # ============================================================================
 check_phase1_docs() {
   local p1_count checklist_count plan_count
-  local branch branch_slug
-  local branch_creation_time current_time
+  local branch branch_base branch_keywords
 
   # 获取当前分支名并转换为文件名安全的slug
   branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
   # 提取分支名主体（去掉feature/bugfix/等前缀）
-  local branch_base=$(basename "$branch")
+  branch_base=$(basename "$branch")
   # 提取关键词（取前2-3个单词，忽略分隔符）
-  local branch_keywords=$(echo "$branch_base" | sed 's/[-_]/ /g' | awk '{for(i=1;i<=3&&i<=NF;i++) printf "%s ", toupper($i)}')
+  branch_keywords=$(echo "$branch_base" | sed 's/[-_]/ /g' | awk '{for(i=1;i<=3&&i<=NF;i++) printf "%s ", toupper($i)}')
 
   # 策略1: 检查分支特定文档（模糊匹配关键词）
   # 格式: 文件名包含分支关键词
@@ -90,9 +91,10 @@ check_phase1_docs() {
   # 对每个关键词尝试匹配
   for keyword in $branch_keywords; do
     if [[ ${#keyword} -ge 4 ]]; then  # 至少4个字符的关键词才匹配
-      local p1_tmp=$(find docs/ -maxdepth 1 -iname "P1_*${keyword}*.md" -type f 2>/dev/null | wc -l)
-      local checklist_tmp=$(find docs/ -maxdepth 1 -iname "*CHECKLIST*${keyword}*.md" -type f 2>/dev/null | wc -l)
-      local plan_tmp=$(find docs/ -maxdepth 1 -iname "PLAN*${keyword}*.md" -type f 2>/dev/null | wc -l)
+      local p1_tmp checklist_tmp plan_tmp
+      p1_tmp=$(find docs/ -maxdepth 1 -iname "P1_*${keyword}*.md" -type f 2>/dev/null | wc -l)
+      checklist_tmp=$(find docs/ -maxdepth 1 -iname "*CHECKLIST*${keyword}*.md" -type f 2>/dev/null | wc -l)
+      plan_tmp=$(find docs/ -maxdepth 1 -iname "PLAN*${keyword}*.md" -type f 2>/dev/null | wc -l)
 
       # 取最大值（可能多个关键词都匹配）
       [[ $p1_tmp -gt $p1_count ]] && p1_count=$p1_tmp
