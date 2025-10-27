@@ -45,6 +45,13 @@ access.log
 .workflow/logs/*.log.gz
 .workflow/logs/archive/
 
+# P0-3 Fix: Phase quality gate markers (stored in .git/ce/, not working directory)
+# These are backup protection in case files leak to working directory
+.workflow/.phase*_gate_passed
+.workflow/.phase7_complete
+.workflow/.cleanup_done
+.workflow/override/*.once
+
 # Archive
 /docs/archive/*.old
 

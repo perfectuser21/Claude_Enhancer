@@ -1,5 +1,69 @@
 # Changelog
 
+## [8.0.2] - 2025-10-27
+
+### 🔒 Security & Critical Fixes
+
+**P0 Critical Issues Fixed** (from ChatGPT Audit):
+
+1. **P0-1: Phase Detection Bug**
+   - Created `.git/hooks/lib/ce_common.sh` library with robust phase parsing
+   - Added `normalize_phase()` and `read_phase()` functions
+   - No longer depends on timing-sensitive COMMIT_EDITMSG file
+   - Handles all phase format variations (Phase 3, P3, phase3, 3, Closure)
+
+2. **P0-2: Fail-Closed Strategy**
+   - Implemented hard-blocking when quality gate scripts are missing
+   - Added one-time override mechanism (`.workflow/override/*.once` files)
+   - Audit logging for all override usage
+   - Scripts missing now = `exit 1` (not just warnings)
+
+3. **P0-3: State Migration**
+   - Migrated all state files from `.workflow/` to `.git/ce/`
+   - Working directory stays clean (`git status` no longer shows state files)
+   - Updated `mark_gate_passed()` and `check_gate_passed()` functions
+   - Logs moved to `.git/ce/logs/`
+
+4. **P0-4: Enhanced Tag Protection**
+   - Added 3-layer tag validation in `.git/hooks/pre-push`
+   - Layer 1: Rejects lightweight tags (only annotated allowed)
+   - Layer 2: Ensures tags are descendants of `origin/main`
+   - Layer 3: Optional GPG signature verification
+   - Clear error messages for each validation layer
+
+5. **P0-5: CE Gates CI/CD Workflow**
+   - Created `.github/workflows/ce-gates.yml` for server-side enforcement
+   - 3 quality gate jobs: phase3-static-checks, phase4-pre-merge-audit, phase7-final-validation
+   - Summary job aggregates all results
+   - Defense in depth: local hooks + CI/CD
+
+6. **P0-6: Parsing Robustness**
+   - Moved `verify-phase-consistency.sh` from `tools/` to `scripts/`
+   - Updated all documentation references
+   - Unified script organization
+
+**CRITICAL Security Fix**:
+- **Removed BYPASS_WORKFLOW mechanism**
+  - AI can no longer create `.workflow/BYPASS_WORKFLOW` file to skip checks
+  - `check_bypass()` now always returns "no-bypass"
+  - Updated `CLAUDE.md` with explicit AI behavior rules
+  - Clarified "Bypass Permissions" (no popups) vs "Bypass Workflow" (forbidden)
+  - AI must 100% follow workflow, no exceptions
+
+**Documentation**:
+- Added `docs/P1_p0-fixes-chatgpt-audit.md` (problem discovery)
+- Added `docs/ACCEPTANCE_CHECKLIST_p0-fixes.md` (test cases)
+- Added `docs/PLAN_p0-fixes.md` (implementation guide)
+- Added `docs/REVIEW_p0-fixes-chatgpt-audit.md` (code review)
+
+**Impact**:
+- **Security**: Critical - prevents AI from bypassing workflow enforcement
+- **Reliability**: High - fixes phase detection race conditions
+- **Quality**: High - enforces quality gates with fail-closed strategy
+- **CI/CD**: Medium - adds server-side quality enforcement
+
+---
+
 ## [8.0.1] - 2025-10-27
 
 ### 🔧 Code Quality

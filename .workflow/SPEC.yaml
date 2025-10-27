@@ -1,5 +1,5 @@
 # Claude Enhancer 核心规格说明书（SPEC）
-# 版本: v8.0.1
+# 版本: v8.0.2
 # 用途: 定义"核心不变层" - AI修改这些内容需要在CHANGELOG明确说明理由
 # 更新日期: 2025-10-24
 
@@ -9,7 +9,7 @@
 
 metadata:
   name: "Claude Enhancer"
-  version: "8.0.1"
+  version: "8.0.2"
   type: "single_workflow"  # 单一工作流系统（非多工作流平台）
   purpose: "专业级个人AI编程工作流系统"
   target_user: "个人开发者（单用户）"
