@@ -817,27 +817,45 @@ bash tools/verify-core-structure.sh
 ║  Phase 7: Closure（收尾合并）- 4检查点                    ║
 ╚═══════════════════════════════════════════════════════════╝
 
-【阶段目标】：清理临时文件 + 准备合并
+【阶段目标】：全面清理 + 最终验证 + 准备合并
 
 【核心活动】：
-  🧹 清理.temp/目录（<10MB）
+  🧹 全面清理过期信息和临时文件
   🔍 最终版本一致性验证 ⛔（6个文件）
   🔄 Phase系统一致性验证
   📝 检查文档规范
   🚀 准备PR
 
-【必须执行的验证】：
-  1. `bash scripts/check_version_consistency.sh` - 验证6个文件版本统一
-  2. `bash tools/verify-phase-consistency.sh` - 验证Phase系统一致性
+【必须执行的脚本】：
+  1. `bash scripts/comprehensive_cleanup.sh [mode]` - 全面清理（3种模式）
+     - `aggressive` - 激进清理，删除所有过期内容（推荐）
+     - `conservative` - 保守清理，归档而不删除
+     - `minimal` - 最小清理，只删除明确过期的
+     - `interactive` - 交互式选择模式（默认）
 
-【完整Cleanup Checklist】：
+  2. `bash scripts/check_version_consistency.sh` - 验证6个文件版本统一
+
+  3. `bash tools/verify-phase-consistency.sh` - 验证Phase系统一致性
+
+【全面清理Checklist】：
+
+  过期文件清理（comprehensive_cleanup.sh执行）：
+  - [ ] .temp/目录清空（保留结构）
+  - [ ] 旧版本文件删除（*_v[0-9]*, *_old*, *.bak）
+  - [ ] 重复文档删除（PLAN*.md等）
+  - [ ] 归档目录整合（archive/统一管理）
+  - [ ] 测试会话数据清理
+  - [ ] 过期配置删除（*.backup_old_*等）
+  - [ ] 大文件清理（7天以上的日志和报告）
+  - [ ] Git仓库清理（git gc）
+
   版本文件（6个必须一致）：
   - [ ] VERSION
   - [ ] .claude/settings.json
   - [ ] .workflow/manifest.yml
   - [ ] package.json
   - [ ] CHANGELOG.md
-  - [ ] .workflow/SPEC.yaml ← 新增检查
+  - [ ] .workflow/SPEC.yaml
 
   Phase系统（必须统一为7 Phases）：
   - [ ] SPEC.yaml: total_phases = 7
@@ -845,24 +863,54 @@ bash tools/verify-core-structure.sh
   - [ ] manifest.yml: Phase ID格式 = Phase1-Phase7
   - [ ] CLAUDE.md: 描述为7-Phase系统
 
-  临时文件清理：
+  文档规范验证：
+  - [ ] 根目录文档 ≤7个 ⛔
   - [ ] .temp/目录大小 <10MB
-  - [ ] 测试session数据已删除
-  - [ ] 临时分析报告已归档/删除
+  - [ ] 无临时报告文件（*_REPORT.md等）
 
   核心结构验证：
   - [ ] `bash tools/verify-core-structure.sh` 通过
   - [ ] LOCK.json已更新（如有必要）
 
+【清理后验证】：
+  ✅ 根目录文档数量（应≤7个）
+  ✅ .temp/大小（应<10MB）
+  ✅ Git工作区状态（应干净）
+  ✅ 版本一致性（6/6文件统一）
+  ✅ 未提交更改数量（准备commit）
+
 【核心产出】：
-  ✅ 干净的分支
+  ✅ 干净的分支（无过期文件）
   ✅ 版本完全一致（6/6文件）
   ✅ Phase系统统一（7 Phases）
+  ✅ 释放空间（~10-20MB）
   ✅ merge-ready状态
 
 【检查点】：4个（CL_S001-S002 + G002-G003）
 
 【等待用户】：用户明确说"merge"后才能合并到主线
+
+---
+
+### 📊 Phase 7清理模式对比
+
+| 模式 | 清理范围 | 风险 | 适用场景 |
+|------|---------|------|---------|
+| **aggressive** | 删除所有过期内容 | 低 | 发布前清理（推荐） |
+| **conservative** | 归档而不删除 | 极低 | 不确定是否需要保留 |
+| **minimal** | 只删除明确过期的 | 极低 | 快速清理 |
+| **interactive** | 由用户选择 | 自定 | 首次使用 |
+
+**推荐用法**：
+```bash
+# 发布前全面清理
+bash scripts/comprehensive_cleanup.sh aggressive
+
+# 查看清理效果
+git status
+du -sh .temp/
+ls -1 *.md | wc -l  # 应该≤7
+```
 
 ---
 

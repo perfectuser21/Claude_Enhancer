@@ -1117,9 +1117,57 @@ AI对照87个验收检查点逐项验证，生成验收报告，等待用户确�
 
 ---
 
-## 🧹 Phase 7: Closure (预留)
+## 🧹 Phase 7: Closure
 
-清理临时文件，创建PR，等待用户说"merge"后合并。
+**目标**: 全面清理过期信息 + 最终验证 + 准备合并
+
+### 必须执行的脚本
+
+1. **`bash scripts/comprehensive_cleanup.sh aggressive`** - 全面清理
+   - 清理10类过期内容（.temp/、旧版本文件、重复文档等）
+   - 释放空间 ~10-20MB
+   - 整合归档目录
+
+2. **`bash scripts/check_version_consistency.sh`** - 版本一致性验证
+   - 验证6个文件版本统一（VERSION, settings.json, manifest.yml, package.json, CHANGELOG.md, SPEC.yaml）
+
+3. **`bash tools/verify-phase-consistency.sh`** - Phase系统一致性验证
+
+### 核心检查清单
+
+**过期文件清理**:
+- [ ] .temp/目录清空（保留结构）
+- [ ] 旧版本文件删除（*_v[0-9]*, *_old*, *.bak）
+- [ ] 重复文档删除
+- [ ] 归档目录整合
+- [ ] 测试会话数据清理
+- [ ] 大文件清理（7天以上）
+
+**文档规范验证**:
+- [ ] 根目录文档 ≤7个 ⛔
+- [ ] .temp/大小 <10MB
+- [ ] 无临时报告文件
+
+**版本和结构验证**:
+- [ ] 版本完全一致（6/6文件）⛔
+- [ ] Phase系统统一（7 Phases）
+- [ ] 核心结构验证通过
+
+### 清理模式
+
+- **aggressive** - 删除所有过期内容（推荐，用于发布）
+- **conservative** - 归档而不删除
+- **minimal** - 只删除明确过期的
+- **interactive** - 交互式选择
+
+### 产出
+
+- ✅ 干净的分支（无过期文件）
+- ✅ 版本完全一致
+- ✅ 释放空间 ~10-20MB
+- ✅ merge-ready状态
+
+**等待用户说"merge"后才执行合并操作**
 
 ---
 
