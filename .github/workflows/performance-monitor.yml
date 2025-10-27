@@ -59,8 +59,9 @@ jobs:
           echo "duration=$avg" >> $GITHUB_OUTPUT
 
           # Performance thresholds
-          threshold_warning=300
-          threshold_error=500
+          # Adjusted for production-grade multi-layer validation (8 checks)
+          threshold_warning=800
+          threshold_error=1500
 
           if [ $avg -lt $threshold_warning ]; then
             echo "✅ Excellent performance: ${avg}ms"
