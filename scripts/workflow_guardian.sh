@@ -116,24 +116,14 @@ check_phase1_docs() {
 }
 
 # ============================================================================
-# Module 4: 检查Bypass
+# Module 4: 检查Bypass - REMOVED FOR SECURITY
 # ============================================================================
+# SECURITY: Bypass mechanism completely removed
+# AI must follow workflow strictly, no exceptions
+# Only user can override by modifying git hooks directly
 check_bypass() {
-  if [[ -f ".workflow/BYPASS_WORKFLOW" ]]; then
-    echo -e "${YELLOW}⚠️  检测到Bypass文件${NC}" >&2
-
-    # 读取bypass原因
-    if command -v jq &> /dev/null; then
-      local reason
-      reason=$(jq -r '.reason // "No reason provided"' .workflow/BYPASS_WORKFLOW 2>/dev/null || echo "Invalid JSON")
-      echo -e "${YELLOW}   理由: $reason${NC}" >&2
-    fi
-
-    # Bypass有效，commit后删除
-    echo "bypass"
-    return 0
-  fi
-
+  # Always return "no-bypass"
+  # Bypass functionality removed to enforce 100% workflow compliance
   echo "no-bypass"
 }
 
@@ -183,16 +173,8 @@ enforce_workflow() {
 
   # ===== 决策逻辑 =====
 
-  # 情况1: 有bypass - 允许但警告
-  if [[ "$bypass_status" == "bypass" ]]; then
-    echo -e "${YELLOW}⚠️  使用Bypass机制，跳过workflow检查${NC}"
-    echo -e "${YELLOW}   Commit后将自动删除bypass文件${NC}"
-
-    # 删除bypass文件（commit后）
-    rm -f .workflow/BYPASS_WORKFLOW
-
-    return 0
-  fi
+  # SECURITY: Bypass mechanism removed
+  # No more "情况1: 有bypass" - always enforce workflow
 
   # 情况2: docs分支且无代码改动 - 豁免
   if [[ "$branch_type" == "docs" && "$code_changes" == "false" ]]; then
@@ -235,10 +217,8 @@ enforce_workflow() {
       echo "     git add docs/"
       echo "     git commit"
       echo ""
-      echo -e "${CYAN}紧急情况Bypass:${NC}"
-      echo "  如果是紧急hotfix，创建bypass文件:"
-      echo "  echo '{\"reason\":\"Emergency hotfix\",\"approved_by\":\"user\"}' > .workflow/BYPASS_WORKFLOW"
-      echo "  git add .workflow/BYPASS_WORKFLOW"
+      echo -e "${RED}注意：Bypass机制已被删除，必须严格遵守工作流${NC}"
+      echo -e "${RED}如有紧急情况，请联系项目维护者${NC}"
       echo ""
 
       return 1
