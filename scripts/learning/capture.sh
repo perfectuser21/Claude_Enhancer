@@ -216,7 +216,7 @@ observation:
   description: "$DESCRIPTION"
   technical_details: "$TECHNICAL_DETAILS"
   code_snippet: |
-$(if [[ -n "$CODE_SNIPPET" ]]; then echo "$CODE_SNIPPET" | sed 's/^/    /'; else echo "    "; fi)
+$(if [[ -n "$CODE_SNIPPET" ]]; then echo "$CODE_SNIPPET" | awk '{print "    " $0}'; else echo "    "; fi)
 
 learning:
   root_cause: "$ROOT_CAUSE"

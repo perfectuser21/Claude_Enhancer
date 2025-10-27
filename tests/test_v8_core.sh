@@ -68,7 +68,7 @@ fi
 
 # Test 2: 验证YAML文件创建
 echo "[2/8] 验证Learning Item文件..."
-LATEST_ITEM=$(ls -t "$CE_HOME/.learning/items/"*.yml 2>/dev/null | head -1)
+LATEST_ITEM=$(find "$CE_HOME/.learning/items/" -name "*.yml" -type f -printf '%T@ %p\n' 2>/dev/null | sort -rn | head -1 | cut -d' ' -f2-)
 if [[ -f "$LATEST_ITEM" ]]; then
   test_pass "Learning Item文件已创建"
 else
@@ -99,9 +99,9 @@ fi
 
 # Test 5: TODO转换
 echo "[5/8] 测试TODO转换..."
-BEFORE_COUNT=$(ls "$CE_HOME/.todos/pending/"*.json 2>/dev/null | wc -l)
+BEFORE_COUNT=$(find "$CE_HOME/.todos/pending/" -name "*.json" -type f 2>/dev/null | wc -l)
 bash "$CE_HOME/scripts/learning/convert_to_todo.sh" >/dev/null 2>&1
-AFTER_COUNT=$(ls "$CE_HOME/.todos/pending/"*.json 2>/dev/null | wc -l)
+AFTER_COUNT=$(find "$CE_HOME/.todos/pending/" -name "*.json" -type f 2>/dev/null | wc -l)
 
 if [[ $AFTER_COUNT -ge $BEFORE_COUNT ]]; then
   test_pass "TODO转换功能正常"
