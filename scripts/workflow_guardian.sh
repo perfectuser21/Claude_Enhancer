@@ -131,7 +131,7 @@ check_bypass() {
 # Module 5: 主逻辑
 # ============================================================================
 enforce_workflow() {
-  local branch_type code_changes bypass_status docs_status
+  local branch_type code_changes docs_status
 
   echo -e "${CYAN}╔═══════════════════════════════════════════════════════════╗${NC}"
   echo -e "${CYAN}║  Workflow Guardian - 7-Phase Enforcement                 ║${NC}"
