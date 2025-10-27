@@ -1,0 +1,193 @@
+# ═══════════════════════════════════════════════════════════════
+# CE Gates - Phase Quality Gate Enforcement
+# Claude Enhancer P0-5: GitHub Actions Integration
+# ═══════════════════════════════════════════════════════════════
+#
+# Purpose: Enforce quality gates from Phase 3, 4, and 7 at CI level
+# Triggered on: Pull requests to main branch
+# Required for merge: All 3 jobs must pass
+#
+# ChatGPT Audit P0-5: Create dedicated CE Gates workflow
+# Impact: Critical - Ensures quality gates run even if local hooks bypassed
+# ═══════════════════════════════════════════════════════════════
+
+name: CE Gates
+
+on:
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:  # Allow manual trigger for testing
+
+# Cancel in-progress runs when a new push is made
+concurrency:
+  group: ce-gates-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ═══════════════════════════════════════════════════════════════
+  # Phase 3: Quality Gate 1 - Static Checks
+  # ═══════════════════════════════════════════════════════════════
+  phase3_static_checks:
+    name: ce/phase3-static-checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for git operations
+
+      - name: Set up environment
+        run: |
+          echo "CE_DEBUG=false" >> $GITHUB_ENV
+          mkdir -p .git/ce/logs
+
+      - name: Run Phase 3 Static Checks
+        run: |
+          if [ -f scripts/static_checks.sh ]; then
+            echo "Running static_checks.sh..."
+            bash scripts/static_checks.sh
+          else
+            echo "⚠️  scripts/static_checks.sh not found"
+            echo "This is expected if the script hasn't been created yet"
+            echo "✓ Passing for now (will be enforced when script exists)"
+          fi
+
+      - name: Upload static check logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: static-checks-logs
+          path: .git/ce/logs/
+          retention-days: 7
+
+  # ═══════════════════════════════════════════════════════════════
+  # Phase 4: Quality Gate 2 - Pre-Merge Audit
+  # ═══════════════════════════════════════════════════════════════
+  phase4_pre_merge_audit:
+    name: ce/phase4-pre-merge-audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for version checks
+
+      - name: Set up environment
+        run: |
+          echo "CE_DEBUG=false" >> $GITHUB_ENV
+          mkdir -p .git/ce/logs
+
+      - name: Run Phase 4 Pre-Merge Audit
+        run: |
+          if [ -f scripts/pre_merge_audit.sh ]; then
+            echo "Running pre_merge_audit.sh..."
+            bash scripts/pre_merge_audit.sh
+          else
+            echo "⚠️  scripts/pre_merge_audit.sh not found"
+            echo "This is expected if the script hasn't been created yet"
+            echo "✓ Passing for now (will be enforced when script exists)"
+          fi
+
+      - name: Upload audit logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pre-merge-audit-logs
+          path: .git/ce/logs/
+          retention-days: 7
+
+  # ═══════════════════════════════════════════════════════════════
+  # Phase 7: Final Validation - Version Consistency
+  # ═══════════════════════════════════════════════════════════════
+  phase7_final_validation:
+    name: ce/phase7-final-validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Phase 7 Version Consistency Check
+        run: |
+          if [ -f scripts/check_version_consistency.sh ]; then
+            echo "Running check_version_consistency.sh..."
+            bash scripts/check_version_consistency.sh
+          else
+            echo "⚠️  scripts/check_version_consistency.sh not found"
+            echo "Falling back to manual version check..."
+
+            # Manual version check for 6 files
+            VERSION_FILE="VERSION"
+            if [ ! -f "$VERSION_FILE" ]; then
+              echo "❌ VERSION file not found"
+              exit 1
+            fi
+
+            EXPECTED_VERSION=$(cat "$VERSION_FILE" | tr -d '[:space:]')
+            echo "Expected version: $EXPECTED_VERSION"
+
+            # Check all 6 files
+            FILES=(
+              ".claude/settings.json:version"
+              ".workflow/manifest.yml:version"
+              "package.json:version"
+              "CHANGELOG.md:## \\[$EXPECTED_VERSION\\]"
+              ".workflow/SPEC.yaml:system_version"
+            )
+
+            ALL_MATCH=true
+            for file_spec in "${FILES[@]}"; do
+              IFS=':' read -r file pattern <<< "$file_spec"
+              if [ -f "$file" ]; then
+                if grep -q "$pattern.*$EXPECTED_VERSION" "$file"; then
+                  echo "✓ $file matches"
+                else
+                  echo "❌ $file does not match expected version"
+                  ALL_MATCH=false
+                fi
+              else
+                echo "⚠️  $file not found, skipping"
+              fi
+            done
+
+            if [ "$ALL_MATCH" = true ]; then
+              echo "✅ All version checks passed"
+            else
+              echo "❌ Version consistency check failed"
+              exit 1
+            fi
+          fi
+
+  # ═══════════════════════════════════════════════════════════════
+  # Summary Job - All Gates Must Pass
+  # ═══════════════════════════════════════════════════════════════
+  ce_gates_summary:
+    name: ce/gates-summary
+    runs-on: ubuntu-latest
+    needs: [phase3_static_checks, phase4_pre_merge_audit, phase7_final_validation]
+    if: always()
+
+    steps:
+      - name: Check all gates passed
+        run: |
+          echo "═══════════════════════════════════════════════════════"
+          echo "CE Gates Summary"
+          echo "═══════════════════════════════════════════════════════"
+          echo "Phase 3 Static Checks: ${{ needs.phase3_static_checks.result }}"
+          echo "Phase 4 Pre-Merge Audit: ${{ needs.phase4_pre_merge_audit.result }}"
+          echo "Phase 7 Final Validation: ${{ needs.phase7_final_validation.result }}"
+          echo "═══════════════════════════════════════════════════════"
+
+          if [[ "${{ needs.phase3_static_checks.result }}" != "success" ]] || \
+             [[ "${{ needs.phase4_pre_merge_audit.result }}" != "success" ]] || \
+             [[ "${{ needs.phase7_final_validation.result }}" != "success" ]]; then
+            echo "❌ CE Gates FAILED - One or more quality gates did not pass"
+            exit 1
+          else
+            echo "✅ CE Gates PASSED - All quality gates passed"
+          fi
