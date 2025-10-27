@@ -1,0 +1,22 @@
+{
+  "by_category": {
+    "error_pattern": 3,
+    "performance": 5,
+    "architecture": 0,
+    "code_quality": 0,
+    "success_pattern": 0
+  },
+  "by_project": {
+    "claude-enhancer": 7,
+    "xx": 1
+  },
+  "by_phase": {
+    "Phase1": 0,
+    "Phase2": 8,
+    "Phase3": 0,
+    "Phase4": 0,
+    "Phase5": 0,
+    "Phase6": 0,
+    "Phase7": 0
+  }
+}

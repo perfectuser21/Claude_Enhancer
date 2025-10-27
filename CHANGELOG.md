@@ -1,5 +1,75 @@
 # Changelog
 
+## [8.0.0] - 2025-10-27
+
+### 🎉 Major Feature: Dual Evolution Learning System
+
+**重大更新**: v8.0引入双进化学习系统，让Claude Enhancer可以从开发过程中学习并持续改进。
+
+**核心功能**:
+
+1. **Learning System** - 5类学习捕获
+   - 错误模式学习（Error Pattern Learning）
+   - 性能优化学习（Performance Learning）
+   - 架构决策学习（Architecture Learning）
+   - 代码质量学习（Code Quality Learning）
+   - 成功模式学习（Success Pattern Learning）
+   - 数据存储: `.learning/items/` (YAML格式)
+   - 多维度索引: by_category, by_project, by_phase
+
+2. **Auto-fix Mechanism** - 三级自动修复
+   - Tier 1 (Auto): 自动修复低风险问题（如依赖缺失、格式错误）
+   - Tier 2 (Try Then Ask): 尝试修复中风险问题，失败后询问
+   - Tier 3 (Must Confirm): 高风险问题必须用户确认
+   - 基于历史Learning Items的智能决策
+
+3. **TODO Queue System** - 学习转TODO
+   - 符合条件的Learning Items自动转换为TODO
+   - 转换规则: `todo_candidate=true && confidence>=0.80 && priority in [high, medium]`
+   - TODO队列: `.todos/pending/`, `.todos/in_progress/`, `.todos/completed/`
+
+4. **Notion Integration** - 批量同步
+   - Phase 7完成后自动同步到Notion
+   - 支持3个Notion数据库: notes (Learning Items), tasks (TODOs), events (项目摘要)
+   - 非技术摘要生成（术语自动替换，面向非程序员）
+   - dry-run模式支持
+
+5. **ce CLI Tool** - 统一命令行
+   - `ce dev` - 启动开发模式
+   - `ce mode status` - 查看当前模式
+   - `ce todo list/show` - TODO管理
+   - `ce learning list/stats/capture` - 学习系统管理
+   - `ce sync notion` - Notion同步
+
+**新增文件**:
+- `scripts/v8_setup_directories.sh` - 目录结构初始化
+- `scripts/learning/capture.sh` - Learning Item捕获
+- `scripts/learning/auto_fix.py` - Auto-fix决策引擎
+- `scripts/learning/convert_to_todo.sh` - TODO转换
+- `scripts/learning/sync_notion.py` - Notion同步
+- `tools/ce` - 统一CLI工具
+- `tests/test_v8_core.sh` - v8.0核心测试
+
+**文档**:
+- `docs/P1_DISCOVERY.md` - v8.0技术可行性分析
+- `docs/ACCEPTANCE_CHECKLIST.md` - 87个验收检查点
+- `docs/PLAN_V8.md` - 完整实施计划
+
+**数据隐私**:
+- Learning Items和TODOs数据已添加到`.gitignore`
+- Notion Token从环境变量读取
+- 外部项目的Learning数据返回CE目录存储
+
+**Impact**:
+- 从开发过程中自动学习，持续改进
+- Auto-fix提高开发效率（tier1自动修复）
+- TODO队列系统化管理改进建议
+- Notion同步实现知识沉淀
+
+**Breaking Changes**: 无（完全向后兼容v7.3.0）
+
+---
+
 ## [7.3.0] - 2025-10-24
 
 ### 🚀 Performance: P0 Workflow Optimization - 60% Time Reduction

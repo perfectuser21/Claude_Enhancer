@@ -1,0 +1,15 @@
+# Notion Integration Configuration
+# Token从环境变量NOTION_TOKEN读取，不要硬编码在这里
+
+token_env_var: "NOTION_TOKEN"
+
+databases:
+  notes: "1fb0ec1c-c75b-482b-be0c-ffd4fdb5fd4d"
+  tasks: "54fe0d4c-f434-4e91-8bb0-e33967661c42"
+  events: "e6c819b1-fd59-41d1-af89-539ac9504c07"
+
+sync:
+  batch_size: 100
+  retry_attempts: 3
+  retry_delay_seconds: 5
+  dry_run_default: false
