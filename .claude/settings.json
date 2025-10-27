@@ -30,6 +30,7 @@
       ".claude/hooks/force_branch_check.sh",
       ".claude/hooks/ai_behavior_monitor.sh",
       ".claude/hooks/workflow_enforcer.sh",
+      ".claude/hooks/phase2_5_autonomous.sh",
       ".claude/hooks/smart_agent_selector.sh",
       ".claude/hooks/gap_scan.sh",
       ".claude/hooks/impact_assessment_enforcer.sh"
