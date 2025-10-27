@@ -1,0 +1,334 @@
+#!/usr/bin/env bash
+# Claude Enhancer v8.0 CLI Tool
+# 用法: ce [command] [options]
+# 日期: 2025-10-27
+
+set -euo pipefail
+
+# CE_HOME检测
+CE_HOME="${CE_HOME:-}"
+if [[ -z "$CE_HOME" ]]; then
+  SPEC_PATH=$(find ~ -maxdepth 3 -name "SPEC.yaml" -path "*/.workflow/*" 2>/dev/null | head -1)
+  if [[ -n "$SPEC_PATH" ]]; then
+    CE_HOME="$(dirname "$(dirname "$SPEC_PATH")")"
+  fi
+fi
+
+if [[ -z "${CE_HOME:-}" ]]; then
+  echo "❌ 错误: 无法找到Claude Enhancer目录" >&2
+  echo "   请设置CE_HOME环境变量" >&2
+  echo "   示例: export CE_HOME=/home/xx/dev/Claude\\ Enhancer" >&2
+  exit 1
+fi
+
+# 命令路由
+COMMAND="${1:-help}"
+
+case "$COMMAND" in
+  dev)
+    echo "╔═══════════════════════════════════════════════════════════╗"
+    echo "║  🚀 Claude Enhancer 开发模式                              ║"
+    echo "╚═══════════════════════════════════════════════════════════╝"
+    echo ""
+    echo "   项目: $(basename "$PWD")"
+    echo "   CE_HOME: $CE_HOME"
+    echo ""
+    echo "   ✅ 7-Phase工作流: 激活"
+    echo "   ✅ 学习系统: 激活"
+    echo "   ✅ Auto-fix: 激活"
+    echo "   ✅ TODO队列: 激活"
+    echo ""
+    echo "准备好了！开始和Claude对话进行开发。"
+    echo ""
+    ;;
+
+  mode)
+    SUB="${2:-status}"
+    case "$SUB" in
+      status)
+        PWD_BASE="$(basename "$PWD")"
+        echo "╔═══════════════════════════════════════════════════════════╗"
+        echo "║  📍 当前模式                                              ║"
+        echo "╚═══════════════════════════════════════════════════════════╝"
+        echo ""
+
+        if [[ "$PWD" == "$CE_HOME" ]] || [[ "$PWD_BASE" == "Claude Enhancer" ]] || [[ "$PWD" == *"Claude Enhancer"* ]]; then
+          echo "   模式: 🔧 自我进化（开发Claude Enhancer）"
+        else
+          echo "   模式: 🚀 外部项目开发"
+          echo "   项目: $PWD_BASE"
+        fi
+
+        echo ""
+        echo "   CE_HOME: $CE_HOME"
+        echo "   7-Phase工作流: ✅"
+        echo "   学习系统: ✅"
+        echo ""
+        ;;
+      *)
+        echo "❌ 未知mode子命令: $SUB" >&2
+        echo "   可用命令: status" >&2
+        exit 1
+        ;;
+    esac
+    ;;
+
+  todo)
+    SUB="${2:-list}"
+    case "$SUB" in
+      list)
+        echo "╔═══════════════════════════════════════════════════════════╗"
+        echo "║  📋 TODO队列                                              ║"
+        echo "╚═══════════════════════════════════════════════════════════╝"
+        echo ""
+
+        TODO_COUNT=$(find "$CE_HOME/.todos/pending/" -name "*.json" 2>/dev/null | wc -l)
+
+        if [[ $TODO_COUNT -eq 0 ]]; then
+          echo "   (暂无待办TODO)"
+          echo ""
+          echo "   提示: Learning Items会自动转换为TODO"
+          echo "   运行: ce learning convert"
+        else
+          for todo_file in "$CE_HOME/.todos/pending/"*.json; do
+            [[ ! -f "$todo_file" ]] && continue
+
+            if command -v jq >/dev/null 2>&1; then
+              TODO_ID=$(jq -r '.id' "$todo_file")
+              TITLE=$(jq -r '.title' "$todo_file")
+              PRIORITY=$(jq -r '.priority' "$todo_file")
+
+              # 优先级emoji
+              PRI_EMOJI="📝"
+              [[ "$PRIORITY" == "high" ]] && PRI_EMOJI="🔴"
+              [[ "$PRIORITY" == "medium" ]] && PRI_EMOJI="🟡"
+
+              echo "   $PRI_EMOJI [$TODO_ID] $TITLE"
+            else
+              echo "   - $(basename "$todo_file" .json)"
+            fi
+          done
+        fi
+
+        echo ""
+        echo "查看详情: ce todo show <id>"
+        echo ""
+        ;;
+
+      show)
+        TODO_ID="${3:-}"
+        if [[ -z "$TODO_ID" ]]; then
+          echo "❌ 错误: 请指定TODO ID" >&2
+          echo "   用法: ce todo show <todo-id>" >&2
+          exit 1
+        fi
+
+        TODO_FILE="$CE_HOME/.todos/pending/${TODO_ID}.json"
+        if [[ ! -f "$TODO_FILE" ]]; then
+          echo "❌ 错误: TODO不存在: $TODO_ID" >&2
+          echo "   运行 'ce todo list' 查看所有TODO" >&2
+          exit 1
+        fi
+
+        if command -v jq >/dev/null 2>&1; then
+          echo "╔═══════════════════════════════════════════════════════════╗"
+          echo "║  📋 TODO详情                                              ║"
+          echo "╚═══════════════════════════════════════════════════════════╝"
+          echo ""
+          jq -r '
+            "   ID: \(.id)",
+            "   标题: \(.title)",
+            "   优先级: \(.priority)",
+            "   预估工作量: \(.estimated_effort // "未知")",
+            "   状态: \(.status)",
+            "   创建时间: \(.created_at)",
+            "",
+            "   描述:",
+            "   \(.description)",
+            ""
+          ' "$TODO_FILE"
+        else
+          cat "$TODO_FILE"
+        fi
+        ;;
+
+      convert)
+        echo "🔄 转换Learning Items为TODO..."
+        bash "$CE_HOME/scripts/learning/convert_to_todo.sh"
+        ;;
+
+      *)
+        echo "❌ 未知todo子命令: $SUB" >&2
+        echo "   可用命令: list, show, convert" >&2
+        exit 1
+        ;;
+    esac
+    ;;
+
+  learning)
+    SUB="${2:-list}"
+    case "$SUB" in
+      list)
+        echo "╔═══════════════════════════════════════════════════════════╗"
+        echo "║  📚 Learning Items                                        ║"
+        echo "╚═══════════════════════════════════════════════════════════╝"
+        echo ""
+
+        LEARNING_COUNT=$(find "$CE_HOME/.learning/items/" -name "*.yml" 2>/dev/null | wc -l)
+        echo "   总计: $LEARNING_COUNT个Learning Items"
+        echo ""
+
+        echo "   按类别:"
+        for cat in error_pattern performance architecture code_quality success_pattern; do
+          COUNT=$(find "$CE_HOME/.learning/by_category/$cat/" -name "*.yml" 2>/dev/null | wc -l)
+          CAT_NAME=""
+          case "$cat" in
+            error_pattern) CAT_NAME="错误模式" ;;
+            performance) CAT_NAME="性能优化" ;;
+            architecture) CAT_NAME="架构决策" ;;
+            code_quality) CAT_NAME="代码质量" ;;
+            success_pattern) CAT_NAME="成功模式" ;;
+          esac
+          echo "     - $CAT_NAME ($cat): $COUNT"
+        done
+        echo ""
+        ;;
+
+      stats)
+        echo "╔═══════════════════════════════════════════════════════════╗"
+        echo "║  📊 学习系统统计                                          ║"
+        echo "╚═══════════════════════════════════════════════════════════╝"
+        echo ""
+
+        if [[ -f "$CE_HOME/.learning/stats.json" ]]; then
+          if command -v jq >/dev/null 2>&1; then
+            jq -r '
+              "按类别:",
+              (.by_category | to_entries | .[] | "  - \(.key): \(.value)"),
+              "",
+              "按项目:",
+              (.by_project | to_entries | .[] | "  - \(.key): \(.value)"),
+              "",
+              "按Phase:",
+              (.by_phase | to_entries | .[] | "  - \(.key): \(.value)")
+            ' "$CE_HOME/.learning/stats.json"
+          else
+            cat "$CE_HOME/.learning/stats.json"
+          fi
+        else
+          echo "   (暂无统计数据)"
+        fi
+        echo ""
+        ;;
+
+      capture)
+        shift 2  # 移除 'learning' 和 'capture'
+        bash "$CE_HOME/scripts/learning/capture.sh" "$@"
+        ;;
+
+      convert)
+        echo "🔄 转换Learning Items为TODO..."
+        bash "$CE_HOME/scripts/learning/convert_to_todo.sh"
+        ;;
+
+      *)
+        echo "❌ 未知learning子命令: $SUB" >&2
+        echo "   可用命令: list, stats, capture, convert" >&2
+        exit 1
+        ;;
+    esac
+    ;;
+
+  sync)
+    SUB="${2:-notion}"
+    case "$SUB" in
+      notion)
+        shift 2  # 移除 'sync' 和 'notion'
+        echo "🔄 同步到Notion..."
+        python3 "$CE_HOME/scripts/learning/sync_notion.py" "$@"
+        ;;
+      *)
+        echo "❌ 未知sync目标: $SUB" >&2
+        echo "   可用命令: notion" >&2
+        exit 1
+        ;;
+    esac
+    ;;
+
+  version|--version|-v)
+    if [[ -f "$CE_HOME/VERSION" ]]; then
+      VERSION=$(cat "$CE_HOME/VERSION" | tr -d '[:space:]')
+      echo "Claude Enhancer v$VERSION"
+    else
+      echo "Claude Enhancer (版本未知)"
+    fi
+    ;;
+
+  help|--help|-h)
+    cat <<'EOF'
+╔═══════════════════════════════════════════════════════════╗
+║  Claude Enhancer v8.0 CLI                                 ║
+║  统一命令行工具                                           ║
+╚═══════════════════════════════════════════════════════════╝
+
+用法:
+  ce <command> [options]
+
+命令:
+
+  📍 模式管理:
+    ce dev                  # 在外部项目启动CE开发模式
+    ce mode status          # 查看当前模式（自我进化/外部项目）
+
+  📋 TODO管理:
+    ce todo list            # 列出所有待办TODO
+    ce todo show <id>       # 查看TODO详情
+    ce todo convert         # 将Learning Items转换为TODO
+
+  📚 学习系统:
+    ce learning list        # 列出所有Learning Items
+    ce learning stats       # 查看学习系统统计
+    ce learning capture     # 捕获新的Learning Item
+    ce learning convert     # 转换为TODO
+
+  🔄 同步:
+    ce sync notion          # 同步到Notion
+    ce sync notion --dry-run  # 预览同步（不实际执行）
+
+  ℹ️  其他:
+    ce version              # 显示版本
+    ce help                 # 显示此帮助
+
+环境变量:
+  CE_HOME                   # Claude Enhancer目录路径
+                            # (可选，会自动检测)
+
+示例:
+
+  # 在外部项目开发
+  cd ~/projects/my-app
+  ce dev
+
+  # 捕获Learning Item
+  ce learning capture \
+    --category error_pattern \
+    --description "遇到了XXX错误" \
+    --phase Phase2 \
+    --solution "使用YYY解决"
+
+  # 查看TODO队列
+  ce todo list
+
+  # 同步到Notion
+  ce sync notion
+
+更多信息: https://github.com/anthropics/claude-enhancer
+EOF
+    ;;
+
+  *)
+    echo "❌ 未知命令: $COMMAND" >&2
+    echo "   运行 'ce help' 查看可用命令" >&2
+    exit 1
+    ;;
+esac

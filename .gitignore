@@ -217,3 +217,11 @@ kustomization.local.yaml
 .claude/cache/*.cache
 .claude/cache/*.log
 node_modules/
+
+# Claude Enhancer v8.0 - Learning System
+.learning/items/
+.learning/by_project/
+.learning/by_category/
+.todos/
+.notion/pending_sync/
+.notion/sync_history.json

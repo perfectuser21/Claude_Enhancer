@@ -123,14 +123,21 @@ Claude Enhancer 6.6完成了7 Phases统一升级，将原11步工作流（Pre-Di
 ╔══════════════════════════════════════════════════════════╗
 ║  Phase 7: Closure（4检查点）                             ║
 ╚══════════════════════════════════════════════════════════╝
-  必须执行：bash scripts/check_version_consistency.sh
+  必须执行：
+  1. bash scripts/comprehensive_cleanup.sh aggressive
+  2. bash scripts/check_version_consistency.sh
+  3. bash tools/verify-phase-consistency.sh
 
+  - 全面清理过期信息和临时文件（10类检查）
   - 清理.temp/目录（<10MB）
-  - 最终版本一致性验证 ⛔
-  - 检查文档规范
+  - 删除旧版本文件（*_v[0-9]*, *.bak）
+  - 整合归档目录
+  - 最终版本一致性验证 ⛔（6个文件）
+  - Phase系统一致性验证
+  - 检查文档规范（根目录≤7个）
   - 准备PR
 
-产出：干净的分支 + merge-ready状态
+产出：干净的分支 + 释放空间 + merge-ready状态
          ↓
    【等待用户说"merge"】
          ↓
