@@ -67,27 +67,50 @@ has_code_changes() {
 }
 
 # ============================================================================
-# Module 3: 检查Phase 1文档
+# Module 3: 检查Phase 1文档（分支特定）
 # ============================================================================
 check_phase1_docs() {
   local p1_count checklist_count plan_count
+  local branch branch_slug
+  local branch_creation_time current_time
 
-  # 检查P1_*.md
-  p1_count=$(find docs/ -maxdepth 1 -name "P1_*.md" -type f 2>/dev/null | wc -l)
+  # 获取当前分支名并转换为文件名安全的slug
+  branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
+  # 提取分支名主体（去掉feature/bugfix/等前缀）
+  local branch_base=$(basename "$branch")
+  # 提取关键词（取前2-3个单词，忽略分隔符）
+  local branch_keywords=$(echo "$branch_base" | sed 's/[-_]/ /g' | awk '{for(i=1;i<=3&&i<=NF;i++) printf "%s ", toupper($i)}')
 
-  # 检查*CHECKLIST*.md
-  checklist_count=$(find docs/ -maxdepth 1 -name "*CHECKLIST*.md" -type f 2>/dev/null | wc -l)
+  # 策略1: 检查分支特定文档（模糊匹配关键词）
+  # 格式: 文件名包含分支关键词
+  p1_count=0
+  checklist_count=0
+  plan_count=0
 
-  # 检查PLAN*.md
-  plan_count=$(find docs/ -maxdepth 1 -name "PLAN*.md" -type f 2>/dev/null | wc -l)
+  # 对每个关键词尝试匹配
+  for keyword in $branch_keywords; do
+    if [[ ${#keyword} -ge 4 ]]; then  # 至少4个字符的关键词才匹配
+      local p1_tmp=$(find docs/ -maxdepth 1 -iname "P1_*${keyword}*.md" -type f 2>/dev/null | wc -l)
+      local checklist_tmp=$(find docs/ -maxdepth 1 -iname "*CHECKLIST*${keyword}*.md" -type f 2>/dev/null | wc -l)
+      local plan_tmp=$(find docs/ -maxdepth 1 -iname "PLAN*${keyword}*.md" -type f 2>/dev/null | wc -l)
 
-  echo "$p1_count|$checklist_count|$plan_count"
+      # 取最大值（可能多个关键词都匹配）
+      [[ $p1_tmp -gt $p1_count ]] && p1_count=$p1_tmp
+      [[ $checklist_tmp -gt $checklist_count ]] && checklist_count=$checklist_tmp
+      [[ $plan_tmp -gt $plan_count ]] && plan_count=$plan_tmp
+    fi
+  done
 
+  # 如果找到分支特定文档，返回成功
   if [[ $p1_count -gt 0 && $checklist_count -gt 0 && $plan_count -gt 0 ]]; then
-    return 0  # 所有文档都存在
-  else
-    return 1  # 缺少文档
+    echo "$p1_count|$checklist_count|$plan_count|branch-specific"
+    return 0
   fi
+
+  # 策略2: 没有找到分支特定文档，返回失败
+  # 原因: 避免误判（其他分支的Phase 1文档不应该被当前分支使用）
+  echo "0|0|0|none"
+  return 1
 }
 
 # ============================================================================
@@ -146,11 +169,14 @@ enforce_workflow() {
   echo -e "${CYAN}[4/4]${NC} 检查Phase 1文档..."
   docs_status=$(check_phase1_docs) || true
 
-  IFS='|' read -r p1_count checklist_count plan_count <<< "$docs_status"
+  IFS='|' read -r p1_count checklist_count plan_count detection_method <<< "$docs_status"
 
   echo "  - P1_DISCOVERY.md: $p1_count 个"
   echo "  - CHECKLIST.md: $checklist_count 个"
   echo "  - PLAN.md: $plan_count 个"
+  if [[ -n "$detection_method" ]]; then
+    echo "  - 检测方式: $detection_method"
+  fi
   echo ""
 
   # ===== 决策逻辑 =====
