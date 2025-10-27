@@ -126,7 +126,7 @@ Claude Enhancer 6.6完成了7 Phases统一升级，将原11步工作流（Pre-Di
   必须执行：
   1. bash scripts/comprehensive_cleanup.sh aggressive
   2. bash scripts/check_version_consistency.sh
-  3. bash tools/verify-phase-consistency.sh
+  3. bash scripts/verify-phase-consistency.sh
 
   - 全面清理过期信息和临时文件（10类检查）
   - 清理.temp/目录（<10MB）

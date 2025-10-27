@@ -920,7 +920,7 @@ bash tools/verify-core-structure.sh
 
   2. `bash scripts/check_version_consistency.sh` - 验证6个文件版本统一
 
-  3. `bash tools/verify-phase-consistency.sh` - 验证Phase系统一致性
+  3. `bash scripts/verify-phase-consistency.sh` - 验证Phase系统一致性
 
 【全面清理Checklist】：
 

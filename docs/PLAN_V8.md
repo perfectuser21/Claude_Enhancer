@@ -1131,7 +1131,7 @@ AI对照87个验收检查点逐项验证，生成验收报告，等待用户确�
 2. **`bash scripts/check_version_consistency.sh`** - 版本一致性验证
    - 验证6个文件版本统一（VERSION, settings.json, manifest.yml, package.json, CHANGELOG.md, SPEC.yaml）
 
-3. **`bash tools/verify-phase-consistency.sh`** - Phase系统一致性验证
+3. **`bash scripts/verify-phase-consistency.sh`** - Phase系统一致性验证
 
 ### 核心检查清单
 
