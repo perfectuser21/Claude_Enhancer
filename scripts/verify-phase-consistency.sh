@@ -113,9 +113,12 @@ check_phase_consistency() {
     echo -e "${BOLD}[1/3] Phase数量一致性${NC}"
     echo ""
 
-    local spec_count=$(get_spec_phase_count)
-    local manifest_count=$(get_manifest_phase_count)
-    local claude_count=$(get_claude_phase_count)
+    local spec_count
+    local manifest_count
+    local claude_count
+    spec_count=$(get_spec_phase_count)
+    manifest_count=$(get_manifest_phase_count)
+    claude_count=$(get_claude_phase_count)
 
     echo -e "  ${CYAN}SPEC.yaml:${NC}        $spec_count Phases"
     echo -e "  ${CYAN}manifest.yml:${NC}     $manifest_count Phases"
@@ -141,7 +144,8 @@ check_phase_consistency() {
     echo -e "${BOLD}[2/3] Phase ID命名规范${NC}"
     echo ""
 
-    local manifest_ids=$(get_manifest_phase_ids)
+    local manifest_ids
+    manifest_ids=$(get_manifest_phase_ids)
 
     echo -e "  ${CYAN}manifest.yml Phase IDs:${NC}"
     echo "$manifest_ids" | while read -r id; do

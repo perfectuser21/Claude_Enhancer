@@ -153,9 +153,10 @@ enforce_workflow() {
   echo -e "${CYAN}[2/4]${NC} 检测代码改动..."
   code_changes=$(has_code_changes)
 
-  # 3. 检查bypass
+  # 3. 检查bypass (always no-bypass now)
   echo -e "${CYAN}[3/4]${NC} 检查Bypass状态..."
-  bypass_status=$(check_bypass)
+  # Bypass functionality removed - check_bypass() always returns "no-bypass"
+  check_bypass >/dev/null
 
   # 4. 检查Phase 1文档
   echo -e "${CYAN}[4/4]${NC} 检查Phase 1文档..."
