@@ -1,5 +1,19 @@
 # Changelog
 
+## [8.0.1] - 2025-10-27
+
+### 🔧 Code Quality
+
+**Fixed**:
+- Resolved Shellcheck style warnings (SC2162, SC2012, SC2001, SC2035)
+  - `scripts/comprehensive_cleanup.sh`: Added `-r` flag to `read`, replaced `ls` with `find`
+  - `scripts/learning/capture.sh`: Replaced `sed` with `awk` for indentation
+  - `tests/test_v8_core.sh`: Replaced `ls` with `find` for file counting
+
+**Impact**: No functional changes, improved code quality for CI compliance.
+
+---
+
 ## [8.0.0] - 2025-10-27
 
 ### 🎉 Major Feature: Dual Evolution Learning System

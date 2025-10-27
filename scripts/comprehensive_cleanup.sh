@@ -35,7 +35,7 @@ if [[ "$CLEANUP_MODE" == "interactive" ]]; then
   echo "  2) 保守清理 - 归档而不删除"
   echo "  3) 最小清理 - 只删除明确过期的"
   echo ""
-  read -p "请选择 (1-3): " choice
+  read -r -p "请选择 (1-3): " choice
 
   case $choice in
     1) CLEANUP_MODE="aggressive" ;;
@@ -227,7 +227,7 @@ echo -e "${CYAN}╚════════════════════�
 echo ""
 
 # 检查根目录文档数量
-ROOT_DOCS=$(ls -1 *.md 2>/dev/null | wc -l)
+ROOT_DOCS=$(find . -maxdepth 1 -name "*.md" -type f 2>/dev/null | wc -l)
 if [[ $ROOT_DOCS -le 7 ]]; then
   echo -e "${GREEN}✓${NC} 根目录文档: $ROOT_DOCS/7"
 else

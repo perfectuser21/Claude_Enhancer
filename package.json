@@ -1,7 +1,7 @@
 {
   "name": "claude-enhancer",
-  "version": "8.0.0",
-  "description": "Claude Enhancer 8.0.0 - 专业级个人AI编程工作流系统 (7 Phases + Workflow Optimization + 60% Time Reduction)",
+  "version": "8.0.1",
+  "description": "Claude Enhancer 8.0.1 - 专业级个人AI编程工作流系统 (7 Phases + Workflow Optimization + 60% Time Reduction)",
   "main": "index.js",
   "scripts": {
     "test": "jest",
