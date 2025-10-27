@@ -152,3 +152,62 @@ fi
 - **Impact Radius**: **25** (Low-Medium)
 
 **Agent建议**: 0个（solo work，简单hook脚本）
+
+---
+
+## 实现状态更新 (2025-10-27)
+
+### Phase 2 完成
+
+**已实现**:
+1. ✅ `scripts/workflow_guardian.sh` (234行)
+   - 分支类型检测 (coding/docs/protected)
+   - 代码改动检测 (支持10+语言)
+   - Phase 1文档检测 (P1_*.md, *CHECKLIST*.md, PLAN*.md)
+   - Bypass机制 (.workflow/BYPASS_WORKFLOW)
+   - 清晰的错误提示和修复指导
+
+2. ✅ 集成到 `.git/hooks/pre-commit`
+   - 位置: Check 2.5 (在comprehensive_guard之前)
+   - 硬阻止: 违规时exit 1
+   - 性能: <2秒
+
+3. ✅ 测试验证
+   - Positive case: Phase 1文档存在 → allowed ✅
+   - 集成测试: Hook正确调用 ✅
+
+### 已知限制
+
+**限制1: Phase 1文档检测精度**
+- **问题**: 检测ANY matching文件，不验证是否与当前分支相关
+- **影响**: 如果repo中有其他分支的P1文档，会误判通过
+- **示例**:
+  - 当前分支: `feature/new-feature` (无Phase 1文档)
+  - repo中存在: `docs/P1_DISCOVERY.md` (其他分支的)
+  - 结果: Guardian误判为满足要求 ❌
+
+**改进方向**:
+- 方案A: 分支特定命名 (`P1_<branch-name>.md`)
+- 方案B: 文档内branch字段验证
+- 方案C: git时间戳验证 (文档commit时间 vs 分支创建时间)
+
+**限制2: .git/hooks不被git追踪**
+- **问题**: Hook修改需要手动同步到所有开发机
+- **缓解**:
+  - 通过CI验证确保hook已正确安装
+  - 提供 `.claude/install.sh` 自动安装
+
+### 下一步 (Phase 3-7)
+
+**Phase 3 - Testing**:
+- [ ] 完善negative test (需要先修复限制1)
+- [ ] Bypass机制测试
+- [ ] docs分支豁免测试
+- [ ] 性能测试 (确保<2秒)
+
+**Phase 4 - Implementation续**:
+- [ ] AI层hook: `.claude/hooks/workflow_guardian.sh` (PreToolUse提醒)
+- [ ] CI验证: `.github/workflows/workflow-validation.yml`
+- [ ] 更新CLAUDE.md: 文档化新机制
+
+**Phase 5-7**: 按标准workflow完成
