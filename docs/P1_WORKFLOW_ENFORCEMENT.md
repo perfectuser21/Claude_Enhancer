@@ -211,3 +211,78 @@ fi
 - [ ] 更新CLAUDE.md: 文档化新机制
 
 **Phase 5-7**: 按标准workflow完成
+
+---
+
+## 与7-Phase工作流的集成 (2025-10-27)
+
+### 定位：Phase 1.1 Branch Check的强化
+
+根据CLAUDE.md定义，7-Phase工作流的Phase 1包含5个子阶段：
+1. **Phase 1.1: Branch Check** (分支前置检查) ⛔ 强制
+2. Phase 1.2: Requirements Discussion (需求讨论)
+3. **Phase 1.3: Technical Discovery** (技术探索) → 产出P1_DISCOVERY.md
+4. Phase 1.4: Impact Assessment (影响评估)
+5. **Phase 1.5: Architecture Planning** (架构规划) → 产出PLAN.md + ACCEPTANCE_CHECKLIST
+
+**Workflow Guardian的作用**：
+- **在commit时强制验证Phase 1.3和1.5的产出**
+- 确保编码分支在进入Phase 2 (Implementation)前完成Phase 1的所有必需文档
+- 防止AI或开发者跳过Phase 1直接编码
+
+### 检测逻辑与Phase 1产出的对应关系
+
+| 检测项 | 对应Phase 1产出 | 命名规范 |
+|--------|-----------------|---------|
+| P1_*.md | Phase 1.3: Technical Discovery | P1_<branch-keywords>.md |
+| *CHECKLIST*.md | Phase 1.5: Acceptance Checklist | ACCEPTANCE_CHECKLIST_<branch-keywords>.md |
+| PLAN*.md | Phase 1.5: Architecture Planning | PLAN_<branch-keywords>.md |
+
+### 工作流集成点
+
+```
+Phase 1.1 (Branch Check)
+    ↓
+Phase 1.2 (Requirements)
+    ↓
+Phase 1.3 (Discovery) → 产出: P1_DISCOVERY.md
+    ↓
+Phase 1.4 (Impact Assessment)
+    ↓
+Phase 1.5 (Planning) → 产出: ACCEPTANCE_CHECKLIST.md + PLAN.md
+    ↓
+    ✅ Phase 1完成检查点 ← **Workflow Guardian在这里验证**
+    ↓
+Phase 2 (Implementation) → 开始编码
+```
+
+**关键时机**：
+- Guardian在**git commit时**执行（pre-commit hook）
+- 这是Phase 1 → Phase 2转换的自然检查点
+- 符合"左移测试"原则：在commit前（而不是PR时）就发现问题
+
+### 与现有检查机制的协同
+
+Workflow Guardian是四层质量保障体系的一部分：
+
+1. **PreToolUse Hook** (AI层，未实现) - 提醒AI遵循workflow
+2. **Workflow Guardian** (pre-commit hook) - 硬阻止未完成Phase 1的commit ✅ 已实现
+3. **Comprehensive Guard** (pre-commit hook) - 其他质量检查（代码规范、版本一致性等）
+4. **CI Validation** (GitHub Actions，未实现) - PR级别的最终验证
+
+### 分支策略验证
+
+Guardian支持三种分支策略，与Phase 1.1的分支检查一致：
+
+| 分支类型 | Pattern | Workflow要求 | Guardian行为 |
+|---------|---------|-------------|-------------|
+| 编码分支 | feature/\*, bugfix/\*, perf/\* | Phase 1必需 | 检测并强制 ✅ |
+| 文档分支 | docs/\* | 无代码改动时豁免 | 智能豁免 ✅ |
+| 保护分支 | main, master | 禁止直接commit | 立即阻止 ✅ |
+
+### 符合7-Phase原则
+
+✅ **零质量妥协**：Phase 1产出是Phase 2的前提，不可跳过
+✅ **左移测试**：在commit时（而非PR时）就验证Phase 1完成
+✅ **自动化优先**：无需人工检查，系统自动强制
+✅ **清晰反馈**：违规时提供明确的修复指导
