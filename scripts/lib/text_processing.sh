@@ -20,7 +20,7 @@ strip_code_blocks() {
 # Usage: escaped=$(echo "$text" | re_escape)
 # Escapes: ^ $ . * + ? ( ) [ ] { } | \
 re_escape() {
-  sed -e 's/[^^$.*+?()[\]{}|\\]/\\&/g'
+  sed -e 's/[][\/.^$*+?(){}|]/\\&/g'
 }
 
 # Escape special characters for grep -F (fixed string)

@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # Validate Plan Execution - Anti-Hollow Gate v8.2
 # Checks that PLAN items map to completed CHECKLIST items with evidence
-
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
