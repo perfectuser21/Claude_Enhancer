@@ -1,6 +1,6 @@
 {
-  "spec_sha256": "538b7cab4723103db8fa91b2ae6d51764b61f4ad9b70b7657647fdafb054d22b",
-  "generated_at": "2025-10-27T07:22:24Z",
+  "spec_sha256": "253419f52ce30fcdff0902ffd85db516289afd9687517113ef6f5436cf0efa7c",
+  "generated_at": "2025-10-28T14:14:46Z",
   "generated_by": "tools/update-lock.sh",
   "core_structure": {
     "total_phases": 7,
@@ -9,7 +9,7 @@
     "hard_blocks": 8
   },
   "key_files_sha256": {
-    ".workflow/SPEC.yaml": "538b7cab4723103db8fa91b2ae6d51764b61f4ad9b70b7657647fdafb054d22b",
+    ".workflow/SPEC.yaml": "253419f52ce30fcdff0902ffd85db516289afd9687517113ef6f5436cf0efa7c",
     ".workflow/gates.yml": "61a24afd4050fc7ca2f76ab97ac0e2ad064d1ff08d8dea2c701855c23a48e738",
     "docs/CHECKS_INDEX.json": "d51457ac7decd9988255f76390c9ace6389e91c5cdc27e4fa132f890bb38a0a9",
     "scripts/workflow_validator_v97.sh": "6e4b8d3233690589bf53a9c188602736dd82bb46bb5e7c33850f3ba19d1d80bb",
@@ -17,7 +17,7 @@
     "scripts/static_checks.sh": "269332ca5a5b11c532ba56f0d1c26ee1cc67ab4cd54429653f90698085654293",
     "tools/verify-core-structure.sh": "9e2562fedbdf8e8164779dd34760733c9caeed1c5505402605836597db49c28a"
   },
-  "version": "8.0.0",
+  "version": "8.2.0",
   "lock_mode": "soft",
   "lock_mode_comment": "观测期使用soft模式，7天后切换为strict"
 }
