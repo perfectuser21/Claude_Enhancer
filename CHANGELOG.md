@@ -1,5 +1,44 @@
 # Changelog
 
+## [8.2.1] - 2025-10-28
+
+### Added - Parallel Executor Activation
+
+**Core Feature**:
+- **Parallel Execution System Activated** - Enable existing parallel_executor.sh (466 lines) for Phase3 (Testing)
+- Expected performance improvement: 1.5-2.0x speedup for Phase3 (from ~90min to 30-45min)
+
+**Implementation** (70 lines added to executor.sh):
+- Automatic detection of parallel-capable phases via STAGES.yml
+- `is_parallel_enabled()` function - Check if phase has parallel configuration
+- `execute_parallel_workflow()` function - Execute phase using parallel_executor.sh
+- Graceful fallback to serial execution if parallel system unavailable
+- Integration at both `validate` and `next` commands
+
+**Changes**:
+- STAGES.yml: Unified phase naming (P1-P6 → Phase1-Phase6) for consistency with manifest.yml
+- executor.sh: Source parallel_executor.sh at startup
+- Auto-create .workflow/logs/ directory for parallel execution logs
+
+**Testing**:
+- 8 integration tests (scripts/test_parallel_integration.sh)
+- All tests passing: phase naming, module loading, function existence, integration points
+- Zero breaking changes to existing serial workflow
+
+**Benefits**:
+- ✅ Phase3 can execute tasks in parallel (when configured in STAGES.yml)
+- ✅ Automatic conflict detection and resolution (via conflict_detector.sh)
+- ✅ Safe fallback: parallel failure doesn't break workflow
+- ✅ No performance regression for serial execution
+- ✅ Existing parallel infrastructure (mutex_lock.sh, conflict_detector.sh) fully utilized
+
+**Philosophy**:
+- "60 points first" approach - simple, working solution
+- No over-engineering (no yq, no complex monitoring)
+- Defensive programming with graceful degradation
+
+---
+
 ## [8.2.0] - 2025-10-28
 
 ### Added - Anti-Hollow Gate v8.2 Enhancements
