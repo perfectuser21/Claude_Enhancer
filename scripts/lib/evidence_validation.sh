@@ -34,7 +34,8 @@ validate_evidence_file() {
   # Check jq availability
   if ! check_jq_available; then
     echo "⚠️  Falling back to basic validation (yq only)"
-    return validate_evidence_file_basic "$evid_file"
+    validate_evidence_file_basic "$evid_file"
+    return $?
   fi
 
   # Extract type field from evidence
