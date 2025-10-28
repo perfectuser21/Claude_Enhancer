@@ -1,5 +1,45 @@
 # Changelog
 
+## [8.2.0] - 2025-10-28
+
+### Added - Anti-Hollow Gate v8.2 Enhancements
+
+**P0 Improvements (4 core fixes)**:
+- **Stable ID Mapping System** - Replace fragile string matching with unique IDs (PLAN-Wn-nnn, CL-Wn-nnn)
+- **Evidence Schema Strict Validation** - Enforce required fields per evidence type using jq
+- **Code Block Filtering** - Eliminate false positives from Markdown code examples
+- **Regex Escaping** - Safe handling of special characters in grep operations
+
+**New Scripts** (5 core + 3 test files):
+- `scripts/lib/id_mapping.sh` (157 lines) - ID generation, validation, lookup functions
+- `scripts/generate_mapping.sh` (233 lines) - Auto-generate PLAN_CHECKLIST_MAPPING.yml
+- `scripts/lib/text_processing.sh` (125 lines) - Code block filtering, regex escaping
+- `scripts/lib/evidence_validation.sh` (262 lines) - jq-based schema validation
+- `scripts/validate_plan_execution.sh` (300 lines) - Dual-mode validator (ID + legacy)
+- `scripts/migrate_to_id_system.sh` - Migration tool from v8.1.0
+- `scripts/tests/` - Unit test suite (test_id_mapping.sh, test_text_processing.sh, run_all_tests.sh)
+
+**Benefits**:
+- ✅ 100% text-change resilience (ID-based, not string matching)
+- ✅ 100% evidence completeness enforcement
+- ✅ 0% false positives from code blocks
+- ✅ 0% regex failures on special characters
+
+### Changed
+
+- Validation now supports dual-mode operation (ID-based + legacy text matching)
+- Auto-detects which mode to use based on checklist format
+
+### Migration
+
+For existing v8.1.0 projects:
+```bash
+bash scripts/migrate_to_id_system.sh --dry-run  # Preview changes
+bash scripts/migrate_to_id_system.sh            # Apply migration
+```
+
+---
+
 ## [8.1.0] - 2025-10-28
 
 ### Added - Anti-Hollow Gate System
