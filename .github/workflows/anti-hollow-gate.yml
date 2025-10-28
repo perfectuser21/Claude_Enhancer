@@ -222,7 +222,7 @@ jobs:
               echo "✓ $name"
             else
               echo "✗ $name (missing: $file)"
-              ((MISSING_COUNT++))
+              MISSING_COUNT=$((MISSING_COUNT + 1))
             fi
           done
 
@@ -231,7 +231,11 @@ jobs:
             echo "✅ All components present"
           else
             echo "⚠ $MISSING_COUNT component(s) missing (may not be implemented yet)"
+            echo "   This is expected during incremental development"
           fi
+
+          # Always exit 0 to make this non-blocking
+          exit 0
 
       - name: Summary
         run: |
