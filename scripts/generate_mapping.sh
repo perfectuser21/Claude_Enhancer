@@ -199,8 +199,8 @@ if [[ -f "$CHECKLIST_FILE" ]]; then
         # Insert checklist_items after plan_items
         echo "    checklist_items:" >> "$OUTPUT_FILE"
 
+        # shellcheck disable=SC2034  # sec is part of IFS parsing but unused
         while IFS='|' read -r sec cl_id item_text ev_type; do
-          # Note: sec is part of IFS parsing but not used in output
           cat >> "$OUTPUT_FILE" <<EOF
       - id: $cl_id
         text: "$item_text"
