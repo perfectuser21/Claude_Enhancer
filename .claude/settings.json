@@ -1,5 +1,5 @@
 {
-  "version": "8.0.2",
+  "version": "8.1.0",
   "project": "Claude Enhancer",
   "description": "四层架构分层系统 + 自愈系统 + 工作流强制执行 + Dual-Language Checklist System + Workflow Interference Fix",
   "permissions": {
@@ -72,5 +72,78 @@
       ".claude/hooks/phase_completion_validator.sh",
       ".claude/hooks/telemetry_logger.sh"
     ]
-  }
+  },
+  "skills": [
+    {
+      "name": "checklist-validator",
+      "description": "Validates checklist items have evidence before marking complete",
+      "trigger": {
+        "event": "before_tool_use",
+        "tool": [
+          "Write",
+          "Edit"
+        ],
+        "pattern": "CHECKLIST.*\\.md$"
+      },
+      "action": {
+        "script": "scripts/evidence/validate_checklist.sh",
+        "args": [
+          "{{file_path}}"
+        ]
+      },
+      "enabled": true
+    },
+    {
+      "name": "learning-capturer",
+      "description": "Captures errors and lessons learned during phase transitions",
+      "trigger": {
+        "event": "on_error",
+        "context": "phase_transition"
+      },
+      "action": {
+        "script": "scripts/learning/capture.sh",
+        "args": [
+          "error",
+          "{{error_message}}",
+          "{{context}}"
+        ]
+      },
+      "enabled": true
+    },
+    {
+      "name": "evidence-collector",
+      "description": "Reminds AI to collect evidence after completing tasks",
+      "trigger": {
+        "event": "after_tool_use",
+        "tool": [
+          "Bash"
+        ],
+        "pattern": "(test|check|validate)"
+      },
+      "action": {
+        "type": "reminder",
+        "message": "Remember to collect evidence for this test result using scripts/evidence/collect.sh"
+      },
+      "enabled": true
+    },
+    {
+      "name": "kpi-reporter",
+      "description": "Generates KPI report at phase transitions",
+      "trigger": {
+        "event": "phase_transition",
+        "phases": [
+          "Phase4",
+          "Phase5",
+          "Phase7"
+        ]
+      },
+      "action": {
+        "script": "scripts/kpi/weekly_report.sh",
+        "args": [
+          "--auto"
+        ]
+      },
+      "enabled": false
+    }
+  ]
 }

@@ -70,9 +70,15 @@ has_code_changes() {
 
 # ============================================================================
 # Module 3: 检查Phase 1文档（分支特定）
+# Phase 1 包括5个子步骤：
+#   1.1 Branch Check
+#   1.2 Requirements Discussion
+#   1.3 Technical Discovery (P1_DISCOVERY.md)
+#   1.4 Impact Assessment (IMPACT_ASSESSMENT.md) ← 新增检查
+#   1.5 Architecture Planning (PLAN.md)
 # ============================================================================
 check_phase1_docs() {
-  local p1_count checklist_count plan_count
+  local p1_count checklist_count plan_count impact_count
   local branch branch_base branch_keywords
 
   # 获取当前分支名并转换为文件名安全的slug
@@ -87,31 +93,34 @@ check_phase1_docs() {
   p1_count=0
   checklist_count=0
   plan_count=0
+  impact_count=0
 
   # 对每个关键词尝试匹配
   for keyword in $branch_keywords; do
     if [[ ${#keyword} -ge 4 ]]; then  # 至少4个字符的关键词才匹配
-      local p1_tmp checklist_tmp plan_tmp
+      local p1_tmp checklist_tmp plan_tmp impact_tmp
       p1_tmp=$(find docs/ -maxdepth 1 -iname "P1_*${keyword}*.md" -type f 2>/dev/null | wc -l)
       checklist_tmp=$(find docs/ -maxdepth 1 -iname "*CHECKLIST*${keyword}*.md" -type f 2>/dev/null | wc -l)
       plan_tmp=$(find docs/ -maxdepth 1 -iname "PLAN*${keyword}*.md" -type f 2>/dev/null | wc -l)
+      impact_tmp=$(find docs/ -maxdepth 1 -iname "*IMPACT*${keyword}*.md" -type f 2>/dev/null | wc -l)
 
       # 取最大值（可能多个关键词都匹配）
       [[ $p1_tmp -gt $p1_count ]] && p1_count=$p1_tmp
       [[ $checklist_tmp -gt $checklist_count ]] && checklist_count=$checklist_tmp
       [[ $plan_tmp -gt $plan_count ]] && plan_count=$plan_tmp
+      [[ $impact_tmp -gt $impact_count ]] && impact_count=$impact_tmp
     fi
   done
 
-  # 如果找到分支特定文档，返回成功
-  if [[ $p1_count -gt 0 && $checklist_count -gt 0 && $plan_count -gt 0 ]]; then
-    echo "$p1_count|$checklist_count|$plan_count|branch-specific"
+  # 如果找到所有4个必需文档，返回成功
+  if [[ $p1_count -gt 0 && $checklist_count -gt 0 && $plan_count -gt 0 && $impact_count -gt 0 ]]; then
+    echo "$p1_count|$checklist_count|$plan_count|$impact_count|branch-specific"
     return 0
   fi
 
   # 策略2: 没有找到分支特定文档，返回失败
   # 原因: 避免误判（其他分支的Phase 1文档不应该被当前分支使用）
-  echo "0|0|0|none"
+  echo "0|0|0|0|none"
   return 1
 }
 
@@ -162,11 +171,12 @@ enforce_workflow() {
   echo -e "${CYAN}[4/4]${NC} 检查Phase 1文档..."
   docs_status=$(check_phase1_docs) || true
 
-  IFS='|' read -r p1_count checklist_count plan_count detection_method <<< "$docs_status"
+  IFS='|' read -r p1_count checklist_count plan_count impact_count detection_method <<< "$docs_status"
 
   echo "  - P1_DISCOVERY.md: $p1_count 个"
   echo "  - CHECKLIST.md: $checklist_count 个"
   echo "  - PLAN.md: $plan_count 个"
+  echo "  - IMPACT_ASSESSMENT.md: $impact_count 个"
   if [[ -n "$detection_method" ]]; then
     echo "  - 检测方式: $detection_method"
   fi
@@ -183,26 +193,29 @@ enforce_workflow() {
     return 0
   fi
 
-  # 情况3: 编码分支 + 代码改动 - 必须有Phase 1文档
+  # 情况3: 编码分支 + 代码改动 - 必须有Phase 1文档（包括Impact Assessment）
   if [[ "$branch_type" == "coding" && "$code_changes" == "true" ]]; then
-    if [[ $p1_count -eq 0 || $checklist_count -eq 0 || $plan_count -eq 0 ]]; then
+    if [[ $p1_count -eq 0 || $checklist_count -eq 0 || $plan_count -eq 0 || $impact_count -eq 0 ]]; then
       echo -e "${RED}╔═══════════════════════════════════════════════════════════╗${NC}"
       echo -e "${RED}║  ❌ Workflow Violation Detected                           ║${NC}"
       echo -e "${RED}╚═══════════════════════════════════════════════════════════╝${NC}"
       echo ""
       echo -e "${RED}错误：编码任务但缺少Phase 1文档${NC}"
       echo ""
-      echo -e "${YELLOW}根据规则0，所有编码任务都必须完成Phase 1:${NC}"
+      echo -e "${YELLOW}根据规则0，所有编码任务都必须完成Phase 1 (5个子步骤):${NC}"
       echo ""
       echo "  必需文档："
-      [[ $p1_count -eq 0 ]] && echo -e "    ${RED}✗${NC} docs/P1_DISCOVERY.md (缺失)"
-      [[ $p1_count -gt 0 ]] && echo -e "    ${GREEN}✓${NC} docs/P1_DISCOVERY.md"
+      [[ $p1_count -eq 0 ]] && echo -e "    ${RED}✗${NC} docs/P1_DISCOVERY.md (Phase 1.3 - 缺失)"
+      [[ $p1_count -gt 0 ]] && echo -e "    ${GREEN}✓${NC} docs/P1_DISCOVERY.md (Phase 1.3)"
 
       [[ $checklist_count -eq 0 ]] && echo -e "    ${RED}✗${NC} docs/ACCEPTANCE_CHECKLIST.md (缺失)"
       [[ $checklist_count -gt 0 ]] && echo -e "    ${GREEN}✓${NC} docs/ACCEPTANCE_CHECKLIST.md"
 
-      [[ $plan_count -eq 0 ]] && echo -e "    ${RED}✗${NC} docs/PLAN.md (缺失)"
-      [[ $plan_count -gt 0 ]] && echo -e "    ${GREEN}✓${NC} docs/PLAN.md"
+      [[ $impact_count -eq 0 ]] && echo -e "    ${RED}✗${NC} docs/IMPACT_ASSESSMENT.md (Phase 1.4 - 缺失)"
+      [[ $impact_count -gt 0 ]] && echo -e "    ${GREEN}✓${NC} docs/IMPACT_ASSESSMENT.md (Phase 1.4)"
+
+      [[ $plan_count -eq 0 ]] && echo -e "    ${RED}✗${NC} docs/PLAN.md (Phase 1.5 - 缺失)"
+      [[ $plan_count -gt 0 ]] && echo -e "    ${GREEN}✓${NC} docs/PLAN.md (Phase 1.5)"
 
       echo ""
       echo -e "${CYAN}修复方法:${NC}"
@@ -210,6 +223,7 @@ enforce_workflow() {
       echo "  1. 创建Phase 1文档:"
       echo "     touch docs/P1_\$(basename \$(git rev-parse --abbrev-ref HEAD)).md"
       echo "     touch docs/ACCEPTANCE_CHECKLIST_\$(basename \$(git rev-parse --abbrev-ref HEAD)).md"
+      echo "     touch docs/IMPACT_ASSESSMENT_\$(basename \$(git rev-parse --abbrev-ref HEAD)).md"
       echo "     touch docs/PLAN_\$(basename \$(git rev-parse --abbrev-ref HEAD)).md"
       echo ""
       echo "  2. 填写文档内容（参考: docs/P1_WORKFLOW_ENFORCEMENT.md）"

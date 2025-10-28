@@ -1,0 +1,114 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Evidence Metadata",
+  "description": "Schema for Anti-Hollow Gate evidence collection",
+  "type": "object",
+  "required": ["id", "type", "checklist_item", "timestamp", "artifacts"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^EVID-[0-9]{4}W[0-9]{2}-[0-9]{3}$",
+      "description": "Evidence ID format: EVID-YYYYW{ISO_WEEK}-{SEQ}",
+      "examples": ["EVID-2025W44-001", "EVID-2025W44-002"]
+    },
+    "type": {
+      "type": "string",
+      "enum": ["test_result", "code_review", "command_output", "artifact"],
+      "description": "Type of evidence collected"
+    },
+    "checklist_item": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+$",
+      "description": "Checklist item number (e.g., 1.1, 2.3)",
+      "examples": ["1.1", "2.3", "10.5"]
+    },
+    "description": {
+      "type": "string",
+      "description": "Human-readable description of the evidence",
+      "minLength": 1
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp when evidence was collected"
+    },
+    "artifacts": {
+      "type": "object",
+      "description": "Collected artifacts (files, commands, outputs)",
+      "properties": {
+        "files": {
+          "type": "array",
+          "description": "File artifacts",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "Original file path"
+              },
+              "hash": {
+                "type": "string",
+                "description": "SHA256 hash of the file"
+              },
+              "stored_as": {
+                "type": "string",
+                "description": "Path in artifacts directory"
+              }
+            }
+          }
+        },
+        "commands": {
+          "type": "array",
+          "description": "Command execution artifacts",
+          "items": {
+            "type": "object",
+            "properties": {
+              "command": {
+                "type": "string",
+                "description": "Command that was executed"
+              },
+              "exit_code": {
+                "type": "integer",
+                "description": "Exit code of the command"
+              },
+              "output": {
+                "type": "string",
+                "description": "Path to output file in artifacts"
+              }
+            }
+          }
+        },
+        "outputs": {
+          "type": "array",
+          "description": "Direct output artifacts",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "git_context": {
+      "type": "object",
+      "description": "Git context when evidence was collected",
+      "properties": {
+        "commit": {
+          "type": "string",
+          "description": "Current git commit hash"
+        },
+        "branch": {
+          "type": "string",
+          "description": "Current git branch"
+        },
+        "diff_stat": {
+          "type": "string",
+          "description": "Git diff statistics"
+        }
+      }
+    },
+    "retention_days": {
+      "type": "integer",
+      "default": 90,
+      "description": "Number of days to retain this evidence"
+    }
+  }
+}
