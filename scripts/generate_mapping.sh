@@ -130,7 +130,7 @@ if [[ -f "$CHECKLIST_FILE" ]]; then
   while IFS= read -r line; do
     # Detect section headers matching plan sections
     if [[ "$line" =~ ^#{2,3}[[:space:]]*([🎯🔧📝🚀P0-]?[[:space:]]*(Week[[:space:]]+[0-9]+|P0-[0-9]+):[[:space:]]*(.+))$ ]]; then
-      section_match="${BASH_REMATCH[2]}"
+      # Extract section (BASH_REMATCH[2] is Week/P0 part, but not used currently)
       current_section="${BASH_REMATCH[1]}"
       cl_counter=1
       continue
@@ -193,14 +193,14 @@ if [[ -f "$CHECKLIST_FILE" ]]; then
 
       if [[ -n "$matching_items" ]]; then
         # Add checklist_items array to this mapping entry
-        # Find the line number of this section in temp_file
-        line_num=$(grep -n "plan_section: \"${section}\"" "$temp_file" | head -1 | cut -d: -f1)
+        # Note: line_num could be used for proper YAML insertion with yq, but for
+        # simplicity we just append to the file
 
         # Insert checklist_items after plan_items
-        # For simplicity, append to file (proper YAML insertion would use yq)
         echo "    checklist_items:" >> "$OUTPUT_FILE"
 
         while IFS='|' read -r sec cl_id item_text ev_type; do
+          # Note: sec is part of IFS parsing but not used in output
           cat >> "$OUTPUT_FILE" <<EOF
       - id: $cl_id
         text: "$item_text"

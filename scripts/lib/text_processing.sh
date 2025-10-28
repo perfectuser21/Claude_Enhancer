@@ -92,6 +92,7 @@ count_code_blocks() {
 
   # Count backtick markers and divide by 2
   local markers
+  # shellcheck disable=SC2016  # Backticks are literal in grep pattern
   markers=$(grep -c '^\`\`\`' "$file" 2>/dev/null || echo "0")
 
   echo $((markers / 2))
