@@ -61,6 +61,76 @@ readonly CYAN='\033[0;36m'
 readonly BOLD='\033[1m'
 readonly NC='\033[0m' # No Color
 
+# ==================== 并行执行系统集成 ====================
+
+# Source并行执行器
+if [[ -f "${SCRIPT_DIR}/lib/parallel_executor.sh" ]]; then
+    # shellcheck source=lib/parallel_executor.sh
+    source "${SCRIPT_DIR}/lib/parallel_executor.sh" 2>/dev/null || {
+        echo "[WARN] Failed to load parallel_executor.sh" >&2
+        PARALLEL_AVAILABLE=false
+    }
+    PARALLEL_AVAILABLE=true
+else
+    echo "[WARN] parallel_executor.sh not found, parallel execution disabled" >&2
+    PARALLEL_AVAILABLE=false
+fi
+
+# 创建日志目录
+mkdir -p "${SCRIPT_DIR}/logs" 2>/dev/null || true
+
+# 并行检测函数
+is_parallel_enabled() {
+    local phase="$1"
+
+    # 检查并行执行器可用性
+    [[ "${PARALLEL_AVAILABLE}" != "true" ]] && return 1
+
+    # 检查STAGES.yml配置
+    if grep -q "^  ${phase}:" "${SCRIPT_DIR}/STAGES.yml" 2>/dev/null; then
+        local groups
+        groups=$(grep -A 50 "^  ${phase}:" "${SCRIPT_DIR}/STAGES.yml" | \
+                grep "group_id:" | head -10 | awk '{print $2}')
+        [[ -n "${groups}" ]] && return 0
+    fi
+
+    return 1
+}
+
+# 并行执行函数
+execute_parallel_workflow() {
+    local phase="$1"
+
+    echo "[INFO] Phase ${phase} configured for parallel execution" >&2
+
+    # 初始化并行系统
+    if ! init_parallel_system; then
+        echo "[ERROR] Failed to initialize parallel system" >&2
+        return 1
+    fi
+
+    # 读取并行组
+    local groups
+    groups=$(grep -A 50 "^  ${phase}:" "${SCRIPT_DIR}/STAGES.yml" | \
+            grep "group_id:" | head -10 | awk '{print $2}')
+
+    if [[ -z "${groups}" ]]; then
+        echo "[WARN] No parallel groups found for ${phase}" >&2
+        return 1
+    fi
+
+    echo "[INFO] Found parallel groups: ${groups}" >&2
+
+    # 执行并行策略
+    if ! execute_with_strategy "${phase}" ${groups}; then
+        echo "[ERROR] Parallel execution failed" >&2
+        return 1
+    fi
+
+    echo "[SUCCESS] Phase ${phase} parallel execution completed" >&2
+    return 0
+}
+
 # ==================== 日志轮转系统 (CE-ISSUE-009) ====================
 
 check_and_rotate_logs() {
@@ -805,6 +875,17 @@ main() {
 
         validate)
             local current_phase=$(get_current_phase)
+
+            # 尝试并行执行（如果配置了）
+            if is_parallel_enabled "${current_phase}"; then
+                log_info "尝试并行执行 ${current_phase}"
+                if execute_parallel_workflow "${current_phase}"; then
+                    log_success "并行执行成功"
+                else
+                    log_warn "并行执行失败，继续标准流程"
+                fi
+            fi
+
             if execute_phase_gates "${current_phase}"; then
                 log_success "🎉 阶段 ${current_phase} 验证通过！"
                 integrate_with_claude_hooks
@@ -816,6 +897,17 @@ main() {
 
         next)
             local current_phase=$(get_current_phase)
+
+            # 尝试并行执行（如果配置了）
+            if is_parallel_enabled "${current_phase}"; then
+                log_info "尝试并行执行 ${current_phase}"
+                if execute_parallel_workflow "${current_phase}"; then
+                    log_success "并行执行成功"
+                else
+                    log_warn "并行执行失败，继续标准流程"
+                fi
+            fi
+
             if execute_phase_gates "${current_phase}"; then
                 log_success "🎉 已自动进入下一阶段！"
                 generate_status_report

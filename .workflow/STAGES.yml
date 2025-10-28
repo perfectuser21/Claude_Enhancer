@@ -8,8 +8,8 @@ version: "1.1.0"
 # 并行组定义（按Phase分组）
 parallel_groups:
 
-  # P1规划阶段：最多6个并行agent
-  P1:
+  # Phase1规划阶段：最多6个并行agent
+  Phase1:
     - group_id: plan-requirements
       name: "需求分析组"
       agents:
@@ -43,8 +43,8 @@ parallel_groups:
         - "docs/test-plan.md"
         - "docs/security-plan.md"
 
-  # P2骨架阶段：最多4个并行agent
-  P2:
+  # Phase2骨架阶段：最多4个并行agent
+  Phase2:
     - group_id: skeleton-structure
       name: "结构创建组"
       agents:
@@ -68,8 +68,8 @@ parallel_groups:
         - "tsconfig.json"
         - "*.config.*"
 
-  # P3实现阶段：最多8个并行agent
-  P3:
+  # Phase3实现阶段：最多8个并行agent
+  Phase3:
     - group_id: impl-backend
       name: "后端实现组"
       agents:
@@ -109,8 +109,8 @@ parallel_groups:
         - "scripts/**"
         - "deployment/**"
 
-  # P4测试阶段：最多6个并行agent
-  P4:
+  # Phase4测试阶段：最多6个并行agent
+  Phase4:
     - group_id: test-unit
       name: "单元测试组"
       agents:
@@ -156,8 +156,8 @@ parallel_groups:
         - "tests/security/**"
         - "security/**"
 
-  # P5审查阶段：最多4个并行agent
-  P5:
+  # Phase5审查阶段：最多4个并行agent
+  Phase5:
     - group_id: review-code
       name: "代码审查组"
       agents:
@@ -178,8 +178,8 @@ parallel_groups:
       conflict_paths:
         - "docs/architecture-review.md"
 
-  # P6发布阶段：串行执行（涉及git操作）
-  P6:
+  # Phase6发布阶段：串行执行（涉及git操作）
+  Phase6:
     - group_id: release-prep
       name: "发布准备组"
       agents:
