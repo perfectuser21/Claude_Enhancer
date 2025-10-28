@@ -1,3 +1,11 @@
 {
-  "evidence": []
+  "evidence": [
+    {
+      "id": "EVID-2025W44-001",
+      "type": "code_review",
+      "checklist_item": "1.1",
+      "timestamp": "2025-10-28T02:30:00Z",
+      "file": ".evidence/2025W44/EVID-2025W44-001.yml"
+    }
+  ]
 }

@@ -10,7 +10,8 @@
 
 ### 1. Evidence System
 
-- [ ] 1.1 Evidence collection script works for all 3 types (test_result, code_review, command_output)
+- [x] 1.1 Evidence collection script works for all 3 types (test_result, code_review, command_output)
+<!-- evidence: EVID-2025W44-001 -->
 
 - [ ] 1.2 Evidence validation script correctly validates checklists
 

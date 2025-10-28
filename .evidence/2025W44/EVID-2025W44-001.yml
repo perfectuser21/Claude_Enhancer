@@ -1,0 +1,22 @@
+---
+id: "EVID-2025W44-001"
+type: "code_review"
+checklist_item: "1.1"
+description: "Evidence collection and validation scripts created and tested"
+timestamp: "2025-10-28T02:30:00Z"
+
+artifacts:
+  files:
+    - path: scripts/evidence/collect.sh
+      hash: "720a90458bec72960d4423cc06a2e1559e0968340ece3cd85f4fd784e3bc45e1"
+      stored_as: "scripts/evidence/collect.sh"
+    - path: scripts/evidence/validate_checklist.sh
+      hash: "8f809ee1cd8a7b4d96ad70dd441a9ed71c990d4eedb4bc96e4dfbbdd633f5f4b"
+      stored_as: "scripts/evidence/validate_checklist.sh"
+
+git_context:
+  commit: "5f78e3957981afb45de3db0dab525b29c667c109"
+  branch: "feature/anti-hollow-gate-full-integration"
+  diff_stat: "Evidence system Week 1 implementation"
+
+retention_days: 90

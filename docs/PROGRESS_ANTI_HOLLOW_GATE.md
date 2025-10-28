@@ -79,22 +79,37 @@ Phase 7: Closure                        [░░░░░░░░░░░░░
 
 ---
 
+## ✅ Week 1 Complete: Evidence System
+
+### Phase 2: Implementation - Week 1 (100%)
+
+**Deliverables Completed**:
+- [x] `scripts/evidence/collect.sh` (287 lines, v1.1 patched)
+- [x] `scripts/evidence/validate_checklist.sh` (219 lines, v1.1 patched)
+- [x] Evidence infrastructure (schema.json, index.json, directory structure)
+- [x] First evidence collected (EVID-2025W44-001)
+- [x] Checklist item 1.1 marked complete with evidence
+
+**Key Features**:
+- ISO week format (EVID-2025W44-NNN)
+- Line-skipping bug fix (nl -ba + sed -n)
+- 5-line evidence window
+- Cross-platform sha256 support
+- Evidence index validation
+
+**Status**: Week 1 complete, ready for Week 2 (3-Layer Hooks)
+
 ## 🔄 In Progress
 
-### Phase 2: Implementation - Week 1 (20%)
+### Phase 2: Implementation - Week 2 (0%)
 
-**Current Task**: Create evidence validation script
+**Current Task**: Begin Layer 1 (Pre-Tool-Use Hook)
 
-**Remaining Week 1 Tasks**:
-- [ ] `scripts/evidence/validate_checklist.sh` (v1.1 patched)
-  - Line-skipping bug fix (nl -ba + sed -n)
-  - 5-line evidence window
-  - Index missing gracefully handled
-- [ ] Test evidence collection end-to-end
-- [ ] Week 1 integration testing
-- [ ] Collect evidence for checklist items 1.1-1.5
-
-**Status**: Ready to continue in next session
+**Week 2 Tasks**:
+- [ ] `.claude/hooks/pre_tool_use.sh` (Layer 1)
+- [ ] `.claude/hooks/phase_transition.sh` (Layer 2)
+- [ ] `scripts/pre_merge_audit_v2.sh` (Layer 3)
+- [ ] Week 2 integration testing
 
 ---
 
