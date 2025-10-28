@@ -1,5 +1,5 @@
 
-[![Version](https://img.shields.io/badge/version-8.0.2-blue.svg)](https://github.com/claude-enhancer/claude-enhancer)
+[![Version](https://img.shields.io/badge/version-8.1.0-blue.svg)](https://github.com/claude-enhancer/claude-enhancer)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/claude-enhancer/claude-enhancer/actions)
 [![Branch Protection](https://github.com/perfectuser21/Claude_Enhancer/actions/workflows/bp-guard.yml/badge.svg)](https://github.com/perfectuser21/Claude_Enhancer/actions/workflows/bp-guard.yml)
@@ -37,6 +37,10 @@ When using AI assistants like Claude Code, you face:
 ✅ **Multi-Terminal Support** - Safe parallel development with conflict detection
 ✅ **Production Metrics** - 100/100 quality score, 80%+ test coverage, 312+ tests
 ✅ **Security Hardened** - 85/100 security score with ongoing improvements
+✅ **Anti-Hollow Gate System** - 3-layer validation to prevent hollow implementations
+  - Evidence-based quality assurance
+  - Automated learning and auto-fix
+  - KPI dashboard for continuous monitoring
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -179,6 +183,13 @@ bash .claude/install.sh
 python3 scripts/auto_metrics.py --check-only
 bash scripts/cleanup_documents.sh
 # Expected: ✅ All metrics accurate, ≤7 core documents
+
+# 4. Initialize Anti-Hollow Gate
+# Enable evidence system
+mkdir -p .evidence .kpi
+
+# Generate baseline KPI
+bash scripts/kpi/weekly_report.sh
 ```
 
 For detailed installation instructions, see [INSTALLATION.md](INSTALLATION.md).

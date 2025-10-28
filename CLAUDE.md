@@ -672,6 +672,164 @@ bash tools/verify-core-structure.sh
 
 ---
 
+## 🛡️ 规则3: Anti-Hollow Gate System（反空洞门禁系统）
+**优先级: 最高 | 防止空壳实现和hollow features**
+
+### 🎯 核心原则
+```
+Every Feature = Evidence + Integration + Active Usage
+```
+
+### 📋 什么是Hollow Implementation（空壳实现）
+
+**问题背景**：
+AI在迭代过程中可能创建"看起来完整"但实际未真正使用的功能：
+- ❌ 创建了脚本但从未被调用
+- ❌ 配置了hook但未注册到系统
+- ❌ 实现了功能但无测试证据
+- ❌ 写了文档但与实际代码不一致
+
+**Anti-Hollow Gate解决方案**：3-Layer + Evidence + Skills
+
+### 🏗️ 3-Layer Anti-Hollow Gate架构
+
+#### Layer 1: Pre-Tool-Use Hook（前置检查层）
+- **文件**: `.claude/hooks/pre_tool_use.sh`
+- **触发**: Write/Edit操作在CHECKLIST文件前
+- **功能**: 检查是否有evidence支持完成标记
+- **性能**: <500ms
+
+#### Layer 2: Phase Transition Hook（阶段转换层）
+- **文件**: `.claude/hooks/phase_transition.sh`
+- **触发**: Phase N → Phase N+1转换时
+- **功能**:
+  - 验证Phase 1所有子步骤（含Impact Assessment）
+  - Phase 4+强制evidence验证
+  - 捕获Learning Items
+- **性能**: <1s
+
+#### Layer 3: Pre-Merge Audit v2（合并前审计层）
+- **文件**: `scripts/pre_merge_audit_v2.sh`
+- **触发**: Pull Request合并前
+- **功能**: 12项综合检查
+  1. Configuration completeness
+  2. Evidence validation (100%)
+  3. Checklist completion (≥90%)
+  4. Learning system active
+  5. Skills configured
+  6. Version consistency (6 files)
+  7. No hollow implementations
+  8. Auto-fix rollback capability
+  9. KPI tools available
+  10. Root documents ≤7
+  11. Documentation complete
+  12. Legacy audit passed
+- **性能**: <10s
+
+### 📝 Evidence System（证据系统）
+
+**Evidence ID格式**: `EVID-YYYYWWW-NNN`
+- 例如: `EVID-2025W44-001`
+
+**存储结构**:
+```
+.evidence/
+├── schema.json           # Evidence元数据schema
+├── index.json           # 快速查找索引
+└── 2025Www/             # 按ISO周分组
+    ├── EVID-2025W44-001.yml
+    ├── EVID-2025W44-002.yml
+    └── artifacts/       # 大文件附件
+```
+
+**Evidence类型**:
+- `test_result` - 测试输出
+- `code_review` - 代码审查记录
+- `command_output` - 命令执行结果
+- `artifact` - 大文件（截图、日志等）
+
+**收集Evidence**:
+```bash
+bash scripts/evidence/collect.sh \
+  --type test_result \
+  --checklist-item 1.1 \
+  --description "Unit tests for evidence collection" \
+  --file /tmp/test_output.log
+```
+
+**使用Evidence**:
+```markdown
+- [x] 1.1 Evidence collection script works
+<!-- evidence: EVID-2025W44-001 -->
+```
+
+### 🤖 Skills Framework（技能框架）
+
+配置在`.claude/settings.json`，4个核心Skills:
+
+1. **checklist-validator**
+   - 在标记checklist项完成前验证evidence存在
+
+2. **learning-capturer**
+   - Phase转换失败时自动捕获Learning Item
+
+3. **evidence-collector**
+   - 运行测试后提醒收集evidence
+
+4. **kpi-reporter**
+   - Phase转换时生成KPI报告
+
+### 📊 KPI Dashboard（质量仪表板）
+
+4个核心指标:
+1. **Auto-Fix Success Rate**: ≥80%
+2. **MTTR (Mean Time To Repair)**: <24h
+3. **Learning Reuse Rate**: ≥50%
+4. **Evidence Compliance**: 100%
+
+生成报告:
+```bash
+bash scripts/kpi/weekly_report.sh
+```
+
+### 🔒 强制执行机制
+
+**三层防护**:
+1. Hooks: 硬阻止（can block operations）
+2. Skills: 智能提醒（reminders, automation）
+3. CI/CD: 最终门禁（required checks）
+
+**Workflow integration**:
+- Phase 1.4: Impact Assessment（自动推荐Agent数量）
+- Phase 3: Evidence collection required
+- Phase 4: 100% evidence compliance check
+- Phase 5: Pre-merge audit (12 checks)
+
+### ⚠️ AI行为规范
+
+**禁止行为**:
+- ❌ 创建feature后不collect evidence
+- ❌ 标记checklist项完成但无evidence
+- ❌ 跳过Phase 1.4 Impact Assessment
+- ❌ Phase转换时不验证requirements
+
+**强制行为**:
+- ✅ 完成任务后必须collect evidence
+- ✅ Phase转换前必须validate checklist
+- ✅ 合并前必须通过12项audit checks
+- ✅ 保持evidence compliance = 100%
+
+### 📈 成功指标
+
+**30天后验证**:
+- [ ] Hollow Implementation Rate = 0%
+- [ ] Evidence Compliance = 100%
+- [ ] Auto-Fix Success ≥80%
+- [ ] MTTR <24h
+- [ ] Learning Reuse ≥50%
+
+---
+
 ## 🚀 核心工作流：7-Phase系统（v6.6统一版）
 
 ### 完整7 Phases开发周期

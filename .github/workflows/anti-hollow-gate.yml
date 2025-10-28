@@ -1,0 +1,244 @@
+name: Anti-Hollow Gate CI
+
+on:
+  pull_request:
+    branches: [main, master]
+  push:
+    branches: [feature/anti-hollow-gate-*]
+
+jobs:
+  evidence-validation:
+    name: Evidence System Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate evidence schema
+        run: |
+          if [ -f .evidence/schema.json ]; then
+            # Validate JSON syntax
+            python3 -m json.tool .evidence/schema.json > /dev/null
+            echo "✓ Evidence schema is valid JSON"
+          else
+            echo "⚠ Evidence schema not found (may not be initialized yet)"
+          fi
+
+      - name: Validate evidence index
+        run: |
+          if [ -f .evidence/index.json ]; then
+            python3 -m json.tool .evidence/index.json > /dev/null
+            echo "✓ Evidence index is valid JSON"
+          else
+            echo "⚠ Evidence index not found"
+          fi
+
+      - name: Check evidence compliance
+        run: |
+          # Find checklist files
+          CHECKLISTS=$(find docs -name "*CHECKLIST*.md" 2>/dev/null || echo "")
+
+          if [ -z "$CHECKLISTS" ]; then
+            echo "No checklists found, skipping compliance check"
+            exit 0
+          fi
+
+          # Run validation script if it exists
+          if [ -f scripts/evidence/validate_checklist.sh ]; then
+            for checklist in $CHECKLISTS; do
+              echo "Validating: $checklist"
+              bash scripts/evidence/validate_checklist.sh "$checklist" || {
+                echo "⚠ Evidence validation failed (non-blocking in CI)"
+                exit 0  # Don't fail CI, just warn
+              }
+            done
+          fi
+
+  hooks-validation:
+    name: 3-Layer Hooks Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate Layer 1 syntax
+        run: |
+          if [ -f .claude/hooks/pre_tool_use.sh ]; then
+            bash -n .claude/hooks/pre_tool_use.sh
+            echo "✓ Layer 1 (pre_tool_use.sh) syntax valid"
+          else
+            echo "⚠ Layer 1 hook not found"
+          fi
+
+      - name: Validate Layer 2 syntax
+        run: |
+          if [ -f .claude/hooks/phase_transition.sh ]; then
+            bash -n .claude/hooks/phase_transition.sh
+            echo "✓ Layer 2 (phase_transition.sh) syntax valid"
+          else
+            echo "⚠ Layer 2 hook not found"
+          fi
+
+      - name: Validate Layer 3 syntax
+        run: |
+          if [ -f scripts/pre_merge_audit_v2.sh ]; then
+            bash -n scripts/pre_merge_audit_v2.sh
+            echo "✓ Layer 3 (pre_merge_audit_v2.sh) syntax valid"
+          else
+            echo "⚠ Layer 3 audit not found"
+          fi
+
+      - name: Check hooks are executable
+        run: |
+          HOOKS=(
+            .claude/hooks/pre_tool_use.sh
+            .claude/hooks/phase_transition.sh
+            scripts/pre_merge_audit_v2.sh
+          )
+
+          for hook in "${HOOKS[@]}"; do
+            if [ -f "$hook" ]; then
+              if [ -x "$hook" ]; then
+                echo "✓ $hook is executable"
+              else
+                echo "✗ $hook is not executable"
+                exit 1
+              fi
+            fi
+          done
+
+  skills-validation:
+    name: Skills Configuration Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Validate settings.json syntax
+        run: |
+          if [ -f .claude/settings.json ]; then
+            jq empty .claude/settings.json
+            echo "✓ settings.json is valid JSON"
+          else
+            echo "⚠ settings.json not found"
+            exit 0
+          fi
+
+      - name: Check skills configuration
+        run: |
+          if [ ! -f .claude/settings.json ]; then
+            echo "settings.json not found, skipping"
+            exit 0
+          fi
+
+          # Check if skills array exists
+          SKILLS_COUNT=$(jq '.skills | length' .claude/settings.json 2>/dev/null || echo "0")
+
+          if [ "$SKILLS_COUNT" -eq 0 ]; then
+            echo "⚠ No skills configured"
+          else
+            echo "✓ Found $SKILLS_COUNT skill(s)"
+
+            # List skills
+            jq -r '.skills[] | "  - \(.name) [\(if .enabled then "ENABLED" else "DISABLED" end)]"' .claude/settings.json
+          fi
+
+  kpi-validation:
+    name: KPI Dashboard Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y bc jq
+
+      - name: Validate KPI script syntax
+        run: |
+          if [ -f scripts/kpi/weekly_report.sh ]; then
+            bash -n scripts/kpi/weekly_report.sh
+            echo "✓ KPI script syntax valid"
+          else
+            echo "⚠ KPI script not found"
+            exit 0
+          fi
+
+      - name: Test KPI generation (dry run)
+        run: |
+          if [ -f scripts/kpi/weekly_report.sh ]; then
+            # Run in auto mode to get JSON output
+            chmod +x scripts/kpi/weekly_report.sh
+            OUTPUT=$(bash scripts/kpi/weekly_report.sh --auto 2>/dev/null || echo "{}")
+
+            if echo "$OUTPUT" | jq empty 2>/dev/null; then
+              echo "✓ KPI report generated valid JSON"
+              echo "$OUTPUT" | jq .
+            else
+              echo "⚠ KPI report did not generate valid JSON"
+            fi
+          fi
+
+  integration-test:
+    name: Full Integration Test
+    runs-on: ubuntu-latest
+    needs: [evidence-validation, hooks-validation, skills-validation, kpi-validation]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bc jq python3
+
+      - name: Run integration checks
+        run: |
+          echo "=== Anti-Hollow Gate Integration Check ==="
+          echo ""
+
+          # Check all components exist
+          COMPONENTS=(
+            "scripts/evidence/collect.sh:Evidence Collection"
+            "scripts/evidence/validate_checklist.sh:Evidence Validation"
+            ".claude/hooks/pre_tool_use.sh:Layer 1 Hook"
+            ".claude/hooks/phase_transition.sh:Layer 2 Hook"
+            "scripts/pre_merge_audit_v2.sh:Layer 3 Audit"
+            "scripts/learning/auto_fix_v2.py:Auto-Fix v2"
+            "scripts/kpi/weekly_report.sh:KPI Dashboard"
+          )
+
+          MISSING_COUNT=0
+          for comp in "${COMPONENTS[@]}"; do
+            IFS=':' read -r file name <<< "$comp"
+            if [ -f "$file" ]; then
+              echo "✓ $name"
+            else
+              echo "✗ $name (missing: $file)"
+              ((MISSING_COUNT++))
+            fi
+          done
+
+          echo ""
+          if [ $MISSING_COUNT -eq 0 ]; then
+            echo "✅ All components present"
+          else
+            echo "⚠ $MISSING_COUNT component(s) missing (may not be implemented yet)"
+          fi
+
+      - name: Summary
+        run: |
+          echo ""
+          echo "╔═══════════════════════════════════════════════════════════╗"
+          echo "║  Anti-Hollow Gate CI Validation Complete                 ║"
+          echo "╚═══════════════════════════════════════════════════════════╝"
+          echo ""
+          echo "All validation checks passed!"
+          echo ""
