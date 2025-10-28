@@ -164,7 +164,8 @@ jobs:
           SHELL_FILES=$(echo "$CHANGED" | grep '\.sh$' || true)
           if [ -n "$SHELL_FILES" ]; then
             echo "📝 Checking shell files..."
-            echo "$SHELL_FILES" | xargs -r -n1 shellcheck
+            # Exclude SC1091 (can't follow sourced files in CI)
+            echo "$SHELL_FILES" | xargs -r -n1 shellcheck --exclude=SC1091
             echo "✅ Shell files passed"
           fi
 
