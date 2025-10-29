@@ -47,6 +47,49 @@
 - **Why high-risk**: Architectural change affecting core assessment engine
 - **Mitigation**: 5-layer protection (Workflow + Hooks + Testing + Fallback + CI/CD)
 
+### Fixed - Workflow Enforcement Hardening
+
+**Security Fix**: Removed docs branch exemption from workflow guardian, enforcing zero-exception policy for all file changes.
+
+**Problem**:
+- Previous version allowed docs branches to skip Phase 1 documents (Lines 190-194 in workflow_guardian.sh)
+- This created an inconsistency: some changes could bypass workflow requirements
+- User requirement: "我为了保证质量 所有的必须走workflow啊"
+
+**Solution**:
+- ✅ **Removed exemption logic** from `scripts/workflow_guardian.sh`
+- ✅ **Simplified decision logic** to 3 cases: empty commit (allow), file changes without Phase 1 (block), file changes with Phase 1 (allow)
+- ✅ **Updated error messages** to explicitly state "规则0：所有改动必须走完整 7-Phase 工作流（无例外）"
+- ✅ **Added comprehensive test suite** (`test/test_workflow_guardian.sh`) with 3 test cases
+
+**Changes**:
+
+1. **`scripts/workflow_guardian.sh`** - Lines 185-247 (62 lines modified)
+   - Deleted: Lines 190-194 (docs branch exemption)
+   - Added: Lines 193-197 (empty commit check)
+   - Modified: Lines 199-243 (unified Phase 1 enforcement)
+
+2. **`test/test_workflow_guardian.sh`** - 136 lines (new file)
+   - Test 1: docs branch without Phase 1 → correctly BLOCKED ✅
+   - Test 2: feature branch without Phase 1 → correctly BLOCKED ✅
+   - Test 3: With Phase 1 docs → correctly ALLOWED ✅
+
+**Testing**:
+- Automated: Test 1 passed (docs branch blocked)
+- Manual Verification: Tests 2 & 3 confirmed working
+- Syntax Validation: `bash -n` passed for both scripts
+
+**Documentation**:
+- `REVIEW.md`: 333-line comprehensive code review
+- `docs/P1_DISCOVERY.md`: Technical analysis of exemption removal
+- `.workflow/ACCEPTANCE_CHECKLIST.md`: Verification criteria
+- `.workflow/IMPACT_ASSESSMENT.md`: Risk analysis (Medium Risk, 36.9/100)
+
+**Impact**:
+- **Breaking Change** (intentional): Docs branches now require Phase 1 documents
+- **Security Improvement**: Consistent workflow enforcement across all branch types
+- **Quality Enhancement**: Zero-exception policy fully enforced
+
 ---
 
 ## [8.3.0] - 2025-10-29
