@@ -106,7 +106,7 @@ EOF
     return 1
 }
 
-# 并行执行函数
+# 并行执行函数 (v8.3.0 Enhanced with Skills Middleware)
 execute_parallel_workflow() {
     local phase="$1"
 
@@ -151,13 +151,60 @@ EOF
 
     echo "[INFO] Found parallel groups: ${groups}" >&2
 
+    # ========== SKILLS MIDDLEWARE LAYER (v8.3.0) ==========
+
+    # PRE-EXECUTION: Conflict validator (Skill 2)
+    echo "[INFO] [Skill] Running conflict validator..." >&2
+    if [[ -x "${PROJECT_ROOT}/scripts/parallel/validate_conflicts.sh" ]]; then
+        if ! bash "${PROJECT_ROOT}/scripts/parallel/validate_conflicts.sh" "${phase}" ${groups}; then
+            echo "[ERROR] Conflict validation failed, aborting parallel execution" >&2
+            return 1
+        fi
+    else
+        echo "[WARN] Conflict validator not found, skipping..." >&2
+    fi
+
+    # EXECUTION: Record start time for performance tracking
+    local start_time=$(date +%s)
+
     # 执行并行策略
     if ! execute_with_strategy "${phase}" ${groups}; then
         echo "[ERROR] Parallel execution failed" >&2
+
+        # POST-EXECUTION (on failure): Learning capturer (Skill 4 - enhanced)
+        if [[ -x "${PROJECT_ROOT}/scripts/learning/capture.sh" ]]; then
+            bash "${PROJECT_ROOT}/scripts/learning/capture.sh" \
+                --category error_pattern \
+                --description "Parallel execution failed for ${phase}" \
+                --phase "${phase}" \
+                --parallel-group "${groups}" \
+                --parallel-failure "execute_with_strategy returned non-zero" \
+                2>/dev/null &
+        fi
+
         return 1
     fi
 
-    echo "[SUCCESS] Phase ${phase} parallel execution completed" >&2
+    # POST-EXECUTION (on success): Performance tracker + Evidence collector
+
+    local exec_time=$(($(date +%s) - start_time))
+    local group_count=$(echo "${groups}" | wc -w)
+
+    # Skill 1: Performance tracker (async, non-blocking)
+    echo "[INFO] [Skill] Tracking performance metrics..." >&2
+    if [[ -x "${PROJECT_ROOT}/scripts/parallel/track_performance.sh" ]]; then
+        bash "${PROJECT_ROOT}/scripts/parallel/track_performance.sh" \
+            "${phase}" "${exec_time}" "${group_count}" 2>/dev/null &
+    fi
+
+    # Skill 3: Evidence collector (async, reminder)
+    if [[ -x "${PROJECT_ROOT}/scripts/evidence/collect.sh" ]]; then
+        echo "[INFO] [Skill] Evidence collection available: use --auto-detect-parallel --phase ${phase}" >&2
+    fi
+
+    # ========== END SKILLS MIDDLEWARE ==========
+
+    echo "[SUCCESS] Phase ${phase} parallel execution completed (${exec_time}s)" >&2
     return 0
 }
 
