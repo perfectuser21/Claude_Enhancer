@@ -223,6 +223,7 @@ kustomization.local.yaml
 # 缓存文件
 .claude/cache/*.cache
 .claude/cache/*.log
+.workflow/cache/
 node_modules/
 
 # Claude Enhancer v8.0 - Learning System
