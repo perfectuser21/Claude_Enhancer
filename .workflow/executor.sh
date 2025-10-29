@@ -86,14 +86,23 @@ is_parallel_enabled() {
     # 检查并行执行器可用性
     [[ "${PARALLEL_AVAILABLE}" != "true" ]] && return 1
 
-    # 检查STAGES.yml配置
-    if grep -q "^  ${phase}:" "${SCRIPT_DIR}/STAGES.yml" 2>/dev/null; then
-        local groups
-        groups=$(grep -A 50 "^  ${phase}:" "${SCRIPT_DIR}/STAGES.yml" | \
-                grep "group_id:" | head -10 | awk '{print $2}')
-        [[ -n "${groups}" ]] && return 0
-    fi
+    # 检查STAGES.yml配置（从workflow_phase_parallel section）
+    # 使用Python解析YAML获取can_parallel值
+    local can_parallel=$(python3 << EOF
+import yaml
+import sys
+try:
+    with open("${SCRIPT_DIR}/STAGES.yml", 'r') as f:
+        data = yaml.safe_load(f)
+    wpp = data.get('workflow_phase_parallel', {})
+    phase_config = wpp.get('${phase}', {})
+    print(phase_config.get('can_parallel', False))
+except:
+    print(False)
+EOF
+)
 
+    [[ "${can_parallel}" == "True" ]] && return 0
     return 1
 }
 
@@ -109,10 +118,31 @@ execute_parallel_workflow() {
         return 1
     fi
 
-    # 读取并行组
+    # 读取并行组（从workflow_phase_parallel section）
     local groups
-    groups=$(grep -A 50 "^  ${phase}:" "${SCRIPT_DIR}/STAGES.yml" | \
-            grep "group_id:" | head -10 | awk '{print $2}')
+    groups=$(python3 << EOF
+import yaml
+import sys
+try:
+    with open("${SCRIPT_DIR}/STAGES.yml", 'r') as f:
+        data = yaml.safe_load(f)
+    wpp = data.get('workflow_phase_parallel', {})
+    phase_config = wpp.get('${phase}', {})
+    parallel_groups = phase_config.get('parallel_groups', [])
+
+    # Extract group_id from each group
+    group_ids = []
+    for group in parallel_groups:
+        if isinstance(group, dict) and 'group_id' in group:
+            group_ids.append(group['group_id'])
+
+    # Print space-separated group IDs
+    print(' '.join(group_ids))
+except Exception as e:
+    print('', file=sys.stderr)
+    sys.exit(1)
+EOF
+)
 
     if [[ -z "${groups}" ]]; then
         echo "[WARN] No parallel groups found for ${phase}" >&2

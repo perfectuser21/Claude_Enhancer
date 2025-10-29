@@ -5,6 +5,80 @@
 
 version: "1.1.0"
 
+# ===================================================
+# SECTION 1: WORKFLOW PHASE PARALLEL EXECUTION (v8.3.0)
+# ===================================================
+# Purpose: Define parallel execution for 7-Phase workflow system
+# Read by: .workflow/executor.sh (is_parallel_enabled, execute_parallel_workflow)
+# Executed by: .workflow/lib/parallel_executor.sh
+
+workflow_phase_parallel:
+  # Phase1: Discovery & Planning - SERIAL (不适合并行)
+  Phase1:
+    can_parallel: false
+    max_concurrent: 1
+    parallel_groups: []
+
+  # Phase2: Implementation - 4 parallel groups (1.3x speedup)
+  Phase2:
+    can_parallel: true
+    max_concurrent: 4
+    parallel_groups:
+      - group_id: core_implementation
+      - group_id: test_implementation
+      - group_id: scripts_hooks
+      - group_id: configuration
+
+  # Phase3: Testing - 5 parallel groups (2.0-2.5x speedup, optimized from 4 groups)
+  Phase3:
+    can_parallel: true
+    max_concurrent: 8
+    parallel_groups:
+      - group_id: unit_tests
+      - group_id: integration_tests
+      - group_id: performance_tests
+      - group_id: security_tests
+      - group_id: linting
+
+  # Phase4: Review - 5 parallel groups (1.2x speedup)
+  Phase4:
+    can_parallel: true
+    max_concurrent: 4
+    parallel_groups:
+      - group_id: code_logic
+      - group_id: code_consistency
+      - group_id: documentation
+      - group_id: architecture
+      - group_id: pre_merge_audit
+
+  # Phase5: Release - 2 parallel groups (1.4x speedup, partial parallel)
+  Phase5:
+    can_parallel: true
+    max_concurrent: 2
+    parallel_groups:
+      - group_id: documentation_prep
+      - group_id: git_operations
+
+  # Phase6: Acceptance - 2 parallel groups (1.1x speedup, partial parallel)
+  Phase6:
+    can_parallel: true
+    max_concurrent: 2
+    parallel_groups:
+      - group_id: acceptance_checks
+      - group_id: user_confirmation
+
+  # Phase7: Closure - SERIAL (Git operations, must be atomic)
+  Phase7:
+    can_parallel: false
+    max_concurrent: 1
+    parallel_groups: []
+
+# ===================================================
+# SECTION 2: MULTI-AGENT DEVELOPMENT WORKFLOW (v1.1.0)
+# ===================================================
+# Purpose: Define agent roles and parallel groups for multi-agent development
+# (This is SEPARATE from Phase1-7 parallel execution above)
+
 # 并行组定义（按Phase分组）
 parallel_groups:
 
