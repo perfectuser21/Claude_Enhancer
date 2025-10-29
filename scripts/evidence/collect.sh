@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Evidence Collection Script (v1.1 - ChatGPT Reviewed & Patched)
+# Evidence Collection Script (v1.2 - Enhanced for parallel execution)
 # Collects evidence for acceptance checklist items
 #
 # Fixes Applied:
@@ -9,6 +9,11 @@
 # - P0-2: Timestamp generated in Python (not shell variable)
 # - P0-5: ISO week format unified across system
 # - P1-8: Cross-platform sha256 support (macOS + Linux)
+#
+# v1.2 Enhancements (v8.3.0):
+# - Added --auto-detect-parallel flag
+# - Added --phase parameter for parallel context
+# - Auto-detects parallel_execution evidence type
 
 set -euo pipefail
 
@@ -34,6 +39,8 @@ Options:
   --description       Human-readable description (required)
   --file              Path to file artifact (optional)
   --command           Command to execute (optional)
+  --auto-detect-parallel  Auto-detect parallel execution evidence (v1.2)
+  --phase             Phase name for parallel context (v1.2)
 
 Example:
   bash scripts/evidence/collect.sh \\
@@ -71,6 +78,8 @@ CHECKLIST_ITEM=""
 DESCRIPTION=""
 FILE_PATH=""
 COMMAND=""
+AUTO_DETECT_PARALLEL="false"  # v1.2 Enhanced
+PHASE=""  # v1.2 Enhanced
 
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -79,10 +88,24 @@ while [[ $# -gt 0 ]]; do
     --description) DESCRIPTION="$2"; shift 2 ;;
     --file) FILE_PATH="$2"; shift 2 ;;
     --command) COMMAND="$2"; shift 2 ;;
+    --auto-detect-parallel) AUTO_DETECT_PARALLEL="true"; shift ;;  # v1.2
+    --phase) PHASE="$2"; shift 2 ;;  # v1.2
     -h|--help) usage ;;
     *) echo -e "${RED}Unknown option: $1${NC}"; usage ;;
   esac
 done
+
+# v1.2: Auto-detect parallel execution type
+if [[ "$AUTO_DETECT_PARALLEL" == "true" ]] && [[ -n "$PHASE" ]]; then
+  if [[ -f ".workflow/metrics/parallel_performance.jsonl" ]]; then
+    # Check if recent parallel execution happened
+    RECENT_PARALLEL=$(tail -n 5 .workflow/metrics/parallel_performance.jsonl 2>/dev/null | grep -c "\"phase\": \"$PHASE\"" || echo 0)
+    if [[ $RECENT_PARALLEL -gt 0 ]]; then
+      TYPE="parallel_execution"
+      echo -e "${CYAN}[v1.2] Auto-detected parallel execution evidence for ${PHASE}${NC}" >&2
+    fi
+  fi
+fi
 
 # Validate required parameters
 if [[ -z "$TYPE" || -z "$CHECKLIST_ITEM" || -z "$DESCRIPTION" ]]; then

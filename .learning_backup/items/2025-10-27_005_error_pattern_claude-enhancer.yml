@@ -1,0 +1,42 @@
+---
+id: "learning-2025-10-27-005"
+timestamp: "2025-10-27T07:11:28Z"
+project: "claude-enhancer"
+category: "error_pattern"
+phase: "Phase2"
+
+context:
+  working_directory: "/home/xx/dev/Claude Enhancer"
+  file: ""
+  line: 0
+  git_branch: "feature/v8-dual-evolution-learning-system"
+  git_commit: "3cfe3914"
+
+observation:
+  type: ""
+  description: "Test CE_HOME detection"
+  technical_details: ""
+  code_snippet: |
+    
+
+learning:
+  root_cause: ""
+  solution: "Fixed path handling"
+  prevention: ""
+  confidence: 0.95
+
+actionable:
+  todo_candidate: false
+  priority: "medium"
+  estimated_effort: ""
+  auto_fix_eligible: true
+  auto_fix_tier: "tier1_auto"
+
+metadata:
+  decay_factor: 1.0
+  last_validated: null
+  validation_count: 0
+  notion_synced: false
+  notion_page_id: null
+  tags:
+  []

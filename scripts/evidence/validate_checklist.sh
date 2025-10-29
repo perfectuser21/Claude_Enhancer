@@ -60,6 +60,7 @@ EVIDENCE_INDEX="$CE_HOME/.evidence/index.json"
 
 echo -e "${CYAN}╔═══════════════════════════════════════════════════════════╗${NC}"
 echo -e "${CYAN}║  Evidence Validation - Anti-Hollow Gate                  ║${NC}"
+echo -e "${CYAN}║  v1.2 - Enhanced for parallel execution evidence         ║${NC}"
 echo -e "${CYAN}╚═══════════════════════════════════════════════════════════╝${NC}"
 echo ""
 echo -e "${CYAN}Validating: $CHECKLIST_FILE${NC}"
@@ -71,6 +72,7 @@ TOTAL_COMPLETED=0
 WITH_EVIDENCE=0
 MISSING_EVIDENCE=0
 INVALID_EVIDENCE=0
+PARALLEL_EVIDENCE=0  # Enhanced v1.2: Track parallel execution evidence
 
 # Count total items
 TOTAL_ITEMS=$(grep -c "^- \[" "$CHECKLIST_FILE" || echo 0)
@@ -109,7 +111,14 @@ while IFS=$'\t' read -r LINENO line; do
         # Validate evidence ID exists in index (P0-3 fix: handle missing index gracefully)
         if [[ -f "$EVIDENCE_INDEX" ]]; then
           if jq -e ".evidence[] | select(.id == \"$EVIDENCE_ID\")" "$EVIDENCE_INDEX" >/dev/null 2>&1; then
-            echo -e "  ${GREEN}✓${NC} $ITEM_ID: $ITEM_DESC"
+            # Enhanced v1.2: Check if evidence is from parallel execution
+            EVIDENCE_TYPE=$(jq -r ".evidence[] | select(.id == \"$EVIDENCE_ID\") | .type" "$EVIDENCE_INDEX" 2>/dev/null || echo "")
+            if [[ "$EVIDENCE_TYPE" == "parallel_execution" ]]; then
+              echo -e "  ${GREEN}✓${NC} $ITEM_ID: $ITEM_DESC ${YELLOW}[parallel]${NC}"
+              PARALLEL_EVIDENCE=$((PARALLEL_EVIDENCE + 1))
+            else
+              echo -e "  ${GREEN}✓${NC} $ITEM_ID: $ITEM_DESC"
+            fi
             echo -e "    ${CYAN}Evidence: $EVIDENCE_ID${NC}"
             WITH_EVIDENCE=$((WITH_EVIDENCE + 1))
             EVIDENCE_FOUND=true
@@ -147,6 +156,7 @@ echo -e "${CYAN}═════════════════════�
 echo -e "  Total items:           $TOTAL_ITEMS"
 echo -e "  Completed items:       $TOTAL_COMPLETED"
 echo -e "  Items with evidence:   $WITH_EVIDENCE"
+echo -e "  Parallel evidence:     $PARALLEL_EVIDENCE ${YELLOW}(v1.2 enhanced)${NC}"
 echo -e "  Missing evidence:      $MISSING_EVIDENCE"
 echo -e "  Invalid evidence IDs:  $INVALID_EVIDENCE"
 

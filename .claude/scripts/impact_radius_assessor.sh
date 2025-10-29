@@ -1,7 +1,7 @@
 #!/bin/bash
 # Claude Enhancer - Impact Radius Assessment Tool
 # 影响半径评估脚本 - 评估任务的风险、复杂度和影响面
-# Version: 1.3.0 (4-level Agent mapping: 0/4/6/8)
+# Version: 1.4.0 (Per-Phase Assessment Support)
 # Author: Claude Enhancer DevOps Team
 
 set -euo pipefail
@@ -10,7 +10,8 @@ set -euo pipefail
 # 配置常量
 # =============================================================================
 
-readonly VERSION="1.3.0"
+readonly VERSION="1.4.0"
+readonly STAGES_YML="${STAGES_YML:-.workflow/STAGES.yml}"
 readonly SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}")"
 readonly LOG_FILE="${LOG_FILE:-/tmp/impact_radius_assessor.log}"
 
@@ -73,6 +74,118 @@ error_exit() {
     exit "${2:-1}"
 }
 
+# 加载Phase-specific配置（从STAGES.yml）
+# 参数: $1 = phase name (Phase2/Phase3/Phase4)
+# 返回: 设置全局变量 PHASE_RISK_PATTERNS, PHASE_AGENT_STRATEGY
+load_phase_config() {
+    local phase="$1"
+
+    # 检查STAGES.yml是否存在
+    if [[ ! -f "$STAGES_YML" ]]; then
+        log "WARN" "STAGES.yml not found at $STAGES_YML, using global mode"
+        return 1
+    fi
+
+    # 使用Python解析YAML（如果可用）
+    if command -v python3 &>/dev/null; then
+        local config
+        config=$(python3 <<EOF
+import yaml
+import json
+import sys
+
+try:
+    with open("$STAGES_YML", 'r') as f:
+        data = yaml.safe_load(f)
+
+    phase_config = data.get('workflow_phase_parallel', {}).get('$phase', {})
+    impact_config = phase_config.get('impact_assessment', {})
+
+    if not impact_config.get('enabled', False):
+        sys.exit(1)
+
+    # 提取risk_patterns
+    patterns = []
+    for p in impact_config.get('risk_patterns', []):
+        patterns.append({
+            'pattern': p.get('pattern', ''),
+            'risk': p.get('risk', 3),
+            'complexity': p.get('complexity', 4),
+            'scope': p.get('scope', 4)
+        })
+
+    # 提取agent_strategy
+    strategy = impact_config.get('agent_strategy', {})
+
+    print(json.dumps({
+        'patterns': patterns,
+        'strategy': strategy
+    }))
+except Exception as e:
+    print(f"Error: {e}", file=sys.stderr)
+    sys.exit(1)
+EOF
+)
+
+        if [[ $? -eq 0 ]] && [[ -n "$config" ]]; then
+            # 将配置存储到全局变量
+            PHASE_CONFIG="$config"
+            return 0
+        fi
+    fi
+
+    log "WARN" "Failed to load phase config for $phase, using global mode"
+    return 1
+}
+
+# 使用Phase-specific配置进行评估
+# 参数: $1 = task_description, $2 = phase_config (JSON)
+# 返回: risk, complexity, scope scores
+assess_with_phase_config() {
+    local task="$1"
+    local config="$2"
+    local task_lower
+    task_lower=$(echo "$task" | tr '[:upper:]' '[:lower:]')
+
+    local risk=0
+    local complexity=0
+    local scope=0
+    local matched=false
+
+    # 解析patterns并匹配
+    local patterns_count
+    patterns_count=$(echo "$config" | python3 -c "import json,sys; print(len(json.load(sys.stdin)['patterns']))")
+
+    for ((i=0; i<patterns_count; i++)); do
+        local pattern
+        local p_risk
+        local p_complexity
+        local p_scope
+
+        pattern=$(echo "$config" | python3 -c "import json,sys; print(json.load(sys.stdin)['patterns'][$i]['pattern'])")
+        p_risk=$(echo "$config" | python3 -c "import json,sys; print(json.load(sys.stdin)['patterns'][$i]['risk'])")
+        p_complexity=$(echo "$config" | python3 -c "import json,sys; print(json.load(sys.stdin)['patterns'][$i]['complexity'])")
+        p_scope=$(echo "$config" | python3 -c "import json,sys; print(json.load(sys.stdin)['patterns'][$i]['scope'])")
+
+        if echo "$task_lower" | grep -qiE "$pattern"; then
+            risk=$p_risk
+            complexity=$p_complexity
+            scope=$p_scope
+            matched=true
+            break
+        fi
+    done
+
+    # 如果没有匹配，使用默认值
+    if [[ "$matched" == "false" ]]; then
+        risk=$DEFAULT_RISK
+        complexity=$DEFAULT_COMPLEXITY
+        scope=$DEFAULT_SCOPE
+    fi
+
+    echo "$risk $complexity $scope"
+}
+
 # 显示帮助信息
 show_help() {
     cat <<EOF
@@ -88,11 +201,17 @@ $SCRIPT_NAME v$VERSION - 影响半径评估工具
     -j, --json              输出JSON格式（默认）
     -p, --pretty            美化输出
     -d, --debug             启用调试模式
+    --phase PHASE           使用Phase-specific评估（Phase2/Phase3/Phase4）
     --performance           显示性能统计
 
 示例:
-    # 通过参数传入
+    # 通过参数传入（全局评估）
     $SCRIPT_NAME "Fix security vulnerability in auth module"
+
+    # Per-phase评估
+    $SCRIPT_NAME --phase Phase2 "implement user authentication"
+    $SCRIPT_NAME --phase Phase3 "test security vulnerabilities"
+    $SCRIPT_NAME --phase Phase4 "review authentication code"
 
     # 通过管道传入
     echo "Refactor global architecture" | $SCRIPT_NAME
@@ -419,12 +538,45 @@ generate_json_output() {
     local strategy="$6"
     local min_agents="$7"
     local pretty="${8:-false}"
+    local phase="${9:-}"
 
     local reasoning
     reasoning=$(generate_reasoning "$risk" "$complexity" "$impact" "$strategy")
 
+    # 构建JSON (根据是否有phase字段选择不同模板)
     local json
-    json=$(cat <<EOF
+    if [[ -n "$phase" ]]; then
+        json=$(cat <<EOF
+{
+    "version": "$VERSION",
+    "timestamp": "$(date -u '+%Y-%m-%dT%H:%M:%SZ')",
+    "phase": "$phase",
+    "task_description": $(echo "$task" | jq -Rs .),
+    "scores": {
+        "risk_score": $risk,
+        "complexity_score": $complexity,
+        "impact_score": $impact,
+        "impact_radius": $radius
+    },
+    "multipliers": {
+        "risk_multiplier": $RISK_MULTIPLIER,
+        "complexity_multiplier": $COMPLEXITY_MULTIPLIER,
+        "scope_multiplier": $SCOPE_MULTIPLIER
+    },
+    "agent_strategy": {
+        "strategy": "$strategy",
+        "min_agents": $min_agents,
+        "thresholds": {
+            "high_risk": $THRESHOLD_HIGH_RISK,
+            "medium_risk": $THRESHOLD_MEDIUM_RISK
+        }
+    },
+    "reasoning": $reasoning
+}
+EOF
+)
+    else
+        json=$(cat <<EOF
 {
     "version": "$VERSION",
     "timestamp": "$(date -u '+%Y-%m-%dT%H:%M:%SZ')",
@@ -452,6 +604,7 @@ generate_json_output() {
 }
 EOF
 )
+    fi
 
     if [[ "$pretty" == "true" ]]; then
         echo "$json" | jq .
@@ -555,6 +708,8 @@ main() {
     local pretty_print="false"
     local debug_mode="false"
     local show_performance="false"
+    local phase_name=""
+    local use_phase_config="false"
     local start_time
     start_time=$(date +%s%N)
 
@@ -581,6 +736,11 @@ main() {
                 debug_mode="true"
                 set -x
                 shift
+                ;;
+            --phase)
+                phase_name="$2"
+                use_phase_config="true"
+                shift 2
                 ;;
             --performance)
                 show_performance="true"
@@ -615,12 +775,60 @@ main() {
     # 执行评估
     local risk_score complexity_score impact_score impact_radius agent_strategy min_agents
 
-    risk_score=$(assess_risk_score "$task_description")
-    complexity_score=$(assess_complexity_score "$task_description")
-    impact_score=$(assess_impact_score "$task_description")
-    impact_radius=$(calculate_impact_radius "$risk_score" "$complexity_score" "$impact_score")
-    agent_strategy=$(determine_agent_strategy "$impact_radius")
-    min_agents=$(determine_min_agents "$agent_strategy")
+    # Per-phase评估模式
+    if [[ "$use_phase_config" == "true" ]] && [[ -n "$phase_name" ]]; then
+        log "INFO" "Using per-phase assessment for $phase_name"
+
+        # 加载Phase配置
+        if load_phase_config "$phase_name"; then
+            # 使用Phase-specific配置评估
+            local scores
+            scores=$(assess_with_phase_config "$task_description" "$PHASE_CONFIG")
+            read -r risk_score complexity_score impact_score <<< "$scores"
+
+            # 计算影响半径
+            impact_radius=$(calculate_impact_radius "$risk_score" "$complexity_score" "$impact_score")
+
+            # 使用Phase-specific agent策略
+            local strategy_json
+            strategy_json=$(echo "$PHASE_CONFIG" | python3 -c "import json,sys; print(json.dumps(json.load(sys.stdin)['strategy']))")
+
+            # 根据risk_score确定agent数量
+            if [[ $risk_score -ge 8 ]]; then
+                min_agents=$(echo "$strategy_json" | python3 -c "import json,sys; print(json.load(sys.stdin).get('very_high_risk', 4))")
+                agent_strategy="very-high-risk"
+            elif [[ $risk_score -ge 6 ]]; then
+                min_agents=$(echo "$strategy_json" | python3 -c "import json,sys; print(json.load(sys.stdin).get('high_risk', 3))")
+                agent_strategy="high-risk"
+            elif [[ $risk_score -ge 4 ]]; then
+                min_agents=$(echo "$strategy_json" | python3 -c "import json,sys; print(json.load(sys.stdin).get('medium_risk', 2))")
+                agent_strategy="medium-risk"
+            else
+                min_agents=$(echo "$strategy_json" | python3 -c "import json,sys; print(json.load(sys.stdin).get('low_risk', 1))")
+                agent_strategy="low-risk"
+            fi
+
+            log "INFO" "Per-phase assessment: phase=$phase_name, risk=$risk_score, agents=$min_agents"
+        else
+            # Fallback到全局模式
+            log "WARN" "Failed to load phase config, using global mode"
+            risk_score=$(assess_risk_score "$task_description")
+            complexity_score=$(assess_complexity_score "$task_description")
+            impact_score=$(assess_impact_score "$task_description")
+            impact_radius=$(calculate_impact_radius "$risk_score" "$complexity_score" "$impact_score")
+            agent_strategy=$(determine_agent_strategy "$impact_radius")
+            min_agents=$(determine_min_agents "$agent_strategy")
+        fi
+    else
+        # 全局评估模式（向后兼容）
+        log "INFO" "Using global assessment mode"
+        risk_score=$(assess_risk_score "$task_description")
+        complexity_score=$(assess_complexity_score "$task_description")
+        impact_score=$(assess_impact_score "$task_description")
+        impact_radius=$(calculate_impact_radius "$risk_score" "$complexity_score" "$impact_score")
+        agent_strategy=$(determine_agent_strategy "$impact_radius")
+        min_agents=$(determine_min_agents "$agent_strategy")
+    fi
 
     # 生成输出
     if [[ "$pretty_print" == "true" ]]; then
@@ -628,7 +836,7 @@ main() {
             "$impact_score" "$impact_radius" "$agent_strategy" "$min_agents"
     else
         generate_json_output "$task_description" "$risk_score" "$complexity_score" \
-            "$impact_score" "$impact_radius" "$agent_strategy" "$min_agents" "false"
+            "$impact_score" "$impact_radius" "$agent_strategy" "$min_agents" "false" "$phase_name"
     fi
 
     # 性能统计

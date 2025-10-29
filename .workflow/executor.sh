@@ -86,18 +86,27 @@ is_parallel_enabled() {
     # 检查并行执行器可用性
     [[ "${PARALLEL_AVAILABLE}" != "true" ]] && return 1
 
-    # 检查STAGES.yml配置
-    if grep -q "^  ${phase}:" "${SCRIPT_DIR}/STAGES.yml" 2>/dev/null; then
-        local groups
-        groups=$(grep -A 50 "^  ${phase}:" "${SCRIPT_DIR}/STAGES.yml" | \
-                grep "group_id:" | head -10 | awk '{print $2}')
-        [[ -n "${groups}" ]] && return 0
-    fi
+    # 检查STAGES.yml配置（从workflow_phase_parallel section）
+    # 使用Python解析YAML获取can_parallel值
+    local can_parallel=$(python3 << EOF
+import yaml
+import sys
+try:
+    with open("${SCRIPT_DIR}/STAGES.yml", 'r') as f:
+        data = yaml.safe_load(f)
+    wpp = data.get('workflow_phase_parallel', {})
+    phase_config = wpp.get('${phase}', {})
+    print(phase_config.get('can_parallel', False))
+except:
+    print(False)
+EOF
+)
 
+    [[ "${can_parallel}" == "True" ]] && return 0
     return 1
 }
 
-# 并行执行函数
+# 并行执行函数 (v8.3.0 Enhanced with Skills Middleware)
 execute_parallel_workflow() {
     local phase="$1"
 
@@ -109,10 +118,31 @@ execute_parallel_workflow() {
         return 1
     fi
 
-    # 读取并行组
+    # 读取并行组（从workflow_phase_parallel section）
     local groups
-    groups=$(grep -A 50 "^  ${phase}:" "${SCRIPT_DIR}/STAGES.yml" | \
-            grep "group_id:" | head -10 | awk '{print $2}')
+    groups=$(python3 << EOF
+import yaml
+import sys
+try:
+    with open("${SCRIPT_DIR}/STAGES.yml", 'r') as f:
+        data = yaml.safe_load(f)
+    wpp = data.get('workflow_phase_parallel', {})
+    phase_config = wpp.get('${phase}', {})
+    parallel_groups = phase_config.get('parallel_groups', [])
+
+    # Extract group_id from each group
+    group_ids = []
+    for group in parallel_groups:
+        if isinstance(group, dict) and 'group_id' in group:
+            group_ids.append(group['group_id'])
+
+    # Print space-separated group IDs
+    print(' '.join(group_ids))
+except Exception as e:
+    print('', file=sys.stderr)
+    sys.exit(1)
+EOF
+)
 
     if [[ -z "${groups}" ]]; then
         echo "[WARN] No parallel groups found for ${phase}" >&2
@@ -121,13 +151,60 @@ execute_parallel_workflow() {
 
     echo "[INFO] Found parallel groups: ${groups}" >&2
 
+    # ========== SKILLS MIDDLEWARE LAYER (v8.3.0) ==========
+
+    # PRE-EXECUTION: Conflict validator (Skill 2)
+    echo "[INFO] [Skill] Running conflict validator..." >&2
+    if [[ -x "${PROJECT_ROOT}/scripts/parallel/validate_conflicts.sh" ]]; then
+        if ! bash "${PROJECT_ROOT}/scripts/parallel/validate_conflicts.sh" "${phase}" ${groups}; then
+            echo "[ERROR] Conflict validation failed, aborting parallel execution" >&2
+            return 1
+        fi
+    else
+        echo "[WARN] Conflict validator not found, skipping..." >&2
+    fi
+
+    # EXECUTION: Record start time for performance tracking
+    local start_time=$(date +%s)
+
     # 执行并行策略
     if ! execute_with_strategy "${phase}" ${groups}; then
         echo "[ERROR] Parallel execution failed" >&2
+
+        # POST-EXECUTION (on failure): Learning capturer (Skill 4 - enhanced)
+        if [[ -x "${PROJECT_ROOT}/scripts/learning/capture.sh" ]]; then
+            bash "${PROJECT_ROOT}/scripts/learning/capture.sh" \
+                --category error_pattern \
+                --description "Parallel execution failed for ${phase}" \
+                --phase "${phase}" \
+                --parallel-group "${groups}" \
+                --parallel-failure "execute_with_strategy returned non-zero" \
+                2>/dev/null &
+        fi
+
         return 1
     fi
 
-    echo "[SUCCESS] Phase ${phase} parallel execution completed" >&2
+    # POST-EXECUTION (on success): Performance tracker + Evidence collector
+
+    local exec_time=$(($(date +%s) - start_time))
+    local group_count=$(echo "${groups}" | wc -w)
+
+    # Skill 1: Performance tracker (async, non-blocking)
+    echo "[INFO] [Skill] Tracking performance metrics..." >&2
+    if [[ -x "${PROJECT_ROOT}/scripts/parallel/track_performance.sh" ]]; then
+        bash "${PROJECT_ROOT}/scripts/parallel/track_performance.sh" \
+            "${phase}" "${exec_time}" "${group_count}" 2>/dev/null &
+    fi
+
+    # Skill 3: Evidence collector (async, reminder)
+    if [[ -x "${PROJECT_ROOT}/scripts/evidence/collect.sh" ]]; then
+        echo "[INFO] [Skill] Evidence collection available: use --auto-detect-parallel --phase ${phase}" >&2
+    fi
+
+    # ========== END SKILLS MIDDLEWARE ==========
+
+    echo "[SUCCESS] Phase ${phase} parallel execution completed (${exec_time}s)" >&2
     return 0
 }
 

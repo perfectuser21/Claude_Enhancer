@@ -3,6 +3,7 @@
 # 用途：捕获开发过程中的学习经验（错误、优化、架构决策等）
 # 用法：bash scripts/learning/capture.sh --category error_pattern --description "..." --phase Phase2
 # 日期：2025-10-27
+# 版本：v1.1 - Enhanced for parallel execution failures (v8.3.0)
 
 set -euo pipefail
 
@@ -50,6 +51,9 @@ EFFORT=""
 AUTO_FIX_ELIGIBLE="false"
 AUTO_FIX_TIER=""
 TAGS=""
+# v1.1 Enhanced: Parallel execution context
+PARALLEL_GROUP=""
+PARALLEL_FAILURE_REASON=""
 
 # 参数解析
 show_help() {
@@ -87,6 +91,8 @@ Learning Item捕获脚本
   --effort EFFORT           预估工作量（如"2h", "1d"）
   --auto-fix-tier TIER      Auto-fix级别: tier1_auto|tier2_try_then_ask|tier3_must_confirm
   --tags "tag1,tag2"        标签（逗号分隔）
+  --parallel-group GROUP    并行组ID（v1.1新增）
+  --parallel-failure REASON 并行失败原因（v1.1新增）
 
 示例:
   # 捕获错误模式
@@ -139,6 +145,8 @@ while [[ $# -gt 0 ]]; do
     --effort) EFFORT="$2"; shift 2 ;;
     --auto-fix-tier) AUTO_FIX_TIER="$2"; AUTO_FIX_ELIGIBLE="true"; shift 2 ;;
     --tags) TAGS="$2"; shift 2 ;;
+    --parallel-group) PARALLEL_GROUP="$2"; shift 2 ;;  # v1.1 Enhanced
+    --parallel-failure) PARALLEL_FAILURE_REASON="$2"; shift 2 ;;  # v1.1 Enhanced
     *) echo "❌ 未知参数: $1" >&2; echo "   运行 --help 查看用法" >&2; exit 1 ;;
   esac
 done
@@ -239,6 +247,12 @@ metadata:
   notion_page_id: null
   tags:
 $TAGS_YAML
+
+# v1.1 Enhanced: Parallel execution context
+parallel_execution:
+  enabled: $(if [[ -n "$PARALLEL_GROUP" ]]; then echo "true"; else echo "false"; fi)
+  group_id: "$PARALLEL_GROUP"
+  failure_reason: "$PARALLEL_FAILURE_REASON"
 EOF
 
 # 创建符号链接（by_category）
