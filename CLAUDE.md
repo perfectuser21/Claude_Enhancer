@@ -241,8 +241,21 @@ git checkout -b feature/multi-terminal-workflow
   - 每次push/PR触发
 
 #### 第三层：GitHub Branch Protection（服务端强制 - 最终防线）
+⚠️ **Critical Security Fix (2025-10-29)**: 发现并修复重大安全漏洞
+- **问题**：v8.4.0之前GitHub Branch Protection未配置Required Status Checks
+- **影响**：AI可通过`gh pr merge`命令绕过CI验证直接合并代码
+- **修复**：已通过GitHub API配置6个Required Status Checks + strict模式
+- **验证**：测试PR #54成功被阻止合并 ✅
+
+**当前配置**（2025-10-29生效）：
 - **强制PR流程**（即使使用 `--no-verify` 也无法直推到main）
-- **Required Status Checks**（CE Unified Gates 必须通过）
+- **Required Status Checks** (strict=true)：
+  - CE Unified Gates
+  - Quality Gate (Required Check)
+  - ce/phase3-static-checks
+  - ce/phase4-pre-merge-audit
+  - ce/phase7-final-validation
+  - 🔒 Stage 3: Pre-merge Audit (Gate 2)
 - **Include administrators**（无特权绕过）
 - ✅ 这是对抗 `--no-verify` 的真正防线
 
