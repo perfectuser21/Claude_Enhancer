@@ -16,7 +16,7 @@ mkdir -p "$(dirname "${LOG_FILE}")"
 # ========== 获取当前Phase ==========
 get_current_phase() {
     if [[ -f "${PHASE_FILE}" ]]; then
-        cat "${PHASE_FILE}" | head -1
+        head -1 "${PHASE_FILE}"
     else
         echo "Unknown"
     fi
