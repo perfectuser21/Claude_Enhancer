@@ -11,10 +11,12 @@ set -euo pipefail
 
 # ==================== Configuration ====================
 
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+# SC2155: Declare and assign separately
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly SCRIPT_DIR
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+readonly PROJECT_ROOT
 readonly CACHE_DIR="${PROJECT_ROOT}/.workflow/cache"
-readonly CACHE_INDEX="${CACHE_DIR}/index.json"
 readonly CACHE_TTL_HOURS=24
 
 # Create cache directory
@@ -191,7 +193,7 @@ cache_stats() {
 run_with_cache() {
     local test_name="$1"
     shift
-    local command="$@"
+    local command="$*"
 
     # Get affected files from git diff
     local files=()

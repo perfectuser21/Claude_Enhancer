@@ -11,8 +11,11 @@ set -euo pipefail
 
 # ==================== Configuration ====================
 
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+# SC2155: Declare and assign separately
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly SCRIPT_DIR
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+readonly PROJECT_ROOT
 
 # Force full scan for these files
 readonly FORCE_FULL_FILES=(
@@ -107,7 +110,13 @@ main() {
     fi
 
     # Export results
-    export INCREMENTAL_MODE=$([[ "$force_full" == "false" ]] && echo "true" || echo "false")
+    # SC2155: Declare and assign separately
+    if [[ "$force_full" == "false" ]]; then
+        INCREMENTAL_MODE="true"
+    else
+        INCREMENTAL_MODE="false"
+    fi
+    export INCREMENTAL_MODE
     export CHANGED_FILES_COUNT=$total_changed
 
     if [[ "$INCREMENTAL_MODE" == "true" ]]; then

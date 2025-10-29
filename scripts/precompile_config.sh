@@ -11,8 +11,11 @@ set -euo pipefail
 
 # ==================== Configuration ====================
 
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+# SC2155: Declare and assign separately
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly SCRIPT_DIR
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+readonly PROJECT_ROOT
 readonly CACHE_DIR="${PROJECT_ROOT}/.workflow/cache"
 readonly COMPILED_CONFIG="${CACHE_DIR}/compiled_config.json"
 
