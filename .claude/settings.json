@@ -144,6 +144,60 @@
         ]
       },
       "enabled": false
+    },
+    {
+      "name": "parallel-performance-tracker",
+      "description": "Tracks parallel execution performance metrics (v8.3.0)",
+      "trigger": {
+        "event": "after_parallel_execution",
+        "context": "any_phase"
+      },
+      "action": {
+        "script": "scripts/parallel/track_performance.sh",
+        "args": [
+          "{{phase}}",
+          "{{exec_time_sec}}",
+          "{{group_count}}"
+        ],
+        "async": true
+      },
+      "enabled": true,
+      "priority": "P0"
+    },
+    {
+      "name": "parallel-conflict-validator",
+      "description": "Validates parallel groups for conflicts before execution (v8.3.0)",
+      "trigger": {
+        "event": "before_parallel_execution",
+        "context": "any_phase"
+      },
+      "action": {
+        "script": "scripts/parallel/validate_conflicts.sh",
+        "args": [
+          "{{phase}}",
+          "{{groups}}"
+        ],
+        "blocking": true
+      },
+      "enabled": true,
+      "priority": "P0"
+    },
+    {
+      "name": "parallel-load-balancer",
+      "description": "Dynamic load balancing for parallel execution (v8.4.0 placeholder)",
+      "trigger": {
+        "event": "before_parallel_execution",
+        "context": "high_load"
+      },
+      "action": {
+        "script": "scripts/parallel/rebalance_load.sh",
+        "args": [
+          "{{phase}}"
+        ]
+      },
+      "enabled": false,
+      "priority": "P1",
+      "note": "Placeholder for v8.4.0"
     }
   ]
 }
