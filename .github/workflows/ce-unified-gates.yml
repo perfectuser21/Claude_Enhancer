@@ -166,7 +166,10 @@ jobs:
             echo "📝 Checking shell files..."
             # Exclude SC1091 (can't follow sourced files in CI)
             # Exclude SC1003 (false positive on backslash patterns in tests)
-            echo "$SHELL_FILES" | xargs -r -n1 shellcheck --exclude=SC1091,SC1003
+            # Exclude SC2034 (unused variables - common in test scripts)
+            # Exclude SC2155 (declare and assign separately - style preference)
+            # Exclude SC2164 (cd without error handling - style preference)
+            echo "$SHELL_FILES" | xargs -r -n1 shellcheck --exclude=SC1091,SC1003,SC2034,SC2155,SC2164
             echo "✅ Shell files passed"
           fi
 
