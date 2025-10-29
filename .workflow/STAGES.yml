@@ -29,6 +29,40 @@ workflow_phase_parallel:
       - group_id: scripts_hooks
       - group_id: configuration
 
+    # Per-phase Impact Assessment configuration (v1.2.0)
+    impact_assessment:
+      enabled: true
+      risk_patterns:
+        - pattern: "implement.*core|refactor.*architecture"
+          risk: 8
+          complexity: 7
+          scope: 6
+        - pattern: "implement.*api|add.*endpoint"
+          risk: 7
+          complexity: 6
+          scope: 5
+        - pattern: "implement.*auth|security"
+          risk: 8
+          complexity: 7
+          scope: 6
+        - pattern: "implement.*database|schema"
+          risk: 7
+          complexity: 6
+          scope: 6
+        - pattern: "add.*feature|new.*module"
+          risk: 6
+          complexity: 5
+          scope: 5
+        - pattern: "fix.*bug|patch"
+          risk: 4
+          complexity: 3
+          scope: 3
+      agent_strategy:
+        very_high_risk: 6  # Risk >= 8, max for implementation (conflict management)
+        high_risk: 4       # Risk >= 6
+        medium_risk: 2     # Risk >= 4
+        low_risk: 1        # Risk < 4
+
   # Phase3: Testing - 5 parallel groups (2.0-2.5x speedup, optimized from 4 groups)
   Phase3:
     can_parallel: true
@@ -40,6 +74,40 @@ workflow_phase_parallel:
       - group_id: security_tests
       - group_id: linting
 
+    # Per-phase Impact Assessment configuration (v1.2.0)
+    impact_assessment:
+      enabled: true
+      risk_patterns:
+        - pattern: "test.*security|security.*test|vulnerability"
+          risk: 9
+          complexity: 7
+          scope: 7
+        - pattern: "test.*performance|load.*test|stress.*test"
+          risk: 7
+          complexity: 6
+          scope: 6
+        - pattern: "test.*integration|e2e|end.*to.*end"
+          risk: 6
+          complexity: 6
+          scope: 7
+        - pattern: "test.*api|api.*test"
+          risk: 6
+          complexity: 5
+          scope: 6
+        - pattern: "test.*unit|unit.*test"
+          risk: 4
+          complexity: 4
+          scope: 4
+        - pattern: "linting|static.*analysis"
+          risk: 3
+          complexity: 2
+          scope: 3
+      agent_strategy:
+        very_high_risk: 10  # Risk >= 8, max capacity for comprehensive testing
+        high_risk: 7        # Risk >= 6
+        medium_risk: 4      # Risk >= 4
+        low_risk: 2         # Risk < 4
+
   # Phase4: Review - 5 parallel groups (1.2x speedup)
   Phase4:
     can_parallel: true
@@ -50,6 +118,40 @@ workflow_phase_parallel:
       - group_id: documentation
       - group_id: architecture
       - group_id: pre_merge_audit
+
+    # Per-phase Impact Assessment configuration (v1.2.0)
+    impact_assessment:
+      enabled: true
+      risk_patterns:
+        - pattern: "review.*security|security.*review|audit"
+          risk: 8
+          complexity: 6
+          scope: 7
+        - pattern: "review.*architecture|architecture.*review"
+          risk: 7
+          complexity: 7
+          scope: 6
+        - pattern: "review.*performance|performance.*review"
+          risk: 6
+          complexity: 5
+          scope: 5
+        - pattern: "review.*code|code.*review|logic"
+          risk: 5
+          complexity: 5
+          scope: 5
+        - pattern: "review.*documentation|doc.*review"
+          risk: 3
+          complexity: 3
+          scope: 4
+        - pattern: "review.*style|consistency"
+          risk: 3
+          complexity: 2
+          scope: 3
+      agent_strategy:
+        very_high_risk: 7  # Risk >= 8, diverse review perspectives
+        high_risk: 5       # Risk >= 6
+        medium_risk: 3     # Risk >= 4
+        low_risk: 1        # Risk < 4
 
   # Phase5: Release - 2 parallel groups (1.4x speedup, partial parallel)
   Phase5:

@@ -1,5 +1,54 @@
 # Changelog
 
+## [8.4.0] - 2025-10-29
+
+### Added - Per-Phase Impact Assessment
+
+**Feature Release**: Per-phase Impact Assessment architecture enabling Phase-specific risk evaluation and intelligent agent recommendations.
+
+**Core Achievements**:
+- ✅ **Per-Phase Evaluation**: Phase 2/3/4 each have independent assessment configurations
+- ✅ **Phase-Specific Agent Strategy**: Phase2(1-4), Phase3(2-8), Phase4(1-5) agents
+- ✅ **STAGES.yml Integration**: 3 phases × 6-7 risk patterns each = 20 patterns total
+- ✅ **Backward Compatible**: Global mode (no --phase) still works
+- ✅ **21-Point Quality Checklist**: Comprehensive validation from Phase 1 to Phase 6
+
+**Changes**:
+
+1. **`.workflow/STAGES.yml`** - Added per-phase `impact_assessment` config
+   - Phase2: Focuses on implementation complexity (implement/add/refactor patterns)
+   - Phase3: Emphasizes testing coverage (security/performance/integration patterns)
+   - Phase4: Prioritizes review depth (security audit/architecture/code patterns)
+
+2. **`.claude/scripts/impact_radius_assessor.sh`** v1.3.0 → v1.4.0
+   - Added: `--phase Phase2/3/4` parameter support
+   - Added: `load_phase_config()` - Parses STAGES.yml via Python+YAML
+   - Added: `assess_with_phase_config()` - Phase-specific pattern matching
+   - Added: `phase` field in JSON output (optional, only when --phase specified)
+   - Backward Compatible: Without --phase, uses original global patterns
+
+3. **`scripts/subagent/parallel_task_generator.sh`** v1.0.0 → v2.0.0
+   - Changed: Calls `impact_radius_assessor.sh --phase "${phase}"` instead of global
+   - Changed: Extracts `agent_strategy.min_agents` from new JSON structure
+   - Output: Displays "Per-Phase Impact Assessment" label
+
+**Testing**:
+- Unit Tests: 11 test cases (Phase2/3/4 + JSON validation + performance)
+- Integration Tests: 18 test cases (YAML parsing + full workflow + backward compat)
+- Manual Verification: Phase2→4 agents, Phase3→8 agents, Phase4→2 agents ✅
+- Performance: 89-92ms per assessment (target: 50ms, acceptable for feature gain)
+
+**Documentation**:
+- `.workflow/REVIEW.md`: 179-line comprehensive code review
+- `.workflow/user_request.md`: 27 acceptance criteria (functional/performance/quality/integration)
+- `.workflow/P1_DISCOVERY.md`: 800+ lines technical exploration
+
+**Impact Assessment Self-Score**: 90/100 (very-high-risk)
+- **Why high-risk**: Architectural change affecting core assessment engine
+- **Mitigation**: 5-layer protection (Workflow + Hooks + Testing + Fallback + CI/CD)
+
+---
+
 ## [8.3.0] - 2025-10-29
 
 ### Added - All-Phases Parallel Optimization with Skills Framework

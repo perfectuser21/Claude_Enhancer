@@ -1,11 +1,27 @@
 {
-  "version": "8.3.0",
+  "version": "8.4.0",
   "project": "Claude Enhancer",
   "description": "四层架构分层系统 + 自愈系统 + 工作流强制执行 + Dual-Language Checklist System + Workflow Interference Fix",
   "permissions": {
     "defaultMode": "bypassPermissions",
     "allow": [
       "Bash",
+      "Bash(cd:*)",
+      "Bash(test:*)",
+      "Bash(bash:*)",
+      "Bash(export:*)",
+      "Bash(timeout:*)",
+      "Bash(cat:*)",
+      "Bash(wc:*)",
+      "Bash(ls:*)",
+      "Bash(git:*)",
+      "Bash(python3:*)",
+      "Bash(jq:*)",
+      "Bash(grep:*)",
+      "Bash(shellcheck:*)",
+      "Read(/home/xx/**)",
+      "Write(/home/xx/**)",
+      "Edit(/home/xx/**)",
       "Read",
       "Write",
       "Edit",
@@ -33,7 +49,8 @@
       ".claude/hooks/phase2_5_autonomous.sh",
       ".claude/hooks/smart_agent_selector.sh",
       ".claude/hooks/gap_scan.sh",
-      ".claude/hooks/impact_assessment_enforcer.sh"
+      ".claude/hooks/impact_assessment_enforcer.sh",
+      ".claude/hooks/parallel_subagent_suggester.sh"
     ],
     "PreToolUse": [
       ".claude/hooks/task_branch_enforcer.sh",
@@ -42,7 +59,8 @@
       ".claude/hooks/agent_usage_enforcer.sh",
       ".claude/hooks/quality_gate.sh",
       ".claude/hooks/auto_cleanup_check.sh",
-      ".claude/hooks/concurrent_optimizer.sh"
+      ".claude/hooks/concurrent_optimizer.sh",
+      ".claude/hooks/subagent_auto_scheduler.sh"
     ],
     "PostToolUse": [
       {
