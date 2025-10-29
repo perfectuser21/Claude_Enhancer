@@ -53,7 +53,7 @@ validate_report_exists() {
 validate_targets() {
     log_info "Validating performance targets..."
 
-    python3 << 'EOF'
+    python3 <<EOF
 import json
 import sys
 

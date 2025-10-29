@@ -77,19 +77,9 @@ simulate_parallel_execution() {
             ;;
     esac
 
-    # Generate result entry
+    # Generate result entry (single-line JSON for JSONL format)
     local timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-    local result=$(cat <<EOF
-{
-  "timestamp": "${timestamp}",
-  "phase": "${phase}",
-  "iteration": ${iteration},
-  "execution_time_sec": ${exec_time},
-  "group_count": ${group_count},
-  "test_type": "simulated"
-}
-EOF
-)
+    local result="{\"timestamp\":\"${timestamp}\",\"phase\":\"${phase}\",\"iteration\":${iteration},\"execution_time_sec\":${exec_time},\"group_count\":${group_count},\"test_type\":\"simulated\"}"
 
     echo "${result}" >> "${RESULTS_FILE}"
     log_info "${phase} completed in ${exec_time}s (${group_count} groups)"
@@ -141,7 +131,7 @@ generate_summary() {
 
     if command -v jq >/dev/null 2>&1; then
         # Calculate averages per phase
-        python3 << 'EOF'
+        python3 <<EOF
 import json
 import sys
 from collections import defaultdict

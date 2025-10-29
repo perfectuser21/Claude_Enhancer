@@ -55,7 +55,7 @@ validate_inputs() {
 calculate_speedup() {
     log_info "Calculating speedup ratios..."
 
-    python3 << 'EOF'
+    python3 <<EOF
 import json
 import sys
 from collections import defaultdict
@@ -63,6 +63,16 @@ from collections import defaultdict
 baseline_file = "${BASELINE_FILE}"
 results_file = "${RESULTS_FILE}"
 report_file = "${REPORT_FILE}"
+
+def get_target_speedup(phase):
+    targets = {
+        "Phase2": 1.3,
+        "Phase3": 2.0,
+        "Phase4": 1.2,
+        "Phase5": 1.4,
+        "Phase6": 1.1
+    }
+    return targets.get(phase, 1.0)
 
 try:
     # Load baseline
@@ -164,17 +174,6 @@ except Exception as e:
     import traceback
     traceback.print_exc()
     sys.exit(1)
-
-def get_target_speedup(phase):
-    targets = {
-        "Phase2": 1.3,
-        "Phase3": 2.0,
-        "Phase4": 1.2,
-        "Phase5": 1.4,
-        "Phase6": 1.1
-    }
-    return targets.get(phase, 1.0)
-
 EOF
 
     log_info "Speedup calculation complete"
