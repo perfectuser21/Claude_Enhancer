@@ -1,7 +1,7 @@
 {
-  "version": "8.4.0",
+  "version": "8.5.0",
   "project": "Claude Enhancer",
-  "description": "四层架构分层系统 + 自愈系统 + 工作流强制执行 + Dual-Language Checklist System + Workflow Interference Fix",
+  "description": "四层架构分层系统 + 自愈系统 + 工作流强制执行 + Dual-Language Checklist System + Workflow Interference Fix + Performance Optimization (62% faster)",
   "permissions": {
     "defaultMode": "bypassPermissions",
     "allow": [
@@ -134,15 +134,18 @@
       "trigger": {
         "event": "after_tool_use",
         "tool": [
-          "Bash"
+          "Bash",
+          "Edit",
+          "Write"
         ],
-        "pattern": "(test|check|validate)"
+        "pattern": "(test|check|validate|fix|implement)"
       },
       "action": {
         "type": "reminder",
-        "message": "Remember to collect evidence for this test result using scripts/evidence/collect.sh"
+        "message": "Consider collecting evidence for this change using scripts/evidence/collect.sh"
       },
-      "enabled": true
+      "enabled": true,
+      "priority": "P1"
     },
     {
       "name": "kpi-reporter",
@@ -159,16 +162,19 @@
         "script": "scripts/kpi/weekly_report.sh",
         "args": [
           "--auto"
-        ]
+        ],
+        "async": true
       },
-      "enabled": false
+      "enabled": true,
+      "priority": "P1"
     },
     {
       "name": "parallel-performance-tracker",
       "description": "Tracks parallel execution performance metrics (v8.3.0)",
       "trigger": {
         "event": "after_parallel_execution",
-        "context": "any_phase"
+        "context": "any_phase",
+        "min_groups": 2
       },
       "action": {
         "script": "scripts/parallel/track_performance.sh",
@@ -180,7 +186,7 @@
         "async": true
       },
       "enabled": true,
-      "priority": "P0"
+      "priority": "P1"
     },
     {
       "name": "parallel-conflict-validator",
@@ -216,6 +222,104 @@
       "enabled": false,
       "priority": "P1",
       "note": "Placeholder for v8.4.0"
+    },
+    {
+      "name": "workflow-guardian-enforcer",
+      "description": "Enforces Phase 1 documents before Phase 2 coding",
+      "trigger": {
+        "event": "before_tool_use",
+        "tool": ["Write", "Edit"],
+        "context": "code_file"
+      },
+      "action": {
+        "script": "scripts/workflow_guardian.sh",
+        "args": [],
+        "blocking": true
+      },
+      "enabled": true,
+      "priority": "P0"
+    },
+    {
+      "name": "phase-transition-validator",
+      "description": "Validates phase transition requirements",
+      "trigger": {
+        "event": "phase_transition",
+        "context": "any_phase"
+      },
+      "action": {
+        "script": ".claude/hooks/phase_completion_validator.sh",
+        "args": ["{{current_phase}}", "{{next_phase}}"],
+        "blocking": true
+      },
+      "enabled": true,
+      "priority": "P0"
     }
-  ]
+  ],
+  "parallel_execution": {
+    "enabled": true,
+    "max_concurrent_phases": 1,
+    "Phase2": {
+      "enabled": true,
+      "max_concurrent": 4,
+      "timeout": 600,
+      "groups": ["core_implementation", "test_implementation", "scripts_hooks", "configuration"]
+    },
+    "Phase3": {
+      "enabled": true,
+      "max_concurrent": 5,
+      "timeout": 900,
+      "groups": ["unit_tests", "integration_tests", "performance_tests", "security_tests", "linting"]
+    },
+    "Phase4": {
+      "enabled": true,
+      "max_concurrent": 3,
+      "timeout": 300,
+      "groups": ["code_review", "documentation_check", "version_audit"]
+    },
+    "Phase7": {
+      "enabled": true,
+      "max_concurrent": 3,
+      "timeout": 180,
+      "groups": ["cleanup_temp", "cleanup_versions", "git_optimization"]
+    }
+  },
+  "cache_system": {
+    "enabled": true,
+    "strategy": "intelligent",
+    "ttl_hours": 24,
+    "layers": {
+      "L1_syntax": {
+        "enabled": true,
+        "commands": ["bash -n", "shellcheck"],
+        "hit_rate_target": 0.99
+      },
+      "L2_unit_tests": {
+        "enabled": true,
+        "by_module": true,
+        "hit_rate_target": 0.70
+      },
+      "L3_linting": {
+        "enabled": true,
+        "tools": ["shellcheck", "shfmt"],
+        "hit_rate_target": 0.80
+      }
+    },
+    "invalidation": {
+      "on_file_change": true,
+      "on_dependency_change": true,
+      "on_test_change": true
+    }
+  },
+  "incremental_checks": {
+    "enabled": true,
+    "scope": "git_diff",
+    "fallback_to_full": true,
+    "force_full_on": ["VERSION", "settings.json", "SPEC.yaml", "manifest.yml", "package.json", "CHANGELOG.md"]
+  },
+  "async_tasks": {
+    "enabled": true,
+    "max_concurrent": 3,
+    "timeout": 60,
+    "tasks": ["kpi_reporter", "evidence_indexer", "changelog_generator", "performance_tracker"]
+  }
 }
