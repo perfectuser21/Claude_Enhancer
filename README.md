@@ -710,3 +710,5 @@ Made with ❤️ for developers who believe AI-assisted programming should be pr
 [Documentation](docs/) · [Issues](https://github.com/claude-enhancer/claude-enhancer/issues) · [Discussions](https://github.com/claude-enhancer/claude-enhancer/discussions)
 
 </div>
+test change
+test change
