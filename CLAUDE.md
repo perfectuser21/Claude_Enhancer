@@ -909,6 +909,252 @@ TODO: Add weekly CI job to scan for hollow implementations and create issues aut
 
 ---
 
+## 🚨 规则4: 7-Phase完整执行强制（100%强制）
+**优先级: 最高 | 硬阻止PR创建和版本不升级**
+
+### 🎯 核心原则
+```
+Phase 1 开始 → Phase 7 完成 → 才能创建PR
+每次修改 = 版本号必须升级
+```
+
+### ❌ 绝对禁止的行为
+
+#### 禁止1: 在Phase 7之前创建PR
+```
+❌ Phase 1-6任意阶段 → gh pr create  # 被pr_creation_guard.sh硬阻止 (exit 1)
+✅ Phase 7完成 → gh pr create         # 允许
+```
+
+**问题**：过早创建PR导致Phase不完整，缺少关键步骤（版本升级、最终清理、验收测试）
+
+**强制机制**：
+- **Hook**: `.claude/hooks/pr_creation_guard.sh` (PreBash)
+- **检查**: 读取 `.phase/current`，必须是 `Phase7`
+- **阻止**: 如果不是Phase7，exit 1 + 清晰错误消息
+- **绕过**: 无法绕过，硬阻止
+
+#### 禁止2: 跳过任何Phase
+```
+❌ Phase 1 → Phase 3 (跳过Phase 2)  # phase_completion_validator.sh阻止
+❌ Phase 2 → Phase 5 (跳过Phase 3-4)  # phase_completion_validator.sh阻止
+✅ Phase 1 → Phase 2 → ... → Phase 7  # 正确流程
+```
+
+**问题**：跳过Phase导致质量门禁失效（如跳过Phase 3测试，Phase 4审查）
+
+**强制机制**：
+- **Hook**: `.claude/hooks/phase_completion_validator.sh` (PostToolUse)
+- **检查**: 每个Phase有明确完成标准（文档、测试、审查）
+- **阻止**: Phase未完成时无法转换到下一Phase
+- **绕过**: 无法绕过，必须满足完成标准
+
+#### 禁止3: 不升级版本号
+```
+❌ 修改代码但VERSION不变  # version_increment_enforcer.sh硬阻止 (exit 1)
+❌ 版本号倒退 (8.6.0 → 8.5.0)  # version_increment_enforcer.sh阻止
+✅ 修改代码 + VERSION升级 (8.5.1 → 8.6.0)  # 允许
+```
+
+**问题**：不升级版本导致无法追踪变更，merge冲突，release混乱
+
+**强制机制**：
+- **Hook**: `.claude/hooks/version_increment_enforcer.sh` (PreCommit)
+- **检查**: 比较当前分支VERSION与main分支VERSION
+- **阻止**: 如果版本相同或倒退，exit 1 + 清晰错误消息
+- **要求**: 必须升级6个文件版本一致（VERSION, settings.json, manifest.yml, package.json, CHANGELOG.md, SPEC.yaml）
+
+### ✅ 强制执行机制
+
+**4层硬阻止**：
+
+1. **PreBash Hook** (`.claude/hooks/pr_creation_guard.sh`)
+   - 触发时机: AI执行 `gh pr create` 或 `git push --set-upstream` 前
+   - 检查内容:
+     - `.phase/current` 必须是 `Phase7`
+     - `.workflow/ACCEPTANCE_REPORT_*.md` 必须存在
+     - `scripts/check_version_consistency.sh` 必须通过
+   - 失败后果: exit 1，命令被阻止，显示错误消息
+
+2. **Phase Validator** (`.claude/hooks/phase_completion_validator.sh`)
+   - 触发时机: PostToolUse (工具使用后)
+   - 检查内容:
+     - Phase 1: P1_DISCOVERY.md, ACCEPTANCE_CHECKLIST.md, PLAN.md 存在
+     - Phase 2: 代码已提交 (feat:/fix:/refactor: commit)
+     - Phase 3: static_checks.sh 通过（质量门禁1）
+     - Phase 4: pre_merge_audit.sh 通过（质量门禁2）
+     - Phase 5: VERSION升级 + CHANGELOG更新
+     - Phase 6: ACCEPTANCE_REPORT存在
+     - Phase 7: 清理完成 + 版本一致 + Git status干净
+   - 失败后果: Phase转换被阻止
+
+3. **PreCommit Hook** (`.claude/hooks/version_increment_enforcer.sh`)
+   - 触发时机: Git commit前
+   - 检查内容:
+     - 获取main分支VERSION
+     - 比较当前分支VERSION
+     - 版本必须大于main (semver比较)
+   - 失败后果: exit 1，commit被阻止，提示使用 `bump_version.sh`
+
+4. **CI Checks** (`.github/workflows/guard-core.yml`)
+   - 触发时机: 每次push、每次PR
+   - 检查内容:
+     - 61项检查（关键文件、配置、sentinel字符串、运行时行为）
+     - 版本一致性（6个文件）
+     - Phase完整性
+   - 失败后果: CI红灯，PR无法merge
+
+### 🔒 违反后果
+
+**立即阻止 + 清晰指导**：
+
+```bash
+# 示例1: 在Phase 4尝试创建PR
+$ gh pr create
+════════════════════════════════════════════════════════════
+❌ ERROR: Cannot create PR before Phase 7 completion
+════════════════════════════════════════════════════════════
+
+Current Phase: Phase4
+Required Phase: Phase7
+
+📋 7-Phase Workflow (mandatory, no skipping):
+
+  ✅ Phase 1: Discovery & Planning
+  ✅ Phase 2: Implementation
+  ✅ Phase 3: Testing (Quality Gate 1)
+  ✅ Phase 4: Review (Quality Gate 2)
+  ⏳ Phase 5: Release Preparation ← YOU MUST COMPLETE THIS
+  ⏳ Phase 6: Acceptance Testing
+  ⏳ Phase 7: Final Cleanup
+
+💡 To proceed:
+   1. Complete all remaining phases
+   2. Update .phase/current to Phase7
+   3. Then create PR
+
+🚨 This is a HARD BLOCK - cannot be bypassed
+════════════════════════════════════════════════════════════
+# 命令被阻止，exit code = 1
+```
+
+```bash
+# 示例2: 不升级版本号就commit
+$ git commit -m "feat: add new feature"
+════════════════════════════════════════════════════════════
+❌ ERROR: Version must be incremented
+════════════════════════════════════════════════════════════
+
+Main branch version: 8.5.1
+Your branch version: 8.5.1
+
+🚨 RULE: Every code change requires version increment!
+
+📋 Update these 6 files with new version:
+   1. VERSION
+   2. .claude/settings.json
+   3. .workflow/manifest.yml
+   4. package.json
+   5. CHANGELOG.md
+   6. .workflow/SPEC.yaml
+
+💡 Recommended commands:
+   # Patch version (bug fix): 8.5.1 → 8.5.2
+   bash scripts/bump_version.sh patch
+
+   # Minor version (new feature): 8.5.1 → 8.6.0
+   bash scripts/bump_version.sh minor
+
+   # Major version (breaking change): 8.5.1 → 9.0.0
+   bash scripts/bump_version.sh major
+
+🔍 Or manually update all 6 files to the same new version
+════════════════════════════════════════════════════════════
+# Commit被阻止，exit code = 1
+```
+
+### 📋 AI必须遵守的完整流程
+
+```
+用户提出需求
+    ↓
+【Phase 1: Discovery & Planning】
+  - 创建 P1_DISCOVERY.md (>300行)
+  - 创建 ACCEPTANCE_CHECKLIST.md (定义验收标准)
+  - 创建 PLAN.md (>500行架构规划)
+  - phase_completion_validator检查 ✓
+    ↓
+【Phase 2: Implementation】
+  - 实现代码
+  - 提交 feat:/fix:/refactor: commit
+  - phase_completion_validator检查 ✓
+    ↓
+【Phase 3: Testing】🔒 质量门禁1
+  - 运行 static_checks.sh (shellcheck, bash -n, 复杂度)
+  - 所有测试通过
+  - phase_completion_validator检查 ✓
+    ↓
+【Phase 4: Review】🔒 质量门禁2
+  - 运行 pre_merge_audit.sh (12项检查)
+  - 创建 REVIEW.md (>100行)
+  - phase_completion_validator检查 ✓
+    ↓
+【Phase 5: Release Preparation】
+  - ⚠️ 升级版本号 (version_increment_enforcer检查)
+  - 更新 CHANGELOG.md
+  - 更新 README.md
+  - phase_completion_validator检查 ✓
+    ↓
+【Phase 6: Acceptance Testing】
+  - 对照Phase 1 Checklist验证
+  - 创建 ACCEPTANCE_REPORT.md
+  - 用户确认 "没问题"
+  - phase_completion_validator检查 ✓
+    ↓
+【Phase 7: Final Cleanup】
+  - 运行 comprehensive_cleanup.sh
+  - 运行 check_version_consistency.sh (6个文件一致)
+  - Git status 干净
+  - phase_completion_validator检查 ✓
+    ↓
+【创建PR】← 只有到这里才能 gh pr create
+  - pr_creation_guard.sh检查 ✓
+  - 允许创建PR
+    ↓
+【等待CI】
+  - guard-core.yml运行61项检查
+  - 所有检查通过 ✓
+    ↓
+【用户说"merge"】
+  - gh pr merge --auto --squash
+  - GitHub Actions自动创建tag
+  - 完成 ✅
+```
+
+### 🎯 关键时间点
+
+| 时间点 | 检查内容 | 强制机制 | 绕过可能性 |
+|--------|---------|---------|-----------|
+| **Phase转换时** | Phase完成标准 | phase_completion_validator.sh | ❌ 无法绕过 |
+| **Commit时** | 版本号升级 | version_increment_enforcer.sh | ❌ 无法绕过 |
+| **创建PR时** | Phase7完成 | pr_creation_guard.sh | ❌ 无法绕过 |
+| **Push时** | CI检查 | guard-core.yml (61 checks) | ❌ 无法绕过 |
+
+### 🚀 实施历史
+
+- **v8.6.0**: 实现3个强制hook (pr_creation_guard, version_increment_enforcer, 强化phase_completion_validator)
+- **目标**: 7-Phase完整执行率100%，零Phase跳过，零版本不升级
+
+### 📊 成功指标
+
+**30天后验证**：
+- [ ] 7-Phase完整执行率 = 100%
+- [ ] Phase跳过次数 = 0
+- [ ] 版本未升级commit数 = 0
+- [ ] 提前创建PR次数 = 0
+
+---
+
 ## 🚀 核心工作流：7-Phase系统（v6.6统一版）
 
 ### 完整7 Phases开发周期

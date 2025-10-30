@@ -2,7 +2,7 @@
 
 **Date**: 2025-10-30
 **Feature**: Self-Enforcing Quality System
-**Version**: 8.5.1 (enhancement)
+**Version**: 8.6.0 (enhancement)
 
 ---
 
@@ -111,8 +111,8 @@
 ### Phase 5: Release Preparation ✅
 
 **Documentation**
-- [x] CHANGELOG.md already has 8.5.1 entry (from previous PR)
-- [x] No version bump needed (this is enhancement to 8.5.1)
+- [x] CHANGELOG.md already has 8.6.0 entry (from previous PR)
+- [x] No version bump needed (this is enhancement to 8.6.0)
 - [x] README.md up-to-date
 
 **Release Status**

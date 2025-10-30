@@ -1,6 +1,6 @@
 # Acceptance Checklist - Self-Enforcing Quality System
 
-**Version**: 8.5.2
+**Version**: 8.6.0
 **Task**: 实现Self-Enforcing Quality System - 防止功能回归
 **Branch**: `feature/self-enforcing-quality-system`
 **Date**: 2025-10-30
@@ -283,7 +283,7 @@
 ## 📦 Phase 5: Release
 
 ### 5.1 Documentation Updates
-- [ ] Update CHANGELOG.md with v8.5.2 entry
+- [ ] Update CHANGELOG.md with v8.6.0 entry
   - [ ] Add "Self-Enforcing Quality System" section
   - [ ] List all 6 components
   - [ ] Mention 3-layer defense
@@ -295,19 +295,19 @@
   - [ ] Update AI responsibilities section
 
 ### 5.2 Version Management
-- [ ] Update VERSION file to 8.5.2
-- [ ] Update .claude/settings.json version to 8.5.2
-- [ ] Update .workflow/manifest.yml version to 8.5.2
-- [ ] Update package.json version to 8.5.2
-- [ ] Update CHANGELOG.md version to 8.5.2
-- [ ] Update .workflow/SPEC.yaml version to 8.5.2
+- [ ] Update VERSION file to 8.6.0
+- [ ] Update .claude/settings.json version to 8.6.0
+- [ ] Update .workflow/manifest.yml version to 8.6.0
+- [ ] Update package.json version to 8.6.0
+- [ ] Update CHANGELOG.md version to 8.6.0
+- [ ] Update .workflow/SPEC.yaml version to 8.6.0
 - [ ] Verify all 6 files have identical version
 - [ ] Run `bash scripts/check_version_consistency.sh` → pass
 
 ### 5.3 Git Tagging
-- [ ] Create git tag v8.5.2
-- [ ] Format: `git tag -a v8.5.2 -m "feat: Self-Enforcing Quality System"`
-- [ ] Push tag: `git push origin v8.5.2`
+- [ ] Create git tag v8.6.0
+- [ ] Format: `git tag -a v8.6.0 -m "feat: Self-Enforcing Quality System"`
+- [ ] Push tag: `git push origin v8.6.0`
 
 ### 5.4 Deployment Preparation
 - [ ] No deployment needed (development workflow enhancement)
@@ -408,7 +408,7 @@
 - [ ] Execute: `gh pr merge --auto --squash`
 - [ ] Wait for GitHub to merge
 - [ ] Verify merge successful
-- [ ] Verify tag v8.5.2 created automatically (by release workflow)
+- [ ] Verify tag v8.6.0 created automatically (by release workflow)
 
 ### 7.7 Post-Merge Verification
 - [ ] Switch to main branch: `git checkout main`

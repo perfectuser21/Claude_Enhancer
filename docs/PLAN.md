@@ -1,6 +1,6 @@
 # Architecture Planning - Self-Enforcing Quality System
 
-**Version**: 8.5.2
+**Version**: 8.6.0
 **Date**: 2025-10-30
 **Task**: 实现Self-Enforcing Quality System - 防止功能回归
 **Branch**: `feature/self-enforcing-quality-system`
@@ -36,7 +36,7 @@ This document outlines the detailed implementation plan for the Self-Enforcing Q
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  Self-Enforcing Quality System (v8.5.2)                    │
+│  Self-Enforcing Quality System (v8.6.0)                    │
 └─────────────────────────────────────────────────────────────┘
 
 ┌──────────────────────────────────────────────────────────────┐

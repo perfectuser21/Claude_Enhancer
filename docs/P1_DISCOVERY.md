@@ -1,6 +1,6 @@
 # Phase 1.3: Technical Discovery - Self-Enforcing Quality System
 
-**Version**: 8.5.2
+**Version**: 8.6.0
 **Date**: 2025-10-30
 **Task**: 实现Self-Enforcing Quality System - 防止功能回归
 **Branch**: `feature/self-enforcing-quality-system`
@@ -60,7 +60,7 @@
 **Investigation Evidence**:
 1. v6.1.0: `bypassPermissionsMode: true` (non-standard field)
 2. v7.1.0: `defaultMode: "bypassPermissions"` (fix attempt #1)
-3. v8.5.1: Still using same config, but STILL asks user
+3. v8.6.0: Still using same config, but STILL asks user
 4. Configuration looks correct but doesn't work
 
 **Root Cause Hypotheses**:
