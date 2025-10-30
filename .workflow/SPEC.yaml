@@ -240,6 +240,45 @@ modification_rules:
       - "不违反core_structure规则"
 
 # ═══════════════════════════════════════════════════════════
+# Immutable Kernel（核心不可变层）
+# ═══════════════════════════════════════════════════════════
+
+immutable_kernel:
+  version: "1.0.0"
+  purpose: "定义绝对不可变的核心文件，修改需要RFC流程"
+
+  # 核心9个文件（修改需要RFC）
+  kernel_files:
+    - ".workflow/SPEC.yaml"           # 核心规格定义
+    - ".workflow/manifest.yml"        # 工作流清单
+    - ".workflow/gates.yml"           # 质量门禁配置
+    - "docs/CHECKS_INDEX.json"        # 检查点索引
+    - "VERSION"                       # 版本文件
+    - ".claude/settings.json"         # Claude配置
+    - "package.json"                  # 包配置
+    - "CHANGELOG.md"                  # 变更日志
+    - ".workflow/LOCK.json"           # 完整性锁定
+
+  # 修改策略
+  change_policy: "RFC required"
+  rfc_branch_pattern: "^rfc/"
+  rfc_requirements:
+    - "RFC文档（说明Why、What、Impact）"
+    - "用户明确授权"
+    - "影响评估报告"
+    - "回滚计划"
+
+  # 版本升级要求
+  version_bump_required: true
+  version_bump_type: "minor"  # 修改Kernel → 至少minor版本升级
+
+  # 强制机制
+  enforcement:
+    pre_commit_hook: ".git/hooks/pre-commit (kernel_guard)"
+    ci_validation: ".github/workflows/rfc-validation.yml"
+    branch_protection: "只允许rfc/*分支修改kernel文件"
+
+# ═══════════════════════════════════════════════════════════
 # 验证脚本
 # ═══════════════════════════════════════════════════════════
 
@@ -248,8 +287,8 @@ verification:
   frequency: "每次PR + 每日健康检查"
   enforcement: "CI必须通过"
 
-  # Lock模式配置（v7.2.0新增）
-  lock_mode: "soft"  # soft | strict
+  # Lock模式配置（v7.2.0新增，v8.7.0切换到strict）
+  lock_mode: "strict"  # soft | strict
 
   # 模式说明：
   # - soft（推荐）：AI修改core结构时，CI警告但不阻止，需要用户手动确认

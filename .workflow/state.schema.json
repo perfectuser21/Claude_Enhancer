@@ -1,0 +1,169 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Claude Enhancer State Schema",
+  "description": "Schema for validating .workflow/state.json",
+  "type": "object",
+  "required": ["version", "current_phase", "current_task", "quality_gates", "version_control"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "State schema version"
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp"
+    },
+    "current_phase": {
+      "type": "object",
+      "required": ["phase"],
+      "properties": {
+        "phase": {
+          "type": "string",
+          "enum": ["Phase1", "Phase2", "Phase3", "Phase4", "Phase5", "Phase6", "Phase7"]
+        },
+        "substage": {
+          "type": ["string", "null"],
+          "enum": ["1.1", "1.2", "1.3", "1.4", "1.5", null]
+        },
+        "started_at": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "last_checkpoint": {
+          "type": ["string", "null"]
+        },
+        "progress_percent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        }
+      }
+    },
+    "current_task": {
+      "type": "object",
+      "properties": {
+        "branch": {
+          "type": ["string", "null"]
+        },
+        "task_id": {
+          "type": ["string", "null"]
+        },
+        "title": {
+          "type": ["string", "null"]
+        },
+        "started_at": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "documents": {
+          "type": "object",
+          "properties": {
+            "discovery": {"type": ["string", "null"]},
+            "checklist": {"type": ["string", "null"]},
+            "plan": {"type": ["string", "null"]},
+            "review": {"type": ["string", "null"]},
+            "acceptance_report": {"type": ["string", "null"]}
+          }
+        }
+      }
+    },
+    "quality_gates": {
+      "type": "object",
+      "required": ["gate1_phase3", "gate2_phase4"],
+      "properties": {
+        "gate1_phase3": {
+          "type": "object",
+          "properties": {
+            "passed": {"type": "boolean"},
+            "passed_at": {"type": ["string", "null"], "format": "date-time"},
+            "checks": {"type": "object"}
+          }
+        },
+        "gate2_phase4": {
+          "type": "object",
+          "properties": {
+            "passed": {"type": "boolean"},
+            "passed_at": {"type": ["string", "null"], "format": "date-time"},
+            "checks": {"type": "object"}
+          }
+        }
+      }
+    },
+    "version_control": {
+      "type": "object",
+      "required": ["current_version", "files_in_sync"],
+      "properties": {
+        "current_version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        },
+        "last_bump_at": {"type": ["string", "null"], "format": "date-time"},
+        "last_bump_type": {
+          "type": ["string", "null"],
+          "enum": ["major", "minor", "patch", null]
+        },
+        "files_in_sync": {"type": "boolean"},
+        "sync_check_at": {"type": ["string", "null"], "format": "date-time"}
+      }
+    },
+    "system_health": {
+      "type": "object",
+      "properties": {
+        "hooks_count": {"type": "number", "minimum": 0},
+        "scripts_count": {"type": "number", "minimum": 0},
+        "docs_count": {"type": "number", "minimum": 0},
+        "orphaned_hooks": {"type": "number", "minimum": 0},
+        "last_cleanup_at": {"type": ["string", "null"], "format": "date-time"},
+        "temp_dir_size_mb": {"type": "number", "minimum": 0}
+      }
+    },
+    "workflow_metrics": {
+      "type": "object",
+      "properties": {
+        "total_tasks_completed": {"type": "number", "minimum": 0},
+        "phase1_avg_duration_minutes": {"type": "number", "minimum": 0},
+        "phase2_avg_duration_minutes": {"type": "number", "minimum": 0},
+        "phase3_avg_duration_minutes": {"type": "number", "minimum": 0},
+        "phase4_avg_duration_minutes": {"type": "number", "minimum": 0},
+        "phase5_avg_duration_minutes": {"type": "number", "minimum": 0},
+        "phase6_avg_duration_minutes": {"type": "number", "minimum": 0},
+        "phase7_avg_duration_minutes": {"type": "number", "minimum": 0},
+        "average_task_duration_minutes": {"type": "number", "minimum": 0},
+        "gate1_first_pass_rate": {"type": "number", "minimum": 0, "maximum": 1},
+        "gate2_first_pass_rate": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "immutable_kernel": {
+      "type": "object",
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "mode": {"type": "string", "enum": ["soft", "strict"]},
+        "last_verified_at": {"type": ["string", "null"], "format": "date-time"},
+        "files": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "change_scope": {
+      "type": "object",
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "current_scope": {"type": "array", "items": {"type": "string"}},
+        "violations": {"type": "number", "minimum": 0},
+        "last_violation_at": {"type": ["string", "null"], "format": "date-time"}
+      }
+    },
+    "lane_enforcer": {
+      "type": "object",
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "current_lane": {
+          "type": "string",
+          "enum": ["planning", "implementation", "testing", "review", "release", "acceptance", "closure"]
+        },
+        "allowed_operations": {"type": "array", "items": {"type": "string"}},
+        "violations": {"type": "number", "minimum": 0}
+      }
+    }
+  }
+}
