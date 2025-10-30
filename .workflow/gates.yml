@@ -27,7 +27,8 @@ meta:
 # Quality Gate Thresholds (for hardened CI)
 quality:
   quality_min: 85                       # Minimum quality score
-  coverage_min: 0                       # Minimum coverage (0 = disabled temporarily)
+  coverage_min: 70                      # Minimum coverage (hard block at Phase 3)
+  coverage_block: true                  # true = hard block, false = warning only
   coverage_tolerance: 0.005             # ±0.5% tolerance for rounding errors
   required_signatures: 8                # Required GPG signatures for protected branches
 
