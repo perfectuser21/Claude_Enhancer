@@ -1,28 +1,93 @@
 # CODEOWNERS for Claude Enhancer
-# 代码所有者配置 - 自动分配审查者
+# Protects core workflow infrastructure from accidental AI modifications
+# Any changes to protected files require human review and approval from @perfectuser21
 
-# 默认审查者（所有文件）
-# * @team-reviewers
+# ==============================================================================
+# CRITICAL WORKFLOW ENFORCEMENT HOOKS
+# ==============================================================================
+# These hooks enforce the 7-Phase workflow system and prevent commits
+# that violate workflow rules. AI modification could bypass safety mechanisms.
 
-# 工作流相关文件（需要额外审查）
-.workflow/** @workflow-owners @security-team
-.phase/** @workflow-owners
+/.claude/hooks/** @perfectuser21
 
-# Git Hooks（安全关键）
-.git/hooks/** @security-team
+# ==============================================================================
+# WORKFLOW PHASE MANAGEMENT & CONFIGURATION
+# ==============================================================================
+# The .workflow/ directory contains the core 7-Phase system definition,
+# manifest, and configuration. These files define the workflow structure
+# (97 checkpoints, 2 quality gates, 8 hard blocks). AI cannot modify these
+# as they are the foundation of the entire workflow system.
 
-# GitHub Actions（DevOps + 安全）
-.github/workflows/** @devops-team @security-team
-.github/CODEOWNERS @devops-team
+/.workflow/** @perfectuser21
 
-# 文档
-docs/** @technical-writers
-*.md @technical-writers
+# ==============================================================================
+# QUALITY GATES & VALIDATION SCRIPTS
+# ==============================================================================
+# These scripts enforce quality standards at critical phases.
+# AI modification could weaken quality controls or bypass checks.
+# - pre_merge_audit.sh: Phase 4 Quality Gate 2 (12 comprehensive checks)
+# - static_checks.sh: Phase 3 Quality Gate 1 (syntax, linting, complexity)
 
-# 测试
-test/** @qa-team
+/scripts/pre_merge_audit.sh @perfectuser21
+/scripts/static_checks.sh @perfectuser21
 
-# 配置文件
-*.yml @devops-team
-*.yaml @devops-team
-*.json @devops-team
+# ==============================================================================
+# CORE CONFIGURATION & SYSTEM DEFINITION
+# ==============================================================================
+# Critical configuration files that define system behavior and structure.
+# AI modification could alter fundamental system behavior.
+# - settings.json: Claude configuration, hooks registration, skills
+# - SPEC.yaml: 7-Phase system definition (locked structure)
+
+/.claude/settings.json @perfectuser21
+/.workflow/SPEC.yaml @perfectuser21
+
+# ==============================================================================
+# CORE DOCUMENTATION
+# ==============================================================================
+# CLAUDE.md contains the complete AI behavior ruleset and workflow definition.
+# Must be protected from AI modification to prevent the AI from changing its
+# own operating rules.
+
+/CLAUDE.md @perfectuser21
+
+# ==============================================================================
+# VERSION CONTROL
+# ==============================================================================
+# VERSION file controls semantic versioning and release tracking.
+# Protected to prevent version conflicts and unauthorized version bumps.
+
+/VERSION @perfectuser21
+
+# ==============================================================================
+# CORE INTEGRITY VALIDATOR
+# ==============================================================================
+# This script validates the integrity of the core workflow structure
+# using SHA256 fingerprints. It ensures no unauthorized modifications
+# to critical files that define the 7-Phase/97-checkpoint system.
+
+/tools/verify-core-structure.sh @perfectuser21
+
+# ==============================================================================
+# ADDITIONAL PROTECTED AREAS
+# ==============================================================================
+# Other critical infrastructure that requires human review:
+# - GitHub workflows: CI/CD pipeline definitions
+# - This file itself: CODEOWNERS configuration
+
+/.github/workflows/** @perfectuser21
+/.github/CODEOWNERS @perfectuser21
+
+# ==============================================================================
+# UNPROTECTED PATHS - AI HAS FREEDOM TO MODIFY
+# ==============================================================================
+# The following paths are intentionally left unprotected to allow AI agents
+# to freely update documentation, temporary files, and tests:
+#
+# /docs/**              - Documentation can be updated freely by AI
+# /.temp/**             - Temporary files are ephemeral
+# /tests/**             - Tests can be updated as needed by AI
+# /.evidence/**         - Evidence collection (AI can add, not remove)
+#
+# Note: These paths do not require CODEOWNERS entries as the default behavior
+# is that paths without explicit owners can be modified without special approval.

@@ -329,7 +329,89 @@ if [[ $changed_code_files -gt 0 ]]; then
 fi
 
 # ============================================
-# 检查7：Git状态检查
+# 检查7：Runtime Behavior Validation
+# ============================================
+log_check "Runtime Behavior Validation"
+
+# 7.1 检查parallel_subagent_suggester.sh是否执行过
+suggester_log="$PROJECT_ROOT/.workflow/logs/subagent/suggester.log"
+if [[ ! -f "$suggester_log" ]]; then
+    log_fail "suggester.log never created - hollow implementation!"
+else
+    # 检查文件最后修改时间
+    if [[ "$(uname)" == "Darwin" ]]; then
+        # macOS
+        file_mtime=$(stat -f "%m" "$suggester_log" 2>/dev/null || echo "0")
+    else
+        # Linux
+        file_mtime=$(stat -c "%Y" "$suggester_log" 2>/dev/null || echo "0")
+    fi
+    current_time=$(date +%s)
+    days_old=$(( (current_time - file_mtime) / 86400 ))
+
+    if [[ $days_old -gt 7 ]]; then
+        log_warn "suggester.log is $days_old days old (>7 days, may be stale)"
+    else
+        log_pass "suggester.log executed recently ($days_old days ago)"
+    fi
+fi
+
+# 7.2 检查.phase/current是否维护
+phase_current="$PROJECT_ROOT/.phase/current"
+if [[ ! -f "$phase_current" ]]; then
+    log_warn ".phase/current not found (phase tracking may not be active)"
+else
+    # 检查文件最后修改时间
+    if [[ "$(uname)" == "Darwin" ]]; then
+        # macOS
+        file_mtime=$(stat -f "%m" "$phase_current" 2>/dev/null || echo "0")
+    else
+        # Linux
+        file_mtime=$(stat -c "%Y" "$phase_current" 2>/dev/null || echo "0")
+    fi
+    current_time=$(date +%s)
+    days_old=$(( (current_time - file_mtime) / 86400 ))
+
+    if [[ $days_old -gt 7 ]]; then
+        log_warn ".phase/current is $days_old days old (>7 days, phase tracking may be stale)"
+    else
+        log_pass ".phase/current maintained recently ($days_old days ago)"
+    fi
+fi
+
+# 7.3 检查evidence收集情况
+evidence_dir="$PROJECT_ROOT/.evidence"
+if [[ ! -d "$evidence_dir" ]]; then
+    log_warn "No .evidence/ directory found"
+else
+    # 查找7天内修改的.yml文件
+    recent_evidence_count=0
+    current_time=$(date +%s)
+    seven_days_ago=$((current_time - 604800))  # 7 days in seconds
+
+    while IFS= read -r -d '' file; do
+        if [[ "$(uname)" == "Darwin" ]]; then
+            # macOS
+            file_mtime=$(stat -f "%m" "$file" 2>/dev/null || echo "0")
+        else
+            # Linux
+            file_mtime=$(stat -c "%Y" "$file" 2>/dev/null || echo "0")
+        fi
+
+        if [[ $file_mtime -gt $seven_days_ago ]]; then
+            ((recent_evidence_count++)) || true
+        fi
+    done < <(find "$evidence_dir" -name "*.yml" -print0 2>/dev/null || true)
+
+    if [[ $recent_evidence_count -eq 0 ]]; then
+        log_warn "No evidence collected in last 7 days (0 .yml files)"
+    else
+        log_pass "Evidence collected recently ($recent_evidence_count .yml files in last 7 days)"
+    fi
+fi
+
+# ============================================
+# 检查8：Git状态检查
 # ============================================
 log_check "Git Repository Status"
 

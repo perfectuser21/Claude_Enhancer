@@ -843,6 +843,72 @@ bash scripts/kpi/weekly_report.sh
 
 ---
 
+## 🛡️ Self-Enforcing Quality System (Anti-Regression)
+
+### Problem We're Solving
+AI iterations can accidentally remove or break critical features. This happened with:
+- Parallel execution (code existed but never ran)
+- Phase management (scripts existed but never called)
+- Bypass permissions (configured but didn't work)
+
+### Three Layers of Defense
+
+#### Layer 1: Protected Core Files (CODEOWNERS)
+These files CANNOT be modified without @perfectuser21 approval:
+- All hooks in /.claude/hooks/**
+- Workflow configs in /.workflow/**
+- Core scripts: pre_merge_audit.sh, static_checks.sh
+- Configuration: settings.json, CLAUDE.md, VERSION, SPEC.yaml
+
+**AI Rule**: Never modify these files unless explicitly instructed by user.
+
+#### Layer 2: Sentinel Checks (CI)
+CI workflow `guard-core.yml` runs on every PR/push and verifies:
+- Critical files still exist (31 checks)
+- Critical configurations intact (bypass permissions, 7-phase system)
+- Anti-Hollow sentinel strings present in codebase
+- Version consistency across all files
+
+**Failure = PR blocked**
+
+#### Layer 3: Contract Tests
+Tests verify features **actually work**, not just exist:
+- `parallel_subagent_suggester.sh` must have execution logs
+- `phase_manager.sh` transitions must update .phase/current
+- Evidence collection must produce .yml files
+- Bypass permissions must not prompt user
+
+**Location**: tests/contract/test_anti_hollow.sh
+
+### Runtime Validation in pre_merge_audit.sh
+Pre-merge audit now checks:
+- Hook execution logs (not just file existence)
+- Phase state maintenance (staleness detection)
+- Evidence collection activity (last 7 days)
+
+**FAIL if**: Critical hook never executed (hollow implementation detected!)
+
+### AI Responsibilities
+1. **Before modifying core files**: Check if CODEOWNERS allows it
+2. **After adding features**: Collect evidence of actual execution
+3. **During phase transitions**: Update .phase/current file
+4. **When claiming "feature works"**: Provide execution logs as proof
+
+### Phase State Management
+**New Hook**: phase_state_tracker.sh (PrePrompt[1])
+- Displays current phase on every AI prompt
+- Reminds AI to update .phase/current on transitions
+- Detects stale phase state (>7 days)
+
+**AI Must**:
+- Update .phase/current when transitioning phases: `echo Phase3 > .phase/current`
+- Never let phase state become stale
+
+### Weekly Hollow Scan
+TODO: Add weekly CI job to scan for hollow implementations and create issues automatically.
+
+---
+
 ## 🚀 核心工作流：7-Phase系统（v6.6统一版）
 
 ### 完整7 Phases开发周期
