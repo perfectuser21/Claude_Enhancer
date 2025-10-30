@@ -9,7 +9,7 @@
 
 metadata:
   name: "Claude Enhancer"
-  version: "8.6.0"
+  version: "8.6.1"
   type: "single_workflow"  # 单一工作流系统（非多工作流平台）
   purpose: "专业级个人AI编程工作流系统"
   target_user: "个人开发者（单用户）"
@@ -28,13 +28,12 @@ workflow_structure:
     - "Phase 6: Acceptance"
     - "Phase 7: Closure"
 
-  # Phase细分（Phase 1包含5个子阶段）
+  # Phase细分（Phase 1包含4个子阶段）
   phase1_substages:  # ⚠️ 可新增，但不可删除现有
     - "1.1 Branch Check"
     - "1.2 Requirements Discussion"
     - "1.3 Technical Discovery"
-    - "1.4 Impact Assessment"
-    - "1.5 Architecture Planning"
+    - "1.4 Architecture Planning"
 
 # 检查点系统
 checkpoints:
@@ -53,10 +52,19 @@ checkpoints:
   naming_convention:  # ⛔ 不可改
     pattern: "P{phase}_{stage}_S{number}"
     examples:
-      - "PD_S001"   # Pre-Discussion (Phase 1.2)
-      - "P1_S001"   # Phase 1 Branch Check (Phase 1.1)
-      - "P2_S001"   # Phase 2 Discovery (Phase 1.3)
-      - "P5_S001"   # Phase 5 Testing (Phase 3)
+      - "PD_S001"   # Pre-Discussion checkpoints (Phase 1.2)
+      - "P1_S001"   # Branch Check checkpoints (Phase 1.1)
+      - "P2_S001"   # Technical Discovery checkpoints (Phase 1.3)
+      - "P3_S001"   # Architecture Planning checkpoints (Phase 1.4)
+      - "P4_S001"   # Implementation checkpoints (Phase 2)
+      - "P5_S001"   # Testing checkpoints (Phase 3)
+      - "P6_S001"   # Review checkpoints (Phase 4)
+      - "P7_S001"   # Release checkpoints (Phase 5)
+      - "AC_S001"   # Acceptance checkpoints (Phase 6)
+      - "CL_S001"   # Closure checkpoints (Phase 7)
+    note: |
+      编号说明：PD/P1-P7/AC/CL是检查点前缀，不直接对应Phase编号
+      保持向后兼容，历史原因形成的命名规则
 
 # 质量门禁系统
 quality_gates:
@@ -87,7 +95,7 @@ quality_gates:
       - "配置完整性"
       - "遗留问题扫描（TODO/FIXME）"
       - "垃圾文档检测"
-      - "版本完全一致性（5文件）"
+      - "版本完全一致性（6文件）"
       - "代码模式一致性"
       - "文档完整性"
       - "人工审查签字"
@@ -132,7 +140,7 @@ hard_blocks:
 # 核心产出文件（每个Phase的关键交付物）
 core_deliverables:  # ⛔ 不可删除现有产出
   phase1:
-    - "P2_DISCOVERY.md (≥300行)"  # ⚠️ 应为P1_DISCOVERY.md（待修复）
+    - "P1_DISCOVERY.md (≥300行)"
     - "Acceptance Checklist"
     - "PLAN.md (≥1000行)"
     - "项目骨架"
@@ -167,13 +175,14 @@ core_deliverables:  # ⛔ 不可删除现有产出
     - "merge-ready状态"
 
 # 版本一致性系统
-version_consistency:  # ⛔ 绝对不可改：必须5文件完全一致
+version_consistency:  # ⛔ 绝对不可改：必须6文件完全一致
   required_files:
     - "VERSION"
     - ".claude/settings.json"
     - "package.json"
     - ".workflow/manifest.yml"
     - "CHANGELOG.md"
+    - ".workflow/SPEC.yaml"
   rule: "字面一致（literal match）"
   enforcement: "Phase 4 和 Phase 7 硬性阻止"
 

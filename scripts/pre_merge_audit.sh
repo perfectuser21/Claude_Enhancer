@@ -120,12 +120,7 @@ fi
 log_check "Legacy Issues Scan (TODO/FIXME)"
 
 # 扫描active代码中的TODO/FIXME（排除archive）
-todo_count=$(grep -r "TODO\|FIXME" \
-    --include="*.sh" \
-    --exclude-dir="archive" \
-    --exclude-dir="test" \
-    --exclude-dir=".temp" \
-    "$PROJECT_ROOT/.claude/hooks" 2>/dev/null | wc -l || echo "0")
+todo_count=$(find "$PROJECT_ROOT/.claude/hooks" -name "*.sh" -type f ! -path "*/archive*" ! -path "*/test/*" ! -path "*/.temp/*" -exec grep -l "TODO\|FIXME" {} \; 2>/dev/null | wc -l || echo "0")
 todo_files=${todo_count:-0}
 todo_files=$(echo "$todo_files" | tr -d ' \n')
 
