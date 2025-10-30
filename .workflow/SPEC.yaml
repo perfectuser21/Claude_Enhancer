@@ -38,7 +38,8 @@ workflow_structure:
 
 # 检查点系统
 checkpoints:
-  total_count: 97  # ⛔ 只能增加，不能减少
+  # ⛔ 只能增加，不能减少
+  total_count: 97
   distribution:    # ⛔ 不可减少任何Phase的检查点数
     phase1: 33
     phase2: 15
@@ -93,7 +94,8 @@ quality_gates:
 
 # 硬性阻止条件（Hard Blocks）
 hard_blocks:
-  total_count: 8  # ⛔ 不可减少
+  # ⛔ 不可减少
+  total_count: 8
   conditions:
     - phase: "Phase 1"
       condition: "未创建feature分支"
