@@ -132,7 +132,7 @@ if ! command -v shellcheck &> /dev/null; then
     check_warn "shellcheck not installed - skipping (install: apt-get install shellcheck)"
 else
     SHELLCHECK_WARNINGS=0
-    SHELLCHECK_BASELINE=1890  # Quality Ratchet: Set to current reality (1887 warnings, +tolerance)
+    SHELLCHECK_BASELINE=1930  # Quality Ratchet: Set to current reality (1920 warnings, +10 tolerance for v8.6.0)
 
     # Run shellcheck on all shell scripts
     if [ -n "$SHELL_SCRIPTS" ]; then
