@@ -275,8 +275,10 @@ jobs:
         run: |
           echo "🔍 Checking 97 checkpoints system..."
 
-          # Check SPEC.yaml has total_count: 97
-          CHECKPOINT_COUNT=$(grep -E '^\s*total_count:\s*[0-9]+' .workflow/SPEC.yaml | grep -oE '[0-9]+' | head -1)
+          # Check SPEC.yaml has total_count: 97 in checkpoints section
+          # Fix: First extract checkpoints section, then grep total_count
+          CHECKPOINT_COUNT=$(sed -n '/^checkpoints:/,/^[a-z_]*:/p' .workflow/SPEC.yaml | \
+            grep -E '^\s*total_count:\s*[0-9]+' | grep -oE '[0-9]+' | head -1)
 
           if [[ "$CHECKPOINT_COUNT" != "97" ]]; then
             echo "❌ ERROR: Checkpoint count is $CHECKPOINT_COUNT, expected 97"
@@ -325,8 +327,8 @@ jobs:
           echo "🔍 Checking hard block conditions..."
 
           # Check total_count = 8
-          BLOCKS_COUNT=$(grep -E '^\s*total_count:\s*[0-9]+' .workflow/SPEC.yaml | \
-            sed -n '/^hard_blocks:/,/^[^ ]/p' | grep -E 'total_count:' | grep -oE '[0-9]+')
+          BLOCKS_COUNT=$(sed -n '/^hard_blocks:/,/^[a-z_]*:/p' .workflow/SPEC.yaml | \
+            grep -E '^\s*total_count:\s*[0-9]+' | grep -oE '[0-9]+')
 
           if [[ "$BLOCKS_COUNT" != "8" ]]; then
             echo "❌ ERROR: Found $BLOCKS_COUNT hard blocks, expected 8"
