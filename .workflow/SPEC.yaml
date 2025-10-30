@@ -16,8 +16,10 @@ metadata:
 
 # 工作流结构（7 Phases统一系统）
 workflow_structure:
-  total_phases: 7  # ⛔ 不可改：必须7个Phase
-  phase_names:     # ⛔ 不可改：Phase名称
+  # ⛔ 不可改：必须7个Phase
+  total_phases: 7
+  # ⛔ 不可改：Phase名称
+  phase_names:
     - "Phase 1: Discovery & Planning"
     - "Phase 2: Implementation"
     - "Phase 3: Testing"
@@ -57,7 +59,8 @@ checkpoints:
 
 # 质量门禁系统
 quality_gates:
-  total_gates: 2  # ⛔ 不可改：必须2个门禁
+  # ⛔ 不可改：必须2个门禁
+  total_gates: 2
 
   gate1:
     phase: "Phase 3"
