@@ -148,7 +148,7 @@ fi
 log_check "Documentation Cleanliness"
 
 # 检查根目录.md文件数量（应该≤7个核心文档）
-root_md_count=$(ls -1 "$PROJECT_ROOT"/*.md 2>/dev/null | wc -l || echo "0")
+root_md_count=$(find "$PROJECT_ROOT" -maxdepth 1 -name "*.md" -type f 2>/dev/null | wc -l || echo "0")
 
 # 定义核心文档白名单
 core_docs=("README.md" "CLAUDE.md" "INSTALLATION.md" "ARCHITECTURE.md" "CONTRIBUTING.md" "CHANGELOG.md" "LICENSE.md")
@@ -198,7 +198,7 @@ fi
 log_check "Version Number Consistency (5 files)"
 
 # 提取所有5个文件的版本号
-version_file=$(cat "$PROJECT_ROOT/VERSION" 2>/dev/null | tr -d '\n\r' | xargs || echo "unknown")
+version_file=$(tr -d '\n\r' < "$PROJECT_ROOT/VERSION" 2>/dev/null | xargs || echo "unknown")
 settings_version=$(grep '"version"' "$PROJECT_ROOT/.claude/settings.json" 2>/dev/null | grep -oP '\d+\.\d+\.\d+' | head -1 || echo "unknown")
 manifest_version=$(grep '^version:' "$PROJECT_ROOT/.workflow/manifest.yml" 2>/dev/null | grep -oP '\d+\.\d+\.\d+' || echo "unknown")
 package_version=$(grep '"version"' "$PROJECT_ROOT/package.json" 2>/dev/null | grep -oP '\d+\.\d+\.\d+' | head -1 || echo "unknown")
@@ -310,11 +310,11 @@ else
 fi
 
 # 检查git staged changes是否有文档更新
-changed_code_count=$(git diff --cached --name-only 2>/dev/null | grep -E '\.(sh|py|js|ts)$' | wc -l || echo "0")
+changed_code_count=$(git diff --cached --name-only 2>/dev/null | grep -cE '\.(sh|py|js|ts)$' || echo "0")
 changed_code_files=${changed_code_count:-0}
 changed_code_files=$(echo "$changed_code_files" | tr -d ' \n')
 
-changed_doc_count=$(git diff --cached --name-only 2>/dev/null | grep -E '\.(md)$|^docs/' | wc -l || echo "0")
+changed_doc_count=$(git diff --cached --name-only 2>/dev/null | grep -cE '\.(md)$|^docs/' || echo "0")
 changed_doc_files=${changed_doc_count:-0}
 changed_doc_files=$(echo "$changed_doc_files" | tr -d ' \n')
 
