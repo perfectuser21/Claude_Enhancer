@@ -529,5 +529,6 @@ if [ -f ".workflow/ACCEPTANCE_CHECKLIST.md" ] && [ -f ".workflow/TECHNICAL_CHECK
     echo "  ✓ User checklist language appropriate"
   fi
 else
+  # shellcheck disable=SC2317
   echo "  ⊘ No checklists found (may not be applicable)"
 fi
