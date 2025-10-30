@@ -95,7 +95,9 @@ SHELL_SCRIPTS=$(find . -type f -name "*.sh" \
     -not -path "./.git/*" \
     -not -path "./node_modules/*" \
     -not -path "./.temp/*" \
-    -not -path "./archive/*" 2>/dev/null || true)
+    -not -path "./archive/*" \
+    -not -path "./.claude/hooks/orphaned/*" \
+    2>/dev/null || true)
 
 if [ -z "$SHELL_SCRIPTS" ]; then
     check_warn "No shell scripts found to check"

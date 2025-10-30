@@ -1,5 +1,5 @@
 # Claude Enhancer 核心规格说明书（SPEC）
-# 版本: v8.6.0
+# 版本: v8.7.0
 # 用途: 定义"核心不变层" - AI修改这些内容需要在CHANGELOG明确说明理由
 # 更新日期: 2025-10-30
 
@@ -9,7 +9,7 @@
 
 metadata:
   name: "Claude Enhancer"
-  version: "8.6.1"
+  version: "8.7.0"
   type: "single_workflow"  # 单一工作流系统（非多工作流平台）
   purpose: "专业级个人AI编程工作流系统"
   target_user: "个人开发者（单用户）"
@@ -140,9 +140,9 @@ hard_blocks:
 # 核心产出文件（每个Phase的关键交付物）
 core_deliverables:  # ⛔ 不可删除现有产出
   phase1:
-    - "P1_DISCOVERY.md (≥300行)"
-    - "Acceptance Checklist"
-    - "PLAN.md (≥1000行)"
+    - ".workflow/P1_DISCOVERY_{task}.md (≥300行)"  # 显式路径，避免放根目录
+    - ".workflow/ACCEPTANCE_CHECKLIST_{task}.md"
+    - ".workflow/PLAN_{task}.md (≥1000行)"
     - "项目骨架"
     - "Agent策略"
 
@@ -158,7 +158,7 @@ core_deliverables:  # ⛔ 不可删除现有产出
     - "性能benchmark"
 
   phase4:
-    - "REVIEW.md (≥3KB)"
+    - ".workflow/REVIEW_{task}.md (≥3KB)"
     - "Audit报告"
 
   phase5:
@@ -167,7 +167,7 @@ core_deliverables:  # ⛔ 不可删除现有产出
     - "监控配置"
 
   phase6:
-    - "Acceptance Report"
+    - ".workflow/ACCEPTANCE_REPORT_{task}.md"
     - "用户确认标记"
 
   phase7:
@@ -240,6 +240,45 @@ modification_rules:
       - "不违反core_structure规则"
 
 # ═══════════════════════════════════════════════════════════
+# Immutable Kernel（核心不可变层）
+# ═══════════════════════════════════════════════════════════
+
+immutable_kernel:
+  version: "1.0.0"
+  purpose: "定义绝对不可变的核心文件，修改需要RFC流程"
+
+  # 核心9个文件（修改需要RFC）
+  kernel_files:
+    - ".workflow/SPEC.yaml"           # 核心规格定义
+    - ".workflow/manifest.yml"        # 工作流清单
+    - ".workflow/gates.yml"           # 质量门禁配置
+    - "docs/CHECKS_INDEX.json"        # 检查点索引
+    - "VERSION"                       # 版本文件
+    - ".claude/settings.json"         # Claude配置
+    - "package.json"                  # 包配置
+    - "CHANGELOG.md"                  # 变更日志
+    - ".workflow/LOCK.json"           # 完整性锁定
+
+  # 修改策略
+  change_policy: "RFC required"
+  rfc_branch_pattern: "^rfc/"
+  rfc_requirements:
+    - "RFC文档（说明Why、What、Impact）"
+    - "用户明确授权"
+    - "影响评估报告"
+    - "回滚计划"
+
+  # 版本升级要求
+  version_bump_required: true
+  version_bump_type: "minor"  # 修改Kernel → 至少minor版本升级
+
+  # 强制机制
+  enforcement:
+    pre_commit_hook: ".git/hooks/pre-commit (kernel_guard)"
+    ci_validation: ".github/workflows/rfc-validation.yml"
+    branch_protection: "只允许rfc/*分支修改kernel文件"
+
+# ═══════════════════════════════════════════════════════════
 # 验证脚本
 # ═══════════════════════════════════════════════════════════
 
@@ -248,8 +287,8 @@ verification:
   frequency: "每次PR + 每日健康检查"
   enforcement: "CI必须通过"
 
-  # Lock模式配置（v7.2.0新增）
-  lock_mode: "soft"  # soft | strict
+  # Lock模式配置（v7.2.0新增，v8.7.0切换到strict）
+  lock_mode: "strict"  # soft | strict
 
   # 模式说明：
   # - soft（推荐）：AI修改core结构时，CI警告但不阻止，需要用户手动确认

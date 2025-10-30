@@ -1,0 +1,142 @@
+name: RFC Validation
+
+on:
+  pull_request:
+    branches:
+      - main
+      - master
+  push:
+    branches:
+      - 'rfc/**'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  validate-kernel-changes:
+    name: Validate Immutable Kernel Changes
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Need full history to compare with main
+
+      - name: Check if kernel files modified
+        id: check-kernel
+        run: |
+          # Define kernel files
+          KERNEL_FILES=(
+            ".workflow/SPEC.yaml"
+            ".workflow/manifest.yml"
+            ".workflow/gates.yml"
+            "docs/CHECKS_INDEX.json"
+            "VERSION"
+            ".claude/settings.json"
+            "package.json"
+            "CHANGELOG.md"
+            ".workflow/LOCK.json"
+          )
+
+          # Get changed files compared to main
+          CHANGED_FILES=$(git diff --name-only origin/main...HEAD || true)
+
+          # Check if any kernel files changed
+          KERNEL_MODIFIED=false
+          MODIFIED_LIST=""
+          for file in "${KERNEL_FILES[@]}"; do
+            if echo "$CHANGED_FILES" | grep -q "^${file}$"; then
+              KERNEL_MODIFIED=true
+              MODIFIED_LIST="$MODIFIED_LIST\n  - $file"
+            fi
+          done
+
+          echo "kernel_modified=$KERNEL_MODIFIED" >> $GITHUB_OUTPUT
+          echo "modified_list=$MODIFIED_LIST" >> $GITHUB_OUTPUT
+
+      - name: Validate RFC branch pattern
+        if: steps.check-kernel.outputs.kernel_modified == 'true'
+        run: |
+          BRANCH_NAME="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
+          echo "Branch: $BRANCH_NAME"
+
+          if [[ ! "$BRANCH_NAME" =~ ^rfc/ ]]; then
+            echo "❌ ERROR: Kernel files modified on non-RFC branch!"
+            echo ""
+            echo "Modified files:${{ steps.check-kernel.outputs.modified_list }}"
+            echo ""
+            echo "Kernel files can only be modified on rfc/* branches."
+            echo "Please create an RFC branch: git checkout -b rfc/your-change"
+            exit 1
+          fi
+
+          echo "✅ RFC branch pattern valid: $BRANCH_NAME"
+
+      - name: Check for RFC document
+        if: steps.check-kernel.outputs.kernel_modified == 'true'
+        run: |
+          # Check if RFC document exists
+          RFC_DOCS=$(find .workflow -name "RFC_*.md" 2>/dev/null || true)
+
+          if [ -z "$RFC_DOCS" ]; then
+            echo "❌ ERROR: No RFC document found!"
+            echo ""
+            echo "Kernel file changes require an RFC document."
+            echo "Please create: .workflow/RFC_<description>.md"
+            echo ""
+            echo "RFC must include:"
+            echo "  - Why: Reason for change"
+            echo "  - What: Changes to be made"
+            echo "  - Impact: Affected systems/processes"
+            echo "  - Rollback: How to revert if needed"
+            exit 1
+          fi
+
+          echo "✅ RFC document found: $RFC_DOCS"
+
+      - name: Check version bump
+        if: steps.check-kernel.outputs.kernel_modified == 'true'
+        run: |
+          # Get current version
+          CURRENT_VERSION=$(cat VERSION 2>/dev/null || echo "0.0.0")
+
+          # Get main branch version
+          git fetch origin main:main 2>/dev/null || true
+          MAIN_VERSION=$(git show main:VERSION 2>/dev/null || echo "0.0.0")
+
+          echo "Main version: $MAIN_VERSION"
+          echo "Current version: $CURRENT_VERSION"
+
+          # Simple version comparison (assumes semver)
+          if [[ "$CURRENT_VERSION" == "$MAIN_VERSION" ]]; then
+            echo "❌ ERROR: Version not bumped!"
+            echo ""
+            echo "Kernel file changes require at least a minor version bump."
+            echo "Current: $CURRENT_VERSION"
+            echo "Required: At least minor version increase"
+            echo ""
+            echo "Run: bash scripts/bump_version.sh minor"
+            exit 1
+          fi
+
+          # Check if it's at least a minor bump (not just patch)
+          IFS='.' read -r current_major current_minor current_patch <<< "$CURRENT_VERSION"
+          IFS='.' read -r main_major main_minor main_patch <<< "$MAIN_VERSION"
+
+          if [ "$current_major" -eq "$main_major" ] && [ "$current_minor" -eq "$main_minor" ]; then
+            echo "⚠️  Warning: Only patch version increased. Kernel changes usually require minor bump."
+          else
+            echo "✅ Version properly bumped: $MAIN_VERSION → $CURRENT_VERSION"
+          fi
+
+      - name: Summary
+        if: always()
+        run: |
+          if [[ "${{ steps.check-kernel.outputs.kernel_modified }}" == "true" ]]; then
+            echo "📋 Immutable Kernel Validation Summary"
+            echo "✅ All RFC requirements met"
+          else
+            echo "✅ No kernel files modified - validation skipped"
+          fi
