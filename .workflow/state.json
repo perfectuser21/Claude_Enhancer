@@ -1,7 +1,7 @@
 {
   "$schema": "./state.schema.json",
   "version": "1.0.0",
-  "last_updated": "2025-10-30T11:08:44Z",
+  "last_updated": "2025-10-30T11:18:50Z",
   "comment": "Single Source of Truth for all Claude Enhancer state",
   "current_phase": {
     "phase": "Phase1",
@@ -56,8 +56,8 @@
     "sync_check_at": null
   },
   "system_health": {
-    "hooks_count": 83,
-    "scripts_count": 113,
+    "hooks_count": 50,
+    "scripts_count": 90,
     "docs_count": 7,
     "orphaned_hooks": 0,
     "last_cleanup_at": null,
