@@ -1,5 +1,5 @@
 {
-  "version": "8.5.0",
+  "version": "8.5.1",
   "project": "Claude Enhancer",
   "description": "四层架构分层系统 + 自愈系统 + 工作流强制执行 + Dual-Language Checklist System + Workflow Interference Fix + Performance Optimization (62% faster)",
   "permissions": {
@@ -50,7 +50,8 @@
       ".claude/hooks/smart_agent_selector.sh",
       ".claude/hooks/gap_scan.sh",
       ".claude/hooks/impact_assessment_enforcer.sh",
-      ".claude/hooks/parallel_subagent_suggester.sh"
+      ".claude/hooks/parallel_subagent_suggester.sh",
+      ".claude/hooks/per_phase_impact_assessor.sh"
     ],
     "PreToolUse": [
       ".claude/hooks/task_branch_enforcer.sh",
@@ -228,7 +229,10 @@
       "description": "Enforces Phase 1 documents before Phase 2 coding",
       "trigger": {
         "event": "before_tool_use",
-        "tool": ["Write", "Edit"],
+        "tool": [
+          "Write",
+          "Edit"
+        ],
         "context": "code_file"
       },
       "action": {
@@ -248,7 +252,10 @@
       },
       "action": {
         "script": ".claude/hooks/phase_completion_validator.sh",
-        "args": ["{{current_phase}}", "{{next_phase}}"],
+        "args": [
+          "{{current_phase}}",
+          "{{next_phase}}"
+        ],
         "blocking": true
       },
       "enabled": true,
@@ -262,25 +269,44 @@
       "enabled": true,
       "max_concurrent": 4,
       "timeout": 600,
-      "groups": ["core_implementation", "test_implementation", "scripts_hooks", "configuration"]
+      "groups": [
+        "core_implementation",
+        "test_implementation",
+        "scripts_hooks",
+        "configuration"
+      ]
     },
     "Phase3": {
       "enabled": true,
       "max_concurrent": 5,
       "timeout": 900,
-      "groups": ["unit_tests", "integration_tests", "performance_tests", "security_tests", "linting"]
+      "groups": [
+        "unit_tests",
+        "integration_tests",
+        "performance_tests",
+        "security_tests",
+        "linting"
+      ]
     },
     "Phase4": {
       "enabled": true,
       "max_concurrent": 3,
       "timeout": 300,
-      "groups": ["code_review", "documentation_check", "version_audit"]
+      "groups": [
+        "code_review",
+        "documentation_check",
+        "version_audit"
+      ]
     },
     "Phase7": {
       "enabled": true,
       "max_concurrent": 3,
       "timeout": 180,
-      "groups": ["cleanup_temp", "cleanup_versions", "git_optimization"]
+      "groups": [
+        "cleanup_temp",
+        "cleanup_versions",
+        "git_optimization"
+      ]
     }
   },
   "cache_system": {
@@ -290,18 +316,24 @@
     "layers": {
       "L1_syntax": {
         "enabled": true,
-        "commands": ["bash -n", "shellcheck"],
+        "commands": [
+          "bash -n",
+          "shellcheck"
+        ],
         "hit_rate_target": 0.99
       },
       "L2_unit_tests": {
         "enabled": true,
         "by_module": true,
-        "hit_rate_target": 0.70
+        "hit_rate_target": 0.7
       },
       "L3_linting": {
         "enabled": true,
-        "tools": ["shellcheck", "shfmt"],
-        "hit_rate_target": 0.80
+        "tools": [
+          "shellcheck",
+          "shfmt"
+        ],
+        "hit_rate_target": 0.8
       }
     },
     "invalidation": {
@@ -314,12 +346,24 @@
     "enabled": true,
     "scope": "git_diff",
     "fallback_to_full": true,
-    "force_full_on": ["VERSION", "settings.json", "SPEC.yaml", "manifest.yml", "package.json", "CHANGELOG.md"]
+    "force_full_on": [
+      "VERSION",
+      "settings.json",
+      "SPEC.yaml",
+      "manifest.yml",
+      "package.json",
+      "CHANGELOG.md"
+    ]
   },
   "async_tasks": {
     "enabled": true,
     "max_concurrent": 3,
     "timeout": 60,
-    "tasks": ["kpi_reporter", "evidence_indexer", "changelog_generator", "performance_tracker"]
+    "tasks": [
+      "kpi_reporter",
+      "evidence_indexer",
+      "changelog_generator",
+      "performance_tracker"
+    ]
   }
 }

@@ -1,5 +1,70 @@
 # Changelog
 
+## [8.5.1] - 2025-10-30
+
+### Fixed - Workflow Supervision Enforcement
+
+**Critical Bug Fixes**: Restored workflow supervision enforcement by fixing 3 P0 bugs that prevented anti-hollow gate system from working.
+
+**Root Cause**: PR #57 discovered 3 critical bugs in workflow supervision hooks that caused silent failures:
+1. **Impact Assessment Enforcer**: File name mismatch (`P2_DISCOVERY.md` vs `P1_DISCOVERY.md`) + phase name mismatch (`"P2"` vs `"Phase1"`)
+2. **Phase Completion Validator**: Phase numbering inconsistency (old `P0-P5` vs new `Phase1-Phase7` system)
+3. **Agent Evidence Collector**: Missing dependency (`task_namespace.sh` doesn't exist) causing silent failures
+
+**Changes**:
+
+1. **`.claude/hooks/impact_assessment_enforcer.sh`** - Bug #1 Fix
+   - Fixed: Function name `is_phase2_completed()` → `is_phase1_3_completed()`
+   - Fixed: File check `P2_DISCOVERY.md` → `P1_DISCOVERY.md`
+   - Fixed: Phase check `"P2"` → `"Phase1"`
+   - Impact: Hook now correctly triggers after Phase 1.3 completion
+
+2. **`.claude/hooks/phase_completion_validator.sh`** - Bug #2 Fix
+   - Fixed: Rewrote case statement from 6-phase (P0-P5) to 7-phase system (Phase1-Phase7)
+   - Added: Phase6 completion logic (ACCEPTANCE_REPORT check)
+   - Added: Phase7 completion logic (version consistency check)
+   - Impact: Anti-hollow gate now correctly prevents premature workflow completion
+
+3. **`.claude/hooks/agent_evidence_collector.sh`** - Bug #3 Fix
+   - Removed: All external dependencies (task_namespace.sh)
+   - Simplified: 128 lines → 59 lines (54% reduction)
+   - Changed: JSONL format evidence storage (`.workflow/agent_evidence/agents_YYYYMMDD.jsonl`)
+   - Impact: Evidence collection now works reliably without missing dependencies
+
+4. **`.claude/hooks/per_phase_impact_assessor.sh`** - Enhancement (New)
+   - Added: Per-phase impact assessment for Phase2/3/4
+   - Triggers: PrePrompt hook before Phase2/3/4 starts
+   - Output: `.workflow/impact_assessments/PhaseN_assessment.json`
+   - Impact: Dynamic agent recommendations per phase instead of global Phase 1.4 assessment
+
+5. **`.claude/settings.json`** - Hook Registration
+   - Added: `per_phase_impact_assessor.sh` to PrePrompt hooks array (position 8)
+   - Verified: All 4 modified hooks registered correctly
+
+**Testing**:
+- ✅ 27 unit tests passed (100%)
+- ✅ 1 integration test passed (PR #57 regression prevented)
+- ✅ 4 performance benchmarks passed (9-16ms, 22-91x faster than targets)
+- ✅ 6 static checks passed (0 syntax errors, 0 shellcheck warnings)
+
+**Performance**:
+- impact_assessment_enforcer.sh: 16ms (<500ms target)
+- phase_completion_validator.sh: 11ms (<1s target)
+- agent_evidence_collector.sh: 9ms (<200ms target)
+- per_phase_impact_assessor.sh: 13ms (<500ms target)
+
+**Documentation**:
+- Added: `docs/P1_DISCOVERY_workflow_supervision.md` (682 lines)
+- Added: `docs/PLAN_workflow_supervision.md` (30,940 lines)
+- Added: `.workflow/ACCEPTANCE_CHECKLIST_workflow_supervision.md` (321 lines, 126 items)
+- Added: `.workflow/PHASE3_TEST_RESULTS.md` (520 lines)
+- Added: `.workflow/REVIEW_workflow_supervision.md` (605 lines)
+- Added: 3 Impact Assessment files (Phase 1, 3, 4)
+
+**Verification**: All 3 bugs verified as fixed through comprehensive testing.
+
+---
+
 ## [8.5.0] - 2025-10-29
 
 ### Added - Per-Phase Impact Assessment

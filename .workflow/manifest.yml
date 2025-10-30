@@ -1,9 +1,9 @@
 # Claude Enhancer Workflow Manifest
 # Version: 1.0.0
 # Purpose: 定义7 Phases执行顺序、并行策略和默认配置
-# Updated: 2025-10-29 (v8.5.0 - Performance Optimization: 62% faster)
+# Updated: 2025-10-30 (v8.5.1 - Workflow Supervision Fixes)
 
-version: 8.5.0
+version: 8.5.1
 project: "Claude Enhancer"
 # 7 Phases工作流定义（Phase 1-7，与SPEC.yaml对齐）
 phases:
