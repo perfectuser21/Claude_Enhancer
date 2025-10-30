@@ -102,7 +102,7 @@ changescope_check() {
     # Check if file matches any pattern
     for pattern in $patterns; do
         # Expand glob pattern
-        if [[ "$file" == $pattern ]] || [[ "$file" =~ ^${pattern} ]]; then
+        if [[ "$file" == "$pattern" ]] || [[ "$file" =~ ^${pattern} ]]; then
             return 0  # Allowed
         fi
 
