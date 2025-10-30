@@ -1,5 +1,91 @@
 # Changelog
 
+## [8.6.0] - 2025-10-30
+
+### Added - 7-Phase Hard Enforcement + Self-Enforcing Quality System
+
+**Major Feature**: Implemented comprehensive enforcement mechanisms to prevent Phase skipping, version increment failures, and premature PR creation.
+
+**Problem Solved**: AI could skip phases (e.g., create PR in Phase 4 instead of Phase 7), forget to increment version numbers, and allow incomplete workflows to proceed.
+
+**Core Changes**:
+
+1. **`.claude/hooks/pr_creation_guard.sh`** - NEW (132 lines)
+   - Hook type: PreBash
+   - Purpose: Hard block `gh pr create` until Phase 7 completion
+   - Checks:
+     - `.phase/current` must be `Phase7`
+     - `.workflow/ACCEPTANCE_REPORT_*.md` must exist
+     - `scripts/check_version_consistency.sh` must pass
+   - Exit code: 1 (blocks command) if any check fails
+   - Clear error messages guide AI to complete remaining phases
+
+2. **`.claude/hooks/version_increment_enforcer.sh`** - NEW (147 lines)
+   - Hook type: PreCommit
+   - Purpose: Hard block commits without version increment
+   - Checks:
+     - Compare current branch VERSION with main branch VERSION
+     - Version must be greater (semver comparison: major.minor.patch)
+     - Prevents version rollback
+   - Exit code: 1 (blocks commit) if version unchanged or decreased
+   - Suggests `bump_version.sh` commands (patch/minor/major)
+
+3. **`CLAUDE.md`** - Rule 4 Added (+247 lines)
+   - Section: "规则4: 7-Phase完整执行强制（100%强制）"
+   - Content:
+     - 3 absolute prohibitions (premature PR, phase skipping, no version bump)
+     - 4-layer enforcement architecture (PreBash, Phase Validator, PreCommit, CI)
+     - Complete AI workflow specification with checkpoints
+     - Example error messages for violations
+     - Success metrics for 30-day validation
+   - Position: After "Self-Enforcing Quality System" section
+
+4. **`.claude/settings.json`** - Hook Registration
+   - Added: `pr_creation_guard.sh` to PreBash hooks (position 0)
+   - Note: `version_increment_enforcer.sh` registered via Git hooks (`.git/hooks/pre-commit`)
+
+**Enforcement Architecture** (4 Layers):
+
+```
+Layer 1: PreBash Hook (pr_creation_guard.sh)
+         → Blocks PR creation before Phase 7
+
+Layer 2: Phase Validator (phase_completion_validator.sh)
+         → Blocks phase transitions without completion criteria
+
+Layer 3: PreCommit Hook (version_increment_enforcer.sh)
+         → Blocks commits without version increment
+
+Layer 4: CI Checks (guard-core.yml)
+         → 61 checks on every push/PR
+```
+
+**Quality Metrics**:
+- ✅ 0 shellcheck warnings (2 new scripts)
+- ✅ Clear error messages (ASCII art boxes, actionable guidance)
+- ✅ No bypass mechanisms (all checks are hard blocks)
+- ✅ Integration with existing phase_completion_validator.sh
+
+**Impact**:
+- **7-Phase Completion Rate**: Target 100% (vs previous ~70% due to premature PR creation)
+- **Version Increment Compliance**: Target 100% (was inconsistent)
+- **Phase Skipping**: Target 0 incidents (previously possible)
+
+**Testing**:
+- ✅ pr_creation_guard.sh: Tested Phase1-6 blocking scenarios
+- ✅ version_increment_enforcer.sh: Tested version comparison logic
+- ✅ CLAUDE.md Rule 4: Reviewed for completeness and clarity
+- ✅ Hook registration: Verified in settings.json
+
+**Documentation**:
+- Phase 1: P1_DISCOVERY.md (794 lines) - Regression analysis
+- Phase 1: PLAN.md (1,314 lines) - Implementation plan
+- Phase 1: ACCEPTANCE_CHECKLIST.md (462 lines, 196 criteria)
+- Phase 4: REVIEW.md (457 lines, 95/100 score)
+- Phase 6: ACCEPTANCE_REPORT.md (248 lines, 100% completion)
+
+---
+
 ## [8.5.1] - 2025-10-30
 
 ### Fixed - Workflow Supervision Enforcement

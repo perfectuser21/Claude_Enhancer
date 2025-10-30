@@ -1,0 +1,453 @@
+name: 🛡️ Core Structure Guardian
+
+# Purpose: Sentinel to detect if critical features are removed or broken
+# Trigger: On every push to main and on pull requests
+# Checks: 20+ critical validations across files, configs, and architecture
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+env:
+  REPO_ROOT: ${{ github.workspace }}
+  FAIL_FAST: true
+
+jobs:
+  guard-critical-files:
+    name: 🔒 Critical Files Existence Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check critical hook files exist
+        run: |
+          echo "🔍 Checking critical hook files..."
+          MISSING_FILES=()
+
+          CRITICAL_FILES=(
+            ".claude/hooks/parallel_subagent_suggester.sh"
+            ".workflow/cli/phase_manager.sh"
+            ".claude/hooks/phase_completion_validator.sh"
+            ".claude/hooks/impact_assessment_enforcer.sh"
+            ".claude/hooks/agent_evidence_collector.sh"
+          )
+
+          for file in "${CRITICAL_FILES[@]}"; do
+            if [[ ! -f "$file" ]]; then
+              MISSING_FILES+=("$file")
+              echo "❌ MISSING: $file"
+            else
+              echo "✅ Found: $file"
+            fi
+          done
+
+          if [[ ${#MISSING_FILES[@]} -gt 0 ]]; then
+            echo ""
+            echo "🚨 ERROR: Critical files are missing!"
+            echo "Missing files:"
+            printf '  - %s\n' "${MISSING_FILES[@]}"
+            echo ""
+            echo "These files are essential to the core workflow system."
+            echo "If you removed them intentionally, please update this check."
+            exit 1
+          fi
+
+          echo ""
+          echo "✅ All 5 critical hook files exist"
+
+  guard-configuration:
+    name: 🔧 Configuration Integrity Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check settings.json configuration
+        run: |
+          echo "🔍 Checking settings.json configuration..."
+
+          # Check 1: defaultMode = bypassPermissions
+          if ! grep -q '"defaultMode": "bypassPermissions"' .claude/settings.json; then
+            echo "❌ ERROR: settings.json missing 'defaultMode: bypassPermissions'"
+            echo "This is required for autonomous AI operation (v6.1+)"
+            echo ""
+            echo "Expected: \"defaultMode\": \"bypassPermissions\""
+            echo "Found:"
+            grep -A 2 '"permissions"' .claude/settings.json || echo "  (permissions section not found)"
+            exit 1
+          fi
+          echo "✅ defaultMode: bypassPermissions is configured"
+
+          # Check 2: parallel_subagent_suggester.sh is registered
+          if ! grep -q "parallel_subagent_suggester.sh" .claude/settings.json; then
+            echo "❌ ERROR: parallel_subagent_suggester.sh not registered in hooks"
+            echo "This hook is critical for agent orchestration"
+            echo ""
+            echo "It should be in PrePrompt hooks array"
+            exit 1
+          fi
+          echo "✅ parallel_subagent_suggester.sh is registered"
+
+          # Check 3: impact_assessment_enforcer.sh is registered
+          if ! grep -q "impact_assessment_enforcer.sh" .claude/settings.json; then
+            echo "❌ ERROR: impact_assessment_enforcer.sh not registered"
+            echo "This hook enforces Phase 1.4 Impact Assessment"
+            exit 1
+          fi
+          echo "✅ impact_assessment_enforcer.sh is registered"
+
+          # Check 4: phase_completion_validator.sh is registered
+          if ! grep -q "phase_completion_validator.sh" .claude/settings.json; then
+            echo "❌ ERROR: phase_completion_validator.sh not registered"
+            echo "This hook validates phase transitions"
+            exit 1
+          fi
+          echo "✅ phase_completion_validator.sh is registered"
+
+          echo ""
+          echo "✅ All 4 configuration checks passed"
+
+      - name: Check SPEC.yaml structure
+        run: |
+          echo "🔍 Checking SPEC.yaml for 7 phases..."
+
+          # Check total_phases = 7
+          TOTAL_PHASES=$(grep -E '^\s*total_phases:\s*[0-9]+' .workflow/SPEC.yaml | grep -oE '[0-9]+')
+
+          if [[ "$TOTAL_PHASES" != "7" ]]; then
+            echo "❌ ERROR: SPEC.yaml shows $TOTAL_PHASES phases, expected 7"
+            echo ""
+            echo "The 7-Phase system is core to Claude Enhancer v6.3+"
+            echo "  Phase 1: Discovery & Planning"
+            echo "  Phase 2: Implementation"
+            echo "  Phase 3: Testing (Gate 1)"
+            echo "  Phase 4: Review (Gate 2)"
+            echo "  Phase 5: Release"
+            echo "  Phase 6: Acceptance"
+            echo "  Phase 7: Closure"
+            echo ""
+            echo "If you merged phases, this breaks the architecture."
+            exit 1
+          fi
+          echo "✅ SPEC.yaml confirms 7 phases"
+
+          # Check Phase names are correct
+          REQUIRED_PHASES=(
+            "Phase 1: Discovery & Planning"
+            "Phase 2: Implementation"
+            "Phase 3: Testing"
+            "Phase 4: Review"
+            "Phase 5: Release"
+            "Phase 6: Acceptance"
+            "Phase 7: Closure"
+          )
+
+          MISSING_PHASES=()
+          for phase in "${REQUIRED_PHASES[@]}"; do
+            if ! grep -qF "$phase" .workflow/SPEC.yaml; then
+              MISSING_PHASES+=("$phase")
+            fi
+          done
+
+          if [[ ${#MISSING_PHASES[@]} -gt 0 ]]; then
+            echo "❌ ERROR: Missing or renamed phases detected"
+            echo "Missing phases:"
+            printf '  - %s\n' "${MISSING_PHASES[@]}"
+            exit 1
+          fi
+          echo "✅ All 7 phase names are correct"
+
+      - name: Check version consistency
+        run: |
+          echo "🔍 Checking version consistency across files..."
+
+          # Read VERSION file
+          if [[ ! -f VERSION ]]; then
+            echo "❌ ERROR: VERSION file not found"
+            exit 1
+          fi
+          VERSION_FILE=$(cat VERSION | tr -d '\n\r ')
+          echo "VERSION file: $VERSION_FILE"
+
+          # Check settings.json
+          SETTINGS_VERSION=$(grep -oP '"version":\s*"\K[^"]+' .claude/settings.json | head -1)
+          echo "settings.json: $SETTINGS_VERSION"
+
+          # Check manifest.yml
+          MANIFEST_VERSION=$(grep -oP '^version:\s*\K.*' .workflow/manifest.yml | tr -d '\n\r ')
+          echo "manifest.yml: $MANIFEST_VERSION"
+
+          # Check package.json (if exists)
+          if [[ -f package.json ]]; then
+            PACKAGE_VERSION=$(grep -oP '"version":\s*"\K[^"]+' package.json | head -1)
+            echo "package.json: $PACKAGE_VERSION"
+          else
+            PACKAGE_VERSION="$VERSION_FILE"
+            echo "package.json: (not found, skipping)"
+          fi
+
+          # Compare all versions
+          ALL_MATCH=true
+          if [[ "$VERSION_FILE" != "$SETTINGS_VERSION" ]]; then
+            echo "❌ VERSION != settings.json ($VERSION_FILE != $SETTINGS_VERSION)"
+            ALL_MATCH=false
+          fi
+          if [[ "$VERSION_FILE" != "$MANIFEST_VERSION" ]]; then
+            echo "❌ VERSION != manifest.yml ($VERSION_FILE != $MANIFEST_VERSION)"
+            ALL_MATCH=false
+          fi
+          if [[ -f package.json ]] && [[ "$VERSION_FILE" != "$PACKAGE_VERSION" ]]; then
+            echo "❌ VERSION != package.json ($VERSION_FILE != $PACKAGE_VERSION)"
+            ALL_MATCH=false
+          fi
+
+          if [[ "$ALL_MATCH" != "true" ]]; then
+            echo ""
+            echo "🚨 ERROR: Version inconsistency detected!"
+            echo ""
+            echo "All version files must match exactly."
+            echo "Run: bash scripts/sync_version.sh to fix"
+            exit 1
+          fi
+
+          echo ""
+          echo "✅ All versions match: $VERSION_FILE"
+
+  guard-anti-hollow-sentinels:
+    name: 🎯 Anti-Hollow Sentinel Strings
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Search for Anti-Hollow markers
+        run: |
+          echo "🔍 Searching for Anti-Hollow sentinel strings..."
+
+          # Search in key directories
+          SENTINEL_COUNT=$(grep -r "Anti-Hollow" \
+            --include="*.sh" \
+            --include="*.md" \
+            --include="*.yml" \
+            --include="*.yaml" \
+            .claude/ .workflow/ scripts/ docs/ 2>/dev/null | wc -l)
+
+          echo "Found $SENTINEL_COUNT occurrences of 'Anti-Hollow'"
+
+          if [[ $SENTINEL_COUNT -lt 5 ]]; then
+            echo "⚠️  WARNING: Very few Anti-Hollow references found ($SENTINEL_COUNT)"
+            echo "Expected at least 5 references in:"
+            echo "  - .workflow/user_request.md"
+            echo "  - scripts/kpi/weekly_report.sh"
+            echo "  - scripts/generate_mapping.sh"
+            echo "  - Documentation files"
+            echo ""
+            echo "This may indicate Anti-Hollow Gate system was removed or renamed."
+            echo ""
+            echo "Continuing anyway (warning only)..."
+          else
+            echo "✅ Anti-Hollow Gate system appears intact ($SENTINEL_COUNT refs)"
+          fi
+
+          # List files containing Anti-Hollow
+          echo ""
+          echo "Files containing 'Anti-Hollow':"
+          grep -r "Anti-Hollow" \
+            --include="*.sh" \
+            --include="*.md" \
+            --include="*.yml" \
+            --include="*.yaml" \
+            .claude/ .workflow/ scripts/ docs/ 2>/dev/null | \
+            cut -d: -f1 | sort -u | sed 's/^/  - /'
+
+  guard-architecture-integrity:
+    name: 🏗️ Architecture Integrity Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check 97 checkpoints system
+        run: |
+          echo "🔍 Checking 97 checkpoints system..."
+
+          # Check SPEC.yaml has total_count: 97 in checkpoints section
+          # Fix: First extract checkpoints section, then grep total_count
+          CHECKPOINT_COUNT=$(sed -n '/^checkpoints:/,/^[a-z_]*:/p' .workflow/SPEC.yaml | \
+            grep -E '^\s*total_count:\s*[0-9]+' | grep -oE '[0-9]+' | head -1)
+
+          if [[ "$CHECKPOINT_COUNT" != "97" ]]; then
+            echo "❌ ERROR: Checkpoint count is $CHECKPOINT_COUNT, expected 97"
+            echo ""
+            echo "The 97-checkpoint system is locked in SPEC.yaml"
+            echo "You can only ADD checkpoints, not remove them."
+            echo ""
+            echo "If you increased checkpoints, update SPEC.yaml total_count"
+            exit 1
+          fi
+          echo "✅ 97 checkpoints system intact"
+
+      - name: Check Quality Gates configuration
+        run: |
+          echo "🔍 Checking Quality Gates..."
+
+          # Check total_gates = 2
+          GATES_COUNT=$(grep -E '^\s*total_gates:\s*[0-9]+' .workflow/SPEC.yaml | grep -oE '[0-9]+')
+
+          if [[ "$GATES_COUNT" != "2" ]]; then
+            echo "❌ ERROR: Found $GATES_COUNT quality gates, expected 2"
+            echo ""
+            echo "The 2-Gate system is mandatory:"
+            echo "  Gate 1 (Phase 3): Testing - Technical Quality"
+            echo "  Gate 2 (Phase 4): Review - Code Quality"
+            exit 1
+          fi
+          echo "✅ 2 Quality Gates configured correctly"
+
+          # Verify Gate 1 is in Phase 3
+          if ! grep -A 5 "gate1:" .workflow/SPEC.yaml | grep -q "Phase 3"; then
+            echo "❌ ERROR: Gate 1 not configured for Phase 3"
+            exit 1
+          fi
+          echo "✅ Gate 1 in Phase 3"
+
+          # Verify Gate 2 is in Phase 4
+          if ! grep -A 5 "gate2:" .workflow/SPEC.yaml | grep -q "Phase 4"; then
+            echo "❌ ERROR: Gate 2 not configured for Phase 4"
+            exit 1
+          fi
+          echo "✅ Gate 2 in Phase 4"
+
+      - name: Check hard blocks configuration
+        run: |
+          echo "🔍 Checking hard block conditions..."
+
+          # Check total_count = 8
+          BLOCKS_COUNT=$(sed -n '/^hard_blocks:/,/^[a-z_]*:/p' .workflow/SPEC.yaml | \
+            grep -E '^\s*total_count:\s*[0-9]+' | grep -oE '[0-9]+')
+
+          if [[ "$BLOCKS_COUNT" != "8" ]]; then
+            echo "❌ ERROR: Found $BLOCKS_COUNT hard blocks, expected 8"
+            echo ""
+            echo "Hard blocks are critical error conditions that prevent progression."
+            echo "All 8 must be present."
+            exit 1
+          fi
+          echo "✅ 8 hard block conditions configured"
+
+  guard-workflow-scripts:
+    name: 🔨 Workflow Scripts Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check critical workflow scripts exist
+        run: |
+          echo "🔍 Checking workflow validation scripts..."
+
+          CRITICAL_SCRIPTS=(
+            "scripts/static_checks.sh"
+            "scripts/pre_merge_audit.sh"
+            "tools/verify-core-structure.sh"
+          )
+
+          MISSING_SCRIPTS=()
+          for script in "${CRITICAL_SCRIPTS[@]}"; do
+            if [[ ! -f "$script" ]]; then
+              MISSING_SCRIPTS+=("$script")
+              echo "❌ MISSING: $script"
+            else
+              echo "✅ Found: $script"
+            fi
+          done
+
+          if [[ ${#MISSING_SCRIPTS[@]} -gt 0 ]]; then
+            echo ""
+            echo "🚨 ERROR: Critical workflow scripts are missing!"
+            printf '  - %s\n' "${MISSING_SCRIPTS[@]}"
+            exit 1
+          fi
+
+          echo ""
+          echo "✅ All critical workflow scripts exist"
+
+      - name: Validate script executability
+        run: |
+          echo "🔍 Checking script permissions..."
+
+          # Check .claude/hooks/* are executable
+          NON_EXECUTABLE=()
+          while IFS= read -r hook; do
+            if [[ ! -x "$hook" ]]; then
+              NON_EXECUTABLE+=("$hook")
+            fi
+          done < <(find .claude/hooks -name "*.sh" 2>/dev/null)
+
+          if [[ ${#NON_EXECUTABLE[@]} -gt 0 ]]; then
+            echo "⚠️  WARNING: Some hooks are not executable:"
+            printf '  - %s\n' "${NON_EXECUTABLE[@]}"
+            echo ""
+            echo "Run: chmod +x .claude/hooks/*.sh"
+          else
+            echo "✅ All hooks are executable"
+          fi
+
+  guard-summary:
+    name: 📊 Guardian Summary
+    runs-on: ubuntu-latest
+    needs:
+      - guard-critical-files
+      - guard-configuration
+      - guard-anti-hollow-sentinels
+      - guard-architecture-integrity
+      - guard-workflow-scripts
+    if: always()
+    steps:
+      - name: Summary report
+        run: |
+          echo "╔═══════════════════════════════════════════════════════╗"
+          echo "║       🛡️  Core Structure Guardian Report             ║"
+          echo "╚═══════════════════════════════════════════════════════╝"
+          echo ""
+          echo "Checks completed:"
+          echo "  ✅ Critical files existence (5 files)"
+          echo "  ✅ Configuration integrity (4 checks)"
+          echo "  ✅ Anti-Hollow sentinels (search)"
+          echo "  ✅ Architecture integrity (7 phases, 97 checkpoints)"
+          echo "  ✅ Workflow scripts (3 critical scripts)"
+          echo ""
+
+          # Check if any job failed
+          CRITICAL_FILES="${{ needs.guard-critical-files.result }}"
+          CONFIG="${{ needs.guard-configuration.result }}"
+          ANTI_HOLLOW="${{ needs.guard-anti-hollow-sentinels.result }}"
+          ARCH="${{ needs.guard-architecture-integrity.result }}"
+          SCRIPTS="${{ needs.guard-workflow-scripts.result }}"
+
+          echo "Job Results:"
+          echo "  Critical Files: $CRITICAL_FILES"
+          echo "  Configuration: $CONFIG"
+          echo "  Anti-Hollow: $ANTI_HOLLOW"
+          echo "  Architecture: $ARCH"
+          echo "  Scripts: $SCRIPTS"
+          echo ""
+
+          if [[ "$CRITICAL_FILES" == "failure" ]] || \
+             [[ "$CONFIG" == "failure" ]] || \
+             [[ "$ANTI_HOLLOW" == "failure" ]] || \
+             [[ "$ARCH" == "failure" ]] || \
+             [[ "$SCRIPTS" == "failure" ]]; then
+            echo "🚨 GUARDIAN ALERT: Core structure violations detected!"
+            echo ""
+            echo "Critical features may have been removed or broken."
+            echo "Review the failed checks above and restore missing components."
+            exit 1
+          fi
+
+          echo "✅ All guardian checks passed!"
+          echo "Core structure is intact and healthy."

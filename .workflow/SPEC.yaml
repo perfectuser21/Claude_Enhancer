@@ -1,5 +1,5 @@
 # Claude Enhancer 核心规格说明书（SPEC）
-# 版本: v8.5.1
+# 版本: v8.6.0
 # 用途: 定义"核心不变层" - AI修改这些内容需要在CHANGELOG明确说明理由
 # 更新日期: 2025-10-30
 
@@ -9,15 +9,17 @@
 
 metadata:
   name: "Claude Enhancer"
-  version: "8.5.1"
+  version: "8.6.0"
   type: "single_workflow"  # 单一工作流系统（非多工作流平台）
   purpose: "专业级个人AI编程工作流系统"
   target_user: "个人开发者（单用户）"
 
 # 工作流结构（7 Phases统一系统）
 workflow_structure:
-  total_phases: 7  # ⛔ 不可改：必须7个Phase
-  phase_names:     # ⛔ 不可改：Phase名称
+  # ⛔ 不可改：必须7个Phase
+  total_phases: 7
+  # ⛔ 不可改：Phase名称
+  phase_names:
     - "Phase 1: Discovery & Planning"
     - "Phase 2: Implementation"
     - "Phase 3: Testing"
@@ -36,7 +38,8 @@ workflow_structure:
 
 # 检查点系统
 checkpoints:
-  total_count: 97  # ⛔ 只能增加，不能减少
+  # ⛔ 只能增加，不能减少
+  total_count: 97
   distribution:    # ⛔ 不可减少任何Phase的检查点数
     phase1: 33
     phase2: 15
@@ -57,7 +60,8 @@ checkpoints:
 
 # 质量门禁系统
 quality_gates:
-  total_gates: 2  # ⛔ 不可改：必须2个门禁
+  # ⛔ 不可改：必须2个门禁
+  total_gates: 2
 
   gate1:
     phase: "Phase 3"
@@ -90,7 +94,8 @@ quality_gates:
 
 # 硬性阻止条件（Hard Blocks）
 hard_blocks:
-  total_count: 8  # ⛔ 不可减少
+  # ⛔ 不可减少
+  total_count: 8
   conditions:
     - phase: "Phase 1"
       condition: "未创建feature分支"

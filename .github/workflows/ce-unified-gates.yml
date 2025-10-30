@@ -169,7 +169,8 @@ jobs:
             # Exclude SC2034 (unused variables - common in test scripts)
             # Exclude SC2155 (declare and assign separately - style preference)
             # Exclude SC2164 (cd without error handling - style preference)
-            echo "$SHELL_FILES" | xargs -r -n1 shellcheck --exclude=SC1091,SC1003,SC2034,SC2155,SC2164
+            # Exclude SC2317 (unreachable code false positives in complex if-else structures)
+            echo "$SHELL_FILES" | xargs -r -n1 shellcheck --exclude=SC1091,SC1003,SC2034,SC2155,SC2164,SC2317
             echo "✅ Shell files passed"
           fi
 

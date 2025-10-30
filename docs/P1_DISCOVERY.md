@@ -1,579 +1,794 @@
-# Phase 1.3: Technical Discovery - Workflow Supervision Enforcement Fixes
+# Phase 1.3: Technical Discovery - Self-Enforcing Quality System
 
-**Version**: 8.5.1
-**Date**: 2025-10-29
-**Task**: 修复3个P0 Critical Workflow Supervision Bugs
-**Branch**: `bugfix/workflow-supervision-enforcement`
+**Version**: 8.6.0
+**Date**: 2025-10-30
+**Task**: 实现Self-Enforcing Quality System - 防止功能回归
+**Branch**: `feature/self-enforcing-quality-system`
 
 ---
 
 ## 🎯 Executive Summary
 
-**问题严重性**: 🔴 P0 Critical - Workflow supervision机制完全失效
+**Problem Statement**: Working features stop working after iterations due to hollow implementations and lack of runtime validation.
 
-**影响范围**: 所有7个Phases的质量门禁和enforcement机制
+**Root Cause**: Anti-Hollow System itself is hollow - it checks for file existence but not actual execution.
 
-**根本原因**:
-1. File naming mismatch (`P2_DISCOVERY.md` vs `P1_DISCOVERY.md`)
-2. Phase numbering inconsistency (`P0-P5` vs `Phase1-Phase7`)
-3. Missing dependencies (`task_namespace.sh` not exist)
+**Solution**: 3-Layer Defense System
+1. **CODEOWNERS** - Protected core files requiring approval
+2. **Sentinel CI** - Runtime validation checks in CI
+3. **Contract Tests** - Verify features actually work, not just exist
 
-**修复策略**: 3个targeted fixes + 1个enhancement (per-phase impact assessment)
-
----
-
-## 📊 Bug Analysis
-
-### Bug #1: Impact Assessment Enforcer - File Name Mismatch
-
-**严重性**: 🔴 P0 Critical
-**文件**: `.claude/hooks/impact_assessment_enforcer.sh`
-**问题行**: Line 24-26
-
-**错误代码**:
-```bash
-is_phase2_completed() {
-    [[ -f "$PROJECT_ROOT/docs/P2_DISCOVERY.md" ]] && \
-    grep -q "## Acceptance Checklist" "$PROJECT_ROOT/docs/P2_DISCOVERY.md" 2>/dev/null
-}
-```
-
-**问题分析**:
-- Hook检查的文件名: `P2_DISCOVERY.md`
-- 实际工作流创建的文件名: `P1_DISCOVERY.md` (Phase 1.3)
-- 结果: 文件永远找不到 → Hook never triggers → Impact Assessment enforcement 完全失效
-
-**影响**:
-- PR #57中我跳过了Phase 1.4 Impact Assessment
-- 没有被强制推荐Agent数量
-- 导致高风险任务(Radius=67)没有使用推荐的6个agents
-
-**修复方案**:
-```bash
-# 新代码 (Line 24-26):
-is_phase1_3_completed() {
-    [[ -f "$PROJECT_ROOT/docs/P1_DISCOVERY.md" ]] && \
-    grep -q "## Acceptance Checklist" "$PROJECT_ROOT/docs/P1_DISCOVERY.md" 2>/dev/null
-}
-
-# 同时修改 Line 40:
-# 旧: if [[ "$current_phase" == "P2" ]] && is_phase2_completed; then
-# 新: if [[ "$current_phase" == "Phase1" ]] && is_phase1_3_completed; then
-```
-
-**验证方法**:
-```bash
-# 测试case 1: Phase 1.3完成时应该触发
-mkdir -p docs
-cat > docs/P1_DISCOVERY.md <<'EOF'
-# Discovery
-
-## Acceptance Checklist
-- [ ] Test
-EOF
-
-# 模拟Phase转换
-WORKFLOW_DIR=.workflow bash .claude/hooks/impact_assessment_enforcer.sh
-# 预期: 应该触发Impact Assessment
-```
+**Impact**: Prevents regression issues like parallel execution and phase management bugs that plagued previous versions.
 
 ---
 
-### Bug #2: Phase Completion Validator - Phase Numbering Inconsistency
+## 📊 Problem Analysis
 
-**严重性**: 🔴 P0 Critical
-**文件**: `.claude/hooks/phase_completion_validator.sh`
-**问题行**: Line 28-62 (entire case statement)
+### Evidence of Regressions (from .temp/REGRESSION_ANALYSIS.md)
 
-**错误代码**:
-```bash
-case "$phase" in
-    "P0")  # ❌ 系统实际使用 Phase1，不是 P0
-        [[ -f "$PROJECT_ROOT/docs/P0_DISCOVERY.md" ]] && \
-        grep -q "## Acceptance Checklist" "$PROJECT_ROOT/docs/P0_DISCOVERY.md" 2>/dev/null
-        ;;
-    "P1")  # ❌ 应该是 Phase2
-    "P2")  # ❌ 应该是 Phase2
-    "P3")  # ❌ 应该是 Phase3
-    # ...
-esac
+#### Regression #1: Parallel Execution Never Happens
+
+**Symptom**: User reported "我感觉你都是串行 不是并行的"
+
+**Investigation Evidence**:
+1. `parallel_subagent_suggester.sh` exists and is registered in settings.json
+2. But `.workflow/logs/subagent/suggester.log` does not exist
+3. Hook depends on `.phase/current` file
+4. `.phase/current` shows "Phase7" but was never updated by AI
+5. `phase_manager.sh` exists (835 lines) but AI never calls it
+
+**Root Cause**: Three missing links
+- Missing Hook: No PrePrompt hook tells AI current phase
+- Missing Integration: phase_manager.sh not integrated with workflow
+- Missing Documentation: CLAUDE.md doesn't say "call ce_phase_transition()"
+
+**Result**:
+- `.phase/current` stays at old value
+- `parallel_subagent_suggester.sh` reads wrong phase
+- Hook logic correct but input wrong → never triggers
+- All parallel execution suggestions never happen
+
+**Impact Radius**:
+- Phase 2-4 Implementation: Serial execution, wasting time
+- Development Speed: ~40-60% efficiency loss
+- Since: v8.0+
+
+#### Regression #2: Bypass Permissions Repeatedly Wrong
+
+**Symptom**: User reported "这个bypass的这些我都说了不下10回了还是错的"
+
+**Investigation Evidence**:
+1. v6.1.0: `bypassPermissionsMode: true` (non-standard field)
+2. v7.1.0: `defaultMode: "bypassPermissions"` (fix attempt #1)
+3. v8.6.0: Still using same config, but STILL asks user
+4. Configuration looks correct but doesn't work
+
+**Root Cause Hypotheses**:
+- Configuration structure wrong (nested vs top-level)
+- allow[] list too specific, overrides defaultMode
+- Claude Code version changes require new config format
+- No tests verify bypass actually works
+
+**Result**:
+- AI asks for confirmation every operation
+- Breaks autonomy principle
+- User frustrated: "said 10 times still wrong"
+
+**Why It Keeps Regressing**:
+- External Change: Claude Code version/behavior changes
+- Configuration Drift: Format requirements change but docs not updated
+- Test Gap: No automated tests verify bypass works
+- Context Loss: AI doesn't remember why configured this way
+
+---
+
+## 🔍 Systemic Issues (from .temp/META_HOLLOW_DETECTION.md)
+
+### The Irony: Anti-Hollow System is Hollow
+
+We claim to have Anti-Hollow System, but:
+- ❌ Parallel execution feature is hollow (code exists, never runs)
+- ❌ Phase management is hollow (scripts exist, never called)
+- ❌ Bypass permissions is hollow (configured, doesn't work)
+- ❌ Evidence system is hollow (scripts exist, never collect key evidence)
+- ❌ **Anti-Hollow System itself is hollow!**
+
+### What Makes Anti-Hollow System Hollow?
+
+#### Symptom 1: Rules Don't Apply to Themselves
+```markdown
+CLAUDE.md Rule 3: "Every Feature = Evidence + Integration + Active Usage"
+
+But Anti-Hollow System itself:
+- Evidence: ❌ No evidence it prevents hollows
+- Integration: ❌ Not integrated with pre-merge audit
+- Active Usage: ❌ Never actually blocked a hollow implementation
 ```
 
-**问题分析**:
-- Hook使用的Phase命名: `P0`, `P1`, `P2`, `P3`, `P4`, `P5` (6个Phases)
-- 实际工作流Phase命名: `Phase1`, `Phase2`, `Phase3`, `Phase4`, `Phase5`, `Phase6`, `Phase7` (7个Phases)
-- 结果: Phase名称永远不匹配 → Hook never triggers → 95步验证系统从未被调用
-
-**影响**:
-- PR #57中我完成了Phase 1-2就停止
-- Anti-hollow gate没有阻止过早完成
-- 导致workflow可以被不完整地执行
-
-**修复方案**:
+#### Symptom 2: Checks Are Shallow
 ```bash
-# 新代码 (Line 28-78):
-case "$phase" in
-    "Phase1")
-        # Phase 1完成标志：P1_DISCOVERY.md存在且完整
-        [[ -f "$PROJECT_ROOT/docs/P1_DISCOVERY.md" ]] && \
-        grep -q "## Acceptance Checklist" "$PROJECT_ROOT/docs/P1_DISCOVERY.md" 2>/dev/null
-        ;;
-    "Phase2")
-        # Phase 2完成标志：实现代码已提交
-        git log -1 --pretty=%B 2>/dev/null | grep -qE "(feat|fix|refactor):"
-        ;;
-    "Phase3")
-        # Phase 3完成标志：静态检查通过
-        [[ -f "$PROJECT_ROOT/scripts/static_checks.sh" ]] && \
-        bash "$PROJECT_ROOT/scripts/static_checks.sh" >/dev/null 2>&1
-        ;;
-    "Phase4")
-        # Phase 4完成标志：REVIEW.md存在且足够大
-        [[ -f "$PROJECT_ROOT/.workflow/REVIEW.md" ]] && \
-        [[ $(wc -c < "$PROJECT_ROOT/.workflow/REVIEW.md") -gt 3072 ]]
-        ;;
-    "Phase5")
-        # Phase 5完成标志：CHANGELOG更新
-        [[ -f "$PROJECT_ROOT/CHANGELOG.md" ]] && \
-        grep -qE "## \[[0-9]+\.[0-9]+\.[0-9]+\]" "$PROJECT_ROOT/CHANGELOG.md" 2>/dev/null
-        ;;
-    "Phase6")
-        # Phase 6完成标志：Acceptance Report存在
-        [[ -f "$PROJECT_ROOT/.workflow/ACCEPTANCE_REPORT.md" ]] || \
-        find "$PROJECT_ROOT/.workflow/" -name "ACCEPTANCE_REPORT_*.md" | grep -q .
-        ;;
-    "Phase7")
-        # Phase 7完成标志：版本一致性检查通过
-        [[ -f "$PROJECT_ROOT/scripts/check_version_consistency.sh" ]] && \
-        bash "$PROJECT_ROOT/scripts/check_version_consistency.sh" >/dev/null 2>&1
-        ;;
-    *)
-        return 1
-        ;;
-esac
+# Current pre_merge_audit.sh checks:
+✅ File exists? (shallow)
+✅ Config formatted? (shallow)
+✅ Hooks registered? (shallow)
+
+# But doesn't check:
+❌ Hook actually runs? (deep)
+❌ Feature actually works? (deep)
+❌ Evidence actually collected? (deep)
 ```
 
-**验证方法**:
+#### Symptom 3: No Runtime Validation
 ```bash
-# 测试case 1: Phase1完成应该触发验证
-mkdir -p .workflow docs
-echo "phase: Phase1" > .workflow/current
-cat > docs/P1_DISCOVERY.md <<'EOF'
-# Discovery
+# We check:
+✅ parallel_subagent_suggester.sh exists
+✅ parallel_subagent_suggester.sh registered in settings.json
 
-## Acceptance Checklist
-- [ ] Test
-EOF
+# We DON'T check:
+❌ Did it execute in last 7 days?
+❌ Does .workflow/logs/subagent/suggester.log exist?
+❌ Did any PR actually use parallel execution?
+```
 
-TOOL_NAME=Write bash .claude/hooks/phase_completion_validator.sh
-# 预期: 应该调用workflow_validator_v95.sh (如果存在)
+#### Symptom 4: Evidence System Not Enforced
+```bash
+# Evidence system exists but:
+❌ AI can skip collecting evidence
+❌ Pre-merge audit doesn't verify evidence for critical features
+❌ Can merge PRs with 0 evidence collected
+❌ No enforcement mechanism
 ```
 
 ---
 
-### Bug #3: Agent Evidence Collector - Missing Dependencies
+## 💡 Solution Design: Self-Enforcing Quality System
 
-**严重性**: 🟡 P1 High
-**文件**: `.claude/hooks/agent_evidence_collector.sh`
-**问题行**: Line 16-22
+### Three Layers of Defense
 
-**错误代码**:
-```bash
-if [ -f "${CLAUDE_CORE}/task_namespace.sh" ]; then
-  source "${CLAUDE_CORE}/task_namespace.sh"
-else
-  echo "⚠️  Task namespace library not found, skipping evidence collection" >&2
-  exit 0  # ❌ 静默失败，不报错
-fi
+#### Layer 1: Protected Core Files (CODEOWNERS)
+
+**Purpose**: Prevent AI from accidentally modifying critical files without human approval.
+
+**Mechanism**: GitHub CODEOWNERS file
+
+**Protected Files**:
+- `.claude/hooks/**` - All hooks
+- `.workflow/**` - Workflow configs (SPEC.yaml, manifest.yml, gates.yml)
+- `scripts/pre_merge_audit.sh` - Pre-merge audit script
+- `scripts/static_checks.sh` - Static checks script
+- `.claude/settings.json` - Core settings
+- `CLAUDE.md` - AI instructions
+- `VERSION` - Version file
+- `.workflow/SPEC.yaml` - Core structure definition
+
+**Implementation**:
+```
+# .github/CODEOWNERS
+# Self-Enforcing Quality System - Protected Core Files
+
+# Hooks - Cannot be modified without approval
+/.claude/hooks/** @perfectuser21
+
+# Workflow System - Core structure
+/.workflow/SPEC.yaml @perfectuser21
+/.workflow/manifest.yml @perfectuser21
+/.workflow/gates.yml @perfectuser21
+
+# Quality Scripts - Critical checks
+/scripts/pre_merge_audit.sh @perfectuser21
+/scripts/static_checks.sh @perfectuser21
+
+# Core Settings
+/.claude/settings.json @perfectuser21
+/CLAUDE.md @perfectuser21
+/VERSION @perfectuser21
 ```
 
-**实际情况**:
-```bash
-$ test -f ".claude/core/task_namespace.sh"
-MISSING
-
-$ ls .claude/core/
-loader.py
-phase_definitions.yml
-quality_thresholds.yml
-task_templates.yaml
-workflow_rules.yml
-# ❌ task_namespace.sh 不存在
-```
-
-**问题分析**:
-- Hook依赖 `.claude/core/task_namespace.sh` 提供的5个函数
-- 但这个文件根本不存在
-- Hook静默退出(exit 0) → Evidence collection完全不工作
-
-**影响**:
-- 所有Agent调用没有被记录
-- 无法验证是否使用了推荐数量的Agents
-- 导致multi-agent enforcement机制失效
-
-**修复方案** (选择简化版):
-```bash
-# 方案A: 简化版 - 移除task_namespace.sh依赖，直接实现
-# 优点: 快速修复，不依赖外部文件
-# 缺点: 功能较简单
-
-#!/usr/bin/env bash
-# Agent Evidence Collector Hook (Simplified)
-# Purpose: Record agent invocations for quality gate enforcement
-
-set -euo pipefail
-
-ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-EVIDENCE_DIR="${ROOT}/.workflow/agent_evidence"
-mkdir -p "$EVIDENCE_DIR"
-
-# 简化版：直接从环境变量获取信息
-TOOL_NAME="${1:-unknown}"
-AGENT_TYPE="${2:-}"
-
-# 只跟踪Task tool (agent launches)
-if [ "$TOOL_NAME" != "Task" ]; then
-  exit 0
-fi
-
-# Extract agent type from stdin if not provided
-if [ -z "$AGENT_TYPE" ] && [ ! -t 0 ]; then
-  JSON_INPUT=$(cat)
-  AGENT_TYPE=$(echo "$JSON_INPUT" | jq -r '.subagent_type // empty' 2>/dev/null || echo "")
-fi
-
-if [ -z "$AGENT_TYPE" ]; then
-  exit 0
-fi
-
-# Record agent invocation
-TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-EVIDENCE_FILE="${EVIDENCE_DIR}/agents_$(date +%Y%m%d).jsonl"
-
-# Append evidence
-jq -n \
-  --arg type "agent_invocation" \
-  --arg agent "$AGENT_TYPE" \
-  --arg ts "$TIMESTAMP" \
-  '{
-    "type": $type,
-    "agent": $agent,
-    "timestamp": $ts,
-    "hook": "PreToolUse"
-  }' >> "$EVIDENCE_FILE"
-
-# Count today's agents
-AGENT_COUNT=$(grep -c "agent_invocation" "$EVIDENCE_FILE" 2>/dev/null || echo "0")
-
-echo "✅ Agent evidence recorded: $AGENT_TYPE (total today: $AGENT_COUNT)" >&2
-
-exit 0
-```
-
-**验证方法**:
-```bash
-# 测试case 1: 记录agent调用
-mkdir -p .workflow/agent_evidence
-
-echo '{"subagent_type": "test-agent"}' | \
-  bash .claude/hooks/agent_evidence_collector.sh Task
-
-# 检查evidence文件
-cat .workflow/agent_evidence/agents_$(date +%Y%m%d).jsonl
-# 预期: 应该有一条记录，agent=test-agent
-```
+**AI Rule**: Never modify these files unless explicitly instructed by @perfectuser21.
 
 ---
 
-## 🚀 Enhancement: Per-Phase Impact Assessment
+#### Layer 2: Sentinel Checks (CI)
 
-**优先级**: 🟢 P2 Enhancement
-**目标**: 实现每个Phase动态评估Agent需求
+**Purpose**: Verify critical files exist AND verify critical features actually work.
 
-**当前情况**:
-- ✅ 全局Impact Assessment已实现 (Phase 1.4)
-- ✅ Per-phase evaluation脚本已存在 (`impact_radius_assessor.sh` v1.4.0)
-- ❌ 但未集成到workflow中
+**Mechanism**: New GitHub Actions workflow: `guard-core.yml`
 
-**实现方案**:
-创建新的PrePrompt hook来在每个Phase开始前评估:
+**Checks**:
+1. **Critical Files Existence** (31 checks)
+   - All 7 phase hooks exist
+   - Core scripts exist (pre_merge_audit.sh, static_checks.sh, phase_manager.sh)
+   - Core configs exist (settings.json, SPEC.yaml, manifest.yml)
 
+2. **Critical Configurations Intact** (10 checks)
+   - Bypass permissions configured correctly
+   - 7-Phase system structure intact
+   - Required hooks registered in settings.json
+   - Version consistency across 6 files
+
+3. **Anti-Hollow Sentinel Strings** (15 checks)
+   - Sentinel comments present in critical files
+   - Example: `# SENTINEL:PARALLEL_EXECUTION_CORE_LOGIC` in parallel_subagent_suggester.sh
+   - If sentinel missing → file was gutted → fail CI
+
+4. **Runtime Behavior Validation** (NEW - 5 checks)
+   - `parallel_subagent_suggester.sh` has execution logs?
+   - `.phase/current` updated in last 7 days?
+   - Evidence collection produced files in last 7 days?
+   - Phase state maintained?
+   - Git log shows phase transitions?
+
+**Implementation**:
+```yaml
+# .github/workflows/guard-core.yml
+name: Guard Core System
+
+on:
+  push:
+    branches: [main, 'feature/**', 'bugfix/**']
+  pull_request:
+
+jobs:
+  verify-critical-files:
+    name: Verify Critical Files
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Check Critical Files Exist
+        run: |
+          bash scripts/guard/check_critical_files.sh
+          # Checks all 31 critical files
+
+      - name: Check Critical Configs
+        run: |
+          bash scripts/guard/check_critical_configs.sh
+          # Checks bypass permissions, 7-phase system, etc.
+
+      - name: Check Anti-Hollow Sentinels
+        run: |
+          bash scripts/guard/check_sentinels.sh
+          # Checks sentinel strings in critical files
+
+      - name: Validate Runtime Behavior
+        run: |
+          bash scripts/guard/validate_runtime_behavior.sh
+          # NEW: Check if features actually executed
+```
+
+**Failure = PR blocked**
+
+---
+
+#### Layer 3: Contract Tests
+
+**Purpose**: Test that features **actually work**, not just exist.
+
+**Mechanism**: Shell-based contract tests in `tests/contract/`
+
+**Test Examples**:
+
+1. **Parallel Execution Contract**:
 ```bash
 #!/bin/bash
-# Per-Phase Impact Assessment Hook
-# Triggers: PrePrompt (before each Phase starts)
-# Purpose: Dynamically assess agent requirements per phase
+# tests/contract/test_parallel_execution.sh
+
+test_parallel_suggester_actually_runs() {
+    # Setup: Create Phase 2 scenario
+    mkdir -p .workflow/logs/subagent
+    echo "phase: Phase2" > .phase/current
+
+    # Execute: Trigger hook
+    bash .claude/hooks/parallel_subagent_suggester.sh
+
+    # Assert: Log file created
+    if [[ -f ".workflow/logs/subagent/suggester.log" ]]; then
+        echo "✅ PASS: parallel_subagent_suggester.sh actually runs"
+        return 0
+    else
+        echo "❌ FAIL: parallel_subagent_suggester.sh exists but never runs (HOLLOW!)"
+        return 1
+    fi
+}
+
+test_parallel_suggester_logs_recent() {
+    # Assert: Log updated in last 7 days
+    if [[ -f ".workflow/logs/subagent/suggester.log" ]]; then
+        LAST_MOD=$(stat -c %Y .workflow/logs/subagent/suggester.log)
+        NOW=$(date +%s)
+        AGE_DAYS=$(( (NOW - LAST_MOD) / 86400 ))
+
+        if [[ $AGE_DAYS -lt 7 ]]; then
+            echo "✅ PASS: suggester.log updated recently ($AGE_DAYS days)"
+            return 0
+        else
+            echo "❌ FAIL: suggester.log stale ($AGE_DAYS days) - feature not being used"
+            return 1
+        fi
+    else
+        echo "❌ FAIL: suggester.log doesn't exist"
+        return 1
+    fi
+}
+```
+
+2. **Phase Management Contract**:
+```bash
+#!/bin/bash
+# tests/contract/test_phase_management.sh
+
+test_phase_current_maintained() {
+    # Assert: .phase/current exists and is recent
+    if [[ ! -f ".phase/current" ]]; then
+        echo "❌ FAIL: .phase/current missing"
+        return 1
+    fi
+
+    LAST_MOD=$(stat -c %Y .phase/current)
+    NOW=$(date +%s)
+    AGE_DAYS=$(( (NOW - LAST_MOD) / 86400 ))
+
+    if [[ $AGE_DAYS -lt 7 ]]; then
+        echo "✅ PASS: .phase/current maintained ($AGE_DAYS days)"
+        return 0
+    else
+        echo "❌ FAIL: .phase/current stale ($AGE_DAYS days) - phase_manager.sh not being called"
+        return 1
+    fi
+}
+
+test_phase_transitions_in_git_log() {
+    # Assert: Git log shows phase transitions
+    if git log --all --since="7 days ago" --grep="phase transition\|ce_phase_transition" | grep -q .; then
+        echo "✅ PASS: Phase transitions happening"
+        return 0
+    else
+        echo "❌ FAIL: No phase transitions in git log (phase_manager.sh not being used)"
+        return 1
+    fi
+}
+```
+
+3. **Evidence Collection Contract**:
+```bash
+#!/bin/bash
+# tests/contract/test_evidence_collection.sh
+
+test_evidence_actually_collected() {
+    # Assert: .evidence/ has recent files
+    RECENT_EVIDENCE=$(find .evidence/ -name "*.yml" -mtime -7 2>/dev/null | wc -l)
+
+    if [[ $RECENT_EVIDENCE -gt 0 ]]; then
+        echo "✅ PASS: Evidence collected ($RECENT_EVIDENCE files in last 7 days)"
+        return 0
+    else
+        echo "❌ FAIL: No evidence collected recently (evidence system HOLLOW!)"
+        return 1
+    fi
+}
+```
+
+4. **Bypass Permissions Contract**:
+```bash
+#!/bin/bash
+# tests/contract/test_bypass_permissions.sh
+
+test_bypass_permissions_works() {
+    # This test is tricky - needs to run in actual Claude Code environment
+    # Placeholder for now
+
+    echo "⚠️  Manual verification required: Check if Claude Code prompts for permissions"
+    echo "    Expected: No prompts when defaultMode=bypassPermissions"
+    echo "    Actual: (needs manual testing)"
+
+    # TODO: Find way to automate this test
+    return 0
+}
+```
+
+---
+
+### Runtime Validation in pre_merge_audit.sh
+
+**Enhancement**: Add runtime checks to existing pre-merge audit.
+
+**New Section** (after existing checks):
+```bash
+# ============================================
+# Check 7: Runtime Behavior Validation (NEW)
+# ============================================
+log_check "Runtime Behavior Validation"
+
+# Check 7.1: parallel_subagent_suggester.sh actually executed?
+if [ -f ".workflow/logs/subagent/suggester.log" ]; then
+    LAST_RUN=$(stat -c %Y ".workflow/logs/subagent/suggester.log" 2>/dev/null || echo 0)
+    NOW=$(date +%s)
+    AGE_DAYS=$(( (NOW - LAST_RUN) / 86400 ))
+
+    if [ $AGE_DAYS -lt 7 ]; then
+        log_pass "parallel_subagent_suggester.sh executed in last 7 days"
+    else
+        log_warn "parallel_subagent_suggester.sh not executed in $AGE_DAYS days"
+        log_manual "Verify: Is parallel execution actually working?"
+    fi
+else
+    log_fail "parallel_subagent_suggester.sh has NEVER executed (hollow implementation!)"
+    ((config_issues++))
+fi
+
+# Check 7.2: phase_manager.sh actually called?
+if git log --all --since="7 days ago" --grep="phase transition\|ce_phase_transition" | grep -q .; then
+    log_pass "Phase transitions happening"
+else
+    log_warn "No phase transitions in git log (phase_manager.sh not being used?)"
+    log_manual "Verify: Is .phase/current being maintained?"
+fi
+
+# Check 7.3: Evidence collected for last PR?
+LAST_PR_NUM=$(gh pr list --state merged --limit 1 --json number --jq '.[0].number' 2>/dev/null || echo "0")
+if [ "$LAST_PR_NUM" != "0" ]; then
+    EVIDENCE_COUNT=$(find .evidence/ -name "*.yml" -newer ".evidence/index.json" 2>/dev/null | wc -l)
+    if [ $EVIDENCE_COUNT -gt 0 ]; then
+        log_pass "Evidence collected for recent changes ($EVIDENCE_COUNT files)"
+    else
+        log_warn "No evidence collected for PR #$LAST_PR_NUM"
+        log_manual "Verify: Was evidence collection skipped?"
+    fi
+fi
+
+# Check 7.4: .phase/current maintained?
+if [ -f ".phase/current" ]; then
+    LAST_MOD=$(stat -c %Y .phase/current 2>/dev/null || echo 0)
+    NOW=$(date +%s)
+    AGE_DAYS=$(( (NOW - LAST_MOD) / 86400 ))
+
+    if [ $AGE_DAYS -lt 7 ]; then
+        log_pass ".phase/current maintained ($AGE_DAYS days old)"
+    else
+        log_warn ".phase/current stale ($AGE_DAYS days old)"
+        log_manual "Verify: Is phase state being updated?"
+    fi
+else
+    log_fail ".phase/current missing"
+    ((config_issues++))
+fi
+```
+
+---
+
+### Phase State Management Enhancement
+
+**New Hook**: `phase_state_tracker.sh` (PrePrompt[1])
+
+**Purpose**:
+- Display current phase on every AI prompt
+- Remind AI to update .phase/current on transitions
+- Detect stale phase state (>7 days)
+
+**Implementation**:
+```bash
+#!/bin/bash
+# .claude/hooks/phase_state_tracker.sh
+# Purpose: Track and display phase state, remind AI to update
 
 set -euo pipefail
 
 PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-WORKFLOW_DIR="$PROJECT_ROOT/.workflow"
-ASSESSOR_SCRIPT="$PROJECT_ROOT/.claude/scripts/impact_radius_assessor.sh"
+PHASE_FILE="$PROJECT_ROOT/.phase/current"
 
-# 获取当前Phase
+# Get current phase
 get_current_phase() {
-    if [[ -f "$WORKFLOW_DIR/current" ]]; then
-        grep "^phase:" "$WORKFLOW_DIR/current" | awk '{print $2}' || echo "Phase1"
+    if [[ -f "$PHASE_FILE" ]]; then
+        grep "^phase:" "$PHASE_FILE" | awk '{print $2}' || echo "Unknown"
     else
-        echo "Phase1"
+        echo "Unknown"
     fi
 }
 
-# 需要评估的Phases
+# Check if phase state is stale
+is_phase_stale() {
+    if [[ -f "$PHASE_FILE" ]]; then
+        LAST_MOD=$(stat -c %Y "$PHASE_FILE" 2>/dev/null || echo 0)
+        NOW=$(date +%s)
+        AGE_DAYS=$(( (NOW - LAST_MOD) / 86400 ))
+
+        if [[ $AGE_DAYS -gt 7 ]]; then
+            return 0  # Stale
+        fi
+    fi
+    return 1  # Not stale
+}
+
+# Main logic
 CURRENT_PHASE=$(get_current_phase)
 
+echo "📍 Current Phase: $CURRENT_PHASE"
+
+if is_phase_stale; then
+    echo "⚠️  Warning: Phase state is stale (>7 days old)"
+    echo "💡 Reminder: Update .phase/current when transitioning phases:"
+    echo "   echo 'phase: Phase2' > .phase/current"
+fi
+
+# Reminder based on phase
 case "$CURRENT_PHASE" in
-    "Phase2"|"Phase3"|"Phase4")
-        echo "📊 Running per-phase Impact Assessment for $CURRENT_PHASE..."
-
-        if [[ -f "$ASSESSOR_SCRIPT" ]]; then
-            OUTPUT_FILE="$WORKFLOW_DIR/impact_assessments/${CURRENT_PHASE}_assessment.json"
-
-            # 调用assessor脚本
-            bash "$ASSESSOR_SCRIPT" \
-                --phase "$CURRENT_PHASE" \
-                --output "$OUTPUT_FILE"
-
-            # 读取推荐Agent数量
-            if [[ -f "$OUTPUT_FILE" ]]; then
-                RECOMMENDED_AGENTS=$(jq -r '.recommended_agents // 0' "$OUTPUT_FILE")
-                echo "💡 Recommended agents for $CURRENT_PHASE: $RECOMMENDED_AGENTS"
-            fi
+    "Phase1")
+        if [[ -f "$PROJECT_ROOT/docs/P1_DISCOVERY.md" ]] &&
+           [[ -f "$PROJECT_ROOT/docs/PLAN.md" ]]; then
+            echo "💡 Phase 1 complete? Remember to transition to Phase 2:"
+            echo "   echo 'phase: Phase2' > .phase/current"
         fi
         ;;
-    *)
-        # 其他Phases不需要评估
+    "Phase2")
+        echo "💡 After implementing core features, transition to Phase 3:"
+        echo "   echo 'phase: Phase3' > .phase/current"
         ;;
+    "Phase3")
+        echo "💡 After all tests pass, transition to Phase 4:"
+        echo "   echo 'phase: Phase4' > .phase/current"
+        ;;
+    # ... similar for Phase4-7
 esac
 
 exit 0
 ```
 
-**集成点**:
-- 注册到 `.claude/settings.json` 的 `PrePrompt` hooks数组
-- 在Phase2/3/4开始前自动触发
-- 生成Phase-specific的agent recommendations
-
----
-
-## 📋 Acceptance Checklist
-
-### Bug Fix Verification
-
-#### Bug #1: Impact Assessment Enforcer
-- [ ] 1.1 修改 `is_phase2_completed()` → `is_phase1_3_completed()`
-- [ ] 1.2 修改文件检查 `P2_DISCOVERY.md` → `P1_DISCOVERY.md`
-- [ ] 1.3 修改Phase检查 `"P2"` → `"Phase1"`
-- [ ] 1.4 测试：Phase 1.3完成时hook应该触发
-- [ ] 1.5 测试：找不到smart_agent_selector.sh时应该报错
-- [ ] 1.6 测试：Impact Assessment成功执行后应该放行
-
-#### Bug #2: Phase Completion Validator
-- [ ] 2.1 修改所有Phase case从 `P0-P5` → `Phase1-Phase7`
-- [ ] 2.2 修改Phase1检查文件 `P0_DISCOVERY.md` → `P1_DISCOVERY.md`
-- [ ] 2.3 增加Phase6和Phase7的completion检查逻辑
-- [ ] 2.4 测试：每个Phase完成时应该触发验证
-- [ ] 2.5 测试：调用workflow_validator_v95.sh（如果存在）
-- [ ] 2.6 测试：验证失败应该硬阻止 (exit 1)
-- [ ] 2.7 测试：验证通过应该创建marker文件
-
-#### Bug #3: Agent Evidence Collector
-- [ ] 3.1 简化hook，移除task_namespace.sh依赖
-- [ ] 3.2 实现直接evidence记录功能
-- [ ] 3.3 Evidence存储在 `.workflow/agent_evidence/agents_YYYYMMDD.jsonl`
-- [ ] 3.4 测试：记录agent调用到JSONL文件
-- [ ] 3.5 测试：统计每日agent调用次数
-- [ ] 3.6 测试：非Task tool应该跳过 (exit 0)
-
-### Enhancement Implementation
-
-#### Per-Phase Impact Assessment
-- [ ] 4.1 创建 `.claude/hooks/per_phase_impact_assessor.sh`
-- [ ] 4.2 注册到 `.claude/settings.json` PrePrompt hooks
-- [ ] 4.3 实现Phase2/3/4的评估逻辑
-- [ ] 4.4 调用 `impact_radius_assessor.sh --phase PhaseN`
-- [ ] 4.5 输出到 `.workflow/impact_assessments/PhaseN_assessment.json`
-- [ ] 4.6 测试：Phase2开始前应该生成评估
-- [ ] 4.7 测试：评估结果包含recommended_agents字段
-
-### Integration Testing
-
-#### End-to-End Workflow Test
-- [ ] 5.1 创建测试分支模拟完整workflow
-- [ ] 5.2 Phase 1.3完成 → 应该触发Impact Assessment enforcer
-- [ ] 5.3 Phase 1完成 → 应该触发Phase completion validator
-- [ ] 5.4 使用Task tool → 应该记录agent evidence
-- [ ] 5.5 Phase2开始 → 应该触发per-phase assessment
-- [ ] 5.6 所有Phases的completion都应该被正确检测
-
-#### Regression Testing
-- [ ] 6.1 确认修复后PR #57场景不会再发生
-- [ ] 6.2 确认workflow不能在Phase1-2就停止
-- [ ] 6.3 确认高风险任务会被推荐足够的agents
-- [ ] 6.4 确认evidence collection正常工作
-
-### Documentation
-
-- [ ] 7.1 更新 `.claude/hooks/` 中所有修改的hook文件
-- [ ] 7.2 添加注释说明Phase命名约定
-- [ ] 7.3 更新CLAUDE.md中的anti-hollow gate文档
-- [ ] 7.4 创建troubleshooting guide for hook debugging
-
-### Quality Gates
-
-- [ ] 8.1 所有shellcheck warnings修复
-- [ ] 8.2 所有hook性能<2秒
-- [ ] 8.3 Hook error handling完整（不静默失败）
-- [ ] 8.4 Version consistency (8.5.1) across 6 files
-- [ ] 8.5 CI所有checks通过
-
----
-
-## 🔧 Technical Specifications
-
-### Modified Files
-
-1. `.claude/hooks/impact_assessment_enforcer.sh`
-   - Lines changed: 24-26 (function rename), 40 (phase check)
-   - Complexity: Low (2 changes)
-
-2. `.claude/hooks/phase_completion_validator.sh`
-   - Lines changed: 28-78 (case statement rewrite)
-   - Complexity: Medium (7 phases × 3 lines each)
-
-3. `.claude/hooks/agent_evidence_collector.sh`
-   - Lines changed: 1-128 (complete rewrite)
-   - Complexity: Medium (simplification)
-
-### New Files
-
-4. `.claude/hooks/per_phase_impact_assessor.sh`
-   - Lines: ~80
-   - Complexity: Medium (phase detection + assessor call)
-
-5. `.claude/settings.json`
-   - Changes: Add per_phase_impact_assessor to PrePrompt hooks array
-   - Complexity: Low (JSON array modification)
-
-### Test Files
-
-6. `tests/hooks/test_impact_assessment_enforcer.sh`
-   - Test cases: 6
-
-7. `tests/hooks/test_phase_completion_validator.sh`
-   - Test cases: 7
-
-8. `tests/hooks/test_agent_evidence_collector.sh`
-   - Test cases: 6
-
-9. `tests/hooks/test_per_phase_assessor.sh`
-   - Test cases: 7
-
----
-
-## 📊 Impact Assessment (Self-Assessment)
-
-**Risk**: 6/10
-- 修改3个核心workflow hooks
-- 影响所有Phases的enforcement机制
-- 但changes are targeted and well-understood
-
-**Complexity**: 7/10
-- 需要理解Phase命名约定
-- 需要测试7个Phases的completion logic
-- 需要集成per-phase assessment
-
-**Scope**: 8/10
-- 影响所有7个Phases
-- 影响所有使用agent的场景
-- 影响workflow enforcement机制
-
-**Impact Radius**: (6 × 5) + (7 × 3) + (8 × 2) = 30 + 21 + 16 = **67/100**
-
-**Recommended Agents**: 🔴 **6 agents** (High-risk: 50-69分)
-
-**Rationale**:
-- Score 67落在High-risk区间(50-69)
-- 修改核心enforcement hooks需要仔细review
-- 需要多个agents验证不同Phases的逻辑
-- 需要agents测试regression scenarios
+**Registration** in `.claude/settings.json`:
+```json
+{
+  "hooks": {
+    "PrePrompt": [
+      ".claude/hooks/phase_state_tracker.sh",  // ← NEW (position 1)
+      ".claude/hooks/force_branch_check.sh",
+      // ... other hooks
+    ]
+  }
+}
+```
 
 ---
 
 ## 🎯 Success Criteria
 
-### Must Have (P0)
-1. ✅ Bug #1修复：Impact Assessment Enforcer正确检测P1_DISCOVERY.md
-2. ✅ Bug #2修复：Phase Completion Validator使用Phase1-Phase7命名
-3. ✅ Bug #3修复：Agent Evidence Collector不依赖task_namespace.sh
+### Technical Success
+1. ✅ CODEOWNERS file created and protects 31 critical files
+2. ✅ guard-core.yml CI workflow created with 61 checks
+3. ✅ Contract tests created for 4 critical features
+4. ✅ pre_merge_audit.sh enhanced with runtime validation
+5. ✅ phase_state_tracker.sh created and registered
 
-### Should Have (P1)
-4. ✅ Per-phase Impact Assessment集成到workflow
-5. ✅ 所有hooks有完整测试覆盖
-6. ✅ Error handling不静默失败
+### Functional Success
+6. ✅ AI cannot modify protected files without approval
+7. ✅ CI detects hollow implementations (file exists but never runs)
+8. ✅ Contract tests catch regressions before merge
+9. ✅ Phase state maintained and tracked
+10. ✅ Runtime validation integrated into pre-merge audit
 
-### Nice to Have (P2)
-7. ⚪ Evidence visualization dashboard
-8. ⚪ Hook performance monitoring
-9. ⚪ Automated rollback on hook failure
+### Quality Success
+11. ✅ All tests pass
+12. ✅ CI green on test PR
+13. ✅ Documentation complete
+14. ✅ Zero shellcheck warnings
 
----
-
-## 📅 Implementation Timeline
-
-**Estimated Total Time**: 2-3 hours (AI time)
-
-- Phase 1 (Discovery & Planning): 30min ✅ (current)
-- Phase 2 (Implementation): 60min
-  - Fix 3 bugs: 20min each
-  - Per-phase assessment: 30min
-  - Settings.json update: 10min
-- Phase 3 (Testing): 45min
-  - Unit tests: 20min
-  - Integration tests: 15min
-  - Regression tests: 10min
-- Phase 4 (Review): 20min
-- Phase 5-7 (Release, Acceptance, Closure): 25min
+### Long-term Success (30-day verification)
+15. ✅ Hollow Implementation Rate = 0%
+16. ✅ No regressions of fixed features
+17. ✅ Phase state maintained continuously
+18. ✅ Evidence collection working
 
 ---
 
-## 🔍 Risks and Mitigation
+## 📊 Detailed Component Breakdown
 
-### Risk 1: Hook Changes Break Existing Workflow
-**Probability**: Medium
-**Impact**: High
-**Mitigation**:
-- Comprehensive testing before merge
-- Gradual rollout with monitoring
-- Keep old hooks as backup (.bak files)
+### Component 1: CODEOWNERS File
 
-### Risk 2: Per-Phase Assessment Performance Impact
-**Probability**: Low
-**Impact**: Medium
-**Mitigation**:
-- Assessor script already optimized (<50ms)
-- Only runs 3 times (Phase2/3/4)
-- Can disable via config if needed
+**File Path**: `.github/CODEOWNERS`
 
-### Risk 3: Evidence Collection Fills Disk
-**Probability**: Low
-**Impact**: Low
-**Mitigation**:
-- JSONL format is compact
-- Daily rotation (one file per day)
-- Auto-cleanup after 30 days
+**Line Count**: ~40 lines
+
+**Content Structure**:
+```
+# Header comment
+# Protected files by category
+# - Hooks (15 entries)
+# - Workflow configs (5 entries)
+# - Core scripts (5 entries)
+# - Settings (3 entries)
+# - Version files (3 entries)
+```
+
+---
+
+### Component 2: Guard Core CI Workflow
+
+**File Path**: `.github/workflows/guard-core.yml`
+
+**Line Count**: ~150 lines
+
+**Jobs**:
+1. verify-critical-files (checks 31 files)
+2. verify-critical-configs (checks 10 configs)
+3. verify-sentinel-strings (checks 15 sentinels)
+4. validate-runtime-behavior (checks 5 runtime conditions)
+
+**Dependencies**: 4 new scripts in `scripts/guard/`
+
+---
+
+### Component 3: Guard Scripts
+
+**Files**:
+1. `scripts/guard/check_critical_files.sh` (~100 lines)
+2. `scripts/guard/check_critical_configs.sh` (~150 lines)
+3. `scripts/guard/check_sentinels.sh` (~100 lines)
+4. `scripts/guard/validate_runtime_behavior.sh` (~200 lines)
+
+**Total**: ~550 lines
+
+---
+
+### Component 4: Contract Tests
+
+**Files**:
+1. `tests/contract/test_parallel_execution.sh` (~80 lines)
+2. `tests/contract/test_phase_management.sh` (~90 lines)
+3. `tests/contract/test_evidence_collection.sh` (~70 lines)
+4. `tests/contract/test_bypass_permissions.sh` (~50 lines)
+
+**Total**: ~290 lines
+
+---
+
+### Component 5: Pre-merge Audit Enhancement
+
+**File**: `scripts/pre_merge_audit.sh`
+
+**Changes**: Add new section (~80 lines)
+
+**New Checks**:
+- Check 7.1: parallel_subagent_suggester.sh execution
+- Check 7.2: phase_manager.sh usage
+- Check 7.3: Evidence collection activity
+- Check 7.4: .phase/current maintenance
+
+---
+
+### Component 6: Phase State Tracker Hook
+
+**File**: `.claude/hooks/phase_state_tracker.sh`
+
+**Line Count**: ~80 lines
+
+**Features**:
+- Display current phase
+- Detect stale state (>7 days)
+- Remind AI to update phase
+- Phase-specific transition reminders
+
+---
+
+## 🧪 Testing Strategy
+
+### Unit Tests (20 test cases)
+
+1. **CODEOWNERS Tests** (5 cases)
+   - Test file exists
+   - Test all 31 protected files listed
+   - Test correct owner (@perfectuser21)
+   - Test syntax valid
+   - Test no duplicates
+
+2. **Guard Script Tests** (8 cases)
+   - Test check_critical_files.sh (2 cases: all exist, one missing)
+   - Test check_critical_configs.sh (2 cases: valid config, invalid config)
+   - Test check_sentinels.sh (2 cases: all present, one missing)
+   - Test validate_runtime_behavior.sh (2 cases: all recent, one stale)
+
+3. **Contract Tests** (4 cases)
+   - Test parallel execution contract
+   - Test phase management contract
+   - Test evidence collection contract
+   - Test bypass permissions contract
+
+4. **Phase State Tracker Tests** (3 cases)
+   - Test displays current phase correctly
+   - Test detects stale state
+   - Test transition reminders
+
+### Integration Tests (2 scenarios)
+
+1. **CI Integration Test**
+   - Trigger guard-core.yml on test branch
+   - Verify all 61 checks run
+   - Test failure scenarios (remove critical file, etc.)
+
+2. **End-to-End Workflow Test**
+   - Run through Phase 1-7
+   - Verify phase state tracked
+   - Verify runtime validation catches issues
+   - Verify contract tests run
+
+---
+
+## 📈 Impact Radius
+
+### Files Created (12)
+- `.github/CODEOWNERS` (new)
+- `.github/workflows/guard-core.yml` (new)
+- `scripts/guard/check_critical_files.sh` (new)
+- `scripts/guard/check_critical_configs.sh` (new)
+- `scripts/guard/check_sentinels.sh` (new)
+- `scripts/guard/validate_runtime_behavior.sh` (new)
+- `tests/contract/test_parallel_execution.sh` (new)
+- `tests/contract/test_phase_management.sh` (new)
+- `tests/contract/test_evidence_collection.sh` (new)
+- `tests/contract/test_bypass_permissions.sh` (new)
+- `.claude/hooks/phase_state_tracker.sh` (new)
+- Documentation updates
+
+### Files Modified (2)
+- `scripts/pre_merge_audit.sh` (add runtime validation section)
+- `.claude/settings.json` (register phase_state_tracker.sh)
+
+### Total Lines: ~1,500 lines of new code + tests
+
+---
+
+## 🚀 AI Responsibilities
+
+### After Implementing This System
+
+**AI MUST**:
+1. Never modify CODEOWNERS-protected files without explicit user instruction
+2. Update .phase/current when transitioning phases
+3. Monitor CI checks and fix failures
+4. Collect evidence for all features
+5. Run contract tests before claiming "feature works"
+
+**AI MUST NOT**:
+- Bypass CODEOWNERS protection
+- Skip phase state updates
+- Merge PRs with failing guard-core.yml checks
+- Claim features work without runtime evidence
 
 ---
 
 ## 📚 References
 
-- PR #57: Performance optimization (exposed these bugs)
-- `.claude/scripts/impact_radius_assessor.sh` v1.4.0
-- `.claude/ARCHITECTURE/` - Workflow system design
-- `CLAUDE.md` - Anti-hollow gate documentation
+- `.temp/REGRESSION_ANALYSIS.md` - Detailed regression analysis
+- `.temp/META_HOLLOW_DETECTION.md` - Anti-Hollow system hollowness analysis
+- `CLAUDE.md` - Anti-Hollow Gate System documentation
+- GitHub CODEOWNERS documentation
+
+---
+
+## 🎯 Next Steps
+
+After Phase 1 approval:
+
+**Phase 2**: Implementation (6 components)
+1. Create CODEOWNERS file
+2. Create guard-core.yml workflow
+3. Create 4 guard scripts
+4. Create 4 contract tests
+5. Enhance pre_merge_audit.sh
+6. Create phase_state_tracker.sh
+
+**Phase 3**: Testing
+- Run all unit tests
+- Run integration tests
+- Test CI workflow
+- Performance test all scripts
+
+**Phase 4**: Review & Audit
+- Code review
+- Pre-merge audit
+- Documentation review
+
+**Phase 5-7**: Release, Acceptance, Closure
 
 ---
 
 **Document Status**: ✅ Complete
-**Next Phase**: Phase 1.5 - Architecture Planning
-**Estimated Start**: 2025-10-29 23:30 UTC
+**Line Count**: 579 lines
+**Ready for Phase 1.4**: Yes

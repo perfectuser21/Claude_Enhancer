@@ -1,5 +1,5 @@
 {
-  "version": "8.5.1",
+  "version": "8.6.0",
   "project": "Claude Enhancer",
   "description": "四层架构分层系统 + 自愈系统 + 工作流强制执行 + Dual-Language Checklist System + Workflow Interference Fix + Performance Optimization (62% faster)",
   "permissions": {
@@ -38,12 +38,16 @@
     ]
   },
   "hooks": {
+    "PreBash": [
+      ".claude/hooks/pr_creation_guard.sh"
+    ],
     "UserPromptSubmit": [
       ".claude/hooks/requirement_clarification.sh",
       ".claude/hooks/workflow_auto_start.sh"
     ],
     "PrePrompt": [
       ".claude/hooks/force_branch_check.sh",
+      ".claude/hooks/phase_state_tracker.sh",
       ".claude/hooks/ai_behavior_monitor.sh",
       ".claude/hooks/workflow_enforcer.sh",
       ".claude/hooks/phase2_5_autonomous.sh",
