@@ -69,9 +69,10 @@ lane_enforcer_set_lane() {
     local lane="$1"
 
     # Validate lane
-    if [[ ! "${!LANE_OPERATIONS[@]}" =~ (^|[[:space:]])$lane($|[[:space:]]) ]]; then
+    local valid_lanes="${!LANE_OPERATIONS[*]}"
+    if [[ ! " $valid_lanes " =~ [[:space:]]$lane[[:space:]] ]]; then
         echo -e "${RED}❌ ERROR: Invalid lane: $lane${NC}" >&2
-        echo "Valid lanes: ${!LANE_OPERATIONS[*]}" >&2
+        echo "Valid lanes: $valid_lanes" >&2
         return 1
     fi
 
