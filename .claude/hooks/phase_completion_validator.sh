@@ -14,9 +14,9 @@ mkdir -p "$(dirname "$LOG_FILE")"
 # 获取当前Phase
 get_current_phase() {
     if [[ -f "$WORKFLOW_DIR/current" ]]; then
-        grep "^phase:" "$WORKFLOW_DIR/current" | awk '{print $2}' || echo "P0"
+        grep "^phase:" "$WORKFLOW_DIR/current" | awk '{print $2}' || echo "Phase1"
     else
-        echo "P0"
+        echo "Phase1"
     fi
 }
 
@@ -24,36 +24,41 @@ get_current_phase() {
 is_phase_completed() {
     local phase="$1"
 
-    # 检查Phase完成标记
+    # 检查Phase完成标记（7-Phase系统：Phase1-Phase7）
     case "$phase" in
-        "P0")
-            # P0完成标志：P0_DISCOVERY.md存在且完整
-            [[ -f "$PROJECT_ROOT/docs/P0_DISCOVERY.md" ]] && \
-            grep -q "## Acceptance Checklist" "$PROJECT_ROOT/docs/P0_DISCOVERY.md" 2>/dev/null
+        "Phase1")
+            # Phase 1完成标志：P1_DISCOVERY.md存在且包含Acceptance Checklist
+            [[ -f "$PROJECT_ROOT/docs/P1_DISCOVERY.md" ]] && \
+            grep -q "## Acceptance Checklist" "$PROJECT_ROOT/docs/P1_DISCOVERY.md" 2>/dev/null
             ;;
-        "P1")
-            # P1完成标志：PLAN.md存在且完整
-            [[ -f "$PROJECT_ROOT/docs/PLAN.md" ]] && \
-            [[ $(wc -l < "$PROJECT_ROOT/docs/PLAN.md") -gt 500 ]]
-            ;;
-        "P2")
-            # P2完成标志：实现代码已提交
+        "Phase2")
+            # Phase 2完成标志：实现代码已提交（feat/fix/refactor commit）
             git log -1 --pretty=%B 2>/dev/null | grep -qE "(feat|fix|refactor):"
             ;;
-        "P3")
-            # P3完成标志：静态检查通过
+        "Phase3")
+            # Phase 3完成标志：静态检查通过
             [[ -f "$PROJECT_ROOT/scripts/static_checks.sh" ]] && \
             bash "$PROJECT_ROOT/scripts/static_checks.sh" >/dev/null 2>&1
             ;;
-        "P4")
-            # P4完成标志：REVIEW.md存在
-            [[ -f "$PROJECT_ROOT/docs/REVIEW.md" ]] && \
-            [[ $(wc -c < "$PROJECT_ROOT/docs/REVIEW.md") -gt 3072 ]]
+        "Phase4")
+            # Phase 4完成标志：REVIEW.md存在且足够大（>3KB）
+            [[ -f "$PROJECT_ROOT/.workflow/REVIEW.md" ]] && \
+            [[ $(wc -c < "$PROJECT_ROOT/.workflow/REVIEW.md") -gt 3072 ]]
             ;;
-        "P5")
-            # P5完成标志：CHANGELOG更新
+        "Phase5")
+            # Phase 5完成标志：CHANGELOG.md已更新（包含版本号）
             [[ -f "$PROJECT_ROOT/CHANGELOG.md" ]] && \
             grep -qE "## \[[0-9]+\.[0-9]+\.[0-9]+\]" "$PROJECT_ROOT/CHANGELOG.md" 2>/dev/null
+            ;;
+        "Phase6")
+            # Phase 6完成标志：ACCEPTANCE_REPORT.md存在
+            [[ -f "$PROJECT_ROOT/.workflow/ACCEPTANCE_REPORT.md" ]] || \
+            find "$PROJECT_ROOT/.workflow/" -name "ACCEPTANCE_REPORT_*.md" 2>/dev/null | grep -q .
+            ;;
+        "Phase7")
+            # Phase 7完成标志：版本一致性检查通过
+            [[ -f "$PROJECT_ROOT/scripts/check_version_consistency.sh" ]] && \
+            bash "$PROJECT_ROOT/scripts/check_version_consistency.sh" >/dev/null 2>&1
             ;;
         *)
             return 1
@@ -71,7 +76,8 @@ main() {
     fi
 
     # 获取当前Phase
-    local current_phase=$(get_current_phase)
+    local current_phase
+    current_phase=$(get_current_phase)
 
     # 检查Phase是否刚刚完成
     if is_phase_completed "$current_phase"; then

@@ -50,7 +50,8 @@
       ".claude/hooks/smart_agent_selector.sh",
       ".claude/hooks/gap_scan.sh",
       ".claude/hooks/impact_assessment_enforcer.sh",
-      ".claude/hooks/parallel_subagent_suggester.sh"
+      ".claude/hooks/parallel_subagent_suggester.sh",
+      ".claude/hooks/per_phase_impact_assessor.sh"
     ],
     "PreToolUse": [
       ".claude/hooks/task_branch_enforcer.sh",
