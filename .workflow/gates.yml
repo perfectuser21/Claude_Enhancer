@@ -32,6 +32,17 @@ quality:
   coverage_tolerance: 0.005             # ±0.5% tolerance for rounding errors
   required_signatures: 8                # Required GPG signatures for protected branches
 
+# System Scale Limits (v8.7.0 - 防止文件数量失控)
+scale_limits:
+  hooks_max: 50                         # Maximum hooks in .claude/hooks/
+  scripts_max: 90                       # Maximum scripts in scripts/
+  docs_max: 7                           # Maximum root directory .md files
+  temp_size_mb_max: 10                  # Maximum .temp/ directory size
+  enforcement: "Phase 4 + Phase 7"      # When to enforce (Review + Closure)
+  blocking: true                        # Hard block if exceeded
+  baseline_date: "2025-10-30"           # Baseline established
+  rationale: "防止AI无限添加文件，保持系统可维护性"
+
 # Parallel Limits - 7 Phases System
 parallel_limits:
   Phase1: 4   # Discovery & Planning: 分析师+架构师+探索专家
