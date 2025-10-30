@@ -119,7 +119,7 @@ lane_enforcer_check_operation() {
     local allowed_ops="${LANE_OPERATIONS[$current_lane]}"
 
     # Check if operation is in the allowed list
-    if [[ " $allowed_ops " =~ " $operation " ]]; then
+    if [[ " $allowed_ops " == *" $operation "* ]]; then
         return 0  # Allowed
     fi
 
@@ -157,7 +157,7 @@ lane_enforcer_enforce() {
     echo ""
     echo -e "${BLUE}💡 This operation is allowed in these lanes:${NC}"
     for lane in "${!LANE_OPERATIONS[@]}"; do
-        if [[ " ${LANE_OPERATIONS[$lane]} " =~ " $operation " ]]; then
+        if [[ " ${LANE_OPERATIONS[$lane]} " == *" $operation "* ]]; then
             echo "  - $lane"
         fi
     done
