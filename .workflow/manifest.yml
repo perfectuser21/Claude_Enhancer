@@ -15,7 +15,7 @@ phases:
     timeout: 4500 # 75min (30min Discovery + 45min Planning)
     allow_failure: false
     retry: 0
-    substages: ["Branch Check", "Requirements Discussion", "Technical Discovery", "Dual-Language Checklist Generation", "Impact Assessment", "Architecture Planning"]
+    substages: ["1.1 Branch Check", "1.2 Requirements Discussion", "1.3 Technical Discovery", "1.4 Architecture Planning"]
   - id: Phase2
     name: Implementation
     description: "功能实现与代码开发"
