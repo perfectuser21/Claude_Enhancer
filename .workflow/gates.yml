@@ -615,6 +615,49 @@ reporting:
   summary_on_failure: true
   daily_summary: true
 
+# ═══════════════════════════════════════════════════════════
+# Branch Protection Configuration (GitHub服务端保护)
+# ═══════════════════════════════════════════════════════════
+branch_protection:
+  enabled: true
+  description: "GitHub服务端分支保护配置（Layer 8防护）"
+
+  protected_branches:
+    - main
+    - master
+    - production
+
+  required_status_checks:
+    strict: true  # 要求PR必须基于最新的base分支
+    checks:
+      - "CE Unified Gates"
+      - "Quality Gate (Required Check)"
+      - "ce/phase3-static-checks"
+      - "ce/phase4-pre-merge-audit"
+      - "ce/phase7-final-validation"
+      - "Stage 3: Pre-merge Audit (Gate 2)"
+
+  enforce_admins: true  # 管理员也必须遵守规则
+
+  required_pull_request_reviews:
+    dismiss_stale_reviews: false
+    require_code_owner_reviews: false
+    required_approving_review_count: 0  # 个人项目无需审批
+
+  restrictions: null  # 不限制特定用户/团队
+
+  require_linear_history: false
+  allow_force_pushes: false
+  allow_deletions: false
+
+  block_creations: false
+  required_conversation_resolution: false
+
+  # 配置来源
+  configured_via: "GitHub Branch Protection API"
+  configured_date: "2025-10-29"
+  rationale: "防御--no-verify绕过，强制PR流程和CI验证"
+
 # 通知配置
 notifications:
   on_gate_fail:
