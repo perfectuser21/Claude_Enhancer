@@ -1,267 +1,186 @@
-# Implementation Plan - v8.7.0 Deep Inspection Fixes
+# Phase 1.5: Architecture Planning - Phase 1 Intelligent Guidance System
 
-**任务**: 修复v8.7.0深度检测发现的问题
-**计划日期**: 2025-10-31
-**计划者**: Claude (Sonnet 4.5)
+**任务**: 实现Skills + Hooks双层保障机制
+**日期**: 2025-10-31
+**执行者**: Claude (Sonnet 4.5)
 
-## 1. 任务清单 (Task Breakdown)
+## 一、任务分解 (Task Breakdown)
 
 ### Phase 1: Discovery & Planning ✅
-- [x] 1.1 执行7-Phase深度检测
-- [x] 1.2 发现Layer 8配置gap
-- [x] 1.3 发现LOCK.json指纹未更新
-- [x] 1.4 创建P1_DISCOVERY.md
-- [x] 1.5 创建ACCEPTANCE_CHECKLIST.md
-- [x] 1.6 创建IMPACT_ASSESSMENT.md
-- [x] 1.7 创建PLAN.md (本文件)
+- [x] 1.1 Branch Check
+- [x] 1.2 Requirements Discussion
+- [x] 1.3 Technical Discovery
+- [x] 1.4 Impact Assessment
+- [x] 1.5 Architecture Planning
+- [ ] 1.6 User Confirmation（等待用户确认）
 
 ### Phase 2: Implementation
-- [ ] 2.1 补充gates.yml branch_protection配置
-  - 添加protected_branches
-  - 添加required_status_checks (6项)
-  - 添加enforce_admins
-  - 添加required_pull_request_reviews
-- [ ] 2.2 运行tools/update-lock.sh更新指纹
-- [ ] 2.3 清理state.json测试数据
-- [ ] 2.4 验证YAML语法
-- [ ] 2.5 验证JSON格式
+- [ ] 2.1 创建Skill配置（`.claude/settings.json`）
+- [ ] 2.2 创建Hook脚本（`.claude/hooks/phase1_completion_enforcer.sh`）
+- [ ] 2.3 注册Hook到PreToolUse
+- [ ] 2.4 更新CLAUDE.md文档
 
 ### Phase 3: Testing
-- [ ] 3.1 运行verify-core-structure.sh
-- [ ] 3.2 重新执行Phase 2深度检测（Layer 8）
-- [ ] 3.3 重新执行Phase 6深度检测（完整性）
-- [ ] 3.4 验证8层防御100%
-- [ ] 3.5 验证版本一致性100%
+- [ ] 3.1 运行bash -n语法检查
+- [ ] 3.2 测试场景1：Phase1完成无确认 → 阻止
+- [ ] 3.3 测试场景2：Phase1有确认 → 通过
+- [ ] 3.4 测试场景3：Phase2状态 → 通过
+- [ ] 3.5 性能测试（Hook <50ms）
 
 ### Phase 4: Review
-- [ ] 4.1 Review gates.yml配置完整性
-- [ ] 4.2 Review LOCK.json指纹正确性
-- [ ] 4.3 Diff检查（只有预期修改）
-- [ ] 4.4 创建REVIEW.md
+- [ ] 4.1 代码审查（逻辑正确性）
+- [ ] 4.2 运行pre_merge_audit.sh
 
 ### Phase 5: Release
-- [ ] 5.1 确认版本8.7.0不变
-- [ ] 5.2 更新CHANGELOG.md（记录修复）
-- [ ] 5.3 Commit到RFC分支
-- [ ] 5.4 Push到远程
+- [ ] 5.1 更新CHANGELOG.md
+- [ ] 5.2 版本一致性检查
 
 ### Phase 6: Acceptance
-- [ ] 6.1 对照ACCEPTANCE_CHECKLIST验证
-- [ ] 6.2 生成验收报告
-- [ ] 6.3 展示给用户
-- [ ] 6.4 等待用户确认
+- [ ] 6.1 对照Acceptance Checklist验证
+- [ ] 6.2 用户确认"没问题"
 
 ### Phase 7: Closure
-- [ ] 7.1 清理临时文件
-- [ ] 7.2 最终验证
+- [ ] 7.1 全面清理
+- [ ] 7.2 Git status干净
 - [ ] 7.3 创建PR
-- [ ] 7.4 等待用户说"merge"
 
-## 2. 受影响文件清单 (Affected Files)
+## 二、架构设计 (Architecture Design)
 
-### 修改文件 (3个)
-1. `.workflow/gates.yml` - 添加branch_protection配置
-2. `.workflow/LOCK.json` - 更新指纹
-3. `.workflow/state.json` - 清理测试数据
+### 2.1 Skill层设计
 
-### 新增文件 (4个 - Phase 1文档)
-1. `docs/P1_DISCOVERY.md`
-2. `.workflow/ACCEPTANCE_CHECKLIST.md`
-3. `.workflow/IMPACT_ASSESSMENT.md`
-4. `docs/PLAN.md`
+**文件**: `.claude/settings.json`
 
-### 验证文件 (使用，不修改)
-- `tools/verify-core-structure.sh`
-- `tools/update-lock.sh`
-
-## 3. 架构设计 (Architecture Design)
-
-### Layer 8 Branch Protection配置结构
-
-```yaml
-branch_protection:
-  enabled: true
-  description: "GitHub服务端分支保护配置（Layer 8防护）"
-
-  protected_branches:
-    - main
-    - master
-    - production
-
-  required_status_checks:
-    strict: true  # 要求PR必须基于最新的base分支
-    checks:
-      - "CE Unified Gates"
-      - "Quality Gate (Required Check)"
-      - "ce/phase3-static-checks"
-      - "ce/phase4-pre-merge-audit"
-      - "ce/phase7-final-validation"
-      - "Stage 3: Pre-merge Audit (Gate 2)"
-
-  enforce_admins: true  # 管理员也必须遵守规则
-
-  required_pull_request_reviews:
-    dismiss_stale_reviews: false
-    require_code_owner_reviews: false
-    required_approving_review_count: 0  # 个人项目无需审批
-
-  restrictions: null  # 不限制特定用户/团队
-
-  require_linear_history: false
-  allow_force_pushes: false
-  allow_deletions: false
-
-  block_creations: false
-  required_conversation_resolution: false
-
-  # 配置来源
-  configured_via: "GitHub Branch Protection API"
-  configured_date: "2025-10-29"
-  rationale: "防御--no-verify绕过，强制PR流程和CI验证"
+**配置结构**:
+```json
+{
+  "name": "phase1-completion-reminder",
+  "description": "Reminds AI to confirm Phase 1 completion before Phase 2 coding",
+  "trigger": {
+    "event": "before_tool_use",
+    "tool": ["Write", "Edit", "Bash"]
+  },
+  "action": {
+    "type": "reminder",
+    "message": "⚠️ Phase 1 Completion Detected\\n\\n📋 Required Actions:\\n1. Display 7-Phase checklist to user\\n2. Summarize what we'll implement (in plain language)\\n3. Wait for user to say 'I understand, start Phase 2'\\n4. Then create .phase/phase1_confirmed marker\\n5. Update .phase/current to Phase2\\n\\n❌ Do NOT start coding until user confirms!"
+  },
+  "enabled": true,
+  "priority": "P0"
+}
 ```
 
-### LOCK.json更新流程
+### 2.2 Hook层设计
 
+**文件**: `.claude/hooks/phase1_completion_enforcer.sh`
+
+**核心逻辑**:
+```bash
+#!/bin/bash
+set -euo pipefail
+
+TOOL_NAME="${TOOL_NAME:-unknown}"
+PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+
+# 只检查Write/Edit/Bash工具
+if [[ "$TOOL_NAME" != "Write" && "$TOOL_NAME" != "Edit" && "$TOOL_NAME" != "Bash" ]]; then
+    exit 0
+fi
+
+# 检测Phase 1完成但无确认
+if [[ -f "$PROJECT_ROOT/.phase/current" ]]; then
+    CURRENT_PHASE=$(cat "$PROJECT_ROOT/.phase/current" | tr -d '[:space:]')
+
+    if [[ "$CURRENT_PHASE" == "Phase1" ]] && \
+       [[ -f "$PROJECT_ROOT/docs/P1_DISCOVERY.md" ]] && \
+       [[ -f "$PROJECT_ROOT/.workflow/ACCEPTANCE_CHECKLIST.md" ]] && \
+       [[ -f "$PROJECT_ROOT/docs/PLAN.md" ]] && \
+       [[ ! -f "$PROJECT_ROOT/.phase/phase1_confirmed" ]]; then
+
+        echo "════════════════════════════════════════════════════════════"
+        echo "❌ ERROR: Phase 1 completion requires user confirmation"
+        echo "════════════════════════════════════════════════════════════"
+        echo ""
+        echo "🔒 You MUST complete Phase 1 confirmation workflow:"
+        echo ""
+        echo "   Step 1: Display 7-Phase checklist to user"
+        echo "   Step 2: Explain implementation in plain language"
+        echo "   Step 3: Wait for explicit user confirmation"
+        echo "   Step 4: Create confirmation marker"
+        echo "   Step 5: Update phase status"
+        echo ""
+        echo "════════════════════════════════════════════════════════════"
+
+        exit 1  # Hard block
+    fi
+fi
+
+# All checks passed
+exit 0
 ```
-tools/update-lock.sh
-  ↓
-1. 读取VERSION (8.7.0)
-  ↓
-2. 计算7个核心文件SHA256
-   - SPEC.yaml
-   - gates.yml (新指纹)
-   - CHECKS_INDEX.json
-   - workflow_validator_v97.sh
-   - pre_merge_audit.sh
-   - static_checks.sh
-   - verify-core-structure.sh
-  ↓
-3. 生成LOCK.json
-   {
-     "version": "8.7.0",
-     "lock_mode": "soft",
-     "key_files_sha256": {...}
-   }
-  ↓
-4. 验证JSON格式
-```
 
-## 4. 技术选型 (Technology Stack)
+## 三、测试策略 (Testing Strategy)
 
-**工具选型**:
-- `tools/update-lock.sh` - LOCK.json指纹更新（已存在）
-- `tools/verify-core-structure.sh` - 完整性验证（已存在）
-- `jq` - JSON处理
-- `yq` - YAML处理（如需）
-
-**无需新依赖**
-
-## 5. 风险识别与缓解 (Risk Management)
-
-### 风险1: YAML语法错误
-- **概率**: 极低
-- **影响**: 中等（gates.yml解析失败）
-- **缓解**: 使用IDE/编辑器YAML验证，commit前检查
-
-### 风险2: LOCK.json更新失败
-- **概率**: 极低
-- **影响**: 高（阻止commit）
-- **缓解**: 工具update-lock.sh已测试，失败会有清晰错误
-
-### 风险3: 意外修改其他配置
-- **概率**: 极低
-- **影响**: 高
-- **缓解**: 使用Git diff review，只修改指定行
-
-## 6. 回滚方案 (Rollback Plan)
-
-### 触发条件
-- verify-core-structure.sh失败
-- CI检查失败
-- 用户要求回滚
-
-### 回滚步骤
+### 单元测试脚本
 
 ```bash
-# Step 1: Revert commit
-git revert <commit-sha>
+# Test 1: Phase1完成但无确认 → 阻止
+echo "Phase1" > .phase/current
+touch docs/P1_DISCOVERY.md .workflow/ACCEPTANCE_CHECKLIST.md docs/PLAN.md
+TOOL_NAME=Write bash .claude/hooks/phase1_completion_enforcer.sh
+# Expected: exit 1
 
-# Step 2: Force push
-git push origin rfc/deep-inspection-v8.7.0-fixes --force
+# Test 2: Phase1有确认 → 通过
+touch .phase/phase1_confirmed
+TOOL_NAME=Write bash .claude/hooks/phase1_completion_enforcer.sh
+# Expected: exit 0
 
-# Step 3: 验证回滚成功
-bash tools/verify-core-structure.sh
-# 应输出: {"ok":true}
+# Test 3: Phase2状态 → 通过
+echo "Phase2" > .phase/current
+TOOL_NAME=Write bash .claude/hooks/phase1_completion_enforcer.sh
+# Expected: exit 0
 ```
 
-### 回滚验证清单
-- [ ] verify-core-structure.sh通过
-- [ ] git log显示revert commit
-- [ ] gates.yml恢复到修改前
-- [ ] LOCK.json恢复到修改前
+## 四、风险管理 (Risk Management)
 
-## 7. 测试策略 (Testing Strategy)
+### 已识别风险
 
-### 单元测试
-- **工具测试**: update-lock.sh执行成功
-- **语法测试**: YAML/JSON格式正确
+1. **Skill被AI忽略** - 缓解：Hook层兜底
+2. **Hook性能问题** - 缓解：简单文件检查，<10ms
+3. **误报** - 缓解：明确检查条件，只在Phase1时触发
 
-### 集成测试
-- **Phase 2**: Layer 8检测从FAIL变PASS
-- **Phase 6**: 完整性检测从FAIL变PASS
-- **verify-core-structure.sh**: 返回{"ok":true}
+### 回滚计划
 
-### 验收测试
-- 对照ACCEPTANCE_CHECKLIST逐项验证
-- 深度检测综合评分≥98/100
+5步完全回滚（详见IMPACT_ASSESSMENT.md）
 
-## 8. 时间估算 (Timeline)
+## 五、时间估算 (Timeline)
 
-| Phase | 预估时间 | 实际耗时 |
-|-------|---------|---------|
-| Phase 1: Discovery | 15分钟 | 已完成 |
-| Phase 2: Implementation | 3分钟 | 待执行 |
-| Phase 3: Testing | 2分钟 | 待执行 |
-| Phase 4: Review | 2分钟 | 待执行 |
-| Phase 5: Release | 2分钟 | 待执行 |
-| Phase 6: Acceptance | 1分钟 | 待执行 |
-| Phase 7: Closure | 1分钟 | 待执行 |
-| **总计** | **26分钟** | **进行中** |
+- Phase 1: ✅ 已完成（30分钟）
+- Phase 2: 10分钟（实现代码）
+- Phase 3: 5分钟（运行测试）
+- Phase 4: 3分钟（代码审查）
+- Phase 5: 2分钟（版本更新）
+- Phase 6: 等待用户
+- Phase 7: 5分钟（清理）
 
-## 9. 依赖关系 (Dependencies)
+**总计**: 约55分钟（不含等待用户时间）
 
-### 前置依赖
-- [x] v8.7.0已部署到main
-- [x] 深度检测已完成
-- [x] 问题已识别
-
-### 并行任务
-- 无（任务简单，顺序执行即可）
-
-### 后续任务
-- Phase 2-7按顺序执行
-
-## 10. 成功标准 (Success Criteria)
+## 六、成功标准 (Success Criteria)
 
 ### 功能标准
-- [x] gates.yml包含完整branch_protection配置
-- [x] LOCK.json指纹更新成功
-- [x] state.json测试数据清理
+- ✅ Skill配置正确
+- ✅ Hook脚本可执行
+- ✅ 3个测试场景全部通过
 
 ### 质量标准
-- [ ] verify-core-structure.sh通过
-- [ ] 8层防御100%
-- [ ] 完整性验证100%
-- [ ] 深度检测评分≥98/100
+- ✅ Bash语法正确（bash -n）
+- ✅ 性能达标（<50ms）
+- ✅ 文档完整
 
 ### 流程标准
-- [ ] 所有Phase完成
-- [ ] ACCEPTANCE_CHECKLIST 100%
-- [ ] 用户确认"没问题"
+- ✅ 用户确认"我理解了，开始Phase 2"
+- ✅ Phase 1 → Phase 2转换成功
 
 ---
 
-**计划者**: Claude (Sonnet 4.5)
-**计划日期**: 2025-10-31T00:38:00Z
-**预估总时间**: 26分钟
-**风险等级**: 低
+**签名**: Claude (Sonnet 4.5)
+**日期**: 2025-10-31T11:00:00Z
+**版本**: v8.7.0
