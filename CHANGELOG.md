@@ -1,5 +1,67 @@
 # Changelog
 
+## [8.7.1] - 2025-10-31
+
+### Added - Parallel Strategy Documentation Restoration
+
+**Task**: 恢复并增强并行SubAgent策略文档，并建立防删除保护机制
+
+**Problem**: Phase 2-7并行策略文档被删除（commit be0f0161, 2025-09-19），导致关键知识丢失
+
+**Solution**: 4-Layer Proactive Protection System
+
+**Implementation**:
+- **Layer 0: Skills** - 软引导（before_tool_use提示）
+- **Layer 1: PreToolUse Hooks** - 硬阻止修改kernel files（RFC分支除外）
+  - `.claude/hooks/immutable_kernel_guard.sh` (152 lines, 7ms)
+  - `.claude/hooks/main_branch_write_blocker.sh` (80 lines, 5ms)
+- **Layer 2: Per-Phase Guidance** - 显示allowed/restricted operations
+  - `.claude/hooks/phase_guidance.sh` (182 lines, 9ms, optimized from 400)
+- **Layer 3-4: CI + GitHub** - 反应式防线
+  - `.github/workflows/critical-docs-sentinel.yml` (302 lines)
+  - 检查9个关键文档存在且完整
+  - 验证8个必需section
+  - 检测删除/简化操作
+
+**Restored Document**:
+- `docs/PARALLEL_SUBAGENT_STRATEGY.md` (2753 lines)
+  - 融合旧理论内容（5种并行策略）+ 新v2.0.0实现（STAGES.yml驱动）
+  - 26个真实任务benchmark数据（加速比1.8x-5.1x）
+  - 8个必需section全部恢复
+  - Added to immutable kernel (10 protected files)
+
+**CLAUDE.md Integration**:
+- Phase 2: 并行潜力4/4，加速比3.6x
+- Phase 3: 并行潜力5/5，加速比5.1x
+- Phase 4: 并行潜力3/4，加速比2.5x
+- Phase 7: 并行潜力3/4，加速比2.8x
+
+### Fixed - Workflow Auto-Reset Bug
+
+**Problem**: Merge PR后回到main分支，Phase状态仍保留，导致AI可绕过workflow直接编码
+
+**Solution**: Auto-detect and clear Phase state on protected branches
+
+**Implementation**:
+- Updated `.claude/hooks/force_branch_check.sh` (lines 22-44)
+- 在main/master分支时检测`.phase/current`文件
+- 自动删除旧Phase状态
+- 显示清晰提示消息（这是merge后正常行为，新任务从Phase 1开始）
+
+**Impact**:
+- Prevents workflow bypass after PR merge
+- Forces proper Phase 1-7 execution for all tasks
+- No manual cleanup required
+
+**Metrics**:
+- Protection layers: 0 → 4
+- Kernel files protected: 9 → 10
+- Hook performance: <10ms (all 3 new hooks)
+- Documentation size: 257 lines → 2753 lines (+967%)
+- CLAUDE.md integration: 4 phases with parallel guidance
+
+---
+
 ## [8.7.0] - 2025-10-31
 
 ### Added - Phase 1 Intelligent Guidance System
