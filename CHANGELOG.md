@@ -1,6 +1,30 @@
 # Changelog
 
-## [8.7.0] - 2025-10-30
+## [8.7.0] - 2025-10-31
+
+### Added - Phase 1 Intelligent Guidance System
+
+**Task**: 实现Skills + Hooks双层保障机制，防止AI跳过Phase 1确认
+
+**Problem**: AI在用户说"开始吧"/"继续"时，可能跳过Phase 1确认直接进入Phase 2编码
+
+**Solution**: Skills主动提醒 + Hooks被动阻止
+
+**Implementation**:
+- Layer 1: Skill "phase1-completion-reminder" - 在before_tool_use时提醒AI展示7-Phase checklist
+- Layer 2: Hook "phase1_completion_enforcer.sh" - 在PreToolUse时硬阻止未确认的Phase 2操作
+- Update CLAUDE.md with dual-layer protection documentation
+
+**Test Results**:
+- ✅ Test 1: Phase1 complete without confirmation → correctly blocked (exit 1)
+- ✅ Test 2: Phase1 with confirmation → correctly allowed (exit 0)
+- ✅ Test 3: Phase2 status → correctly allowed (exit 0)
+- ✅ Performance: 11ms (far below 50ms budget)
+
+**Impact**:
+- Radius: 19/100 (low risk)
+- Files affected: 4 files (settings.json, hook script, CLAUDE.md, Phase 1 docs)
+- Backward compatible: Yes
 
 ### Added - System Stabilization (8-Layer Defense)
 
