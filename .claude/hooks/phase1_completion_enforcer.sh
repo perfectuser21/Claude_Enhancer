@@ -16,7 +16,7 @@ fi
 
 # Check if Phase 1 is complete but unconfirmed
 if [[ -f "$PROJECT_ROOT/.phase/current" ]]; then
-    CURRENT_PHASE=$(cat "$PROJECT_ROOT/.phase/current" | tr -d '[:space:]')
+    CURRENT_PHASE=$(tr -d '[:space:]' < "$PROJECT_ROOT/.phase/current")
 
     # Phase 1 complete detection:
     # - .phase/current shows Phase1
