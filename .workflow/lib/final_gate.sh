@@ -30,7 +30,8 @@ final_gate_check() {
 
   # 确保PROJECT_ROOT已设置（CI兼容）
   PROJECT_ROOT="${PROJECT_ROOT:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}"
-  BRANCH="${BRANCH:-${GITHUB_REF_NAME:-${CI_COMMIT_REF_NAME:-$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo HEAD)}}}"
+  # Use GITHUB_HEAD_REF for PR source branch (rfc/*), fallback to GITHUB_REF_NAME
+  BRANCH="${BRANCH:-${GITHUB_HEAD_REF:-${GITHUB_REF_NAME:-${CI_COMMIT_REF_NAME:-$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo HEAD)}}}}"
 
   # 加载配置阈值（从 gates.yml 或环境变量）
   local QUALITY_MIN="${QUALITY_MIN:-85}"
