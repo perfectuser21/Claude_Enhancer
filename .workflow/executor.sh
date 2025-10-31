@@ -873,8 +873,9 @@ generate_status_report() {
     if [[ -d "${GATES_DIR}" ]]; then
         local completed_gates=$(find "${GATES_DIR}" -name "*.ok" | wc -l)
         echo -e "  已完成Gates: ${GREEN}${completed_gates}${NC}/6"
-        ls "${GATES_DIR}"/*.ok 2>/dev/null | while read -r gate_file; do
-            local gate_name=$(basename "${gate_file}" .ok)
+        find "${GATES_DIR}" -name "*.ok" 2>/dev/null | while read -r gate_file; do
+            local gate_name
+            gate_name=$(basename "${gate_file}" .ok)
             echo -e "    ${GREEN}✓${NC} Gate ${gate_name}"
         done
     else
