@@ -247,12 +247,13 @@ immutable_kernel:
   version: "1.0.0"
   purpose: "定义绝对不可变的核心文件，修改需要RFC流程"
 
-  # 核心9个文件（修改需要RFC）
+  # 核心10个文件（修改需要RFC）
   kernel_files:
     - ".workflow/SPEC.yaml"           # 核心规格定义
     - ".workflow/manifest.yml"        # 工作流清单
     - ".workflow/gates.yml"           # 质量门禁配置
     - "docs/CHECKS_INDEX.json"        # 检查点索引
+    - "docs/PARALLEL_SUBAGENT_STRATEGY.md"  # 并行SubAgent策略（防删除保护）
     - "VERSION"                       # 版本文件
     - ".claude/settings.json"         # Claude配置
     - "package.json"                  # 包配置
