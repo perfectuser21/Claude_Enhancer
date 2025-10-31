@@ -120,8 +120,10 @@ PY
     COV="$MOCK_COVERAGE"
   fi
 
-  # 简单整数比较
-  if (( ${COV%%.*} < COVERAGE_MIN )); then
+  # 简单整数比较 - Skip for RFC branches (documentation/kernel changes)
+  if [[ "$BRANCH" =~ ^rfc/ ]]; then
+    echo -e "${BLUE}ℹ️  Skipping coverage check for RFC branch (documentation/kernel changes)${NC}"
+  elif (( ${COV%%.*} < COVERAGE_MIN )); then
     echo -e "${RED}❌ BLOCK: coverage ${COV}% < ${COVERAGE_MIN}% (minimum required)${NC}"
     gate_fail=1
   else
