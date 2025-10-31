@@ -10,7 +10,7 @@ if [ -f ".claude/config/unified_main.yaml" ] && [ ! -f ".claude/WORKFLOW.md" ]; 
     echo "是否要备份现有配置？(y/n)"
     read -r response
     if [[ "$response" == "y" ]]; then
-        mv .claude .claude.backup.$(date +%Y%m%d_%H%M%S)
+        mv .claude ".claude.backup.$(date +%Y%m%d_%H%M%S)"
         echo "✅ 已备份到 .claude.backup.*"
     else
         echo "继续会覆盖现有配置，确定吗？(y/n)"
@@ -56,7 +56,7 @@ if [ -d .git ]; then
     # 备份现有hooks
     for hook in pre-commit commit-msg post-merge; do
         if [ -f .git/hooks/$hook ]; then
-            cp .git/hooks/$hook .git/hooks/$hook.backup.$(date +%Y%m%d)
+            cp .git/hooks/$hook ".git/hooks/$hook.backup.$(date +%Y%m%d)"
             echo "  备份: $hook → $hook.backup"
         fi
     done
