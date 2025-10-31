@@ -1236,6 +1236,100 @@ Your branch version: 8.5.1
 - ❌ 用技术术语解释
 - ❌ 不等用户确认就继续
 
+### 🛡️ 双层保障机制（v8.7.0新增）
+
+**问题**：AI可能在用户说"开始吧"/"继续"时，跳过Phase 1确认直接进入Phase 2
+
+**解决方案**：Skills主动提醒 + Hooks被动阻止
+
+#### Layer 1: Skill "phase1-completion-reminder" (主动提醒层)
+- **触发**：检测到Phase 1文档完成但无确认标记时
+- **行为**：温馨提醒AI执行确认流程
+- **优势**：90%情况下AI看到提醒后会主动确认，用户体验好
+- **配置**：`.claude/settings.json` → `skills` → `phase1-completion-reminder`
+
+**Skill提醒内容**：
+```
+⚠️ Phase 1 Completion Detected
+
+📋 Required Actions:
+1. Display 7-Phase checklist to user
+2. Summarize what we'll implement (in plain language)
+3. Wait for user to say 'I understand, start Phase 2'
+4. Then create .phase/phase1_confirmed marker
+5. Update .phase/current to Phase2
+
+❌ Do NOT start coding until user confirms!
+```
+
+#### Layer 2: Hook "phase1_completion_enforcer.sh" (强制阻止层)
+- **触发**：PreToolUse (Write/Edit/Bash前)
+- **检查**：Phase1完成 + 无`.phase/phase1_confirmed`标记
+- **行为**：硬阻止（exit 1），显示详细错误消息
+- **作用**：最后防线，即使AI忽略Skill提醒也能阻止
+- **位置**：`.claude/hooks/phase1_completion_enforcer.sh`
+
+**Hook阻止条件**：
+```bash
+if [[ "$CURRENT_PHASE" == "Phase1" ]] && \
+   [[ -f "docs/P1_DISCOVERY.md" ]] && \
+   [[ -f ".workflow/ACCEPTANCE_CHECKLIST.md" ]] && \
+   [[ -f "docs/PLAN.md" ]] && \
+   [[ ! -f ".phase/phase1_confirmed" ]]; then
+    # 硬阻止并显示5步确认流程
+    exit 1
+fi
+```
+
+#### 工作流示例
+
+**正常流程（AI遵守Skill提醒）**：
+```
+用户: "开始吧"
+   ↓
+【Skill提醒】phase1-completion-reminder显示
+   ↓
+AI响应: "Phase 1已完成！让我展示接下来的计划..."
+   ↓
+用户: "我理解了，开始Phase 2"
+   ↓
+AI: touch .phase/phase1_confirmed
+AI: echo Phase2 > .phase/current
+   ↓
+Phase 2顺利执行 ✅
+```
+
+**异常流程（AI忽略Skill，Hook拦截）**：
+```
+用户: "开始吧"
+   ↓
+【Skill提醒】（AI忽略或未看到）
+   ↓
+AI尝试执行Write/Edit
+   ↓
+【Hook阻止】phase1_completion_enforcer.sh
+   ↓
+错误消息: "❌ ERROR: Phase 1 completion requires user confirmation"
+   ↓
+AI看到错误，补充确认流程 ✅
+```
+
+#### 对比：Skill vs Hook
+
+| 维度 | Skill (主动提醒) | Hook (被动阻止) |
+|------|-----------------|----------------|
+| **触发时机** | before_tool_use | PreToolUse |
+| **行为** | 温馨提示 💡 | 硬阻止 🛑 |
+| **性能** | 0ms | <50ms |
+| **用户体验** | 好（主动引导） | 差（被动阻止） |
+| **作用** | 第一道防线 | 最后防线 |
+
+**设计理念**：
+- ✅ 主动提醒优于被动阻止（90%情况下Skill就够了）
+- ✅ 双层保障确保100%覆盖（Hook是最后防线）
+- ✅ 性能优异（Skill 0ms，Hook <50ms）
+- ✅ 可扩展（同样模式可用于其他Phase转换）
+
 ---
 
 ╔═══════════════════════════════════════════════════════════╗

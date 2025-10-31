@@ -1,58 +1,61 @@
-# Acceptance Checklist - v8.7.0 Deep Inspection Fixes
+# Acceptance Checklist - Phase 1 Intelligent Guidance System
 
-**任务**: 修复v8.7.0深度检测发现的问题
-**版本**: 8.7.0
+**任务**: 实现Skills + Hooks双层保障机制
+**版本**: v8.7.0
 **日期**: 2025-10-31
 
 ## 验收标准 (Acceptance Criteria)
 
-### 1. Layer 8 Branch Protection配置
+### 1. Skill配置完整性
+- [ ] `.claude/settings.json`中包含`phase1-completion-reminder` Skill
+- [ ] Skill配置包含所有必需字段
+- [ ] JSON格式正确（无语法错误）
 
-- [ ] gates.yml包含完整的branch_protection配置段
-- [ ] 配置包含protected_branches定义
-- [ ] 配置包含required_status_checks（6个检查项）
-- [ ] 配置包含enforce_admins设置
-- [ ] 配置包含required_pull_request_reviews设置
-- [ ] 配置符合YAML语法
-- [ ] Phase 2深度检测: Layer 8从FAIL变为PASS
+### 2. Hook实现完整性
+- [ ] `.claude/hooks/phase1_completion_enforcer.sh`文件存在
+- [ ] Hook具有可执行权限（chmod +x）
+- [ ] Hook包含所有必需检查
+- [ ] Bash语法正确（bash -n检查通过）
 
-### 2. LOCK.json指纹更新
+### 3. Hook注册正确性
+- [ ] `.claude/settings.json`中PreToolUse数组包含`phase1_completion_enforcer.sh`
+- [ ] 不影响其他hooks执行顺序
 
-- [ ] LOCK.json包含gates.yml的最新SHA256指纹
-- [ ] 所有7个核心文件指纹都已更新
-- [ ] verify-core-structure.sh执行成功
-- [ ] LOCK.json版本号为8.7.0
-- [ ] lock_mode为"soft"
+### 4. 功能验证
 
-### 3. state.json清理
+#### 测试场景1: Phase1完成但无确认 → 应该阻止
+- [ ] Setup环境：创建Phase1文档但不创建确认标记
+- [ ] 执行Hook：`TOOL_NAME=Write bash .claude/hooks/phase1_completion_enforcer.sh`
+- [ ] 验证结果：exit 1（阻止）
 
-- [ ] 测试数据test.deep_inspection已移除
-- [ ] 测试数据test.counter已移除
-- [ ] state.json格式正确（JSON valid）
+#### 测试场景2: Phase1有确认标记 → 应该通过
+- [ ] Setup环境：同场景1 + `touch .phase/phase1_confirmed`
+- [ ] 验证结果：exit 0（通过）
 
-### 4. 验证检查
+#### 测试场景3: Phase2状态 → 应该通过
+- [ ] Setup环境：`echo "Phase2" > .phase/current`
+- [ ] 验证结果：exit 0（通过）
 
-- [ ] 重新运行Phase 2验证: 8层防御100%
-- [ ] 重新运行Phase 6验证: 完整性100%
-- [ ] verify-core-structure.sh: {"ok":true}
-- [ ] Git status干净（或只有Phase 1文档）
+### 5. 性能验证
+- [ ] Hook执行时间 <50ms（目标 <10ms）
 
-### 5. 文档完整性
-
-- [ ] P1_DISCOVERY.md存在且>300行
-- [ ] ACCEPTANCE_CHECKLIST.md存在（本文件）
-- [ ] IMPACT_ASSESSMENT.md存在
-- [ ] PLAN.md存在且>500行
+### 6. 文档完整性
+- [ ] `docs/P1_DISCOVERY.md`存在
+- [ ] `.workflow/ACCEPTANCE_CHECKLIST.md`存在（本文件）
+- [ ] `.workflow/IMPACT_ASSESSMENT.md`存在
+- [ ] `docs/PLAN.md`存在
+- [ ] `CLAUDE.md`包含"双层保障机制"章节文档
 
 ## 定义"完成" (Definition of Done)
 
-✅ 所有验收标准checked
-✅ 深度检测综合评分保持≥98/100
-✅ 无新增问题或回归
-✅ Commit message规范
-✅ PR创建并通过CI
+✅ 所有验收标准checked（100%）
+✅ 3个测试场景全部通过
+✅ 性能验证通过（Hook <50ms）
+✅ 文档完整（4个Phase 1文档）
+✅ 用户确认"我理解了，开始Phase 2"
 
 ---
 
 **创建者**: Claude (Sonnet 4.5)
-**创建日期**: 2025-10-31T00:38:00Z
+**创建日期**: 2025-10-31T10:55:00Z
+**版本**: v8.7.0

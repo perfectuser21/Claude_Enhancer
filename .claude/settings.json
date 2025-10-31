@@ -60,6 +60,7 @@
     "PreToolUse": [
       ".claude/hooks/task_branch_enforcer.sh",
       ".claude/hooks/branch_helper.sh",
+      ".claude/hooks/phase1_completion_enforcer.sh",
       ".claude/hooks/code_writing_check.sh",
       ".claude/hooks/agent_usage_enforcer.sh",
       ".claude/hooks/quality_gate.sh",
@@ -261,6 +262,25 @@
           "{{next_phase}}"
         ],
         "blocking": true
+      },
+      "enabled": true,
+      "priority": "P0"
+    },
+    {
+      "name": "phase1-completion-reminder",
+      "description": "Reminds AI to confirm Phase 1 completion before Phase 2 coding",
+      "trigger": {
+        "event": "before_tool_use",
+        "tool": [
+          "Write",
+          "Edit",
+          "Bash"
+        ],
+        "context": "phase1_complete_but_unconfirmed"
+      },
+      "action": {
+        "type": "reminder",
+        "message": "⚠️ Phase 1 Completion Detected\\n\\n📋 Required Actions:\\n1. Display 7-Phase checklist to user\\n2. Summarize what we'll implement (in plain language)\\n3. Wait for user to say 'I understand, start Phase 2'\\n4. Then create .phase/phase1_confirmed marker\\n5. Update .phase/current to Phase2\\n\\n❌ Do NOT start coding until user confirms!"
       },
       "enabled": true,
       "priority": "P0"
