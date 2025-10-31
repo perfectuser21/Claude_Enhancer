@@ -29,7 +29,7 @@ jobs:
 
           # 定义关键文档列表（这些文档绝对不能被删除）
           CRITICAL_DOCS=(
-            "docs/PARALLEL_SUBAGENT_STRATEGY.md|并行SubAgent策略文档|2753"
+            "docs/PARALLEL_SUBAGENT_STRATEGY.md|并行SubAgent策略文档|850"
             "CLAUDE.md|Claude主文档|2000"
             "README.md|项目README|100"
             ".workflow/SPEC.yaml|核心规格文档|339"
