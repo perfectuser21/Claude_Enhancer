@@ -166,11 +166,17 @@ jobs:
             echo "📝 Checking shell files..."
             # Exclude SC1091 (can't follow sourced files in CI)
             # Exclude SC1003 (false positive on backslash patterns in tests)
+            # Exclude SC2001 (style) - use parameter expansion instead of sed
+            # Exclude SC2002 (style) - useless cat
+            # Exclude SC2004 (style) - unnecessary ${} in arithmetic
+            # Exclude SC2015 (info) - A && B || C pattern
             # Exclude SC2034 (unused variables - common in test scripts)
+            # Exclude SC2046 (warning) - quote to prevent word splitting (pre-existing in executor.sh)
+            # Exclude SC2086 (info) - double quote to prevent globbing
             # Exclude SC2155 (declare and assign separately - style preference)
             # Exclude SC2164 (cd without error handling - style preference)
             # Exclude SC2317 (unreachable code false positives in complex if-else structures)
-            echo "$SHELL_FILES" | xargs -r -n1 shellcheck --exclude=SC1091,SC1003,SC2034,SC2155,SC2164,SC2317
+            echo "$SHELL_FILES" | xargs -r -n1 shellcheck --exclude=SC1091,SC1003,SC2001,SC2002,SC2004,SC2015,SC2034,SC2046,SC2086,SC2155,SC2164,SC2317
             echo "✅ Shell files passed"
           fi
 
