@@ -1,7 +1,7 @@
-# Technical Checklist - 双语Checklist系统测试
+# Technical Checklist - Phase 1/6/7 Skills + 并行执行系统 + Phase 7清理机制优化
 
-> **Project**: 双语Checklist系统测试
-> **Created**: 2025-10-22
+> **Project**: Phase 1/6/7 Skills + 并行执行系统 + Phase 7清理机制优化
+> **Created**: 2025-10-31
 > **Tech Stack**: [To be determined]
 
 ---
@@ -9,7 +9,7 @@
 ## Core Functionality
 
 
-### 1. 用户友好的验收清单（简单语言）
+### 1. 
 - [ ] Implementation complete <!-- T-001 -->
 - [ ] Unit tests written (≥80% coverage)
 - [ ] Integration tests passing
@@ -17,7 +17,7 @@
 - [ ] Code review approved
 
 
-### 2. 技术版验收清单（专业术语）
+### 2. 每次merge完成后，系统自动清理Phase状态
 - [ ] Implementation complete <!-- T-002 -->
 - [ ] Unit tests written (≥80% coverage)
 - [ ] Integration tests passing
@@ -25,7 +25,7 @@
 - [ ] Code review approved
 
 
-### 3. 追踪映射关系（TRACEABILITY.yml）
+### 3. 创建新分支时，总是从Phase1开始
 - [ ] Implementation complete <!-- T-003 -->
 - [ ] Unit tests written (≥80% coverage)
 - [ ] Integration tests passing
@@ -33,7 +33,7 @@
 - [ ] Code review approved
 
 
-### 4. Phase 6验收报告生成
+### 4. 不用你手动删除文件
 - [ ] Implementation complete <!-- T-004 -->
 - [ ] Unit tests written (≥80% coverage)
 - [ ] Integration tests passing
@@ -41,7 +41,7 @@
 - [ ] Code review approved
 
 
-### 5. Phase 1生成双语Checklist
+### 5. Phase 3测试阶段，多个测试真正同时跑（不是一个跑完再跑下个）
 - [ ] Implementation complete <!-- T-005 -->
 - [ ] Unit tests written (≥80% coverage)
 - [ ] Integration tests passing
@@ -49,7 +49,7 @@
 - [ ] Code review approved
 
 
-### 6. Phase 6生成验收报告
+### 6. 能看到明显的速度提升（至少3倍快）
 - [ ] Implementation complete <!-- T-006 -->
 - [ ] Unit tests written (≥80% coverage)
 - [ ] Integration tests passing
@@ -57,7 +57,7 @@
 - [ ] Code review approved
 
 
-### 7. 自动映射用户项到技术项
+### 7. 有日志证明确实并行执行了
 - [ ] Implementation complete <!-- T-007 -->
 - [ ] Unit tests written (≥80% coverage)
 - [ ] Integration tests passing
@@ -65,7 +65,7 @@
 - [ ] Code review approved
 
 
-### 8. 禁用术语检查
+### 8. Phase 1：AI知道如何正确做需求分析、技术探索、架构规划
 - [ ] Implementation complete <!-- T-008 -->
 - [ ] Unit tests written (≥80% coverage)
 - [ ] Integration tests passing
@@ -73,8 +73,16 @@
 - [ ] Code review approved
 
 
-### 9. 生活场景类比匹配
+### 9. Phase 6：AI知道如何验收，对照checklist逐项检查
 - [ ] Implementation complete <!-- T-009 -->
+- [ ] Unit tests written (≥80% coverage)
+- [ ] Integration tests passing
+- [ ] Documentation updated
+- [ ] Code review approved
+
+
+### 10. Phase 7：AI知道如何清理、如何正确创建PR（不是直接merge）
+- [ ] Implementation complete <!-- T-010 -->
 - [ ] Unit tests written (≥80% coverage)
 - [ ] Integration tests passing
 - [ ] Documentation updated
@@ -97,5 +105,5 @@
 
 ---
 
-**Created**: 2025-10-22
+**Created**: 2025-10-31
 **Version**: 1.0.0

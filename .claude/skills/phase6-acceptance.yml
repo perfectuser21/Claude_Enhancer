@@ -1,0 +1,65 @@
+name: "phase6-acceptance"
+description: "Phase 6验收流程：对照checklist逐项验证"
+enabled: true
+trigger:
+  phase_transition: "Phase5 → Phase6"
+
+prompt: |
+  📋 Phase 6: Acceptance Testing 开始
+  
+  **验收目标**：验证所有功能符合Phase 1定义的验收标准
+  
+  **验收流程**：
+  
+  1. 读取Phase 1创建的ACCEPTANCE_CHECKLIST.md
+  2. 逐项验证（目标：≥90%完成，即129项中≥116项✓）
+  3. 记录每项的验证结果和证据
+  4. 生成完整的验收报告
+  
+  **验收报告结构**（ACCEPTANCE_REPORT.md）：
+  
+  ## 验收统计
+  - 总项数：129
+  - 通过数：X
+  - 失败数：Y
+  - 通过率：Z%
+  - 结论：✅ 通过 (≥90%) / ❌ 未通过 (<90%)
+  
+  ## 逐项验证详情
+  
+  ### 场景1：Phase 7清理机制
+  - [✓] merge后Phase状态自动清理
+    - 证据：执行merge后检查.phase/current不存在
+    - 测试时间：2025-10-31 14:30
+  - [✓] 新分支总是从Phase1开始
+    - 证据：git checkout -b test → AI进入Phase1
+    - 测试时间：2025-10-31 14:32
+  - [✗] 三层清理机制全部工作
+    - 问题：post-merge hook未触发
+    - 需要修复：检查hook权限
+  
+  ### 场景2：并行执行
+  ...
+  
+  ## 失败项分析
+  如果有失败项：
+  - 失败原因
+  - 影响程度
+  - 修复建议
+  - 是否阻塞发布
+  
+  ## 最终结论
+  ✅ 建议通过验收（通过率≥90%，无critical失败）
+  ❌ 建议修复后重新验收（通过率<90%或有critical失败）
+  
+  **验收方法**：
+  - 功能验收：实际操作验证
+  - 性能验收：对照性能预算检查
+  - 质量验收：代码检查、测试覆盖率
+  - 文档验收：文档完整性和准确性
+  
+  **完成行为**：
+  - 创建ACCEPTANCE_REPORT.md
+  - 告诉用户："Phase 6验收完成，通过率X%，请您确认验收结果"
+  - 等待用户说："没问题" 或 "验收通过"
+  - ❌ 不能自动进入Phase 7

@@ -1,0 +1,53 @@
+name: "phase1-discovery-planning"
+description: "Phase 1完整流程指导：5个substages详细步骤"
+enabled: true
+trigger:
+  phase_transition: "null → Phase1"
+  tool_use: "before_phase1_work"
+
+prompt: |
+  📋 Phase 1: Discovery & Planning 开始
+  
+  **5个Substages（必须按顺序完成）**：
+  
+  1.1 Branch Check（分支前置检查）
+    - 检查当前分支：git rev-parse --abbrev-ref HEAD
+    - 如果在main分支：创建feature分支
+    - 强制规则：新任务 = 新分支
+  
+  1.2 Requirements Discussion（需求讨论）
+    - 与用户澄清需求
+    - 可行性初步评估
+    - 确认优先级
+  
+  1.3 Technical Discovery（技术探索）
+    - 创建P1_DISCOVERY.md（>300行）
+    - 分析当前状态、问题根因、技术方案
+    - 创建ACCEPTANCE_CHECKLIST.md（定义验收标准）
+    - 触发checklist_generator.sh生成双语checklist
+  
+  1.4 Impact Assessment（影响评估）
+    - 运行：bash .claude/scripts/impact_radius_assessor.sh "任务描述"
+    - 获取Impact Radius评分
+    - 自动推荐Agent数量（0/3/6/8）
+  
+  1.5 Architecture Planning（架构规划）
+    - 创建PLAN.md（>500行）
+    - 应用Impact Assessment结果
+    - 定义Phase 2-7详细执行步骤
+    - 包含：架构设计、并行策略、保障机制、验收标准
+  
+  **Phase 1完成确认（重要！）**：
+  - 向用户用人话解释要做什么（不用技术术语）
+  - 展示完整方案和验收标准
+  - 明确说："请您确认方案，说'我理解了，开始Phase 2'"
+  - ❌ 绝对不能自动进入Phase 2
+  - ❌ 必须等待用户明确确认
+  
+  **Phase 1交付物检查清单**：
+  - [ ] user_request.md（用户需求）
+  - [ ] P1_DISCOVERY.md（技术探索）
+  - [ ] ACCEPTANCE_CHECKLIST.md（用户验收）
+  - [ ] TECHNICAL_CHECKLIST.md（技术清单）
+  - [ ] IMPACT_ASSESSMENT.md（影响评估）
+  - [ ] PLAN.md（实施方案）

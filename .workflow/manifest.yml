@@ -3,7 +3,7 @@
 # Purpose: 定义7 Phases执行顺序、并行策略和默认配置
 # Updated: 2025-10-30 (v8.6.0 - Self-Enforcing Quality System + 7-Phase Hard Enforcement)
 
-version: 8.7.1
+version: 8.8.0
 project: "Claude Enhancer"
 # 7 Phases工作流定义（Phase 1-7，与SPEC.yaml对齐）
 phases:

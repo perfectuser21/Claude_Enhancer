@@ -1,52 +1,166 @@
-# User Request - Per-Phase Impact Assessment Architecture
+# Phase 1/6/7 Skills + 并行执行系统 + Phase 7清理机制优化
 
-**Date**: 2025-10-29
-**Requested by**: User
-**Branch**: feature/per-phase-impact-assessment
-**Impact Radius**: 90/100 (very-high-risk)
-
----
-
-## 📋 Request
-
-将Impact Assessment系统从全局评估改造为per-phase架构，使每个Phase能够根据自己的特性独立评估任务风险和推荐agent数量。
+**用户**: perfectuser21
+**日期**: 2025-10-31
+**分支**: feature/phase-skills-hooks-optimization
 
 ---
 
-## 🎯 Goals
+## 你需要得到什么（用人话说）
 
-### 核心目标
-1. **Per-Phase评估**: 每个Phase（Phase2/3/4）独立评估任务复杂度
-2. **Phase-Specific配置**: STAGES.yml包含每个Phase的风险模式和agent策略
-3. **智能推荐**: Phase 2推荐2-4个agents，Phase 3推荐3-8个agents，Phase 4推荐2-5个agents
-4. **向后兼容**: 保持现有全局评估模式可用
+### 问题1：Phase 7清理机制有Bug
+**现象**：你merge代码到main分支后，系统留下了"Phase7"标记文件，导致下次创建新分支时，系统以为还在Phase7，而不是从Phase1开始。
 
-### 问题陈述
+**你希望**：
+- 每次merge完成后，系统自动清理Phase状态
+- 创建新分支时，总是从Phase1开始
+- 不用你手动删除文件
 
-**当前问题**：
-- Impact Assessment是全局的（评估整个任务）
-- 不区分Phase特性（Phase 2实现 vs Phase 3测试 vs Phase 4审查）
-- 推荐的agent数量固定（如：6个agents）
-- 没有利用STAGES.yml已定义的per-phase并行组
+**就像**：租车归还后，工作人员会清理车内，下个客户拿到的是干净的车。你希望merge后系统自动"清理"，下个任务拿到的是干净状态。
 
-**用户反馈**：
-> "每个阶段应该根据需求不是有个评估吗，然后不同阶段应该多少个subagents并行工作。我不担心浪费token，我需要的是高效和准确性。"
+### 问题2：并行执行没真正运行起来
+**现象**：文档写了并行执行能加速3-5倍，但实际上AI还是一个一个串行执行任务，没变快。
+
+**你希望**：
+- Phase 3测试阶段，多个测试真正同时跑（不是一个跑完再跑下个）
+- 能看到明显的速度提升（至少3倍快）
+- 有日志证明确实并行执行了
+
+**就像**：你买了多核CPU，但软件只用1个核心。你希望真正用上所有核心，把性能榨干。
+
+### 问题3：AI在Phase 1/6/7不够规范
+**现象**：AI在Phase 2-5有详细指导文档（知道该做什么），但Phase 1/6/7没有，容易偏离流程或漏步骤。
+
+**你希望**：
+- Phase 1：AI知道如何正确做需求分析、技术探索、架构规划
+- Phase 6：AI知道如何验收，对照checklist逐项检查
+- Phase 7：AI知道如何清理、如何正确创建PR（不是直接merge）
+- 有完整的Hooks使用说明（20个hooks都是干什么的）
+
+**就像**：给员工发了操作手册，Phase 2-5的手册很详细，但Phase 1/6/7的手册缺失，导致这几个阶段经常出错。你希望补全手册。
 
 ---
 
-## ✅ Acceptance Criteria
+## 验收标准（怎么知道做好了）
 
-### 功能性验收
-- [ ] Impact Assessment支持`--phase`参数（per-phase评估）
-- [ ] STAGES.yml包含per-phase `impact_assessment`配置
-  - [ ] Phase2配置（实现阶段风险模式）
-  - [ ] Phase3配置（测试阶段风险模式）
-  - [ ] Phase4配置（审查阶段风险模式）
-- [ ] parallel_task_generator.sh使用per-phase评估
-- [ ] Phase 2评估推荐agents数量符合Phase 2特性（2-4个）
-- [ ] Phase 3评估推荐agents数量符合Phase 3特性（3-8个）
-- [ ] Phase 4评估推荐agents数量符合Phase 4特性（2-5个）
-- [ ] 向后兼容：`bash impact_radius_assessor.sh "task"`仍工作
+### 1. Phase 7清理机制验收
+
+**场景1**：merge代码后检查
+- 你说"merge"
+- AI执行merge
+- 你检查main分支：`ls -la .phase/current`应该显示"文件不存在"
+- ✅ 通过：文件不存在
+- ❌ 失败：文件还在
+
+**场景2**：创建新分支后检查
+- 在main分支执行：`git checkout -b feature/test-cleanup`
+- 你检查Phase状态：AI应该自动进入Phase1
+- ✅ 通过：AI说"我们现在在Phase1"
+- ❌ 失败：AI说"我们在Phase7"
+
+**场景3**：三层清理都工作
+- 第一层：comprehensive_cleanup.sh脚本清理
+- 第二层：phase_completion_validator.sh在Phase7完成时清理
+- 第三层：post-merge hook在merge后清理
+- ✅ 通过：你随便测任何一层，都能清理
+- ❌ 失败：某一层不工作
+
+### 2. 并行执行验收
+
+**场景1**：Phase 3测试加速
+- 创建一个高复杂度任务（Impact Radius ≥50）
+- 进入Phase 3测试阶段
+- 记录测试开始时间和结束时间
+- ✅ 通过：时间缩短至少3倍（例如：3小时→1小时）
+- ❌ 失败：时间没明显变化
+
+**场景2**：能看到并行执行证据
+- Phase 3时查看日志：`ls .workflow/logs/*parallel*`
+- ✅ 通过：有日志文件，内容显示多个agent同时执行
+- ❌ 失败：无日志或日志显示串行执行
+
+**场景3**：AI知道如何并行
+- Phase 1结束时，AI说："我将使用6个agents并行执行Phase 2"
+- Phase 2时，AI在单个消息中调用多个Task tool
+- ✅ 通过：AI行为符合并行执行要求
+- ❌ 失败：AI还是一个个串行执行
+
+### 3. Skills和Hooks指导验收
+
+**场景1**：Phase 1有详细指导
+- 你给AI一个新需求
+- AI进入Phase 1
+- AI显示："参考 phase1-discovery-planning skill..."
+- ✅ 通过：AI展示5个substages完整流程
+- ❌ 失败：AI没有系统性指导，步骤混乱
+
+**场景2**：Phase 6验收报告完整
+- Phase 6时AI生成ACCEPTANCE_REPORT.md
+- 报告包含：所有checklist项验证结果、证据、通过/失败统计
+- ✅ 通过：报告详细，你能看懂每项是否通过
+- ❌ 失败：报告简单或缺失
+
+**场景3**：Phase 7有清理指导
+- Phase 7时AI说："根据phase7-closure skill，我需要..."
+- AI执行：清理、验证、创建PR（不是直接merge）
+- ✅ 通过：AI按正确流程操作
+- ❌ 失败：AI直接merge或漏步骤
+
+**场景4**：Hooks文档完整
+- 你打开docs/HOOKS_GUIDE.md
+- 搜索任意一个hook名字（如：branch_helper.sh）
+- 能找到：这个hook干什么、什么时候触发、如何配置
+- ✅ 通过：20个hooks都有文档
+- ❌ 失败：部分hooks无文档
+
+**场景5**：Skills文档完整
+- 你想创建一个新skill
+- 打开docs/SKILLS_GUIDE.md
+- 按照步骤操作能成功创建
+- ✅ 通过：文档清晰可操作
+- ❌ 失败：文档不清楚或缺步骤
+
+### 4. 质量验收
+
+**场景1**：所有脚本无语法错误
+- 运行：`bash scripts/static_checks.sh`
+- ✅ 通过：所有检查绿灯
+- ❌ 失败：有红灯
+
+**场景2**：版本号统一
+- 检查6个文件：VERSION, settings.json, manifest.yml, package.json, CHANGELOG.md, SPEC.yaml
+- ✅ 通过：6个文件版本号完全一致（如都是8.8.0）
+- ❌ 失败：版本号不一致
+
+**场景3**：验收项通过率
+- 对照ACCEPTANCE_CHECKLIST.md逐项检查
+- ✅ 通过：≥90%的项checked（至少116/129项）
+- ❌ 失败：<90%
+
+---
+
+## 完成后你能做什么（最终效果）
+
+1. **自动化清理**：你再也不用担心merge后的"脏"状态，系统自动清理
+
+2. **真正的并行**：Phase 3测试从3小时缩短到1小时，真实可见的效率提升
+
+3. **AI更规范**：
+   - Phase 1：AI系统地做需求分析，不漏步骤
+   - Phase 6：AI生成清晰的验收报告，你能看懂每项是否达标
+   - Phase 7：AI正确清理和创建PR，不犯错
+
+4. **完整文档**：
+   - 20个hooks你都知道干什么用的
+   - 想创建新skill时有完整指南可参考
+   - 不再是"黑盒"
+
+5. **质量保证**：
+   - 所有代码通过质量检查
+   - 版本号永远一致
+   - 129项验收标准≥90%通过
+
+**总结一句话**：系统更自动、更快、更规范、文档更完整，你用起来更放心。
 
 ### 性能验收
 - [ ] Impact Assessment执行时间≤50ms（保持现有性能）

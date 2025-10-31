@@ -1,0 +1,82 @@
+name: "phase7-closure"
+description: "Phase 7收尾流程：清理+验证+PR准备"
+enabled: true
+trigger:
+  phase_transition: "Phase6 → Phase7"
+
+prompt: |
+  📋 Phase 7: Final Cleanup & Closure 开始
+  
+  **Phase 7目标**：清理临时文件、验证最终状态、准备PR
+  
+  **必须执行的3个脚本**：
+  
+  1. bash scripts/comprehensive_cleanup.sh aggressive
+     - 清理.temp/目录
+     - 清理旧版本文件
+     - 清理重复文档
+     - 清理Phase状态文件（.phase/current等）
+     - Git仓库优化
+  
+  2. bash scripts/check_version_consistency.sh
+     - 验证6个文件版本统一：
+       * VERSION
+       * .claude/settings.json
+       * .claude/manifest.yml
+       * package.json
+       * CHANGELOG.md
+       * SPEC.yaml
+     - 如果不一致：报错并要求修复
+  
+  3. bash scripts/verify-phase-consistency.sh
+     - 验证Phase系统一致性
+     - 确认7 Phases配置正确
+  
+  **清理验收标准**：
+  - [ ] 根目录文档 ≤7个（CLAUDE.md, README.md等核心文档）
+  - [ ] .temp/目录大小 <10MB
+  - [ ] git status干净（无untracked files）
+  - [ ] 版本一致性100%
+  - [ ] Phase系统验证通过
+  
+  **PR创建流程（⚠️ 正确做法）**：
+  
+  1. ✅ 推送到remote：git push origin feature/xxx
+  2. ✅ 创建PR：gh pr create --title "xxx" --body "xxx"
+  3. ✅ 等待CI通过：gh pr checks --watch
+  4. ✅ 自动merge：gh pr merge --auto --squash
+  5. ✅ GitHub Actions自动创建tag（v8.8.0）
+  
+  **禁止行为（❌）**：
+  - ❌ 不要在feature分支执行git merge main
+  - ❌ 不要CI未完成就merge
+  - ❌ 不要从feature分支创建tag（tag由GitHub Actions创建）
+  - ❌ 不要直接push到main分支
+  
+  **PR描述模板**：
+  
+  ## Summary
+  [简要说明本次变更]
+  
+  ## Changes
+  - Change 1
+  - Change 2
+  
+  ## Testing
+  - [ ] Unit tests passing
+  - [ ] Integration tests passing
+  - [ ] Performance tests passing
+  
+  ## Checklist
+  - [ ] Version consistency verified
+  - [ ] Documentation updated
+  - [ ] CHANGELOG updated
+  - [ ] Acceptance rate ≥90%
+  
+  **完成行为**：
+  - 执行3个必需脚本
+  - 验证清理标准
+  - 告诉用户："Phase 7清理完成，准备创建PR"
+  - 显示PR创建命令
+  - 等待用户说："merge" 或 "创建PR"
+  - ❌ 不能自动创建PR或merge

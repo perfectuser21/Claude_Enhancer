@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Parallel Task Generator for Subagents
-# Version: 2.0.0 (Per-Phase Assessment Support)
+# Version: 2.1.0 (Enhanced STAGES.yml parsing + Better error handling)
 # Purpose: 读取STAGES.yml + Per-Phase Impact Assessment → 生成并行Task tool调用建议
 # Usage: bash scripts/subagent/parallel_task_generator.sh <phase> <task_description>
 
@@ -10,10 +10,45 @@ PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 STAGES_FILE="${PROJECT_ROOT}/.workflow/STAGES.yml"
 IMPACT_ASSESSOR="${PROJECT_ROOT}/.claude/scripts/impact_radius_assessor.sh"
 
+# ========== 工具检查 ==========
+check_dependencies() {
+    local missing_tools=()
+
+    # 检查Python3（必需）
+    if ! command -v python3 &>/dev/null; then
+        missing_tools+=("python3")
+    fi
+
+    # 检查yq（可选，有fallback）
+    if ! command -v yq &>/dev/null; then
+        echo "⚠️  Warning: yq not installed, using Python fallback for YAML parsing" >&2
+    fi
+
+    if [[ ${#missing_tools[@]} -gt 0 ]]; then
+        echo "❌ ERROR: Missing required tools: ${missing_tools[*]}" >&2
+        echo "   Please install: sudo apt-get install ${missing_tools[*]}" >&2
+        return 1
+    fi
+
+    return 0
+}
+
 # ========== 主函数 ==========
 main() {
     local phase="${1:-Phase3}"
     local task_desc="${2:-General development task}"
+
+    # 检查依赖
+    if ! check_dependencies; then
+        exit 1
+    fi
+
+    # 检查STAGES.yml存在
+    if [[ ! -f "${STAGES_FILE}" ]]; then
+        echo "❌ ERROR: STAGES.yml not found at: ${STAGES_FILE}" >&2
+        echo "   Please ensure the file exists." >&2
+        exit 1
+    fi
 
     echo "# 🚀 Parallel Subagent Execution Plan"
     echo ""
@@ -24,8 +59,15 @@ main() {
     # 1. 运行Per-Phase Impact Assessment
     echo "## Step 1: Per-Phase Impact Assessment"
     echo ""
-    local assessment_result=$(echo "${task_desc}" | bash "${IMPACT_ASSESSOR}" --phase "${phase}" --json 2>/dev/null || echo "{}")
-    local recommended_agents=$(echo "${assessment_result}" | python3 -c "import sys, json; data=json.load(sys.stdin); print(data.get('agent_strategy', {}).get('min_agents', 6))" 2>/dev/null || echo "6")
+    local assessment_result=""
+    local recommended_agents="6"
+
+    if [[ -f "${IMPACT_ASSESSOR}" ]]; then
+        assessment_result=$(echo "${task_desc}" | bash "${IMPACT_ASSESSOR}" --phase "${phase}" --json 2>/dev/null || echo "{}")
+        recommended_agents=$(echo "${assessment_result}" | python3 -c "import sys, json; data=json.load(sys.stdin); print(data.get('agent_strategy', {}).get('min_agents', 6))" 2>/dev/null || echo "6")
+    else
+        echo "⚠️  Warning: Impact assessor not found, using default: 6 agents" >&2
+    fi
 
     echo "- Recommended agents: **${recommended_agents}**"
     echo ""
@@ -37,19 +79,34 @@ main() {
     local parallel_groups=$(python3 <<EOF
 import yaml
 import json
+import sys
 
 try:
     with open("${STAGES_FILE}", 'r') as f:
         config = yaml.safe_load(f)
 
+    # 尝试从parallel_groups字段读取（多Agent开发工作流）
     groups = config.get('parallel_groups', {}).get('${phase}', [])
 
     # 过滤出can_parallel=true的组
     parallel_groups = [g for g in groups if g.get('can_parallel', False)]
 
+    if not parallel_groups:
+        print("[]", file=sys.stderr)
+        print("⚠️  No parallel groups found for ${phase}", file=sys.stderr)
+    else:
+        print(f"✓ Found {len(parallel_groups)} parallel groups", file=sys.stderr)
+
     print(json.dumps(parallel_groups, ensure_ascii=False))
+except FileNotFoundError:
+    print("[]")
+    print("❌ ERROR: Cannot read ${STAGES_FILE}", file=sys.stderr)
+except yaml.YAMLError as e:
+    print("[]")
+    print(f"❌ ERROR: Invalid YAML format: {e}", file=sys.stderr)
 except Exception as e:
     print("[]")
+    print(f"❌ ERROR: {e}", file=sys.stderr)
 EOF
 )
 
@@ -120,39 +177,53 @@ EOF
     # 4. 生成Task tool调用建议
     echo "## Step 4: Generated Task Tool Invocations"
     echo ""
-    echo "**You should make the following Task tool calls in a SINGLE message** (parallel execution):"
+    echo "**Copy and paste the following into your Claude Code message** (parallel execution):"
+    echo ""
+    echo "---"
     echo ""
 
     python3 <<EOF
 import json
+import sys
 
-agents = json.loads('''${selected_agents}''')
+try:
+    agents = json.loads('''${selected_agents}''')
+except json.JSONDecodeError as e:
+    print("❌ ERROR: Invalid JSON in selected agents", file=sys.stderr)
+    print(f"   Details: {e}", file=sys.stderr)
+    exit(1)
 
 if not agents:
     print("❌ No agents selected")
     exit(0)
 
-print("\`\`\`")
+# 生成AI可直接复制的格式
 for i, agent_info in enumerate(agents, 1):
     agent = agent_info['agent']
     group_name = agent_info['group_name']
 
-    print(f"# Task {i}: {agent}")
-    print(f"Task(")
+    print(f"Task {i}/{len(agents)}: {agent} ({group_name})")
+    print()
+    print("\`\`\`")
+    print("Task(")
     print(f"  subagent_type=\"{agent}\",")
     print(f"  description=\"{group_name} - Execute task\",")
     print(f"  prompt=\"\"\"")
-    print(f"  ${task_desc}")
-    print(f"  ")
-    print(f"  Focus on your expertise area ({group_name}).")
-    print(f"  Coordinate with other agents through shared files.")
-    print(f"  \"\"\"")
-    print(f")")
+    print(f"${task_desc}")
+    print()
+    print(f"Focus on: {group_name}")
+    print("Coordinate with other agents through shared files.")
+    print("Report your progress and any blockers.")
+    print("  \"\"\"")
+    print(")")
+    print("\`\`\`")
     print()
 
-print("\`\`\`")
+print("---")
 print()
-print(f"**Total**: {len(agents)} parallel subagent calls")
+print(f"**Summary**: {len(agents)} parallel Task tool calls")
+print()
+print("**Important**: Make all these Task() calls in a SINGLE message for true parallel execution!")
 EOF
 
     echo ""
@@ -217,7 +288,71 @@ EOF
 
     echo "---"
     echo ""
-    echo "**Next Action**: Copy the Task tool invocations above and execute them in parallel."
+    echo "## Step 6: Next Actions"
+    echo ""
+    echo "1. Review the generated Task() calls above"
+    echo "2. Copy ALL Task() calls"
+    echo "3. Paste them into Claude Code in a SINGLE message"
+    echo "4. Monitor parallel execution progress"
+    echo "5. Review conflict warnings if any"
+    echo ""
+    echo "**Pro Tip**: For maximum efficiency, ensure all agents execute truly in parallel!"
 }
+
+# ========== 帮助文档 ==========
+show_help() {
+    cat <<EOF
+Parallel Task Generator for Subagents v2.1.0
+
+用途：
+  根据STAGES.yml配置和任务描述，智能生成并行Task tool调用建议
+
+用法：
+  $0 <phase> [task_description]
+
+参数：
+  phase              - Phase名称（如Phase1, Phase2, Phase3）
+  task_description   - 任务描述（可选，默认为"General development task"）
+
+示例：
+  # 基础用法
+  $0 Phase3
+
+  # 带任务描述
+  $0 Phase3 "Implement user authentication system"
+
+  # Phase 2 实现阶段
+  $0 Phase2 "Build backend API endpoints"
+
+  # Phase 4 测试阶段
+  $0 Phase4 "Run comprehensive test suite"
+
+输出：
+  - Step 1: 影响评估（推荐agent数量）
+  - Step 2: 读取并行组配置
+  - Step 3: 选择最佳agent组合
+  - Step 4: 生成Task tool调用代码
+  - Step 5: 冲突检测报告
+  - Step 6: 后续操作指引
+
+依赖：
+  - python3（必需）- YAML解析和JSON处理
+  - yq（可选）- 如无则使用Python fallback
+
+配置文件：
+  - .workflow/STAGES.yml - 并行组定义
+  - .claude/scripts/impact_radius_assessor.sh - 影响评估脚本
+
+更多信息：
+  - 详细文档: docs/PARALLEL_SUBAGENT_STRATEGY.md
+  - STAGES配置: .workflow/STAGES.yml
+EOF
+}
+
+# ========== 入口点 ==========
+if [[ $# -eq 0 ]] || [[ "$1" == "-h" ]] || [[ "$1" == "--help" ]]; then
+    show_help
+    exit 0
+fi
 
 main "$@"
