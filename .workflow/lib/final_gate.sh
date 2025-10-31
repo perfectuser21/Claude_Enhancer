@@ -134,7 +134,7 @@ PY
   # 3) Gate 签名（保护分支强制）
   if [[ "$BRANCH" =~ ^(main|master|production)$ ]]; then
     local SIG_COUNT
-    SIG_COUNT=$(ls "$PROJECT_ROOT"/.gates/*.ok.sig 2>/dev/null | wc -l | tr -d ' ')
+    SIG_COUNT=$(find "$PROJECT_ROOT/.gates/" -name "*.ok.sig" 2>/dev/null | wc -l | tr -d ' ')
 
     if [[ "${MOCK_SIG:-}" == "invalid" ]]; then
       echo -e "${CYAN}🎭 MOCK MODE: Simulating invalid signatures${NC}"
