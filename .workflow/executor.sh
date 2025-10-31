@@ -524,6 +524,66 @@ validate_task_count() {
 
 # ==================== Phase执行引擎 ====================
 
+# 串行执行（原有逻辑保持不变）
+execute_sequential() {
+    local phase="$1"
+    log_info "串行执行 Phase: ${phase}"
+
+    # 调用原有的gate验证逻辑
+    execute_phase_gates "${phase}"
+}
+
+# 执行Phase（并行或串行）
+execute_phase() {
+    local phase="$1"
+
+    if is_parallel_enabled "$phase"; then
+        echo "🚀 Parallel execution enabled for $phase"
+
+        # 检查STAGES.yml是否存在
+        if [[ -f "${SCRIPT_DIR}/STAGES.yml" ]]; then
+            # 读取STAGES.yml
+            local parallel_groups=$(yq eval ".workflow_phase_parallel.${phase}.parallel_groups" "${SCRIPT_DIR}/STAGES.yml" 2>/dev/null)
+
+            if [[ -n "$parallel_groups" && "$parallel_groups" != "null" && "$parallel_groups" != "[]" ]]; then
+                # 调用parallel_executor.sh
+                if [[ -f "${SCRIPT_DIR}/lib/parallel_executor.sh" ]]; then
+                    local log_file="${SCRIPT_DIR}/logs/parallel_${phase}_$(date +%s).log"
+
+                    log_info "调用 parallel_executor.sh 执行并行任务"
+                    log_info "  Phase: ${phase}"
+                    log_info "  配置文件: ${SCRIPT_DIR}/STAGES.yml"
+                    log_info "  日志文件: ${log_file}"
+
+                    bash "${SCRIPT_DIR}/lib/parallel_executor.sh" \
+                        execute "${phase}" \
+                        $(echo "$parallel_groups" | yq eval '.[].group_id' - 2>/dev/null | tr '\n' ' ') \
+                        2>&1 | tee "${log_file}"
+
+                    local parallel_exit_code=$?
+                    if [[ $parallel_exit_code -eq 0 ]]; then
+                        log_success "✓ 并行执行成功"
+                        return 0
+                    else
+                        log_error "✗ 并行执行失败（exit code: ${parallel_exit_code}）"
+                        return 1
+                    fi
+                else
+                    echo "⚠️  parallel_executor.sh not found, falling back to sequential"
+                fi
+            else
+                log_info "Phase ${phase} 无并行组配置，使用串行执行"
+            fi
+        else
+            log_warn "STAGES.yml not found, falling back to sequential"
+        fi
+    fi
+
+    # Fallback到串行
+    echo "📝 Sequential execution for $phase"
+    execute_sequential "$phase"
+}
+
 execute_phase_gates() {
     local phase="$1"
     log_info "开始验证 ${BOLD}${phase}${NC} 阶段的Gates条件..."
@@ -953,17 +1013,8 @@ main() {
         validate)
             local current_phase=$(get_current_phase)
 
-            # 尝试并行执行（如果配置了）
-            if is_parallel_enabled "${current_phase}"; then
-                log_info "尝试并行执行 ${current_phase}"
-                if execute_parallel_workflow "${current_phase}"; then
-                    log_success "并行执行成功"
-                else
-                    log_warn "并行执行失败，继续标准流程"
-                fi
-            fi
-
-            if execute_phase_gates "${current_phase}"; then
+            # 使用新的execute_phase函数（自动检测并行）
+            if execute_phase "${current_phase}"; then
                 log_success "🎉 阶段 ${current_phase} 验证通过！"
                 integrate_with_claude_hooks
             else
@@ -975,17 +1026,8 @@ main() {
         next)
             local current_phase=$(get_current_phase)
 
-            # 尝试并行执行（如果配置了）
-            if is_parallel_enabled "${current_phase}"; then
-                log_info "尝试并行执行 ${current_phase}"
-                if execute_parallel_workflow "${current_phase}"; then
-                    log_success "并行执行成功"
-                else
-                    log_warn "并行执行失败，继续标准流程"
-                fi
-            fi
-
-            if execute_phase_gates "${current_phase}"; then
+            # 使用新的execute_phase函数（自动检测并行）
+            if execute_phase "${current_phase}"; then
                 log_success "🎉 已自动进入下一阶段！"
                 generate_status_report
             else

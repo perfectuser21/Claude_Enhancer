@@ -1,33 +1,36 @@
 version: "1.0"
 project:
-  name: "双语Checklist系统测试"
-  created: "2025-10-22"
+  name: "Phase 1/6/7 Skills + 并行执行系统 + Phase 7清理机制优化"
+  created: "2025-10-31"
 
 links:
   - u: U-001
     t: [T-001]
-    description: "用户友好的验收清单（简单语言）"
+    description: ""
   - u: U-002
     t: [T-002]
-    description: "技术版验收清单（专业术语）"
+    description: "每次merge完成后，系统自动清理Phase状态"
   - u: U-003
     t: [T-003]
-    description: "追踪映射关系（TRACEABILITY.yml）"
+    description: "创建新分支时，总是从Phase1开始"
   - u: U-004
     t: [T-004]
-    description: "Phase 6验收报告生成"
+    description: "不用你手动删除文件"
   - u: U-005
     t: [T-005]
-    description: "Phase 1生成双语Checklist"
+    description: "Phase 3测试阶段，多个测试真正同时跑（不是一个跑完再跑下个）"
   - u: U-006
     t: [T-006]
-    description: "Phase 6生成验收报告"
+    description: "能看到明显的速度提升（至少3倍快）"
   - u: U-007
     t: [T-007]
-    description: "自动映射用户项到技术项"
+    description: "有日志证明确实并行执行了"
   - u: U-008
     t: [T-008]
-    description: "禁用术语检查"
+    description: "Phase 1：AI知道如何正确做需求分析、技术探索、架构规划"
   - u: U-009
     t: [T-009]
-    description: "生活场景类比匹配"
+    description: "Phase 6：AI知道如何验收，对照checklist逐项检查"
+  - u: U-010
+    t: [T-010]
+    description: "Phase 7：AI知道如何清理、如何正确创建PR（不是直接merge）"

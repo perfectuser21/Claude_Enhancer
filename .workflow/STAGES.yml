@@ -219,154 +219,199 @@ parallel_groups:
         - "docs/test-plan.md"
         - "docs/security-plan.md"
 
-  # Phase2骨架阶段：最多4个并行agent
+  # Phase2实现阶段：最多8个并行agent（3组并行）
   Phase2:
-    - group_id: skeleton-structure
-      name: "结构创建组"
+    - group_id: group1-cleanup-fix
+      name: "Phase 7清理机制"
       agents:
-        - backend-architect
-        - devops-engineer
+        - name: "comprehensive_cleanup修改"
+          task: "添加Phase状态清理逻辑"
+          estimated_time: "30min"
+        - name: "Phase7验证脚本"
+          task: "更新验证逻辑支持清理检查"
+          estimated_time: "25min"
+        - name: "清理文档更新"
+          task: "更新CLAUDE.md中Phase7说明"
+          estimated_time: "20min"
+      can_parallel: true
+      max_concurrent: 3
+      conflict_paths:
+        - "scripts/comprehensive_cleanup.sh"
+        - "scripts/verify-phase-consistency.sh"
+        - "CLAUDE.md"
+
+    - group_id: group2-parallel-integration
+      name: "并行执行集成"
+      agents:
+        - name: "并行执行器实现"
+          task: "实现parallel_executor.sh核心逻辑"
+          estimated_time: "45min"
+        - name: "冲突检测机制"
+          task: "实现conflict_detector.sh"
+          estimated_time: "40min"
+        - name: "并行监控工具"
+          task: "实现parallel_monitor.sh"
+          estimated_time: "35min"
+      can_parallel: true
+      max_concurrent: 3
+      conflict_paths:
+        - ".workflow/lib/parallel_executor.sh"
+        - ".workflow/lib/conflict_detector.sh"
+        - "scripts/parallel_monitor.sh"
+
+    - group_id: group3-skills-guide
+      name: "Skills指导"
+      agents:
+        - name: "Skills配置"
+          task: "配置.claude/settings.json中skills定义"
+          estimated_time: "30min"
+        - name: "Skills文档"
+          task: "编写Skills使用指南"
+          estimated_time: "25min"
       can_parallel: true
       max_concurrent: 2
       conflict_paths:
-        - "src/**/.gitkeep"
-        - "scripts/**"
+        - ".claude/settings.json"
+        - "docs/SKILLS_GUIDE.md"
 
-    - group_id: skeleton-config
-      name: "配置初始化组"
-      agents:
-        - devops-engineer
-        - database-specialist
-      can_parallel: false  # 配置文件容易冲突
-      max_concurrent: 1
-      conflict_paths:
-        - "package.json"
-        - "tsconfig.json"
-        - "*.config.*"
-
-  # Phase3实现阶段：最多8个并行agent
+  # Phase3测试阶段：最多8个并行agent（3组并行，并行潜力极高）
   Phase3:
-    - group_id: impl-backend
-      name: "后端实现组"
-      agents:
-        - backend-architect
-        - database-specialist
-        - api-designer
-      can_parallel: true
-      max_concurrent: 3
-      conflict_paths:
-        - "src/backend/**"
-        - "src/api/**"
-        - "migrations/**"
-
-    - group_id: impl-frontend
-      name: "前端实现组"
-      agents:
-        - frontend-specialist
-        - ux-designer
-        - react-pro
-      can_parallel: true
-      max_concurrent: 3
-      conflict_paths:
-        - "src/frontend/**"
-        - "src/components/**"
-        - "public/**"
-
-    - group_id: impl-infrastructure
-      name: "基础设施组"
-      agents:
-        - devops-engineer
-        - cloud-architect
-      can_parallel: true
-      max_concurrent: 2
-      conflict_paths:
-        - ".github/workflows/**"
-        - ".workflow/**"
-        - "scripts/**"
-        - "deployment/**"
-
-  # Phase4测试阶段：最多6个并行agent
-  Phase4:
-    - group_id: test-unit
+    - group_id: group1-unit-tests
       name: "单元测试组"
       agents:
-        - test-engineer
+        - name: "Shell脚本单元测试"
+          task: "测试核心脚本功能（bash -n, shellcheck）"
+          estimated_time: "25min"
+        - name: "Hook单元测试"
+          task: "测试Git hooks和Claude hooks"
+          estimated_time: "20min"
       can_parallel: true
-      max_concurrent: 1
+      max_concurrent: 2
       conflict_paths:
         - "tests/unit/**"
-        - "**/*.test.ts"
-        - "**/*.spec.ts"
+        - "tests/hooks/**"
 
-    - group_id: test-integration
+    - group_id: group2-integration-tests
       name: "集成测试组"
       agents:
-        - test-engineer
-        - e2e-test-specialist
+        - name: "工作流集成测试"
+          task: "测试7-Phase工作流完整流程"
+          estimated_time: "35min"
+        - name: "并行执行集成测试"
+          task: "测试parallel_executor.sh集成"
+          estimated_time: "30min"
       can_parallel: true
       max_concurrent: 2
       conflict_paths:
         - "tests/integration/**"
-        - "tests/e2e/**"
-        - "acceptance/features/**"
+        - "tests/workflow/**"
 
-    - group_id: test-performance
+    - group_id: group3-performance-tests
       name: "性能测试组"
       agents:
-        - performance-engineer
-        - performance-tester
-      can_parallel: true
-      max_concurrent: 2
-      conflict_paths:
-        - "tests/performance/**"
-        - "tests/load/**"
-        - "metrics/perf_budget.yml"
-
-    - group_id: test-security
-      name: "安全测试组"
-      agents:
-        - security-auditor
+        - name: "Hook性能测试"
+          task: "验证hooks执行时间<2秒"
+          estimated_time: "20min"
       can_parallel: true
       max_concurrent: 1
       conflict_paths:
-        - "tests/security/**"
-        - "security/**"
+        - "tests/performance/**"
+        - "metrics/perf_budget.yml"
 
-  # Phase5审查阶段：最多4个并行agent
-  Phase5:
-    - group_id: review-code
+  # Phase4审查阶段：最多3个并行agent（2组并行）
+  Phase4:
+    - group_id: group1-code-review
       name: "代码审查组"
       agents:
-        - code-reviewer
-        - security-auditor
+        - name: "逻辑正确性审查"
+          task: "检查IF判断、return语义、边界处理"
+          estimated_time: "40min"
+        - name: "代码一致性审查"
+          task: "验证6个Layers统一实现模式"
+          estimated_time: "35min"
       can_parallel: true
       max_concurrent: 2
       conflict_paths:
         - "docs/REVIEW.md"
+        - ".workflow/review_report.md"
 
-    - group_id: review-architecture
-      name: "架构审查组"
+    - group_id: group2-doc-review
+      name: "文档审查组"
       agents:
-        - backend-architect
-        - performance-engineer
+        - name: "文档完整性审查"
+          task: "验证REVIEW.md >100行，文档规范性"
+          estimated_time: "25min"
       can_parallel: true
-      max_concurrent: 2
+      max_concurrent: 1
       conflict_paths:
-        - "docs/architecture-review.md"
+        - "docs/REVIEW.md"
+        - "README.md"
+        - "CLAUDE.md"
 
-  # Phase6发布阶段：串行执行（涉及git操作）
-  Phase6:
-    - group_id: release-prep
-      name: "发布准备组"
+  # Phase5发布阶段：最多2个并行agent（2组并行）
+  Phase5:
+    - group_id: group1-changelog
+      name: "CHANGELOG更新组"
       agents:
-        - devops-engineer
-        - technical-writer
-      can_parallel: false
+        - name: "CHANGELOG生成"
+          task: "根据git log生成CHANGELOG.md内容"
+          estimated_time: "20min"
+      can_parallel: true
       max_concurrent: 1
       conflict_paths:
         - "CHANGELOG.md"
-        - "docs/**"
-        - ".git/**"
+
+    - group_id: group2-doc-update
+      name: "文档更新组"
+      agents:
+        - name: "README更新"
+          task: "更新版本号、新功能说明"
+          estimated_time: "25min"
+      can_parallel: true
+      max_concurrent: 1
+      conflict_paths:
+        - "README.md"
+        - "docs/INSTALLATION.md"
+
+  # Phase6验收阶段（用户确认）：无agent并行
+  Phase6:
+    - group_id: acceptance-confirmation
+      name: "验收确认组"
+      agents:
+        - name: "验收报告生成"
+          task: "对照Phase 1 Checklist生成验收报告"
+          estimated_time: "15min"
+      can_parallel: false
+      max_concurrent: 1
+      conflict_paths:
+        - ".workflow/ACCEPTANCE_REPORT_*.md"
+
+  # Phase7清理阶段：2个并行agent（2组可并行）
+  Phase7:
+    - group_id: group1-cleanup
+      name: "清理组"
+      agents:
+        - name: "临时文件清理"
+          task: "运行comprehensive_cleanup.sh清理.temp/等"
+          estimated_time: "10min"
+      can_parallel: true
+      max_concurrent: 1
+      conflict_paths:
+        - ".temp/**"
+        - "archive/**"
+
+    - group_id: group2-validation
+      name: "验证组"
+      agents:
+        - name: "版本一致性验证"
+          task: "运行check_version_consistency.sh验证6个文件"
+          estimated_time: "8min"
+      can_parallel: true
+      max_concurrent: 1
+      conflict_paths:
+        - "VERSION"
+        - ".claude/settings.json"
+        - ".workflow/manifest.yml"
 
 # 依赖关系定义
 dependencies:

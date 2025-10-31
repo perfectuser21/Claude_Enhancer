@@ -89,6 +89,22 @@ main() {
 
         echo "[phase_completion_validator] Phase $current_phase completed, running 95-step validation..."
 
+        # Phase 7特殊处理：完成后自动清理Phase状态
+        if [[ "$current_phase" == "Phase7" ]]; then
+            echo "[phase_completion_validator] Phase 7 detected, triggering cleanup..."
+
+            # 调用comprehensive_cleanup.sh
+            if [[ -f "$PROJECT_ROOT/scripts/comprehensive_cleanup.sh" ]]; then
+                bash "$PROJECT_ROOT/scripts/comprehensive_cleanup.sh" aggressive 2>&1 | head -10
+            fi
+
+            # 创建workflow完成标记
+            echo "workflow_complete: true" > "$WORKFLOW_DIR/workflow_complete"
+            echo "completed_at: $(date -Iseconds)" >> "$WORKFLOW_DIR/workflow_complete"
+
+            echo "✅ Phase 7 cleanup complete"
+        fi
+
         # 调用95步验证系统（升级到v95）
         if [[ -f "$PROJECT_ROOT/scripts/workflow_validator_v95.sh" ]]; then
             if ! bash "$PROJECT_ROOT/scripts/workflow_validator_v95.sh"; then

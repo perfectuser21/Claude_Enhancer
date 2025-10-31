@@ -1,6 +1,6 @@
 {
   "name": "claude-enhancer",
-  "version": "8.7.1",
+  "version": "8.8.0",
   "description": "Claude Enhancer 8.6.0 - 专业级个人AI编程工作流系统 (7 Phases Hard Enforcement + Self-Enforcing Quality System + Anti-Regression Defense)",
   "main": "index.js",
   "scripts": {

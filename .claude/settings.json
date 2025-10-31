@@ -1,7 +1,7 @@
 {
-  "version": "8.7.1",
+  "version": "8.8.0",
   "project": "Claude Enhancer",
-  "description": "四层架构分层系统 + 自愈系统 + 工作流强制执行 + Dual-Language Checklist System + Workflow Interference Fix + Performance Optimization (62% faster)",
+  "description": "四层架构分层系统 + 自愈系统 + 工作流强制执行 + Phase 1/6/7 Skills + Phase 7清理机制优化 + 完整Hooks+Skills文档",
   "permissions": {
     "defaultMode": "bypassPermissions",
     "allow": [
@@ -284,6 +284,21 @@
       },
       "enabled": true,
       "priority": "P0"
+    },
+    {
+      "name": "phase1-discovery-planning",
+      "path": ".claude/skills/phase1-discovery-planning.yml",
+      "enabled": true
+    },
+    {
+      "name": "phase6-acceptance",
+      "path": ".claude/skills/phase6-acceptance.yml",
+      "enabled": true
+    },
+    {
+      "name": "phase7-closure",
+      "path": ".claude/skills/phase7-closure.yml",
+      "enabled": true
     }
   ],
   "parallel_execution": {

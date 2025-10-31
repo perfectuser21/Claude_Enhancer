@@ -54,7 +54,7 @@ if [ -d .git ]; then
     echo "📌 安装Git Hooks..."
 
     # 备份现有hooks
-    for hook in pre-commit commit-msg; do
+    for hook in pre-commit commit-msg post-merge; do
         if [ -f .git/hooks/$hook ]; then
             cp .git/hooks/$hook .git/hooks/$hook.backup.$(date +%Y%m%d)
             echo "  备份: $hook → $hook.backup"
@@ -69,10 +69,41 @@ if [ -d .git ]; then
         cp .claude/git-hooks/commit-msg .git/hooks/commit-msg
     fi
 
+    # 创建post-merge hook（自动清理Phase状态）
+    cat > .git/hooks/post-merge << 'HOOK_EOF'
+#!/bin/bash
+# .git/hooks/post-merge
+# 自动清理Phase状态文件（merge到main后）
+
+# 获取当前分支
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+# 只在main/master分支执行清理
+if [[ "$CURRENT_BRANCH" =~ ^(main|master)$ ]]; then
+    echo "═══════════════════════════════════════"
+    echo "  Post-Merge Hook: Cleanup Phase State"
+    echo "═══════════════════════════════════════"
+
+    # 强制清理所有Phase状态
+    rm -f .phase/current .workflow/current
+
+    # 验证清理
+    if [[ ! -f ".phase/current" ]]; then
+        echo "✅ Phase state cleaned successfully"
+    else
+        echo "❌ Phase state cleanup failed"
+        exit 1
+    fi
+
+    echo "═══════════════════════════════════════"
+fi
+HOOK_EOF
+
     chmod +x .git/hooks/pre-commit 2>/dev/null
     chmod +x .git/hooks/commit-msg 2>/dev/null
+    chmod +x .git/hooks/post-merge 2>/dev/null
 
-    echo "  ✅ Git Hooks已安装"
+    echo "  ✅ Git Hooks已安装（含post-merge自动清理）"
 fi
 
 # 3. 创建配置软链接（可选）
