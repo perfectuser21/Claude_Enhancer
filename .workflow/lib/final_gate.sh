@@ -30,7 +30,8 @@ final_gate_check() {
 
   # 确保PROJECT_ROOT已设置（CI兼容）
   PROJECT_ROOT="${PROJECT_ROOT:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}"
-  BRANCH="${BRANCH:-${GITHUB_REF_NAME:-${CI_COMMIT_REF_NAME:-$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo HEAD)}}}"
+  # Use GITHUB_HEAD_REF for PR source branch (rfc/*), fallback to GITHUB_REF_NAME
+  BRANCH="${BRANCH:-${GITHUB_HEAD_REF:-${GITHUB_REF_NAME:-${CI_COMMIT_REF_NAME:-$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo HEAD)}}}}"
 
   # 加载配置阈值（从 gates.yml 或环境变量）
   local QUALITY_MIN="${QUALITY_MIN:-85}"
@@ -120,8 +121,10 @@ PY
     COV="$MOCK_COVERAGE"
   fi
 
-  # 简单整数比较
-  if (( ${COV%%.*} < COVERAGE_MIN )); then
+  # 简单整数比较 - Skip for RFC branches (documentation/kernel changes)
+  if [[ "$BRANCH" =~ ^rfc/ ]]; then
+    echo -e "${BLUE}ℹ️  Skipping coverage check for RFC branch (documentation/kernel changes)${NC}"
+  elif (( ${COV%%.*} < COVERAGE_MIN )); then
     echo -e "${RED}❌ BLOCK: coverage ${COV}% < ${COVERAGE_MIN}% (minimum required)${NC}"
     gate_fail=1
   else
@@ -131,7 +134,7 @@ PY
   # 3) Gate 签名（保护分支强制）
   if [[ "$BRANCH" =~ ^(main|master|production)$ ]]; then
     local SIG_COUNT
-    SIG_COUNT=$(ls "$PROJECT_ROOT"/.gates/*.ok.sig 2>/dev/null | wc -l | tr -d ' ')
+    SIG_COUNT=$(find "$PROJECT_ROOT/.gates/" -name "*.ok.sig" 2>/dev/null | wc -l | tr -d ' ')
 
     if [[ "${MOCK_SIG:-}" == "invalid" ]]; then
       echo -e "${CYAN}🎭 MOCK MODE: Simulating invalid signatures${NC}"

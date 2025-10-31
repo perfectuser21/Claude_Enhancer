@@ -1,7 +1,7 @@
 # Claude Enhancer 核心规格说明书（SPEC）
-# 版本: v8.7.0
+# 版本: v8.7.1
 # 用途: 定义"核心不变层" - AI修改这些内容需要在CHANGELOG明确说明理由
-# 更新日期: 2025-10-30
+# 更新日期: 2025-10-31
 
 # ═══════════════════════════════════════════════════════════
 # 第1层：核心不变层（修改需要理由）
@@ -9,7 +9,7 @@
 
 metadata:
   name: "Claude Enhancer"
-  version: "8.7.0"
+  version: "8.7.1"
   type: "single_workflow"  # 单一工作流系统（非多工作流平台）
   purpose: "专业级个人AI编程工作流系统"
   target_user: "个人开发者（单用户）"
@@ -247,12 +247,13 @@ immutable_kernel:
   version: "1.0.0"
   purpose: "定义绝对不可变的核心文件，修改需要RFC流程"
 
-  # 核心9个文件（修改需要RFC）
+  # 核心10个文件（修改需要RFC）
   kernel_files:
     - ".workflow/SPEC.yaml"           # 核心规格定义
     - ".workflow/manifest.yml"        # 工作流清单
     - ".workflow/gates.yml"           # 质量门禁配置
     - "docs/CHECKS_INDEX.json"        # 检查点索引
+    - "docs/PARALLEL_SUBAGENT_STRATEGY.md"  # 并行SubAgent策略（防删除保护）
     - "VERSION"                       # 版本文件
     - ".claude/settings.json"         # Claude配置
     - "package.json"                  # 包配置

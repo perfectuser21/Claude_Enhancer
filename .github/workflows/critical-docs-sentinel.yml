@@ -1,0 +1,301 @@
+name: 📚 Critical Documentation Sentinel
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: ['**']
+  schedule:
+    - cron: '0 0 * * *'  # 每天检查一次
+  workflow_dispatch:
+
+jobs:
+  check-critical-docs:
+    name: 🔍 Verify Critical Documentation Exists
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check Critical Documentation Files
+        id: check_docs
+        run: |
+          echo "════════════════════════════════════════════════════════"
+          echo "  📚 Critical Documentation Sentinel"
+          echo "════════════════════════════════════════════════════════"
+          echo ""
+
+          # 定义关键文档列表（这些文档绝对不能被删除）
+          CRITICAL_DOCS=(
+            "docs/PARALLEL_SUBAGENT_STRATEGY.md|并行SubAgent策略文档|850"
+            "CLAUDE.md|Claude主文档|2000"
+            "README.md|项目README|100"
+            ".workflow/SPEC.yaml|核心规格文档|339"
+            ".workflow/manifest.yml|工作流清单|50"
+            ".workflow/gates.yml|质量门禁配置|50"
+            "docs/CHECKS_INDEX.json|检查点索引|50"
+            "ARCHITECTURE.md|架构文档|100"
+            "CHANGELOG.md|变更日志|100"
+          )
+
+          EXIT_CODE=0
+          MISSING_DOCS=()
+          SIZE_WARNINGS=()
+
+          echo "🔍 Checking ${#CRITICAL_DOCS[@]} critical documents..."
+          echo ""
+
+          for doc_info in "${CRITICAL_DOCS[@]}"; do
+            IFS='|' read -r doc_path doc_name min_lines <<< "$doc_info"
+
+            if [[ ! -f "$doc_path" ]]; then
+              echo "❌ CRITICAL: Missing document: $doc_name"
+              echo "   Path: $doc_path"
+              MISSING_DOCS+=("$doc_name ($doc_path)")
+              EXIT_CODE=1
+            else
+              # 检查文件大小（行数）
+              actual_lines=$(wc -l < "$doc_path" 2>/dev/null || echo "0")
+
+              if [[ $actual_lines -lt $min_lines ]]; then
+                echo "⚠️  WARNING: Document too small: $doc_name"
+                echo "   Path: $doc_path"
+                echo "   Expected: ≥${min_lines} lines, Actual: ${actual_lines} lines"
+                SIZE_WARNINGS+=("$doc_name: ${actual_lines}/${min_lines} lines")
+              else
+                echo "✅ $doc_name ($actual_lines lines)"
+              fi
+            fi
+          done
+
+          echo ""
+          echo "════════════════════════════════════════════════════════"
+
+          if [[ ${#MISSING_DOCS[@]} -gt 0 ]]; then
+            echo "❌ FAILURE: ${#MISSING_DOCS[@]} critical document(s) missing!"
+            echo ""
+            echo "Missing documents:"
+            for missing in "${MISSING_DOCS[@]}"; do
+              echo "  - $missing"
+            done
+            echo ""
+            echo "🚨 This is a CRITICAL failure!"
+            echo "   These documents are protected by immutable_kernel."
+            echo "   Deleting them requires RFC process."
+            echo ""
+            echo "Actions required:"
+            echo "  1. Restore the missing document(s)"
+            echo "  2. If intentional deletion, follow RFC process:"
+            echo "     - Create rfc/* branch"
+            echo "     - Write RFC document explaining Why/What/Impact"
+            echo "     - Get user approval"
+            echo "     - Update .workflow/SPEC.yaml immutable_kernel section"
+          elif [[ ${#SIZE_WARNINGS[@]} -gt 0 ]]; then
+            echo "⚠️  WARNING: ${#SIZE_WARNINGS[@]} document(s) suspiciously small"
+            echo ""
+            echo "Small documents:"
+            for warning in "${SIZE_WARNINGS[@]}"; do
+              echo "  - $warning"
+            done
+            echo ""
+            echo "💡 Please verify these documents haven't been simplified/gutted"
+            # 不失败，只是警告
+          else
+            echo "✅ SUCCESS: All ${#CRITICAL_DOCS[@]} critical documents present"
+            echo ""
+            echo "✓ docs/PARALLEL_SUBAGENT_STRATEGY.md (Phase 2-7 strategies)"
+            echo "✓ CLAUDE.md (Main documentation)"
+            echo "✓ .workflow/SPEC.yaml (Core specifications)"
+            echo "✓ All other critical documents"
+          fi
+
+          echo "════════════════════════════════════════════════════════"
+
+          exit $EXIT_CODE
+
+      - name: Check for Deleted Files in Commit
+        if: github.event_name == 'push' || github.event_name == 'pull_request'
+        run: |
+          echo ""
+          echo "🔍 Checking for deleted critical files in this commit..."
+          echo ""
+
+          # 获取要比较的base commit
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          else
+            BASE_SHA="HEAD^"
+          fi
+
+          # 检查deleted files
+          DELETED_FILES=$(git diff --name-status $BASE_SHA HEAD | grep '^D' | cut -f2 || true)
+
+          if [[ -z "$DELETED_FILES" ]]; then
+            echo "✅ No files deleted in this commit"
+            exit 0
+          fi
+
+          echo "📋 Deleted files detected:"
+          echo "$DELETED_FILES"
+          echo ""
+
+          # 检查是否删除了关键文档
+          CRITICAL_PATTERNS=(
+            "docs/PARALLEL_SUBAGENT_STRATEGY.md"
+            "CLAUDE.md"
+            ".workflow/SPEC.yaml"
+            ".workflow/manifest.yml"
+            ".workflow/gates.yml"
+            "docs/CHECKS_INDEX.json"
+            "ARCHITECTURE.md"
+          )
+
+          CRITICAL_DELETED=()
+
+          for pattern in "${CRITICAL_PATTERNS[@]}"; do
+            if echo "$DELETED_FILES" | grep -q "^$pattern$"; then
+              CRITICAL_DELETED+=("$pattern")
+            fi
+          done
+
+          if [[ ${#CRITICAL_DELETED[@]} -gt 0 ]]; then
+            echo "❌ CRITICAL: Attempted to delete protected document(s)!"
+            echo ""
+            echo "Deleted protected files:"
+            for file in "${CRITICAL_DELETED[@]}"; do
+              echo "  - $file"
+            done
+            echo ""
+            echo "🚨 This violates immutable_kernel protection!"
+            echo ""
+            echo "To delete these files, you MUST:"
+            echo "  1. Create an RFC branch (rfc/*)"
+            echo "  2. Write RFC document explaining:"
+            echo "     - Why: Reason for deletion"
+            echo "     - What: Impact assessment"
+            echo "     - Rollback: Recovery plan"
+            echo "  3. Get explicit user approval"
+            echo "  4. Update .workflow/SPEC.yaml to remove from kernel_files"
+            echo ""
+            exit 1
+          else
+            echo "✅ No critical documents deleted"
+          fi
+
+      - name: Generate Summary
+        if: always()
+        run: |
+          echo "### 📚 Critical Documentation Sentinel" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [[ "${{ steps.check_docs.outcome }}" == "success" ]]; then
+            echo "✅ **All critical documents present and protected**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Protected documents:" >> $GITHUB_STEP_SUMMARY
+            echo "- docs/PARALLEL_SUBAGENT_STRATEGY.md (Phase 2-7 并行策略)" >> $GITHUB_STEP_SUMMARY
+            echo "- CLAUDE.md (主文档)" >> $GITHUB_STEP_SUMMARY
+            echo "- .workflow/SPEC.yaml (核心规格)" >> $GITHUB_STEP_SUMMARY
+            echo "- All immutable_kernel files" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Critical documentation check FAILED**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "See job logs for details." >> $GITHUB_STEP_SUMMARY
+          fi
+
+  verify-parallel-strategy-content:
+    name: 🚀 Verify Parallel Strategy Content Quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: check-critical-docs
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Verify PARALLEL_SUBAGENT_STRATEGY.md Content
+        run: |
+          echo "════════════════════════════════════════════════════════"
+          echo "  🚀 Parallel Strategy Content Quality Check"
+          echo "════════════════════════════════════════════════════════"
+          echo ""
+
+          DOC_PATH="docs/PARALLEL_SUBAGENT_STRATEGY.md"
+
+          if [[ ! -f "$DOC_PATH" ]]; then
+            echo "❌ ERROR: Document not found (should have been caught earlier)"
+            exit 1
+          fi
+
+          # 定义必须包含的关键section（防止文档被简化）
+          REQUIRED_SECTIONS=(
+            "理论基础：并行执行原理"
+            "当前系统架构 (v2.0.0)"
+            "Phase 2-7 并行策略详解"
+            "实战使用指南"
+            "性能与优化"
+            "Claude Code的批量调用"
+            "Impact Assessment"
+            "STAGES.yml"
+          )
+
+          MISSING_SECTIONS=()
+
+          echo "🔍 Checking for ${#REQUIRED_SECTIONS[@]} essential sections..."
+          echo ""
+
+          for section in "${REQUIRED_SECTIONS[@]}"; do
+            if grep -q "$section" "$DOC_PATH"; then
+              echo "✅ Found: $section"
+            else
+              echo "❌ Missing: $section"
+              MISSING_SECTIONS+=("$section")
+            fi
+          done
+
+          echo ""
+
+          # 检查文档大小（防止被简化）
+          LINE_COUNT=$(wc -l < "$DOC_PATH")
+          MIN_LINES=850
+
+          if [[ $LINE_COUNT -lt $MIN_LINES ]]; then
+            echo "❌ Document too small: ${LINE_COUNT} lines (expected ≥${MIN_LINES})"
+            echo ""
+            echo "🚨 This suggests the document has been simplified/gutted!"
+            exit 1
+          else
+            echo "✅ Document size OK: ${LINE_COUNT} lines (≥${MIN_LINES})"
+          fi
+
+          echo ""
+
+          if [[ ${#MISSING_SECTIONS[@]} -gt 0 ]]; then
+            echo "════════════════════════════════════════════════════════"
+            echo "❌ FAILURE: ${#MISSING_SECTIONS[@]} essential section(s) missing!"
+            echo ""
+            echo "Missing sections:"
+            for section in "${MISSING_SECTIONS[@]}"; do
+              echo "  - $section"
+            done
+            echo ""
+            echo "🚨 This is a CRITICAL failure!"
+            echo "   The parallel strategy document has been gutted."
+            echo ""
+            echo "Actions required:"
+            echo "  1. Restore missing sections from git history"
+            echo "  2. Ensure document contains:"
+            echo "     - Theoretical knowledge (5 parallel strategies)"
+            echo "     - Current v2.0.0 implementation details"
+            echo "     - Phase 2-7 detailed strategies"
+            echo "     - Practical usage examples"
+            echo "  3. Verify document is ≥2000 lines"
+            echo "════════════════════════════════════════════════════════"
+            exit 1
+          else
+            echo "════════════════════════════════════════════════════════"
+            echo "✅ SUCCESS: All essential sections present"
+            echo "✅ Document quality verified"
+            echo "════════════════════════════════════════════════════════"
+          fi

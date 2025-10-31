@@ -19,6 +19,30 @@ log_hook_event "force_branch_check" "PrePrompt triggered on branch: $current_bra
 
 # If on protected branch, show special PrePrompt warning
 if is_protected_branch "$current_branch"; then
+    # CRITICAL FIX: 清除旧Phase状态（merge后回到main时自动重置）
+    PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+    PHASE_FILE="$PROJECT_ROOT/.phase/current"
+
+    if [[ -f "$PHASE_FILE" ]]; then
+        OLD_PHASE=$(cat "$PHASE_FILE" 2>/dev/null || echo "Unknown")
+        rm -f "$PHASE_FILE"
+        log_hook_event "force_branch_check" "清除旧Phase状态: $OLD_PHASE (在main分支上)"
+
+        cat <<EOF >&2
+
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                           ║
+║  🔄 检测到旧Phase状态（$OLD_PHASE），已自动清除                         ║
+║                                                                           ║
+║  💡 这通常发生在merge完成后回到main分支                                ║
+║                                                                           ║
+║  📋 新任务请从Phase 1重新开始（创建feature分支）                        ║
+║                                                                           ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+EOF
+    fi
+
     cat <<'EOF' >&2
 
 ╔═══════════════════════════════════════════════════════════════════════════╗
