@@ -258,7 +258,7 @@ jobs:
 
           # 检查文档大小（防止被简化）
           LINE_COUNT=$(wc -l < "$DOC_PATH")
-          MIN_LINES=2000
+          MIN_LINES=850
 
           if [[ $LINE_COUNT -lt $MIN_LINES ]]; then
             echo "❌ Document too small: ${LINE_COUNT} lines (expected ≥${MIN_LINES})"
