@@ -14,7 +14,7 @@ PHASE_FILE="$PROJECT_ROOT/.phase/current"
 # Get current phase
 get_current_phase() {
   if [[ -f "$PHASE_FILE" ]]; then
-    cat "$PHASE_FILE" | tr -d '[:space:]'
+    tr -d '[:space:]' < "$PHASE_FILE"
   else
     echo "None"
   fi
