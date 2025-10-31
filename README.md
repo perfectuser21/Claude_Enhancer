@@ -1,5 +1,5 @@
 
-[![Version](https://img.shields.io/badge/version-8.3.0-blue.svg)](https://github.com/claude-enhancer/claude-enhancer)
+[![Version](https://img.shields.io/badge/version-8.8.0-blue.svg)](https://github.com/claude-enhancer/claude-enhancer)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/claude-enhancer/claude-enhancer/actions)
 [![Branch Protection](https://github.com/perfectuser21/Claude_Enhancer/actions/workflows/bp-guard.yml/badge.svg)](https://github.com/perfectuser21/Claude_Enhancer/actions/workflows/bp-guard.yml)

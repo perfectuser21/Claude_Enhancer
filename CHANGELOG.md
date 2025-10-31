@@ -1,5 +1,17 @@
 # Changelog
 
+## [8.8.0] - 2025-10-31
+
+### Changed - Version Bump for PR #63
+
+**Reason**: Modified kernel file (`.claude/settings.json`) for Phase 1 Intelligent Guidance System
+
+**Changes**:
+- Bumped version from 8.7.0 to 8.8.0 across all 6 files
+- Updated VERSION, settings.json, manifest.yml, package.json, CHANGELOG.md, SPEC.yaml
+
+**RFC**: `.workflow/RFC_phase1-intelligent-guidance.md`
+
 ## [8.7.0] - 2025-10-31
 
 ### Added - Phase 1 Intelligent Guidance System
