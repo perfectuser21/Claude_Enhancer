@@ -93,12 +93,21 @@ main() {
         if [[ "$current_phase" == "Phase7" ]]; then
             echo "[phase_completion_validator] Phase 7 detected, triggering cleanup..."
 
-            # 调用comprehensive_cleanup.sh
+            # 修复点2: 添加完整错误处理，不截断输出
             if [[ -f "$PROJECT_ROOT/scripts/comprehensive_cleanup.sh" ]]; then
-                bash "$PROJECT_ROOT/scripts/comprehensive_cleanup.sh" aggressive 2>&1 | head -10
+                # 执行清理并检查退出码
+                if ! bash "$PROJECT_ROOT/scripts/comprehensive_cleanup.sh" aggressive; then
+                    echo "❌ Phase 7 cleanup failed!"
+                    echo "   comprehensive_cleanup.sh returned non-zero exit code"
+                    echo "   Please fix the issues and try again"
+                    exit 1
+                fi
+            else
+                echo "⚠️  Warning: comprehensive_cleanup.sh not found"
+                echo "   Phase 7 cleanup skipped (not recommended)"
             fi
 
-            # 创建workflow完成标记
+            # 只有清理成功才创建workflow完成标记（修复点2b）
             echo "workflow_complete: true" > "$WORKFLOW_DIR/workflow_complete"
             echo "completed_at: $(date -Iseconds)" >> "$WORKFLOW_DIR/workflow_complete"
 

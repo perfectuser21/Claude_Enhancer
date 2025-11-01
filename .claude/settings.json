@@ -1,5 +1,5 @@
 {
-  "version": "8.8.0",
+  "version": "8.8.1",
   "project": "Claude Enhancer",
   "description": "四层架构分层系统 + 自愈系统 + 工作流强制执行 + Phase 1/6/7 Skills + Phase 7清理机制优化 + 完整Hooks+Skills文档",
   "permissions": {
@@ -298,6 +298,11 @@
     {
       "name": "phase7-closure",
       "path": ".claude/skills/phase7-closure.yml",
+      "enabled": true
+    },
+    {
+      "name": "parallel-execution-guide",
+      "path": ".claude/skills/parallel-execution-guide.yml",
       "enabled": true
     }
   ],

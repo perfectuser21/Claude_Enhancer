@@ -248,29 +248,35 @@ else
   echo -e "${GREEN}✓${NC} Git工作区干净"
 fi
 
-# =============================================================================
 # Phase状态清理（Phase 7完成时执行）
-# =============================================================================
 echo ""
 echo -e "${CYAN}[Phase状态清理]${NC}"
 
+PHASE_STATE_FILES=(".phase/current" ".workflow/current" ".phase/completed" ".phase/phase1_confirmed" ".workflow/workflow_complete")
+NEEDS_CLEANUP=false
+
+# 检测清理条件
 if [[ -f ".phase/current" ]]; then
-  current_phase=$(cat .phase/current)
-  if [[ "$current_phase" == "Phase7" ]]; then
-    echo -e "  ${GREEN}✓${NC} 检测到Phase 7完成"
-
-    # 清理Phase状态文件
-    rm -f .phase/current .workflow/current
-
-    # 创建完成标记
-    echo "Phase workflow completed at $(date -Iseconds)" > .phase/completed
-    echo -e "  ${GREEN}✓${NC} Phase状态文件已清理"
-    echo -e "  ${GREEN}✓${NC} 创建完成标记 .phase/completed"
-  else
-    echo -e "  ${YELLOW}⚠${NC}  当前Phase: $current_phase, 跳过Phase清理"
-  fi
+  current_phase=$(cat .phase/current 2>/dev/null || echo "")
+  [[ "${current_phase,,}" == "phase7" ]] && NEEDS_CLEANUP=true && echo -e "  ${GREEN}✓${NC} Phase 7完成"
 else
-  echo -e "  ${CYAN}ℹ${NC}  无.phase/current文件，状态已清理"
+  for file in "${PHASE_STATE_FILES[@]}"; do
+    [[ -f "$file" ]] && NEEDS_CLEANUP=true && break
+  done
+fi
+
+# 执行清理和验证
+if [[ "$NEEDS_CLEANUP" == "true" ]]; then
+  for file in "${PHASE_STATE_FILES[@]}"; do
+    rm -f "$file" 2>/dev/null && echo -e "  ${GREEN}✓${NC} 已删除: $file"
+  done
+  # 验证
+  for file in "${PHASE_STATE_FILES[@]}"; do
+    [[ -f "$file" ]] && echo -e "  ${RED}✗${NC} 验证失败: $file" && exit 1
+  done
+  echo -e "  ${GREEN}✓${NC} Phase状态完全清理（5/5文件）"
+else
+  echo -e "  ${CYAN}ℹ${NC}  无需清理"
 fi
 
 echo ""
