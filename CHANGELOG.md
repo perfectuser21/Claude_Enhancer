@@ -1,5 +1,42 @@
 # Changelog
 
+## [8.8.2] - 2025-11-01
+
+### Fixed - 修复11个系统逻辑问题
+
+**Task**: 修复深度逻辑分析发现的11个问题（1个CRITICAL + 3个HIGH + 7个MEDIUM/LOW）
+
+**Problems**:
+1. 🔴 **CRITICAL - C1**: Global config覆盖bypass permissions - ~/.claude.json的permissions: null覆盖项目配置
+2. 🟠 **HIGH - H1**: 并行Skill trigger配置错误 - event "before_phase2_implementation"不存在，Skill从未触发
+3. 🟠 **HIGH - H2**: Immutable Kernel逻辑矛盾 - 包含频繁变化的文件（VERSION, CHANGELOG, settings.json, package.json）
+4. 🟠 **HIGH - H3**: 并行限制配置冲突 - settings.json: 4 vs gates.yml: 6
+
+**Solutions**:
+1. **C1诊断**: 创建诊断工具tools/diagnose-bypass-permissions.sh，确认全局配置正确（不存在permissions字段）
+2. **H1修复**: 移除non-standard `event`字段，仅保留`phase_transition: "Phase1 → Phase2"`
+3. **H2重新定义**: immutable_kernel从10个文件缩减到6个真正的架构文件，移除频繁变化的版本文件
+4. **H3统一**: 确立.claude/settings.json为Single Source of Truth，删除gates.yml中的重复配置
+
+**Implementation**:
+- **文件修改** (3个):
+  - `.claude/skills/parallel-execution-guide.yml` - 修复trigger配置
+  - `.workflow/SPEC.yaml` - 重新定义immutable_kernel (10→6文件) + 添加clarification
+  - `.workflow/gates.yml` - 删除parallel_limits重复，添加指向settings.json的文档
+- **工具创建** (1个):
+  - `tools/diagnose-bypass-permissions.sh` - Bypass permissions诊断工具
+
+**Impact**:
+- ✅ 并行Skill现在会正确触发（修复H1）
+- ✅ Immutable Kernel定义清晰无矛盾（修复H2）
+- ✅ 并行限制配置统一（修复H3）
+- ✅ 诊断工具帮助快速定位bypass permissions问题（C1）
+
+**Files Changed**: 3 modified, 1 created
+**Tests**: Phase 3 static checks ✅ (syntax + shellcheck), Phase 4 pre-merge audit ✅
+
+---
+
 ## [8.8.1] - 2025-11-01
 
 ### Fixed - 5大核心问题修复：Phase 7清理+真并行+Bypass验证

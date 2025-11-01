@@ -43,19 +43,24 @@ scale_limits:
   baseline_date: "2025-10-30"           # Baseline established
   rationale: "防止AI无限添加文件，保持系统可维护性"
 
-# Parallel Limits - 7 Phases System
-parallel_limits:
-  Phase1: 4   # Discovery & Planning: 分析师+架构师+探索专家
-  Phase2: 6   # Implementation: 多个模块并行实现
-  Phase3: 8   # Testing: 最多并行测试任务
-  Phase4: 6   # Review: 多维度审查
-  Phase5: 4   # Release: 谨慎发布
-  Phase6: 2   # Acceptance: 专注验收
-  Phase7: 3   # Closure: 清理和归档
-
-parallel_autotune:
-  success_streak_add: 2    # 连续两次一次过，上限 +2（不超过阶段限额）
-  fail_streak_sub: 2       # 连续两次 gate 失败，上限 -2（不低于2）
+# Parallel Execution Configuration
+# ═══════════════════════════════════════════════════════════
+# ⚠️ Single Source of Truth: .claude/settings.json → parallel_execution
+#
+# 并行限制配置已统一到 settings.json 中，该文件包含完整的运行时配置：
+#   - max_concurrent: 并行任务数
+#   - timeout: 超时时间
+#   - groups: 任务分组
+#   - enabled: 是否启用
+#
+# 当前配置值（从 settings.json）:
+#   Phase2: 4 (Implementation)
+#   Phase3: 5 (Testing)
+#   Phase4: 3 (Review)
+#   Phase7: 3 (Closure)
+#
+# 如需修改并行限制，请编辑: .claude/settings.json → parallel_execution
+# ═══════════════════════════════════════════════════════════
 
 test_depth:
   pre_push: ["unit", "boundary", "smoke"]   # push 前跑的集

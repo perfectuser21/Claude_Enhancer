@@ -9,7 +9,7 @@
 
 metadata:
   name: "Claude Enhancer"
-  version: "8.8.1"
+  version: "8.8.2"
   type: "single_workflow"  # 单一工作流系统（非多工作流平台）
   purpose: "专业级个人AI编程工作流系统"
   target_user: "个人开发者（单用户）"
@@ -244,21 +244,31 @@ modification_rules:
 # ═══════════════════════════════════════════════════════════
 
 immutable_kernel:
-  version: "1.0.0"
-  purpose: "定义绝对不可变的核心文件，修改需要RFC流程"
+  version: "2.0.0"
+  purpose: "定义核心架构文件，修改需要RFC流程"
+  clarification: |
+    "Immutable"指的是架构层面的不可变，这些文件定义了系统的核心结构和工作流逻辑。
+    版本文件（VERSION, package.json, CHANGELOG.md）和配置文件（settings.json）虽然重要，
+    但它们是"经常变动的数据"，不是"核心架构"，因此不在immutable_kernel范围内。
 
-  # 核心10个文件（修改需要RFC）
+  # 核心6个架构文件（修改需要RFC）
   kernel_files:
-    - ".workflow/SPEC.yaml"           # 核心规格定义
-    - ".workflow/manifest.yml"        # 工作流清单
-    - ".workflow/gates.yml"           # 质量门禁配置
-    - "docs/CHECKS_INDEX.json"        # 检查点索引
+    - ".workflow/SPEC.yaml"           # 核心规格定义（7 Phases, 97 Checkpoints）
+    - ".workflow/manifest.yml"        # 工作流清单（7 Phases定义）
+    - ".workflow/gates.yml"           # 质量门禁配置（Gate 1/2阈值）
+    - "docs/CHECKS_INDEX.json"        # 检查点索引（97个检查点元数据）
     - "docs/PARALLEL_SUBAGENT_STRATEGY.md"  # 并行SubAgent策略（防删除保护）
-    - "VERSION"                       # 版本文件
-    - ".claude/settings.json"         # Claude配置
-    - "package.json"                  # 包配置
-    - "CHANGELOG.md"                  # 变更日志
-    - ".workflow/LOCK.json"           # 完整性锁定
+    - ".workflow/LOCK.json"           # 完整性锁定（SHA256指纹）
+
+  # 版本文件单独管理（不在immutable_kernel范围）
+  version_files_separately_managed:
+    note: |
+      以下文件虽然关键，但不属于"架构层"，因为它们每次发布都会变化：
+      - VERSION - 每次发布升级
+      - .claude/settings.json - 功能扩展时添加hooks/skills
+      - package.json - 依赖更新
+      - CHANGELOG.md - 每次PR追加
+      这些文件由版本一致性机制（scripts/check_version_consistency.sh）管理。
 
   # 修改策略
   change_policy: "RFC required"

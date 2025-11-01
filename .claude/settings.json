@@ -1,5 +1,5 @@
 {
-  "version": "8.8.1",
+  "version": "8.8.2",
   "project": "Claude Enhancer",
   "description": "四层架构分层系统 + 自愈系统 + 工作流强制执行 + Phase 1/6/7 Skills + Phase 7清理机制优化 + 完整Hooks+Skills文档",
   "permissions": {

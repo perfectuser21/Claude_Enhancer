@@ -5,7 +5,6 @@ priority: "P0"
 
 trigger:
   phase_transition: "Phase1 → Phase2"
-  event: "before_phase2_implementation"
 
 prompt: |
   🚀 **Phase 2 并行执行指南** (Critical!)
