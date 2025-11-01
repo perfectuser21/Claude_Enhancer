@@ -1,1 +1,1 @@
-../workflow/P1_DISCOVERY_phase-skills-hooks-optimization.md
+../../../.workflow/P1_DISCOVERY_fix-3-core-issues.md
