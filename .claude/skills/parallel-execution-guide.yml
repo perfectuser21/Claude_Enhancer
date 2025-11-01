@@ -1,0 +1,54 @@
+name: "parallel-execution-guide"
+description: "指导AI在Phase 2正确使用Claude Code并行执行机制"
+enabled: true
+priority: "P0"
+
+trigger:
+  phase_transition: "Phase1 → Phase2"
+  event: "before_phase2_implementation"
+
+prompt: |
+  🚀 **Phase 2 并行执行指南** (Critical!)
+
+  ⚠️ **关键原则**: 必须在**单个消息**中调用多个Task工具才能实现真正的并行！
+
+  ## ✅ 正确方式（真并行）
+
+  在单个消息中同时调用多个Task工具：
+  - Task 1: 创建核心功能文件
+  - Task 2: 创建测试文件
+  - Task 3: 创建文档
+
+  这样Claude Code会并行执行这3个任务，而不是串行。
+
+  ## ❌ 错误方式（假并行，实际串行）
+
+  - 生成parallel_groups配置文件，然后让脚本调度 ❌
+  - 一个消息只调用一个Task，然后等结果，再调用下一个 ❌
+  - 期望bash脚本自己实现并行 ❌
+
+  ## 📋 实施步骤
+
+  **Phase 2开始时**:
+  1. 分析PLAN.md，识别可以并行的独立任务
+  2. 在**一个消息**中调用多个Task工具
+  3. 每个Task的prompt包含完整的任务描述和上下文
+  4. 等待所有Task完成后，验证结果并整合
+
+  **并行分组原则**:
+  - ✅ 文件操作独立（不同文件）
+  - ✅ 功能模块独立（无依赖）
+  - ✅ 测试用例独立
+  - ❌ 避免同一文件的多次修改
+  - ❌ 避免有依赖关系的任务
+
+  **典型加速比**: 3-6x（3个agent: 3x, 6个agent: 5.3x）
+
+  ## 🎯 成功标准
+
+  - Phase 2开始时，立即使用并行（不需要用户提醒）
+  - 单个消息调用≥3个Task工具
+  - 执行时间比串行快3x以上
+  - 所有并行任务正确完成
+
+  **记住**: 这不是配置问题，是使用方法问题！settings.json已经正确配置了bypass permissions。
